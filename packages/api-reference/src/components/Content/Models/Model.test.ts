@@ -5,8 +5,6 @@ import { describe, expect, it } from 'vitest'
 
 import Model from './Model.vue'
 
-// Mock useSidebar composable
-
 describe('Model', async () => {
   const mockDocument = coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',

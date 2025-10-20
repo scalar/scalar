@@ -1,3 +1,5 @@
+import type { AnyApiReferenceConfiguration } from '@scalar/types'
+
 export type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 // biome-ignore lint/performance/noBarrelFile: <ignore>
@@ -9,3 +11,7 @@ export { createEmptySpecification } from '@/libs/openapi'
 export { createApiReference } from '@/standalone/lib/html-api'
 // TODO: Remove this export. Needed during store migration
 export { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
+
+export type ReferenceProps = {
+  configuration?: AnyApiReferenceConfiguration
+}

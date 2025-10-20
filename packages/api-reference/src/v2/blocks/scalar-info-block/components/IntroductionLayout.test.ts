@@ -1,8 +1,16 @@
+import type { Heading } from '@scalar/types'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import IntroductionLayout from './IntroductionLayout.vue'
+
+const mockProps = {
+  id: '',
+  headingSlugGenerator: (heading: Heading) => `document/${heading.slug}`,
+  oasVersion: undefined,
+  getOriginalDocument: () => '{}',
+}
 
 describe('IntroductionLayout', () => {
   it('renders the given information', () => {
@@ -30,11 +38,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -59,11 +65,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -86,11 +90,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -111,11 +113,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -134,11 +134,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -158,11 +156,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 
@@ -182,11 +178,9 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        id: '',
-        oasVersion: undefined,
+        ...mockProps,
         info: example.info,
         externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
       },
     })
 

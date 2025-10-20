@@ -10,7 +10,7 @@ import type {
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, nextTick } from 'vue'
+import { computed } from 'vue'
 
 import { createMockPluginManager } from '@/helpers/test-utils'
 
