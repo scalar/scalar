@@ -25,13 +25,13 @@ const { type = 'checkbox' } = defineProps<{
 const model = defineModel<boolean>()
 
 defineOptions({ inheritAttrs: false })
-const { classCx, otherAttrs } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 </script>
 <template>
   <ScalarFormInput
     is="label"
     v-bind="
-      classCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
+      stylingAttrsCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
     ">
     <ScalarCheckbox
       :selected="model"

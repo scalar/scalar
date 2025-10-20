@@ -39,12 +39,12 @@ function handleClear() {
 }
 
 defineOptions({ inheritAttrs: false })
-const { classCx, otherAttrs } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 </script>
 <template>
   <label
     v-bind="
-      classCx(
+      stylingAttrsCx(
         'flex items-center text-lg font-medium h-10 pl-3 pr-1 py-2 gap-2.25',
       )
     ">
