@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XGlobal } from '@/schemas/extensions/parameter/x-global'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
@@ -27,6 +29,8 @@ export const ParameterObjectBaseSchema = compose(
     allowEmptyValue: Type.Optional(Type.Boolean()),
   }),
   XGlobal,
+  XInternalSchema,
+  XScalarIgnoreSchema,
 )
 
 type ParameterObjectBase = {
@@ -50,7 +54,8 @@ type ParameterObjectBase = {
    * for the entire workspace. When set, this parameter will be injected into every request automatically.
    */
   'x-global'?: boolean
-}
+} & XInternal &
+  XScalarIgnore
 
 export const ParameterObjectWithSchemaSchema = compose(
   ParameterObjectBaseSchema,
