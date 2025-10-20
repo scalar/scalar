@@ -6,7 +6,7 @@ For a long time Stoplight was the scrappy underdog, taking on confusing unafford
 2. Support for Markdown guides.
 3. Works with both Design-first or Code-first API workflows.
 4. Built-in team collaboration.
-5. Custom domains, theming, and logos. 
+5. Custom domains, theming, and logos.
 6. Hosted or embeddable as web or React component.
 
 On top of this, Scalar provides added benefits like:
@@ -44,9 +44,9 @@ With that in mind, let's look at how you can switch to a cheaper and better Open
 
 ## Step 1: Create a free Scalar account
 
-Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register). 
+Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register).
 
-Those planning on syncing GitHub can make life really easy by signing up through GitHub, but you can do regular old email signups too. 
+Those planning on syncing GitHub can make life really easy by signing up through GitHub, but you can do regular old email signups too.
 
 ## Step 2: Introduce your OpenAPI to Scalar
 
@@ -54,13 +54,13 @@ Stoplight had various flavors of project: Web Projects, Git Projects, Local Proj
 
 ### Git Projects
 
-Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action. 
+Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action.
 
 To use GitHub Sync go to the dashboard, click **Create Documentation**, then select **GitHub Sync**. Pick the appropriate organization from the dropdown and find the repository to link.
 
 ![](../assets/guides/migrate/stoplight/create-docs-from-git.png)
 
-Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`. 
+Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
 
 All of this can be changed later so pick whatever and click publish, it'll be private by default so no worries about anyone seeing anything that's not ready.
 
@@ -68,9 +68,9 @@ All of this can be changed later so pick whatever and click publish, it'll be pr
 
 ### Web Projects: Exporting Stoplight Web Projects
 
-Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting a ZIP file of your OpenAPI and other documents. 
+Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting a ZIP file of your OpenAPI and other documents.
 
-Go to your project’s studio page, and click the three line drop down to reveal the **Download project ZIP** option. 
+Go to your project’s studio page, and click the three line drop down to reveal the **Download project ZIP** option.
 
 ![](../assets/guides/migrate/stoplight/export-stoplight-studio-project.png)
 
@@ -78,9 +78,9 @@ If you only want the OpenAPI document, you could just go to your doc page, click
 
 ![](../assets/guides/migrate/stoplight/export-openapi.png)
 
-Let's switch these to Git Sync projects to keep the source of truth entirely under your control. To do this we can create a new repository to help track changes, or merge the downloaded OpenAPI/Markdown into the existing source code repository. 
+Let's switch these to Git Sync projects to keep the source of truth entirely under your control. To do this we can create a new repository to help track changes, or merge the downloaded OpenAPI/Markdown into the existing source code repository.
 
-Whichever approach you pick, once you've got the OpenAPI/Markdown content into a repository, you can scroll up to the Git Sync section in this guide to bring that repo into Scalar. 
+Whichever approach you pick, once you've got the OpenAPI/Markdown content into a repository, you can scroll up to the Git Sync section in this guide to bring that repo into Scalar.
 
 ## Step 3: Scalar Config
 
@@ -114,9 +114,9 @@ The `"publishOnMerge": true` tells Scalar to publish your documentation when a b
 
 ![](../assets/guides/migrate/stoplight/git-deployments.png)
 
-The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor. 
+The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor.
 
-Take this example `toc.json` from a Stoplight project. 
+Take this example `toc.json` from a Stoplight project.
 
 ```
 {
@@ -135,7 +135,7 @@ Take this example `toc.json` from a Stoplight project.
 }
 ```
 
-Copy and paste that chunk of JSON out of there, and make the following changes. 
+Copy and paste that chunk of JSON out of there, and make the following changes.
 
 1. Change `type: item` to `type: page`.
 2. Remove `title` as Scalar will take that from the Markdown title.
@@ -173,13 +173,13 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 }
 ```
 
-Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks. 
+Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks.
 
 ## Step 4: Review The New Documentation
 
 Click the deployment to see find the projects docs URL, something like `https://yourorg-train-travel-api.apidocumentation.com`.
 
-This will show two distinct sections. 
+This will show two distinct sections.
 
 1. Guides
 2. Each OpenAPI Reference
@@ -192,17 +192,17 @@ Click around. See how you like the place. Enjoy the slick new interactive API co
 
 This step is only for those using custom Spectral rulesets. If this sounds like nonsense then that answers that question, you probably weren't using them.
 
-Spectral is an open-source tool Stoplight forked from other popular OpenAPI linters a few years ago. By default it reports on whether an OpenAPI document is valid, whether it has syntax errors or invalid keywords, so if you were using Stoplight Studio and seeing "Missing required keyword" type errors; that was Spectral. Scalar supports Spectral so you will continue to see the same errors and warnings in Scalar Editor. 
+Spectral is an open-source tool Stoplight forked from other popular OpenAPI linters a few years ago. By default it reports on whether an OpenAPI document is valid, whether it has syntax errors or invalid keywords, so if you were using Stoplight Studio and seeing "Missing required keyword" type errors; that was Spectral. Scalar supports Spectral so you will continue to see the same errors and warnings in Scalar Editor.
 
-That might not be the end of the story though, as Spectral also supports custom rulesets. These are most often built by API governance teams, or other tech-minded folks who want to ensure consistency across the APIs being designed. The rulesets could be [automating API Style Guides](https://apisyouwonthate.com/blog/automated-style-guides-for-rest-graphql-grpc/), pushing people towards standards, or away from poor practices. 
+That might not be the end of the story though, as Spectral also supports custom rulesets. These are most often built by API governance teams, or other tech-minded folks who want to ensure consistency across the APIs being designed. The rulesets could be [automating API Style Guides](https://apisyouwonthate.com/blog/automated-style-guides-for-rest-graphql-grpc/), pushing people towards standards, or away from poor practices.
 
 To migrate any custom Spectral rulesets hosted in Stoplight Platform, head to Studio, and click **Export Spectral File**.
 
 ![](../assets/guides/migrate/stoplight/stoplight-export-spectral.png)
 
-Maybe this is just turning some rules on and off. 
+Maybe this is just turning some rules on and off.
 
-Maybe it is defining custom rules. 
+Maybe it is defining custom rules.
 
 Be aware rules with custom functions wont work, so just comment those out.
 
@@ -224,7 +224,7 @@ Then pop over to your DNS and update the CNAME from `developers` (or whatever yo
 
 ## Summary
 
-The biggest advantage in this migration is that both tools are fundamentally OpenAPI-based, which means your core specifications will transfer cleanly. 
+The biggest advantage in this migration is that both tools are fundamentally OpenAPI-based, which means your core specifications will transfer cleanly.
 
 Most teams can complete this migration in somewhere between a few hours and a few days, depending on how many projects and APIs need moving over. Larger enterprises will take slightly longer depending on the complexity of their API ecosystem.
 

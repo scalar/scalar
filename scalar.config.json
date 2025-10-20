@@ -518,6 +518,24 @@
               ]
             }
           ]
+        },
+        {
+          "name": "Migrate",
+          "type": "folder",
+          "defaultOpen": false,
+          "icon": "phosphor/regular/arrows-left-right",
+          "children": [
+            {
+              "name": "Stoplight",
+              "path": "documentation/migrate/stoplight.md",
+              "type": "page"
+            },
+            {
+              "name": "API Hub",
+              "path": "documentation/migrate/api-hub.md",
+              "type": "page"
+            }
+          ]
         }
       ]
     }
