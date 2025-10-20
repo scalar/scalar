@@ -325,16 +325,17 @@ export type WorkspaceStore = {
    */
   commitDocument(documentName: string): void
   /**
-   * Serializes the current workspace state to a JSON string for backup, persistence, or sharing.
+   * Exports the complete current workspace state as a plain JavaScript object.
    *
-   * This method exports all workspace documents (removing Vue reactivity proxies), workspace metadata,
-   * document configurations, and both the original and intermediate document states. The resulting JSON
-   * can be imported later to fully restore the workspace to this exact state, including all documents
-   * and their configurations.
+   * The returned object includes all workspace documents (with Vue reactivity removed), workspace metadata,
+   * document configurations, and both the original and intermediate document maps. This object can be
+   * serialized (e.g., with JSON.stringify) and later imported to fully restore the workspace—including
+   * all documents, their configurations, metadata, and historical states.
    *
-   * @returns A JSON string representing the complete workspace state.
+   * @returns An `InMemoryWorkspace` object representing the entire workspace state,
+   *          suitable for persistence, backup, or sharing.
    */
-  exportWorkspace(): string
+  exportWorkspace(): InMemoryWorkspace
   /**
    * Imports a workspace from a serialized JSON string.
    *
@@ -344,7 +345,7 @@ export type WorkspaceStore = {
    *
    * @param input - The serialized workspace JSON string to import.
    */
-  loadWorkspace(input: string): void
+  loadWorkspace(input: InMemoryWorkspace): void
   /**
    * Imports a workspace from a WorkspaceSpecification object.
    *
@@ -808,14 +809,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
     },
     exportWorkspace() {
-      return JSON.stringify({
+      return {
         documents: {
           ...Object.fromEntries(
             Object.entries(workspace.documents).map(([name, doc]) => [
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              getRaw(doc),
+              toRaw(getRaw(unpackOverridesProxy(doc))),
             ]),
           ),
         },
@@ -825,10 +826,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         intermediateDocuments,
         overrides,
         documentMeta,
-      } satisfies InMemoryWorkspace)
+      }
     },
-    loadWorkspace(input: string) {
-      const result = coerceValue(InMemoryWorkspaceSchema, JSON.parse(input))
+    loadWorkspace(input: InMemoryWorkspace) {
+      const result = coerceValue(InMemoryWorkspaceSchema, input)
 
       // Assign the magic proxy to the documents
       safeAssign(
