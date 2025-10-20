@@ -113,6 +113,7 @@ export async function setItem<T extends TObject | TRecord>(
   if (schema) {
     const item = { id, ...coerceValue(schema, data) }
     await withStore(db, storeName, 'readwrite', (store) => store.put(item))
+    return
   }
   const item = { id, ...data }
   await withStore(db, storeName, 'readwrite', (store) => store.put(item))
