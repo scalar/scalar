@@ -38,7 +38,7 @@ If the generated OpenAPI is being powered by Stoplight CLI without Git then that
 
 Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Scalar Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
-![](../assets/guides/migrate/stoplight/editor.png)
+![](https://cdn.scalar.com/images/blog/stoplight/editor.png)
 
 With that in mind, let's look at how you can switch to a cheaper and better OpenAPI editor and documentation tool.
 
@@ -58,7 +58,7 @@ Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Sca
 
 To use GitHub Sync go to the dashboard, click **Create Documentation**, then select **GitHub Sync**. Pick the appropriate organization from the dropdown and find the repository to link.
 
-![](../assets/guides/migrate/stoplight/create-docs-from-git.png)
+![](https://cdn.scalar.com/images/blog/stoplight/create-docs-from-git.png)
 
 Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
 
@@ -72,11 +72,11 @@ Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting 
 
 Go to your project’s studio page, and click the three line drop down to reveal the **Download project ZIP** option.
 
-![](../assets/guides/migrate/stoplight/export-stoplight-studio-project.png)
+![](https://cdn.scalar.com/images/blog/stoplight/export-stoplight-studio-project.png)
 
 If you only want the OpenAPI document, you could just go to your doc page, click **Export** and then choose **Bundled** to make sure you get any `$ref` to other files included.
 
-![](../assets/guides/migrate/stoplight/export-openapi.png)
+![](https://cdn.scalar.com/images/blog/stoplight/export-openapi.png)
 
 Let's switch these to Git Sync projects to keep the source of truth entirely under your control. To do this we can create a new repository to help track changes, or merge the downloaded OpenAPI/Markdown into the existing source code repository.
 
@@ -112,7 +112,7 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 
 The `"publishOnMerge": true` tells Scalar to publish your documentation when a branch is merged into the selected branch, instead of anyone having to manually publish it.
 
-![](../assets/guides/migrate/stoplight/git-deployments.png)
+![](https://cdn.scalar.com/images/blog/stoplight/git-deployments.png)
 
 The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor.
 
@@ -198,7 +198,7 @@ That might not be the end of the story though, as Spectral also supports custom 
 
 To migrate any custom Spectral rulesets hosted in Stoplight Platform, head to Studio, and click **Export Spectral File**.
 
-![](../assets/guides/migrate/stoplight/stoplight-export-spectral.png)
+![](https://cdn.scalar.com/images/blog/stoplight/stoplight-export-spectral.png)
 
 Maybe this is just turning some rules on and off.
 
