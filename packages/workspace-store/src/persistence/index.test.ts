@@ -282,7 +282,7 @@ describe('persistence', { concurrent: false }, () => {
         },
         originalDocuments: {},
         overrides: { baseUrl: 'https://api.example.com' },
-      }
+      },
     })
   })
 
@@ -409,5 +409,32 @@ describe('persistence', { concurrent: false }, () => {
 
     const allItems = await persistence.getAllItems()
     expect(allItems).toHaveLength(3)
+  })
+
+  it('does coerces the workspace data structure with nested objects', async () => {
+    const persistence = await createWorkspaceStorePersistence()
+
+    await persistence.setItem('workspace-complex', {
+      name: 'Complex Workspace',
+      workspace: {
+        documentConfigs: {},
+      } as any,
+    })
+
+    const retrieved = await persistence.getItem('workspace-complex')
+
+    expect(retrieved).toEqual({
+      id: 'workspace-complex',
+      name: 'Complex Workspace',
+      workspace: {
+        documentConfigs: {},
+        documentMeta: {},
+        documents: {},
+        intermediateDocuments: {},
+        meta: {},
+        originalDocuments: {},
+        overrides: {},
+      },
+    })
   })
 })

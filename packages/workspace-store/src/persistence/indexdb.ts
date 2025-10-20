@@ -1,4 +1,4 @@
-import { type Static, type TSchema, Type } from '@scalar/typebox'
+import { type Static, type TObject, type TRecord, type TSchema, Type } from '@scalar/typebox'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 
@@ -102,25 +102,20 @@ export async function withStore<T>(
  * @example
  * await setItem(db, 'users', '123', { name: 'Alice', email: 'alice@example.com' })
  */
-export async function setItem<T extends Record<string, unknown>>(
+export async function setItem<T extends TObject | TRecord>(
   db: IDBDatabase,
   storeName: string,
   id: string,
-  data: T,
-  schema?: TSchema,
+  data: Static<T>,
+  schema?: T,
 ): Promise<void> {
-  const item = { id, ...data }
-
   // Validate against schema if provided
   if (schema) {
-    const validationSchema = Type.Intersect([Type.Object({ id: Type.String() }), schema])
-    try {
-      coerceValue(validationSchema, item)
-      await withStore(db, storeName, 'readwrite', (store) => store.put(item))
-    } catch (error) {
-      throw new Error(`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
+    const item = { id, ...coerceValue(schema, data) }
+    await withStore(db, storeName, 'readwrite', (store) => store.put(item))
   }
+  const item = { id, ...data }
+  await withStore(db, storeName, 'readwrite', (store) => store.put(item))
 }
 
 /**
@@ -136,7 +131,7 @@ export async function setItem<T extends Record<string, unknown>>(
  * @example
  * const user = await getItem(db, 'users', '123', UserSchema)
  */
-export async function getItem<T extends TSchema>(
+export async function getItem<T extends TObject | TRecord>(
   db: IDBDatabase,
   storeName: string,
   id: string,
@@ -149,13 +144,7 @@ export async function getItem<T extends TSchema>(
   }
 
   if (schema) {
-    const validationSchema = Type.Intersect([
-      Type.Object({
-        id: Type.String(),
-      }),
-      schema,
-    ])
-    return coerceValue(validationSchema, item) as Static<T> & { id: string }
+    return { ...coerceValue(schema, item), id } as Static<T> & { id: string }
   }
 
   // Without schema validation, we trust the data has the correct shape
@@ -186,13 +175,15 @@ export async function getAllItems<T extends TSchema>(
   }
 
   if (schema) {
-    const validationSchema = Type.Intersect([
-      Type.Object({
-        id: Type.String(),
-      }),
-      schema,
-    ])
-    return items.map((item) => coerceValue(validationSchema, item) as Static<T> & { id: string })
+    const validationSchema = Type.Array(
+      Type.Intersect([
+        Type.Object({
+          id: Type.String(),
+        }),
+        schema,
+      ]),
+    )
+    return coerceValue(validationSchema, items) as Static<typeof validationSchema>
   }
 
   // Without schema validation, we trust the data has the correct shape
