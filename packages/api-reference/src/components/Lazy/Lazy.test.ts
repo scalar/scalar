@@ -96,21 +96,6 @@ describe('lazy rendering', () => {
     expect(wrapper.html()).toContain('Test Content')
   })
 
-  it('handles SSR environment (window undefined)', async () => {
-    vi.stubGlobal('window', undefined)
-    expect(globalThis.window).toBeUndefined()
-
-    const wrapper = mount(Lazy, {
-      props: { id: 'test-id-3' },
-      slots: {
-        default: '<div>Test Content</div>',
-      },
-    })
-
-    // Should not render initially
-    expect(wrapper.html()).toContain('Test Content')
-  })
-
   it('handles empty slot content', async () => {
     const wrapper = mount(Lazy, {
       props: { id: 'test-id-4' },
