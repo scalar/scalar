@@ -31,8 +31,8 @@ export type InMemoryWorkspace = {
   meta: WorkspaceMeta
   documentConfigs: Record<string, Config>
   documents: Record<string, WorkspaceDocument>
-  originalDocuments: Record<string, unknown>
-  intermediateDocuments: Record<string, unknown>
+  originalDocuments: Record<string, Record<string, unknown>>
+  intermediateDocuments: Record<string, Record<string, unknown>>
   overrides: Record<string, any>
   documentMeta: Record<string, { documentSource?: string }>
 }
