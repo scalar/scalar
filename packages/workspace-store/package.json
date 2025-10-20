@@ -44,6 +44,11 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./persistence": {
+      "import": "./dist/persistence/index.js",
+      "types": "./dist/persistence/index.d.ts",
+      "default": "./dist/persistence/index.js"
+    },
     "./schemas": {
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
@@ -92,6 +97,7 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
+    "fake-indexeddb": "^6.2.3",
     "github-slugger": "^2.0.0",
     "type-fest": "catalog:*",
     "vue": "catalog:*",

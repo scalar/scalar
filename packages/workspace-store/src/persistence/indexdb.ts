@@ -116,12 +116,11 @@ export async function setItem<T extends Record<string, unknown>>(
     const validationSchema = Type.Intersect([Type.Object({ id: Type.String() }), schema])
     try {
       coerceValue(validationSchema, item)
+      await withStore(db, storeName, 'readwrite', (store) => store.put(item))
     } catch (error) {
       throw new Error(`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
-
-  await withStore(db, storeName, 'readwrite', (store) => store.put(item))
 }
 
 /**
@@ -150,10 +149,12 @@ export async function getItem<T extends TSchema>(
   }
 
   if (schema) {
-    const validationSchema = Type.Object({
-      id: Type.String(),
-      ...schema.properties,
-    })
+    const validationSchema = Type.Intersect([
+      Type.Object({
+        id: Type.String(),
+      }),
+      schema,
+    ])
     return coerceValue(validationSchema, item) as Static<T> & { id: string }
   }
 
@@ -185,10 +186,12 @@ export async function getAllItems<T extends TSchema>(
   }
 
   if (schema) {
-    const validationSchema = Type.Object({
-      id: Type.String(),
-      ...schema.properties,
-    })
+    const validationSchema = Type.Intersect([
+      Type.Object({
+        id: Type.String(),
+      }),
+      schema,
+    ])
     return items.map((item) => coerceValue(validationSchema, item) as Static<T> & { id: string })
   }
 
@@ -252,91 +255,6 @@ export async function hasItem(db: IDBDatabase, storeName: string, id: string): P
  */
 export async function countItems(db: IDBDatabase, storeName: string): Promise<number> {
   return withStore(db, storeName, 'readonly', (store) => store.count())
-}
-
-/**
- * Performs a batch write operation.
- * All operations are executed in a single transaction for better performance.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param items - Array of items to save
- * @param schema - Optional schema for validation
- *
- * @example
- * await batchSetItems(db, 'users', [
- *   { id: '1', name: 'Alice' },
- *   { id: '2', name: 'Bob' }
- * ])
- */
-export async function batchSetItems<T extends Record<string, unknown>>(
-  db: IDBDatabase,
-  storeName: string,
-  items: ReadonlyArray<T & { id: string }>,
-  schema?: TSchema,
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    try {
-      const tx = db.transaction(storeName, 'readwrite')
-      const store = tx.objectStore(storeName)
-
-      // Validate all items if schema is provided
-      if (schema) {
-        const validationSchema = Type.Object({ id: Type.String(), ...schema.properties })
-        for (const item of items) {
-          try {
-            coerceValue(validationSchema, item)
-          } catch (error) {
-            reject(
-              new Error(
-                `Validation failed for item ${item.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-              ),
-            )
-            return
-          }
-        }
-      }
-
-      // Add all items
-      for (const item of items) {
-        store.put(item)
-      }
-
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error ?? new Error('Batch operation failed'))
-    } catch (error) {
-      reject(error instanceof Error ? error : new Error('Unknown batch operation error'))
-    }
-  })
-}
-
-/**
- * Performs a batch delete operation.
- * All deletions are executed in a single transaction for better performance.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param ids - Array of IDs to delete
- *
- * @example
- * await batchDeleteItems(db, 'users', ['1', '2', '3'])
- */
-export async function batchDeleteItems(db: IDBDatabase, storeName: string, ids: readonly string[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    try {
-      const tx = db.transaction(storeName, 'readwrite')
-      const store = tx.objectStore(storeName)
-
-      for (const id of ids) {
-        store.delete(id)
-      }
-
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error ?? new Error('Batch delete failed'))
-    } catch (error) {
-      reject(error instanceof Error ? error : new Error('Unknown batch delete error'))
-    }
-  })
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 
-import { closeDB, deleteItem, getAllItems, getItem, openDB, setItem } from '@/persistence/indexdb'
+import { clearStore, closeDB, deleteItem, getAllItems, getItem, openDB, setItem } from '@/persistence/indexdb'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 
 const workspaceStoreShape = Type.Object({
@@ -34,7 +34,7 @@ export const createWorkspaceStorePersistence = async () => {
      * Retrieves a workspace by its ID.
      * Returns undefined if the workspace does not exist.
      */
-    getItem: async (id: string): Promise<WorkspaceStoreShape | undefined> => {
+    getItem: async (id: string): Promise<(WorkspaceStoreShape & { id: string }) | undefined> => {
       const result = await getItem(db, storeName, id, workspaceStoreShape)
       return result
     },
@@ -55,10 +55,10 @@ export const createWorkspaceStorePersistence = async () => {
     },
 
     /**
-     * Retrieves all workspaces from the database.
+     * Retrieves a list of all workspace id and name pairs stored in the database.
      */
-    getAllItems: async (): Promise<(WorkspaceStoreShape & { id: string })[]> => {
-      return getAllItems(db, storeName, workspaceStoreShape)
+    getAllItems: async (): Promise<{ id: string; name: string }[]> => {
+      return getAllItems(db, storeName, Type.Object({ id: Type.String(), name: Type.String() }))
     },
 
     /**
@@ -67,6 +67,13 @@ export const createWorkspaceStorePersistence = async () => {
      */
     close: (): void => {
       closeDB(db)
+    },
+
+    /**
+     * Clears the database.
+     */
+    clear: async (): Promise<void> => {
+      await clearStore(db, storeName)
     },
   }
 }
