@@ -5,7 +5,7 @@ import { createNavigation } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { vi } from 'vitest'
+import { type MutableArray, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
 /**
@@ -62,7 +62,7 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
     'x-scalar-reference-config': {
       title: 'Test API',
       slug: 'test-api',
-      httpClients: AVAILABLE_CLIENTS,
+      httpClients: AVAILABLE_CLIENTS as MutableArray<typeof AVAILABLE_CLIENTS>,
       features: {
         showModels: true,
         showSidebar: true,

@@ -1,5 +1,5 @@
-import { Type } from '@scalar/typebox'
-import { AVAILABLE_CLIENTS, type AvailableClientsArray } from '@scalar/types/snippetz'
+import { type TArray, type TLiteral, Type } from '@scalar/typebox'
+import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { RequiredDeep } from 'type-fest'
 import type { MutableArray } from 'vitest'
 
@@ -31,7 +31,9 @@ export const ReferenceConfigSchema = Type.Partial(
     /** Meta information */
     meta: MetaSchema,
     /** List of enabled HTTP clients for code samples */
-    httpClients: Type.Array(Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client)))),
+    httpClients: Type.Array(Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client)))) as unknown as TArray<
+      TLiteral<(typeof AVAILABLE_CLIENTS)[number]>
+    >,
   }),
 )
 
@@ -43,7 +45,7 @@ export type ReferenceConfig = {
   appearance?: Appearance
   features?: Features
   meta?: Meta
-  httpClients?: AvailableClientsArray
+  httpClients?: (typeof AVAILABLE_CLIENTS)[number][]
 }
 
 export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
