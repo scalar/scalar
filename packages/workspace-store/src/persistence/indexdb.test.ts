@@ -17,7 +17,6 @@ import {
 } from '@/persistence/indexdb'
 
 import 'fake-indexeddb/auto'
-import assert from 'node:assert'
 
 describe('indexdb', { concurrent: false }, () => {
   const dbName = 'test-db'
@@ -448,9 +447,8 @@ describe('indexdb', { concurrent: false }, () => {
       const retrieved = await getItem(db, storeName, 'long-string', Type.Object({ content: Type.String() }))
 
       expect(retrieved).toBeDefined()
-      assert(retrieved)
 
-      expect(retrieved.content).toBe(longString)
+      expect(retrieved?.content).toBe(longString)
     })
 
     it('handles large objects', async () => {

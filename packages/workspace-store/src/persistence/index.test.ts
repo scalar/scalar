@@ -6,7 +6,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createWorkspaceStorePersistence } from '@/persistence'
 
 import 'fake-indexeddb/auto'
-import assert from 'node:assert'
 
 describe('persistence', { concurrent: false }, () => {
   let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>>
@@ -202,8 +201,7 @@ describe('persistence', { concurrent: false }, () => {
 
     const allItems = await persistence.getAllItems()
     expect(allItems).toHaveLength(1)
-    assert(allItems[0])
-    expect(allItems[0].id).toBe('workspace-2')
+    expect(allItems[0]?.id).toBe('workspace-2')
     expect(await persistence.getItem('workspace-1')).toBeUndefined()
   })
 
@@ -358,9 +356,8 @@ describe('persistence', { concurrent: false }, () => {
     const retrieved = await persistence.getItem(specialId)
 
     expect(retrieved).toBeDefined()
-    assert(retrieved)
 
-    expect(retrieved.id).toBe(specialId)
+    expect(retrieved?.id).toBe(specialId)
     expect(retrieved?.name).toBe('Special Chars Workspace')
   })
 
