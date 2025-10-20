@@ -23,7 +23,7 @@ const filteredParameters = computed(() =>
 </script>
 <template>
   <div
-    v-if="parameters?.length"
+    v-if="filteredParameters?.length"
     class="mt-6">
     <div class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
       <slot name="title" />
