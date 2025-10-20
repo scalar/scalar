@@ -15,56 +15,14 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import type { EnvVariable } from '@/store'
 import { createStoreEvents } from '@/store/events'
-import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
+import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import { OperationBlock } from '@/v2/blocks/scalar-operation-block'
 import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
 
-const {
-  path = '/users',
-  method = 'get',
-  layout = 'web',
-  appVersion = '1.0.0',
-  server = { url: 'https://api.example.com' },
-  servers = [{ url: 'https://api.example.com' }],
-  history = [],
-  operation = {
-    responses: {
-      '200': {
-        description: 'Successful response',
-      },
-    },
-    parameters: [
-      {
-        name: 'userId',
-        in: 'path',
-        required: true,
-        schema: {
-          type: 'string',
-        },
-        examples: {
-          marc: {
-            value: '12345',
-            summary: 'An example user ID',
-          },
-        },
-      },
-    ],
-  },
-  exampleKey = 'marc',
-  selectedContentType = 'application/json',
-  security = [],
-  securitySchemes = {},
-  selectedSecurity = [],
-  envVariables = [],
-  events = createStoreEvents(),
-  environment = {
-    uid: '' as any,
-    name: '',
-    color: '',
-    value: '',
-  },
-} = defineProps<{
+import Header from './components/Header.vue'
+
+defineProps<{
   /** Application version */
   appVersion: string
 
@@ -95,6 +53,16 @@ const {
   request?: Request
   /** Total number of performed requests */
   totalPerformedRequests: number
+  /** Controlls sidebar visibility */
+  showSidebar?: boolean
+  /** Hides the client button on the header */
+  hideClientButton?: boolean
+  /** Client integration  */
+  integration?: string | null
+  /** Openapi document url for `modal` mode to open the client app */
+  documentUrl?: string
+  /** Client source */
+  source?: 'gitbook' | 'api-reference'
 
   /** Operation object */
   operation: OperationObject
@@ -131,6 +99,7 @@ const emit = defineEmits<{
   (e: 'addressBar:addServer'): void
 
   (e: 'operation:update:requestName', payload: { name: string }): void
+  (e: 'addressBar:hideModal'): void
 
   /** Auth events */
   (e: 'auth:delete', names: string[]): void
@@ -201,7 +170,7 @@ const emit = defineEmits<{
   <div class="bg-b-1 flex h-full flex-col">
     <div
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center border-b p-2 lg:p-1">
-      <AddressBar
+      <Header
         :envVariables="envVariables"
         :environment="environment"
         :events="events"
@@ -212,6 +181,11 @@ const emit = defineEmits<{
         :percentage="requestLoadingPercentage"
         :server="server"
         :servers="servers"
+        :showSidebar="showSidebar"
+        :hideClientButton="hideClientButton"
+        :integration="integration"
+        :documentUrl="documentUrl"
+        :source="source"
         @addServer="emit('addressBar:addServer')"
         @execute="emit('addressBar:execute')"
         @importCurl="(value) => emit('addressBar:importCurl', value)"
@@ -222,7 +196,8 @@ const emit = defineEmits<{
         "
         @update:variable="
           (payload) => emit('addressBar:update:variable', payload)
-        " />
+        "
+        @addressBar:hideModal="emit('addressBar:hideModal')" />
     </div>
     <ViewLayout>
       <ViewLayoutContent class="flex flex-1">
