@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 
-import { clearStore, closeDB, deleteItem, getAllItems, getItem, openDB, setItem } from '@/persistence/indexdb'
+import { clearStore, closeDB, deleteItem, getAllItems, getItem, hasItem, openDB, setItem } from '@/persistence/indexdb'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 
 const workspaceStoreShape = Type.Object({
@@ -67,6 +67,14 @@ export const createWorkspaceStorePersistence = async () => {
      */
     close: (): void => {
       closeDB(db)
+    },
+
+    /**
+     * Checks if a workspace exists in the database by its ID.
+     * Returns true if the workspace exists, false otherwise.
+     */
+    hasItem: async (id: string): Promise<boolean> => {
+      return hasItem(db, storeName, id)
     },
 
     /**

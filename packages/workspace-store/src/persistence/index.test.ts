@@ -434,4 +434,24 @@ describe('persistence', { concurrent: false }, () => {
       },
     })
   })
+
+  it('checks if a workspace exists correctly', async () => {
+    const persistence = await createWorkspaceStorePersistence()
+
+    await persistence.setItem('workspace-1', {
+      name: 'Workspace 1',
+      workspace: {
+        documentConfigs: {},
+        documentMeta: {},
+        documents: {},
+        intermediateDocuments: {},
+        meta: {},
+        originalDocuments: {},
+        overrides: {},
+      },
+    })
+
+    expect(await persistence.hasItem('workspace-1')).toBe(true)
+    expect(await persistence.hasItem('non-existent-workspace')).toBe(false)
+  })
 })
