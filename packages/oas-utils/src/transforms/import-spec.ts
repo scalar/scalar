@@ -4,7 +4,7 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
+import type { SecuritySchemaOpenId, SecuritySchemeOauth2 } from '@scalar/types/entities'
 import {
   type Oauth2FlowPayload,
   type SecurityScheme,
@@ -228,7 +228,7 @@ export async function importSpecToWorkspace(
         const discovery = await fetchOidcDiscovery(scheme.openIdConnectUrl, proxyUrl)
 
         // Transform to OAuth2
-        const oauth2Result = transformOidcToOAuth2(discovery)
+        const oauth2Result = transformOidcToOAuth2(discovery, schema as SecuritySchemaOpenId)
         flows = oauth2Result.flows
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
@@ -257,6 +257,9 @@ export async function importSpecToWorkspace(
         nameKey,
       } as SecuritySchemePayload
 
+      console.log('Auth', authentication)
+      console.log('Scheme', _scheme)
+      console.log('Payload', payload)
       // For oauth2 we need to add the type to the flows + prefill from authentication
       if (payload.type === 'oauth2' && payload.flows) {
         const flowKeys = Object.keys(payload.flows) as Array<keyof typeof payload.flows>

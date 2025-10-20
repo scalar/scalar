@@ -1,3 +1,5 @@
+import type { SecuritySchemaOpenId } from '@scalar/types/entities'
+
 import { fetchWithProxyFallback } from './fetch-with-proxy-fallback'
 
 /**
@@ -124,10 +126,14 @@ function createOAuth2Flow(discovery: OidcDiscoveryDocument): OidcToOAuth2Flow {
  * const result = transformOidcToOAuth2(discovery)
  * // result.flows.authorizationCode will exist if 'authorization_code' is in grant_types_supported
  */
-export function transformOidcToOAuth2(discovery: OidcDiscoveryDocument): OidcDiscoveryResult {
+export function transformOidcToOAuth2(
+  discovery: OidcDiscoveryDocument,
+  schema: SecuritySchemaOpenId,
+): OidcDiscoveryResult {
   const grantTypes = discovery.grant_types_supported || []
   const flows: OidcDiscoveryResult['flows'] = {}
 
+  console.log('Schema', schema)
   // Map OIDC grant types to OAuth2 flows
   if (grantTypes.includes('authorization_code')) {
     flows.authorizationCode = createOAuth2Flow(discovery)

@@ -51,6 +51,54 @@ export const sources = [
     url: 'https://petstore31.swagger.io/api/v31/openapi.json',
   },
   {
+    title: 'OIDC',
+    content: JSON.stringify({
+      'openapi': '3.0.1',
+      'info': {
+        'title': 'Scalar.Aspire.BookService | v1',
+        'version': '1.0.0',
+      },
+      'servers': [
+        {
+          'url': 'https://localhost:5163/',
+        },
+      ],
+      'paths': {
+        '/': {
+          'get': {
+            'tags': ['Scalar.Aspire.BookService'],
+            'responses': {
+              '200': {
+                'description': 'OK',
+                'content': {
+                  'text/plain': {
+                    'schema': {
+                      'type': 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      'components': {
+        'securitySchemes': {
+          'oidc': {
+            'type': 'openIdConnect',
+            'description': 'My OIDC',
+            'openIdConnectUrl': 'http://localhost:8080/realms/scalar/.well-known/openid-configuration',
+          },
+        },
+      },
+      'tags': [
+        {
+          'name': 'Scalar.Aspire.BookService',
+        },
+      ],
+    }),
+  },
+  {
     title: 'Hello World (string)',
     slug: 'hello-world-string',
     content: JSON.stringify({
