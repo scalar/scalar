@@ -531,7 +531,7 @@
               "type": "page"
             },
             {
-              "name": "API Hub",
+              "name": "SmartBear API Hub",
               "path": "documentation/migrate/api-hub.md",
               "type": "page"
             }

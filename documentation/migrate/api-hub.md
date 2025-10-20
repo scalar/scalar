@@ -1,4 +1,4 @@
-# How to migrate from API Hub to Scalar
+# How to migrate from Smartbear API Hub (ex. SwaggerHub) to Scalar
 
 [Scalar](https://scalar.com/) is a drop-in replacement for API Hub's Design, Portal, and Explore features, also known as “SmartBear SwaggerHub, SwaggerHub Portal, and SwaggerHub Explore” (a bit of a mouthful).
 
@@ -9,7 +9,7 @@ Scalar includes many of the same features as API Hub including:
 3. Custom domains, theming, and logos.
 4. A built-in, local-first API client to help developers and end users call endpoints and test  APIs.
 
-Beyond having a simpler name, Scalar is also [free to use forever](https://scalar.com/#pricing) with fewer limits than API Hub. If you want custom domains, GitHub sync, and a few other features, our Pro plan is only $12/m compared to API Hub's $25/m starting point.
+Beyond having a simpler name, Scalar is also [free to use forever](https://guides.scalar.com/scalar/pricing) with fewer limits than API Hub. If you want custom domains, GitHub sync, and a few other features, our Pro plan is only $24/m.
 
 As a bonus, Scalar is also open source, meaning you can self-host it and view all of its code on [GitHub](https://github.com/scalar/scalar).
 
@@ -45,6 +45,7 @@ Scalar's API client is a direct replacement for API Hub Explore. Both you and yo
 
 Just like API Hub Explore, you can import existing API docs into the API client to get all the endpoints set up for testing. Once you have these, you can modify and send requests, add new routes, and much more to help explore and debug APIs.
 
-![Scalar API client](https://cdn.scalar.com/images/blog/ah-client.png)
+![Scalar API client](https://cdn.scalar.com/images/blog/
+)
 
 In the near future, we'll also have an API Registry to match API Hub Explore's “Link APIs from Design” feature.

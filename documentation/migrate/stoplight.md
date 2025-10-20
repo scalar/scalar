@@ -11,7 +11,7 @@ For a long time Stoplight was the scrappy underdog, taking on confusing unafford
 
 On top of this, Scalar provides added benefits like:
 
-- **Better SaaS pricing.** Most of the features of Scalar can be used for free and the pro plan is only $12/month compared to Stoplight’s $52/month.
+- **Better SaaS pricing.** Most of the features of Scalar can be used for free and the pro plan is only $24/month compared to Stoplight’s $52/month.
 - **Open Source.** Scalar is fully open source and can be self-hosted, something Stoplight phased out years ago.
 - **Built-in API client.** Scalar has also built an API client into the API reference, enabling users to send test requests straight from the docs.
 
