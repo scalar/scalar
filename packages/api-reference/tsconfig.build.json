@@ -1,6 +1,15 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["dist", "vite.*.ts", "vitest.*.ts", "**/*.test.ts", "**/*.spec.ts", "**/*.bench.ts", "test"],
+  "exclude": [
+    "dist",
+    "vite.*.ts",
+    "vitest.*.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/*.test.ts",
+    "**/*.bench.ts",
+    "test"
+  ],
   "compilerOptions": {
     "skipLibCheck": true,
     "declaration": true,

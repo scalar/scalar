@@ -58,22 +58,6 @@ describe('TagSection', () => {
 
       const section = wrapper.findComponent({ name: 'Section' })
       expect(section.props('id')).toBe('custom-tag-id')
-      expect(section.props('label')).toBe('CUSTOM TAG TITLE')
-    })
-
-    it('renders anchor with correct id', () => {
-      const mockTag = createMockTag({
-        id: 'anchor-tag-id',
-      })
-
-      const wrapper = mount(TagSection, {
-        props: {
-          tag: mockTag,
-        },
-      })
-
-      const anchor = wrapper.findComponent({ name: 'Anchor' })
-      expect(anchor.props('id')).toBe('anchor-tag-id')
     })
   })
 

@@ -250,7 +250,7 @@ export const createApiReference: CreateApiReference = (
 
   /** Destroy the current API Reference instance */
   const destroy = () => {
-    delete props['configuration']
+    props.configuration = {}
     app.unmount()
   }
 

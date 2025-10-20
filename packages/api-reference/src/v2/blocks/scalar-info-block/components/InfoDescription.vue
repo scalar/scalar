@@ -27,7 +27,7 @@ const sections = computed(() => {
 
   const slugger = new GitHubSlugger()
 
-  const items = splitContent(description).map((markdown, idx) => {
+  const items = splitContent(description).map((markdown) => {
     // Get “first” (and only) heading, if available
     const headings = getHeadings(markdown)
     const heading = headings[0]

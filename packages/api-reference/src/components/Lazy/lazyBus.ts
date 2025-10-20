@@ -1,6 +1,6 @@
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
-import { computed, nextTick, onBeforeUnmount, reactive, ref, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
 /**
  * List of items that are in the priority queue and will be immediately rendered
@@ -28,7 +28,9 @@ type UnblockFn = () => void
 const blockIntersection = (): UnblockFn => {
   const blockId = nanoid()
   intersectionBlockers.add(blockId)
-  return () => intersectionBlockers.delete(blockId)
+
+  /** Unblock uses a small delay to ensure the scroll is complete before enabling intersection */
+  return () => setTimeout(() => intersectionBlockers.delete(blockId), 100)
 }
 
 /** If there are any pending blocking operations we disable intersection */
@@ -64,19 +66,22 @@ const renderPending = () => {
  * This will batch the pending renders until the browser is idle
  */
 const runLazyBus = () => {
+  // We always render the lazy bus when the window is undefined (see useLazyBus)
+  if (typeof window === 'undefined') {
+    return
+  }
+
   // Disable intersection while we run the lazy bus
   const unblock = blockIntersection()
 
-  console.log('[LazyBus] Running with', pendingQueue.size, 'items')
-
-  if (typeof window === 'undefined') {
-    renderPending()
-    unblock()
-  } else if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(() => {
-      renderPending()
-      unblock()
-    })
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(
+      () => {
+        renderPending()
+        unblock()
+      },
+      { timeout: 1500 },
+    )
   } else {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
     nextTick(() => {
@@ -100,16 +105,11 @@ watchDebounced(
   { debounce: 300, maxWait: 1500 },
 )
 
-/** Ensure the id exists and is not already in the priority, ready or pending queue */
-const isUnqueued = (id?: string): id is string => {
-  return !!id && !readyQueue.has(id) && !priorityQueue.has(id) && !pendingQueue.has(id)
-}
-
 /**
  * We only make elements pending if they are not already in the priority or ready queue
  */
 const addToPendingQueue = (id: string | undefined) => {
-  if (isUnqueued(id)) {
+  if (!!id && !readyQueue.has(id) && !priorityQueue.has(id) && !pendingQueue.has(id)) {
     pendingQueue.add(id)
   }
 }
@@ -118,7 +118,7 @@ const addToPendingQueue = (id: string | undefined) => {
  * We only add elements to the priority queue if they are not already in the ready queue
  */
 const addToPriorityQueue = (id: string | undefined) => {
-  if (isUnqueued(id)) {
+  if (id && !readyQueue.has(id)) {
     priorityQueue.add(id)
   }
 }
@@ -147,7 +147,7 @@ export function useLazyBus(id: string) {
   })
 
   return {
-    isReady: computed(() => priorityQueue.has(id) || readyQueue.has(id)),
+    isReady: computed(() => typeof window === 'undefined' || priorityQueue.has(id) || readyQueue.has(id)),
   }
 }
 

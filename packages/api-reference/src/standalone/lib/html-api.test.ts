@@ -143,6 +143,7 @@ describe('createApiReference', () => {
 
     // Assert the configuration was updated
     await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     expect(document.getElementById('tag/test/get/test')).not.toBeNull()
     expect(document.getElementById('tag/test/get/test')?.innerHTML).toContain('New Operation')
@@ -165,7 +166,7 @@ describe('createApiReference', () => {
 
     await flushPromises()
 
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     expect(document.getElementById('tag/test/post/test')).not.toBeNull()
     expect(document.getElementById('tag/test/post/test')?.innerHTML).toContain('Even newer operation')
 

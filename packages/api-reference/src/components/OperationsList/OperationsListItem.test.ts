@@ -1,16 +1,9 @@
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import OperationsListItem from './OperationsListItem.vue'
-
-// Mock the dependencies
-const mockScrollToOperation = vi.fn()
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: () => ({
-    scrollToOperation: mockScrollToOperation,
-  }),
-}))
 
 vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
@@ -168,30 +161,55 @@ describe('OperationsListItem', () => {
   })
 
   describe('interactions', () => {
-    it('calls scrollToOperation when link is clicked', async () => {
+    it('emits scrollToId event when link is clicked', async () => {
       const operation = createMockOperation()
+      let emittedId: string | undefined
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: {
+          operation,
+          // TODO: replace this with emitted captures. Is flakey right now
+          onScrollToId: (id: string) => {
+            emittedId = id
+          },
+        },
+        attachTo: document.body,
       })
 
-      await wrapper.find('a').trigger('click')
-      expect(mockScrollToOperation).toHaveBeenCalledWith(operation.id, true)
+      const link = wrapper.find('a.endpoint')
+      expect(link.exists()).toBe(true)
+      await link.trigger('click')
+      await nextTick()
+
+      expect(emittedId).toBe(operation.id)
+      wrapper.unmount()
     })
 
     it('prevents default link behavior', async () => {
       const operation = createMockOperation()
+      let emittedId: string | undefined
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: {
+          operation,
+          // TODO: replace this with emitted captures. Is flakey right now
+          onScrollToId: (id: string) => {
+            emittedId = id
+          },
+        },
+        attachTo: document.body,
       })
 
-      const link = wrapper.find('a')
+      const link = wrapper.find('a.endpoint')
       expect(link.attributes('href')).toBe('#test-operation-1')
 
       // The click handler should prevent default navigation
       await link.trigger('click')
-      // If preventDefault wasn't called, the test would fail due to navigation
+
+      // Verify the event was emitted (indicating preventDefault was called)
+      expect(emittedId).toBe(operation.id)
+
+      wrapper.unmount()
     })
   })
 

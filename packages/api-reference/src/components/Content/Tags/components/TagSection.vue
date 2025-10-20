@@ -32,7 +32,6 @@ const emit = defineEmits<{
   <Section
     v-if="tag"
     :id="tag.id"
-    :label="tag.title?.toUpperCase()"
     role="none"
     @intersecting="(id) => emit('intersecting', id)">
     <SectionHeader v-show="!isLoading">

@@ -23,6 +23,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -37,6 +38,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
         slots: {
           default: '<div class="slot-content">Slot content here</div>',
@@ -60,6 +62,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -77,6 +80,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -92,6 +96,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -108,6 +113,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -125,6 +131,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -139,6 +146,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -147,27 +155,13 @@ describe('ClassicLayout', () => {
       expect(wrapper.element.tagName).toBe('DIV') // Vue test utils wraps in div
     })
 
-    it('renders anchor with correct id', () => {
-      const mockTag = createMockTag({
-        id: 'custom-tag-id',
-      })
-
-      const wrapper = mount(ClassicLayout, {
-        props: {
-          tag: mockTag,
-        },
-      })
-
-      const anchor = wrapper.findComponent({ name: 'Anchor' })
-      expect(anchor.props('id')).toBe('custom-tag-id')
-    })
-
     it('renders SectionHeaderTag with level 2', () => {
       const mockTag = createMockTag()
 
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -181,6 +175,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -200,6 +195,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 
@@ -216,6 +212,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
         slots: {
           default: '<div class="slot-content">Slot content here</div>',
@@ -234,6 +231,7 @@ describe('ClassicLayout', () => {
       const wrapper = mount(ClassicLayout, {
         props: {
           tag: mockTag,
+          isCollapsed: false,
         },
       })
 

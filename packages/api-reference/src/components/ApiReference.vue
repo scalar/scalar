@@ -35,7 +35,6 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
-  nextTick,
   onBeforeMount,
   onServerPrefetch,
   provide,
@@ -43,7 +42,6 @@ import {
   useId,
   useTemplateRef,
   watch,
-  watchEffect,
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -73,7 +71,6 @@ const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
 }>()
 
-/** These slots render in their respective slots in the underlying ApiReferenceLayout component */
 defineSlots<{
   'content-start'?(): unknown
   'content-end'?(): unknown
@@ -580,7 +577,10 @@ const handleSelectItem = async (id: string) => {
   sidebarState.setSelected(id)
   scrollToLazyElement(id)
 
-  window.history.pushState({}, '', makeUrlFromId(id, basePath.value))
+  const url = makeUrlFromId(id, basePath.value)
+  if (url) {
+    window.history.pushState({}, '', url)
+  }
 }
 
 const handleToggleTag = (id: string, open: boolean) => {

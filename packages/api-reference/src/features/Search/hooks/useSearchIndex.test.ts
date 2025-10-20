@@ -17,10 +17,7 @@ describe('useSearchIndex', () => {
       },
     ]
 
-    const mockItems = computed(() => ({
-      entries: mockEntries,
-      entities: new Map(),
-    }))
+    const mockItems = computed(() => mockEntries)
 
     const { query, selectedIndex, searchResultsWithPlaceholderResults, resetSearch } = useSearchIndex(mockItems, {
       paths: {

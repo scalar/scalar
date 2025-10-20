@@ -41,7 +41,7 @@ export const getIdFromUrl = (url: string | URL, basePath: string | undefined) =>
  */
 export const makeUrlFromId = (id: string, basePath: string | undefined) => {
   if (typeof window === 'undefined') {
-    return new URL('')
+    return undefined
   }
 
   const url = new URL(window.location.href)
