@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import missingPathItemRef from './missingPathItemRef.yaml?raw'
 
 describe.todo('missingPathItemRef', () => {
-  it('returns an error', async () => {
-    const result = await validate(missingPathItemRef)
+  it('returns an error', () => {
+    const result = validate(missingPathItemRef)
 
     // TODO: Swagger Editor
     //

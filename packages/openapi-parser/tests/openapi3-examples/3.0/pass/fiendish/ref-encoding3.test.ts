@@ -4,8 +4,8 @@ import { validate } from '../../../../../src/index'
 import refEncoding3 from './ref-encoding3.yaml?raw'
 
 describe('ref-encoding3', () => {
-  it('passes', async () => {
-    const result = await validate(refEncoding3)
+  it('passes', () => {
+    const result = validate(refEncoding3)
 
     expect(result.errors).toStrictEqual([])
     expect(result.valid).toBe(true)

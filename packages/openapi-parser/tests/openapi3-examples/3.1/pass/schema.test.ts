@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import schema from './schema.yaml?raw'
 
 describe('schema', () => {
-  it('passes', async () => {
-    const result = await validate(schema)
+  it('passes', () => {
+    const result = validate(schema)
     expect(result.errors).toStrictEqual([])
     expect(result.valid).toBe(true)
     expect(result.version).toBe('3.1')

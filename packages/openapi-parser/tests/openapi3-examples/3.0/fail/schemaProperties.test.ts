@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import schemaProperties from './schemaProperties.yaml?raw'
 
 describe('schemaProperties', () => {
-  it('returns an error', async () => {
-    const { valid, errors, schema } = await validate(schemaProperties)
+  it('returns an error', () => {
+    const { valid, errors, schema } = validate(schemaProperties)
 
     expect(schema?.components?.schemas?.SomeObject).not.toBe(undefined)
 

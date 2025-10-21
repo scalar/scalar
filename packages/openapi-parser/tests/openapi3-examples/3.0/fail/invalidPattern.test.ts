@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import invalidPattern from './invalidPattern.yaml?raw'
 
 describe('invalidPattern', () => {
-  it('returns an error', async () => {
-    const result = await validate(invalidPattern)
+  it('returns an error', () => {
+    const result = validate(invalidPattern)
 
     // TODO: Swagger Editor
     //

@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('errors', () => {
-  it('info required', async () => {
-    const result = await validate({
+  it('info required', () => {
+    const result = validate({
       openapi: '3.1.0',
       paths: {},
     })
@@ -19,7 +19,7 @@ describe('errors', () => {
     })
   })
 
-  it('unevaluated property', async () => {
+  it('unevaluated property', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -38,7 +38,7 @@ describe('errors', () => {
         },
       },
     }
-    const result = await validate(spec)
+    const result = validate(spec)
 
     expect(result).toMatchObject({
       errors: [

@@ -4,8 +4,8 @@ import { validate } from '../../../../../src/index'
 import openApiUi from './openapi-ui.yaml?raw'
 
 describe('openapi-ui', () => {
-  it('apiWithExamples', async () => {
-    const result = await validate(openApiUi)
+  it('apiWithExamples', () => {
+    const result = validate(openApiUi)
 
     // TODO: SwaggerUI has a more helpful error message:
     //

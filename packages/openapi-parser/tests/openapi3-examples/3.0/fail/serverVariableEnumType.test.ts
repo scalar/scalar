@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import serverVariableEnumType from './serverVariableEnumType.yaml?raw'
 
 describe('serverVariableEnumType', () => {
-  it('returns an error', async () => {
-    const result = await validate(serverVariableEnumType)
+  it('returns an error', () => {
+    const result = validate(serverVariableEnumType)
 
     // TODO: Swagger Editor has a better error message
     //

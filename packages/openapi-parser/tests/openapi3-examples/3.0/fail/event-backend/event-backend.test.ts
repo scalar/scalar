@@ -6,24 +6,24 @@ import openapi2 from './openapi2.json'
 import openapi3 from './openapi3.json'
 
 describe('event-backend', () => {
-  it('openapi1', async () => {
-    const result = await validate(openapi1)
+  it('openapi1', () => {
+    const result = validate(openapi1)
 
     // TODO: What does that mean?
     expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 
-  it('openapi2', async () => {
-    const result = await validate(openapi2)
+  it('openapi2', () => {
+    const result = validate(openapi2)
 
     // TODO: What does that mean?
     expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 
-  it('openapi3', async () => {
-    const result = await validate(openapi3)
+  it('openapi3', () => {
+    const result = validate(openapi3)
 
     // TODO: What does that mean?
     expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
