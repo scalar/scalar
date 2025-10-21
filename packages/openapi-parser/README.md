@@ -186,7 +186,7 @@ import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
 import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
-const result = await bundle('./openapi.yaml', {
+const data = await bundle('./openapi.yaml', {
   plugins: [
     readFiles(),
     fetchUrls({
@@ -195,8 +195,8 @@ const result = await bundle('./openapi.yaml', {
   ],
 })
 
-// Instead of just passing a single specification, pass the whole “filesystem”
-const result = await dereference(filesystem)
+// Instead of just passing a single specification, pass the whole data object
+const result = await dereference(data)
 ```
 
 As you see, `bundle()` supports plugins. You can write your own plugin, if you'd like to fetch API definitions from another data source, for example your database. Look at the source code of the `readFiles` to learn how this could look like.
