@@ -579,7 +579,10 @@
         "from": "/regex/two/:pathMatch(.*)*",
         "to": "/scalar/scalar-registry/github-actions"
       }, {
-        "from": "/regex/three/:id",
+        "from": "/regex/three/:wildcard",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/four/prefix-:wildcard",
         "to": "/scalar/scalar-registry/github-actions"
       }]
     }

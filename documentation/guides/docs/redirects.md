@@ -25,7 +25,31 @@ You can use wildcards to redirect multiple paths with a single rule:
 
 ```json
 {
-  "from": "/old-path/*",
+  "from": "/old-path/:wildcard",
+  "to": "/new-path"
+}
+```
+
+This will redirect `/old-path/whatever-that-is` to `/new-path`.
+
+Or, if you have a specific prefix:
+
+```json
+{
+  "from": "/old-path/12345-:wildcard",
+  "to": "/new-path"
+}
+```
+
+This will redirect `/old-path/12345-whatever-that-is` to `/new-path`.
+
+### Regex Redirects
+
+You can even use regular expressions in your redirects:
+
+```json
+{
+  "from": "/old-path/:pathMatch(.*)*",
   "to": "/new-path"
 }
 ```
