@@ -12,9 +12,7 @@ describe('csharpHttpclient', () => {
 
 var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('returns a POST request', () => {
@@ -27,9 +25,7 @@ var body = await response.Content.ReadAsStringAsync();`)
 
 var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles different HTTP methods', () => {
@@ -75,9 +71,7 @@ var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
 request.Headers.TryAddWithoutValidation("X-Custom-Header", "custom-value");
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles Accept header with MediaTypeWithQualityHeaderValue', () => {
@@ -196,9 +190,7 @@ request.Content = new StringContent(
 """,
 System.Text.Encoding.UTF8, "application/json");
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles JSON body with complex nested structure', () => {
@@ -255,9 +247,7 @@ var formParams = new Dictionary<string, string>
 };
 request.Content = new FormUrlEncodedContent(formParams);
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles form-urlencoded body with duplicate field names using List', () => {
@@ -303,11 +293,10 @@ var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 var content = new MultipartFormDataContent();
 content.Add(new StreamContent(File.OpenRead("test.txt")), "file", "test.txt");
 content.Add(new StringContent("value"), "field");
+
 request.Content = content;
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles binary data', () => {
@@ -325,11 +314,10 @@ var body = await response.Content.ReadAsStringAsync();`)
 var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 var content = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("binary content"));
 content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
 request.Content = content;
 
-using var response = await client.SendAsync(request);
-response.EnsureSuccessStatusCode();
-var body = await response.Content.ReadAsStringAsync();`)
+using var response = await client.SendAsync(request);`)
   })
 
   it('handles duplicate headers by keeping the last value', () => {

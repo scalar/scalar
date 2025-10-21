@@ -47,8 +47,6 @@ export const csharpHttpclient: Plugin = {
     // Send request and read response
     lines.push('')
     lines.push('using var response = await client.SendAsync(request);')
-    lines.push('response.EnsureSuccessStatusCode();')
-    lines.push('var body = await response.Content.ReadAsStringAsync();')
 
     return lines.join('\n')
   },
