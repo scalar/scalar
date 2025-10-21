@@ -1,29 +1,52 @@
 import type { UnknownObject } from '@scalar/types/utils'
 
 /**
- * Upgrade OpenAPI 3.1 to 3.2
- *
- * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
+ * Recursively migrate XML object properties from 3.1 to 3.2 format
  */
-export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
-  const document = originalDocument
-
-  // Version
-  if (
-    document !== null &&
-    typeof document === 'object' &&
-    typeof document.openapi === 'string' &&
-    document.openapi?.startsWith('3.1')
-  ) {
-    document.openapi = '3.2.0'
-  } else {
-    // Skip if it's something else than 3.1.x
-    return document
+function migrateXmlObjects(obj: any): void {
+  if (obj === null || typeof obj !== 'object') {
+    return
   }
 
-  console.warn('⚠️ Experimental: Upgrading document from OpenAPI 3.1 to 3.2')
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      migrateXmlObjects(item)
+    }
+    return
+  }
 
-  // Migrate x-tagGroups to kind property
+  // Handle xml property migration
+  if (obj.xml && typeof obj.xml === 'object') {
+    if (obj.xml.wrapped === true && obj.xml.attribute === true) {
+      throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
+    }
+
+    // Migrate wrapped: true to nodeType: 'element'
+    if (obj.xml.wrapped === true) {
+      delete obj.xml.wrapped
+      obj.xml.nodeType = 'element'
+    }
+
+    // Migrate attribute: true to nodeType: 'attribute'
+    if (obj.xml.attribute === true) {
+      delete obj.xml.attribute
+      obj.xml.nodeType = 'attribute'
+    }
+  }
+
+  // Recursively process all object properties
+  for (const key in obj) {
+    if (Object.hasOwn(obj, key)) {
+      migrateXmlObjects(obj[key])
+    }
+  }
+}
+
+/**
+ * Migrate x-tagGroups to kind property on tags
+ */
+function migrateTagGroups(document: UnknownObject) {
   if (document['x-tagGroups'] && Array.isArray(document['x-tagGroups'])) {
     const tagGroups = document['x-tagGroups'] as Array<{
       name: string
@@ -70,6 +93,34 @@ export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
     // Remove x-tagGroups
     delete document['x-tagGroups']
   }
+}
+
+/**
+ * Upgrade OpenAPI 3.1 to 3.2
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
+ */
+export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
+  const document = originalDocument
+
+  // Version
+  if (
+    document !== null &&
+    typeof document === 'object' &&
+    typeof document.openapi === 'string' &&
+    document.openapi?.startsWith('3.1')
+  ) {
+    document.openapi = '3.2.0'
+  } else {
+    // Skip if it's something else than 3.1.x
+    return document
+  }
+
+  // Migrate x-tagGroups to kind property
+  migrateTagGroups(document)
+
+  // Migrate XML object properties
+  migrateXmlObjects(document)
 
   return document
 }

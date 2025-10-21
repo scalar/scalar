@@ -2,6 +2,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '@/configuration'
 import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
+
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
 import { isObject } from './is-object'
@@ -72,7 +73,7 @@ export function resolveReferences(
   // Recursively resolve all references
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
 
-  // Remove duplicats (according to message) from errors
+  // Remove duplicates (according to message) from errors
   errors = errors.filter(
     (error, index, self) => index === self.findIndex((t) => t.message === error.message && t.code === error.code),
   )

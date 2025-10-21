@@ -9,7 +9,7 @@ Provides a wrapper around the `cx` function that merges the component's class at
 
 This allows you to override tailwind classes from the parent component and `cx` will intelligently merge them while passing through other attributes.
 
-## Example
+## Basic Example
 
 This mock component uses the `useBindCx` hook to merge the component's class attribute with a set of variants created with the `cva` function.
 
@@ -36,7 +36,43 @@ const variants = cva({
 
 Adjust the class and attributes below to see how the `cx` function merges the component's class attribute with the provided classes.
 
-<Controls />
-<Canvas of={Stories.Playground} />
+<Controls of={Stories.Simple} />
+<Canvas of={Stories.Simple} />
+
+## Complex Example
+
+Sometimes you may want to apply the merged classes and style attributes to a wrapper element while passing through other attributes to an inner element. For example when building a control that wraps an `input` element you may want to apple the stylistic attributes to a wrapper `div` while passing through semantic attributes like `type`, `placeholder`, and `value` to the inner `input`.
+
+This mock component uses the `useBindCx` hook to merge the component's classes and apply the style attribute to a outer `div` while passing through other attributes to an inner `div`.
+
+
+```html
+<script setup>
+import { useBindCx, cva } from '@scalar/components'
+
+defineProps<{ active?: boolean }>()
+
+// Important: disable inheritance of attributes
+defineOptions({ inheritAttrs: false })
+
+const { stylingAttrsCx, otherAttrs } = useBindCx()
+
+const variants = cva({
+  base: 'border rounded p-2 bg-b-1',
+  variants: { active: { true: 'bg-b-2' } },
+})
+</script>
+<template>
+  <div v-bind="stylingAttrsCx(variants({ active }))">
+    Outer
+    <div class="border rounded p-1 mt-1" v-bind="otherAttrs">
+      Inner
+    </div>
+  </div>
+</template>
+```
+
+<Controls of={Stories.Complex} />
+<Canvas of={Stories.Complex} />
 
 

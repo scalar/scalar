@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fopenapi-parser)](https://www.npmjs.com/package/@scalar/openapi-parser)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.1, OpenAPI 3.0 and Swagger 2.0.
+Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.2, 3.1, 3.0 and Swagger 2.0.
 
 ## Installation
 
@@ -242,14 +242,15 @@ const { filesystem } = await load(
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
-## Thank you!
+## Thank you
 
 Thanks a ton for all the help and inspiration:
 
 - [@philsturgeon](https://github.com/philsturgeon) to make sure we build something we won't hate.
 - We took a lot of inspiration from [@seriousme](https://github.com/seriousme) and his package [openapi-schema-validator](https://github.com/seriousme/openapi-schema-validator) early-on.
 - You could consider this package the modern successor of [@apidevtools/swagger-parser](https://github.com/APIDevTools/swagger-parser), we even test against it to make sure we're getting the same results (where intended).
-- We stole a lot of example specification from [@mermade](https://github.com/mermade) to test against.
+- We stole a lot of example documents from [@mermade](https://github.com/mermade) to test against.
+- Thanks [@baywet](https://github.com/baywet) for adding OpenAPI 3.2 support.
 
 ## License
 

@@ -57,7 +57,7 @@ const dereferenceDocument = async (
   }
 
   const { specification } = upgrade(filesystem)
-  const { schema, errors: derefErrors = [] } = await dereference(specification)
+  const { schema, errors: derefErrors = [] } = dereference(specification)
 
   return {
     schema,

@@ -50,6 +50,20 @@ paths: {}
     expect(result.schema.info.title).toBe('Hello World')
   })
 
+  it('works with OpenAPI 3.2.0', async () => {
+    const result = await validate(`{
+      "openapi": "3.2.0",
+      "info": {
+          "title": "Hello World",
+          "version": "1.0.0"
+      },
+      "paths": {}
+    }`)
+
+    expect(result.valid).toBe(true)
+    expect(result.schema.info.title).toBe('Hello World')
+  })
+
   it(`doesn't work with OpenAPI 4.0.0`, async () => {
     const result = await validate(`{
       "openapi": "4.0.0",

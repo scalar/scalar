@@ -35,7 +35,7 @@ const { example, operation, environment, envVariables, workspace, title } =
 
 const { requestExampleMutators } = useWorkspace()
 
-/** use-codemirror package to be udpated accordingly */
+/** use-codemirror package to be updated accordingly */
 const contentTypeToLanguageMap = {
   json: 'json',
   xml: 'xml',
@@ -55,7 +55,7 @@ const contentTypes = {
   other: 'Other',
   none: 'None',
 } as const
-type Content = keyof typeof contentTypes
+type ContentType = keyof typeof contentTypes
 
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
@@ -81,7 +81,7 @@ const activeExampleContentType = computed(() => {
   }
   // Raw
   if (activeBody === 'raw' && raw?.encoding) {
-    if (raw.encoding === 'html') {
+    if (raw.encoding === 'html' || raw.encoding === 'text') {
       return 'other'
     }
     return raw.encoding
@@ -237,7 +237,7 @@ const updateRequestBody = (value: string) =>
   requestExampleMutators.edit(example.uid, 'body.raw.value', value)
 
 /** Take the select option and return bodyType with encoding and header */
-const getBodyType = (type: Content) => {
+const getBodyType = (type: ContentType) => {
   if (type === 'multipartForm') {
     return {
       activeBody: 'formData',
@@ -295,10 +295,13 @@ const getBodyType = (type: Content) => {
     } as const
   }
   if (type === 'other') {
+    const opContentTypes = Object.keys(operation.requestBody?.content ?? {})
+    const textContentType = opContentTypes.find((t) => t.startsWith('text/'))
+
     return {
       activeBody: 'raw',
-      encoding: 'html',
-      header: 'application/html',
+      encoding: textContentType ? 'text' : 'html',
+      header: textContentType ?? 'application/html',
     } as const
   }
 
@@ -306,7 +309,7 @@ const getBodyType = (type: Content) => {
 }
 
 /** Set active body AND encoding */
-const updateActiveBody = (type: Content) => {
+const updateActiveBody = (type: ContentType) => {
   const { activeBody, encoding, header } = getBodyType(type)
   requestExampleMutators.edit(example.uid, 'body.activeBody', activeBody)
 
@@ -453,12 +456,12 @@ watch(
   () => {
     operation.method &&
       canMethodHaveBody(operation.method) &&
-      updateActiveBody(activeExampleContentType.value as Content)
+      updateActiveBody(activeExampleContentType.value as ContentType)
 
     // Add extra row on page route change as well
     if (
       ['multipartForm', 'formUrlEncoded'].includes(
-        activeExampleContentType.value as Content,
+        activeExampleContentType.value as ContentType,
       )
     ) {
       defaultRow()
@@ -469,7 +472,7 @@ watch(
 
 const exampleOptions = computed(() => {
   const contentType = selectedContentType.value?.id
-  const { header } = getBodyType(contentType as Content)
+  const { header } = getBodyType(contentType as ContentType)
   const content = operation.requestBody?.content || {}
   const examples = header ? content[header]?.examples || {} : {}
   return Object.entries(examples).map(([key, value]) => ({
@@ -616,7 +619,7 @@ const selectedExample = computed({
             @uploadFile="handleFileUploadFormData" />
         </template>
         <template v-else>
-          <!-- TODO: remove this as type hack when we add syntax highligting -->
+          <!-- TODO: remove this as type hack when we add syntax highlighting -->
           <CodeInput
             class="border-t px-3"
             content=""

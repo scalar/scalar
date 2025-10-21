@@ -14,6 +14,7 @@ import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
+import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { useFreezing } from '@/hooks/useFreezing'
@@ -176,6 +177,11 @@ const models = computed<TraversedDescription | undefined>(() => {
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
       }"
       :schemas="document?.components?.schemas" />
+
+    <!-- Render plugins at content.end view -->
+    <RenderPlugins
+      :options
+      viewName="content.end" />
 
     <slot name="end" />
   </div>

@@ -82,3 +82,64 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
   }
 }
 ```
+
+### Additional Components
+
+Plugins can inject components at specific locations in the API Reference using views.
+
+#### Available Views
+
+- `content.end` - After the Models section
+
+#### Example
+
+```ts
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
+import CustomComponent from './components/CustomComponent.vue'
+
+export const FeedbackPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'feedback-plugin',
+      extensions: [],
+      views: {
+        'content.end': [
+          {
+            component: CustomComponent,
+          },
+        ],
+      },
+    }
+  }
+}
+```
+
+#### Component Props
+
+View components receive:
+
+- `options` - API Reference configuration options
+
+#### Using React Components
+
+```ts
+import { ReactRenderer } from '@scalar/react-renderer'
+import { CustomComponent } from './components/CustomComponent'
+
+export const FeedbackPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'feedback-plugin',
+      extensions: [],
+      views: {
+        'content.end': [
+          {
+            component: CustomComponent,
+            renderer: ReactRenderer,
+          },
+        ],
+      },
+    }
+  }
+}
+```

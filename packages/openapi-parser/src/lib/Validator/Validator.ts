@@ -1,6 +1,6 @@
+import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
-import Ajv2020 from 'ajv/dist/2020.js'
 
 import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '@/configuration'
 import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '@/types/index'
@@ -17,7 +17,7 @@ export const jsonSchemaVersions = {
 }
 
 export class Validator {
-  public version: '2.0' | '3.0' | '3.1'
+  public version: '2.0' | '3.0' | '3.1' | '3.2'
 
   public static supportedVersions = OpenApiVersions
 
@@ -150,8 +150,8 @@ export class Validator {
     // https://ajv.js.org/packages/ajv-formats.html#formats
     addFormats(ajv)
 
-    // OpenAPI 3.1 uses media-range format
-    if (version === '3.1') {
+    // OpenAPI 3.1 and 3.2 uses media-range format
+    if (version === '3.1' || version === '3.2') {
       ajv.addFormat('media-range', true)
     }
 

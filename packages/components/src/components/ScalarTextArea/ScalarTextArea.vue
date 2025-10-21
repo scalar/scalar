@@ -25,7 +25,7 @@ const { textarea } = useTextareaAutosize({
 })
 
 defineOptions({ inheritAttrs: false })
-const { classCx, otherAttrs } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 
 onMounted(() => {
   // Force autofocus if the textarea has the autofocus attribute
@@ -35,7 +35,9 @@ onMounted(() => {
 <template>
   <ScalarFormInput
     is="div"
-    v-bind="classCx('custom-scroll flex text-c-1 min-h-0 shrink cursor-text')"
+    v-bind="
+      stylingAttrsCx('custom-scroll flex text-c-1 min-h-0 shrink cursor-text')
+    "
     @click="textarea?.focus()">
     <textarea
       ref="textarea"

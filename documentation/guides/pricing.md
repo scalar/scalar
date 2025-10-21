@@ -3,7 +3,7 @@
     Pricing
   </scalar-heading>
   <p>
- One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™. 
+ One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™.
   </p>
 </div>
 
@@ -591,18 +591,16 @@
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://agent.scalar.com/" target="_blank">Agent Scalar</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/changelog" target="_blank">Changelog</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
@@ -693,7 +691,7 @@ h4.t-editor__heading {
 .pricing {
     padding-top: 20px
 }
-.pricing-table-column { 
+.pricing-table-column {
     width: 25%;
     padding: 8px 12px;
     display: flex;
@@ -718,7 +716,7 @@ h4.t-editor__heading {
 }
 ._sticky .pricing-table-column {
     padding: 12px
-} 
+}
 .pricing-table-group-heading {
     position: sticky;
     top: 228px;
@@ -810,7 +808,7 @@ h4.t-editor__heading {
   }
   .small-test {
     max-width: 440px;
-    margin-top: 80px;
+    margin-top: 44px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -940,7 +938,7 @@ h4.t-editor__heading {
     gap: 44px;
   }
   .cta {
-    padding: 140px 0;
+    padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {

@@ -44,6 +44,9 @@ describe('TestRequestButton', () => {
     const customEvent = captureCustomEvent(wrapper.find('button').element, 'scalar-open-client')
     await wrapper.find('button').trigger('click')
 
-    await customEvent({})
+    await customEvent({
+      method: 'delete',
+      path: '/users/1',
+    })
   })
 })

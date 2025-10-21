@@ -99,7 +99,7 @@ test.concurrent.each(fetched)('diff $file', async ({ file, content }) => {
   })) as any
 
   const { filesystem } = await load(structuredClone(specification))
-  const { schema: newSchema, errors } = await dereference(filesystem)
+  const { schema: newSchema, errors } = dereference(filesystem)
 
   // Errors expected
   if (expectedErrors[file]) {
