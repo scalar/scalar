@@ -48,6 +48,10 @@
               "type": "page"
             },
             {
+              "path": "documentation/guides/docs/redirects.md",
+              "type": "page"
+            },
+            {
               "name": "Components",
               "type": "folder",
               "defaultOpen": true,
@@ -569,11 +573,14 @@
         "from": "/scalar/scalar-registry/github-workflows",
         "to": "/scalar/scalar-registry/github-actions"
       }, {
-        "from": "/regex/1/*",
-        "to": "/scalar/that-worked-1"
+        "from": "/regex/one/*",
+        "to": "/scalar/scalar-registry/github-actions"
       }, {
-        "from": "/regex/2/:pathMatch(.*)*",
-        "to": "/scalar/that-worked-2"
+        "from": "/regex/two/:pathMatch(.*)*",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/three/:id",
+        "to": "/scalar/scalar-registry/github-actions"
       }]
     }
   }
