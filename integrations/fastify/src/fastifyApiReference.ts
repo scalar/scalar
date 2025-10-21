@@ -163,7 +163,7 @@ const fastifyApiReference = fp<
       ...(options.logLevel && { logLevel: options.logLevel }),
       handler(_, reply) {
         const spec = normalize(specSource.get())
-        const filename: string = getSpecFilenameSlug(spec)
+        const filename = getSpecFilenameSlug(spec)
         const yaml = toYaml(spec)
         return reply
           .header('Content-Type', 'application/yaml')
