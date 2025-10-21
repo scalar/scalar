@@ -10,17 +10,24 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Auto-configuration for the Scalar API Reference integration.
  *
- * <p>This class provides automatic configuration for the Scalar API Reference
+ * <p>
+ * This class provides automatic configuration for the Scalar API Reference
  * in Spring Boot applications. It automatically creates the necessary beans
- * when the scalar integration is enabled.</p>
+ * when the scalar integration is enabled.
+ * </p>
  *
- * <p>The auto-configuration is conditional on the {@code scalar.enabled} property
- * being set to {@code true} (which is the default).</p>
+ * <p>
+ * The auto-configuration is conditional on the {@code scalar.enabled} property
+ * being set to {@code true} (which is the default).
+ * </p>
  *
- * <p>This configuration:</p>
+ * <p>
+ * This configuration:
+ * </p>
  * <ul>
- *   <li>Enables configuration properties via {@link ScalarProperties}</li>
- *   <li>Creates a {@link ScalarController} bean for serving the API reference</li>
+ * <li>Enables configuration properties via {@link ScalarProperties}</li>
+ * <li>Creates a {@link ScalarController} bean for serving the API
+ * reference</li>
  * </ul>
  *
  * @since 0.1.0
