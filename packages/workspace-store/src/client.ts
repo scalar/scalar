@@ -12,6 +12,7 @@ import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
+import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -126,6 +127,27 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   return undefined
 }
 
+type ChangeEvent =
+  | {
+      type:
+        | 'documents'
+        | 'originalDocuments'
+        | 'intermediateDocuments'
+        | 'documentConfigs'
+        | 'overrides'
+        | 'documentMeta'
+      documentName: string
+    }
+  | {
+      type: 'meta'
+    }
+
+type Plugin = Partial<{
+  hooks: Partial<{
+    onWorkspaceStateChanges: (event: ChangeEvent) => void
+  }>
+}>
+
 /**
  * Configuration object for initializing a workspace store.
  * Defines the initial state and documents for the workspace.
@@ -137,6 +159,8 @@ type WorkspaceProps = {
   config?: PartialDeep<Config>
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
+  /** A list of all registered plugins for the current workspace */
+  plugins: Plugin[]
 }
 
 /**
@@ -411,76 +435,161 @@ export type WorkspaceStore = {
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
   /**
-   * Holds the original, unmodified documents as they were initially loaded into the workspace.
-   * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
-   * This map preserves the pristine structure of each document, using deep clones to ensure that
-   * subsequent mutations in the workspace do not affect the originals.
-   * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
-   */
-  const originalDocuments = {} as Record<string, UnknownObject>
-  /**
-   * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
-   *
-   * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
-   * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
-   *
-   * Use this map to stage local changes that are ready to be propagated back to the remote registry.
-   * This separation allows us to distinguish between:
-   *   - The last known remote version (`originalDocuments`)
-   *   - The latest locally saved version (`intermediateDocuments`)
-   *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
-   */
-  const intermediateDocuments = {} as Record<string, UnknownObject>
-  /**
-   * A map of document configurations keyed by document name.
-   * This stores the configuration options for each document in the workspace,
-   * allowing for document-specific settings like navigation options, appearance,
-   * and other reference configuration.
-   */
-  const documentConfigs: Record<string, Config> = {}
-  /**
-   * Stores per-document overrides for OpenAPI documents.
-   * This object is used to override specific fields of a document
-   * when you cannot (or should not) modify the source document directly.
-   * For example, this enables UI-driven or temporary changes to be applied
-   * on top of the original document, without mutating the source.
-   * The key is the document name, and the value is a deep partial
-   * OpenAPI document representing the overridden fields.
-   */
-  const overrides: InMemoryWorkspace['overrides'] = {}
-  /**
-   * Holds additional metadata for each document in the workspace.
-   *
-   * This metadata should be persisted together with the document itself.
-   * It can include information such as user preferences, UI state, or other
-   * per-document attributes that are not part of the OpenAPI document structure.
-   */
-  const documentMeta: InMemoryWorkspace['documentMeta'] = {}
-  /**
    * Holds additional configuration options for each document in the workspace.
    *
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
 
-  // Create a reactive workspace object with proxied documents
-  // Each document is wrapped in a proxy to enable reactive updates and reference resolution
-  const workspace = reactive<Workspace>({
-    ...workspaceProps?.meta,
-    documents: {},
-    /**
-     * Returns the currently active document from the workspace.
-     * The active document is determined by the 'x-scalar-active-document' metadata field,
-     * falling back to the first document in the workspace if no active document is specified.
-     *
-     * @returns The active document or undefined if no document is found
-     */
-    get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
-      const activeDocumentKey =
-        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
-      return workspace.documents[activeDocumentKey]
-    },
-  })
+  /**
+   * An object containing all the workspace state, wrapped in a detect changes proxy.
+   *
+   * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
+   * allowing for change tracking.
+   */
+  const { workspace, originalDocuments, intermediateDocuments, overrides, documentMeta, documentConfigs } =
+    createDetectChangesProxy(
+      {
+        /**
+         * The current workspace state
+         *
+         * Keeps the active document state, the document we use to drive the UI
+         * It also includes the workspace metadata like theme, active document, etc.
+         */
+        workspace: reactive<Workspace>({
+          ...workspaceProps?.meta,
+          documents: {},
+          /**
+           * Returns the currently active document from the workspace.
+           * The active document is determined by the 'x-scalar-active-document' metadata field,
+           * falling back to the first document in the workspace if no active document is specified.
+           *
+           * @returns The active document or undefined if no document is found
+           */
+          get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
+            const activeDocumentKey =
+              workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
+            return workspace.documents[activeDocumentKey]
+          },
+        }),
+        /**
+         * Holds the original, unmodified documents as they were initially loaded into the workspace.
+         * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
+         * This map preserves the pristine structure of each document, using deep clones to ensure that
+         * subsequent mutations in the workspace do not affect the originals.
+         * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
+         */
+        originalDocuments: {} as Record<string, UnknownObject>,
+        /**
+         * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
+         *
+         * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
+         * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
+         *
+         * Use this map to stage local changes that are ready to be propagated back to the remote registry.
+         * This separation allows us to distinguish between:
+         *   - The last known remote version (`originalDocuments`)
+         *   - The latest locally saved version (`intermediateDocuments`)
+         *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
+         */
+        intermediateDocuments: {} as Record<string, UnknownObject>,
+        /**
+         * A map of document configurations keyed by document name.
+         * This stores the configuration options for each document in the workspace,
+         * allowing for document-specific settings like navigation options, appearance,
+         * and other reference configuration.
+         */
+        documentConfigs: {} as Record<string, Config>,
+        /**
+         * Stores per-document overrides for OpenAPI documents.
+         * This object is used to override specific fields of a document
+         * when you cannot (or should not) modify the source document directly.
+         * For example, this enables UI-driven or temporary changes to be applied
+         * on top of the original document, without mutating the source.
+         * The key is the document name, and the value is a deep partial
+         * OpenAPI document representing the overridden fields.
+         */
+        overrides: {} as InMemoryWorkspace['overrides'],
+        /**
+         * Holds additional metadata for each document in the workspace.
+         *
+         * This metadata should be persisted together with the document itself.
+         * It can include information such as user preferences, UI state, or other
+         * per-document attributes that are not part of the OpenAPI document structure.
+         */
+        documentMeta: {} as InMemoryWorkspace['documentMeta'],
+      },
+      {
+        hooks: {
+          onAfterChange(path) {
+            const type = path[0]
+
+            if (!type) {
+              return
+            }
+
+            if (type === 'workspace') {
+              /** Document changes */
+              if (path[1] === 'documents') {
+                // We are overriding the while documents object, ignore. This should not happen
+                if (path.length < 3) {
+                  console.log('[WARN]: Overriding entire documents object is not supported')
+                  return
+                }
+
+                const documentName = path[2] as string
+                const event = {
+                  type: 'documents',
+                  documentName,
+                } satisfies ChangeEvent
+
+                workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+                return
+              }
+
+              /** Active document changes */
+              if (path[1] === 'activeDocument') {
+                // Active document changed
+                const event = {
+                  type: 'documents',
+                  documentName: getActiveDocumentName(),
+                } satisfies ChangeEvent
+
+                workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+              }
+
+              /** Document meta changes */
+              const event = {
+                type: 'meta',
+              } satisfies ChangeEvent
+
+              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+              return
+            }
+
+            /**
+             * Other workspace state changes
+             *
+             * All of them are related to a specific document
+             */
+            if (
+              (path.length >= 2 && type === 'originalDocuments') ||
+              type === 'intermediateDocuments' ||
+              type === 'documentConfigs' ||
+              type === 'overrides' ||
+              type === 'documentMeta'
+            ) {
+              const event = {
+                type,
+                documentName: path[1] as string,
+              } satisfies ChangeEvent
+
+              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+            }
+          },
+        },
+      },
+    )
 
   /**
    * Returns the name of the currently active document in the workspace.
