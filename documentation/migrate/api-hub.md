@@ -45,7 +45,6 @@ Scalar's API client is a direct replacement for API Hub Explore. Both you and yo
 
 Just like API Hub Explore, you can import existing API docs into the API client to get all the endpoints set up for testing. Once you have these, you can modify and send requests, add new routes, and much more to help explore and debug APIs.
 
-![Scalar API client](https://cdn.scalar.com/images/blog/
-)
+![Scalar API client](https://cdn.scalar.com/images/blog/ah-client.png)
 
 In the near future, we'll also have an API Registry to match API Hub Explore's “Link APIs from Design” feature.
