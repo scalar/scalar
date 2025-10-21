@@ -25,14 +25,14 @@ function handleClear() {
 }
 
 defineOptions({ inheritAttrs: false })
-const { classCx, otherAttrs } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 
 onMounted(() => autofocus && inputRef.value?.focus())
 </script>
 <template>
   <label
     v-bind="
-      classCx(
+      stylingAttrsCx(
         'flex items-center rounded border text-base has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-2 pr-1.5',
         'bg-sidebar-b-search border-sidebar-border-search',
         model ? 'text-c-1' : 'text-sidebar-c-search',
