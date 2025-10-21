@@ -80,7 +80,4 @@ const emit = defineEmits<{
   margin-bottom: 10px;
   scroll-margin-top: 140px;
 }
-/* .collapsible-section:not(:last-of-type) .collapsible-section-content {
-  margin-bottom: 10px;
-} */
 </style>

@@ -16,8 +16,22 @@ const readyQueue = reactive<Set<string>>(new Set())
  * Blocks ID changes while running
  */
 const isRunning = ref(false)
+
+/** Tracks when the initial load is complete.
+ * We will have placeholder content to allow the active item to be scrolled to the top while
+ * the rest of the content is loaded.
+ */
+export const firstLazyLoadComplete = ref(false)
+
 /** List of unique identifiers that are blocking intersection */
 const intersectionBlockers = reactive<Set<string>>(new Set())
+
+const onRenderComplete = new Set<() => void>()
+
+/** Adds a one time callback to be executed when the lazy bus has finished loading */
+export const addLazyCompleteCallback = (callback: () => void) => {
+  onRenderComplete.add(callback)
+}
 
 type UnblockFn = () => void
 
@@ -37,30 +51,6 @@ const blockIntersection = (): UnblockFn => {
 export const intersectionEnabled = computed(() => intersectionBlockers.size === 0)
 
 /**
- * On rendering we clear the pending and priority queues
- * When an item is unmounted it should be removed from the ready queue to reset it's state
- */
-const renderPending = () => {
-  if (pendingQueue.size > 0) {
-    isRunning.value = true
-
-    for (const id of pendingQueue.values()) {
-      readyQueue.add(id)
-      pendingQueue.delete(id)
-      priorityQueue.delete(id)
-    }
-
-    for (const id of priorityQueue.values()) {
-      readyQueue.add(id)
-      priorityQueue.delete(id)
-      pendingQueue.delete(id)
-    }
-  }
-
-  isRunning.value = false
-}
-
-/**
  * Runs the lazy bus to render the pending and priority queues
  *
  * This will batch the pending renders until the browser is idle
@@ -74,20 +64,41 @@ const runLazyBus = () => {
   // Disable intersection while we run the lazy bus
   const unblock = blockIntersection()
 
+  /**
+   * Sets all the pending elements into the ready queue
+   * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
+   */
+  const executeRender = async () => {
+    if (pendingQueue.size > 0) {
+      isRunning.value = true
+
+      for (const id of pendingQueue.values()) {
+        readyQueue.add(id)
+        pendingQueue.delete(id)
+        priorityQueue.delete(id)
+      }
+
+      for (const id of priorityQueue.values()) {
+        readyQueue.add(id)
+        priorityQueue.delete(id)
+        pendingQueue.delete(id)
+      }
+    }
+
+    await nextTick()
+
+    onRenderComplete.forEach((fn) => fn())
+    onRenderComplete.clear()
+    unblock()
+    isRunning.value = false
+    firstLazyLoadComplete.value = true
+  }
+
   if (window.requestIdleCallback) {
-    window.requestIdleCallback(
-      () => {
-        renderPending()
-        unblock()
-      },
-      { timeout: 1500 },
-    )
+    window.requestIdleCallback(executeRender, { timeout: 1500 })
   } else {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-    nextTick(() => {
-      renderPending()
-      unblock()
-    })
+    nextTick(executeRender)
   }
 }
 
@@ -170,8 +181,8 @@ export const scrollToLazy = (
   // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
 
-  addToPriorityQueue(id)
   setExpanded(id, true)
+  addToPriorityQueue(id)
 
   /**
    * Recursively expand the parents and set them as a loading priority
@@ -180,6 +191,7 @@ export const scrollToLazy = (
   const addParents = (currentId: string) => {
     const parent = getEntryById(currentId)?.parent
     if (parent) {
+      addToPriorityQueue(parent.id)
       setExpanded(parent.id, true)
       addParents(parent.id)
     }
@@ -209,5 +221,31 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn): void =>
   } else {
     // If the scroll has expired we enable intersection again
     onComplete()
+  }
+}
+
+export const freeze = (id: string) => {
+  let stop = false
+
+  /**
+   * Runs until the stop flag is set
+   * Executes the final frame after stop changes to true
+   */
+  const runFrame = (stopAfterFrame: boolean) => {
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({
+        block: 'start',
+      })
+    }
+    if (!stopAfterFrame) {
+      requestAnimationFrame(() => runFrame(stop))
+    }
+  }
+
+  runFrame(false)
+
+  return () => {
+    stop = true
   }
 }

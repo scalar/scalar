@@ -8,7 +8,6 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { dereference } from '@scalar/openapi-parser'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
@@ -46,7 +45,12 @@ import {
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
-import { intersectionEnabled, scrollToLazy } from '@/components/Lazy/lazyBus'
+import {
+  addLazyCompleteCallback,
+  freeze,
+  intersectionEnabled,
+  scrollToLazy,
+} from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -406,9 +410,11 @@ const changeSelectedDocument = async (
 
   /** When loading to a specified element we need to freeze and scroll */
   if (elementId) {
-    freezeAtTop(elementId)
-    scrollToLazyElement(elementId)
     sidebarState.setSelected(elementId)
+
+    const unfreeze = freeze(elementId)
+    addLazyCompleteCallback(unfreeze)
+    scrollToLazyElement(elementId)
   } else {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
@@ -658,11 +664,13 @@ const handleIntersecting = (id: string) => {
 }
 
 onBeforeMount(() => {
+  window.history.scrollRestoration = 'manual'
   // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late
   addScalarClassesToHeadless()
 
   // When we detect a back button press we scroll to the new id
   window.addEventListener('popstate', () => {
+    console.log('popstate')
     const id = getIdFromUrl(
       window.location.href,
       mergedConfig.value.pathRouting?.basePath,

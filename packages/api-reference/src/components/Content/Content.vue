@@ -13,6 +13,7 @@ import { computed } from 'vue'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
+import { firstLazyLoadComplete } from '@/components/Lazy/lazyBus'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
@@ -175,6 +176,10 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
       viewName="content.end" />
 
     <slot name="end" />
+    <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->
+    <div
+      v-if="!firstLazyLoadComplete"
+      class="h-dvh"></div>
   </div>
 </template>
 
