@@ -293,7 +293,6 @@ var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 var content = new MultipartFormDataContent();
 content.Add(new StreamContent(File.OpenRead("test.txt")), "file", "test.txt");
 content.Add(new StringContent("value"), "field");
-
 request.Content = content;
 
 using var response = await client.SendAsync(request);`)
@@ -314,7 +313,6 @@ using var response = await client.SendAsync(request);`)
 var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 var content = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("binary content"));
 content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
 request.Content = content;
 
 using var response = await client.SendAsync(request);`)
