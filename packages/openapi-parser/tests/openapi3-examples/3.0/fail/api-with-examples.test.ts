@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import apiWithExamples from './api-with-examples.yaml?raw'
 
 describe('api-with-examples', () => {
-  it('returns an error', async () => {
-    const result = await validate(apiWithExamples)
+  it('returns an error', () => {
+    const result = validate(apiWithExamples)
 
     // TODO: Swagger Editor:
     //

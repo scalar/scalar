@@ -5,8 +5,8 @@ import edit1 from './edit1.json'
 import openApiVue from './openapi.json'
 
 describe('openapi-vue', () => {
-  it('openapi', async () => {
-    const result = await validate(openApiVue)
+  it('openapi', () => {
+    const result = validate(openApiVue)
 
     // TODO: SwaggerUI has a more helpful error message:
     //
@@ -17,8 +17,8 @@ describe('openapi-vue', () => {
     expect(result.valid).toBe(false)
   })
 
-  it('edit1', async () => {
-    const result = await validate(edit1)
+  it('edit1', () => {
+    const result = validate(edit1)
 
     // TODO: SwaggerUI has a more helpful error message:
     //

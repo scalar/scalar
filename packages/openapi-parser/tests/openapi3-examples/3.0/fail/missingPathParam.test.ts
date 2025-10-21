@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import missingPathParam from './missingPathParam.yaml?raw'
 
 describe.todo('missingPathParam', () => {
-  it('returns an error', async () => {
-    const result = await validate(missingPathParam)
+  it('returns an error', () => {
+    const result = validate(missingPathParam)
 
     // TODO: Swagger Editor
     //

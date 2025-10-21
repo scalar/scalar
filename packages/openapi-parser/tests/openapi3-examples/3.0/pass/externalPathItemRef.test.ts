@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { load, validate } from '../../../../src/index'
@@ -12,7 +13,7 @@ describe('externalPathItemRef', () => {
       plugins: [readFiles()],
     })
 
-    const { schema } = await validate(filesystem)
+    const { schema } = validate(filesystem)
 
     expect(schema.paths['/test'].get).not.toBeUndefined()
     expect(schema.paths['/test'].get).toMatchObject({

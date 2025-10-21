@@ -43,7 +43,7 @@ class SwaggerParser {
         throwOnError: true,
       })
 
-      const result = await validate(filesystem, {
+      const result = validate(filesystem, {
         throwOnError: true,
       })
       callback(null, result.schema)

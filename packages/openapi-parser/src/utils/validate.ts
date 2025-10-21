@@ -2,6 +2,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import { Validator } from '@/lib/Validator/Validator'
 import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '@/types/index'
+
 import { makeFilesystem } from './make-filesystem'
 
 export type ValidateOptions = ThrowOnErrorOption
@@ -9,14 +10,11 @@ export type ValidateOptions = ThrowOnErrorOption
 /**
  * Validates an OpenAPI document
  */
-export async function validate(
-  value: string | AnyObject | Filesystem,
-  options?: ValidateOptions,
-): Promise<ValidateResult> {
+export function validate(value: string | AnyObject | Filesystem, options?: ValidateOptions): ValidateResult {
   const filesystem = makeFilesystem(value)
 
   const validator = new Validator()
-  const result = await validator.validate(filesystem, options)
+  const result = validator.validate(filesystem, options)
 
   return {
     ...result,

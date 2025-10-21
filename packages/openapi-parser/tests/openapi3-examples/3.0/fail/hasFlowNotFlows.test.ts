@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import hasFlowNotFlows from './hasFlowNotFlows.json'
 
 describe('hasFlowNotFlows', () => {
-  it('returns an error', async () => {
-    const result = await validate(hasFlowNotFlows)
+  it('returns an error', () => {
+    const result = validate(hasFlowNotFlows)
 
     // TODO: This should probably mention the incorrect security type?
     expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)

@@ -3,7 +3,7 @@ import { validate } from '@/utils/validate'
 import { describe, expect, it } from 'vitest'
 
 describe('cyclical', () => {
-  it('resolves circular references', async () => {
+  it('resolves circular references', () => {
     const specification = {
       openapi: '3.0.0',
       info: {
@@ -36,7 +36,7 @@ describe('cyclical', () => {
       },
     }
 
-    const result = await validate(specification)
+    const result = validate(specification)
 
     expect(result.valid).toBe(true)
     expect(result.version).toBe('3.0')
@@ -46,7 +46,7 @@ describe('cyclical', () => {
     expect(category.subcategories.items.properties.subcategories.type).toEqual('array')
   })
 
-  it.todo('resolves circular dependencies in referenced files', async () => {
+  it.todo('resolves circular dependencies in referenced files', () => {
     const baseFile = {
       openapi: '3.0.0',
       info: {
@@ -89,7 +89,7 @@ describe('cyclical', () => {
       },
     }
 
-    const result = await validate([
+    const result = validate([
       {
         isEntrypoint: true,
         specification: baseFile,

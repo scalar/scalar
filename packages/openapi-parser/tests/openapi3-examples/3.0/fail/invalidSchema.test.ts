@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import invalidSchema from './invalidSchema.json'
 
 describe('invalidSchema', () => {
-  it('returns an error', async () => {
-    const result = await validate(invalidSchema)
+  it('returns an error', () => {
+    const result = validate(invalidSchema)
 
     // TODO: Swagger Editor
     //
