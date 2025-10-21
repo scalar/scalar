@@ -1,17 +1,10 @@
 import type { CXOptions } from 'cva'
-import { type AllowedComponentProps, computed, useAttrs } from 'vue'
+import { type StyleValue, computed, useAttrs } from 'vue'
 
 import { cx } from './cva'
 
 /** Utility type for class names */
 type ClassValue = CXOptions[number]
-
-/**
- * Utility type for style values
- *
- * Currently is `unknown` but Vue might provide a stricter type in the future
- */
-type StyleValue = AllowedComponentProps['style']
 
 /**
  * Provides a wrapper around the `cx` function that merges the
@@ -49,7 +42,7 @@ export function useBindCx() {
     rest: { [key: string]: unknown }
   }>(() => {
     const { class: className, style, ...rest } = attrs
-    return { class: className || '', style, rest }
+    return { class: className || '', style: style as StyleValue, rest }
   })
 
   function bindCx(...args: CXOptions): {
