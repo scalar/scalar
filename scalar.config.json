@@ -568,6 +568,12 @@
       "redirects": [{
         "from": "/scalar/scalar-registry/github-workflows",
         "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/1/*",
+        "to": "/scalar/that-worked-1"
+      }, {
+        "from": "/regex/2/:pathMatch(.*)*",
+        "to": "/scalar/that-worked-2"
       }]
     }
   }
