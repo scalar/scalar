@@ -89,7 +89,7 @@ function onSearchResultClick(result: FuseResult<FuseData>) {
   let parentId = 'models'
   const tagMatch = result.item.href.match(tagRegex)
 
-  if (tagMatch?.length && tagMatch.length > 1) {
+  if (tagMatch?.[1]) {
     parentId = tagMatch[1]
   }
   // Expand the corresponding sidebar item
@@ -109,6 +109,11 @@ watch(selectedIndex, (index) => {
   }
 
   const newResult = searchResultsWithPlaceholderResults.value[index]
+
+  if (!newResult) {
+    return
+  }
+
   const optionId = getOptionId(newResult?.item.href)
 
   document.getElementById(optionId)?.scrollIntoView({
@@ -152,12 +157,13 @@ function onSearchResultEnter() {
 
   const results = searchResultsWithPlaceholderResults.value
 
+  const selectedResult = results[selectedIndex.value]
   // Prevents the user from navigating if there are no results
-  if (results.length === 0) {
+  if (results.length === 0 || !selectedResult) {
     return
   }
 
-  onSearchResultClick(results[selectedIndex.value])
+  onSearchResultClick(selectedResult)
 }
 </script>
 <template>

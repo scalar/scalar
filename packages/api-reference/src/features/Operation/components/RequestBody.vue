@@ -38,7 +38,7 @@ const availableContentTypes = computed(() =>
 const selectedContentType = ref<string>('application/json')
 
 if (requestBody?.content) {
-  if (availableContentTypes.value.length > 0) {
+  if (availableContentTypes.value[0]) {
     selectedContentType.value = availableContentTypes.value[0]
   }
 }

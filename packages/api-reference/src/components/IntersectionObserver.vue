@@ -35,8 +35,8 @@ onMounted(() => {
 
     useIntersectionObserver(
       intersectionObserverRef,
-      ([{ isIntersecting }]) => {
-        if (isIntersecting && props.id) {
+      ([entry]) => {
+        if (entry?.isIntersecting && props.id) {
           emit('intersecting', props.id)
         }
       },

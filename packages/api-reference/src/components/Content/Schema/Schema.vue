@@ -67,7 +67,7 @@ const shouldShowToggle = computed((): boolean => {
 const schemaDescription = computed(() => {
   // For the request body we want to show the base description or the first allOf schema description
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return schema.description || schema.allOf[0].description
+    return schema.description || schema.allOf[0]?.description || null
   }
 
   // Don't show description if there's no description or it's not a string

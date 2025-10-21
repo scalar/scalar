@@ -318,7 +318,11 @@ const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
 ) => {
-  console.log('changeSelectedDocument', slug, elementId)
+  if (!configList.value[slug]) {
+    console.warn(`Document ${slug} not found in configList`)
+    return
+  }
+
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, configList.value[slug].config)
 
@@ -393,14 +397,14 @@ watch(
      */
     const updateSource = async (
       updated: NormalizedConfiguration,
-      previous: NormalizedConfiguration,
+      previous: NormalizedConfiguration | undefined,
     ) => {
       /** If we have not loaded the document previously we don't need to handle any updates to store */
       if (!workspaceStore.workspace.documents[updated.slug]) {
         return
       }
       /** If the URL has changed we fetch and rebase */
-      if (updated.source.url && updated.source.url !== previous.source.url) {
+      if (updated.source.url && updated.source.url !== previous?.source.url) {
         const proxy: UrlDoc['fetch'] = (input, init) =>
           fetch(
             redirectToProxy(
@@ -432,7 +436,9 @@ watch(
       if (
         diff(
           updated.source.content,
-          'content' in previous.source ? (previous.source.content ?? {}) : {},
+          previous && 'content' in previous.source
+            ? (previous.source.content ?? {})
+            : {},
         ).length
       ) {
         await workspaceStore.addDocument({
@@ -455,7 +461,7 @@ watch(
       newSlugs.length !== oldSlugs.length ||
       !newSlugs.every((slug, index) => slug === oldSlugs[index])
     ) {
-      await changeSelectedDocument(newSlugs[0])
+      await changeSelectedDocument(newSlugs[0] ?? '')
     }
   },
   {
@@ -486,7 +492,7 @@ onBeforeMount(() =>
  */
 const dereferenced = ref<ReturnType<typeof dereference>['schema'] | null>(null)
 
-const modal = useTemplateRef('modal')
+const modal = useTemplateRef<HTMLElement>('modal')
 
 /**
  * Keeps the client store in sync with the workspace store

@@ -1,4 +1,4 @@
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -52,9 +52,12 @@ describe('createApiReference', () => {
 
   it('handles scalar:reload-references event', () => {
     const element = document.querySelector('#mount-point')
-    const config = { _integration: 'html' }
+    const config = {
+      _integration: 'html',
+      content: { 'openapi': '3.1.0', 'info': { 'title': 'Test API', 'version': '1.0.0' } },
+    }
 
-    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    createApiReference(element!, apiReferenceConfigurationWithSourceSchema.parse(config))
     document.dispatchEvent(new Event('scalar:reload-references'))
 
     expect(consoleWarnSpy).toHaveBeenCalledOnce()

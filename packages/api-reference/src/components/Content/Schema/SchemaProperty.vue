@@ -89,9 +89,11 @@ const generatePropertyDescription = (property?: Record<string, any>) => {
     return null
   }
 
-  return descriptions[property.type][
-    property.format || property.contentEncoding || '_default'
-  ]
+  return (
+    descriptions[property.type]?.[
+      property.format || property.contentEncoding || '_default'
+    ] || null
+  )
 }
 
 const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>

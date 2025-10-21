@@ -44,7 +44,9 @@ const content = computed(() =>
   'content' in parameter && parameter.content ? parameter.content : null,
 )
 
-const selectedContentType = ref<string>(Object.keys(content.value || {})[0])
+const selectedContentType = ref<string>(
+  Object.keys(content.value || {})[0] ?? '',
+)
 
 /** Response headers */
 const headers = computed<ResponseObject['headers'] | null>(() =>

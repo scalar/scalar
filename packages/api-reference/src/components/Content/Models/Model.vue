@@ -9,7 +9,7 @@ import ModernLayout from './components/ModernLayout.vue'
 const { schema, isCollapsed } = defineProps<{
   id: string
   name: string
-  schema: SchemaObject
+  schema: SchemaObject | undefined
   isCollapsed: boolean
   options: {
     layout: 'classic' | 'modern'
@@ -31,6 +31,7 @@ const emitToggleSchema = (id: string, open: boolean) => {
 </script>
 <template>
   <IntersectionObserver
+    v-if="schema"
     :id="id"
     class="section-wrapper"
     @intersecting="() => emit('intersecting', id)">

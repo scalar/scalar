@@ -70,7 +70,9 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
  * Two-way computed property for the selected option.
  * Handles conversion between the selected index and the listbox option format.
  */
-const selectedOption = ref<ScalarListboxOption>(listboxOptions.value[0])
+const selectedOption = ref<ScalarListboxOption | undefined>(
+  listboxOptions.value[0],
+)
 
 /**
  * Humanize composition keyword name for display.
@@ -85,7 +87,7 @@ const humanizeType = (type: CompositionKeyword): string =>
 
 /** Inside the currently selected composition */
 const selectedComposition = computed(
-  () => composition.value[Number(selectedOption.value.id)].value,
+  () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
 </script>
 

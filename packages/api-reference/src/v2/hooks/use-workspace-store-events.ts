@@ -80,8 +80,9 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
       return
     }
 
-    if (activeServer.variables?.[event.detail.key]) {
-      activeServer.variables[event.detail.key].default = event.detail.value
+    const variable = activeServer.variables?.[event.detail.key]
+    if (variable) {
+      variable.default = event.detail.value
     }
   })
 
