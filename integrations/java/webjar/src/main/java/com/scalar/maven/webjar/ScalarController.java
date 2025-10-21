@@ -1,5 +1,9 @@
 package com.scalar.maven.webjar;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scalar.maven.webjar.internal.ScalarConfiguration;
+import com.scalar.maven.webjar.internal.ScalarConfigurationMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -9,24 +13,29 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for serving the Scalar API Reference interface.
  *
- * <p>This controller provides endpoints for accessing the Scalar API Reference
+ * <p>
+ * This controller provides endpoints for accessing the Scalar API Reference
  * interface and the associated JavaScript bundle. It automatically configures
- * the interface based on the provided {@link ScalarProperties}.</p>
+ * the interface based on the provided {@link ScalarProperties}.
+ * </p>
  *
- * <p>The controller serves two main endpoints:</p>
+ * <p>
+ * The controller serves two main endpoints:
+ * </p>
  * <ul>
- *   <li>{@code /scalar} (or custom path) - The main API reference interface</li>
- *   <li>{@code /scalar/scalar.js} (or custom path) - The JavaScript bundle</li>
+ * <li>{@code /scalar} (or custom path) - The main API reference interface</li>
+ * <li>{@code /scalar/scalar.js} (or custom path) - The JavaScript bundle</li>
  * </ul>
  *
- * <p>This controller can be overridden by providing a custom {@code ScalarController}
- * bean in the application context.</p>
+ * <p>
+ * This controller can be overridden by providing a custom
+ * {@code ScalarController}
+ * bean in the application context.
+ * </p>
  *
  * @since 0.1.0
  */
@@ -38,6 +47,7 @@ public class ScalarController {
     private static final String JS_FILENAME = "scalar.js";
 
     private final ScalarProperties properties;
+    private final ObjectMapper objectMapper;
 
     /**
      * Creates a new ScalarController with the specified properties.
@@ -46,16 +56,20 @@ public class ScalarController {
      */
     public ScalarController(ScalarProperties properties) {
         this.properties = properties;
+        this.objectMapper = new ObjectMapper();
     }
 
     /**
      * Serves the main API reference interface.
      *
-     * <p>This endpoint returns an HTML page that displays the Scalar API Reference
+     * <p>
+     * This endpoint returns an HTML page that displays the Scalar API Reference
      * interface. The page is configured with the OpenAPI specification URL from
-     * the properties.</p>
+     * the properties.
+     * </p>
      *
-     * @return a ResponseEntity containing the HTML content for the API reference interface
+     * @return a ResponseEntity containing the HTML content for the API reference
+     * interface
      * @throws IOException if the HTML template cannot be loaded
      */
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}")
@@ -82,8 +96,11 @@ public class ScalarController {
     /**
      * Serves the JavaScript bundle for the Scalar API Reference.
      *
-     * <p>This endpoint returns the JavaScript file that powers the Scalar API Reference
-     * interface. The file is served with the appropriate MIME type.</p>
+     * <p>
+     * This endpoint returns the JavaScript file that powers the Scalar API
+     * Reference
+     * interface. The file is served with the appropriate MIME type.
+     * </p>
      *
      * @return a ResponseEntity containing the JavaScript bundle
      * @throws IOException if the JavaScript file cannot be loaded
@@ -105,7 +122,8 @@ public class ScalarController {
 
     /**
      * Builds the CDN URL for the Scalar JavaScript file.
-     * Uses the configured path if available, otherwise defaults to the DEFAULT_PATH.
+     * Uses the configured path if available, otherwise defaults to the
+     * DEFAULT_PATH.
      *
      * @return the complete URL for the JavaScript bundle
      */
@@ -125,61 +143,17 @@ public class ScalarController {
     }
 
     /**
-     * Builds the JSON for the OpenAPI reference sources
+     * Hook method that allows derived controllers to configure properties before
+     * serialization.
+     * Override this method to customize the ScalarProperties before they are
+     * converted to JSON.
      *
-     * @param sources list of OpenAPI reference sources
-     * @return the sources as a JSON string
+     * @param properties the properties to configure
+     * @return the configured properties (may be the same instance or a modified
+     * copy)
      */
-    private String buildSourcesJsonArray(List<ScalarProperties.ScalarSource> sources) {
-        final StringBuilder builder = new StringBuilder("[");
-
-        // Filter out sources with invalid urls
-        final List<ScalarProperties.ScalarSource> filteredSources = sources.stream()
-                .filter(source -> isNotNullOrBlank(source.getUrl()))
-                .collect(Collectors.toList());
-
-        // Append each source to json array
-        for (int i = 0; i < filteredSources.size(); i++) {
-            final ScalarProperties.ScalarSource source = filteredSources.get(i);
-
-            final String sourceJson = buildSourceJson(source);
-            builder.append("\n").append(sourceJson);
-
-            if (i != filteredSources.size() - 1) {
-                builder.append(",");
-            }
-        }
-
-        builder.append("\n]");
-        return builder.toString();
-    }
-
-    /**
-     * Builds the JSON for an OpenAPI reference source
-     *
-     * @param source the OpenAPI reference source
-     * @return the source as a JSON string
-     */
-    private String buildSourceJson(ScalarProperties.ScalarSource source) {
-        final StringBuilder builder = new StringBuilder("{");
-
-        builder.append("\n  url: \"").append(escapeJson(source.getUrl())).append("\"");
-
-
-        if (isNotNullOrBlank(source.getTitle())) {
-            builder.append(",\n  title: \"").append(escapeJson(source.getTitle())).append("\"");
-        }
-
-        if (isNotNullOrBlank(source.getSlug())) {
-            builder.append(",\n  slug: \"").append(escapeJson(source.getSlug())).append("\"");
-        }
-
-        if (source.isDefault() != null) {
-            builder.append(",\n  default: ").append(source.isDefault());
-        }
-
-        builder.append("\n}");
-        return builder.toString();
+    protected ScalarProperties configureProperties(ScalarProperties properties) {
+        return properties;
     }
 
     /**
@@ -188,95 +162,13 @@ public class ScalarController {
      * @return the configuration JSON as a string
      */
     private String buildConfigurationJson() {
-        StringBuilder config = new StringBuilder();
-        config.append("{");
-
-        // Add URL
-        config.append("\n  url: \"").append(escapeJson(properties.getUrl())).append("\"");
-
-        // Add sources
-        if (properties.getSources() != null && !properties.getSources().isEmpty()) {
-            config.append(",\n  sources: ").append(buildSourcesJsonArray(properties.getSources()));
+        try {
+            ScalarProperties configuredProperties = configureProperties(this.properties);
+            ScalarConfiguration config = ScalarConfigurationMapper.map(configuredProperties);
+            return objectMapper.writeValueAsString(config);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize Scalar configuration", e);
         }
-
-        // Add showSidebar
-        if (!properties.isShowSidebar()) {
-            config.append(",\n  showSidebar: false");
-        }
-
-        // Add hideModels
-        if (properties.isHideModels()) {
-            config.append(",\n  hideModels: true");
-        }
-
-        // Add hideTestRequestButton
-        if (properties.isHideTestRequestButton()) {
-            config.append(",\n  hideTestRequestButton: true");
-        }
-
-        // Add darkMode
-        if (properties.isDarkMode()) {
-            config.append(",\n  darkMode: true");
-        }
-
-        // Add hideDarkModeToggle
-        if (properties.isHideDarkModeToggle()) {
-            config.append(",\n  hideDarkModeToggle: true");
-        }
-
-        // Add customCss
-        if (properties.getCustomCss() != null && !properties.getCustomCss().trim().isEmpty()) {
-            config.append(",\n  customCss: \"").append(escapeJson(properties.getCustomCss())).append("\"");
-        }
-
-        // Add theme
-        if (properties.getTheme() != null && !"default".equals(properties.getTheme())) {
-            config.append(",\n  theme: \"").append(escapeJson(properties.getTheme())).append("\"");
-        }
-
-        // Add layout
-        if (properties.getLayout() != null && !"modern".equals(properties.getLayout())) {
-            config.append(",\n  layout: \"").append(escapeJson(properties.getLayout())).append("\"");
-        }
-
-        // Add hideSearch
-        if (properties.isHideSearch()) {
-            config.append(",\n  hideSearch: true");
-        }
-
-        // Add documentDownloadType
-        if (properties.getDocumentDownloadType() != null && !"both".equals(properties.getDocumentDownloadType())) {
-            config.append(",\n  documentDownloadType: \"").append(escapeJson(properties.getDocumentDownloadType())).append("\"");
-        }
-
-        config.append("\n}");
-        return config.toString();
     }
 
-    /**
-     * Escapes a string for JSON output.
-     *
-     * @param input the input string
-     * @return the escaped string
-     */
-    private String escapeJson(String input) {
-        if (input == null) {
-            return "";
-        }
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    /**
-     * Returns whether a String is not null or blank
-     *
-     * @param input the string
-     * @return whether the string is not null or blank
-     */
-    private boolean isNotNullOrBlank(String input) {
-        return input != null && !input.isBlank();
-    }
 }
