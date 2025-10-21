@@ -2,9 +2,6 @@
 import {
   ScalarButton,
   ScalarIconButton,
-  ScalarMenu,
-  ScalarMenuResources,
-  ScalarMenuSupport,
   ScalarSidebarItem,
   ScalarSidebarSearchInput,
 } from '@scalar/components'
@@ -88,17 +85,20 @@ const isSearchVisible = ref(false)
         <ScalarSidebarSearchInput
           v-if="isSearchVisible || layout === 'web'"
           :autofocus="layout === 'desktop'" />
-
-        <!-- Workspace Identifier -->
-        <ScalarSidebarItem
-          is="button"
-          :icon="ScalarIconGlobe"
-          @click="emit('click:workspace')">
-          {{ workspaceLabel }}
-        </ScalarSidebarItem>
       </div>
     </template>
 
+    <!-- Workspace Identifier -->
+    <template #firstItem>
+      <ScalarSidebarItem
+        is="button"
+        :icon="ScalarIconGlobe"
+        @click="emit('click:workspace')">
+        {{ workspaceLabel }}
+      </ScalarSidebarItem>
+    </template>
+
+    <!-- Getting started section -->
     <template
       v-if="layout !== 'modal'"
       #footer>
