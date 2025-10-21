@@ -90,6 +90,7 @@
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
+    "@scalar/themes": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "github-slugger": "^2.0.0",

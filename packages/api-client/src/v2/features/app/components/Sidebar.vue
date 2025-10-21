@@ -5,16 +5,11 @@ import {
   ScalarMenu,
   ScalarMenuResources,
   ScalarMenuSupport,
+  ScalarSidebarItem,
   ScalarSidebarSearchInput,
 } from '@scalar/components'
-import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import {
-  createSidebarState,
-  ScalarSidebar,
-  type DocumentItem,
-  type Item,
-  type WorkspaceItem,
-} from '@scalar/sidebar'
+import { ScalarIconGlobe, ScalarIconMagnifyingGlass } from '@scalar/icons'
+import { createSidebarState, ScalarSidebar, type Item } from '@scalar/sidebar'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { capitalize, computed, ref } from 'vue'
 
@@ -23,7 +18,7 @@ import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import SidebarMenuWorkspace from './SidebarMenuWorkspace.vue'
+import SidebarWorkspaceMenu from './SidebarWorkspaceMenu.vue'
 
 const { documents, layout } = defineProps<{
   layout: ClientLayout
@@ -31,14 +26,19 @@ const { documents, layout } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'openCommandPalette', action?: 'import'): void
+  (e: 'open:commandPalette', action?: 'import'): void
+  (e: 'click:workspace'): void
 }>()
 
-// Temp until we have workspaces in the store
-const workspaceModel = ref('default')
+const workspaceModel = defineModel<string>({
+  required: true,
+  default: 'default',
+})
 
 // Temp until we have workspaces in the store
-const workspaceLabel = capitalize(workspaceModel.value) + ' Workspace'
+const workspaceLabel = computed(
+  () => capitalize(workspaceModel.value) + ' Workspace',
+)
 
 /** Generate the sidebar state based on the current workspace */
 const sidebarState = computed(() => {
@@ -51,29 +51,7 @@ const sidebarState = computed(() => {
     }),
   )
 
-  const state = createSidebarState(documentEntries)
-
-  /**
-   * Traverses down the children to open the first leaf
-   */
-  const openLeaf = (child: Item | undefined) => {
-    if (!child) {
-      return
-    }
-
-    if (child.type === 'text') {
-      openLeaf(child.children?.[0])
-    }
-
-    if ('children' in child && child.children && child.children.length > 0) {
-      openLeaf(child.children[0])
-    } else {
-      state.setExpanded(child.id, true)
-    }
-  }
-  openLeaf(documentEntries[0])
-
-  return state
+  return createSidebarState(documentEntries)
 })
 
 const log = (name: string, ...args: any[]) => {
@@ -95,23 +73,10 @@ const isSearchVisible = ref(false)
     <template #search>
       <div
         class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">
-        <div class="flex items-center justify-between">
-          <ScalarMenu>
-            <template #products>
-              <!-- <AppHeaderProducts /> -->
-            </template>
-            <template #sections="{ close }">
-              <SidebarMenuWorkspace
-                v-model="workspaceModel"
-                @close="close" />
-              <!-- <AppHeaderTeam
-                v-if="isLoggedIn"
-                @close="close" />
-              <AppHeaderLoggedOut v-else /> -->
-              <ScalarMenuResources />
-              <ScalarMenuSupport />
-            </template>
-          </ScalarMenu>
+        <div
+          v-if="layout === 'desktop'"
+          class="flex items-center justify-between">
+          <SidebarWorkspaceMenu v-model="workspaceModel" />
 
           <ScalarIconButton
             :icon="ScalarIconMagnifyingGlass"
@@ -121,8 +86,16 @@ const isSearchVisible = ref(false)
 
         <!-- Actual search input -->
         <ScalarSidebarSearchInput
-          v-if="isSearchVisible"
-          autofocus />
+          v-if="isSearchVisible || layout === 'web'"
+          :autofocus="layout === 'desktop'" />
+
+        <!-- Workspace Identifier -->
+        <ScalarSidebarItem
+          is="button"
+          :icon="ScalarIconGlobe"
+          @click="emit('click:workspace')">
+          {{ workspaceLabel }}
+        </ScalarSidebarItem>
       </div>
     </template>
 
@@ -157,13 +130,13 @@ const isSearchVisible = ref(false)
             v-if="showGettingStarted"
             class="w-full"
             size="sm"
-            @click="emit('openCommandPalette', 'import')">
+            @click="emit('open:commandPalette', 'import')">
             Import Collection
           </ScalarButton>
 
           <ScalarButton
             class="w-full"
-            :click="emit('openCommandPalette')"
+            :click="emit('open:commandPalette')"
             hotkey="K"
             size="sm"
             variant="outlined">

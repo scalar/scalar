@@ -9,13 +9,17 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarTeleportRoot } from '@scalar/components'
+import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { computed, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
+import DesktopTabs from './DesktopTabs.vue'
 import Sidebar from './Sidebar.vue'
+import WebTopNav from './WebTopNav.vue'
 
 const { layout, workspaceStore } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
@@ -29,14 +33,37 @@ if (typeof window !== 'undefined') {
   // @ts-expect-error - For debugging purposes expose the store
   window.dataDumpWorkspace = () => workspaceStore
 }
+
+/** Generate the theme style tag */
+const themeStyleTag = computed(() => {
+  const themeId = workspaceStore.workspace['x-scalar-theme']
+  if (!themeId) {
+    return ''
+  }
+
+  return `<style>${getThemeStyles(themeId)}</style>`
+})
+
+// Temp until we have workspaces in the store
+const workspaceModel = ref('default')
 </script>
 
 <template>
+  <div v-html="themeStyleTag" />
   <ScalarTeleportRoot>
-    <!-- min-h-0 is to allow scrolling of individual flex children -->
+    <!-- Desktop App Tabs -->
+    <DesktopTabs v-if="layout === 'desktop'" />
+
+    <!-- Web App Top Nav -->
+    <WebTopNav
+      v-else
+      v-model="workspaceModel" />
+
+    <!-- min-h-0 is to allow scrolling of individual flex children, do not remove it -->
     <main class="flex min-h-0 flex-1 flex-row items-stretch">
       <!-- Global sidebar -->
       <Sidebar
+        v-model="workspaceModel"
         :documents="workspaceStore.workspace.documents"
         :layout="layout" />
 
