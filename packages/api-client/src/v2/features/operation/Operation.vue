@@ -53,7 +53,9 @@ defineProps<{
   request?: Request
   /** Total number of performed requests */
   totalPerformedRequests: number
-  /** Controlls sidebar visibility */
+  /** Sidebar open state */
+  isSidebarOpen?: boolean
+  /** Controls sidebar visibility */
   showSidebar?: boolean
   /** Hides the client button on the header */
   hideClientButton?: boolean
@@ -96,7 +98,7 @@ const emit = defineEmits<{
     e: 'addressBar:update:variable',
     payload: { key: string; value: string },
   ): void
-  (e: 'addressBar:addServer'): void
+  (e: 'addressBar:add:server'): void
 
   (e: 'operation:update:requestName', payload: { name: string }): void
   (e: 'addressBar:hideModal'): void
@@ -181,12 +183,13 @@ const emit = defineEmits<{
         :percentage="requestLoadingPercentage"
         :server="server"
         :servers="servers"
+        :isSidebarOpen="isSidebarOpen"
         :showSidebar="showSidebar"
         :hideClientButton="hideClientButton"
         :integration="integration"
         :documentUrl="documentUrl"
         :source="source"
-        @addServer="emit('addressBar:addServer')"
+        @add:server="emit('addressBar:add:server')"
         @execute="emit('addressBar:execute')"
         @importCurl="(value) => emit('addressBar:importCurl', value)"
         @update:method="(payload) => emit('addressBar:update:method', payload)"

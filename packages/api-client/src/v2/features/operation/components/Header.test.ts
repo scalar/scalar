@@ -355,16 +355,16 @@ describe('Header Component', () => {
       expect(wrapper.emitted('update:variable')?.[0]).toEqual([payload])
     })
 
-    it('forwards addServer event from AddressBar', async () => {
+    it('forwards add:server event from AddressBar', async () => {
       const wrapper = mount(Header, {
         props: createDefaultProps(),
       })
 
       const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      await addressBar.vm.$emit('addServer')
+      await addressBar.vm.$emit('add:server')
 
-      expect(wrapper.emitted('addServer')).toBeTruthy()
-      expect(wrapper.emitted('addServer')?.length).toBe(1)
+      expect(wrapper.emitted('add:server')).toBeTruthy()
+      expect(wrapper.emitted('add:server')?.length).toBe(1)
     })
   })
 })

@@ -204,16 +204,16 @@ describe('Operation Component', () => {
       expect(wrapper.emitted('addressBar:update:variable')?.[0]).toEqual([payload])
     })
 
-    it('forwards addressBar:addServer event', async () => {
+    it('forwards addressBar:add:server event', async () => {
       const wrapper = mount(Operation, {
         props: createDefaultProps(),
       })
 
       const header = wrapper.findComponent({ name: 'Header' })
-      await header.vm.$emit('addServer')
+      await header.vm.$emit('add:server')
 
-      expect(wrapper.emitted('addressBar:addServer')).toBeTruthy()
-      expect(wrapper.emitted('addressBar:addServer')?.length).toBe(1)
+      expect(wrapper.emitted('addressBar:add:server')).toBeTruthy()
+      expect(wrapper.emitted('addressBar:add:server')?.length).toBe(1)
     })
 
     it('forwards addressBar:hideModal event', async () => {

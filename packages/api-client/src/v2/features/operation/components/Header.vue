@@ -17,7 +17,9 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   /** Client layout */
   layout: ClientLayout
 
-  /** Controlls sidebar visibility */
+  /** Sidebar open state */
+  isSidebarOpen?: boolean
+  /** Controls sidebar visibility */
   showSidebar?: boolean
   /** Hides the client button on the header */
   hideClientButton?: boolean
@@ -59,7 +61,7 @@ const emit = defineEmits<{
   (e: 'execute'): void
   (e: 'update:selectedServer', payload: { id: string }): void
   (e: 'update:variable', payload: { key: string; value: string }): void
-  (e: 'addServer'): void
+  (e: 'add:server'): void
   /** On modal mode hide the modal */
   (e: 'hideModal'): void
 }>()
@@ -73,12 +75,12 @@ const emit = defineEmits<{
       <!--
           Holds space for the sidebar toggle 
 
-          Hiden for `modal` layout
+          Hidden for `modal` layout
       -->
       <div
         v-if="showSidebar"
         class="size-8"
-        :class="{ hidden: layout === 'modal' }" />
+        :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
       :envVariables="envVariables"
@@ -91,7 +93,7 @@ const emit = defineEmits<{
       :percentage="requestLoadingPercentage"
       :server="server"
       :servers="servers"
-      @addServer="emit('addServer')"
+      @add:server="emit('add:server')"
       @execute="emit('execute')"
       @importCurl="(value) => emit('importCurl', value)"
       @update:method="(payload) => emit('update:method', payload)"
@@ -117,7 +119,7 @@ const emit = defineEmits<{
       <!-- 
           Close Button
 
-          Only shown in `modal` layout  
+          Only shown in `modal` layout and hidden for GitBook Integration
       -->
       <button
         v-if="layout === 'modal'"
@@ -133,7 +135,7 @@ const emit = defineEmits<{
       <!-- 
           Close Button for GitBook Integration
 
-          Only shown in `modal` layout
+          Hidden by default and visible for GitBook Integration in `modal` layout
       -->
       <button
         v-if="layout === 'modal'"
