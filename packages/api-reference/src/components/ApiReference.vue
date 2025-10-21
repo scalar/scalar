@@ -270,13 +270,32 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
   hooks: {},
 })
 
+/** Recursively set all children of the given items to open */
+const setChildrenOpen = (items: TraversedEntry[]): void => {
+  items.forEach((item) => {
+    if (item.type === 'tag') {
+      sidebarState.setExpanded(item.id, true)
+    }
+    if ('children' in item && item.children) {
+      setChildrenOpen(item.children)
+    }
+  })
+}
+
 /** We get the sub items for the sidebar based on the configuration/document slug */
-const sidebarItems = computed<TraversedEntry[]>(
-  () =>
+const sidebarItems = computed<TraversedEntry[]>(() => {
+  const docItems =
     sidebarState.items.value.find(
       (item): item is TraversedTag => item.id === activeSlug.value,
-    )?.children ?? [],
-)
+    )?.children ?? []
+
+  // When the default open all tags configuration is enabled we open all the children of the document
+  if (configList.value[activeSlug.value]?.config.defaultOpenAllTags) {
+    setChildrenOpen(docItems)
+  }
+
+  return docItems
+})
 
 /** Find the sidebar entry that represents the introduction section */
 const infoSectionId = computed(
@@ -679,6 +698,7 @@ onBeforeMount(() => {
         :options="{
           operationTitleSource: mergedConfig.operationTitleSource,
         }"
+        role="navigation"
         @selectItem="(id) => handleSelectItem(id)">
         <template #header>
           <!-- Wrap in a div when slot is filled -->
