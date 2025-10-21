@@ -118,7 +118,7 @@ The Stoplight sidebar content can be found in `toc.json`, and converted in your 
 
 Take this example `toc.json` from a Stoplight project.
 
-```
+```json
 {
   "items": [
     {
@@ -141,7 +141,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 2. Remove `title` as Scalar will take that from the Markdown title.
 3. Change `path:` to `uri:`.
 
-```
+```json
 {
   "subdomain": "train-travel-api",
   "publishOnMerge": true,
@@ -172,6 +172,9 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
   ]
 }
 ```
+
+> [!NOTE]
+> You can create more complex sidebars with nested pages and more. See this example [scalar.config.json](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/scalar.config.json) to see how it works.
 
 Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks.
 
