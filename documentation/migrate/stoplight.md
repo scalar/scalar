@@ -235,7 +235,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 {
   "routing": {
     "redirect": [{
-      "from": "/docs/<stoplight-project>/10a1321b3-github-workflows",
+      "from": "/docs/<stoplight-project>/10a1321b3-:wildcard",
       "to": "/scalar/scalar-registry/github-actions"
     }]
   }
@@ -243,7 +243,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 }
 ```
 
-A conversion script is being worked on to help automate this for larger projects, so reach out to the Scalar team if you'd like help with this.
+**Learn more about [Scalar Redirects](https://guides.scalar.com/scalar/scalar-docs/redirects) here.**
 
 ## Summary
 
@@ -251,4 +251,4 @@ The biggest advantage in this migration is that both tools are fundamentally Ope
 
 Most teams can complete this migration in somewhere between a few hours and a few days, depending on how many projects and APIs need moving over. Larger enterprises will take slightly longer depending on the complexity of their API ecosystem.
 
-Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Stoplight implementations. The team consist of experts that helped build Stoplight in the first place, so they're well placed to help migrate anyone regardless of their size of complexity.
+Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Stoplight implementations. The team consist of experts that helped build Stoplight in the first place, so they're well placed to help migrate anyone regardless of the size or complexity of the projects.
