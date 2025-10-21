@@ -180,12 +180,13 @@ const file: OpenAPI.Document = {
 You can reference other files, too. To do that, the parser needs to know what files are available.
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import { readFiles } from '@scalar/openapi-parser/plugins/read-files'
+import { bundle } from "@scalar/json-magic/bundle"
+import { fetchUrls } from "@scalar/json-magic/bundle/plugins/browser"
+import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
-const { filesystem } = await load('./openapi.yaml', {
+const result = await bundle('./openapi.yaml', {
   plugins: [
     readFiles(),
     fetchUrls({
@@ -198,21 +199,23 @@ const { filesystem } = await load('./openapi.yaml', {
 const result = await dereference(filesystem)
 ```
 
-As you see, `load()` supports plugins. You can write your own plugin, if you'd like to fetch API defintions from another data source, for example your database. Look at the source code of the `readFiles` to learn how this could look like.
+As you see, `bundle()` supports plugins. You can write your own plugin, if you'd like to fetch API definitions from another data source, for example your database. Look at the source code of the `readFiles` to learn how this could look like.
 
 #### Directly load URLs
 
 Once the `fetchUrls` plugin is loaded, you can also just pass an URL:
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { bundle } from "@scalar/json-magic/bundle"
+import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser"
+import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
-const { filesystem } = await load(
+const data = await bundle(
   'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   {
-    plugins: [fetchUrls()],
+    plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
   },
 )
 ```
@@ -222,11 +225,39 @@ const { filesystem } = await load(
 If you're using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { bundle } from "@scalar/json-magic/bundle"
+import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser"
+import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
-const { filesystem } = await load(
+const result = await bundle(
+  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+  {
+    plugins: [
+      fetchUrls({
+        fetch: (url) => fetch(url.replace('BANANA.net', 'jsdelivr.net')),
+      }).get('https://cdn.BANANA.net/npm/@scalar/galaxy/dist/latest.yaml'),
+    ],
+  },
+)
+```
+
+#### Migration from the load method
+
+If you were previously using the `load()` method and want to migrate to the latest bundle method, the following diff illustrates the changes to apply.
+
+```diff
+-import { dereference, load } from '@scalar/openapi-parser'
+-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
++import { bundle } from "@scalar/json-magic/bundle"
++import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser"
++import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
++import { dereference } from '@scalar/openapi-parser'
+
+// Load a file and all referenced files
+-const { filesystem } = await load(
++const result = await bundle(
   'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   {
     plugins: [
