@@ -11,6 +11,7 @@ import type {
 import { computed } from 'vue'
 
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
@@ -38,7 +39,6 @@ const { options, document, items } = defineProps<{
     showOperationId?: boolean | undefined
     hideTestRequestButton: boolean | undefined
     expandAllResponses?: boolean
-    hideModels: boolean | undefined
     expandAllModelSections: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -73,6 +73,11 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
   <SectionFlare />
 
   <div class="narrow-references-container">
+    <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
+    <IntersectionObserver
+      id="scalar-document-start"
+      @intersecting="() => emit('intersecting', '')">
+    </IntersectionObserver>
     <slot name="start" />
 
     <!-- Introduction -->

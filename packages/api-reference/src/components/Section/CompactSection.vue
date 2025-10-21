@@ -77,9 +77,10 @@ const emit = defineEmits<{
 .collapsible-section-content {
   padding: 0;
   margin: 0;
+  margin-bottom: 10px;
   scroll-margin-top: 140px;
 }
-.collapsible-section:not(:last-child) .collapsible-section-content {
+/* .collapsible-section:not(:last-of-type) .collapsible-section-content {
   margin-bottom: 10px;
-}
+} */
 </style>

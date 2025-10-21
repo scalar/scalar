@@ -25,7 +25,6 @@ const emit = defineEmits<{
 }>()
 
 const emitToggleSchema = (id: string, open: boolean) => {
-  console.log('emitToggleSchema', id, open)
   emit('toggleSchema', id, open)
 }
 </script>
@@ -33,7 +32,6 @@ const emitToggleSchema = (id: string, open: boolean) => {
   <IntersectionObserver
     v-if="schema"
     :id="id"
-    class="section-wrapper"
     @intersecting="() => emit('intersecting', id)">
     <ClassicLayout
       v-if="options.layout === 'classic'"

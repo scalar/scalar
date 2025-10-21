@@ -102,12 +102,16 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
 </script>
 
 <template>
+  <!-- The key must be joined with the layout to force a re-render when the layout changes -->
+  <!-- Without this we get a timing issue where the lazy bus is reset and the element is not rendered -->
   <Lazy
     v-for="entry in entries"
     :id="entry.id"
-    :key="entry.id">
+    :key="`${entry.id}-${options.layout}`">
     <!-- Operation or Webhook -->
-    <SectionContainer v-if="isOperation(entry) || isWebhook(entry)">
+    <SectionContainer
+      v-if="isOperation(entry) || isWebhook(entry)"
+      :omit="level !== 0">
       <Operation
         :id="entry.id"
         :getSecurityScheme="getSecuritySchemes"

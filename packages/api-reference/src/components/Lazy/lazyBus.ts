@@ -109,7 +109,7 @@ watchDebounced(
  * We only make elements pending if they are not already in the priority or ready queue
  */
 const addToPendingQueue = (id: string | undefined) => {
-  if (!!id && !readyQueue.has(id) && !priorityQueue.has(id) && !pendingQueue.has(id)) {
+  if (!!id && !readyQueue.has(id) && !priorityQueue.has(id)) {
     pendingQueue.add(id)
   }
 }
@@ -180,7 +180,6 @@ export const scrollToLazy = (
   const addParents = (currentId: string) => {
     const parent = getEntryById(currentId)?.parent
     if (parent) {
-      addToPriorityQueue(parent.id)
       setExpanded(parent.id, true)
       addParents(parent.id)
     }

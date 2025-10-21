@@ -86,6 +86,8 @@ if (typeof window !== 'undefined') {
 }
 
 const root = useTemplateRef('root')
+const { mediaQueries } = useBreakpoints()
+const { copyToClipboard } = useClipboard()
 
 /**
  * Used to inject the environment into built packages
@@ -98,16 +100,12 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const isSidebarOpen = ref(false)
 
-const { mediaQueries } = useBreakpoints()
-
 watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
   if (oldValue && !newValue) {
     isSidebarOpen.value = false
   }
 })
-
-const { copyToClipboard } = useClipboard()
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -284,17 +282,39 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
 
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
+  const config = mergedConfig.value
+
+  if (!config) {
+    return []
+  }
+
   const docItems =
     sidebarState.items.value.find(
       (item): item is TraversedTag => item.id === activeSlug.value,
     )?.children ?? []
 
   // When the default open all tags configuration is enabled we open all the children of the document
-  if (configList.value[activeSlug.value]?.config.defaultOpenAllTags) {
+  if (config.defaultOpenAllTags) {
     setChildrenOpen(docItems)
   }
 
-  return docItems
+  // When the expand all model sections configuration is enabled we open all the children of the models tag
+  if (config.expandAllModelSections) {
+    const models = docItems.find(
+      (item): item is TraversedTag =>
+        item.type === 'tag' && item.id === 'models',
+    )
+    if (models) {
+      sidebarState.setExpanded(models.id, true)
+      models.children?.forEach((child) => {
+        sidebarState.setExpanded(child.id, true)
+      })
+    }
+  }
+
+  return docItems.filter((item) =>
+    config.hideModels ? item.id !== 'models' : true,
+  )
 })
 
 /** Find the sidebar entry that represents the introduction section */
@@ -337,24 +357,22 @@ const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
 ) => {
-  if (!configList.value[slug]) {
+  // Always set it to active; if the document is null we show a loading state
+  workspaceStore.update('x-scalar-active-document', slug)
+  const normalized = configList.value[slug]
+
+  if (!normalized) {
     console.warn(`Document ${slug} not found in configList`)
     return
   }
 
-  // Set the active slug and update any routing
-  syncSlugAndUrlWithDocument(slug, elementId, configList.value[slug].config)
-
-  // Always set it to active; if the document is null we show a loading state
-  workspaceStore.update('x-scalar-active-document', slug)
-  const normalized = configList.value[slug]
-  if (!normalized) {
-    return
-  }
   const config = {
     ...normalized.config,
     ...configurationOverrides.value,
   }
+
+  // Set the active slug and update any routing
+  syncSlugAndUrlWithDocument(slug, elementId, config)
 
   const isFirstLoad = !workspaceStore.workspace.documents[slug]
 
@@ -622,7 +640,8 @@ const handleToggleOperation = (id: string, open: boolean) => {
 
 /** Ensure we copy the hash OR path if pathRouting is enabled */
 const handleCopyAnchorUrl = (id: string) => {
-  return copyToClipboard(id)
+  const url = makeUrlFromId(id, basePath.value)?.toString()
+  return url && copyToClipboard(url)
 }
 
 /** Update the URL as the page is scrolled and the anchors intersect */
@@ -767,7 +786,6 @@ onBeforeMount(() => {
             showOperationId: mergedConfig.showOperationId,
             hideTestRequestButton: mergedConfig.hideTestRequestButton,
             expandAllResponses: mergedConfig.expandAllResponses,
-            hideModels: mergedConfig.hideModels,
             expandAllModelSections: mergedConfig.expandAllModelSections,
             orderRequiredPropertiesFirst:
               mergedConfig.orderRequiredPropertiesFirst,
