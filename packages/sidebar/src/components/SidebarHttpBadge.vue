@@ -11,28 +11,25 @@ defineProps<{
 }>()
 </script>
 <template>
-  <div>
-    &hairsp;
+  <HttpMethod
+    :class="[
+      'sidebar-heading-type',
+      `sidebar-heading-type--${method.toLowerCase()}`,
+      { 'sidebar-heading-type-active': active },
+    ]"
+    :method="method"
+    property="--method-color"
+    short>
     <span class="sr-only">HTTP Method:&nbsp;</span>
-    <HttpMethod
-      :class="[
-        'sidebar-heading-type',
-        `sidebar-heading-type--${method.toLowerCase()}`,
-        { 'sidebar-heading-type-active': active },
-      ]"
-      :method="method"
-      property="--method-color"
-      short>
-      <slot>
-        <ScalarIconWebhooksLogo
-          v-if="webhook"
-          :style="{
-            color: getHttpMethodInfo(method).colorVar,
-          }"
-          weight="bold" />
-      </slot>
-    </HttpMethod>
-  </div>
+    <slot>
+      <ScalarIconWebhooksLogo
+        v-if="webhook"
+        :style="{
+          color: getHttpMethodInfo(method).colorVar,
+        }"
+        weight="bold" />
+    </slot>
+  </HttpMethod>
 </template>
 
 <style scoped>
