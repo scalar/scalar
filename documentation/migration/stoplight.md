@@ -24,7 +24,8 @@ With Stoplight and Scalar offering quite a few features on top of the "turn Open
 1. Make sure you like the look of the new API documentation.
 1. (Optional) Migrate Markdown topics and guides.
 1. (Optional) Move custom linting rulesets over.
-2. (Optional) Point custom domains to Scalar.
+1. (Optional) Point custom domains to Scalar.
+1. (Optional) Set up redirects from old Stoplight docs to new Scalar docs.
 
 Before we get stuck into the technical aspects, let's consider how Scalar fits into the larger workflow.
 
@@ -45,8 +46,6 @@ With that in mind, let's look at how you can switch to a cheaper and better Open
 ## Step 1: Create a free Scalar account
 
 Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register).
-
-Those planning on syncing GitHub can make life really easy by signing up through GitHub, but you can do regular old email signups too.
 
 ## Step 2: Introduce your OpenAPI to Scalar
 
@@ -216,7 +215,7 @@ Once you're happy with your new API documentation, it's time to bring the API cl
 First off, [add the custom domain](https://guides.scalar.com/scalar/scalar-docs/github-sync#github-sync__advanced-configuration__use-a-custom-domain) to your Scalar config.
 
 ```json
-# scalar.config.json
+// scalar.config.json
 {
   "customDomain": "docs.example.com",
   ...
@@ -224,6 +223,27 @@ First off, [add the custom domain](https://guides.scalar.com/scalar/scalar-docs/
 ```
 
 Then pop over to your DNS and update the CNAME from `developers` (or whatever your subdomain is) from the old Stoplight DNS to `dns.scalar.com`. Give it a few minutes and it should be ready to go.
+
+## Step 7: (Optional) Add Redirects
+
+If you had a lot of traffic going to your Stoplight docs, you might want to set up some redirects to make sure existing links keep working. Scalar supports redirects via the `routing.redirect` configuration in `scalar.config.json`.
+
+If you were using a custom domain with Stoplight hosted documentation then the paths will be passed to Scalar after Step 6. This means Scalar's redirects can be used to point old paths to new ones.
+
+```json
+// scalar.config.json
+{
+  "routing": {
+    "redirect": [{
+      "from": "/docs/<stoplight-project>/10a1321b3-github-workflows",
+      "to": "/scalar/scalar-registry/github-actions"
+    }]
+  }
+  // ...
+}
+```
+
+A conversion script is being worked on to help automate this for larger projects, so reach out to the Scalar team if you'd like help with this.
 
 ## Summary
 
