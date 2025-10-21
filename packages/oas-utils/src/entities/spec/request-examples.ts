@@ -502,6 +502,14 @@ export function createExampleFromRequest(request: Request, name: string, server?
       }
     }
 
+    if (contentType?.startsWith('text/')) {
+      body.activeBody = 'raw'
+      body.raw = {
+        encoding: 'text',
+        value: requestBody?.text ?? '',
+      }
+    }
+
     // Add the content-type header if it doesn't exist and if it's not multipart request
     if (requestBody?.mimeType && !contentTypeHeader && !requestBody.mimeType.startsWith('multipart/')) {
       parameters.headers.push({
