@@ -565,7 +565,7 @@
     "cssFiles": ["documentation/assets/styles.css"],
     "footer": "",
     "routing": {
-      "redirect": [{
+      "redirects": [{
         "from": "/scalar/scalar-registry/github-workflows",
         "to": "/scalar/scalar-registry/github-actions"
       }]
