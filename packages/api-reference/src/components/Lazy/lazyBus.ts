@@ -2,6 +2,8 @@ import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
+import { getSchemaParamsFromId } from '@/hooks/id-routing'
+
 /**
  * List of items that are in the priority queue and will be immediately rendered
  * Following these items the pending queue will be rendered in a batch
@@ -180,9 +182,11 @@ export const scrollToLazy = (
 ) => {
   // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
+  const { rawId } = getSchemaParamsFromId(id)
 
-  setExpanded(id, true)
   addToPriorityQueue(id)
+  setExpanded(rawId, true)
+  addToPriorityQueue(rawId)
 
   /**
    * Recursively expand the parents and set them as a loading priority
@@ -196,7 +200,8 @@ export const scrollToLazy = (
       addParents(parent.id)
     }
   }
-  addParents(id)
+  /** Must use the rawId as schema params are not in the navigation tree */
+  addParents(rawId)
 
   /** Scroll to the element targeted */
   tryScroll(id, Date.now() + 1000, unblock)

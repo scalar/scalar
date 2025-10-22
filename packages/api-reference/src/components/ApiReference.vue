@@ -160,12 +160,11 @@ if (typeof window !== 'undefined') {
   const initialId = getIdFromUrl(
     url,
     matchingBasePath,
-    isMultiDocument.value,
-    activeSlug.value,
+    isMultiDocument.value ? undefined : activeSlug.value,
   )
   const documentSlug = initialId.split('/')[0]
 
-  if (documentSlug) {
+  if (documentSlug && configList.value[documentSlug]) {
     activeSlug.value = documentSlug
   }
 }
@@ -294,10 +293,6 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
     }
   })
 }
-
-watchEffect(() => {
-  console.log('itemsFromWorkspace', toRaw(itemsFromWorkspace.value))
-})
 
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
@@ -537,8 +532,7 @@ onBeforeMount(() =>
     getIdFromUrl(
       window.location.href,
       configList.value[activeSlug.value]?.config.pathRouting?.basePath,
-      isMultiDocument.value,
-      activeSlug.value,
+      isMultiDocument.value ? undefined : activeSlug.value,
     ),
   ),
 )
@@ -673,7 +667,6 @@ const handleCopyAnchorUrl = (id: string) => {
 
 /** Update the URL as the page is scrolled and the anchors intersect */
 const handleIntersecting = (id: string) => {
-  console.log('handleIntersecting', id)
   if (!intersectionEnabled.value) {
     return
   }
@@ -692,12 +685,10 @@ onBeforeMount(() => {
 
   // When we detect a back button press we scroll to the new id
   window.addEventListener('popstate', () => {
-    console.log('popstate')
     const id = getIdFromUrl(
       window.location.href,
       mergedConfig.value.pathRouting?.basePath,
-      isMultiDocument.value,
-      activeSlug.value,
+      isMultiDocument.value ? undefined : activeSlug.value,
     )
     if (id) {
       scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
