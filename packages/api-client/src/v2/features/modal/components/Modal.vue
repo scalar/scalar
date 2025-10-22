@@ -86,9 +86,6 @@ onBeforeUnmount(() => {
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = ref(true)
-
-/** TODO set this on the workspace store */
-const workspaceModel = ref('default')
 </script>
 
 <template>
@@ -109,7 +106,6 @@ const workspaceModel = ref('default')
             <Sidebar
               v-show="isSidebarOpen"
               v-model:isSidebarOpen="isSidebarOpen"
-              v-model:workspace="workspaceModel"
               :documents="workspaceStore.workspace.documents"
               layout="modal" />
 

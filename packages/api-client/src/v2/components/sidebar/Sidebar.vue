@@ -46,7 +46,6 @@ const log = (name: string, ...args: any[]) => {
 
 /** Propagate up the workspace model to the parent */
 const workspaceModel = defineModel<string>('workspace', {
-  required: true,
   default: 'default',
 })
 
