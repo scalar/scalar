@@ -1,37 +1,40 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedEntry } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagsMap } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseWebhooks } from './traverse-webhooks'
 
 describe('traverse-webhooks', () => {
-  const mockGetWebhookId: TraverseSpecOptions['getWebhookId'] = (params, tag) => {
-    if (!params) {
-      return 'untagged-unknown-unknown'
-    }
-    return `${tag?.name || 'untagged'}-${params.method || 'unknown'}-${params.name}`
-  }
-
   describe('traverseWebhooks', () => {
     it('should handle empty webhooks', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        untaggedWebhooksParentId: 'document-id',
+        documentId: 'document-id',
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+      })
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
     })
 
     it('should process webhooks with tags', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -48,7 +51,18 @@ describe('traverse-webhooks', () => {
 
       const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toEqual([]) // Should be empty as webhook has a tag
       expect(tagsMap.get('webhook-tag')?.entries).toHaveLength(1)
@@ -64,7 +78,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should process untagged webhooks', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -78,9 +92,20 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -95,7 +120,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should skip internal webhooks', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -110,16 +135,27 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
     })
 
     it('should skip scalar-ignore webhooks', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -134,16 +170,27 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
     })
 
     it('should handle deprecated webhooks', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -158,9 +205,20 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -175,7 +233,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should handle webhooks with multiple methods', () => {
-      const content: OpenApiDocument = {
+      const document: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -193,9 +251,20 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
+      const tagsMap: TagsMap = new Map()
 
-      const result = traverseWebhooks(content, tagsMap, mockGetWebhookId)
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
 
       expect(result).toHaveLength(2)
       expect(result).toEqual(
