@@ -13,9 +13,7 @@ describe('openapi-ui', () => {
     // should NOT have additional properties
     // additionalProperty: schema
     // …
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 })

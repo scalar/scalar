@@ -12,9 +12,7 @@ describe('api-with-examples', () => {
     // Structural error at paths./.get.responses.200.content.application/json.examples
     // should be object
     // …
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })
