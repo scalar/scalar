@@ -74,11 +74,6 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
   <SectionFlare />
 
   <div class="narrow-references-container">
-    <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
-    <IntersectionObserver
-      id="scalar-document-start"
-      @intersecting="() => emit('intersecting', '')">
-    </IntersectionObserver>
     <slot name="start" />
 
     <!-- Introduction -->

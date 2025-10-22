@@ -31,18 +31,27 @@ export const getIdFromPath = (location: string | URL, basePath: string) => {
   return ''
 }
 
-export const getIdFromUrl = (url: string | URL, basePath: string | undefined) => {
-  return typeof basePath === 'string' ? getIdFromPath(url, basePath) : getIdFromHash(url)
+export const getIdFromUrl = (
+  url: string | URL,
+  basePath: string | undefined,
+  isMultiDocument: boolean,
+  slug: string,
+) => {
+  const base = typeof basePath === 'string' ? getIdFromPath(url, basePath) : getIdFromHash(url)
+  return isMultiDocument ? base : `${slug}/${base}`
 }
 
 /**
  * Generate a new URL and applies the ID to the path or hash
  * depending on the type of routing used
  */
-export const makeUrlFromId = (id: string, basePath: string | undefined) => {
+export const makeUrlFromId = (_id: string, basePath: string | undefined, isMultiDocument: boolean) => {
   if (typeof window === 'undefined') {
     return undefined
   }
+
+  /** When there is only 1 document we don't need to include the document name in the URL */
+  const id = isMultiDocument ? _id : _id.split('/').slice(1).join('/')
 
   const url = new URL(window.location.href)
 

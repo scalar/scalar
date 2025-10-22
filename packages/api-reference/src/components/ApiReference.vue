@@ -38,13 +38,16 @@ import {
   onServerPrefetch,
   provide,
   ref,
+  toRaw,
   useId,
   useTemplateRef,
   watch,
+  watchEffect,
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import {
   addLazyCompleteCallback,
   freeze,
@@ -138,6 +141,8 @@ provide(
  */
 const configList = computed(() => normalizeConfigurations(props.configuration))
 
+const isMultiDocument = computed(() => Object.keys(configList.value).length > 1)
+
 /** Search for the source with a default attribute or use the first one */
 const activeSlug = ref<string>(
   Object.values(configList.value).find((c) => c.default)?.slug ??
@@ -147,10 +152,21 @@ const activeSlug = ref<string>(
 
 // If we detect a slug query parameter we set the active slug from that value
 if (typeof window !== 'undefined') {
-  const url = new URL(window.location.href)
-  const slug = url.searchParams.get('api')
-  if (slug) {
-    activeSlug.value = slug
+  const url = window.location.href
+  const basePaths = Object.values(configList.value).map(
+    (c) => c.config.pathRouting?.basePath,
+  )
+  const matchingBasePath = basePaths.find((p) => p && url.startsWith(p))
+  const initialId = getIdFromUrl(
+    url,
+    matchingBasePath,
+    isMultiDocument.value,
+    activeSlug.value,
+  )
+  const documentSlug = initialId.split('/')[0]
+
+  if (documentSlug) {
+    activeSlug.value = documentSlug
   }
 }
 
@@ -210,19 +226,14 @@ function syncSlugAndUrlWithDocument(
   elementId: string | undefined,
   config: ApiReferenceConfigurationRaw,
 ) {
-  const QUERY_PARAMETER = 'api'
-
   // We create a new URL and go to the root element if an ID is not provided
-  const url = makeUrlFromId(elementId ?? '', config.pathRouting?.basePath)
+  const url = makeUrlFromId(
+    elementId || slug,
+    config.pathRouting?.basePath,
+    isMultiDocument.value,
+  )
 
   if (url) {
-    // The query parameter is only needed if we have multiple documents
-    if (Object.keys(configList.value).length > 1) {
-      url.searchParams.set(QUERY_PARAMETER, slug)
-    } else {
-      url?.searchParams.delete(QUERY_PARAMETER)
-    }
-
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -262,7 +273,7 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: document?.['x-scalar-navigation'] ?? [],
+      children: document?.['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
@@ -283,6 +294,10 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
     }
   })
 }
+
+watchEffect(() => {
+  console.log('itemsFromWorkspace', toRaw(itemsFromWorkspace.value))
+})
 
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
@@ -522,6 +537,8 @@ onBeforeMount(() =>
     getIdFromUrl(
       window.location.href,
       configList.value[activeSlug.value]?.config.pathRouting?.basePath,
+      isMultiDocument.value,
+      activeSlug.value,
     ),
   ),
 )
@@ -626,7 +643,7 @@ const handleSelectItem = async (id: string) => {
   sidebarState.setSelected(id)
   scrollToLazyElement(id)
 
-  const url = makeUrlFromId(id, basePath.value)
+  const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
     window.history.pushState({}, '', url)
   }
@@ -646,18 +663,23 @@ const handleToggleOperation = (id: string, open: boolean) => {
 
 /** Ensure we copy the hash OR path if pathRouting is enabled */
 const handleCopyAnchorUrl = (id: string) => {
-  const url = makeUrlFromId(id, basePath.value)?.toString()
+  const url = makeUrlFromId(
+    id,
+    basePath.value,
+    isMultiDocument.value,
+  )?.toString()
   return url && copyToClipboard(url)
 }
 
 /** Update the URL as the page is scrolled and the anchors intersect */
 const handleIntersecting = (id: string) => {
+  console.log('handleIntersecting', id)
   if (!intersectionEnabled.value) {
     return
   }
 
   sidebarState.setSelected(id)
-  const url = makeUrlFromId(id, basePath.value)
+  const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url && workspaceStore.workspace.activeDocument) {
     window.history.replaceState({}, '', url.toString())
   }
@@ -674,6 +696,8 @@ onBeforeMount(() => {
     const id = getIdFromUrl(
       window.location.href,
       mergedConfig.value.pathRouting?.basePath,
+      isMultiDocument.value,
+      activeSlug.value,
     )
     if (id) {
       scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
@@ -814,7 +838,14 @@ onBeforeMount(() => {
               v-model:overrides="configurationOverrides"
               :configuration="mergedConfig"
               :workspace="workspaceStore" />
-            <slot name="content-start" />
+
+            <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
+            <IntersectionObserver
+              id="scalar-document-start"
+              @intersecting="() => handleIntersecting(activeSlug)">
+            </IntersectionObserver>
+
+            <!--  -->
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
               <div class="w-64 *:!p-0 empty:hidden">
                 <DocumentSelector
@@ -847,6 +878,7 @@ onBeforeMount(() => {
                   @click="() => toggleColorMode()" />
               </template>
             </ClassicHeader>
+            <slot name="content-start" />
           </template>
           <!-- TODO: Remove this; we no longer directly support an inline editor -->
           <template
