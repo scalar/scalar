@@ -38,11 +38,9 @@ import {
   onServerPrefetch,
   provide,
   ref,
-  toRaw,
   useId,
   useTemplateRef,
   watch,
-  watchEffect,
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -125,13 +123,6 @@ provideUseId(() => useId())
 // Provide the client layout
 provide(LAYOUT_SYMBOL, 'modal')
 
-provide(
-  PLUGIN_MANAGER_SYMBOL,
-  createPluginManager({
-    // plugins: configuration.plugins,
-  }),
-)
-
 // ---------------------------------------------------------------------------
 /**
  * Configuration Handling
@@ -150,16 +141,54 @@ const activeSlug = ref<string>(
     '',
 )
 
-// If we detect a slug query parameter we set the active slug from that value
+/**
+ * On initial page load we need to determine if there is a valid document slug in the URL
+ *
+ * If there is we set the active slug to the document slug
+ */
 if (typeof window !== 'undefined') {
-  const url = window.location.href
+  const url = new URL(window.location.href)
+
+  // To handle legacy query parameter multi-document support we redirect
+  // to the new path routing format
+  const apiParam = url.searchParams.get('api')
+  if (apiParam && configList.value[apiParam]) {
+    activeSlug.value = apiParam
+    const idFromUrl = getIdFromUrl(
+      url,
+      configList.value[apiParam].config.pathRouting?.basePath,
+      apiParam,
+    )
+    const newUrl = makeUrlFromId(
+      idFromUrl,
+      configList.value[apiParam].config.pathRouting?.basePath,
+      isMultiDocument.value,
+    )
+    if (newUrl) {
+      newUrl.searchParams.delete('api')
+      window.history.replaceState({}, '', newUrl.toString())
+    }
+  }
+
+  /**
+   * For path routing on initial load we do not know which basePath to check for
+   * we need to search the configs to see if any of the base paths match the URL
+   * and then use that basePath to get the initial id
+   *
+   * With this approach we cannot support multi-document mode with one of configs having
+   * an empty basePath
+   *
+   * Other conflicts are possible.
+   */
   const basePaths = Object.values(configList.value).map(
     (c) => c.config.pathRouting?.basePath,
   )
-  const matchingBasePath = basePaths.find((p) => p && url.startsWith(p))
+
   const initialId = getIdFromUrl(
     url,
-    matchingBasePath,
+    basePaths.find(
+      (p) => p && url.pathname.startsWith(p.startsWith('/') ? p : `/${p}`),
+    ),
     isMultiDocument.value ? undefined : activeSlug.value,
   )
   const documentSlug = initialId.split('/')[0]
@@ -201,6 +230,15 @@ const themeStyle = computed(() =>
   }),
 )
 
+/** Plugin injection is not reactive. All plugins must be provided at first render */
+provide(
+  PLUGIN_MANAGER_SYMBOL,
+  createPluginManager({
+    plugins: Object.values(configList.value).flatMap(
+      (c) => c.config.plugins ?? [],
+    ),
+  }),
+)
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 

@@ -11,7 +11,6 @@ import type {
 import { computed } from 'vue'
 
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { firstLazyLoadComplete } from '@/components/Lazy/lazyBus'
 import { RenderPlugins } from '@/components/RenderPlugins'

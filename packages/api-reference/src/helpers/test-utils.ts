@@ -2,25 +2,10 @@ import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { vi } from 'vitest'
-import { computed, ref } from 'vue'
 
 /**
  * A collection of tools which are used strictly for testing
  */
-
-export const createMockSidebar = (collapsedItems: Record<string, boolean> = {}, entries: TraversedEntry[] = []) => ({
-  collapsedSidebarItems: collapsedItems,
-  isSidebarOpen: ref(true),
-  items: computed(() => ({ entries, entities: new Map() })),
-  scrollToOperation: vi.fn(),
-  setCollapsedSidebarItem: vi.fn(),
-  toggleCollapsedSidebarItem: vi.fn(),
-})
-
-export const createMockSidebarFromDocument = (document: OpenAPIV3_1.Document) => {
-  const result = createNavigation('test', document as OpenApiDocument, {})
-  return createMockSidebar({}, result.entries)
-}
 
 export const createMockPluginManager = () => ({
   getSpecificationExtensions: vi.fn(),
