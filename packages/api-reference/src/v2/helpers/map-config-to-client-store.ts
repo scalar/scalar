@@ -8,6 +8,7 @@ import {
 } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getServersFromDocument } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw, OpenAPIV3_1 } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -238,7 +239,7 @@ export function mapConfigToClientStore({
     activeEnvironment,
     activeWorkspace,
     getSecuritySchemes,
-    openClient: () => client?.open(),
+    openClient: (payload: { method: HttpMethod; path: string }) => client?.open(payload),
   }
 }
 

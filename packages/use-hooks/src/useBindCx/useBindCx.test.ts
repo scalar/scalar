@@ -109,23 +109,42 @@ describe('useBindCx', () => {
     expect(wrapper.attributes('aria-label')).toBe('test label')
   })
 
-  it('should merge classes with classCx without other attributes', () => {
-    const ClassCxComponent = defineComponent({
+  it('should merge classes and apply styles with stylingAttrsCx without other attributes', () => {
+    const StylingCxComponent = defineComponent({
       props: { active: Boolean },
       inheritAttrs: false,
       setup() {
-        const { classCx } = useBindCx()
-        return { classCx }
+        const { stylingAttrsCx } = useBindCx()
+        return { stylingAttrsCx }
       },
-      template: '<div v-bind="classCx(\'internal-class\')">Test</div>',
+      template: '<div v-bind="stylingAttrsCx(\'internal-class\')">Test</div>',
     })
 
-    const wrapper = mount(ClassCxComponent, {
+    const wrapper = mount(StylingCxComponent, {
       props: { active: true },
-      attrs: { 'data-testid': 'test', class: 'external-class' },
+      attrs: { class: 'external-class', style: 'display: block;', 'data-testid': 'test' },
     })
 
     expect(wrapper.attributes('class')).toBe('internal-class external-class')
+    expect(wrapper.attributes('style')).toBe('display: block;')
+    expect(wrapper.attributes('data-testid')).toBeUndefined()
+  })
+
+  it('should apply object style attributes with stylingAttrsCx', () => {
+    const StylingCxComponent = defineComponent({
+      inheritAttrs: false,
+      setup() {
+        const { stylingAttrsCx } = useBindCx()
+        return { stylingAttrsCx }
+      },
+      template: '<div v-bind="stylingAttrsCx()">Test</div>',
+    })
+
+    const wrapper = mount(StylingCxComponent, {
+      attrs: { style: { display: 'block' }, 'data-testid': 'test' },
+    })
+
+    expect(wrapper.attributes('style')).toBe('display: block;')
     expect(wrapper.attributes('data-testid')).toBeUndefined()
   })
 
@@ -142,59 +161,67 @@ describe('useBindCx', () => {
     const wrapper = mount(OtherAttrsComponent, {
       attrs: {
         class: 'should-not-appear',
+        style: 'should-not-appear-either',
         'data-testid': 'test',
         'aria-label': 'test label',
       },
     })
 
     expect(wrapper.attributes('class')).toBeUndefined()
+    expect(wrapper.attributes('style')).toBeUndefined()
+    expect(wrapper.html()).not.toContain('should-not-appear')
     expect(wrapper.attributes('data-testid')).toBe('test')
     expect(wrapper.attributes('aria-label')).toBe('test label')
   })
 
-  it('should handle reactive attribute changes with classCx and otherAttrs', async () => {
+  it('should handle reactive attribute changes with stylingAttrsCx and otherAttrs', async () => {
     const WrapperComponent = defineComponent({
       props: {
-        className: { type: String, default: '' },
+        classAttr: { type: String, default: '' },
+        styleAttr: { type: String, default: '' },
         testId: { type: String, default: '' },
       },
       components: {
         InnerComponent: defineComponent({
           inheritAttrs: false,
           setup() {
-            const { classCx, otherAttrs } = useBindCx()
-            return { classCx, otherAttrs, variants }
+            const { stylingAttrsCx, otherAttrs } = useBindCx()
+            return { stylingAttrsCx, otherAttrs, variants }
           },
           template: `
             <div>
-              <div data-test="class" v-bind="classCx(variants({}))">Class</div>
-              <div data-test="attrs" v-bind="otherAttrs">Attrs</div>
+              <div data-test="styling" v-bind="stylingAttrsCx(variants({}))">Class</div>
+              <div data-test="other" v-bind="otherAttrs">Attrs</div>
             </div>
           `,
         }),
       },
-      template: '<InnerComponent :class="className" :data-testid="testId" />',
+      template: '<InnerComponent :class="classAttr" :style="styleAttr" :data-testid="testId" />',
     })
 
     const wrapper = mount(WrapperComponent, {
       props: {
-        className: 'initial-class',
+        classAttr: 'initial-class',
+        styleAttr: 'color: red;',
         testId: 'initial-id',
       },
     })
 
-    const classDiv = wrapper.find('[data-test="class"]')
-    const attrsDiv = wrapper.find('[data-test="attrs"]')
+    const stylingDiv = wrapper.find('[data-test="styling"]')
+    const otherAttrsDiv = wrapper.find('[data-test="other"]')
 
-    expect(classDiv.attributes('class')).toBe('bg-base initial-class')
-    expect(attrsDiv.attributes('data-testid')).toBe('initial-id')
+    expect(stylingDiv.attributes('class')).toBe('bg-base initial-class')
+    expect(stylingDiv.attributes('style')).toBe('color: red;')
+    expect(otherAttrsDiv.attributes('data-testid')).toBe('initial-id')
 
     await wrapper.setProps({
-      className: 'updated-class',
+      classAttr: 'updated-class',
+      styleAttr: 'color: blue;',
       testId: 'updated-id',
     })
 
-    expect(classDiv.attributes('class')).toBe('bg-base updated-class')
-    expect(attrsDiv.attributes('data-testid')).toBe('updated-id')
+    expect(stylingDiv.attributes('class')).toBe('bg-base updated-class')
+    expect(stylingDiv.attributes('style')).toBe('color: blue;')
+    expect(otherAttrsDiv.attributes('data-testid')).toBe('updated-id')
   })
 })

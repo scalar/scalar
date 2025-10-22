@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { Simplify } from 'type-fest'
 
@@ -162,7 +163,10 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   }
   /** Add a new document to the store */
   'scalar-open-client': {
-    detail: {}
+    detail: {
+      method: HttpMethod
+      path: string
+    }
   }
   /** Fired when the user clicks the "Show more" button on the references */
   'scalar-on-show-more': {

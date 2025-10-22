@@ -1,7 +1,10 @@
 import type { CXOptions } from 'cva'
-import { computed, useAttrs } from 'vue'
+import { type StyleValue, computed, useAttrs } from 'vue'
 
 import { cx } from './cva'
+
+/** Utility type for class names */
+type ClassValue = CXOptions[number]
 
 /**
  * Provides a wrapper around the `cx` function that merges the
@@ -33,9 +36,13 @@ import { cx } from './cva'
 export function useBindCx() {
   const attrs = useAttrs()
 
-  const destructured = computed(() => {
-    const { class: className, ...rest } = attrs
-    return { class: className || '', rest }
+  const destructured = computed<{
+    class: ClassValue
+    style: StyleValue
+    rest: { [key: string]: unknown }
+  }>(() => {
+    const { class: className, style, ...rest } = attrs
+    return { class: className || '', style: style as StyleValue, rest }
   })
 
   function bindCx(...args: CXOptions): {
@@ -46,15 +53,17 @@ export function useBindCx() {
   } {
     return {
       class: cx(...args, destructured.value.class),
+      style: destructured.value.style,
       ...destructured.value.rest,
     }
   }
 
-  function bindClass(...args: CXOptions): {
+  function bindClassAndStyle(...args: CXOptions): {
     /** The merged class attribute */
     class: string
+    style: StyleValue
   } {
-    return { class: cx(...args, destructured.value.class) }
+    return { class: cx(...args, destructured.value.class), style: destructured.value.style }
   }
 
   return {
@@ -64,6 +73,7 @@ export function useBindCx() {
      * remaining attributes
      *
      * @example
+     * ```html
      * <script setup>
      * ...
      * const { cx } = useBindCx()
@@ -71,15 +81,58 @@ export function useBindCx() {
      * <template>
      *   <div v-bind="cx(...)">...</div>
      * </template>
+     * ```
      */
     cx: bindCx,
     /**
      * Provides a wrapper around the `cx` function that merges the
-     * component's class attribute with the provided classes and but **does
-     * not** bind the remaining attributes
+     * component's class attribute with the provided classes and binds the
+     * style attribute  but **does not** bind any other attributes.
+     *
+     * Typically used in conjunction with `otherAttrs` to apply the stylistic
+     * attributes to a styled wrapper element, but apply the remaining
+     * attributes to an internal semantic element like an `<input>`.
+     *
+     * @example
+     * ```html
+     * <script setup>
+     * ...
+     * const { stylingAttrsCx, otherAttrs } = useBindCx()
+     * </script>
+     * <template>
+     *   <!-- Bind the class and style attributes to a wrapper element -->
+     *   <div v-bind="stylingAttrsCx(...)">
+     *     ...
+     *     <!-- Bind the other attributes to a semantic internal element -->
+     *     <input v-bind="otherAttrs" />
+     *   </div>
+     * </template>
+     * ```
      */
-    classCx: bindClass,
-    /** The remaining attributes that are not class attributes */
+    stylingAttrsCx: bindClassAndStyle,
+    /**
+     * The remaining attributes that **are not** the class or style attributes
+     * of the component.
+     *
+     * Typically used in conjunction with `stylingAttrsCx` to apply the stylistic
+     * attributes to a styled wrapper element, but apply the remaining
+     * attributes to an internal semantic element like an `<input>`.
+     *
+     * @example
+     * ```html
+     * <script setup>
+     * ...
+     * const { stylingAttrsCx, otherAttrs } = useBindCx()
+     * </script>
+     * <template>
+     *   <!-- Bind the class and style attributes to a wrapper element -->
+     *   <div v-bind="stylingAttrsCx(...)">
+     *     ...
+     *     <!-- Bind the other attributes to a semantic internal element -->
+     *     <input v-bind="otherAttrs" />
+     *   </div>
+     * </template>
+     */
     otherAttrs: computed(() => destructured.value.rest),
   }
 }

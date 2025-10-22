@@ -608,6 +608,61 @@ describe('createExampleFromRequest', () => {
       },
     })
   })
+
+  it('creates example with text/plain request body', () => {
+    const operation = operationSchema.parse({
+      uid: 'request-1',
+      path: '/test',
+      parameters: [
+        {
+          in: 'path',
+          name: 'id',
+          required: true,
+          deprecated: false,
+          schema: { type: 'string', default: '123' },
+        },
+      ],
+      requestBody: {
+        // content type that starts with "text/" should trigger the new branch
+        content: {
+          'text/plain': {
+            schema: {},
+            example: 'plain text body',
+          },
+        },
+      },
+    })
+
+    const result = createExampleFromRequest(operation, 'Text Example')
+
+    expect(result).toMatchObject({
+      requestUid: 'request-1',
+      name: 'Text Example',
+      body: {
+        activeBody: 'raw',
+        raw: {
+          encoding: 'text',
+          value: 'plain text body',
+        },
+      },
+      parameters: {
+        path: [
+          {
+            key: 'id',
+            value: '123',
+            enabled: true,
+            required: true,
+          },
+        ],
+        headers: [
+          { key: 'Accept', value: '*/*', enabled: true },
+          { key: 'Content-Type', value: 'text/plain', enabled: true },
+        ],
+        query: [],
+        cookies: [],
+      },
+    })
+  })
 })
 
 describe('createExampleFromRequest with default body when Content-Type header is exists', () => {

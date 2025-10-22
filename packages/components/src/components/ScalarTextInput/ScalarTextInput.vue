@@ -24,7 +24,7 @@ const model = defineModel<string>()
 const input = ref<HTMLInputElement>()
 
 defineOptions({ inheritAttrs: false })
-const { classCx, otherAttrs } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 
 onMounted(() => {
   // Force autofocus if the input has the autofocus attribute
@@ -43,7 +43,10 @@ function handleClick() {
   <ScalarFormInput
     is="div"
     v-bind="
-      classCx('cursor-text text-c-1', readonly ? '' : 'focus-within:bg-b-1')
+      stylingAttrsCx(
+        'cursor-text text-c-1',
+        readonly ? '' : 'focus-within:bg-b-1',
+      )
     "
     @click="handleClick">
     <div class="flex flex-1 relative">
