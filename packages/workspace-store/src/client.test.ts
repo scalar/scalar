@@ -848,7 +848,7 @@ describe('create-workspace-store', () => {
           type: 'operation',
           children: [
             {
-              id: 'default/tag/default/get/users/example-someExample',
+              id: 'default/tag/default/get/users/example/someexample',
               name: 'someExample',
               title: 'someExample',
               type: 'example',
@@ -2975,15 +2975,15 @@ describe('create-workspace-store', () => {
   })
 
   describe('navigation generation', () => {
-    it('should prefix navigation id correctly with the document name when providing custom generation id function', async () => {
+    it('should prefix navigation id correctly with the document name when providing custom slug function', async () => {
       const store = createWorkspaceStore()
 
       await store.addDocument({
         name: 'document-1',
         config: {
           'x-scalar-reference-config': {
-            getOperationId: () => 'some-id',
-            getTagId: () => 'some-tag-id',
+            generateOperationSlug: () => 'some-id',
+            generateTagSlug: () => 'some-tag-id',
           },
         },
         document: {
@@ -3008,7 +3008,7 @@ describe('create-workspace-store', () => {
           'children': [
             {
               'children': undefined,
-              'id': 'document-1/some-id',
+              'id': 'document-1/tag/some-tag-id/some-id',
               'isDeprecated': false,
               'method': 'get',
               'path': '/users',
@@ -3018,7 +3018,7 @@ describe('create-workspace-store', () => {
             },
           ],
           'description': undefined,
-          'id': 'document-1/some-tag-id',
+          'id': 'document-1/tag/some-tag-id',
           'isGroup': false,
           'isWebhooks': false,
           'name': 'users',
