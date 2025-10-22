@@ -100,16 +100,6 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
       return `${prefixTag}model/${slug(props.name)}`
     }
 
-    // -------- Default parameter id generation logic --------
-    if (props.type === 'parameter') {
-      return `${props.parentId}/parameter/${slug(props.parameter.name ?? '')}`
-    }
-
-    // -------- Default body parameter id generation logic --------
-    if (props.type === 'body') {
-      return `${props.parentId}/body/${slug(props.name)}`
-    }
-
     if (props.type === 'example') {
       return `${props.parentId}/example/${slug(props.name)}`
     }

@@ -4,7 +4,6 @@ import { type TLiteral, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import type { ParameterObject } from '@/schemas/v3.1/strict/parameter'
 import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
@@ -136,34 +135,6 @@ export type TraversedTag = BaseSchema & {
   xKeys?: Record<string, unknown>
 }
 
-export const TraversedEntryParameterDefinition = compose(
-  NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('parameter'),
-    name: Type.String(),
-    in: Type.String(),
-  }),
-)
-
-export type TraversedEntryParameter = BaseSchema & {
-  type: 'parameter'
-  name: string
-  in: string
-}
-
-export const TraversedEntryBodyParameterDefinition = compose(
-  NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('body'),
-    name: Type.String(),
-  }),
-)
-
-export type TraversedEntryBodyParameter = BaseSchema & {
-  type: 'body'
-  name: string
-}
-
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
@@ -171,8 +142,6 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
   TraversedExampleSchemaDefinition,
-  TraversedEntryParameterDefinition,
-  TraversedEntryBodyParameterDefinition,
   TraversedDocumentSchemaDefinition,
 ])
 
@@ -183,8 +152,6 @@ export type TraversedEntry =
   | TraversedTag
   | TraversedWebhook
   | TraversedExample
-  | TraversedEntryParameter
-  | TraversedEntryBodyParameter
   | TraversedDocument
 
 export type DocumentIdProps = {
@@ -231,20 +198,6 @@ type WebhookProps = {
   parentTag?: ParentTag
 }
 
-type ParameterProps = {
-  parentId: string
-  parameter: ParameterObject
-  type: 'parameter'
-}
-
-type BodyParameterProps = {
-  parentId: string
-  name: string
-  mediaType: string
-  schema?: SchemaObject
-  type: 'body'
-}
-
 type ModelProps = {
   parentId: string
   schema?: SchemaObject
@@ -265,8 +218,6 @@ export type IdGeneratorProps =
   | TagProps
   | OperationProps
   | WebhookProps
-  | ParameterProps
-  | BodyParameterProps
   | ModelProps
   | ExampleProps
 

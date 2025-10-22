@@ -5,11 +5,9 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
-import { traverseOperationBody } from '@/navigation/helpers/traverse-operation-body'
-import { traverseOperationParams } from '@/navigation/helpers/traverse-operation-params'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
-import type { ParentTag, TraversedEntry, TraversedExample, TraversedOperation } from '@/schemas/navigation'
+import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
@@ -70,20 +68,6 @@ const createOperationEntry = ({
     name: example,
   }))
 
-  const operationPrams = traverseOperationParams({
-    operation,
-    parentId: id,
-    generateId,
-  })
-
-  const operationBody = traverseOperationBody({
-    operation,
-    generateId,
-    parentId: id,
-  })
-
-  const children: TraversedEntry[] = [...examples, ...operationPrams, ...operationBody]
-
   const entry = {
     id,
     title,
@@ -92,7 +76,7 @@ const createOperationEntry = ({
     ref,
     type: 'operation',
     isDeprecated,
-    children: children.length ? children : undefined,
+    children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 
   return entry
