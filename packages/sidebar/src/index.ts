@@ -3,6 +3,7 @@ import './style.css'
 
 export { default as ScalarSidebar } from './components/ScalarSidebar.vue'
 export type { Item } from './components/SidebarItem.vue'
+export { default as SidebarItem } from './components/SidebarItem.vue'
 export {
   type SidebarState,
   createSidebarState,
