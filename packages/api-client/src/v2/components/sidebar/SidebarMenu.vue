@@ -28,7 +28,7 @@ const workspaceOptions = computed<ScalarListboxOption[]>(() => [
   },
 ])
 
-const workspaceModel = defineModel<string>({
+const workspaceModel = defineModel<string>('workspace', {
   required: true,
   default: 'default',
 })

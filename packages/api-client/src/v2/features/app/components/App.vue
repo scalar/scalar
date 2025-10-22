@@ -17,8 +17,8 @@ import { RouterView } from 'vue-router'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
+import AppSidebar from './AppSidebar.vue'
 import DesktopTabs from './DesktopTabs.vue'
-import Sidebar from './Sidebar.vue'
 import WebTopNav from './WebTopNav.vue'
 
 const { layout, workspaceStore } = defineProps<{
@@ -46,6 +46,9 @@ const themeStyleTag = computed(() => {
 
 // Temp until we have workspaces in the store
 const workspaceModel = ref('default')
+
+/** Controls the visibility of the sidebar */
+const isSidebarOpen = ref(true)
 </script>
 
 <template>
@@ -61,9 +64,10 @@ const workspaceModel = ref('default')
 
     <!-- min-h-0 is to allow scrolling of individual flex children, do not remove it -->
     <main class="flex min-h-0 flex-1 flex-row items-stretch">
-      <!-- Global sidebar -->
-      <Sidebar
-        v-model="workspaceModel"
+      <!-- App sidebar -->
+      <AppSidebar
+        v-model:isSidebarOpen="isSidebarOpen"
+        v-model:workspace="workspaceModel"
         :documents="workspaceStore.workspace.documents"
         :layout="layout" />
 

@@ -30,6 +30,7 @@ import {
   watch,
 } from 'vue'
 
+import { Sidebar } from '@/v2/components/sidebar'
 import TempReplaceMe from '@/v2/components/TempReplaceMe.vue'
 import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
 
@@ -82,6 +83,12 @@ onBeforeMount(() => addScalarClassesToHeadless())
 onBeforeUnmount(() => {
   cleanUpListeners()
 })
+
+/** Controls the visibility of the sidebar */
+const isSidebarOpen = ref(true)
+
+/** TODO set this on the workspace store */
+const workspaceModel = ref('default')
 </script>
 
 <template>
@@ -94,19 +101,28 @@ onBeforeUnmount(() => {
         ref="client"
         aria-label="API Client"
         aria-modal="true"
-        class="scalar-app-layout scalar-client"
+        class="scalar-app-layout scalar-client flex"
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
-          <!-- Insert the operation page here -->
-          <TempReplaceMe
-            :documentSlug="activeEntities.documentSlug"
-            :example="activeEntities.example"
-            layout="modal"
-            :method="activeEntities.method"
-            :path="activeEntities.path"
-            :workspaceStore="workspaceStore"
-            workspaceSlug="default" />
+          <main class="flex flex-1 flex-row">
+            <Sidebar
+              v-show="isSidebarOpen"
+              v-model:isSidebarOpen="isSidebarOpen"
+              v-model:workspace="workspaceModel"
+              :documents="workspaceStore.workspace.documents"
+              layout="modal" />
+
+            <!-- Insert the operation page here -->
+            <TempReplaceMe
+              :documentSlug="activeEntities.documentSlug"
+              :example="activeEntities.example"
+              layout="modal"
+              :method="activeEntities.method"
+              :path="activeEntities.path"
+              :workspaceStore="workspaceStore"
+              workspaceSlug="default" />
+          </main>
         </ScalarTeleportRoot>
       </div>
       <div

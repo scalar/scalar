@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIconButton,
-  ScalarSidebarItem,
-  ScalarSidebarSearchInput,
-} from '@scalar/components'
-import { ScalarIconGlobe, ScalarIconMagnifyingGlass } from '@scalar/icons'
-import { createSidebarState, ScalarSidebar, type Item } from '@scalar/sidebar'
+import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
+import { ScalarIconGlobe } from '@scalar/icons'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
+import { Sidebar } from '@/v2/components/sidebar'
 import type { ClientLayout } from '@/v2/types/layout'
-
-import SidebarWorkspaceMenu from './SidebarWorkspaceMenu.vue'
 
 const { documents, layout } = defineProps<{
   layout: ClientLayout
@@ -27,7 +20,8 @@ const emit = defineEmits<{
   (e: 'click:workspace'): void
 }>()
 
-const workspaceModel = defineModel<string>({
+/** Propogate up the workspace model to the parent */
+const workspaceModel = defineModel<string>('workspace', {
   required: true,
   default: 'default',
 })
@@ -37,59 +31,23 @@ const workspaceLabel = computed(
   () => capitalize(workspaceModel.value) + ' Workspace',
 )
 
-/** Generate the sidebar state based on the current workspace */
-const sidebarState = computed(() => {
-  const documentEntries: Item[] = Object.entries(documents).map(
-    ([name, doc]) => ({
-      id: name,
-      type: 'document',
-      title: doc.info.title ?? name,
-      children: doc['x-scalar-navigation'] ?? [],
-    }),
-  )
-
-  return createSidebarState(documentEntries)
+/** Controls the visibility of the sidebar */
+const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
+  required: true,
 })
 
-const log = (name: string, ...args: any[]) => {
-  console.log('[LOG] event name: ', name)
-  console.log('[LOG]', ...args)
-}
-
-const showGettingStarted = true
-
-/** Controls the visibility of the search input */
-const isSearchVisible = ref(false)
+/** Calculate if we should show the getting started section */
+const showGettingStarted = computed(() => true)
 </script>
 
 <template>
-  <ScalarSidebar
-    layout="client"
-    :state="sidebarState"
-    @reorder="(...args) => log('reorder', ...args)">
-    <template #search>
-      <div
-        class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">
-        <div
-          v-if="layout === 'desktop'"
-          class="flex items-center justify-between">
-          <SidebarWorkspaceMenu v-model="workspaceModel" />
-
-          <ScalarIconButton
-            :icon="ScalarIconMagnifyingGlass"
-            label="Search"
-            @click="isSearchVisible = !isSearchVisible" />
-        </div>
-
-        <!-- Actual search input -->
-        <ScalarSidebarSearchInput
-          v-if="isSearchVisible || layout === 'web'"
-          :autofocus="layout === 'desktop'" />
-      </div>
-    </template>
-
+  <Sidebar
+    v-model:isSidebarOpen="isSidebarOpen"
+    v-model:workspace="workspaceModel"
+    :documents="documents"
+    :layout="layout">
     <!-- Workspace Identifier -->
-    <template #firstItem>
+    <template #workspaceButton>
       <ScalarSidebarItem
         is="button"
         :icon="ScalarIconGlobe"
@@ -145,17 +103,10 @@ const isSearchVisible = ref(false)
         </div>
       </div>
     </template>
-  </ScalarSidebar>
+  </Sidebar>
 </template>
 
 <style scoped>
-.search-button-fade {
-  background: linear-gradient(
-    var(--scalar-background-1) 32px,
-    color-mix(in srgb, var(--scalar-background-1), transparent) 38px,
-    transparent
-  );
-}
 .empty-sidebar-item-content {
   display: none;
 }
