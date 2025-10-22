@@ -401,7 +401,7 @@ describe('ScalarSidebar', () => {
   })
 
   describe('drag and drop', () => {
-    it('emits reorder event when onDragEnd is triggered', async () => {
+    it('emits reorder event when onDragEnd is triggered', () => {
       const items: Item[] = [
         {
           id: '1',
@@ -435,7 +435,7 @@ describe('ScalarSidebar', () => {
       expect(wrapper.emitted('reorder')?.[0]).toEqual([draggingItem, hoveredItem])
     })
 
-    it('passes drag event data correctly to parent', async () => {
+    it('passes drag event data correctly to parent', () => {
       const items: Item[] = [
         {
           id: 'item-a',
@@ -682,7 +682,7 @@ describe('ScalarSidebar', () => {
       expect(sidebarItems.length).toBe(1)
     })
 
-    it.skip('handles rapid successive clicks', async () => {
+    it.skip('handles rapid successive clicks', () => {
       const items: Item[] = [
         {
           id: '1',

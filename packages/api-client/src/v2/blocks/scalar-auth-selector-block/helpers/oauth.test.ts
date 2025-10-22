@@ -269,7 +269,7 @@ describe('oauth', () => {
     })
 
     // Test relative redirect URIs
-    it('should handle relative redirect URIs', async () => {
+    it('should handle relative redirect URIs', () => {
       const flows = {
         'authorizationCode': {
           ...scheme.authorizationCode,

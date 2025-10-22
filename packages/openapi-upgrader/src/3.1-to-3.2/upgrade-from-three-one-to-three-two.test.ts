@@ -5,7 +5,7 @@ import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-o
 
 describe('upgradeFromThreeOneToThreeTwo', () => {
   describe('version', () => {
-    it(`doesn't modify Swagger 2.0 files`, async () => {
+    it(`doesn't modify Swagger 2.0 files`, () => {
       const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         swagger: '2.0',
         info: {
@@ -18,7 +18,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
       expect(result.swagger).toBe('2.0')
     })
 
-    it('changes the version to from 3.1.0 to 3.2.0', async () => {
+    it('changes the version to from 3.1.0 to 3.2.0', () => {
       const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         openapi: '3.1.0',
         info: {
@@ -31,7 +31,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
       expect(result.openapi).toBe('3.2.0')
     })
 
-    it('changes the version to 3.1.1 to 3.2.0', async () => {
+    it('changes the version to 3.1.1 to 3.2.0', () => {
       const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         openapi: '3.1.1',
         info: {

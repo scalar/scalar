@@ -12,10 +12,12 @@ import type { Hono } from 'hono'
  * for its playground.
  */
 export async function loadDocument(): Promise<string> {
-  return readFile(new URL('../../../galaxy/src/documents/3.1.yaml', import.meta.url), 'utf8').catch(() => {
+  try {
+    return await readFile(new URL('../../../galaxy/src/documents/3.1.yaml', import.meta.url), 'utf8')
+  } catch {
     console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
     return ''
-  })
+  }
 }
 
 /**

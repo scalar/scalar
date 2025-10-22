@@ -1,5 +1,6 @@
-import UpdateManager from 'stdout-update'
 import as from 'ansis'
+import UpdateManager from 'stdout-update'
+
 const manager = UpdateManager.getInstance()
 const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
@@ -14,7 +15,9 @@ export const useMessages = (title: string) => {
     const frame = frames[i % frames.length]
     i += 1
 
-    if (line1) manager.update([as.blueBright(`${frame} Running ${title}...`), as.green(line1), as.green(line2)])
+    if (line1) {
+      manager.update([as.blueBright(`${frame} Running ${title}...`), as.green(line1), as.green(line2)])
+    }
   }, 100)
 
   return {

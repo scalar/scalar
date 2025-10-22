@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, type VueWrapper } from '@vue/test-utils'
-import CodeInput from './CodeInput.vue'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
-import { ref, toValue } from 'vue'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { useCodeMirror } from '@scalar/use-codemirror'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { nanoid } from 'nanoid'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref, toValue } from 'vue'
+
+import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
+
+import CodeInput from './CodeInput.vue'
 
 // Mock dependencies
 vi.mock('@scalar/use-codemirror', async (importOriginal) => {
@@ -86,18 +88,18 @@ describe('CodeInput', () => {
 
   let wrapper: VueWrapper<InstanceType<typeof CodeInput>>
 
-  it('renders correctly when not disabled', async () => {
+  it('renders correctly when not disabled', () => {
     wrapper = createWrapper()
     expect(wrapper.exists()).toBe(true)
     expect(useCodeMirror).toHaveBeenCalled()
   })
 
-  it('renders in disabled state correctly', async () => {
+  it('renders in disabled state correctly', () => {
     wrapper = createWrapper({ disabled: true })
     expect(wrapper.html()).toContain('data-testid="code-input-disabled"')
   })
 
-  it('emits update:modelValue when value changes', async () => {
+  it('emits update:modelValue when value changes', () => {
     wrapper = createWrapper()
     wrapper.vm.handleChange('new value')
 
@@ -105,7 +107,7 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['new value'])
   })
 
-  it('emits submit event when handleSubmit is called', async () => {
+  it('emits submit event when handleSubmit is called', () => {
     wrapper = createWrapper()
     wrapper.vm.handleSubmit('test value')
 
@@ -113,7 +115,7 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('submit')?.[0]).toEqual(['test value'])
   })
 
-  it('emits blur event when handleBlur is called', async () => {
+  it('emits blur event when handleBlur is called', () => {
     wrapper = createWrapper()
     wrapper.vm.handleBlur('test value')
 
@@ -121,7 +123,7 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('blur')?.[0]).toEqual(['test value'])
   })
 
-  it('uses custom field handler when provided', async () => {
+  it('uses custom field handler when provided', () => {
     const handleFieldChange = vi.fn()
     wrapper = createWrapper({ handleFieldChange })
     wrapper.vm.handleChange('handle field change')
@@ -129,7 +131,7 @@ describe('CodeInput', () => {
     expect(handleFieldChange).toHaveBeenCalledWith('handle field change')
   })
 
-  it('computes booleanOptions correctly for boolean type', async () => {
+  it('computes booleanOptions correctly for boolean type', () => {
     wrapper = createWrapper({
       type: 'boolean',
       nullable: false,
@@ -137,7 +139,7 @@ describe('CodeInput', () => {
     expect(wrapper.vm.booleanOptions).toEqual(['true', 'false'])
   })
 
-  it('computes booleanOptions correctly for boolean type with nullable', async () => {
+  it('computes booleanOptions correctly for boolean type with nullable', () => {
     wrapper = createWrapper({
       type: 'boolean',
       nullable: true,
@@ -145,7 +147,7 @@ describe('CodeInput', () => {
     expect(wrapper.vm.booleanOptions).toEqual(['true', 'false', 'null'])
   })
 
-  it('exposes focus method that calls codeMirror.focus', async () => {
+  it('exposes focus method that calls codeMirror.focus', () => {
     wrapper = createWrapper()
 
     // Get the mocked focus function from the useCodeMirror mock
@@ -158,12 +160,12 @@ describe('CodeInput', () => {
     expect(mockCodeMirror.focus).toHaveBeenCalled()
   })
 
-  it('applies error class when error prop is true', async () => {
+  it('applies error class when error prop is true', () => {
     wrapper = createWrapper({ error: true })
     expect(wrapper.html()).toContain('flow-code-input--error')
   })
 
-  it('sets up extensions correctly based on props', async () => {
+  it('sets up extensions correctly based on props', () => {
     wrapper = createWrapper({
       language: 'json',
       colorPicker: true,

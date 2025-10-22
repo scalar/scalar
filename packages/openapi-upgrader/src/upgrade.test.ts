@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { upgrade } from './upgrade'
 
 describe('upgrade', () => {
-  it('upgrades documents from Swagger 2.0 to OpenAPI 3.1', async () => {
+  it('upgrades documents from Swagger 2.0 to OpenAPI 3.1', () => {
     const document = upgrade(
       {
         swagger: '2.0',
@@ -21,7 +21,7 @@ describe('upgrade', () => {
     expect(document?.openapi).toBe('3.1.1')
   })
 
-  it('changes the version to from 3.0.0 to 3.1.0', async () => {
+  it('changes the version to from 3.0.0 to 3.1.0', () => {
     const document = upgrade(
       {
         openapi: '3.0.0',
@@ -37,7 +37,7 @@ describe('upgrade', () => {
     expect(document?.openapi).toBe('3.1.1')
   })
 
-  it('changes the version to 3.0.3 to 3.1.0', async () => {
+  it('changes the version to 3.0.3 to 3.1.0', () => {
     const document = upgrade(
       {
         openapi: '3.0.3',
@@ -53,7 +53,7 @@ describe('upgrade', () => {
     expect(document?.openapi).toBe('3.1.1')
   })
 
-  it('deals with null', async () => {
+  it('deals with null', () => {
     const document = upgrade(null as unknown as UnknownObject, '3.1')
 
     expect(document).toStrictEqual(null)

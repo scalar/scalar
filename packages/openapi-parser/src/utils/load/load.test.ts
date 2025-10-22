@@ -1,18 +1,19 @@
 import path from 'node:path'
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { stringify } from 'yaml'
 
 import { fetchUrls } from '@/plugins/fetch-urls/fetch-urls'
 import { readFiles } from '@/plugins/read-files/read-files'
 import { getEntrypoint } from '@/utils/get-entrypoint'
+
 import { load } from './load'
 
-global.fetch = vi.fn()
+const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
 
-describe('load', async () => {
+describe('load', () => {
   beforeEach(() => {
-    // @ts-expect-error
-    global.fetch.mockReset()
+    globalFetchSpy.mockReset()
   })
 
   it('loads JS object', async () => {
@@ -159,8 +160,7 @@ describe('load', async () => {
 
   it('handles failed requests', async () => {
     // Failed request
-    // @ts-expect-error
-    fetch.mockImplementation(() => {
+    globalFetchSpy.mockImplementation(() => {
       throw new TypeError('[load.test.ts] fetch failed')
     })
 
@@ -203,10 +203,9 @@ describe('load', async () => {
   })
 
   it('limits the number of requests', async () => {
-    // @ts-expect-error
-    fetch.mockResolvedValue({
+    globalFetchSpy.mockResolvedValue({
       text: async () => 'FOOBAR',
-    })
+    } as Response)
 
     const { filesystem } = await load(
       {
@@ -245,7 +244,7 @@ describe('load', async () => {
 
   it('loads referenced urls', async () => {
     // @ts-expect-error
-    fetch.mockImplementation((url: string) => {
+    globalFetchSpy.mockImplementation((url: string) => {
       if (url === 'https://example.com/openapi.yaml') {
         return Promise.resolve({
           text: () =>
@@ -321,8 +320,7 @@ describe('load', async () => {
   })
 
   it('loads string with url reference', async () => {
-    // @ts-expect-error
-    fetch.mockResolvedValue({
+    globalFetchSpy.mockResolvedValue({
       text: async () =>
         JSON.stringify({
           content: {
@@ -334,7 +332,7 @@ describe('load', async () => {
             },
           },
         }),
-    })
+    } as Response)
 
     const { filesystem } = await load(
       stringify({
@@ -403,7 +401,7 @@ describe('load', async () => {
   })
 
   it('throws an error', async () => {
-    expect(async () => {
+    await expect(async () => {
       await load('INVALID', {
         plugins: [readFiles(), fetchUrls()],
         throwOnError: true,

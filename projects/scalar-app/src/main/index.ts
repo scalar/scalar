@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
 import { BrowserWindow, type IpcMainInvokeEvent, Menu, app, dialog, ipcMain, session, shell } from 'electron'
@@ -22,7 +23,7 @@ if (!app.requestSingleInstanceLock()) {
 todesktop.init({
   updateReadyAction: {
     showNotification: 'never',
-    showInstallAndRestartPrompt: async (context) => {
+    showInstallAndRestartPrompt: (context) => {
       if (!context.appIsInForeground) {
         return
       }
@@ -436,7 +437,7 @@ async function handleFileOpen() {
 /**
  * Read the file content
  */
-async function handleReadFile(_: IpcMainInvokeEvent | undefined, filePath: string) {
+function handleReadFile(_: IpcMainInvokeEvent | undefined, filePath: string) {
   if (filePath) {
     console.info('[handleReadFile] Reading', filePath, '…')
 

@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+
+import { ELEMENT_ID } from './constants'
 import ScalarHotkeyTooltip from './ScalarHotkeyTooltip.vue'
 import { cleanupTooltipElement } from './useTooltip'
-import { ELEMENT_ID } from './constants'
 
 describe('ScalarHotkeyTooltip', () => {
   beforeEach(() => {
@@ -16,7 +17,7 @@ describe('ScalarHotkeyTooltip', () => {
     vi.useRealTimers()
   })
 
-  it('renders trigger element and is hidden initially', async () => {
+  it('renders trigger element and is hidden initially', () => {
     const wrapper = mount(ScalarHotkeyTooltip, {
       props: {
         hotkey: 'K',

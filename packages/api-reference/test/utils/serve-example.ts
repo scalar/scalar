@@ -31,7 +31,7 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
  * await page.goto(url)
  * ```
  */
-export async function serveExample(givenConfiguration?: Partial<HtmlRenderingConfiguration>): Promise<string> {
+export function serveExample(givenConfiguration?: Partial<HtmlRenderingConfiguration>): Promise<string> {
   // Check if JS bundle exists
   const pathToJavaScriptBundle = getPathToJavaScriptBundle()
 
@@ -92,7 +92,7 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
   })
 }
 
-export async function serveHTMLExample(
+export function serveHTMLExample(
   htmlPath: string,
   port = 3745,
 ): Promise<{

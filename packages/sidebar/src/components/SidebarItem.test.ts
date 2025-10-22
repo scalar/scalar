@@ -65,7 +65,7 @@ describe('SidebarItem', () => {
       expect(sidebarItem.props('is')).toBe('button')
     })
 
-    it('emits click event when item is clicked', async () => {
+    it('emits click event when item is clicked', () => {
       const item: Item = {
         id: '1',
         title: 'Test Item',
@@ -712,7 +712,7 @@ describe('SidebarItem', () => {
       expect(group.props('open')).toBe(false)
     })
 
-    it('emits click event when group is toggled', async () => {
+    it('emits click event when group is toggled', () => {
       const item: Item = {
         id: 'group-1',
         title: 'Expandable',

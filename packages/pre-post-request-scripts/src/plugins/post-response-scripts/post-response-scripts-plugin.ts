@@ -29,7 +29,7 @@ export const postResponseScriptsPlugin = (): ApiClientPlugin => {
     },
     hooks: {
       // Reset test results when a new request is sent
-      async onBeforeRequest() {
+      onBeforeRequest() {
         results.value = []
       },
       // Execute post-response scripts when a response is received

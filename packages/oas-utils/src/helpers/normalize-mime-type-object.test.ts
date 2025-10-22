@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 
 describe('normalizeMimeTypeObject', () => {
-  it('removes charset', async () => {
+  it('removes charset', () => {
     const content = {
       'application/json; charset=utf-8': {},
     }
@@ -13,7 +13,7 @@ describe('normalizeMimeTypeObject', () => {
     })
   })
 
-  it('removes semicolon', async () => {
+  it('removes semicolon', () => {
     const content = {
       'application/json;': {},
     }
@@ -23,7 +23,7 @@ describe('normalizeMimeTypeObject', () => {
     })
   })
 
-  it('removes whitespace', async () => {
+  it('removes whitespace', () => {
     const content = {
       ' application/json ': {},
     }
@@ -33,7 +33,7 @@ describe('normalizeMimeTypeObject', () => {
     })
   })
 
-  it('removes mimetype variants', async () => {
+  it('removes mimetype variants', () => {
     const content = {
       'application/problem+json': {},
     }
@@ -43,7 +43,7 @@ describe('normalizeMimeTypeObject', () => {
     })
   })
 
-  it('removes mimetype variants with special characters', async () => {
+  it('removes mimetype variants with special characters', () => {
     const content = {
       'application/problem+json': {},
     }
@@ -53,7 +53,7 @@ describe('normalizeMimeTypeObject', () => {
     })
   })
 
-  it('removes all the clutter', async () => {
+  it('removes all the clutter', () => {
     const content = {
       'application/problem-foobar+json; charset=utf-8': {},
     }

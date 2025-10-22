@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { unescapeJsonPointer } from './unescape-json-pointer'
 
-describe('unescapeJsonPointer', async () => {
+describe('unescapeJsonPointer', () => {
   it('unescapes a slash', () => {
     expect(unescapeJsonPointer('/foo~1bar~1baz')).toBe('/foo/bar/baz')
   })

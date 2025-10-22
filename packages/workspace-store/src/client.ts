@@ -1,6 +1,6 @@
 import { generateHash } from '@scalar/helpers/crypto/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
-import { bundle } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
@@ -105,17 +105,17 @@ export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
+function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
     return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
   }
 
-  return {
-    ok: true as const,
+  return Promise.resolve({
+    ok: true,
     data: workspaceDocument.document,
     // string version of the raw document for hashing purposes
     raw: JSON.stringify(workspaceDocument.document),
-  }
+  })
 }
 
 /**
@@ -926,7 +926,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         initialize: false,
       })
     },
-    resolve: async (path: string[]) => {
+    resolve: (path) => {
       const activeDocument = workspace.activeDocument
 
       const target = getValueByPath(activeDocument, path)
@@ -935,7 +935,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         console.error(
           `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
         )
-        return
+        return Promise.resolve()
       }
 
       // Bundle the target document with the active document as root, resolving any external references
