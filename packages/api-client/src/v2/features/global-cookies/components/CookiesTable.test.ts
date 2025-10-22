@@ -134,7 +134,7 @@ describe('CookiesTable', () => {
     expect(rows.length).toBe(3)
   })
 
-  it('emits updateRow event when updating an existing cookie name', async () => {
+  it('emits updateRow event when updating an existing cookie name', () => {
     const wrapper = mount(CookiesTable, {
       props: {
         data: [

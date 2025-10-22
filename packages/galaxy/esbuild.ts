@@ -6,7 +6,7 @@ import { normalize, toJson } from '@scalar/openapi-parser'
 await build({
   entries: ['./src/index.ts'],
   platform: 'shared',
-  onSuccess: async () => {
+  onSuccess: () => {
     // Get the package meta data
     const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 

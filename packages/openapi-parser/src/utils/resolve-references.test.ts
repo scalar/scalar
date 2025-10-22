@@ -1,21 +1,23 @@
-import path from 'node:path'
 /**
  * This file has some simple tests to cover the basics of the resolveReferences function.
  * Doesn't cover all edge cases, doesn't have big files, but if this works you're almost there.
  */
+import path from 'node:path'
+
 import SwaggerParser from '@apidevtools/swagger-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { readFiles } from '@/plugins/read-files/read-files'
 import type { AnyObject } from '@/types/index'
+
 import { load } from './load/load'
 import { resolveReferences } from './resolve-references'
-import type { OpenAPI } from '@scalar/openapi-types'
 
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
-  it('resolves a media type reference', async () => {
+  it('resolves a media type reference', () => {
     const specification: OpenAPI.Document = {
       openapi: '3.2.0',
       info: {},
@@ -52,7 +54,7 @@ describe('resolveReferences', () => {
     expect(schema.paths['/foobar'].get.responses[200].content['application/json'].schema).not.toBe(undefined)
   })
 
-  it('resolves a single reference', async () => {
+  it('resolves a single reference', () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -81,7 +83,7 @@ describe('resolveReferences', () => {
     expect(schema.paths['/foobar'].post.requestBody.content).not.toBe(undefined)
   })
 
-  it("returns an error when a reference can't be found", async () => {
+  it("returns an error when a reference can't be found", () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -107,7 +109,7 @@ describe('resolveReferences', () => {
     expect(valid).toBe(false)
   })
 
-  it("returns an error when an external reference can't be found", async () => {
+  it("returns an error when an external reference can't be found", () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -236,7 +238,7 @@ describe('resolveReferences', () => {
     )
   })
 
-  it('resolves references in arrays', async () => {
+  it('resolves references in arrays', () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -285,7 +287,7 @@ describe('resolveReferences', () => {
     })
   })
 
-  it('merges original properties and referenced content', async () => {
+  it('merges original properties and referenced content', () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -335,7 +337,7 @@ describe('resolveReferences', () => {
     })
   })
 
-  it('references inside references still keep the reference to the original JS object', async () => {
+  it('references inside references still keep the reference to the original JS object', () => {
     const specification = {
       swagger: '2.0',
       info: {
@@ -409,7 +411,7 @@ describe('resolveReferences', () => {
     })
   })
 
-  it('resolves a simple circular reference', async () => {
+  it('resolves a simple circular reference', () => {
     const partialSpecification: AnyObject = {
       foo: {
         bar: {
@@ -427,7 +429,7 @@ describe('resolveReferences', () => {
     expect(schema.foo.bar.bar.bar.bar.bar.bar.bar.bar).toBeTypeOf('object')
   })
 
-  it('resolves a more advanced circular reference', async () => {
+  it('resolves a more advanced circular reference', () => {
     const partialSpecification: AnyObject = {
       type: 'object',
       properties: {
@@ -460,7 +462,7 @@ describe('resolveReferences', () => {
     expect(schema.schemas.element.properties.element.properties.element.properties.element).toBeTypeOf('object')
   })
 
-  it('resolves an OpenAPI-like circular reference', async () => {
+  it('resolves an OpenAPI-like circular reference', () => {
     const specification = {
       type: 'object',
       properties: {
@@ -490,7 +492,7 @@ describe('resolveReferences', () => {
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
   })
 
-  it('composes two files', async () => {
+  it('composes two files', () => {
     const filesystem = [
       {
         dir: '/Foobar',
@@ -534,7 +536,7 @@ describe('resolveReferences', () => {
     expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 
-  it('resolves reference to a part of an external file', async () => {
+  it('resolves reference to a part of an external file', () => {
     const filesystem = [
       {
         dir: '/Foobar',
@@ -583,7 +585,7 @@ describe('resolveReferences', () => {
     expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 
-  it('resolves references in external files', async () => {
+  it('resolves references in external files', () => {
     const filesystem = [
       {
         dir: '/Foobar',
@@ -652,7 +654,7 @@ describe('resolveReferences', () => {
     expect(schema.components.schemas.Upload.allOf[0].title).toBe('Coordinates')
   })
 
-  it('resolves reference to self by filename', async () => {
+  it('resolves reference to self by filename', () => {
     const filesystem = [
       {
         dir: '/Foobar',

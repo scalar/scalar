@@ -71,7 +71,7 @@ const isInputUrl = computed(() => isUrl(inputContent.value))
 const isInputDocument = computed(() => !!documentDetails.value)
 
 const { open: openSpecFileDialog } = useFileDialog({
-  onChange: async (files) => {
+  onChange: (files) => {
     const file = files?.[0]
     if (file) {
       const reader = new FileReader()

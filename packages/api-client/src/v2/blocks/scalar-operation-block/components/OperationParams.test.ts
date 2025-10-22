@@ -44,7 +44,7 @@ describe('OperationParams', () => {
     expect(table.exists()).toBe(true)
   })
 
-  it('re-emits add, update, and delete events from OperationTable', async () => {
+  it('re-emits add, update, and delete events from OperationTable', () => {
     const wrapper = mount(OperationParams, {
       props: {
         parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } } as any],

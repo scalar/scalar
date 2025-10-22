@@ -220,9 +220,7 @@ describe('debounce', () => {
 
   it('handles async functions', () => {
     const { execute } = debounce({ delay: 100 })
-    const asyncFn = vi.fn(async () => {
-      return Promise.resolve('result')
-    })
+    const asyncFn = vi.fn().mockResolvedValue('result')
 
     execute(['test'], asyncFn)
     vi.advanceTimersByTime(100)
@@ -232,9 +230,7 @@ describe('debounce', () => {
 
   it('handles rejected promises', () => {
     const { execute } = debounce({ delay: 100 })
-    const rejectFn = vi.fn(async () => {
-      return Promise.reject(new Error('Async error'))
-    })
+    const rejectFn = vi.fn().mockRejectedValue(new Error('Async error'))
 
     execute(['test'], rejectFn)
 

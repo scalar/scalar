@@ -557,7 +557,7 @@ describe('EnvironmentsList', () => {
       expect(icon.exists()).toBe(true)
     })
 
-    it('opens create modal when add button is clicked', async () => {
+    it('opens create modal when add button is clicked', () => {
       const wrapper = mountWithProps({ documentName: 'My API' })
 
       // We cannot directly test modal.show() being called, but we can verify the modal exists

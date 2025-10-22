@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+
+import as from 'ansis'
+import { Command } from 'commander'
 import prettier from 'prettier'
 
 import { getWorkspaceRoot } from '@/helpers'
-import as from 'ansis'
-import { Command } from 'commander'
 
 const command = new Command('format')
 

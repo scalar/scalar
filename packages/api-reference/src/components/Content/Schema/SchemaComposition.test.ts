@@ -170,7 +170,7 @@ describe('SchemaComposition', () => {
       expect(schemaComponent.props('schema')).toEqual({ '__scalar_': '', const: 'Baz' })
     })
 
-    it('renders enum schema in composition panel', async () => {
+    it('renders enum schema in composition panel', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           eventBus: null,

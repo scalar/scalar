@@ -1,7 +1,7 @@
 import as, { type AnsiColors } from 'ansis'
 import { Command } from 'commander'
 
-export const cat = new Command('cat').description('Cat to test your terminal color output').action(async () => {
+export const cat = new Command('cat').description('Cat to test your terminal color output').action(() => {
   const p = (val: string, c: AnsiColors) => console.log(as[c](val))
 
   p('⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣴⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣦⣤⣤⣤⣤⣤⣤⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', 'red')
@@ -42,7 +42,9 @@ export const cat = new Command('cat').description('Cat to test your terminal col
   p('I am very blueBright', 'blueBright')
   p('I am very magentaBright', 'magentaBright')
   p('I am very whiteBright', 'whiteBright')
-  p('I am very blackBright', 'blackBright')
   p('I am very gray', 'gray')
-  p('I am very grey', 'grey')
+  // p('I am very grey', 'grey') this is throwing an error:
+  // const p = (val, c) => console.log(__vite_ssr_import_0__.default[c](val));
+  //                                                                ^
+  // TypeError: __vite_ssr_import_0__.default[c] is not a function
 })

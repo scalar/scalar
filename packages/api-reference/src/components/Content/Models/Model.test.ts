@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import Model from './Model.vue'
 
-describe('Model', async () => {
+describe('Model', () => {
   const mockDocument = coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
     info: {

@@ -63,7 +63,7 @@ class SwaggerParser {
 }
 
 // https://github.com/APIDevTools/swagger-parser?tab=readme-ov-file#example
-describe('validate', async () => {
+describe('validate', () => {
   beforeEach(() => {
     globalFetchSpy.mockReset()
   })
@@ -112,7 +112,7 @@ describe('dereference', () => {
   it('dereferences URLs', async () => {
     // @ts-expect-error
     globalFetchSpy.mockImplementation(async (url: string) => ({
-      text: async () => {
+      text: () => {
         if (url === 'http://example.com/specification/openapi.yaml') {
           return myAPI
         }

@@ -22,7 +22,7 @@ describe.todo('DeleteRequestAuthModal', () => {
     open,
   })
 
-  it('renders modal content with label', async () => {
+  it('renders modal content with label', () => {
     const label = 'Test Label'
     const wrapper = mount(DeleteRequestAuthModal, {
       attachTo: document.body,

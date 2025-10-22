@@ -1,7 +1,8 @@
-import { isUrl } from '@/libs'
 import { resolve } from '@scalar/import'
 import { fetchWithProxyFallback, redirectToProxy } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
+
+import { isUrl } from '@/libs'
 
 export type PrefetchResult = {
   state: 'idle' | 'loading'
@@ -23,7 +24,7 @@ export function useUrlPrefetcher() {
     error: null,
   })
 
-  async function resetPrefetchResult() {
+  function resetPrefetchResult() {
     Object.assign(prefetchResult, {
       state: 'idle',
       content: null,

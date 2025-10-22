@@ -53,7 +53,7 @@ describe('OperationBlock', () => {
     expect(emitted?.[0]?.[0]).toEqual({ name: 'New Name' })
   })
 
-  it('renders summary text instead of input in modal layout', async () => {
+  it('renders summary text instead of input in modal layout', () => {
     const wrapper = mount(OperationBlock, {
       props: { ...defaultProps, operation: { summary: 'My request' }, layout: 'modal' },
       global: {
@@ -142,7 +142,7 @@ describe('OperationBlock', () => {
     expect(auth.isVisible()).toBe(true)
   })
 
-  it('hides request body for methods without a body', async () => {
+  it('hides request body for methods without a body', () => {
     const wrapper = mount(OperationBlock, {
       props: { ...defaultProps, method: 'get' },
       global: {
@@ -157,7 +157,7 @@ describe('OperationBlock', () => {
     expect(bodyGet.isVisible()).toBe(false)
   })
 
-  it('shows request body for methods with a body', async () => {
+  it('shows request body for methods with a body', () => {
     const wrapper = mount(OperationBlock, {
       props: { ...defaultProps, method: 'post' },
       global: {

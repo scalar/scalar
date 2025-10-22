@@ -24,7 +24,7 @@ describe('isSchemaPath', () => {
 
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {
-    it(`doesn't modify Swagger 2.0 files`, async () => {
+    it(`doesn't modify Swagger 2.0 files`, () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         swagger: '2.0',
         info: {
@@ -37,7 +37,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.swagger).toBe('2.0')
     })
 
-    it('changes the version to from 3.0.0 to 3.1.1', async () => {
+    it('changes the version to from 3.0.0 to 3.1.1', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -50,7 +50,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.openapi).toBe('3.1.1')
     })
 
-    it('changes the version to 3.0.3 to 3.1.1', async () => {
+    it('changes the version to 3.0.3 to 3.1.1', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.3',
         info: {
@@ -65,7 +65,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('nullable types', () => {
-    it('migrates nullable types', async () => {
+    it('migrates nullable types', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -98,7 +98,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates nullable types with properties', async () => {
+    it('migrates nullable types with properties', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -142,7 +142,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {
-    it('migrate exclusiveMinimum and exclusiveMaximum', async () => {
+    it('migrate exclusiveMinimum and exclusiveMaximum', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -182,7 +182,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('migrates example to examples', () => {
-    it('uses arrays in schemas', async () => {
+    it('uses arrays in schemas', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -216,7 +216,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('uses example objects everywhere else', async () => {
+    it('uses example objects everywhere else', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -487,7 +487,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('describing File Upload Payloads', () => {
-    it('removes schema for binary file uploads', async () => {
+    it('removes schema for binary file uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -515,7 +515,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toEqual({})
     })
 
-    it('migrates base64 format to contentEncoding for image uploads', async () => {
+    it('migrates base64 format to contentEncoding for image uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -548,7 +548,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates binary format for multipart file uploads', async () => {
+    it('migrates binary format for multipart file uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -600,7 +600,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  it('migrates byte format', async () => {
+  it('migrates byte format', () => {
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.0',
       info: {
@@ -635,7 +635,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe.skip('declaring $schema', () => {
-    it('adds a $schema', async () => {
+    it('adds a $schema', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -650,7 +650,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('binary format handling with oneOf', () => {
-    it('correctly handles format: binary in oneOf schemas', async () => {
+    it('correctly handles format: binary in oneOf schemas', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -707,7 +707,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('webhooks', () => {
-    it('correctly upgrades x-webhooks to webhooks', async () => {
+    it('correctly upgrades x-webhooks to webhooks', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {

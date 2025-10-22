@@ -24,8 +24,8 @@ const store = useWorkspace()
 const { activeWorkspace } = useActiveEntities()
 const { toast } = useToasts()
 
-async function handleImportCollection() {
-  importCollection({
+function handleImportCollection() {
+  void importCollection({
     store,
     workspace: activeWorkspace.value,
     source: source,

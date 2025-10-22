@@ -12,16 +12,12 @@ describe('createEventBus', () => {
     expect(listeners()).toEqual([])
   })
   it('should listen on emit', () => {
-    let val = false
     const { emit, on, reset, listeners } = createEventBus<boolean>()
-    on((_event) => {
-      if (!_event) {
-        return
-      }
-      val = _event
-    })
+    const listener = vi.fn()
+    on(listener)
     emit(true)
-    expect(val).toBe(true)
+    expect(listener).toHaveBeenCalledOnce()
+    expect(listener).toHaveBeenCalledWith(true)
     reset()
     expect(listeners()).toEqual([])
   })
@@ -79,7 +75,7 @@ describe('createEventBus', () => {
     expect(listeners()).toEqual([])
   })
 
-  it('should work with a complex payload', async () => {
+  it('should work with a complex payload', () => {
     const { on, emit } = createEventBus<['inc' | 'dec', number]>()
     const counter = useCounter(0)
     on((value) => {

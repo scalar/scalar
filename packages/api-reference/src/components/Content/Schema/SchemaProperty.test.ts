@@ -54,7 +54,7 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(1)
       })
 
-      it('hides expand button for object without properties or additional properties', async () => {
+      it('hides expand button for object without properties or additional properties', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -100,7 +100,7 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(1)
       })
 
-      it('hides expand button for array with primitive items', async () => {
+      it('hides expand button for array with primitive items', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -123,7 +123,7 @@ describe('SchemaProperty', () => {
     })
 
     describe('primitive types', () => {
-      it('hides expand button for string type', async () => {
+      it('hides expand button for string type', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -141,7 +141,7 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(0)
       })
 
-      it('hides expand button for integer type', async () => {
+      it('hides expand button for integer type', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -159,7 +159,7 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(0)
       })
 
-      it('hides expand button for number type', async () => {
+      it('hides expand button for number type', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -177,7 +177,7 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(0)
       })
 
-      it('hides expand button for boolean type', async () => {
+      it('hides expand button for boolean type', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -340,7 +340,7 @@ describe('SchemaProperty', () => {
   })
 
   describe('variant prop', () => {
-    it('displays pattern properties with variant prop', async () => {
+    it('displays pattern properties with variant prop', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
@@ -359,7 +359,7 @@ describe('SchemaProperty', () => {
       expect(patternName.text()).toBe('^foo-')
     })
 
-    it('displays additional properties with variant prop', async () => {
+    it('displays additional properties with variant prop', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           variant: 'additionalProperties',
@@ -378,7 +378,7 @@ describe('SchemaProperty', () => {
       expect(additionalName.text()).toBe('propertyName*')
     })
 
-    it('displays regular property names without variant styling', async () => {
+    it('displays regular property names without variant styling', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           name: 'regularProperty',
@@ -469,7 +469,7 @@ describe('SchemaProperty', () => {
     })
 
     describe('object compositions', () => {
-      it('renders object compositions with allOf with an object button', async () => {
+      it('renders object compositions with allOf with an object button', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,

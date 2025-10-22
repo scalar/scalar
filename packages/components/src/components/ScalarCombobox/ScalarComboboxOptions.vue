@@ -24,9 +24,9 @@ const props = defineProps<{
   multiselect?: boolean
 }>()
 
-const model = defineModel<O[]>({ default: [] })
-
 const emit = defineEmits<ComboboxEmits>()
+
+const model = defineModel<O[]>({ default: [] })
 
 const slots = defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
 
@@ -66,7 +66,7 @@ const query = ref<string>('')
 const active = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
 
 // Clear the query on open and close
-onMounted(async () => {
+onMounted(() => {
   // Clear the query
   query.value = ''
 
@@ -179,8 +179,8 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <ScalarIconMagnifyingGlass
       class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
-      v-model="query"
       ref="input"
+      v-model="query"
       :aria-activedescendant="active ? getOptionId(active) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
@@ -214,8 +214,8 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       <template #label>
         <slot
           v-if="$slots.group"
-          name="group"
-          :group />
+          :group
+          name="group" />
         <template v-else>
           {{ group.label }}
         </template>
@@ -226,22 +226,22 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         <ComboboxOption
           v-if="group.options.some((o) => o.id === option.id)"
           :id="getOptionId(option)"
+          v-slot="{ active, selected }"
           :active="active?.id === option.id"
           :selected="model.some((o) => o.id === option.id)"
           @click="toggleSelected(option)"
           @mousedown.prevent
-          @mouseenter="active = option"
-          v-slot="{ active, selected }">
+          @mouseenter="active = option">
           <slot
             v-if="$slots.option"
+            :active
             name="option"
             :option
-            :active
             :selected />
           <template v-else>
             <ScalarListboxCheckbox
-              :selected="model.some((o) => o.id === option.id)"
-              :multiselect />
+              :multiselect
+              :selected="model.some((o) => o.id === option.id)" />
             <span class="inline-block min-w-0 flex-1 truncate text-c-1">
               {{ option.label }}
             </span>
@@ -252,15 +252,15 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <ComboboxOption
       v-if="slots.add"
       :id="getOptionId(addOption)"
+      v-slot="{ active }"
       :active="active?.id === addOption.id"
       @click="addNew"
       @mousedown.prevent
-      @mouseenter="active = addOption"
-      v-slot="{ active }">
+      @mouseenter="active = addOption">
       <ScalarIconPlus class="size-4 p-px" />
       <slot
-        name="add"
-        :active />
+        :active
+        name="add" />
     </ComboboxOption>
   </ul>
 </template>

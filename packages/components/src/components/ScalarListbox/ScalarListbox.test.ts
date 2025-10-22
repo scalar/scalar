@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import ScalarListbox from './ScalarListbox.vue'
 
 describe('ScalarListbox', () => {
-  it('renders properly', async () => {
+  it('renders properly', () => {
     const wrapper = mount(ScalarListbox, {
       props: {
         options: [

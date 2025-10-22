@@ -121,21 +121,21 @@ describe('AddressBar', () => {
     expect(withServers.find('.server-dropdown').exists()).toBe(true)
   })
 
-  it('focuses CodeInput on focusAddressBar event in web layout', async () => {
+  it('focuses CodeInput on focusAddressBar event in web layout', () => {
     const wrapper = makeWrapper({ layout: 'web' })
     bus.focusAddressBar.emit()
     const input = wrapper.find('[data-test="code-input"]').element
     expect(document.activeElement).toBe(input)
   })
 
-  it('focuses Send button on focusAddressBar event in modal layout', async () => {
+  it('focuses Send button on focusAddressBar event in modal layout', () => {
     const wrapper = makeWrapper({ layout: 'modal' })
     bus.focusAddressBar.emit()
     const sendBtn = wrapper.findAll('button').find((b) => b.text().includes('Send'))!.element as HTMLButtonElement
     expect(document.activeElement).toBe(sendBtn)
   })
 
-  it('focuses CodeInput when hotKeys event indicates focusAddressBar', async () => {
+  it('focuses CodeInput when hotKeys event indicates focusAddressBar', () => {
     const wrapper = makeWrapper({ layout: 'web' })
     bus.hotKeys.emit({ focusAddressBar: new KeyboardEvent('keydown', {}) })
     const input = wrapper.find('[data-test="code-input"]').element

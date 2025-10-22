@@ -53,7 +53,7 @@ describe('createContainer', () => {
 })
 
 describe('createApiReference', () => {
-  it('creates and mounts the API reference component', async () => {
+  it('creates and mounts the API reference component', () => {
     const element = document.querySelector('#mount-point')
     expect(element).toBeInstanceOf(HTMLElement)
 
@@ -65,7 +65,7 @@ describe('createApiReference', () => {
     expect(element?.innerHTML).toContain('Powered by Scalar')
   })
 
-  it('handles string selectors for mounting', async () => {
+  it('handles string selectors for mounting', () => {
     const config = { _integration: 'html' }
     const apiReference = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
@@ -227,7 +227,7 @@ describe('findDataAttributes (legacy)', () => {
 })
 
 describe('getConfigurationFromDataAttributes', () => {
-  it('createApiReference', async () => {
+  it('createApiReference', () => {
     global.document = createHtmlDocument(`
         <html>
           <body>

@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
-import Selector from './Selector.vue'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
+
+import Selector from './Selector.vue'
 
 describe('Selector', () => {
   const mockServers: ServerObject[] = [
@@ -191,7 +192,7 @@ describe('Selector', () => {
     expect(wrapper.vm.selectedServer).toBeUndefined()
   })
 
-  it('component emits update:modelValue through v-model integration', async () => {
+  it('component emits update:modelValue through v-model integration', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,

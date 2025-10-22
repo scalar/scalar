@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import ScalarPopover from './ScalarPopover.vue'
 
 describe('ScalarPopover', () => {
-  it('renders properly', async () => {
+  it('renders properly', () => {
     const wrapper = mount(ScalarPopover, {
       props: {},
       slots: {

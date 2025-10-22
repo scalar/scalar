@@ -31,7 +31,7 @@ function isFromApp(event: DragEvent): boolean {
 }
 
 // Drop
-async function handleDrop(event: DragEvent) {
+function handleDrop(event: DragEvent) {
   event.preventDefault()
   isDragging.value = false
   dragCounter = 0
@@ -57,7 +57,7 @@ async function handleDrop(event: DragEvent) {
 
       const reader = new FileReader()
 
-      reader.onload = async (e) => {
+      reader.onload = (e) => {
         if (e.target && typeof e.target.result === 'string') {
           emit('input', e.target.result, null, 'drop')
         }

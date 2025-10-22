@@ -80,16 +80,16 @@ export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: fal
  * // No matching plugin returns { ok: false }
  * await resolveContents('#/components/schemas/User', [urlPlugin, filePlugin])
  */
-async function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<ResolveResult> {
+function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<ResolveResult> {
   const plugin = plugins.find((p) => p.validate(value))
 
   if (plugin) {
     return plugin.exec(value)
   }
 
-  return {
+  return Promise.resolve({
     ok: false,
-  }
+  })
 }
 
 /**

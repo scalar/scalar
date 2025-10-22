@@ -16,15 +16,14 @@ vi.mock('../hooks/useToasts', () => ({
 }))
 
 vi.mock('vue-sonner', async (importOriginal) => {
-  const actual = (await importOriginal()) as {
+  const actual = await importOriginal<{
     Toaster: typeof Toaster
     toast: typeof toast
-  }
+  }>()
 
   return {
     ...actual,
     toast: vi.fn(),
-    Toaster: actual.Toaster,
   }
 })
 
@@ -40,7 +39,7 @@ describe('ScalarToasts', () => {
     expect(wrapper.find('.scalar-toaster').exists()).toBe(true)
   })
 
-  it('should initialize toasts with correct parameters', async () => {
+  it('should initialize toasts with correct parameters', () => {
     const mockInitializeToasts = vi.fn()
     vi.mocked(useToasts).mockImplementation(() => ({
       initializeToasts: mockInitializeToasts,

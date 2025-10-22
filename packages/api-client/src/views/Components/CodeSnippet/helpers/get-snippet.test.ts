@@ -75,9 +75,11 @@ describe('getSnippet', () => {
     )
 
     expect(error).toBeNull()
-    expect(result).toEqual(`import { request } from 'undici'
+    expect(result).toMatchInlineSnapshot(`
+      "import { request } from 'undici'
 
-const { statusCode, body } = await request('https://example.com/users')`)
+      const { statusCode, body } = await request('https://example.com/users')"
+    `)
   })
 
   it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
@@ -92,17 +94,19 @@ const { statusCode, body } = await request('https://example.com/users')`)
     )
 
     expect(error).toBeNull()
-    expect(result).toEqual(`const settings = {
-  async: true,
-  crossDomain: true,
-  url: 'https://example.com/users',
-  method: 'GET',
-  headers: {}
-};
+    expect(result).toMatchInlineSnapshot(`
+      "const settings = {
+        async: true,
+        crossDomain: true,
+        url: 'https://example.com/users',
+        method: 'GET',
+        headers: {}
+      };
 
-$.ajax(settings).done(function (response) {
-  console.log(response);
-});`)
+      $.ajax(settings).done(function (response) {
+        console.log(response);
+      });"
+    `)
   })
 
   it('returns an empty string if passed rubbish', () => {
@@ -249,7 +253,7 @@ $.ajax(settings).done(function (response) {
     expect(result).toEqual(`fetch('https://example.com/users?query-param=query-value')`)
   })
 
-  it('should show the security headers, cookies and query', async () => {
+  it('should show the security headers, cookies and query', () => {
     const [error, result] = getSnippet(
       'javascript',
       'fetch',
@@ -286,13 +290,15 @@ $.ajax(settings).done(function (response) {
     )
 
     expect(error).toBeNull()
-    expect(result).toEqual(`fetch('https://example.com/users?query-api-key=33333', {
-  headers: {
-    'X-Header-Token': '22222',
-    Authorization: 'Bearer 44444',
-    'Set-Cookie': 'x-cookie-token=YOUR_SECRET_TOKEN'
-  }
-})`)
+    expect(result).toMatchInlineSnapshot(`
+      "fetch('https://example.com/users?query-api-key=33333', {
+        headers: {
+          'X-Header-Token': '22222',
+          Authorization: 'Bearer 44444',
+          'Set-Cookie': 'x-cookie-token=YOUR_SECRET_TOKEN'
+        }
+      })"
+    `)
   })
 
   it('should include the invalid url', () => {
@@ -306,12 +312,14 @@ $.ajax(settings).done(function (response) {
     )
 
     expect(error).toBeNull()
-    expect(result).toEqual(`CURL *hnd = curl_easy_init();
+    expect(result).toMatchInlineSnapshot(`
+      "CURL *hnd = curl_easy_init();
 
-curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-curl_easy_setopt(hnd, CURLOPT_URL, "/users");
+      curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
+      curl_easy_setopt(hnd, CURLOPT_URL, "/users");
 
-CURLcode ret = curl_easy_perform(hnd);`)
+      CURLcode ret = curl_easy_perform(hnd);"
+    `)
   })
 
   describe('it should generate a snipped without a proper URL for every client', () => {
