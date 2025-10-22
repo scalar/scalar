@@ -176,7 +176,7 @@ const handleDragEnd = (
       v-else
       class="text-left"
       :selected="isSelected(item.id)"
-      @selectItem="() => emits('selectItem', item.id)">
+      @click="() => emits('selectItem', item.id)">
       <div class="group/entry flex flex-1 items-center justify-center">
         <div class="flex-1">
           <template v-if="options?.operationTitleSource === 'path'">

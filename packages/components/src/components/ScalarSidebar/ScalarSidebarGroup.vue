@@ -63,7 +63,7 @@ const { cx } = useBindCx()
         :disabled
         :indent="level"
         :selected
-        @click.stop="() => emit('update:modelValue', !modelValue)">
+        @click="() => emit('update:modelValue', !modelValue)">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"

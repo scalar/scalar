@@ -81,7 +81,7 @@ describe('SidebarItem', () => {
       })
 
       const sidebarItem = wrapper.findComponent(ScalarSidebarItem)
-      sidebarItem.vm.$emit('selectItem', '1')
+      sidebarItem.vm.$emit('click')
 
       expect(wrapper.emitted('selectItem')).toBeTruthy()
       expect(wrapper.emitted('selectItem')?.[0]).toEqual(['1'])

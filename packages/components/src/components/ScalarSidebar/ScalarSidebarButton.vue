@@ -32,10 +32,6 @@ import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 
 const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 
-const emit = defineEmits<{
-  (e: 'selectItem'): void
-}>()
-
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
@@ -60,8 +56,7 @@ const { cx } = useBindCx()
     :is="is"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ selected, disabled, active }))"
-    @click.stop="() => emit('selectItem')">
+    v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
       <ScalarSidebarIndent
         :disabled
