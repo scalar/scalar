@@ -1,6 +1,6 @@
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
-import type { TraversedEntry } from '@/schemas/navigation'
+import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -105,5 +105,10 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
     }
   }
 
-  return { entries }
+  return {
+    id: documentId,
+    type: 'document',
+    title: documentName,
+    children: entries,
+  } satisfies TraversedDocument
 }

@@ -8,7 +8,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import type { TraversedEntry } from '@/schemas/navigation'
+import type { TraversedDocument } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -247,7 +247,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    */
   const workspace = {
     ...workspaceProps.meta,
-    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedEntry[] }>,
+    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedDocument }>,
   }
 
   /**
@@ -296,7 +296,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const { entries } = createNavigation(name, documentV3, workspaceProps.config ?? {})
+    const navigation = createNavigation(name, documentV3, workspaceProps.config ?? {})
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -305,7 +305,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       ...documentV3,
       components,
       paths,
-      [extensions.document.navigation]: entries,
+      [extensions.document.navigation]: navigation,
     }
   }
 

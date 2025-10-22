@@ -90,17 +90,22 @@ describe('create-server-store', () => {
             },
           },
         },
-        'x-scalar-navigation': [
-          {
-            'id': `${name}/tag/default/get/planets`,
-            method: 'get',
-            type: 'operation',
-            isDeprecated: false,
-            'ref': '#/paths/~1planets/get',
-            path: '/planets',
-            title: 'List planets',
-          },
-        ],
+        'x-scalar-navigation': {
+          type: 'document',
+          id: name,
+          title: name,
+          children: [
+            {
+              'id': `${name}/tag/default/get/planets`,
+              method: 'get',
+              type: 'operation',
+              isDeprecated: false,
+              'ref': '#/paths/~1planets/get',
+              path: '/planets',
+              title: 'List planets',
+            },
+          ],
+        },
       })
 
       expect(store.getWorkspace()).toEqual({
@@ -181,17 +186,22 @@ describe('create-server-store', () => {
           },
         },
         'x-scalar-active-auth': 'test',
-        'x-scalar-navigation': [
-          {
-            'id': 'doc-1/tag/default/get/planets',
-            isDeprecated: false,
-            method: 'get',
-            type: 'operation',
-            'ref': '#/paths/~1planets/get',
-            path: '/planets',
-            title: 'List planets',
-          },
-        ],
+        'x-scalar-navigation': {
+          type: 'document',
+          id: 'doc-1',
+          title: 'doc-1',
+          children: [
+            {
+              'id': 'doc-1/tag/default/get/planets',
+              isDeprecated: false,
+              method: 'get',
+              type: 'operation',
+              'ref': '#/paths/~1planets/get',
+              path: '/planets',
+              title: 'List planets',
+            },
+          ],
+        },
       })
 
       expect(workspace.documents['doc-3']).toEqual({
@@ -214,17 +224,22 @@ describe('create-server-store', () => {
           },
         },
         'x-scalar-active-auth': 'test',
-        'x-scalar-navigation': [
-          {
-            'id': 'doc-3/tag/default/get/planets',
-            isDeprecated: false,
-            method: 'get',
-            type: 'operation',
-            'ref': '#/paths/~1planets/get',
-            path: '/planets',
-            title: 'List planets',
-          },
-        ],
+        'x-scalar-navigation': {
+          type: 'document',
+          id: 'doc-3',
+          title: 'doc-3',
+          children: [
+            {
+              'id': 'doc-3/tag/default/get/planets',
+              isDeprecated: false,
+              method: 'get',
+              type: 'operation',
+              'ref': '#/paths/~1planets/get',
+              path: '/planets',
+              title: 'List planets',
+            },
+          ],
+        },
       })
     })
   })
@@ -289,17 +304,22 @@ describe('create-server-store', () => {
                 planetId: { '$ref': './chunks/doc-1/components/parameters/planetId.json#', $global: true },
               },
             },
-            'x-scalar-navigation': [
-              {
-                'id': 'doc-1/tag/default/get/planets',
-                isDeprecated: false,
-                method: 'get',
-                path: '/planets',
-                title: 'List planets',
-                type: 'operation',
-                'ref': '#/paths/~1planets/get',
-              },
-            ],
+            'x-scalar-navigation': {
+              type: 'document',
+              id: 'doc-1',
+              title: 'doc-1',
+              children: [
+                {
+                  'id': 'doc-1/tag/default/get/planets',
+                  isDeprecated: false,
+                  method: 'get',
+                  path: '/planets',
+                  title: 'List planets',
+                  type: 'operation',
+                  'ref': '#/paths/~1planets/get',
+                },
+              ],
+            },
           },
           'doc-2': {
             'x-scalar-active-auth': 'test',
@@ -319,17 +339,22 @@ describe('create-server-store', () => {
                 planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
-            'x-scalar-navigation': [
-              {
-                'id': 'doc-2/tag/default/get/planets',
-                isDeprecated: false,
-                method: 'get',
-                type: 'operation',
-                'ref': '#/paths/~1planets/get',
-                path: '/planets',
-                title: 'List planets',
-              },
-            ],
+            'x-scalar-navigation': {
+              type: 'document',
+              id: 'doc-2',
+              title: 'doc-2',
+              children: [
+                {
+                  'id': 'doc-2/tag/default/get/planets',
+                  isDeprecated: false,
+                  method: 'get',
+                  type: 'operation',
+                  'ref': '#/paths/~1planets/get',
+                  path: '/planets',
+                  title: 'List planets',
+                },
+              ],
+            },
           },
         },
         'x-scalar-active-document': 'test',
