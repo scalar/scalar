@@ -67,6 +67,7 @@ const handleDragEnd = (
             </template>
           </SidebarItem>
         </ScalarSidebarItems>
+
         <!-- Spacer -->
         <div class="flex-1"></div>
       </slot>

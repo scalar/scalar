@@ -16,18 +16,6 @@ await workspaceStore.addDocument({
   },
 })
 
-await workspaceStore.addDocument({
-  name: 'default2',
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-  config: {
-    'x-scalar-reference-config': {
-      settings: {
-        proxyUrl: 'https://proxy.scalar.com',
-      },
-    },
-  },
-})
-
 const { open } = await createApiClientModal({
   el: document.getElementById('app'),
   workspaceStore,

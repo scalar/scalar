@@ -82,20 +82,21 @@ const sidebarWidth = ref(288)
 
               <!-- Toggle the sidebar -->
               <SidebarToggle
-                v-else
+                v-else-if="layout === 'modal'"
                 v-model="isSidebarOpen" />
 
-              <!-- Toggle search -->
+              <!-- Toggle search, always visible on web -->
               <ScalarIconButton
+                v-if="layout !== 'web'"
                 :icon="ScalarIconMagnifyingGlass"
                 label="Search"
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <!-- Search input -->
+            <!-- Search input, always visible on web -->
             <ScalarSidebarSearchInput
-              v-if="isSearchVisible"
-              autofocus />
+              v-if="isSearchVisible || layout === 'web'"
+              :autofocus="layout !== 'web'" />
           </div>
         </template>
 
