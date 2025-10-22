@@ -6,23 +6,6 @@ import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { traverseWebhooks } from './traverse-webhooks'
 
 describe('traverse-webhooks', () => {
-  // const mockGetWebhookId: DocumentConfiguration['x-scalar-reference-config'] = (params, tag) => {
-  //   if (!params) {
-  //     return 'untagged-unknown-unknown'
-  //   }
-  //   return `${tag?.name || 'untagged'}-${params.method || 'unknown'}-${params.name}`
-  // }
-
-  // const options = getNavigationOptions(
-  //   'document-1',
-  //   { title: 'Test API', version: '1.0.0' },
-  //   {
-  //     'x-scalar-reference-config': {
-  //       generateWebhookSlug: mockGetWebhookId,
-  //     },
-  //   },
-  // )
-
   describe('traverseWebhooks', () => {
     it('should handle empty webhooks', () => {
       const document: OpenApiDocument = {

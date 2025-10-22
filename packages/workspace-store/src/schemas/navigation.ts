@@ -240,6 +240,7 @@ type ParameterProps = {
 type BodyParameterProps = {
   parentId: string
   name: string
+  mediaType: string
   schema?: SchemaObject
   type: 'body'
 }
