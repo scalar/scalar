@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ScalarIconButton } from '@scalar/components'
+import { cva, ScalarIconButton } from '@scalar/components'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 
 defineProps<{
   breadcrumb: string
@@ -13,56 +14,54 @@ const emit = defineEmits<{
 
 defineSlots<{
   actions?(): never
+  sidebar?(props: { sidebarClasses: string }): never
 }>()
+
+const { mediaQueries } = useBreakpoints()
+
+const variants = cva({
+  base: 'items-center bg-b-1 sticky top-0 z-100',
+  variants: {
+    open: {
+      true: 'max-h-dvh h-dvh custom-scrollbar flex flex-col',
+    },
+    lg: {
+      true: 'hidden [grid-area:header]',
+    },
+  },
+})
 </script>
 <template>
-  <div class="references-mobile-header t-doc__header">
-    <ScalarIconButton
-      :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"
-      :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
-      size="md"
-      @click="emit('toggleSidebar')" />
-    <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
-    <div class="references-mobile-header-actions">
-      <slot name="actions" />
-    </div>
+  <div
+    v-if="!mediaQueries.lg.value"
+    class="t-doc__header"
+    :class="variants({ open: isSidebarOpen, lg: mediaQueries.lg.value })">
+    <header
+      class="flex h-[var(--scalar-header-height)] w-full items-center border-b px-2">
+      <ScalarIconButton
+        :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"
+        :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
+        size="md"
+        @click="emit('toggleSidebar')" />
+      <span class="flex-1 text-sm font-medium whitespace-nowrap">{{
+        breadcrumb
+      }}</span>
+      <div class="flex h-6 items-center gap-1 pl-1">
+        <slot name="actions" />
+      </div>
+    </header>
+    <!-- In mobile layout, render the sidebar slot into the header panel -->
+    <slot
+      v-if="isSidebarOpen"
+      v-bind="{
+        sidebarClasses:
+          'overflow-y-auto custom-scrollbar min-h-0 flex-1 w-full border-none',
+      }"
+      name="sidebar" />
   </div>
+  <!-- In desktop layout, just render the default slot for the sidebar -->
+  <slot
+    v-else
+    v-bind="{ sidebarClasses: 'sticky top-0 h-dvh [grid-area:navigation]' }"
+    name="sidebar" />
 </template>
-<style scoped>
-.references-mobile-header {
-  display: none;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-  max-width: 100dvw;
-  padding: 0 8px;
-  background: var(--scalar-background-1);
-  border-bottom: 1px solid var(--scalar-border-color);
-}
-
-.references-mobile-breadcrumbs {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--scalar-small);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.references-mobile-header-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
-  height: 24px;
-  align-items: center;
-  padding-left: 4px;
-}
-
-@media (max-width: 1000px) {
-  .references-mobile-header {
-    display: flex;
-  }
-}
-</style>

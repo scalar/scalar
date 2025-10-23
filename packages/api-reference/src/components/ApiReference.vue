@@ -41,6 +41,7 @@ import {
   useId,
   useTemplateRef,
   watch,
+  watchEffect,
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -77,12 +78,12 @@ const props = defineProps<{
 }>()
 
 defineSlots<{
-  'content-start'?(): unknown
-  'content-end'?(): unknown
-  'sidebar-start'?(): unknown
-  'sidebar-end'?(): unknown
-  'editor-placeholder'?(): unknown
-  footer?(): unknown
+  'content-start'?(): { breadcrumb: string }
+  'content-end'?(): { breadcrumb: string }
+  'sidebar-start'?(): { breadcrumb: string }
+  'sidebar-end'?(): { breadcrumb: string }
+  'editor-placeholder'?(): { breadcrumb: string }
+  footer?(): { breadcrumb: string }
 }>()
 
 if (typeof window !== 'undefined') {
@@ -110,6 +111,10 @@ watch(mediaQueries.lg, (newValue, oldValue) => {
   if (oldValue && !newValue) {
     isSidebarOpen.value = false
   }
+})
+
+watchEffect(() => {
+  console.log('is large desktop', mediaQueries.lg.value)
 })
 
 /**
@@ -305,8 +310,7 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
   return Object.entries(workspaceStore.workspace.documents).map(
     ([slug, document]) => ({
       id: slug,
-      type: 'tag',
-      isGroup: true,
+      type: 'document',
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
@@ -377,10 +381,26 @@ const infoSectionId = computed(
     )?.id,
 )
 
-/** This is passed into all of the slots so they have access to the references data */
-const breadcrumb = computed(() => sidebarState.getEntryById('')?.title ?? '')
+/** User for mobile navigation */
+const breadcrumb = ref('')
+
+const slotProps = computed(() => ({
+  breadcrumb: breadcrumb.value,
+}))
+
+const setBreadcrumb = (id: string) => {
+  const item = sidebarState.getEntryById(id)
+
+  if (!item || item.type === 'document') {
+    breadcrumb.value = ''
+  } else {
+    breadcrumb.value = item.title
+  }
+}
 
 const scrollToLazyElement = (id: string) => {
+  setBreadcrumb(id)
+  sidebarState.setSelected(id)
   scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
 }
 
@@ -458,8 +478,6 @@ const changeSelectedDocument = async (
 
   /** When loading to a specified element we need to freeze and scroll */
   if (elementId) {
-    sidebarState.setSelected(elementId)
-
     const unfreeze = freeze(elementId)
     addLazyCompleteCallback(unfreeze)
     scrollToLazyElement(elementId)
@@ -672,7 +690,6 @@ const handleSelectItem = async (id: string) => {
     return sidebarState.setExpanded(id, false)
   }
 
-  sidebarState.setSelected(id)
   scrollToLazyElement(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
@@ -710,6 +727,8 @@ const handleIntersecting = (id: string) => {
   }
 
   sidebarState.setSelected(id)
+  setBreadcrumb(id)
+
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url && workspaceStore.workspace.activeDocument) {
     window.history.replaceState({}, '', url.toString())
@@ -757,73 +776,83 @@ onBeforeMount(() => {
         },
         $attrs.class,
       ]">
-      <!-- Mobile Header when in modern layout -->
-      <div class="references-header">
-        <MobileHeader
-          v-if="mergedConfig.layout === 'modern' && mergedConfig.showSidebar"
-          :breadcrumb="breadcrumb"
-          :isSidebarOpen="isSidebarOpen"
-          @toggleSidebar="() => (isSidebarOpen = !isSidebarOpen)" />
-      </div>
+      <!-- Mobile Header and Sidebar when in modern layout -->
 
-      <!-- Sidebar when in modern layout -->
-      <ScalarSidebar
-        v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
-        :aria-label="`Sidebar for ${workspaceStore.workspace.activeDocument?.info?.title}`"
-        class="sidebar references-navigation t-doc__sidebar sticky top-0 h-dvh"
-        :isExpanded="sidebarState.isExpanded"
-        :isSelected="sidebarState.isSelected"
-        :items="sidebarItems"
-        layout="reference"
-        :options="{
-          operationTitleSource: mergedConfig.operationTitleSource,
-        }"
-        role="navigation"
-        @selectItem="(id) => handleSelectItem(id)">
-        <template #header>
-          <!-- Wrap in a div when slot is filled -->
-          <DocumentSelector
-            v-if="documentOptionList.length > 1"
-            :modelValue="activeSlug"
-            :options="documentOptionList"
-            @update:modelValue="changeSelectedDocument" />
+      <MobileHeader
+        v-if="mergedConfig.layout === 'modern' && mergedConfig.showSidebar"
+        :breadcrumb="breadcrumb"
+        :isSidebarOpen="isSidebarOpen"
+        @toggleSidebar="() => (isSidebarOpen = !isSidebarOpen)">
+        <template #sidebar="{ sidebarClasses }">
+          <ScalarSidebar
+            v-if="
+              (mergedConfig.showSidebar || !mediaQueries.lg.value) &&
+              mergedConfig.layout === 'modern'
+            "
+            :aria-label="`Sidebar for ${workspaceStore.workspace.activeDocument?.info?.title}`"
+            class="t-doc__sidebar"
+            :class="sidebarClasses"
+            :isExpanded="sidebarState.isExpanded"
+            :isSelected="sidebarState.isSelected"
+            :items="sidebarItems"
+            layout="reference"
+            :options="{
+              operationTitleSource: mergedConfig.operationTitleSource,
+            }"
+            role="navigation"
+            @selectItem="(id) => handleSelectItem(id)">
+            <template #header>
+              <!-- Wrap in a div when slot is filled -->
+              <DocumentSelector
+                v-if="documentOptionList.length > 1"
+                :modelValue="activeSlug"
+                :options="documentOptionList"
+                @update:modelValue="changeSelectedDocument" />
 
-          <!-- Search -->
-          <div
-            v-if="!mergedConfig.hideSearch"
-            class="scalar-api-references-standalone-search">
-            <SearchButton
-              :document="workspaceStore.workspace.activeDocument"
-              :hideModels="mergedConfig.hideModels"
-              :items="sidebarItems"
-              :searchHotKey="mergedConfig.searchHotKey"
-              @toggleSidebarItem="(id) => handleSelectItem(id)" />
-          </div>
-          <!-- Sidebar Start -->
-          <slot name="sidebar-start" />
+              <!-- Search -->
+              <div
+                v-if="!mergedConfig.hideSearch"
+                class="scalar-api-references-standalone-search">
+                <SearchButton
+                  :document="workspaceStore.workspace.activeDocument"
+                  :hideModels="mergedConfig.hideModels"
+                  :items="sidebarItems"
+                  :searchHotKey="mergedConfig.searchHotKey"
+                  @toggleSidebarItem="(id) => handleSelectItem(id)" />
+              </div>
+              <!-- Sidebar Start -->
+              <slot
+                name="sidebar-start"
+                v-bind="slotProps" />
+            </template>
+            <template #footer>
+              <slot
+                name="sidebar-end"
+                v-bind="slotProps">
+                <!-- We default the sidebar footer to the standard scalar elements -->
+                <ScalarSidebarFooter class="darklight-reference">
+                  <OpenApiClientButton
+                    v-if="!mergedConfig.hideClientButton"
+                    buttonSource="sidebar"
+                    :integration="mergedConfig._integration"
+                    :isDevelopment="isDevelopment"
+                    :url="configList[activeSlug]?.source?.url" />
+                  <!-- Override the dark mode toggle slot to hide it -->
+                  <template #toggle>
+                    <ScalarColorModeToggleButton
+                      v-if="!mergedConfig.hideDarkModeToggle"
+                      :modelValue="
+                        !!workspaceStore.workspace['x-scalar-dark-mode']
+                      "
+                      @update:modelValue="() => toggleColorMode()" />
+                    <span v-else />
+                  </template>
+                </ScalarSidebarFooter>
+              </slot>
+            </template>
+          </ScalarSidebar>
         </template>
-        <template #footer>
-          <slot name="sidebar-end">
-            <!-- We default the sidebar footer to the standard scalar elements -->
-            <ScalarSidebarFooter class="darklight-reference">
-              <OpenApiClientButton
-                v-if="!mergedConfig.hideClientButton"
-                buttonSource="sidebar"
-                :integration="mergedConfig._integration"
-                :isDevelopment="isDevelopment"
-                :url="configList[activeSlug]?.source?.url" />
-              <!-- Override the dark mode toggle slot to hide it -->
-              <template #toggle>
-                <ScalarColorModeToggleButton
-                  v-if="!mergedConfig.hideDarkModeToggle"
-                  :modelValue="!!workspaceStore.workspace['x-scalar-dark-mode']"
-                  @update:modelValue="() => toggleColorMode()" />
-                <span v-else />
-              </template>
-            </ScalarSidebarFooter>
-          </slot>
-        </template>
-      </ScalarSidebar>
+      </MobileHeader>
 
       <!-- Primary Content -->
       <main
@@ -907,16 +936,22 @@ onBeforeMount(() => {
                   @click="() => toggleColorMode()" />
               </template>
             </ClassicHeader>
-            <slot name="content-start" />
+            <slot
+              name="content-start"
+              v-bind="slotProps" />
           </template>
           <!-- TODO: Remove this; we no longer directly support an inline editor -->
           <template
             v-if="mergedConfig.isEditable"
             #empty-state>
-            <slot name="editor-placeholder" />
+            <slot
+              name="editor-placeholder"
+              v-bind="slotProps" />
           </template>
           <template #end>
-            <slot name="content-end" />
+            <slot
+              name="content-end"
+              v-bind="slotProps" />
           </template>
         </Content>
       </main>
@@ -924,7 +959,9 @@ onBeforeMount(() => {
       <div
         v-if="$slots.footer"
         class="references-footer">
-        <slot name="footer" />
+        <slot
+          name="footer"
+          v-bind="slotProps" />
       </div>
       <!-- Client Modal mount point -->
       <div ref="modal" />
@@ -1008,24 +1045,11 @@ onBeforeMount(() => {
   background: var(--scalar-background-1);
 }
 
-.references-header {
-  grid-area: header;
-  position: sticky;
-  top: var(--scalar-custom-header-height, 0px);
-  z-index: 1000;
-
-  height: var(--scalar-header-height, 0px);
-}
-
 .references-editor {
   grid-area: editor;
   display: flex;
   min-width: 0;
   background: var(--scalar-background-1);
-}
-
-.references-navigation {
-  grid-area: navigation;
 }
 
 .references-rendered {
@@ -1080,26 +1104,8 @@ onBeforeMount(() => {
       'editor';
   }
 
-  .references-navigation,
-  .references-rendered {
-    max-height: unset;
-  }
-
   .references-rendered {
     position: static;
-  }
-
-  .references-navigation {
-    display: none;
-    z-index: 10;
-  }
-
-  .references-sidebar-mobile-open .references-navigation {
-    display: block;
-    top: var(--refs-header-height);
-    height: calc(100dvh - var(--refs-header-height));
-    width: 100%;
-    position: sticky;
   }
 }
 </style>
