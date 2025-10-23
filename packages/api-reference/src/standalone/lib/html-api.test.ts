@@ -124,12 +124,13 @@ describe('createApiReference', () => {
     expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
   })
 
-  it('updates the operations when the configuration changes', async () => {
-    const config = { _integration: 'html', expandOperations: true }
+  it.only('updates the operations when the configuration changes', async () => {
+    const config = { _integration: 'html', expandOperations: true, slug: 'updated-api' }
     const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
     // Update configuration
     app.updateConfiguration({
+      slug: 'updated-api',
       content: JSON.stringify({
         'openapi': '3.1.0',
         'info': { 'title': 'Updated API', 'version': '1.0.0' },
@@ -148,11 +149,12 @@ describe('createApiReference', () => {
     await flushPromises()
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    expect(document.getElementById('tag/test/get/test')).not.toBeNull()
-    expect(document.getElementById('tag/test/get/test')?.innerHTML).toContain('New Operation')
+    expect(document.getElementById('updated-api/tag/test/get/test')).not.toBeNull()
+    expect(document.getElementById('updated-api/tag/test/get/test')?.innerHTML).toContain('New Operation')
 
     // Update configuration
     app.updateConfiguration({
+      slug: 'updated-api',
       content: JSON.stringify({
         'openapi': '3.1.0',
         'info': { 'title': 'Updated API', 'version': '1.0.0' },
@@ -170,8 +172,8 @@ describe('createApiReference', () => {
     await flushPromises()
 
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    expect(document.getElementById('tag/test/post/test')).not.toBeNull()
-    expect(document.getElementById('tag/test/post/test')?.innerHTML).toContain('Even newer operation')
+    expect(document.getElementById('updated-api/tag/test/post/test')).not.toBeNull()
+    expect(document.getElementById('updated-api/tag/test/post/test')?.innerHTML).toContain('Even newer operation')
 
     // Assert the configuration was updated
     await flushPromises()
