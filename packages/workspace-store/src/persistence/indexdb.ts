@@ -1,263 +1,291 @@
-import { type Static, type TObject, type TRecord, type TSchema, Type } from '@scalar/typebox'
-
-import { coerceValue } from '@/schemas/typebox-coerce'
+import type { Static, TObject, TRecord } from '@scalar/typebox'
 
 /**
- * Configuration options for opening an IndexedDB database.
+ * Creates a connection to an IndexedDB database for managing tables and persistence.
+ *
+ * @param dbName - Optional database name (default 'scalar-workspace-store')
+ * @returns An object with `createTable` and `closeDatabase` functions.
+ *
+ * Example:
+ * ```ts
+ * import { Type } from '@scalar/typebox'
+ * import { createIndexDbConnection } from './indexdb'
+ *
+ * // Define a schema
+ * const UserSchema = Type.Object({
+ *   id: Type.String(),
+ *   name: Type.String(),
+ *   age: Type.Number(),
+ * })
+ *
+ * // Create the database connection
+ * const { createTable, closeDatabase } = createIndexDbConnection()
+ *
+ * // Create (or open) a "users" table with "id" as key
+ * const usersTable = await createTable('users', {
+ *   schema: UserSchema,
+ *   key: ['id'],
+ * })
+ *
+ * // Use usersTable methods for CRUD (see createTableWrapper)
+ * ```
  */
-export type OpenDBConfig = {
-  /** The name of the database to open or create. */
-  dbName: string
-  /** The name of the object store to create or use. */
-  storeName: string
-  /** Optional custom version number. Defaults to 1. */
-  version?: number
-  /** Optional indexes to create on the object store. */
-  indexes?: ReadonlyArray<{
-    name: string
-    keyPath: string | string[]
-    unique?: boolean
-  }>
+export function createIndexDbConnection(dbName = 'scalar-workspace-store') {
+  let dbPromise: Promise<IDBDatabase>
+
+  // Open DB without version first to detect existing version
+  async function openDatabase(): Promise<IDBDatabase> {
+    if (!dbPromise) {
+      dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName)
+        request.onerror = () => reject(request.error)
+        request.onsuccess = () => resolve(request.result)
+      })
+    }
+    return dbPromise
+  }
+
+  /**
+   * Creates an object store ("table") in the database if it doesn't exist, using the provided schema and key.
+   * Returns a typed table wrapper for CRUD operations.
+   *
+   * @param name - Object store name
+   * @param options - { schema, key } where schema is the TypeBox schema and key is array of key fields
+   */
+  async function createTable<T extends TRecord | TObject, const K extends keyof Static<T>>(
+    name: string,
+    options: {
+      schema: T
+      key: K[]
+    },
+  ) {
+    let db = await openDatabase()
+
+    if (!db.objectStoreNames.contains(name)) {
+      // Need to create store -> increment version
+      const newVersion = db.version + 1
+      db.close()
+
+      dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, newVersion)
+
+        request.onupgradeneeded = () => {
+          const upgradeDb = request.result
+          if (!upgradeDb.objectStoreNames.contains(name)) {
+            upgradeDb.createObjectStore(name, {
+              keyPath: options.key.length === 1 ? (options.key[0] as string) : (options.key as string[]),
+            })
+          }
+        }
+
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+
+      db = await dbPromise
+    }
+
+    return createTableWrapper<T, K>(name, openDatabase)
+  }
+
+  /**
+   * Closes the database connection.
+   * After calling this, a new connection will be opened on the next operation.
+   */
+  async function closeDatabase(): Promise<void> {
+    if (dbPromise) {
+      const db = await dbPromise
+      db.close()
+      // Reset the promise so next operation opens a fresh connection
+      dbPromise = undefined as any
+    }
+  }
+
+  return { createTable, closeDatabase }
 }
 
 /**
- * Opens or creates an IndexedDB database with the specified configuration.
- * Creates the object store if it does not exist.
- * Supports adding indexes for efficient querying.
+ * Utility wrapper for interacting with an IndexedDB object store, typed by the schema.
  *
- * @example
- * const db = await openDB({
- *   dbName: 'my-app',
- *   storeName: 'users',
- *   indexes: [{ name: 'email', keyPath: 'email', unique: true }]
+ * Usage example:
+ * ```
+ * // Define a TypeBox schema for users
+ * const UserSchema = Type.Object({
+ *   id: Type.String(),
+ *   name: Type.String(),
+ *   age: Type.Number(),
  * })
+ * 
+ * // Open or create the users table
+ * const usersTable = createTableWrapper<typeof UserSchema, 'id'>('users', openDatabase)
+ * 
+ * // Add a user
+  await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 24 })
+ * 
+ * // Get a user by id
+ * const alic = await usersTable.getItem({ id: 'user-1' })
+ * 
+ * // Get users with a partial key (use [] if no composite key)
+ * const users = await usersTable.getRange(['user-1'])
+ * 
+ * // Get all users
+ * const allUsers = await usersTable.getAll()
+ * ```
+ *
+ * @template T TypeBox schema type for objects in the store
+ * @template K Key property names that compose the primary key
+ *
+ * @param name - Object store name
+ * @param getDb - Function returning a Promise for the IDBDatabase
+ * @returns Methods to interact with the object store
  */
-export async function openDB({ dbName, storeName, version = 1, indexes = [] }: OpenDBConfig): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(dbName, version)
+function createTableWrapper<T extends TRecord | TObject, const K extends keyof Static<T>>(
+  name: string,
+  getDb: () => Promise<IDBDatabase>,
+) {
+  /**
+   * Gets the object store from the latest DB connection, for the given transaction mode.
+   */
+  const getStore = async (mode: IDBTransactionMode) => {
+    const db = await getDb()
+    const tx = db.transaction(name, mode)
+    return tx.objectStore(name)
+  }
 
-    req.onupgradeneeded = () => {
-      const db = req.result
-      let objectStore: IDBObjectStore
+  /**
+   * Adds or updates an item in the store.
+   * @param key - The primary key values, as { key1, key2 }
+   * @param value - The value for the other properties, omitting keys
+   * @returns The full inserted/updated object
+   */
+  async function addItem(key: Record<K, IDBValidKey>, value: Omit<Static<T>, K>): Promise<Static<T>> {
+    const store = await getStore('readwrite')
+    const keyObj: any = { ...key }
+    const finalValue = { ...keyObj, ...value }
+    await requestAsPromise(store.put(finalValue))
+    return finalValue
+  }
 
-      if (!db.objectStoreNames.contains(storeName)) {
-        objectStore = db.createObjectStore(storeName, { keyPath: 'id' })
-      } else {
-        objectStore = req.transaction!.objectStore(storeName)
-      }
+  /**
+   * Retrieves a single item by composite key.
+   * @param key - Key values. For a single key: { id: '...' }
+   * @returns The found object or undefined
+   */
+  async function getItem(key: Record<K, IDBValidKey>): Promise<Static<T> | undefined> {
+    const store = await getStore('readonly')
+    const keyValues = Object.values(key)
+    // For single keys, pass value directly; for compound keys, pass array
+    const keyToUse = keyValues.length === 1 ? keyValues[0] : keyValues
+    return requestAsPromise(store.get(keyToUse as IDBValidKey))
+  }
 
-      // Create indexes if they do not exist
-      for (const index of indexes) {
-        if (!objectStore.indexNames.contains(index.name)) {
-          objectStore.createIndex(index.name, index.keyPath, {
-            unique: index.unique ?? false,
-          })
+  /**
+   * Returns all records matching a partial (prefix) key. Use for composite keys.
+   * For non-compound keys, pass single-element array: getRange(['some-id'])
+   * For prefix search, pass subset of key parts.
+   * @param partialKey - Array of partial key values
+   * @returns Matching objects
+   *
+   * Example (composite [a,b]):
+   *   getRange(['foo']) // All with a === 'foo'
+   *   getRange(['foo', 'bar']) // All with a === 'foo' and b === 'bar'
+   */
+  async function getRange(partialKey: IDBValidKey[]): Promise<Static<T>[]> {
+    const store = await getStore('readonly')
+    const results: Static<T>[] = []
+
+    // Construct upper bound to match all keys starting with partialKey
+    const upperBound = [...partialKey]
+    upperBound.push([]) // ensures upper bound includes all keys with this prefix
+    const range = IDBKeyRange.bound(partialKey, upperBound, false, true)
+
+    return new Promise((resolve, reject) => {
+      const request = store.openCursor(range)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+        if (cursor) {
+          results.push(cursor.value)
+          cursor.continue()
+        } else {
+          resolve(results)
         }
       }
-    }
+    })
+  }
 
+  /**
+   * Deletes an item from the store by its composite key.
+   * @param key - Key values. For a single key: { id: '...' }
+   * @returns void
+   */
+  async function deleteItem(key: Record<K, IDBValidKey>): Promise<void> {
+    const store = await getStore('readwrite')
+    const keyValues = Object.values(key)
+    // For single keys, pass value directly; for compound keys, pass array
+    const keyToUse = keyValues.length === 1 ? keyValues[0] : keyValues
+    await requestAsPromise(store.delete(keyToUse as IDBValidKey))
+  }
+
+  /**
+   * Deletes all records matching a partial (prefix) key. Use for composite keys.
+   * For non-compound keys, pass single-element array: deleteRange(['some-id'])
+   * For prefix deletion, pass subset of key parts.
+   * @param partialKey - Array of partial key values
+   * @returns Number of deleted items
+   *
+   * Example (composite [a,b]):
+   *   deleteRange(['foo']) // Delete all with a === 'foo'
+   *   deleteRange(['foo', 'bar']) // Delete all with a === 'foo' and b === 'bar'
+   */
+  async function deleteRange(partialKey: IDBValidKey[]): Promise<number> {
+    const store = await getStore('readwrite')
+    let deletedCount = 0
+
+    // Construct upper bound to match all keys starting with partialKey
+    const upperBound = [...partialKey]
+    upperBound.push([]) // ensures upper bound includes all keys with this prefix
+    const range = IDBKeyRange.bound(partialKey, upperBound, false, true)
+
+    return new Promise((resolve, reject) => {
+      const request = store.openCursor(range)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+        if (cursor) {
+          cursor.delete()
+          deletedCount++
+          cursor.continue()
+        } else {
+          resolve(deletedCount)
+        }
+      }
+    })
+  }
+
+  /**
+   * Retrieves all items from the table.
+   * @returns Array of all objects in the store
+   */
+  async function getAll(): Promise<Static<T>[]> {
+    const store = await getStore('readonly')
+    return requestAsPromise(store.getAll())
+  }
+
+  return {
+    addItem,
+    getItem,
+    getRange,
+    deleteItem,
+    deleteRange,
+    getAll,
+  }
+}
+
+// ---- Utility ----
+function requestAsPromise<T>(req: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error ?? new Error('Failed to open database'))
+    req.onerror = () => reject(req.error)
   })
-}
-
-/**
- * Executes a function within a database transaction.
- * Automatically handles transaction lifecycle and error handling.
- *
- * This is a low-level utility. Most of the time you should use the higher-level
- * operations like getItem, setItem, etc.
- */
-export async function withStore<T>(
-  db: IDBDatabase,
-  storeName: string,
-  mode: IDBTransactionMode,
-  fn: (store: IDBObjectStore) => IDBRequest<T>,
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    try {
-      const tx = db.transaction(storeName, mode)
-      const store = tx.objectStore(storeName)
-      const req = fn(store)
-
-      req.onsuccess = () => resolve(req.result)
-      req.onerror = () => reject(req.error ?? new Error('Transaction failed'))
-      tx.onerror = () => reject(tx.error ?? new Error('Transaction error'))
-    } catch (error) {
-      reject(error instanceof Error ? error : new Error('Unknown transaction error'))
-    }
-  })
-}
-
-/**
- * Stores an item in the database.
- * If an item with the same ID already exists, it will be replaced.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param id - The unique identifier for the item
- * @param data - The data to store (without the id field)
- * @param schema - Optional schema for validation before saving
- *
- * @example
- * await setItem(db, 'users', '123', { name: 'Alice', email: 'alice@example.com' })
- */
-export async function setItem<T extends TObject | TRecord>(
-  db: IDBDatabase,
-  storeName: string,
-  id: string,
-  data: Static<T>,
-  schema?: T,
-): Promise<void> {
-  // Validate against schema if provided
-  if (schema) {
-    const item = { id, ...coerceValue(schema, data) }
-    await withStore(db, storeName, 'readwrite', (store) => store.put(item))
-    return
-  }
-  const item = { id, ...data }
-  await withStore(db, storeName, 'readwrite', (store) => store.put(item))
-}
-
-/**
- * Retrieves an item from the database by its ID.
- * Optionally validates the retrieved data against a schema.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param id - The unique identifier of the item to retrieve
- * @param schema - Optional schema for validation and type coercion
- * @returns The item if found, undefined otherwise
- *
- * @example
- * const user = await getItem(db, 'users', '123', UserSchema)
- */
-export async function getItem<T extends TObject | TRecord>(
-  db: IDBDatabase,
-  storeName: string,
-  id: string,
-  schema?: T,
-): Promise<(Static<T> & { id: string }) | undefined> {
-  const item = await withStore(db, storeName, 'readonly', (store) => store.get(id))
-
-  if (!item) {
-    return undefined
-  }
-
-  if (schema) {
-    return { ...coerceValue(schema, item), id } as Static<T> & { id: string }
-  }
-
-  // Without schema validation, we trust the data has the correct shape
-  return item as unknown as Static<T> & { id: string }
-}
-
-/**
- * Retrieves all items from the object store.
- * Optionally validates each item against a schema.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param schema - Optional schema for validation and type coercion
- * @returns Array of all items in the store
- *
- * @example
- * const allUsers = await getAllItems(db, 'users', UserSchema)
- */
-export async function getAllItems<T extends TSchema>(
-  db: IDBDatabase,
-  storeName: string,
-  schema?: T,
-): Promise<Array<Static<T> & { id: string }>> {
-  const items = await withStore(db, storeName, 'readonly', (store) => store.getAll())
-
-  if (!items || items.length === 0) {
-    return []
-  }
-
-  if (schema) {
-    const validationSchema = Type.Array(
-      Type.Intersect([
-        Type.Object({
-          id: Type.String(),
-        }),
-        schema,
-      ]),
-    )
-    return coerceValue(validationSchema, items) as Static<typeof validationSchema>
-  }
-
-  // Without schema validation, we trust the data has the correct shape
-  return items as unknown as Array<Static<T> & { id: string }>
-}
-
-/**
- * Deletes an item from the database by its ID.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param id - The unique identifier of the item to delete
- *
- * @example
- * await deleteItem(db, 'users', '123')
- */
-export async function deleteItem(db: IDBDatabase, storeName: string, id: string): Promise<void> {
-  await withStore(db, storeName, 'readwrite', (store) => store.delete(id))
-}
-
-/**
- * Deletes all items from the object store.
- * Use with caution as this operation cannot be undone.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- *
- * @example
- * await clearStore(db, 'users')
- */
-export async function clearStore(db: IDBDatabase, storeName: string): Promise<void> {
-  await withStore(db, storeName, 'readwrite', (store) => store.clear())
-}
-
-/**
- * Checks if an item exists in the database.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @param id - The unique identifier to check
- * @returns true if the item exists, false otherwise
- *
- * @example
- * const exists = await hasItem(db, 'users', '123')
- */
-export async function hasItem(db: IDBDatabase, storeName: string, id: string): Promise<boolean> {
-  const key = await withStore(db, storeName, 'readonly', (store) => store.getKey(id))
-  return key !== undefined
-}
-
-/**
- * Counts the total number of items in the object store.
- *
- * @param db - The database instance
- * @param storeName - The name of the object store
- * @returns The number of items in the store
- *
- * @example
- * const totalUsers = await countItems(db, 'users')
- */
-export async function countItems(db: IDBDatabase, storeName: string): Promise<number> {
-  return withStore(db, storeName, 'readonly', (store) => store.count())
-}
-
-/**
- * Closes the database connection.
- * Should be called when the database is no longer needed.
- *
- * @param db - The database instance to close
- *
- * @example
- * closeDB(db)
- */
-export function closeDB(db: IDBDatabase): void {
-  db.close()
 }
