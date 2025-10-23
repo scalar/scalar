@@ -30,8 +30,8 @@ export const createDetectChangesProxy = <T>(
   target: T,
   options?: {
     hooks: Partial<{
-      onBeforeChange: (path: string[], value: string) => void
-      onAfterChange: (path: string[], value: string) => void
+      onBeforeChange: (path: string[], value: unknown) => void
+      onAfterChange: (path: string[], value: unknown) => void
     }>
   },
   args: {
@@ -71,10 +71,10 @@ export const createDetectChangesProxy = <T>(
     set(target, prop, value, receiver) {
       const path = [...args.path, String(prop)]
       // Call before-change hook if provided
-      options?.hooks?.onBeforeChange?.(path, String(value))
+      options?.hooks?.onBeforeChange?.(path, value)
       const result = Reflect.set(target, prop, value, receiver)
       // Call after-change hook if provided
-      options?.hooks?.onAfterChange?.(path, String(value))
+      options?.hooks?.onAfterChange?.(path, value)
       return result
     },
   })
