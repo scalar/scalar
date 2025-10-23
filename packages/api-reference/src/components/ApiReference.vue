@@ -477,11 +477,13 @@ const changeSelectedDocument = async (
   }
 
   /** When loading to a specified element we need to freeze and scroll */
-  if (elementId) {
+  if (elementId && elementId !== slug) {
+    console.log('elementId', elementId)
     const unfreeze = freeze(elementId)
     addLazyCompleteCallback(unfreeze)
     scrollToLazyElement(elementId)
   } else {
+    /** If there is no child element of the document specified we expand the first tag */
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
