@@ -10,6 +10,19 @@ beforeEach(() => {
     useBreakpoints: () => ({
       mediaQueries: {
         lg: { value: true },
+        md: { value: true },
+        sm: { value: true },
+        xs: { value: true },
+        zoomed: { value: true },
+        xl: { value: true },
+      },
+      breakpoints: {
+        lg: true,
+        md: true,
+        sm: true,
+        xs: true,
+        zoomed: true,
+        xl: true,
       },
     }),
   }))
@@ -23,7 +36,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  vi.resetAllMocks()
+  // vi.resetAllMocks()
 })
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
