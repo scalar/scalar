@@ -18,7 +18,7 @@ import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
@@ -28,7 +28,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { Workspace, WorkspaceDocument, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -129,20 +129,41 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
 
 type ChangeEvent =
   | {
-      type:
-        | 'documents'
-        | 'originalDocuments'
-        | 'intermediateDocuments'
-        | 'documentConfigs'
-        | 'overrides'
-        | 'documentMeta'
+      type: 'documents'
       documentName: string
+      value: WorkspaceDocument
+    }
+  | {
+      type: 'originalDocuments'
+      documentName: string
+      value: UnknownObject
+    }
+  | {
+      type: 'intermediateDocuments'
+      documentName: string
+      value: UnknownObject
+    }
+  | {
+      type: 'documentConfigs'
+      documentName: string
+      value: Config
+    }
+  | {
+      type: 'overrides'
+      documentName: string
+      value: UnknownObject
+    }
+  | {
+      type: 'documentMeta'
+      documentName: string
+      value: InMemoryWorkspace['documentMeta'][string]
     }
   | {
       type: 'meta'
+      value: WorkspaceMeta
     }
 
-type Plugin = Partial<{
+export type Plugin = Partial<{
   hooks: Partial<{
     onWorkspaceStateChanges: (event: ChangeEvent) => void
   }>
@@ -528,6 +549,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               return
             }
 
+            const trigger = (event: ChangeEvent) => {
+              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+            }
+
             if (type === 'workspace') {
               /** Document changes */
               if (path[1] === 'documents') {
@@ -541,29 +566,47 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type: 'documents',
                   documentName,
+                  value: toRaw(
+                    getRaw(
+                      unpackOverridesProxy(
+                        workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                      ),
+                    ),
+                  ),
                 } satisfies ChangeEvent
 
-                workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+                trigger(event)
                 return
               }
 
               /** Active document changes */
               if (path[1] === 'activeDocument') {
+                const documentName = getActiveDocumentName()
                 // Active document changed
                 const event = {
                   type: 'documents',
-                  documentName: getActiveDocumentName(),
+                  documentName,
+                  value: toRaw(
+                    getRaw(
+                      unpackOverridesProxy(
+                        workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                      ),
+                    ),
+                  ),
                 } satisfies ChangeEvent
 
-                workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+                trigger(event)
+                return
               }
 
               /** Document meta changes */
+              const { activeDocument: _a, documents: _d, ...meta } = workspace
               const event = {
                 type: 'meta',
+                value: meta,
               } satisfies ChangeEvent
 
-              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+              trigger(event)
               return
             }
 
@@ -572,19 +615,52 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
              *
              * All of them are related to a specific document
              */
-            if (
-              (path.length >= 2 && type === 'originalDocuments') ||
-              type === 'intermediateDocuments' ||
-              type === 'documentConfigs' ||
-              type === 'overrides' ||
-              type === 'documentMeta'
-            ) {
-              const event = {
-                type,
-                documentName: path[1] as string,
-              } satisfies ChangeEvent
+            if (path.length >= 2) {
+              const documentName = path[1] as string
+              if (type === 'originalDocuments') {
+                const event = {
+                  type,
+                  documentName: documentName,
+                  value: originalDocuments[documentName] ?? {},
+                } satisfies ChangeEvent
+                trigger(event)
+              }
 
-              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+              if (type === 'intermediateDocuments') {
+                const event = {
+                  type,
+                  documentName: documentName,
+                  value: intermediateDocuments[documentName] ?? {},
+                } satisfies ChangeEvent
+                trigger(event)
+              }
+
+              if (type === 'documentConfigs') {
+                const event = {
+                  type,
+                  documentName: documentName,
+                  value: documentConfigs[documentName] ?? {},
+                } satisfies ChangeEvent
+                trigger(event)
+              }
+
+              if (type === 'overrides') {
+                const event = {
+                  type,
+                  documentName: documentName,
+                  value: overrides[documentName] ?? {},
+                } satisfies ChangeEvent
+                trigger(event)
+              }
+
+              if (type === 'documentMeta') {
+                const event = {
+                  type,
+                  documentName: documentName,
+                  value: documentMeta[documentName] ?? {},
+                } satisfies ChangeEvent
+                trigger(event)
+              }
             }
           },
         },
