@@ -87,7 +87,7 @@ test.describe('parameter linking', () => {
     const clipboard = await page.evaluate(() => navigator.clipboard.readText())
     expect(clipboard).toContain('myCustomBodyParameter')
 
-    await page.reload()
+    await page.goto(clipboard)
 
     await expect(button).toBeInViewport()
   })
