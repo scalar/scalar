@@ -187,6 +187,7 @@ export function mapConfigToClientStore({
         shouldLoad: true,
         documentUrl: undefined,
         useCollectionSecurity: true,
+        ...toValue(config),
       })
     },
   )
