@@ -94,10 +94,10 @@ const showGettingStarted = computed(() => true)
 
           <ScalarButton
             class="w-full"
-            :click="emit('open:commandPalette')"
             hotkey="K"
             size="sm"
-            variant="outlined">
+            variant="outlined"
+            @click="emit('open:commandPalette')">
             Add Item
           </ScalarButton>
         </div>
