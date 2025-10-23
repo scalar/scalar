@@ -106,6 +106,10 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <AuthSelector
+                v-if="
+                  Object.keys(document?.components?.securitySchemes ?? {})
+                    .length
+                "
                 layout="reference"
                 :persistAuth="options.persistAuth"
                 :server="activeServer"
