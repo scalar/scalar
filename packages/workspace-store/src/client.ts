@@ -181,7 +181,7 @@ type WorkspaceProps = {
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
   /** A list of all registered plugins for the current workspace */
-  plugins: Plugin[]
+  plugins?: Plugin[]
 }
 
 /**
