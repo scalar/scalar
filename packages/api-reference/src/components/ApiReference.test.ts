@@ -31,6 +31,13 @@ beforeEach(() => {
   mockLocation.search = ''
   mockLocation.hash = ''
 
+  vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
+    useBreakpoints: () => ({
+      mediaQueries: {
+        lg: { value: true },
+      },
+    }),
+  }))
   vi.stubGlobal('location', mockLocation)
 })
 

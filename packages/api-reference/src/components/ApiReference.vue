@@ -113,10 +113,6 @@ watch(mediaQueries.lg, (newValue, oldValue) => {
   }
 })
 
-watchEffect(() => {
-  console.log('is large desktop', mediaQueries.lg.value)
-})
-
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
  * TODO remove this once the bug is fixed
@@ -478,7 +474,6 @@ const changeSelectedDocument = async (
 
   /** When loading to a specified element we need to freeze and scroll */
   if (elementId && elementId !== slug) {
-    console.log('elementId', elementId)
     const unfreeze = freeze(elementId)
     addLazyCompleteCallback(unfreeze)
     scrollToLazyElement(elementId)
@@ -697,6 +692,10 @@ const handleSelectItem = async (id: string) => {
     return sidebarState.setExpanded(id, false)
   }
 
+  if (item?.type !== 'tag') {
+    isSidebarOpen.value = false
+  }
+
   scrollToLazyElement(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
@@ -786,16 +785,24 @@ onBeforeMount(() => {
       <!-- Mobile Header and Sidebar when in modern layout -->
 
       <MobileHeader
-        v-if="mergedConfig.layout === 'modern' && mergedConfig.showSidebar"
+        v-if="mergedConfig.layout === 'modern'"
         :breadcrumb="breadcrumb"
         :isSidebarOpen="isSidebarOpen"
+        :showSidebar="mergedConfig.showSidebar"
         @toggleSidebar="() => (isSidebarOpen = !isSidebarOpen)">
+        <template #search>
+          <SearchButton
+            class="my-2"
+            :document="workspaceStore.workspace.activeDocument"
+            :hideModels="mergedConfig.hideModels"
+            :items="sidebarItems"
+            :searchHotKey="mergedConfig.searchHotKey"
+            :showSidebar="mergedConfig.showSidebar"
+            @toggleSidebarItem="(id) => handleSelectItem(id)" />
+        </template>
         <template #sidebar="{ sidebarClasses }">
           <ScalarSidebar
-            v-if="
-              (mergedConfig.showSidebar || !mediaQueries.lg.value) &&
-              mergedConfig.layout === 'modern'
-            "
+            v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
             :aria-label="`Sidebar for ${workspaceStore.workspace.activeDocument?.info?.title}`"
             class="t-doc__sidebar"
             :class="sidebarClasses"
@@ -899,7 +906,9 @@ onBeforeMount(() => {
           @toggleTag="handleToggleTag">
           <template #start>
             <ApiReferenceToolbar
-              v-if="workspaceStore.workspace.activeDocument"
+              v-if="
+                workspaceStore.workspace.activeDocument && mediaQueries.lg.value
+              "
               v-model:overrides="configurationOverrides"
               :configuration="mergedConfig"
               :workspace="workspaceStore" />
@@ -1084,13 +1093,6 @@ onBeforeMount(() => {
 }
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
-
-@media (max-width: 1150px) {
-  /* Hide rendered view for tablets */
-  .references-layout {
-    grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
-  }
-}
 
 @media (max-width: 1000px) {
   /* Stack view on mobile */

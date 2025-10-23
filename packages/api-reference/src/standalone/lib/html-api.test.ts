@@ -1,11 +1,18 @@
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { flushPromises } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
 
 beforeEach(() => {
+  vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
+    useBreakpoints: () => ({
+      mediaQueries: {
+        lg: { value: true },
+      },
+    }),
+  }))
   global.document = createHtmlDocument(`
     <html>
       <body>
@@ -13,6 +20,10 @@ beforeEach(() => {
       </body>
     </html>
   `)
+})
+
+afterEach(() => {
+  vi.resetAllMocks()
 })
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
@@ -124,7 +135,7 @@ describe('createApiReference', () => {
     expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
   })
 
-  it.only('updates the operations when the configuration changes', async () => {
+  it('updates the operations when the configuration changes', async () => {
     const config = { _integration: 'html', expandOperations: true, slug: 'updated-api' }
     const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
