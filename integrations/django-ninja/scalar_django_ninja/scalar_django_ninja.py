@@ -1,6 +1,14 @@
+import json
+from enum import Enum
 from django.http import HttpResponse
 from ninja.openapi.docs import DocsBase
 from typing_extensions import Annotated, Doc
+
+
+class Layout(Enum):
+    MODERN = "modern"
+    CLASSIC = "classic"
+
 
 scalar_theme = """
 /* basic theme */
@@ -154,6 +162,71 @@ def get_scalar_api_reference(
             """
         ),
     ],
+    layout: Annotated[
+        Layout,
+        Doc(
+            """
+            The layout to use for Scalar.
+            Default is "modern".
+            """
+        ),
+    ] = Layout.MODERN,
+    show_sidebar: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to show the sidebar.
+            Default is True which means the sidebar is shown.
+            """
+        ),
+    ] = True,
+    hide_download_button: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to hide the download button.
+            Default is False which means the download button is shown.
+            """
+        ),
+    ] = False,
+    hide_models: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to hide all models.
+            Default is False which means all models are shown.
+            """
+        ),
+    ] = False,
+    hidden_clients: Annotated[
+        bool | dict[str, bool | list[str]] | list[str],
+        Doc(
+            """
+            A dictionary with the keys being the target names and the values being a boolean to hide all clients of the target or a list clients.
+            If a boolean is provided, it will hide all the clients with that name.
+            Backwards compatibility: If a list of strings is provided, it will hide the clients with the name and the list of strings.
+            Default is [] which means no clients are hidden.
+            """
+        ),
+    ] = [],
+    servers: Annotated[
+        list[dict[str, str]],
+        Doc(
+            """
+            A list of dictionaries with the keys being the server name and the value being the server URL.
+            Default is [] which means no servers are provided.
+            """
+        ),
+    ] = [],
+    default_open_all_tags: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to open all tags by default.
+            Default is False which means all tags are closed by default.
+            """
+        ),
+    ] = False,
 ) -> HttpResponse:
     html = f"""
     <!DOCTYPE html>
@@ -182,6 +255,20 @@ def get_scalar_api_reference(
       id="api-reference"
       data-url="{openapi_url}"
       data-proxy-url="{scalar_proxy_url}"></script>
+    <script>
+      var configuration = {{
+        layout: "{layout.value}",
+        showSidebar: {json.dumps(show_sidebar)},
+        hideDownloadButton: {json.dumps(hide_download_button)},
+        hideModels: {json.dumps(hide_models)},
+        hiddenClients: {json.dumps(hidden_clients)},
+        servers: {json.dumps(servers)},
+        defaultOpenAllTags: {json.dumps(default_open_all_tags)},
+      }}
+
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
+    </script>
     <script src="{scalar_js_url}"></script>
     </body>
     </html>
@@ -198,6 +285,13 @@ class ScalarViewer(DocsBase):
         scalar_proxy_url: str = "",
         scalar_favicon_url: str = "",
         scalar_theme: str = scalar_theme,
+        layout: Layout = Layout.MODERN,
+        show_sidebar: bool = True,
+        hide_download_button: bool = False,
+        hide_models: bool = False,
+        hidden_clients: bool | dict[str, bool | list[str]] | list[str] = [],
+        servers: list[dict[str, str]] = [],
+        default_open_all_tags: bool = False,
     ):
         self.title = title
         self.openapi_url = openapi_url
@@ -205,6 +299,13 @@ class ScalarViewer(DocsBase):
         self.scalar_proxy_url = scalar_proxy_url
         self.scalar_favicon_url = scalar_favicon_url
         self.scalar_theme = scalar_theme
+        self.layout = layout
+        self.hidden_clients = hidden_clients
+        self.show_sidebar = show_sidebar
+        self.hide_download_button = hide_download_button
+        self.hide_models = hide_models
+        self.servers = servers
+        self.default_open_all_tags = default_open_all_tags
 
     def render_page(self, request, api):
         return get_scalar_api_reference(
@@ -214,4 +315,11 @@ class ScalarViewer(DocsBase):
             scalar_proxy_url=self.scalar_proxy_url,
             scalar_favicon_url=self.scalar_favicon_url,
             scalar_theme=self.scalar_theme,
+            hidden_clients=self.hidden_clients,
+            layout=self.layout,
+            show_sidebar=self.show_sidebar,
+            hide_download_button=self.hide_download_button,
+            hide_models=self.hide_models,
+            servers=self.servers,
+            default_open_all_tags=self.default_open_all_tags,
         )
