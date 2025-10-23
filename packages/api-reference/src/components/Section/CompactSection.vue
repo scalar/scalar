@@ -2,7 +2,8 @@
 import { ScalarIconCaretRight } from '@scalar/icons'
 
 import { Anchor } from '@/components/Anchor'
-import { Section } from '@/components/Section'
+
+import Section from './Section.vue'
 
 const { id } = defineProps<{
   id: string

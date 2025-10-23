@@ -41,7 +41,6 @@ import {
   useId,
   useTemplateRef,
   watch,
-  watchEffect,
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
