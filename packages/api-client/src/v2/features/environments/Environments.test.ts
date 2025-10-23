@@ -80,13 +80,6 @@ describe('Environments', () => {
       expect(viewLayout.exists()).toBe(true)
     })
 
-    it('renders the EnvironmentsSidebar component', () => {
-      const wrapper = mountWithProps()
-
-      const sidebar = wrapper.findComponent({ name: 'EnvironmentsSidebar' })
-      expect(sidebar.exists()).toBe(true)
-    })
-
     it('renders the "Environment Variables" heading', () => {
       const wrapper = mountWithProps()
 
@@ -112,44 +105,6 @@ describe('Environments', () => {
 
       const environmentsList = wrapper.findComponent({ name: 'EnvironmentsList' })
       expect(environmentsList.exists()).toBe(true)
-    })
-  })
-
-  describe('sidebar', () => {
-    it('passes correct props to EnvironmentsSidebar', () => {
-      const wrapper = mountWithProps({
-        documentName: 'My API',
-        documents: ['My API', 'Other API'],
-        sidebarWidth: 400,
-      })
-
-      const sidebar = wrapper.findComponent({ name: 'EnvironmentsSidebar' })
-      expect(sidebar.props('documentName')).toBe('My API')
-      expect(sidebar.props('documents')).toEqual(['My API', 'Other API'])
-      expect(sidebar.props('title')).toBe('Manage Environments')
-      expect(sidebar.props('width')).toBe(400)
-    })
-
-    it('emits navigation:update:selection when sidebar selection changes', async () => {
-      const wrapper = mountWithProps({ documents: ['API 1'] })
-
-      const sidebar = wrapper.findComponent({ name: 'EnvironmentsSidebar' })
-      await sidebar.vm.$emit('update:selection', 'API 1')
-      await nextTick()
-
-      expect(wrapper.emitted('navigation:update:selection')).toBeTruthy()
-      expect(wrapper.emitted('navigation:update:selection')?.[0]).toEqual(['API 1'])
-    })
-
-    it('emits navigation:update:sidebarWidth when sidebar width changes', async () => {
-      const wrapper = mountWithProps()
-
-      const sidebar = wrapper.findComponent({ name: 'EnvironmentsSidebar' })
-      await sidebar.vm.$emit('update:width', 350)
-      await nextTick()
-
-      expect(wrapper.emitted('navigation:update:sidebarWidth')).toBeTruthy()
-      expect(wrapper.emitted('navigation:update:sidebarWidth')?.[0]).toEqual([350])
     })
   })
 

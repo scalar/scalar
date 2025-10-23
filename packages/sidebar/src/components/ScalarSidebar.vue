@@ -21,6 +21,7 @@ defineSlots<{
   footer?(): unknown
   search?(): unknown
   default?(): unknown
+  firstItem?(): unknown
 }>()
 
 const handleClick = (id: string) => {
@@ -42,9 +43,14 @@ const handleDragEnd = (
 <template>
   <ScalarSidebar>
     <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
+      <!-- Search -->
       <slot name="search" />
+
       <slot>
         <ScalarSidebarItems>
+          <!-- First item -->
+          <slot name="firstItem" />
+
           <SidebarItem
             v-for="item in state.items"
             :key="item.id"
@@ -61,6 +67,7 @@ const handleDragEnd = (
             </template>
           </SidebarItem>
         </ScalarSidebarItems>
+
         <!-- Spacer -->
         <div class="flex-1"></div>
       </slot>

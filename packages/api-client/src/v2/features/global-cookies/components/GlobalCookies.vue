@@ -6,7 +6,6 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { EnvVariable } from '@/store'
-import CookiesSidebar from '@/v2/features/global-cookies/components/CookiesSidebar.vue'
 import CookiesTable from '@/v2/features/global-cookies/components/CookiesTable.vue'
 
 type Cookie = {
@@ -16,15 +15,11 @@ type Cookie = {
   isDisabled?: boolean
 }
 
-const { sidebarWidth } = defineProps<{
+defineProps<{
   /** Current selected document name or when null it means workspace level cookies */
   documentName: string | null
-  /** List of all document names */
-  documents: string[]
   /** List of all cookies for the current document or workspace */
   cookies: Cookie[]
-  /** Sidebar width */
-  sidebarWidth?: number
 
   /** TODO: remove when we migrate to the new store */
   environment: Environment
@@ -42,15 +37,6 @@ const emits = defineEmits<{
 
 <template>
   <ViewLayout>
-    <CookiesSidebar
-      :documentName="documentName"
-      :documents="documents"
-      title="Global Cookies"
-      :width="sidebarWidth"
-      @update:selection="(value) => emits('navigation:update:selection', value)"
-      @update:width="
-        (value) => emits('navigation:update:sidebarWidth', value)
-      " />
     <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <div

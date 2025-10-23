@@ -246,6 +246,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/components/**/index.ts", "**/features/*/index.ts", "**/blocks/*/index.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
     }
   ]
 }
