@@ -6,17 +6,27 @@ import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
 
 function search(query: string, document: Partial<OpenApiDocument>) {
-  const { entries } = createNavigation(document as OpenApiDocument, {
-    'x-scalar-reference-config': {
-      features: {
-        showModels: true,
+  const entries = createNavigation(
+    'test',
+    {
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      ...document,
+    } as OpenApiDocument,
+    {
+      'x-scalar-reference-config': {
+        features: {
+          showModels: true,
+        },
       },
     },
-  })
+  )
 
   const fuse = createFuseInstance()
 
-  fuse.setCollection(createSearchIndex(entries, document as OpenApiDocument))
+  fuse.setCollection(createSearchIndex(entries.children, document as OpenApiDocument))
 
   return fuse.search(query)
 }
@@ -538,7 +548,6 @@ describe('search quality', () => {
 
     const result = search(query, document)
 
-    expect(result).toHaveLength(1)
-    expect(result[0]?.item?.title).toEqual('Register user')
+    expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
   })
 })

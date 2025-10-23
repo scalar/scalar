@@ -6,15 +6,25 @@ import { describe, expect, it } from 'vitest'
 import { createSearchIndex } from './create-search-index'
 
 function createEntriesFromDocument(document: Partial<OpenApiDocument>): TraversedEntry[] {
-  const { entries } = createNavigation(document as OpenApiDocument, {
-    'x-scalar-reference-config': {
-      features: {
-        showModels: true,
+  const entries = createNavigation(
+    'test',
+    {
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      ...document,
+    } as OpenApiDocument,
+    {
+      'x-scalar-reference-config': {
+        features: {
+          showModels: true,
+        },
       },
     },
-  })
+  )
 
-  return entries
+  return entries.children
 }
 
 describe('createSearchIndex', () => {
