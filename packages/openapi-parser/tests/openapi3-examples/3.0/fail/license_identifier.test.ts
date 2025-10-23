@@ -12,9 +12,7 @@ describe('license_identifier', () => {
     // Structural error at info.license
     // should NOT have additional properties
     // additionalProperty: identifier
-    expect(result.errors?.[0]?.message).toBe(
-      `Property identifier is not expected to be here`,
-    )
+    expect(result.errors?.[0]?.message).toBe('Property identifier is not expected to be here')
     expect(result.valid).toBe(false)
   })
 })
