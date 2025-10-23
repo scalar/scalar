@@ -105,12 +105,15 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const isSidebarOpen = ref(false)
 
-watch(mediaQueries.lg, (newValue, oldValue) => {
-  // Close the drawer when we go from desktop to mobile
-  if (oldValue && !newValue) {
-    isSidebarOpen.value = false
-  }
-})
+watch(
+  () => mediaQueries?.lg?.value,
+  (newValue, oldValue) => {
+    // Close the drawer when we go from desktop to mobile
+    if (oldValue && !newValue) {
+      isSidebarOpen.value = false
+    }
+  },
+)
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
