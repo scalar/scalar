@@ -11,18 +11,13 @@ import {
   type Environment,
   type EnvironmentVariable,
 } from './components/Environment.vue'
-import EnvironmentsSidebar from './components/EnvironmentsSidebar.vue'
 import EnvironmentsList from './EnvironmentsList.vue'
 
 defineProps<{
   /** Current selected document name or when null it means workspace level cookies */
   documentName: string | null
-  /** List of all document names */
-  documents: string[]
   /** List of all available environments for the selected document */
   environments: Environment[]
-  /** Sidebar width */
-  sidebarWidth?: number
 
   /** TODO: remove when we migrate to the new store */
   environment: EntitiesEnvironment
@@ -82,15 +77,6 @@ const emit = defineEmits<{
 
 <template>
   <ViewLayout>
-    <EnvironmentsSidebar
-      :documentName="documentName"
-      :documents="documents"
-      title="Manage Environments"
-      :width="sidebarWidth"
-      @update:selection="(value) => emit('navigation:update:selection', value)"
-      @update:width="
-        (value) => emit('navigation:update:sidebarWidth', value)
-      " />
     <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <div
