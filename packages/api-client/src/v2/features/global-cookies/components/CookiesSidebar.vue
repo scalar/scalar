@@ -4,15 +4,13 @@ import { ScalarIconFolder, ScalarIconGlobe } from '@scalar/icons'
 
 import { Sidebar } from '@/v2/components/sidebar'
 
-const { width = 300 } = defineProps<{
+defineProps<{
   /** Sidebar title */
   title?: string
   /** Current document name */
   documentName?: string | null
   /** List of all document names */
   documents: string[]
-  /** Provided sidebar width */
-  width?: number
 }>()
 
 const emit = defineEmits<{
@@ -26,9 +24,10 @@ defineSlots<{
 </script>
 <template>
   <Sidebar
-    :title="title"
-    :width="width"
-    @update:width="(value) => emit('update:width', value)">
+    :documents="{}"
+    :isSidebarOpen="true"
+    layout="desktop"
+    :title="title">
     <template #default>
       <ScalarSidebarItem
         is="button"

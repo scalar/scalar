@@ -8,7 +8,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import SidebarWorkspaceMenu from '../../../components/sidebar/SidebarMenu.vue'
+import { SidebarMenu } from '@/v2/components/sidebar'
+
 import DownloadAppButton from './DownloadAppButton.vue'
 
 const workspaceModel = defineModel<string>({
@@ -19,7 +20,7 @@ const workspaceModel = defineModel<string>({
 
 <template>
   <nav class="flex h-12 items-center justify-between border-b p-2">
-    <SidebarWorkspaceMenu v-model="workspaceModel" />
+    <SidebarMenu v-model:workspace="workspaceModel" />
     <DownloadAppButton />
   </nav>
 </template>
