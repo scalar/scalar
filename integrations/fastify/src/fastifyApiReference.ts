@@ -209,7 +209,7 @@ const fastifyApiReference = fp<
       handler(request, reply) {
         // Redirect if it's the route without a slash
         const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
-        if (!request.routerPath.endsWith('/')) {
+        if (!currentUrl.pathname.endsWith('/')) {
           return reply.redirect(`${currentUrl.pathname}/`, 301)
         }
 

@@ -62,6 +62,29 @@ describe('fastifyApiReference', () => {
     expect(finalResponse.status).toBe(200)
   })
 
+  it('returns 200 OK for the HTML and redirects to the route with a trailing slash (ignoreTrailingSlash: true)', async () => {
+    const fastify = Fastify({
+      logger: false,
+      ignoreTrailingSlash: true,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        url: '/openapi.json',
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`, { redirect: 'manual' })
+
+    expect(response.status).toBe(301)
+    expect(response.headers.get('location')).toBe('/reference/')
+
+    const finalResponse = await fetch(`${address}/reference/`)
+    expect(finalResponse.status).toBe(200)
+  })
+
   it('accounts for plugin `prefix` during redirects to add trailing slash', async () => {
     const innerPlugin: FastifyPluginAsync = async (fastify) => {
       await fastify.register(fastifyApiReference, {
