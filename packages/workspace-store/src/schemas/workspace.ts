@@ -1,4 +1,3 @@
-import { type ThemeId, themeIds } from '@scalar/themes'
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
@@ -39,28 +38,22 @@ export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSche
 
 export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
 
-export const WorkspaceMetaSchema = compose(
-  // Sidebar width should be mandatory
+export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
+    [extensions.workspace.darkMode]: Type.Boolean(),
+    [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
+    [extensions.workspace.activeDocument]: Type.String(),
+    [extensions.workspace.theme]: Type.String(),
     [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
   }),
-  // The rest are optional
-  Type.Partial(
-    Type.Object({
-      [extensions.workspace.darkMode]: Type.Boolean(),
-      [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
-      [extensions.workspace.activeDocument]: Type.String(),
-      [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
-    }),
-  ),
 )
 
 export type WorkspaceMeta = {
-  [extensions.workspace.sidebarWidth]: number
   [extensions.workspace.darkMode]?: boolean
   [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string
-  [extensions.workspace.theme]?: ThemeId
+  [extensions.workspace.theme]?: string
+  [extensions.workspace.sidebarWidth]?: number
 }
 
 export const WorkspaceExtensionsSchema = Type.Partial(
