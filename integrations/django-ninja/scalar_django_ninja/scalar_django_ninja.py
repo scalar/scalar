@@ -199,25 +199,25 @@ def get_scalar_api_reference(
         ),
     ] = False,
     hidden_clients: Annotated[
-        bool | dict[str, bool | list[str]] | list[str],
+        bool | dict[str, bool | list[str]] | list[str] | None,
         Doc(
             """
             A dictionary with the keys being the target names and the values being a boolean to hide all clients of the target or a list clients.
             If a boolean is provided, it will hide all the clients with that name.
             Backwards compatibility: If a list of strings is provided, it will hide the clients with the name and the list of strings.
-            Default is [] which means no clients are hidden.
+            Default is None which means no clients are hidden.
             """
         ),
-    ] = [],
+    ] = None,
     servers: Annotated[
-        list[dict[str, str]],
+        list[dict[str, str]] | None,
         Doc(
             """
             A list of dictionaries with the keys being the server name and the value being the server URL.
-            Default is [] which means no servers are provided.
+            Default is None which means no servers are provided.
             """
         ),
-    ] = [],
+    ] = None,
     default_open_all_tags: Annotated[
         bool,
         Doc(
@@ -261,8 +261,8 @@ def get_scalar_api_reference(
         showSidebar: {json.dumps(show_sidebar)},
         hideDownloadButton: {json.dumps(hide_download_button)},
         hideModels: {json.dumps(hide_models)},
-        hiddenClients: {json.dumps(hidden_clients)},
-        servers: {json.dumps(servers)},
+        hiddenClients: {json.dumps(hidden_clients or [])},
+        servers: {json.dumps(servers or [])},
         defaultOpenAllTags: {json.dumps(default_open_all_tags)},
       }}
 
@@ -289,8 +289,8 @@ class ScalarViewer(DocsBase):
         show_sidebar: bool = True,
         hide_download_button: bool = False,
         hide_models: bool = False,
-        hidden_clients: bool | dict[str, bool | list[str]] | list[str] = [],
-        servers: list[dict[str, str]] = [],
+        hidden_clients: bool | dict[str, bool | list[str]] | list[str] | None = None,
+        servers: list[dict[str, str]] | None = None,
         default_open_all_tags: bool = False,
     ):
         self.title = title
