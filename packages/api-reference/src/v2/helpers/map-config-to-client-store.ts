@@ -31,6 +31,7 @@ export function mapConfigToClientStore({
   el,
   root,
   dereferencedDocument,
+  documentUrl,
 }: {
   /** Element the client will be mounted to */
   el: Ref<HTMLElement | null>
@@ -41,6 +42,8 @@ export function mapConfigToClientStore({
   /** Instantiated client store */
   workspaceStore: WorkspaceStore
   dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_1.Document | null>
+  /** Document URL */
+  documentUrl: MaybeRefOrGetter<string | undefined>
 }) {
   /**
    * Legacy API Client Store
@@ -185,7 +188,7 @@ export function mapConfigToClientStore({
       return store.importSpecFile(undefined, 'default', {
         dereferencedDocument: toRaw(newDocument),
         shouldLoad: true,
-        documentUrl: undefined,
+        documentUrl: toValue(documentUrl),
         useCollectionSecurity: true,
         ...toValue(config),
       })

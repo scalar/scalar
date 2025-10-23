@@ -606,6 +606,10 @@ const dereferenced = ref<ReturnType<typeof dereference>['schema'] | null>(null)
 
 const modal = useTemplateRef<HTMLElement>('modal')
 
+const documentUrl = computed(() => {
+  return configList.value[activeSlug.value]?.source?.url
+})
+
 /**
  * Keeps the client store in sync with the workspace store
  *
@@ -618,6 +622,7 @@ const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
     el: modal,
     root,
     dereferencedDocument: dereferenced,
+    documentUrl,
   },
 )
 
@@ -838,7 +843,7 @@ onBeforeMount(() => {
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
-                    :url="configList[activeSlug]?.source?.url" />
+                    :url="documentUrl" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
