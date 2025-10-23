@@ -108,7 +108,9 @@ const isSidebarOpen = ref(true)
               v-model:isSidebarOpen="isSidebarOpen"
               :documents="workspaceStore.workspace.documents"
               layout="modal"
-              :sidebarWidth="workspaceStore.workspace['x-scalar-sidebar-width']"
+              :sidebarWidth="
+                workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
+              "
               @update:sidebarWidth="
                 (width) =>
                   workspaceStore.update('x-scalar-sidebar-width', width)
