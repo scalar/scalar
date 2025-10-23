@@ -107,7 +107,12 @@ const isSidebarOpen = ref(true)
               v-show="isSidebarOpen"
               v-model:isSidebarOpen="isSidebarOpen"
               :documents="workspaceStore.workspace.documents"
-              layout="modal" />
+              layout="modal"
+              :sidebarWidth="workspaceStore.workspace['x-scalar-sidebar-width']"
+              @update:sidebarWidth="
+                (width) =>
+                  workspaceStore.update('x-scalar-sidebar-width', width)
+              " />
 
             <!-- Insert the operation page here -->
             <TempReplaceMe

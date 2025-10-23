@@ -39,16 +39,24 @@ export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSche
 
 export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
 
-export const WorkspaceMetaSchema = Type.Partial(
+export const WorkspaceMetaSchema = compose(
+  // Sidebar width should be mandatory
   Type.Object({
-    [extensions.workspace.darkMode]: Type.Boolean(),
-    [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
-    [extensions.workspace.activeDocument]: Type.String(),
-    [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
+    [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
   }),
+  // The rest are optional
+  Type.Partial(
+    Type.Object({
+      [extensions.workspace.darkMode]: Type.Boolean(),
+      [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
+      [extensions.workspace.activeDocument]: Type.String(),
+      [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
+    }),
+  ),
 )
 
 export type WorkspaceMeta = {
+  [extensions.workspace.sidebarWidth]: number
   [extensions.workspace.darkMode]?: boolean
   [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string

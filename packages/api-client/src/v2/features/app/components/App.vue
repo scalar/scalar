@@ -70,7 +70,11 @@ const isSidebarOpen = ref(true)
         v-model:isSidebarOpen="isSidebarOpen"
         v-model:workspace="workspaceModel"
         :documents="workspaceStore.workspace.documents"
-        :layout="layout" />
+        :layout="layout"
+        :sidebarWidth="workspaceStore.workspace['x-scalar-sidebar-width']"
+        @update:sidebarWidth="
+          (width) => workspaceStore.update('x-scalar-sidebar-width', width)
+        " />
 
       <!-- Popup command palette to add resources from anywhere -->
       <!-- <TheCommandPalette /> -->

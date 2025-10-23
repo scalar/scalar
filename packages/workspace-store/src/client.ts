@@ -479,6 +479,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
+    [extensions.workspace.sidebarWidth]: 288,
   })
 
   /**
@@ -819,7 +820,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             ]),
           ),
         },
-        meta: workspaceProps?.meta ?? {},
+        meta: workspaceProps?.meta ?? {
+          [extensions.workspace.sidebarWidth]: 288,
+        },
         documentConfigs,
         originalDocuments,
         intermediateDocuments,

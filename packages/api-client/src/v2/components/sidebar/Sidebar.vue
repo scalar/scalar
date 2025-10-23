@@ -58,7 +58,10 @@ const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
 const isSearchVisible = ref(false)
 
 /** Controls the width of the sidebar */
-const sidebarWidth = ref(288)
+const sidebarWidth = defineModel<number>('sidebarWidth', {
+  required: true,
+  default: 288,
+})
 </script>
 <template>
   <Resize

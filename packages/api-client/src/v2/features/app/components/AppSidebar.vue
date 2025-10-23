@@ -36,6 +36,12 @@ const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
   required: true,
 })
 
+/** Controls the width of the sidebar */
+const sidebarWidth = defineModel<number>('sidebarWidth', {
+  required: true,
+  default: 288,
+})
+
 /** Calculate if we should show the getting started section */
 const showGettingStarted = computed(() => true)
 </script>
@@ -43,6 +49,7 @@ const showGettingStarted = computed(() => true)
 <template>
   <Sidebar
     v-model:isSidebarOpen="isSidebarOpen"
+    v-model:sidebarWidth="sidebarWidth"
     v-model:workspace="workspaceModel"
     :documents="documents"
     :layout="layout">
