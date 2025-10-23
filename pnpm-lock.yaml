@@ -2482,6 +2482,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      js-base64:
+        specifier: ^3.7.8
+        version: 3.7.8
       stringify-object:
         specifier: ^5.0.0
         version: 5.0.0
