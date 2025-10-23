@@ -16,7 +16,7 @@ await workspaceStore.addDocument({
   },
 })
 
-const { open } = await createApiClientModal({
+const { open } = createApiClientModal({
   el: document.getElementById('app'),
   workspaceStore,
 })
