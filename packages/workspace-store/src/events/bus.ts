@@ -105,15 +105,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const getListeners = <T extends keyof ApiReferenceEvents>(
     event: T,
   ): Set<(payload: ApiReferenceEvents[T]) => void> => {
-    const listeners = events.get(event)
-
-    if (!listeners) {
-      const _listeners = new Set<(payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void>()
-      events.set(event, _listeners)
-      return _listeners
-    }
-
-    return listeners!
+    const listeners = events.get(event) ?? new Set<(payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void>()
+    events.set(event, listeners)
+    return listeners
   }
 
   /**
@@ -141,20 +135,14 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     event: E,
     listener: (payload: ApiReferenceEvents[E]) => void,
   ): void => {
-    const listeners = events.get(event)
+    const listeners = events.get(event) as Set<(payload: ApiReferenceEvents[E]) => void> | undefined
 
     if (!listeners) {
       return
     }
 
-    // Find and remove the wrapper that contains this listener
-    for (const l of listeners) {
-      if (l === listener) {
-        listeners.delete(l)
-        log(`Removed listener for "${event}" (${listeners.size} remaining)`)
-        break
-      }
-    }
+    // Find and remove this specific listener
+    listeners.delete(listener)
 
     // Clean up empty listener sets to avoid memory leaks
     if (listeners.size === 0) {
