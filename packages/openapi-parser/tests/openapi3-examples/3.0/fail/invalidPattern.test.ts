@@ -7,11 +7,9 @@ describe('invalidPattern', () => {
   it('returns an error', async () => {
     const result = await validate(invalidPattern)
 
-    // TODO: Swagger Editor
-    //
-    // Resolver error at paths./test.$ref
-    // Could not resolve reference: undefined undefined
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    // Now gives a better error than the generic $ref error.
+    // The pattern format validation is stricter and catches the invalid regex.
+    expect(result.errors?.[0]?.message).toBe('format must match format "regex"')
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })
