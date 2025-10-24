@@ -90,11 +90,11 @@ export const createDetectChangesProxy = <T>(
  *
  * @example
  * const proxy = createDetectChangesProxy({ a: 1 });
- * const raw = getRaw(proxy); // Gets the original object { a: 1 }
+ * const raw = unpackDetectChangesProxy(proxy); // Gets the original object { a: 1 }
  * const notProxy = { b: 2 };
- * const stillRaw = getRaw(notProxy); // Returns { b: 2 }, unchanged
+ * const stillRaw = unpackDetectChangesProxy(notProxy); // Returns { b: 2 }, unchanged
  */
-export const getRaw = <T>(obj: T): T => {
+export const unpackDetectChangesProxy = <T>(obj: T): T => {
   if (typeof obj !== 'object' || obj === null) {
     return obj
   }

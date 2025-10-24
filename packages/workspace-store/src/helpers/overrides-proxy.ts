@@ -1,6 +1,7 @@
-import { type UnknownObject, isObject } from '@/helpers/general'
+import { isObject } from '@/helpers/general'
 
 const isOverridesProxy = Symbol('isOverridesProxy')
+export const getOverridesTarget = Symbol('getOverridesTarget')
 
 /**
  * Recursively makes all properties of a type optional.
@@ -60,7 +61,7 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
       }
 
       // Special symbol to access the original target object
-      if (prop === TARGET_SYMBOL) {
+      if (prop === getOverridesTarget) {
         return target
       }
 
@@ -77,7 +78,7 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
 
     set(target, prop, value, receiver) {
       // Prevent setting special symbols
-      if (prop === isOverridesProxy || prop === TARGET_SYMBOL) {
+      if (prop === isOverridesProxy || prop === getOverridesTarget) {
         return false
       }
 
@@ -98,11 +99,17 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
   return new Proxy<T>(targetObject, handler)
 }
 
-export const TARGET_SYMBOL = Symbol('overridesProxyTarget')
-export function unpackOverridesProxy<T extends UnknownObject>(obj: T): T {
-  if ((obj as T & { [isOverridesProxy]: boolean | undefined })[isOverridesProxy]) {
-    return (obj as T & { [TARGET_SYMBOL]: T })[TARGET_SYMBOL]
+/**
+ * Unpacks an object from the overrides proxy, returning the original (unproxied) target object.
+ * If the input is not an overrides proxy, returns the object as-is.
+ *
+ * @param input - The potentially proxied object
+ * @returns The original unproxied target object or the input object
+ */
+export function unpackOverridesProxy<T>(input: T): T {
+  if ((input as T & { [isOverridesProxy]: boolean | undefined })[isOverridesProxy]) {
+    return (input as T & { [getOverridesTarget]: T })[getOverridesTarget]
   }
 
-  return obj
+  return input
 }

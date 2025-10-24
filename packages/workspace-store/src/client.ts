@@ -17,6 +17,7 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
@@ -566,12 +567,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type: 'documents',
                   documentName,
-                  value: toRaw(
-                    getRaw(
-                      unpackOverridesProxy(
-                        workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
-                      ),
-                    ),
+                  value: unpackProxyObject(
+                    workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
                   ),
                 } satisfies ChangeEvent
 
@@ -586,12 +583,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type: 'documents',
                   documentName,
-                  value: toRaw(
-                    getRaw(
-                      unpackOverridesProxy(
-                        workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
-                      ),
-                    ),
+                  value: unpackProxyObject(
+                    workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
                   ),
                 } satisfies ChangeEvent
 
@@ -603,7 +596,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const { activeDocument: _a, documents: _d, ...meta } = workspace
               const event = {
                 type: 'meta',
-                value: meta,
+                value: unpackProxyObject(meta),
               } satisfies ChangeEvent
 
               trigger(event)
@@ -621,7 +614,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type,
                   documentName: documentName,
-                  value: originalDocuments[documentName] ?? {},
+                  value: unpackProxyObject(originalDocuments[documentName] ?? {}),
                 } satisfies ChangeEvent
                 trigger(event)
               }
@@ -630,7 +623,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type,
                   documentName: documentName,
-                  value: intermediateDocuments[documentName] ?? {},
+                  value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
                 } satisfies ChangeEvent
                 trigger(event)
               }
@@ -639,7 +632,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type,
                   documentName: documentName,
-                  value: documentConfigs[documentName] ?? {},
+                  value: unpackProxyObject(documentConfigs[documentName] ?? {}),
                 } satisfies ChangeEvent
                 trigger(event)
               }
@@ -648,7 +641,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type,
                   documentName: documentName,
-                  value: overrides[documentName] ?? {},
+                  value: unpackProxyObject(overrides[documentName] ?? {}),
                 } satisfies ChangeEvent
                 trigger(event)
               }
@@ -657,7 +650,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 const event = {
                   type,
                   documentName: documentName,
-                  value: documentMeta[documentName] ?? {},
+                  value: unpackProxyObject(documentMeta[documentName] ?? {}),
                 } satisfies ChangeEvent
                 trigger(event)
               }

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createDetectChangesProxy, getRaw } from './detect-changes-proxy'
+import { createDetectChangesProxy, unpackDetectChangesProxy } from './detect-changes-proxy'
 
 describe('createDetectChangesProxy', () => {
   describe('primitives', () => {
@@ -352,29 +352,29 @@ describe('createDetectChangesProxy', () => {
 
 describe('getRaw', () => {
   it('should return primitives unchanged', () => {
-    expect(getRaw('string')).toBe('string')
-    expect(getRaw(42)).toBe(42)
-    expect(getRaw(true)).toBe(true)
-    expect(getRaw(false)).toBe(false)
+    expect(unpackDetectChangesProxy('string')).toBe('string')
+    expect(unpackDetectChangesProxy(42)).toBe(42)
+    expect(unpackDetectChangesProxy(true)).toBe(true)
+    expect(unpackDetectChangesProxy(false)).toBe(false)
   })
 
   it('should return null unchanged', () => {
-    expect(getRaw(null)).toBe(null)
+    expect(unpackDetectChangesProxy(null)).toBe(null)
   })
 
   it('should return undefined unchanged', () => {
-    expect(getRaw(undefined)).toBe(undefined)
+    expect(unpackDetectChangesProxy(undefined)).toBe(undefined)
   })
 
   it('should return non-proxy objects unchanged', () => {
     const obj = { foo: 1 }
-    expect(getRaw(obj)).toBe(obj)
+    expect(unpackDetectChangesProxy(obj)).toBe(obj)
   })
 
   it('should return the original target for proxied objects', () => {
     const obj = { foo: 1 }
     const proxy = createDetectChangesProxy(obj)
-    const raw = getRaw(proxy)
+    const raw = unpackDetectChangesProxy(proxy)
 
     expect(raw).toBe(obj)
     expect(raw).not.toBe(proxy)
@@ -384,7 +384,7 @@ describe('getRaw', () => {
     const obj = { foo: { bar: 1 } }
     const proxy = createDetectChangesProxy(obj)
     const nestedProxy = proxy.foo
-    const raw = getRaw(nestedProxy)
+    const raw = unpackDetectChangesProxy(nestedProxy)
 
     expect(raw).toBe(obj.foo)
     expect(raw).not.toBe(nestedProxy)
@@ -393,7 +393,7 @@ describe('getRaw', () => {
   it('should return the original target for proxied arrays', () => {
     const arr = [1, 2, 3]
     const proxy = createDetectChangesProxy(arr)
-    const raw = getRaw(proxy)
+    const raw = unpackDetectChangesProxy(proxy)
 
     expect(raw).toBe(arr)
     expect(raw).not.toBe(proxy)
@@ -403,26 +403,26 @@ describe('getRaw', () => {
     const obj = { a: { b: { c: 1 } } }
     const proxy = createDetectChangesProxy(obj)
     const deepProxy = proxy.a.b
-    const raw = getRaw(deepProxy)
+    const raw = unpackDetectChangesProxy(deepProxy)
 
     expect(raw).toBe(obj.a.b)
   })
 
   it('should return empty objects unchanged if not proxied', () => {
     const obj = {}
-    expect(getRaw(obj)).toBe(obj)
+    expect(unpackDetectChangesProxy(obj)).toBe(obj)
   })
 
   it('should return empty arrays unchanged if not proxied', () => {
     const arr: number[] = []
-    expect(getRaw(arr)).toBe(arr)
+    expect(unpackDetectChangesProxy(arr)).toBe(arr)
   })
 
   it('should handle objects with circular references', () => {
     const obj: any = { foo: 1 }
     obj.self = obj
     const proxy = createDetectChangesProxy(obj)
-    const raw = getRaw(proxy)
+    const raw = unpackDetectChangesProxy(proxy)
 
     expect(raw).toBe(obj)
     expect(raw.self).toBe(obj)
@@ -434,7 +434,7 @@ describe('getRaw', () => {
 
     proxy.foo = 99
 
-    const raw = getRaw(proxy)
+    const raw = unpackDetectChangesProxy(proxy)
     expect(raw).toBe(obj)
     expect(raw.foo).toBe(99)
   })
