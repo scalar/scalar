@@ -797,7 +797,7 @@ onBeforeMount(() => {
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
             :showSidebar="mergedConfig.showSidebar"
-            @toggleSidebarItem="(id) => handleSelectItem(id)" />
+            @scrollToId="(id) => handleSelectItem(id)" />
         </template>
         <template #sidebar="{ sidebarClasses }">
           <ScalarSidebar

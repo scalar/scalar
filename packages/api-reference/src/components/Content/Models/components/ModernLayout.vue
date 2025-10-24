@@ -27,7 +27,6 @@ const emit = defineEmits<{
   <CompactSection
     :id="id"
     :key="name"
-    class="hover:z-10"
     :label="name"
     :modelValue="!isCollapsed"
     @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
