@@ -18,4 +18,15 @@ export type UIEvents = {
     /** The path of the operation to load */
     path: string
   }
+  /**
+   * Open our command palette
+   */
+  'open:command-palette':
+    | 'import'
+    | 'addServer'
+    | 'addCollection'
+    | 'addTag'
+    | 'addExample'
+    | 'addOperation'
+    | undefined
 }

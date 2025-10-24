@@ -48,7 +48,12 @@ export type WorkspaceEventBus = {
    * @example
    * bus.emit('scalar-update-sidebar', { value: true })
    */
-  emit<E extends keyof ApiReferenceEvents>(event: E, payload: ApiReferenceEvents[E]): void
+  emit<E extends keyof ApiReferenceEvents>(
+    event: E,
+    ...args: undefined extends ApiReferenceEvents[E]
+      ? [payload?: ApiReferenceEvents[E]]
+      : [payload: ApiReferenceEvents[E]]
+  ): void
 }
 
 /**
