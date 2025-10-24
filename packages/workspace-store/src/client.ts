@@ -19,7 +19,7 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
@@ -29,9 +29,10 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocument, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
+import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
 type ExtraDocumentConfigurations = Record<
   string,
@@ -128,48 +129,6 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   return undefined
 }
 
-type ChangeEvent =
-  | {
-      type: 'documents'
-      documentName: string
-      value: WorkspaceDocument
-    }
-  | {
-      type: 'originalDocuments'
-      documentName: string
-      value: UnknownObject
-    }
-  | {
-      type: 'intermediateDocuments'
-      documentName: string
-      value: UnknownObject
-    }
-  | {
-      type: 'documentConfigs'
-      documentName: string
-      value: Config
-    }
-  | {
-      type: 'overrides'
-      documentName: string
-      value: UnknownObject
-    }
-  | {
-      type: 'documentMeta'
-      documentName: string
-      value: InMemoryWorkspace['documentMeta'][string]
-    }
-  | {
-      type: 'meta'
-      value: WorkspaceMeta
-    }
-
-export type Plugin = Partial<{
-  hooks: Partial<{
-    onWorkspaceStateChanges: (event: ChangeEvent) => void
-  }>
-}>
-
 /**
  * Configuration object for initializing a workspace store.
  * Defines the initial state and documents for the workspace.
@@ -182,7 +141,7 @@ type WorkspaceProps = {
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
   /** A list of all registered plugins for the current workspace */
-  plugins?: Plugin[]
+  plugins?: WorkspacePlugin[]
 }
 
 /**
@@ -550,7 +509,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               return
             }
 
-            const trigger = (event: ChangeEvent) => {
+            /**
+             * Notifies all workspace plugins of a workspace state change event.
+             *
+             * This function iterates through all registered plugins (if any) and invokes
+             * their onWorkspaceStateChanges hook with the given event object.
+             *
+             * @param event - The workspace state change event to broadcast to plugins
+             */
+            const firePlugins = (event: WorkspaceStateChangeEvent) => {
               workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
             }
 
@@ -570,9 +537,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   value: unpackProxyObject(
                     workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
                   ),
-                } satisfies ChangeEvent
+                } satisfies WorkspaceStateChangeEvent
 
-                trigger(event)
+                firePlugins(event)
                 return
               }
 
@@ -586,9 +553,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   value: unpackProxyObject(
                     workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
                   ),
-                } satisfies ChangeEvent
+                } satisfies WorkspaceStateChangeEvent
 
-                trigger(event)
+                firePlugins(event)
                 return
               }
 
@@ -597,9 +564,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type: 'meta',
                 value: unpackProxyObject(meta),
-              } satisfies ChangeEvent
+              } satisfies WorkspaceStateChangeEvent
 
-              trigger(event)
+              firePlugins(event)
               return
             }
 
@@ -615,8 +582,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   type,
                   documentName: documentName,
                   value: unpackProxyObject(originalDocuments[documentName] ?? {}),
-                } satisfies ChangeEvent
-                trigger(event)
+                } satisfies WorkspaceStateChangeEvent
+                firePlugins(event)
               }
 
               if (type === 'intermediateDocuments') {
@@ -624,8 +591,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   type,
                   documentName: documentName,
                   value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
-                } satisfies ChangeEvent
-                trigger(event)
+                } satisfies WorkspaceStateChangeEvent
+                firePlugins(event)
               }
 
               if (type === 'documentConfigs') {
@@ -633,8 +600,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   type,
                   documentName: documentName,
                   value: unpackProxyObject(documentConfigs[documentName] ?? {}),
-                } satisfies ChangeEvent
-                trigger(event)
+                } satisfies WorkspaceStateChangeEvent
+                firePlugins(event)
               }
 
               if (type === 'overrides') {
@@ -642,8 +609,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   type,
                   documentName: documentName,
                   value: unpackProxyObject(overrides[documentName] ?? {}),
-                } satisfies ChangeEvent
-                trigger(event)
+                } satisfies WorkspaceStateChangeEvent
+                firePlugins(event)
               }
 
               if (type === 'documentMeta') {
@@ -651,8 +618,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   type,
                   documentName: documentName,
                   value: unpackProxyObject(documentMeta[documentName] ?? {}),
-                } satisfies ChangeEvent
-                trigger(event)
+                } satisfies WorkspaceStateChangeEvent
+                firePlugins(event)
               }
             }
           },

@@ -1,6 +1,6 @@
-import type { Plugin } from '@/client'
 import { debounce } from '@/helpers/debounce'
 import { createWorkspaceStorePersistence } from '@/persistence'
+import type { WorkspacePlugin } from '@/workspace-plugin'
 
 /**
  * Plugin to persist workspace state changes with debounced writes.
@@ -15,7 +15,7 @@ export const persistencePlugin = async ({
 }: {
   workspaceId: string
   debounceDelay?: number
-}): Promise<Plugin> => {
+}): Promise<WorkspacePlugin> => {
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
@@ -40,28 +40,28 @@ export const persistencePlugin = async ({
           )
         }
 
-            // Debounce per document content and workspace
+        // Debounce per document content and workspace
         if (event.type === 'documents') {
           return execute(['documents', workspaceId, event.documentName], () =>
             persistence.documents.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
-            // Debounce per document meta and workspace
+        // Debounce per document meta and workspace
         if (event.type === 'documentMeta') {
           return execute(['documentMeta', workspaceId, event.documentName], () =>
             persistence.documentMeta.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
-            // Debounce per intermediate document and workspace
+        // Debounce per intermediate document and workspace
         if (event.type === 'intermediateDocuments') {
           return execute(['intermediateDocuments', workspaceId, event.documentName], () =>
             persistence.intermediateDocuments.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
-      // Debounce per original document and workspace
+        // Debounce per original document and workspace
         if (event.type === 'originalDocuments') {
           return execute(['originalDocuments', workspaceId, event.documentName], () =>
             persistence.originalDocuments.setItem(workspaceId, event.documentName, event.value),

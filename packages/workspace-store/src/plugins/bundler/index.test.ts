@@ -6,7 +6,7 @@ import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deepClone } from '@/helpers/general'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 
 function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void
