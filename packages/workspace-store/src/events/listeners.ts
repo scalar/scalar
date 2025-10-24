@@ -1,10 +1,11 @@
 import { type Ref, onBeforeUnmount, watch } from 'vue'
 
-import type { ApiReferenceEvent, ApiReferenceEvents } from './definitions'
+import type { ApiReferenceEvent, ApiReferenceEvents } from './old-definitions'
 
 /**
  * Vue wrapper for attaching and removing event listeners
  *
+ * @deprecated Use the the event bus instead
  */
 export function onCustomEvent<E extends ApiReferenceEvent>(
   el: Ref<HTMLElement | null>,
