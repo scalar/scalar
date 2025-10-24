@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import { type ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 

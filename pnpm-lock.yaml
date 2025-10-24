@@ -1394,6 +1394,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/use-codemirror':
+        specifier: workspace:*
+        version: link:../use-codemirror
       '@scalar/use-hooks':
         specifier: workspace:*
         version: link:../use-hooks
