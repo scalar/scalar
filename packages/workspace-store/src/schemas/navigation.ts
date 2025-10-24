@@ -135,6 +135,21 @@ export type TraversedTag = BaseSchema & {
   xKeys?: Record<string, unknown>
 }
 
+export const TraversedModelsSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('models'),
+    name: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+export type TraversedModels = BaseSchema & {
+  type: 'models'
+  name: string
+  children?: TraversedEntry[]
+}
+
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
@@ -143,6 +158,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedWebhookSchemaDefinition,
   TraversedExampleSchemaDefinition,
   TraversedDocumentSchemaDefinition,
+  TraversedModelsSchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -153,6 +169,7 @@ export type TraversedEntry =
   | TraversedWebhook
   | TraversedExample
   | TraversedDocument
+  | TraversedModels
 
 export type DocumentIdProps = {
   name: string

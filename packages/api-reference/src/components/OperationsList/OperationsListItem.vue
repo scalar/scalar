@@ -46,7 +46,6 @@ const isWebhook = (
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${operation.id}`"
       @click.prevent="() => emit('scrollToId', operation.id)">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"

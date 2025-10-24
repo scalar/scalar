@@ -5,6 +5,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedEntry,
+  TraversedModels,
   TraversedOperation,
   TraversedSchema,
   TraversedTag,
@@ -88,10 +89,8 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   entry['type'] === 'webhook'
 
 /** Models are special form of tag entry */
-const isModelTag = (
-  entry: TraversedEntry,
-): entry is TraversedTag & { isGroup: false; id: 'models' } =>
-  entry['type'] === 'tag' && !isTagGroup(entry) && entry.id === 'models'
+const isModelsTag = (entry: TraversedEntry): entry is TraversedModels =>
+  entry['type'] === 'models'
 
 const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
   entry['type'] === 'model'
@@ -190,7 +189,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
 
     <!-- Models -->
     <ModelTag
-      v-else-if="isModelTag(entry) && schemas"
+      v-else-if="isModelsTag(entry) && schemas"
       :id="entry.id"
       :isCollapsed="!expandedItems[entry.id]"
       :options="{

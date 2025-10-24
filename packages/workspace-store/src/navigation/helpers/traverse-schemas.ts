@@ -51,11 +51,6 @@ const createSchemaEntry = ({
  * - Filter out internal schemas (marked with x-internal) and schemas to ignore (marked with x-scalar-ignore)
  * - Create model entries with unique references and IDs
  * - Store model IDs and titles for mobile header navigation
- *
- * @param content - The OpenAPI document to traverse
- * @param entitiesMap - Map to store schema IDs and titles for mobile header navigation
- * @param getModelId - Function to generate unique IDs for schemas
- * @returns Array of traversed schema entries
  */
 export const traverseSchemas = ({
   document,

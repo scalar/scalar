@@ -94,7 +94,7 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
 
     if (untaggedModels.length) {
       entries.push({
-        type: 'tag',
+        type: 'models',
         id: generateId({
           type: 'model',
           parentId: documentId,
@@ -102,7 +102,6 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
         title: 'Models',
         name: 'Models',
         children: untaggedModels,
-        isGroup: false,
       })
     }
   }

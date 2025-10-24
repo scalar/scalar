@@ -31,8 +31,10 @@ const intersectionBlockers = reactive<Set<string>>(new Set())
 const onRenderComplete = new Set<() => void>()
 
 /** Adds a one time callback to be executed when the lazy bus has finished loading */
-export const addLazyCompleteCallback = (callback: () => void) => {
-  onRenderComplete.add(callback)
+const addLazyCompleteCallback = (callback: (() => void) | undefined) => {
+  if (callback) {
+    onRenderComplete.add(callback)
+  }
 }
 
 type UnblockFn = () => void
@@ -88,6 +90,8 @@ const runLazyBus = () => {
     }
 
     await nextTick()
+
+    console.log('onRenderComplete')
 
     onRenderComplete.forEach((fn) => fn())
     onRenderComplete.clear()
@@ -180,6 +184,14 @@ export const scrollToLazy = (
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string } } | undefined,
 ) => {
+  /**
+   * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
+   * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
+   */
+  const isLazy = !readyQueue.has(id)
+  const unfreeze = isLazy ? freeze(id) : undefined
+  addLazyCompleteCallback(unfreeze)
+
   // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
   const { rawId } = getSchemaParamsFromId(id)
@@ -204,7 +216,7 @@ export const scrollToLazy = (
   addParents(rawId)
 
   /** Scroll to the element targeted */
-  tryScroll(id, Date.now() + 1000, unblock)
+  tryScroll(id, Date.now() + 1000, unblock, unfreeze)
 }
 
 /**
@@ -214,7 +226,7 @@ export const scrollToLazy = (
  * @param id - The id of the element to scroll to
  * @param stopTime - The time to stop retrying in unix milliseconds
  */
-const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn): void => {
+const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailure?: () => void): void => {
   const element = document.getElementById(id)
   if (element) {
     element.scrollIntoView({
@@ -226,6 +238,7 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn): void =>
   } else {
     // If the scroll has expired we enable intersection again
     onComplete()
+    onFailure?.()
   }
 }
 

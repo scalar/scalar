@@ -46,12 +46,7 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import {
-  addLazyCompleteCallback,
-  freeze,
-  intersectionEnabled,
-  scrollToLazy,
-} from '@/components/Lazy/lazyBus'
+import { intersectionEnabled, scrollToLazy } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -325,7 +320,7 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag') {
+    if (item.type === 'tag' || item.type === 'models') {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -476,8 +471,6 @@ const changeSelectedDocument = async (
 
   /** When loading to a specified element we need to freeze and scroll */
   if (elementId && elementId !== slug) {
-    const unfreeze = freeze(elementId)
-    addLazyCompleteCallback(unfreeze)
     scrollToLazyElement(elementId)
   } else {
     /** If there is no child element of the document specified we expand the first tag */
@@ -688,13 +681,18 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
  *        Open all parents and scroll to the operation
  */
 const handleSelectItem = async (id: string) => {
+  console.log('handleSelectItem', id)
   const item = sidebarState.getEntryById(id)
 
-  if (item?.type === 'tag' && sidebarState.isExpanded(id)) {
+  if (
+    (item?.type === 'tag' || item?.type === 'models') &&
+    sidebarState.isExpanded(id)
+  ) {
     return sidebarState.setExpanded(id, false)
   }
 
-  if (item?.type !== 'tag') {
+  /** When in mobile menu we close the menu when we select an item that is not a tag */
+  if (item?.type !== 'tag' && item?.type !== 'models') {
     isSidebarOpen.value = false
   }
 
@@ -884,7 +882,7 @@ onBeforeMount(() => {
           :options="{
             headingSlugGenerator:
               mergedConfig.generateHeadingSlug ??
-              ((heading) => `description/${heading.slug}`),
+              ((heading) => `${activeSlug}/description/${heading.slug}`),
             slug: mergedConfig.slug,
             hiddenClients: mergedConfig.hiddenClients,
             layout: mergedConfig.layout,
@@ -903,6 +901,7 @@ onBeforeMount(() => {
           "
           @copyAnchorUrl="handleCopyAnchorUrl"
           @intersecting="handleIntersecting"
+          @scrollToId="handleSelectItem"
           @toggleOperation="handleToggleOperation"
           @toggleSchema="handleToggleSchema"
           @toggleTag="handleToggleTag">
