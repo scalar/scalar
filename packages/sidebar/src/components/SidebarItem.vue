@@ -131,8 +131,17 @@ const handleDragEnd = (
       "
       v-model="groupModelValue"
       :active="selectedItems[item.id] ?? false">
-      <div class="group/entry flex flex-1 items-center justify-center">
-        <div class="flex-1 text-left">{{ item.title }}</div>
+      <template
+        v-if="item.type === 'document'"
+        #icon="{ open }">
+        <ScalarIconFolder
+          class="text-c-3 block group-hover/group-button:hidden" />
+        <ScalarSidebarGroupToggle
+          class="text-c-3 hidden group-hover/group-button:block"
+          :open="open" />
+      </template>
+      <div class="group/entry flex flex-1 items-center">
+        {{ item.title }}
         <slot
           :item="item"
           name="aside" />
@@ -143,15 +152,6 @@ const handleDragEnd = (
         class="min-w-9.75 justify-end text-right"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
-      <template
-        v-if="item.type === 'document'"
-        #icon="{ open }">
-        <ScalarIconFolder
-          class="text-c-3 block group-hover/group-button:hidden" />
-        <ScalarSidebarGroupToggle
-          class="text-c-3 hidden group-hover/group-button:block"
-          :open="open" />
-      </template>
       <template #items>
         <SidebarItem
           v-for="child in filterItems(item.children)"
@@ -178,15 +178,13 @@ const handleDragEnd = (
       class="text-left"
       :selected="selectedItems[item.id] ?? false"
       @click="() => emits('click', item.id)">
-      <div class="group/entry flex flex-1 items-center justify-center">
-        <div class="flex-1">
-          <template v-if="options?.operationTitleSource === 'path'">
-            {{ getPathOrTitle(item) }}
-          </template>
-          <template v-else>
-            {{ item.title }}
-          </template>
-        </div>
+      <div class="group/entry flex flex-1 items-center">
+        <template v-if="options?.operationTitleSource === 'path'">
+          {{ getPathOrTitle(item) }}
+        </template>
+        <template v-else>
+          {{ item.title }}
+        </template>
         <slot
           :item="item"
           name="aside" />
