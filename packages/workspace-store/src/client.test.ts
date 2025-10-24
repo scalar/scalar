@@ -168,12 +168,6 @@ describe('create-workspace-store', () => {
         'title': 'default',
         'type': 'document',
       },
-      'x-scalar-navigation': {
-        'children': [],
-        'id': 'default',
-        'title': 'default',
-        'type': 'document',
-      },
       'x-original-oas-version': '3.0.0',
       'x-ext-urls': {},
     })
