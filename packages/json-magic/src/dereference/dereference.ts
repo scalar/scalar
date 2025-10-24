@@ -27,6 +27,8 @@ type ReturnDereferenceResult<
  *
  * @param input - JSON Schema object to dereference.
  * @param options - Optional settings. If `sync` is true, dereferencing is synchronous.
+ * @typeParam Opts - Options type, indicating if sync mode is enabled.
+ * @typeParam T - Type of the input JSON object, and result object.
  * @returns A DereferenceResult (or Promise thereof) indicating success and the dereferenced data, or errors.
  *
  * @example
@@ -48,13 +50,13 @@ type ReturnDereferenceResult<
  *   });
  */
 export const dereference = <Opts extends { sync?: boolean }, T extends UnknownObject = UnknownObject>(
-  input: UnknownObject,
+  input: T,
   options?: Opts,
 ): ReturnDereferenceResult<Opts, T> => {
   if (options?.sync) {
     return {
       success: true,
-      data: createMagicProxy<UnknownObject, T>(input),
+      data: createMagicProxy<T, T>(input),
     } as ReturnDereferenceResult<Opts, T>
   }
 
