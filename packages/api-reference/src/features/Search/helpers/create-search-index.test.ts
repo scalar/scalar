@@ -1,5 +1,4 @@
 import { createNavigation } from '@scalar/workspace-store/navigation'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -128,19 +127,19 @@ describe('createSearchIndex', () => {
 
   describe('schemas', () => {
     it('adds a single schema', () => {
-      const document = {
-        components: {
-          schemas: {
-            User: {
-              type: 'object',
-              title: 'User Model',
-              description: 'A user object',
+      const index = createSearchIndex(
+        createMockDocument({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                description: 'A user object',
+              },
             },
           },
-        },
-      }
-
-      const index = createSearchIndex(createMockDocument(document))
+        }),
+      )
 
       expect(index).toMatchObject([
         {
@@ -159,18 +158,18 @@ describe('createSearchIndex', () => {
     })
 
     it('adds schema without description', () => {
-      const document = {
-        components: {
-          schemas: {
-            Post: {
-              type: 'object',
-              title: 'Post Model',
+      const index = createSearchIndex(
+        createMockDocument({
+          components: {
+            schemas: {
+              Post: {
+                type: 'object',
+                title: 'Post Model',
+              },
             },
           },
-        },
-      }
-
-      const index = createSearchIndex(createMockDocument(document))
+        }),
+      )
 
       expect(index).toMatchObject([
         {
