@@ -1,5 +1,33 @@
 # @scalar/oas-utils
 
+## 0.6.0
+
+### Minor Changes
+
+- 9661e81: feat(oas-utils): make `dereference` synchronous
+
+### Patch Changes
+
+- 81b0a7a: fix: remove ignored parameters
+- 0319b8a: fix: account for text type content
+- Updated dependencies [eb022f2]
+- Updated dependencies [913607c]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [6aa06b0]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [4fe1643]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.4.0
+  - @scalar/workspace-store@0.18.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/themes@0.13.23
+  - @scalar/json-magic@0.6.2
+  - @scalar/object-utils@1.2.9
+
 ## 0.5.2
 
 ### Patch Changes

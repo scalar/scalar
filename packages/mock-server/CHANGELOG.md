@@ -1,5 +1,27 @@
 # @scalar/mock-server
 
+## 0.6.0
+
+### Minor Changes
+
+- 9661e81: feat(oas-utils): make `dereference` synchronous
+
+### Patch Changes
+
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [134ff5f]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [0319b8a]
+- Updated dependencies [134ff5f]
+- Updated dependencies [eba18d0]
+- Updated dependencies [e23229d]
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+
 ## 0.5.40
 
 ### Patch Changes

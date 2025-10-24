@@ -1,5 +1,59 @@
 # @scalar/api-reference
 
+## 1.39.0
+
+### Minor Changes
+
+- 6ec8c29: Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+- eba18d0: Migrate to workspace store as primary source of truth.
+
+### Patch Changes
+
+- eb022f2: feat: new `content.end` slot for the plugin API
+- 6aa06b0: fix: "Test request" button doesn't open the correct API request panel
+- 81b0a7a: fix: remove ignored parameters
+- Updated dependencies [0319b8a]
+- Updated dependencies [eb022f2]
+- Updated dependencies [729ad06]
+- Updated dependencies [913607c]
+- Updated dependencies [348f8f6]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [d34f31e]
+- Updated dependencies [134ff5f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6aa06b0]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [7cda4c5]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [573c5a6]
+- Updated dependencies [0319b8a]
+- Updated dependencies [da7ab2f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6a090a2]
+- Updated dependencies [4fe1643]
+- Updated dependencies [eba18d0]
+- Updated dependencies [e23229d]
+- Updated dependencies [f612140]
+  - @scalar/api-client@2.9.0
+  - @scalar/types@0.4.0
+  - @scalar/workspace-store@0.18.0
+  - @scalar/components@0.15.2
+  - @scalar/sidebar@0.2.0
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.2
+  - @scalar/use-hooks@0.2.6
+  - @scalar/themes@0.13.23
+  - @scalar/json-magic@0.6.2
+  - @scalar/object-utils@1.2.9
+  - @scalar/code-highlight@0.2.0
+
 ## 1.38.1
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @scalar/components
 
+## 0.15.2
+
+### Patch Changes
+
+- 348f8f6: export sidebar components
+- c22fc4e: feat: added new layouts for client v2
+- 6ec8c29: Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+- 6a090a2: feat(useBindCx): add support for style attr
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [0319b8a]
+- Updated dependencies [6a090a2]
+- Updated dependencies [eba18d0]
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/use-hooks@0.2.6
+  - @scalar/themes@0.13.23
+  - @scalar/code-highlight@0.2.0
+
 ## 0.15.1
 
 ### Patch Changes

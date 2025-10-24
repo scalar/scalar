@@ -1,5 +1,26 @@
 # scalar-app
 
+## 0.1.240
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [0319b8a]
+- Updated dependencies [729ad06]
+- Updated dependencies [348f8f6]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [d34f31e]
+- Updated dependencies [7cda4c5]
+- Updated dependencies [573c5a6]
+- Updated dependencies [6a090a2]
+- Updated dependencies [eba18d0]
+- Updated dependencies [f612140]
+  - @scalar/api-client@2.9.0
+  - @scalar/components@0.15.2
+  - @scalar/themes@0.13.23
+  - @scalar/import@0.4.32
+
 ## 0.1.239
 
 ### Patch Changes

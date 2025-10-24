@@ -1,5 +1,33 @@
 # @scalar/workspace-store
 
+## 0.18.0
+
+### Minor Changes
+
+- 6ec8c29: feat: prefix generated navigation ids with the document name
+
+### Patch Changes
+
+- 913607c: fix: uses scalar proxy as the default
+- c22fc4e: feat: added new layouts for client v2
+- 6ec8c29: Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+- 6aa06b0: fix: re-add request method and path to `scalar-open-client` event
+- 81b0a7a: fix: remove ignored parameters
+- 4fe1643: feat: add new event bus to workspace store
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [eb022f2]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [134ff5f]
+- Updated dependencies [da7ab2f]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.4.0
+  - @scalar/helpers@0.0.13
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.2
+  - @scalar/themes@0.13.23
+  - @scalar/json-magic@0.6.2
+  - @scalar/code-highlight@0.2.0
+
 ## 0.17.1
 
 ### Patch Changes

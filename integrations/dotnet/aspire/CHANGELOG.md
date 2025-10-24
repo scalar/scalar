@@ -1,5 +1,22 @@
 # @scalar/aspire
 
+## 0.7.0
+
+### Minor Changes
+
+- f754dc1: feat: use shared .NET code
+
+### Patch Changes
+
+- Updated dependencies [eb022f2]
+- Updated dependencies [6aa06b0]
+- Updated dependencies [f754dc1]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [eba18d0]
+  - @scalar/api-reference@1.39.0
+  - @scalar/dotnet-shared@0.1.0
+
 ## 0.6.0
 
 ### Minor Changes

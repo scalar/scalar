@@ -1,5 +1,12 @@
 # @scalar/json-magic
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies [6ec8c29]
+  - @scalar/helpers@0.0.13
+
 ## 0.6.1
 
 ### Patch Changes
