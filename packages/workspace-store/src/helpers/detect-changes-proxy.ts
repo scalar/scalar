@@ -3,6 +3,16 @@ import { isObject } from '@/helpers/general'
 const isDetectChangesProxy = Symbol('isDetectChangesProxy')
 const detectChangesProxyTarget = Symbol('detectChangesProxyTarget')
 
+const isPropsVue = (prop: string | Symbol) => {
+  return (
+    typeof prop === 'symbol' ||
+    prop === '__v_isReactive' ||
+    prop === '__v_isReadonly' ||
+    prop === '__v_raw' ||
+    prop === '__v_skip'
+  )
+}
+
 /**
  * createDetectChangesProxy - Creates a proxy for an object or array that detects and triggers hooks on changes.
  *
@@ -64,8 +74,14 @@ export const createDetectChangesProxy = <T>(
       if (prop === detectChangesProxyTarget) {
         return target
       }
+
       // Recursively wrap property values in the detect changes proxy
       const value = Reflect.get(target, prop, receiver)
+
+      if (isPropsVue(prop)) {
+        return value
+      }
+
       return createDetectChangesProxy(value, options, { ...args, path: [...args.path, String(prop)] })
     },
     set(target, prop, value, receiver) {
