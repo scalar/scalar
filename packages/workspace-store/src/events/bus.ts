@@ -5,11 +5,7 @@ type Unsubscribe = () => void
 /**
  * Type-safe event bus for workspace events
  *
- * This event bus provides:
  * - Full type safety for event names and payloads
- * - O(1) event lookups using Map
- * - Support for one-time listeners
- * - Automatic cleanup for once listeners
  * - Debug mode for development
  */
 export type WorkspaceEventBus = {
