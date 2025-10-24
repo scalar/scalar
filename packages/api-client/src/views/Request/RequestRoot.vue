@@ -46,6 +46,7 @@ const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
+const hasBlockingErrors = ref(false)
 const requestResult = ref<SendRequestResult | null>(null)
 
 /**
@@ -72,7 +73,17 @@ const executeRequest = async () => {
     return
   }
 
-  invalidParams.value = validateParameters(activeExample.value)
+  // Validate before creating request operation
+  const validationResult = validateParameters(activeExample.value)
+  invalidParams.value = validationResult.invalidParams
+  hasBlockingErrors.value = validationResult.hasBlockingErrors
+
+  // Block request if there are empty required path parameters
+  if (validationResult.hasBlockingErrors) {
+    toast('Path parameters must have values.', 'error')
+    events.requestStatus.emit('abort')
+    return
+  }
 
   const environmentValue =
     typeof activeEnvironment.value === 'object'
@@ -158,11 +169,13 @@ onBeforeUnmount(() => {
   events.executeRequest.off(logRequest)
 })
 
-// Clear invalid params on parameter update
+// Re-validate parameters on parameter update to show real-time validation
 watch(
   () => activeExample.value?.parameters,
   () => {
-    invalidParams.value.clear()
+    const validationResult = validateParameters(activeExample.value ?? null)
+    invalidParams.value = validationResult.invalidParams
+    hasBlockingErrors.value = validationResult.hasBlockingErrors
   },
   { deep: true },
 )
