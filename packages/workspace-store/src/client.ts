@@ -16,9 +16,14 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
-import { createNavigation } from '@/navigation'
+import { isAsyncApiDocument, isOpenApiOrSwaggerDocument } from '@/helpers/type-guards'
+import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
+import {
+  type AsyncApiDocument,
+  AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
+} from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -27,7 +32,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { ApiDefinition, Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -547,7 +552,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
 
     if (servers.length) {
-      input.servers = servers.map((it) => ({ url: it.url, description: it.description, variables: it.variables }))
+      input.servers = servers.map((it) => ({
+        url: it.url,
+        description: it.description,
+        variables: it.variables,
+      }))
     }
 
     return input
@@ -582,11 +591,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    // Store original version info before upgrade
+    const originalVersion = isAsyncApiDocument(clonedRawInputDocument)
+      ? clonedRawInputDocument.asyncapi
+      : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger ?? undefined)
+
+    // Only upgrade OpenAPI/Swagger documents
+    const inputDocument = isOpenApiOrSwaggerDocument(clonedRawInputDocument)
+      ? measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+      : clonedRawInputDocument
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
-    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    // Set version metadata based on document type
+    if (isOpenApiOrSwaggerDocument(clonedRawInputDocument)) {
+      strictDocument['x-original-oas-version'] = originalVersion
+    }
+    if (isAsyncApiDocument(clonedRawInputDocument)) {
+      strictDocument['x-original-asyncapi-version'] = originalVersion
+    }
+
+    // Use the detected document type to select appropriate schema
+    const schemaToUse = isAsyncApiDocument(clonedRawInputDocument)
+      ? AsyncApiDocumentSchemaStrict
+      : OpenAPIDocumentSchemaStrict
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -610,16 +638,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
-      )
+      const coerced = measureSync('coerceValue', () => coerceValue(schemaToUse, deepClone(strictDocument)))
       measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
+    const isValid = Value.Check(schemaToUse, strictDocument)
 
     if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+      const validationErrors = Array.from(Value.Errors(schemaToUse, strictDocument))
 
       console.warn('document validation errors: ')
       console.warn(
@@ -634,22 +660,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
+      if (isAsyncApiDocument(clonedRawInputDocument)) {
+        const navigation = createAsyncApiNavigation(strictDocument as AsyncApiDocument, input.config)
+        strictDocument[extensions.document.navigation] = navigation.entries
+      } else {
+        const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
+        strictDocument[extensions.document.navigation] = navigation.entries
 
-      strictDocument[extensions.document.navigation] = navigation.entries
-
-      // Do some document processing
-      processDocument(getRaw(strictDocument as OpenApiDocument), {
-        ...(documentConfigs[name] ?? {}),
-        documentSource: input.documentSource,
-      })
+        // Do some document processing
+        processDocument(getRaw(strictDocument as OpenApiDocument), {
+          ...(documentConfigs[name] ?? {}),
+          documentSource: input.documentSource,
+        })
+      }
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
-    // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
+    // This ensures that the workspace document only exposes the intended API properties and extensions
     workspace.documents[name] = createOverridesProxy(
-      createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
+      createMagicProxy(getRaw(strictDocument)) as ApiDefinition,
       overrides[name],
     )
   }
@@ -661,7 +691,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const resolve = await measureAsync(
       'loadDocument',
-      async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      async () =>
+        await loadDocument({
+          ...input,
+          fetch: input.fetch ?? workspaceProps?.fetch,
+        }),
     )
 
     // Log the time taken to add a document
@@ -836,7 +870,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         Object.fromEntries(
           Object.entries(result.documents).map(([name, doc]) => [
             name,
-            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+            createOverridesProxy(createMagicProxy(doc) as ApiDefinition, result.overrides[name]),
           ]),
         ),
       )

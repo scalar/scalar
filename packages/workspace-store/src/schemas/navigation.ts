@@ -95,6 +95,65 @@ export type TraversedWebhook = BaseSchema & {
   isDeprecated?: boolean
 }
 
+export const TraversedAsyncApiOperationSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-operation'),
+    ref: Type.String(),
+    action: Type.Union([Type.Literal('send'), Type.Literal('receive')]),
+    channel: Type.String(),
+    isDeprecated: Type.Optional(Type.Boolean()),
+  }),
+)
+
+export type TraversedAsyncApiOperation = BaseSchema & {
+  type: 'asyncapi-operation'
+  ref: string
+  action: 'send' | 'receive'
+  channel: string
+  isDeprecated?: boolean
+}
+
+export const TraversedChannelSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('channel'),
+    name: Type.String(),
+    description: Type.Optional(Type.String()),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+    isGroup: Type.Boolean(),
+    xKeys: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  }),
+)
+
+export type TraversedChannel = BaseSchema & {
+  type: 'channel'
+  name: string
+  description?: string
+  children?: TraversedEntry[]
+  isGroup: boolean
+  xKeys?: Record<string, unknown>
+}
+
+export const TraversedMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-message'),
+    ref: Type.String(),
+    name: Type.String(),
+    channel: Type.String(),
+    isDeprecated: Type.Optional(Type.Boolean()),
+  }),
+)
+
+export type TraversedMessage = BaseSchema & {
+  type: 'asyncapi-message'
+  ref: string
+  name: string
+  channel: string
+  isDeprecated?: boolean
+}
+
 export const TraversedTagSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -125,6 +184,9 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
   TraversedExampleSchemaDefinition,
+  TraversedAsyncApiOperationSchemaDefinition,
+  TraversedChannelSchemaDefinition,
+  TraversedMessageSchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -134,3 +196,6 @@ export type TraversedEntry =
   | TraversedTag
   | TraversedWebhook
   | TraversedExample
+  | TraversedAsyncApiOperation
+  | TraversedChannel
+  | TraversedMessage

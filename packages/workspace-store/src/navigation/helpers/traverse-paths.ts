@@ -71,8 +71,6 @@ const createOperationEntry = (
  * - Create a default tag group for untagged operations
  * - Generate unique references and IDs for each operation
  *
- * TODO: filter out internal and scalar-ignore tags
- *
  * @param content - The OpenAPI document to traverse
  * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
  * @param entitiesMap - Map to store operation IDs and titles for mobile header navigation

@@ -2,6 +2,7 @@ import { type ThemeId, themeIds } from '@scalar/themes'
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
@@ -22,6 +23,9 @@ import {
   ServerObjectSchema,
 } from './v3.1/strict/openapi-document'
 
+// Union type for API documents (OpenAPI or AsyncAPI)
+export type ApiDefinition = OpenApiDocument | AsyncApiDocument
+
 export const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
     [extensions.document.activeAuth]: Type.String(),
@@ -34,10 +38,13 @@ export type WorkspaceDocumentMeta = {
   [extensions.document.activeServer]?: string
 }
 
-// Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
-export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
+// Union type for workspace documents that can be either OpenAPI or AsyncAPI
+export const WorkspaceDocumentSchema = Type.Union([
+  Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema]),
+  Type.Intersect([WorkspaceDocumentMetaSchema, AsyncApiDocumentSchema]),
+])
 
-export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
+export type WorkspaceDocument = (WorkspaceDocumentMeta & OpenApiDocument) | (WorkspaceDocumentMeta & AsyncApiDocument)
 
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
