@@ -109,14 +109,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const getListeners = <T extends keyof ApiReferenceEvents>(
     event: T,
   ): Set<(payload: ApiReferenceEvents[T]) => void> => {
-    let listeners = events.get(event)
+    const listeners = events.get(event)
 
     if (!listeners) {
-      listeners = new Set()
-      events.set(event, listeners)
+      const _listeners = new Set<(payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void>()
+      events.set(event, _listeners)
+      return _listeners
     }
 
-    return listeners
+    return listeners!
   }
 
   /**
