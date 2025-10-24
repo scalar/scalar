@@ -156,6 +156,8 @@ const { copyToClipboard } = useClipboard()
       #description>
       <ScalarMarkdown
         :anchorPrefix="id"
+        aria-label="Operation Description"
+        role="group"
         transformType="heading"
         :value="operation.description"
         withAnchors

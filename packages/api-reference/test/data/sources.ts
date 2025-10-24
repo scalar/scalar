@@ -174,4 +174,4 @@ export default [
     slug: 'galaxy-live',
     url: 'http://localhost:8080/3.1.yaml',
   },
-] satisfies AnyApiReferenceConfiguration
+] as const satisfies AnyApiReferenceConfiguration
