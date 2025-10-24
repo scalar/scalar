@@ -614,7 +614,10 @@ const extensions = {
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
-export async function bundle(input: UnknownObject | string, config: Config) {
+export async function bundle<T extends UnknownObject = UnknownObject>(
+  input: UnknownObject | string,
+  config: Config,
+): Promise<T> {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -911,5 +914,5 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     delete documentRoot[extensions.externalDocumentsMappings]
   }
 
-  return rawSpecification
+  return rawSpecification as T
 }
