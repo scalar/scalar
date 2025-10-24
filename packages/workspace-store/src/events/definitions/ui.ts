@@ -4,20 +4,18 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 export type UIEvents = {
   /**
    * Download the document from the store
-   *
-   * @param format - The format to download the document in
    */
   'download:document': {
+    /** Format to download the document in */
     format: 'json' | 'yaml' | 'direct'
   }
   /**
-   * Open the Api Client modal
-   *
-   * @param method - The HTTP method of the client
-   * @param path - The path of the client
+   * Open the Api Client modal to a specific operation
    */
   'open:client': {
+    /** The HTTP method of the operation to load */
     method: HttpMethod
+    /** The path of the operation to load */
     path: string
   }
 }

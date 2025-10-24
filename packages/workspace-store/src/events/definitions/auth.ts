@@ -4,30 +4,27 @@ import type { SecurityRequirementObject, SecuritySchemeObject } from '@/schemas/
 export type AuthEvents = {
   /**
    * Add a new security scheme
-   *
-   * @param name - The name of the security scheme
-   * @param scheme - The payload of the security scheme to add
    */
   'add:security-scheme': {
+    /** The name of the security scheme to add */
     name: string
+    /** The payload of the security scheme to add */
     scheme: SecuritySchemeObject
   }
   /**
    * Delete a security scheme
-   *
-   * @param name - The name of the security scheme to delete
    */
   'delete:security-scheme': {
+    /** Name of the security scheme to delete */
     name: string
   }
   /**
    * Select the security schemes
-   *
-   * @param schemes - The security schemes to select
-   * @param target - The target at which the security schemes are selected
    */
   'update:selected-security-schemes': {
+    /** The security schemes to select */
     schemes: SecurityRequirementObject
+    /** The target at which the security schemes are selected */
     target: 'document' | 'operation'
   }
 }

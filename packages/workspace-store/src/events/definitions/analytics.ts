@@ -4,22 +4,20 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 export type AnalyticsEvents = {
   /**
    * Fired when a request is sent through the API client
-   *
-   * @param method - The HTTP method of the request
-   * @param path - The path of the request
-   * @param body - The body of the request
    */
   'on:send-request': {
+    /** The HTTP method of the request */
     method: HttpMethod
+    /** The path of the request */
     path: string
+    /** The body of the request */
     body: any
   }
   /**
    * Fired when the user clicks the "Show more" button on the references
-   *
-   * @param id - The id of the tag that was opened
    */
   'on:show-more': {
+    /** The id of the tag that was opened */
     id: string
   }
   /**
