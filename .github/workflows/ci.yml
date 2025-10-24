@@ -554,7 +554,7 @@ jobs:
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
 
-  test-cdn-snapshots:
+  test-references-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
@@ -587,12 +587,12 @@ jobs:
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Run snapshot tests (@scalar/api-reference)
-        run: pnpm --filter api-reference test:e2e:snapshots:ci
+        run: pnpm --filter api-reference test:e2e:cdn:ci
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report-cdn" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -605,7 +605,7 @@ jobs:
         with:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          report-file: packages/api-reference/playwright-results.json
+          report-file: packages/api-reference/playwright-results-cdn.json
           report-tag: test-cdn-snapshots
           custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
           footer: |

@@ -1,4 +1,4 @@
-import type { Reporter, FullResult } from '@playwright/test/reporter'
+import type { FullResult, Reporter } from '@playwright/test/reporter'
 
 /**
  * Ci Success Reporter
