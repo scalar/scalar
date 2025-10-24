@@ -11,7 +11,11 @@ export const updatePlaywrightDocker = new Command('update-playwright-docker')
     await runCommand(
       `docker build -t "scalarapi/playwright:${version}" --build-arg PLAYWRIGHT_VERSION=${version} ${import.meta.dirname}`,
     )
+    await runCommand(
+      `docker build -t "scalarapi/playwright-runner:${version}" -f ${import.meta.dirname}/DockerfileRunner --build-arg PLAYWRIGHT_VERSION=${version} ${import.meta.dirname}`,
+    )
     await runCommand(`docker push "scalarapi/playwright:${version}"`)
+    await runCommand(`docker push "scalarapi/playwright-runner:${version}"`)
 
     process.exit()
   })
