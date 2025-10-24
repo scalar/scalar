@@ -54,13 +54,13 @@ export const dereference = <Opts extends { sync?: boolean }, T extends UnknownOb
   if (options?.sync) {
     return {
       success: true,
-      data: createMagicProxy(input),
+      data: createMagicProxy<UnknownObject, T>(input),
     } as ReturnDereferenceResult<Opts, T>
   }
 
   const errors: string[] = []
 
-  return bundle(input, {
+  return bundle<T>(input, {
     plugins: [fetchUrls()],
     treeShake: false,
     urlMap: true,
@@ -79,7 +79,7 @@ export const dereference = <Opts extends { sync?: boolean }, T extends UnknownOb
 
     return {
       success: true,
-      data: createMagicProxy(result as UnknownObject),
+      data: createMagicProxy<T, T>(result),
     }
   }) as ReturnDereferenceResult<Opts, T>
 }
