@@ -1,13 +1,17 @@
-<script setup lang="ts">
+<script lang="ts">
 /**
- * Main Document Page Component
+ * Main Overview Page Component
  *
- * Displays primary document editing and viewing interface, enabling users to:
- *   - Choose a document icon
- *   - Edit the document title
- *   - Navigate among Overview, Servers, Authentication, Environment, and Settings tabs
- *   - Interact with associated document features and settings for each tab
+ * Displays primary document/workspace editing and viewing interface, enabling users to:
+ *   - Choose a document/workspace icon
+ *   - Edit the document/workspace title
+ *   - Navigate among Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
+ *   - Interact with associated document/workspace features and settings for each tab
  */
+export default {}
+</script>
+
+<script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Environment as EnvironmentOasType } from '@scalar/oas-utils/entities/environment'
@@ -20,9 +24,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
 import type { EnvVariable } from '@/store'
-import type { createStoreEvents } from '@/store/events'
+import type { CommandPaletteActions } from '@/v2/blocks/command-palette'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
-import Overview from '@/v2/features/document/components/Overview.vue'
 import type {
   Environment as EnvironmentType,
   EnvironmentVariable,
@@ -30,27 +33,29 @@ import type {
 
 import Authentication from './components/Authentication.vue'
 import Environment from './components/Environment.vue'
+import Overview from './components/Overview.vue'
 import Servers from './components/Servers.vue'
 import Settings from './components/Settings.vue'
 import Tabs, { type Routes } from './components/Tabs.vue'
 
 const { icon = 'interface-content-folder' } = defineProps<{
+  /** Type of the overview page */
+  type: 'document' | 'workspace'
+
   /** Currently selected tab */
   selectedTab: Routes
   /** Document icon */
   icon?: string
-  /** Document title */
+  /** Title */
   title: string
 
   // ------- Overview tab props -------
-  /** Document description in markdown format */
+  /** Description in markdown format */
   description?: string
 
   // ------- Servers tab props -------
   /** List of server objects */
   servers: ServerObject[]
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
 
   // ------- Environment tab props -------
   /** List of environment objects */
@@ -80,9 +85,12 @@ const { icon = 'interface-content-folder' } = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  // ------- Command palette events -------
+  (e: 'open:commandPalette', action?: CommandPaletteActions): void
+
   (e: 'update:selectedTab', value: Routes): void
-  (e: 'update:documentTitle', value: string): void
-  (e: 'update:documentIcon', value: string): void
+  (e: 'update:title', value: string): void
+  (e: 'update:icon', value: string): void
 
   // ------- Overview tab events -------
   (e: 'overview:update:description', value: string): void
@@ -167,7 +175,7 @@ const emit = defineEmits<{
       <IconSelector
         :modelValue="icon"
         placement="bottom-start"
-        @update:modelValue="(value) => emit('update:documentIcon', value)">
+        @update:modelValue="(value) => emit('update:icon', value)">
         <ScalarButton
           class="hover:bg-b-2 aspect-square h-7 w-7 cursor-pointer rounded border border-transparent p-0 hover:border-inherit"
           variant="ghost">
@@ -183,7 +191,7 @@ const emit = defineEmits<{
           inputId="documentName"
           placeholder="Untitled Document"
           :value="title"
-          @updateValue="(value) => emit('update:documentTitle', value)" />
+          @updateValue="(value) => emit('update:title', value)" />
       </div>
     </div>
     <!-- Tabs -->
@@ -206,8 +214,8 @@ const emit = defineEmits<{
         v-else-if="selectedTab === 'servers'"
         :envVariables="envVariables"
         :environment="environment"
-        :events="events"
         :servers="servers"
+        @open:commandPalette="(action) => emit('open:commandPalette', action)"
         @server:delete="(payload) => emit('server:delete', payload)"
         @server:update:variable="
           (payload) => emit('server:update:variable', payload)

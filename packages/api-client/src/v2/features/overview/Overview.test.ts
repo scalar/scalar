@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import Document from './Document.vue'
+import Document from './Overview.vue'
 
 // Mock ResizeObserver
 window.ResizeObserver =

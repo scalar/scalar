@@ -30,42 +30,36 @@ export const ROUTES = [
       {
         name: 'workspace.overview',
         path: 'overview',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
+        component: () => import('@/v2/features/overview/Overview.vue'),
       },
       // Workspace servers
       {
         name: 'workspace.servers',
         path: 'servers',
-        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace environment
       {
         name: 'workspace.environment',
         path: 'environment',
-        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace authentication
       {
         name: 'workspace.authentication',
         path: 'authentication',
-        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace cookies
       {
         name: 'workspace.cookies',
         path: 'cookies',
-        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace settings
       {
         name: 'workspace.settings',
         path: 'settings',
-        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Document
@@ -77,49 +71,42 @@ export const ROUTES = [
           {
             name: 'document.overview',
             path: 'overview',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/overview/Overview.vue'),
           },
           // Document servers
           {
             name: 'document.servers',
             path: 'servers',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document environment
           {
             name: 'document.environment',
             path: 'environment',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document authentication
           {
             name: 'document.authentication',
             path: 'authentication',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document cookies
           {
             name: 'document.cookies',
             path: 'cookies',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document settings
           {
             name: 'document.settings',
             path: 'settings',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Example page
           {
             name: 'example',
             path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
         ],
