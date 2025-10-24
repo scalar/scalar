@@ -49,6 +49,11 @@
       "types": "./dist/persistence/index.d.ts",
       "default": "./dist/persistence/index.js"
     },
+    "./plugins/client": {
+      "import": "./dist/plugins/client/index.js",
+      "types": "./dist/plugins/client/index.d.ts",
+      "default": "./dist/plugins/client/index.js"
+    },
     "./schemas": {
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
