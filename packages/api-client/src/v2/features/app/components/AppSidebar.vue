@@ -7,6 +7,7 @@ import { capitalize, computed } from 'vue'
 import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
+import type { CommandPaletteActions } from '@/v2/blocks/command-palette'
 import { Sidebar } from '@/v2/components/sidebar'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -16,7 +17,7 @@ const { documents, layout } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'open:commandPalette', action?: 'import'): void
+  (e: 'open:commandPalette', action?: CommandPaletteActions): void
   (e: 'click:workspace'): void
 }>()
 

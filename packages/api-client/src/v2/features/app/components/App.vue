@@ -88,7 +88,8 @@ const isSidebarOpen = ref(true)
           <keep-alive>
             <component
               :is="Component"
-              :layout="layout" />
+              :layout="layout"
+              :workspaceStore="workspaceStore" />
           </keep-alive>
         </RouterView>
       </div>
