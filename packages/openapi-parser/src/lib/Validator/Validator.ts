@@ -1,4 +1,4 @@
-import type { ValidateFunction } from 'ajv'
+import Ajv, { type ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
@@ -14,6 +14,7 @@ import { transformErrors } from '@/utils/transform-errors'
  */
 const jsonSchemaVersions = {
   'http://json-schema.org/draft-04/schema#': Ajv04,
+  'http://json-schema.org/draft-07/schema#': Ajv,
   'https://json-schema.org/draft/2020-12/schema': Ajv2020,
 }
 
@@ -58,7 +59,7 @@ export class Validator {
 
         return {
           valid: false,
-          errors: transformErrors(entrypoint, ERRORS.EMPTY_OR_INVALID),
+          errors: transformErrors(specification, ERRORS.EMPTY_OR_INVALID),
         }
       }
 
@@ -77,7 +78,7 @@ export class Validator {
 
         return {
           valid: false,
-          errors: transformErrors(entrypoint, ERRORS.OPENAPI_VERSION_NOT_SUPPORTED),
+          errors: transformErrors(specification, ERRORS.OPENAPI_VERSION_NOT_SUPPORTED),
         }
       }
 
@@ -94,7 +95,7 @@ export class Validator {
 
           return {
             valid: false,
-            errors: transformErrors(entrypoint, validateSchema.errors),
+            errors: transformErrors(specification, validateSchema.errors),
           }
         }
       }
@@ -115,7 +116,7 @@ export class Validator {
 
       return {
         valid: false,
-        errors: transformErrors(entrypoint, error.message ?? error),
+        errors: transformErrors(specification, error.message ?? error),
       }
     }
   }
@@ -140,6 +141,10 @@ export class Validator {
       // Ajv is a bit too strict in its strict validation of OpenAPI schemas.
       // Switch strict mode off.
       strict: false,
+      // Enable discriminator support for better oneOf error messages
+      discriminator: true,
+      // Show all errors, not just the first one
+      allErrors: true,
     })
 
     // Register formats
