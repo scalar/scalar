@@ -86,7 +86,7 @@ const startDrag = (event: MouseEvent) => {
     </div>
     <template v-if="breakpoints.lg">
       <div
-        class="bg-b-1 relative sticky bottom-0 z-10 w-[inherit] pt-0 has-[.empty-sidebar-item]:border-t md:px-2.5 md:pb-2.5">
+        class="bg-b-1 sticky bottom-0 z-10 w-[inherit] pt-0 has-[.empty-sidebar-item]:border-t md:px-2.5 md:pb-2.5">
         <slot name="button" />
       </div>
       <div

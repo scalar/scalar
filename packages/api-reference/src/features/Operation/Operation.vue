@@ -31,6 +31,7 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
   security: SecurityRequirementObject[] | undefined
   /** Temporary getter function to handle overlap with the client store */
   getSecurityScheme: SecuritySchemeGetter
+  isCollapsed: boolean
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   // ---------------------------------------------
   options: {
@@ -44,6 +45,12 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
+}>()
+
+const emit = defineEmits<{
+  (e: 'toggleOperation', id: string, open: boolean): void
+  (e: 'copyAnchorUrl', id: string): void
+  (e: 'intersecting', id: string): void
 }>()
 
 /**
@@ -89,27 +96,30 @@ const selectedServer = computed<ServerObject | undefined>(() =>
 
 <template>
   <template v-if="operation">
-    <template v-if="options?.layout === 'classic'">
-      <ClassicLayout
-        :id="id"
-        :method="method"
-        :operation="operation"
-        :options="options"
-        :path="path"
-        :securitySchemes="selectedSecuritySchemes"
-        :server="selectedServer"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </template>
-    <template v-else>
-      <ModernLayout
-        :id="id"
-        :method="method"
-        :operation="operation"
-        :options="options"
-        :path="path"
-        :securitySchemes="selectedSecuritySchemes"
-        :server="selectedServer"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </template>
+    <ClassicLayout
+      v-if="options?.layout === 'classic'"
+      :id="id"
+      :isCollapsed="isCollapsed"
+      :method="method"
+      :operation="operation"
+      :options="options"
+      :path="path"
+      :securitySchemes="selectedSecuritySchemes"
+      :server="selectedServer"
+      :xScalarDefaultClient="xScalarDefaultClient"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
+      @toggleOperation="(id, open) => emit('toggleOperation', id, open)" />
+    <ModernLayout
+      v-else
+      :id="id"
+      :method="method"
+      :operation="operation"
+      :options="options"
+      :path="path"
+      :securitySchemes="selectedSecuritySchemes"
+      :server="selectedServer"
+      :xScalarDefaultClient="xScalarDefaultClient"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
+      @intersecting="(id) => emit('intersecting', id)" />
   </template>
 </template>

@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
+import type { Heading } from '@scalar/types'
 import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import { useNavState } from '@/hooks/useNavState'
 
-const { description } = defineProps<{
+const { description, headingSlugGenerator } = defineProps<{
+  headingSlugGenerator: (heading: Heading) => string
   /** Markdown document */
   description?: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'intersecting', id: string): void
+}>()
 /**
  * Descriptions, but split into multiple sections.
  * We need this to wrap the headings in IntersectionObserver components.
@@ -25,11 +29,12 @@ const sections = computed(() => {
 
   const items = splitContent(description).map((markdown) => {
     // Get “first” (and only) heading, if available
-    const [heading] = getHeadings(markdown)
+    const headings = getHeadings(markdown)
+    const heading = headings[0]
 
     // Generate an id for the heading
     const id = heading
-      ? getHeadingId({
+      ? headingSlugGenerator({
           ...heading,
           slug: slugger.slug(heading.value),
         })
@@ -44,24 +49,13 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
-  useNavState()
-
-function handleScroll(headingId = '') {
-  if (!isIntersectionEnabled.value) {
-    return
-  }
-
-  replaceUrlState(headingId)
-}
-
 const slugger = new GitHubSlugger()
 
 /** Add ids to all headings */
 const transformHeading = (node: Record<string, any>) => {
   node.data = {
     hProperties: {
-      id: getHeadingId({
+      id: headingSlugGenerator({
         depth: node.depth,
         value: node.children[0].value,
         slug: slugger.slug(node.children[0].value),
@@ -83,9 +77,9 @@ const transformHeading = (node: Record<string, any>) => {
       <!-- Headings -->
       <template v-if="section.id">
         <IntersectionObserver
-          :id="getFullHash(section.id)"
+          :id="section.id"
           class="introduction-description-heading"
-          @intersecting="() => handleScroll(section.id)">
+          @intersecting="(id) => emit('intersecting', id)">
           <ScalarMarkdown
             :transform="transformHeading"
             transformType="heading"

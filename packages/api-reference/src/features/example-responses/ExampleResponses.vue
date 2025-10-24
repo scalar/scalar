@@ -50,7 +50,7 @@ const selectedResponseIndex = ref<number>(0)
 // Return the whole response object
 const currentResponse = computed(() => {
   const currentStatusCode =
-    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)]
+    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)] ?? ''
 
   return getResolvedRef(responses?.[currentStatusCode])
 })
@@ -71,7 +71,7 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
     normalizedContent?.['text/html'] ??
     normalizedContent?.['*/*'] ??
     // Take the first key - in the future we may want to use the selected content type
-    normalizedContent?.[keys[0]] ??
+    normalizedContent?.[keys[0] ?? ''] ??
     undefined
   )
 })
@@ -101,7 +101,7 @@ const getFirstResponseExample = (): ExampleObject | undefined => {
     return response.examples[0]
   }
 
-  const firstExampleKey = Object.keys(response.examples ?? {})[0]
+  const firstExampleKey = Object.keys(response.examples ?? {})[0] ?? ''
   const firstExample = response.examples?.[firstExampleKey]
 
   return firstExample

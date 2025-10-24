@@ -1,36 +1,8 @@
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, reactive, ref } from 'vue'
-
-import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block/hooks/useSidebar'
+import { describe, expect, it } from 'vitest'
 
 import InfoBlock from './InfoBlock.vue'
-
-// Mock the useSidebar hook and SIDEBAR_SYMBOL
-vi.mock('@/v2/blocks/scalar-sidebar-block/hooks/useSidebar', () => ({
-  useSidebar: vi.fn(),
-  SIDEBAR_SYMBOL: Symbol(),
-}))
-
-const mockUseSidebar = useSidebar
-
-// Set default values for the mocks
-beforeEach(() => {
-  vi.mocked(mockUseSidebar).mockReturnValue({
-    collapsedSidebarItems: reactive({}),
-    isSidebarOpen: ref(false),
-    items: computed(() => ({
-      entries: [],
-      entities: new Map<string, TraversedEntry>(),
-    })),
-    scrollToOperation: vi.fn(),
-    setCollapsedSidebarItem: vi.fn(),
-    toggleCollapsedSidebarItem: vi.fn(),
-  })
-})
 
 describe('InfoBlock', () => {
   const mockInfo: InfoObject = {
@@ -44,9 +16,7 @@ describe('InfoBlock', () => {
         info: mockInfo,
         layout: 'classic',
         options: {
-          getOriginalDocument() {
-            return '{}'
-          },
+          headingSlugGenerator: () => '',
         },
       },
       slots: {
@@ -63,9 +33,7 @@ describe('InfoBlock', () => {
         info: mockInfo,
         layout: 'modern',
         options: {
-          getOriginalDocument() {
-            return '{}'
-          },
+          headingSlugGenerator: () => '',
         },
       },
       slots: {

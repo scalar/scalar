@@ -1,10 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["./src", "./test"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     // TODO: Reenable when we can fix all the issues
-    "noUncheckedIndexedAccess": false,
+    "noUncheckedIndexedAccess": true,
     // TODO: Reenable when we can fix all the issues
     "exactOptionalPropertyTypes": false,
     "paths": {

@@ -49,9 +49,9 @@ const { cx } = useBindCx()
     <ScalarSidebarButton
       is="div"
       class="text-sm font-bold"
-      :indent="level"
+      disabled
       :icon="icon"
-      disabled>
+      :indent="level">
       <slot />
     </ScalarSidebarButton>
     <component

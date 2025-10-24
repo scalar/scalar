@@ -44,8 +44,8 @@ describe('SchemaObjectProperties', () => {
       props: { schema, options: {} },
     })
     const props = wrapper.findAll('.schema-property')
-    expect(props[0].attributes('data-name')).toBe('foo')
-    expect(props[1].attributes('data-name')).toBe('bar')
+    expect(props[0]?.attributes('data-name')).toBe('foo')
+    expect(props[1]?.attributes('data-name')).toBe('bar')
   })
 
   it('marks required properties', () => {
@@ -81,8 +81,8 @@ describe('SchemaObjectProperties', () => {
 
     const props = wrapper.findAll('.schema-property')
     expect(props).toHaveLength(2)
-    expect(props[0].attributes('data-name')).toBe('^x-')
-    expect(props[1].attributes('data-name')).toBe('^y-')
+    expect(props[0]?.attributes('data-name')).toBe('^x-')
+    expect(props[1]?.attributes('data-name')).toBe('^y-')
   })
 
   it('renders additionalProperties as SchemaProperty with default name', () => {
@@ -175,7 +175,7 @@ describe('SchemaObjectProperties', () => {
 
     const props = wrapper.findAll('.schema-property')
     expect(props).toHaveLength(1)
-    expect(props[0].attributes('data-name')).toBe('name')
+    expect(props[0]?.attributes('data-name')).toBe('name')
     // Should not have any additional properties rendered
     expect(wrapper.find('[data-name="propertyName"]').exists()).toBe(false)
   })
@@ -196,9 +196,9 @@ describe('SchemaObjectProperties', () => {
 
     const props = wrapper.findAll('.schema-property')
     expect(props).toHaveLength(3)
-    expect(props[0].attributes('data-name')).toBe('alpha')
-    expect(props[1].attributes('data-name')).toBe('beta')
-    expect(props[2].attributes('data-name')).toBe('zebra')
+    expect(props[0]?.attributes('data-name')).toBe('alpha')
+    expect(props[1]?.attributes('data-name')).toBe('beta')
+    expect(props[2]?.attributes('data-name')).toBe('zebra')
   })
 
   it('sorts required properties first, then alphabetically', () => {
@@ -220,11 +220,11 @@ describe('SchemaObjectProperties', () => {
     const props = wrapper.findAll('.schema-property')
     expect(props).toHaveLength(4)
     // Required properties should come first, sorted alphabetically
-    expect(props[0].attributes('data-name')).toBe('gamma')
-    expect(props[1].attributes('data-name')).toBe('zebra')
+    expect(props[0]?.attributes('data-name')).toBe('gamma')
+    expect(props[1]?.attributes('data-name')).toBe('zebra')
     // Optional properties should come after, sorted alphabetically
-    expect(props[2].attributes('data-name')).toBe('alpha')
-    expect(props[3].attributes('data-name')).toBe('beta')
+    expect(props[2]?.attributes('data-name')).toBe('alpha')
+    expect(props[3]?.attributes('data-name')).toBe('beta')
   })
 
   it('sorts properties alphabetically when orderRequiredPropertiesFirst is false', () => {
@@ -252,10 +252,10 @@ describe('SchemaObjectProperties', () => {
     expect(props).toHaveLength(4)
     // When orderRequiredPropertiesFirst is false, all properties should be sorted alphabetically
     // regardless of required status
-    expect(props[0].attributes('data-name')).toBe('alpha')
-    expect(props[1].attributes('data-name')).toBe('beta')
-    expect(props[2].attributes('data-name')).toBe('gamma')
-    expect(props[3].attributes('data-name')).toBe('zebra')
+    expect(props[0]?.attributes('data-name')).toBe('alpha')
+    expect(props[1]?.attributes('data-name')).toBe('beta')
+    expect(props[2]?.attributes('data-name')).toBe('gamma')
+    expect(props[3]?.attributes('data-name')).toBe('zebra')
   })
 
   it('preserves original property order when orderSchemaPropertiesBy is preserve', () => {
@@ -284,9 +284,9 @@ describe('SchemaObjectProperties', () => {
     expect(props).toHaveLength(4)
     // When orderSchemaPropertiesBy is 'preserve', properties should maintain their original order
     // from the schema definition, regardless of required status or alphabetical order
-    expect(props[0].attributes('data-name')).toBe('zebra')
-    expect(props[1].attributes('data-name')).toBe('alpha')
-    expect(props[2].attributes('data-name')).toBe('beta')
-    expect(props[3].attributes('data-name')).toBe('gamma')
+    expect(props[0]?.attributes('data-name')).toBe('zebra')
+    expect(props[1]?.attributes('data-name')).toBe('alpha')
+    expect(props[2]?.attributes('data-name')).toBe('beta')
+    expect(props[3]?.attributes('data-name')).toBe('gamma')
   })
 })

@@ -7,16 +7,17 @@ import {
 import { Draggable } from '@scalar/draggable'
 import { ScalarIconFolder } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 import SidebarItem, { type Item } from './SidebarItem.vue'
 
 describe('SidebarItem', () => {
   const baseProps = {
-    selectedItems: {},
-    expandedItems: {},
+    isSelected: vi.fn(),
+    isExpanded: vi.fn(),
     layout: 'reference' as const,
+    options: undefined,
   }
 
   describe('rendering without children', () => {
@@ -82,8 +83,8 @@ describe('SidebarItem', () => {
       const sidebarItem = wrapper.findComponent(ScalarSidebarItem)
       sidebarItem.vm.$emit('click')
 
-      expect(wrapper.emitted('click')).toBeTruthy()
-      expect(wrapper.emitted('click')?.[0]).toEqual(['1'])
+      expect(wrapper.emitted('selectItem')).toBeTruthy()
+      expect(wrapper.emitted('selectItem')?.[0]).toEqual(['1'])
     })
 
     it('shows selected state when item is in selectedItems', () => {
@@ -100,7 +101,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          selectedItems: { '1': true },
+          isSelected: (id) => id === '1',
         },
       })
 
@@ -122,7 +123,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          selectedItems: {},
+          isSelected: () => false,
         },
       })
 
@@ -229,7 +230,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          selectedItems: { '1': true },
+          isSelected: (id) => id === '1',
         },
       })
 
@@ -321,35 +322,6 @@ describe('SidebarItem', () => {
       expect(childItems.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('passes props down to child items', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Parent',
-        type: 'tag',
-        name: 'parent',
-        isGroup: true,
-        children: [{ id: '2', title: 'Child', type: 'operation', ref: 'ref-2', method: 'get', path: '/child' }],
-      }
-
-      const selectedItems = { '2': true }
-      const expandedItems = { '1': true }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-          selectedItems,
-          expandedItems,
-        },
-      })
-
-      const childComponents = wrapper.findAllComponents(SidebarItem)
-      const childComponent = childComponents.find((w) => w.props('item').id === '2')
-
-      expect(childComponent?.props('selectedItems')).toEqual(selectedItems)
-      expect(childComponent?.props('expandedItems')).toEqual(expandedItems)
-    })
-
     it('renders folder icon for document type items', () => {
       const item: Item = {
         id: '1',
@@ -426,7 +398,7 @@ describe('SidebarItem', () => {
           ...baseProps,
           layout: 'client',
           item,
-          expandedItems: { '1': true },
+          isExpanded: (id) => id === '1',
         },
       })
 
@@ -699,7 +671,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          expandedItems: { '1': true },
+          isExpanded: (id) => id === '1',
         },
       })
 
@@ -729,7 +701,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          expandedItems: {},
+          isExpanded: () => false,
         },
       })
 
@@ -764,10 +736,10 @@ describe('SidebarItem', () => {
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      group.vm.$emit('update:modelValue', true)
+      group.vm.$emit('update:modelValue')
 
-      expect(wrapper.emitted('click')).toBeTruthy()
-      expect(wrapper.emitted('click')?.[0]).toEqual(['group-1'])
+      expect(wrapper.emitted('selectItem')).toBeTruthy()
+      expect(wrapper.emitted('selectItem')?.[0]).toEqual(['group-1'])
     })
   })
 
@@ -926,8 +898,9 @@ describe('SidebarItem', () => {
         props: {
           item,
           layout: 'reference',
-          selectedItems: {},
-          expandedItems: {},
+          isSelected: () => false,
+          isExpanded: () => false,
+          options: undefined,
         },
       })
 
@@ -967,7 +940,7 @@ describe('SidebarItem', () => {
         props: {
           ...baseProps,
           item,
-          expandedItems: { '1': true, '2': true, '3': true },
+          isExpanded: (id) => id === '1' || id === '2' || id === '3',
         },
       })
 

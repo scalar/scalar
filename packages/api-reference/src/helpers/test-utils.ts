@@ -1,53 +1,15 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { createNavigation } from '@scalar/workspace-store/navigation'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type MutableArray, vi } from 'vitest'
-import { computed, ref } from 'vue'
 
 /**
  * A collection of tools which are used strictly for testing
  */
 
-export const createMockSidebar = (collapsedItems: Record<string, boolean> = {}, entries: TraversedEntry[] = []) => ({
-  collapsedSidebarItems: collapsedItems,
-  isSidebarOpen: ref(true),
-  items: computed(() => ({ entries, entities: new Map() })),
-  scrollToOperation: vi.fn(),
-  setCollapsedSidebarItem: vi.fn(),
-  toggleCollapsedSidebarItem: vi.fn(),
-})
-
-export const createMockSidebarFromDocument = (document: OpenAPIV3_1.Document) => {
-  const result = createNavigation(document as OpenApiDocument, {})
-  return createMockSidebar({}, result.entries)
-}
-
 export const createMockPluginManager = () => ({
   getSpecificationExtensions: vi.fn(),
-})
-
-export const createMockNavState = (hash = '') => ({
-  hash: ref(hash),
-  hashPrefix: ref(''),
-  isIntersectionEnabled: ref(true),
-  setHashPrefix: vi.fn(),
-  getFullHash: vi.fn(),
-  getHashedUrl: vi.fn(),
-  replaceUrlState: vi.fn(),
-  getReferenceId: vi.fn(),
-  getWebhookId: vi.fn(),
-  getModelId: vi.fn(),
-  getHeadingId: vi.fn(),
-  getOperationId: vi.fn(),
-  getPathRoutingId: vi.fn(),
-  getSectionId: vi.fn(),
-  getTagId: vi.fn(),
-  updateHash: vi.fn(),
 })
 
 export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceStore => ({
@@ -125,3 +87,50 @@ export const createMockLocalStorage = () => ({
   key: vi.fn(),
   length: 0,
 })
+
+/**
+ * Creates a controllable requestIdleCallback mock for testing.
+ * Collects scheduled callbacks and allows tests to run them deterministically.
+ *
+ * @example
+ * const ricController = mockRequestIdleCallbackController()
+ *
+ * // In your test
+ * const wrapper = mount(Component)
+ *
+ * // Later, manually trigger the idle callback
+ * ricController.runNext()
+ * await nextTick()
+ */
+export const mockRequestIdleCallbackController = () => {
+  type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number }
+  type IdleCallback = (deadline: IdleDeadline) => void
+
+  const queue: IdleCallback[] = []
+
+  const mock = vi.fn((cb: IdleCallback) => {
+    queue.push(cb)
+    // Return a pseudo handle
+    return queue.length
+  })
+
+  const createDeadline = (): IdleDeadline => ({
+    didTimeout: false,
+    timeRemaining: () => 50,
+  })
+
+  const runNext = () => {
+    const cb = queue.shift()
+    if (cb) {
+      cb(createDeadline())
+    }
+  }
+
+  const flushAll = () => {
+    while (queue.length) {
+      runNext()
+    }
+  }
+
+  return { mock, runNext, flushAll, queue }
+}

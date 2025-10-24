@@ -14,6 +14,7 @@ describe('InfoDescription', () => {
     const wrapper = mount(InfoDescription, {
       props: {
         description: '# Hello World',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
     })
     expect(wrapper.findComponent(ScalarMarkdown).exists()).toBe(true)
@@ -24,6 +25,7 @@ describe('InfoDescription', () => {
     const wrapper = mount(InfoDescription, {
       props: {
         description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
     })
     const sections = wrapper.findAllComponents(ScalarMarkdown)
@@ -34,6 +36,7 @@ describe('InfoDescription', () => {
     const wrapper = mount(InfoDescription, {
       props: {
         description: '# Test Heading',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
     })
     const observer = wrapper.findComponent({ name: 'IntersectionObserver' })

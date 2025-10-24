@@ -15,6 +15,10 @@ const { tag } = defineProps<{
   tag: TraversedTag
 }>()
 
+const emit = defineEmits<{
+  (e: 'scrollToId', id: string): void
+}>()
+
 const operationsAndWebhooks = computed(() => {
   return (
     tag.children?.filter(
@@ -38,7 +42,8 @@ const operationsAndWebhooks = computed(() => {
           <OperationsListItem
             v-for="operationOrWebhook in operationsAndWebhooks"
             :key="operationOrWebhook.id"
-            :operation="operationOrWebhook" />
+            :operation="operationOrWebhook"
+            @scrollToId="(id) => emit('scrollToId', id)" />
         </ul>
       </ScalarCardSection>
     </ScalarCard>

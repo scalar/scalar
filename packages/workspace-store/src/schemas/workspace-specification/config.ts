@@ -19,11 +19,6 @@ export type DocumentConfiguration = Config &
     'x-scalar-reference-config': {
       tagSort: TraverseSpecOptions['tagsSorter']
       operationsSorter: TraverseSpecOptions['operationsSorter']
-      getHeadingId: TraverseSpecOptions['getHeadingId']
-      getOperationId: TraverseSpecOptions['getOperationId']
-      getWebhookId: TraverseSpecOptions['getWebhookId']
-      getModelId: TraverseSpecOptions['getModelId']
-      getTagId: TraverseSpecOptions['getTagId']
       generateOperationSlug?: (details: {
         path: string
         operationId?: string
