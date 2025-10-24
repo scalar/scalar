@@ -270,7 +270,7 @@ export default {
       "type": "object",
       "patternProperties": {
         "^/": {
-          "$ref": "#/$defs/path-item"
+          "$ref": "#/$defs/path-item-or-reference"
         }
       },
       "$ref": "#/$defs/specification-extensions",
