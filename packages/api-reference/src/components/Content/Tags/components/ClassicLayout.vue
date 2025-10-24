@@ -22,6 +22,7 @@ const emit = defineEmits<{
 
 <template>
   <SectionContainerAccordion
+    :aria-label="tag.title"
     class="tag-section"
     :modelValue="!isCollapsed"
     @update:modelValue="(value) => emit('toggleTag', tag.id, value)">

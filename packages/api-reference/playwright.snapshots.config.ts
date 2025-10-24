@@ -53,7 +53,7 @@ export default defineConfig({
       // Allow for small differences in the screenshot (1% of the total pixels)
       maxDiffPixelRatio: 0.01,
     },
-    timeout: 15000,
+    timeout: 5000,
   },
 
   /**

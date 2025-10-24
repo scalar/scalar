@@ -25,9 +25,18 @@ sources
       // // Grab the first operation inside the tag
       // const operation = await tag.getByRole('region').nth(1)
 
+      // Click to expand an operation
+      if (slug.endsWith('classic')) {
+        await page.getByRole('region', { name: 'Operation:' }).first().getByRole('button', { expanded: false }).click()
+      }
+
       // Snapshot a request body
       const requestBody = await page.getByRole('group', { name: 'Request Body' }).first()
       await expect(requestBody).toHaveScreenshot(`${slug}-request-body.png`)
+
+      // Snapshot a request body
+      const requestResponses = await page.getByRole('list', { name: 'Responses' }).first()
+      await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses.png`)
 
       // Snapshot a request example
       const requestExample = await page.getByRole('group', { name: 'Request Example' }).first()
