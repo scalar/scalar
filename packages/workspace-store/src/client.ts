@@ -423,36 +423,113 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
 
   /**
+   * Notifies all workspace plugins of a workspace state change event.
+   *
+   * This function iterates through all registered plugins (if any) and invokes
+   * their onWorkspaceStateChanges hook with the given event object.
+   *
+   * @param event - The workspace state change event to broadcast to plugins
+   */
+  const fireWorkspaceChange = (event: WorkspaceStateChangeEvent) => {
+    workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+  }
+
+  /**
+   * An object containing the reactive workspace state.
+   *
+   * Every change to the workspace, is tracked and broadcast to all registered plugins.
+   * allowing for change tracking.
+   *
+   * NOTE:
+   * The detect changes proxy is applied separately beacause the vue reactitvity proxy have to be the outer most proxy.
+   * If the order is reversed, Vue cannot properly track mutations, leading to lost reactivity and bugs.
+   * By wrapping the contents with the detect changes proxy first, and then passing the result to Vue's `reactive`,
+   * we ensure that Vue manages its reactivity as expected and our change detection hooks
+   * are also triggered reliably.
+   * Do not reverse this order‼️
+   */
+  const workspace = reactive<Workspace>(
+    createDetectChangesProxy(
+      {
+        ...workspaceProps?.meta,
+        documents: {},
+        /**
+         * Returns the currently active document from the workspace.
+         * The active document is determined by the 'x-scalar-active-document' metadata field,
+         * falling back to the first document in the workspace if no active document is specified.
+         *
+         * @returns The active document or undefined if no document is found
+         */
+        get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
+          return workspace.documents[getActiveDocumentName()]
+        },
+      },
+      {
+        hooks: {
+          onAfterChange(path) {
+            const type = path[0]
+
+            /** Document changes */
+            if (type === 'documents') {
+              // We are overriding the while documents object, ignore. This should not happen
+              if (path.length < 2) {
+                console.log('[WARN]: Overriding entire documents object is not supported')
+                return
+              }
+
+              const documentName = path[1] as string
+              const event = {
+                type: 'documents',
+                documentName,
+                value: unpackProxyObject(
+                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                ),
+              } satisfies WorkspaceStateChangeEvent
+
+              fireWorkspaceChange(event)
+              return
+            }
+
+            /** Active document changes */
+            if (type === 'activeDocument') {
+              const documentName = getActiveDocumentName()
+              // Active document changed
+              const event = {
+                type: 'documents',
+                documentName,
+                value: unpackProxyObject(
+                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                ),
+              } satisfies WorkspaceStateChangeEvent
+
+              fireWorkspaceChange(event)
+              return
+            }
+
+            /** Document meta changes */
+            const { activeDocument: _a, documents: _d, ...meta } = workspace
+            const event = {
+              type: 'meta',
+              value: unpackProxyObject(meta),
+            } satisfies WorkspaceStateChangeEvent
+
+            fireWorkspaceChange(event)
+            return
+          },
+        },
+      },
+    ),
+  )
+
+  /**
    * An object containing all the workspace state, wrapped in a detect changes proxy.
    *
    * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
    * allowing for change tracking.
    */
-  const { workspace, originalDocuments, intermediateDocuments, overrides, documentMeta, documentConfigs } =
+  const { originalDocuments, intermediateDocuments, overrides, documentMeta, documentConfigs } =
     createDetectChangesProxy(
       {
-        /**
-         * The current workspace state
-         *
-         * Keeps the active document state, the document we use to drive the UI
-         * It also includes the workspace metadata like theme, active document, etc.
-         */
-        workspace: reactive<Workspace>({
-          ...workspaceProps?.meta,
-          documents: {},
-          /**
-           * Returns the currently active document from the workspace.
-           * The active document is determined by the 'x-scalar-active-document' metadata field,
-           * falling back to the first document in the workspace if no active document is specified.
-           *
-           * @returns The active document or undefined if no document is found
-           */
-          get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
-            const activeDocumentKey =
-              workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
-            return workspace.documents[activeDocumentKey]
-          },
-        }),
         /**
          * Holds the original, unmodified documents as they were initially loaded into the workspace.
          * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
@@ -509,118 +586,54 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               return
             }
 
-            /**
-             * Notifies all workspace plugins of a workspace state change event.
-             *
-             * This function iterates through all registered plugins (if any) and invokes
-             * their onWorkspaceStateChanges hook with the given event object.
-             *
-             * @param event - The workspace state change event to broadcast to plugins
-             */
-            const firePlugins = (event: WorkspaceStateChangeEvent) => {
-              workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
-            }
-
-            if (type === 'workspace') {
-              /** Document changes */
-              if (path[1] === 'documents') {
-                // We are overriding the while documents object, ignore. This should not happen
-                if (path.length < 3) {
-                  console.log('[WARN]: Overriding entire documents object is not supported')
-                  return
-                }
-
-                const documentName = path[2] as string
-                const event = {
-                  type: 'documents',
-                  documentName,
-                  value: unpackProxyObject(
-                    workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
-                  ),
-                } satisfies WorkspaceStateChangeEvent
-
-                firePlugins(event)
-                return
-              }
-
-              /** Active document changes */
-              if (path[1] === 'activeDocument') {
-                const documentName = getActiveDocumentName()
-                // Active document changed
-                const event = {
-                  type: 'documents',
-                  documentName,
-                  value: unpackProxyObject(
-                    workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
-                  ),
-                } satisfies WorkspaceStateChangeEvent
-
-                firePlugins(event)
-                return
-              }
-
-              /** Document meta changes */
-              const { activeDocument: _a, documents: _d, ...meta } = workspace
-              const event = {
-                type: 'meta',
-                value: unpackProxyObject(meta),
-              } satisfies WorkspaceStateChangeEvent
-
-              firePlugins(event)
+            if (path.length < 2) {
               return
             }
 
-            /**
-             * Other workspace state changes
-             *
-             * All of them are related to a specific document
-             */
-            if (path.length >= 2) {
-              const documentName = path[1] as string
-              if (type === 'originalDocuments') {
-                const event = {
-                  type,
-                  documentName: documentName,
-                  value: unpackProxyObject(originalDocuments[documentName] ?? {}),
-                } satisfies WorkspaceStateChangeEvent
-                firePlugins(event)
-              }
+            const documentName = path[1] as string
+            if (type === 'originalDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-              if (type === 'intermediateDocuments') {
-                const event = {
-                  type,
-                  documentName: documentName,
-                  value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
-                } satisfies WorkspaceStateChangeEvent
-                firePlugins(event)
-              }
+            if (type === 'intermediateDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-              if (type === 'documentConfigs') {
-                const event = {
-                  type,
-                  documentName: documentName,
-                  value: unpackProxyObject(documentConfigs[documentName] ?? {}),
-                } satisfies WorkspaceStateChangeEvent
-                firePlugins(event)
-              }
+            if (type === 'documentConfigs') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(documentConfigs[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-              if (type === 'overrides') {
-                const event = {
-                  type,
-                  documentName: documentName,
-                  value: unpackProxyObject(overrides[documentName] ?? {}),
-                } satisfies WorkspaceStateChangeEvent
-                firePlugins(event)
-              }
+            if (type === 'overrides') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(overrides[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-              if (type === 'documentMeta') {
-                const event = {
-                  type,
-                  documentName: documentName,
-                  value: unpackProxyObject(documentMeta[documentName] ?? {}),
-                } satisfies WorkspaceStateChangeEvent
-                firePlugins(event)
-              }
+            if (type === 'documentMeta') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(documentMeta[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
             }
           },
         },
