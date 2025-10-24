@@ -2,12 +2,6 @@ import type { ApiReferenceEvents } from './definitions'
 
 type Unsubscribe = () => void
 
-/** Helper type for listener wrappers */
-type ListenerWrapper<E extends keyof ApiReferenceEvents> = {
-  listener: (payload: ApiReferenceEvents[E]) => void
-  once: boolean
-}
-
 /**
  * Type-safe event bus for workspace events
  *
@@ -35,20 +29,6 @@ export type WorkspaceEventBus = {
    * unsubscribe()
    */
   on<E extends keyof ApiReferenceEvents>(event: E, listener: (payload: ApiReferenceEvents[E]) => void): Unsubscribe
-
-  /**
-   * Subscribe to an event that will only fire once
-   *
-   * @param event - The event name to listen for
-   * @param listener - Callback function that receives the event detail
-   * @returns Unsubscribe function to remove the listener
-   *
-   * @example
-   * bus.once('scalar-on-loaded', (detail) => {
-   *   console.log('Loaded!')
-   * })
-   */
-  once<E extends keyof ApiReferenceEvents>(event: E, listener: (payload: ApiReferenceEvents[E]) => void): Unsubscribe
 
   /**
    * Remove a specific event listener
@@ -118,12 +98,17 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Map of event names to their listener sets
    * Using Map for O(1) lookups and Set for O(1) add/remove operations
    */
-  const events = new Map<keyof ApiReferenceEvents, Set<ListenerWrapper<keyof ApiReferenceEvents>>>()
+  const events = new Map<
+    keyof ApiReferenceEvents,
+    Set<(payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void>
+  >()
 
   /**
    * Get or create a listener set for an event
    */
-  const getListeners = <T extends keyof ApiReferenceEvents>(event: T): Set<ListenerWrapper<T>> => {
+  const getListeners = <T extends keyof ApiReferenceEvents>(
+    event: T,
+  ): Set<(payload: ApiReferenceEvents[T]) => void> => {
     let listeners = events.get(event)
 
     if (!listeners) {
@@ -148,29 +133,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     listener: (payload: ApiReferenceEvents[E]) => void,
   ): Unsubscribe => {
     const listeners = getListeners(event)
-    const wrapper: ListenerWrapper<E> = {
-      listener,
-      once: false,
-    }
 
-    listeners.add(wrapper)
+    listeners.add(listener)
     log(`Added listener for "${event}" (${listeners.size} total)`)
-
-    return () => off(event, listener)
-  }
-
-  const once = <E extends keyof ApiReferenceEvents>(
-    event: E,
-    listener: (payload: ApiReferenceEvents[E]) => void,
-  ): Unsubscribe => {
-    const listeners = getListeners(event)
-    const wrapper: ListenerWrapper<E> = {
-      listener,
-      once: true,
-    }
-
-    listeners.add(wrapper)
-    log(`Added once listener for "${event}" (${listeners.size} total)`)
 
     return () => off(event, listener)
   }
@@ -186,9 +151,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     }
 
     // Find and remove the wrapper that contains this listener
-    for (const wrapper of listeners) {
-      if (wrapper.listener === listener) {
-        listeners.delete(wrapper)
+    for (const l of listeners) {
+      if (l === listener) {
+        listeners.delete(l)
         log(`Removed listener for "${event}" (${listeners.size} remaining)`)
         break
       }
@@ -212,25 +177,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
     // Convert to array to avoid issues if listeners modify the set during iteration
     const listenersArray = Array.from(listeners)
-    const onceListeners: ListenerWrapper<any>[] = []
 
     // Execute all listeners
-    for (const wrapper of listenersArray) {
+    for (const listener of listenersArray) {
       try {
-        wrapper.listener(payload)
-
-        if (wrapper.once) {
-          onceListeners.push(wrapper)
-        }
+        listener(payload)
       } catch (error) {
         // Do not let one listener error break other listeners
         console.error(`[EventBus] Error in listener for "${event}":`, error)
       }
-    }
-
-    // Remove once listeners after all have executed
-    for (const wrapper of onceListeners) {
-      listeners.delete(wrapper)
     }
 
     // Clean up if no listeners remain
@@ -241,7 +196,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
   return {
     on,
-    once,
     off,
     emit,
   }
