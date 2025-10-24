@@ -42,7 +42,7 @@
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
     "test:e2e": "playwright test",
-    "test:e2e:playwright": "docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.56.0",
+    "test:e2e:playwright": "docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.56.1",
     "test:e2e:report": "playwright show-report",
     "test:e2e:snapshots": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test -c playwright.snapshots.config.ts",
     "test:e2e:snapshots:ci": "playwright test -c playwright.snapshots.config.ts",
