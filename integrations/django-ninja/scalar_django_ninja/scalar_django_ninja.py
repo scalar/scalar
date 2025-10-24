@@ -2,7 +2,7 @@ import json
 from enum import Enum
 from django.http import HttpResponse
 from ninja.openapi.docs import DocsBase
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Dict, Any, Union, Optional
 
 
@@ -90,8 +90,7 @@ class OpenAPISource(BaseModel):
         description="Whether this source should be the default when multiple sources are provided.",
     )
 
-    class Config:
-        extra = "forbid"  # Don't allow extra fields
+    model_config = ConfigDict(extra="forbid")  # Don't allow extra fields
 
 
 class ScalarConfig(BaseModel):
@@ -257,9 +256,10 @@ class ScalarConfig(BaseModel):
         description="The theme to use for Scalar. Default is 'default'.",
     )
 
-    class Config:
-        extra = "forbid"
-        use_enum_values = False  # Keep enum objects instead of converting to values
+    model_config = ConfigDict(
+        extra="forbid",
+        use_enum_values=False,  # Keep enum objects instead of converting to values
+    )
 
 
 scalar_theme = """
