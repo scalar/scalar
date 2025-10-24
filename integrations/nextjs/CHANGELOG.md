@@ -1,5 +1,15 @@
 # @scalar/nextjs-api-reference
 
+## 0.9.0
+
+### Minor Changes
+
+- c713362: feat(next-js): make `ApiReference` return a synchronous route handler
+
+### Patch Changes
+
+- @scalar/core@0.3.21
+
 ## 0.8.23
 
 ### Patch Changes

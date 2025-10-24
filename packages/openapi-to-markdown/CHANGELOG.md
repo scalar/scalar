@@ -1,5 +1,37 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.0
+
+### Minor Changes
+
+- 9661e81: feat(oas-utils): make `dereference` synchronous
+
+### Patch Changes
+
+- Updated dependencies [eb022f2]
+- Updated dependencies [348f8f6]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [134ff5f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [0319b8a]
+- Updated dependencies [da7ab2f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6a090a2]
+- Updated dependencies [eba18d0]
+- Updated dependencies [e23229d]
+  - @scalar/types@0.4.0
+  - @scalar/components@0.15.2
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.2
+
 ## 0.2.45
 
 ### Patch Changes

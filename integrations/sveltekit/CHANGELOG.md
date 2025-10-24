@@ -1,5 +1,12 @@
 # @scalar/sveltekit
 
+## 0.1.27
+
+### Patch Changes
+
+- 88a2eb6: feat(sveltekit): make `ScalarApiReference` return a synchronous route handler
+  - @scalar/core@0.3.21
+
 ## 0.1.26
 
 ### Patch Changes
