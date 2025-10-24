@@ -357,7 +357,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     permissions:
       contents: read
     timeout-minutes: 15
@@ -380,7 +380,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     env:
       HOME: '/root'
     permissions:
@@ -406,7 +406,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     permissions:
       contents: read
     timeout-minutes: 15
@@ -460,7 +460,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     permissions:
       contents: read
       pull-requests: write
@@ -509,7 +509,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     permissions:
       contents: read
       pull-requests: write
@@ -562,7 +562,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     env:
       HOME: '/root'
     permissions:
@@ -594,7 +594,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.1
+      image: scalarapi/playwright-runner:1.56.0
     permissions:
       contents: read
       pull-requests: write

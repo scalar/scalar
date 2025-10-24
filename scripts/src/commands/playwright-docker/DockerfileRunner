@@ -4,9 +4,9 @@ ARG PLAYWRIGHT_VERSION
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=America/Los_Angeles
 
+RUN apt update && apt install sudo
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
-ENV PORT=7001
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN npm install -g npm@latest

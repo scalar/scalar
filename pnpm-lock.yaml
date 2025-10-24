@@ -28,8 +28,8 @@ catalogs:
       specifier: 1.19.5
       version: 1.19.5
     '@playwright/test':
-      specifier: 1.56.1
-      version: 1.56.1
+      specifier: 1.56.0
+      version: 1.56.0
     '@scalar/typebox':
       specifier: 0.1.1
       version: 0.1.1
@@ -196,7 +196,7 @@ importers:
         version: 0.7.6(@vue/compiler-sfc@3.5.21)(eslint@9.20.1(jiti@2.5.1))(typescript@5.8.3)
       '@playwright/test':
         specifier: catalog:*
-        version: 1.56.1
+        version: 1.56.0
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^5.2.2
         version: 5.2.2(@vue/compiler-sfc@3.5.21)(prettier@3.6.2)(svelte@5.25.10)
@@ -1442,7 +1442,7 @@ importers:
         version: 1.19.5(hono@4.10.2)
       '@playwright/test':
         specifier: catalog:*
-        version: 1.56.1
+        version: 1.56.0
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1780,7 +1780,7 @@ importers:
         version: 0.2.2(tailwindcss@4.1.8)
       '@playwright/test':
         specifier: catalog:*
-        version: 1.56.1
+        version: 1.56.0
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2790,7 +2790,7 @@ importers:
     devDependencies:
       '@playwright/test':
         specifier: catalog:*
-        version: 1.56.1
+        version: 1.56.0
 
   projects/client-scalar-com:
     dependencies:
@@ -2861,7 +2861,7 @@ importers:
         version: 2.0.0(@types/node@22.15.3)
       '@playwright/test':
         specifier: catalog:*
-        version: 1.56.1
+        version: 1.56.0
       '@rushstack/eslint-patch':
         specifier: ^1.12.0
         version: 1.12.0
@@ -7258,6 +7258,11 @@ packages:
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
+
+  '@playwright/test@1.56.0':
+    resolution: {integrity: sha512-Tzh95Twig7hUwwNe381/K3PggZBZblKUe2wv25oIpzWLr6Z0m4KgV1ZVIjnR6GM9ANEqjZD7XsZEa6JL/7YEgg==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@playwright/test@1.56.1':
     resolution: {integrity: sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==}
@@ -15470,8 +15475,18 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
+  playwright-core@1.56.0:
+    resolution: {integrity: sha512-1SXl7pMfemAMSDn5rkPeZljxOCYAmQnYLBTExuh6E8USHXGSX3dx6lYZN/xPpTz1vimXmPA9CDnILvmJaB8aSQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   playwright-core@1.56.1:
     resolution: {integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.56.0:
+    resolution: {integrity: sha512-X5Q1b8lOdWIE4KAoHpW3SE8HvUB+ZZsUoN64ZhjnN8dOb1UpujxBtENGiZFE+9F/yhzJwYa+ca3u43FeLbboHA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -25669,9 +25684,14 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
+  '@playwright/test@1.56.0':
+    dependencies:
+      playwright: 1.56.0
+
   '@playwright/test@1.56.1':
     dependencies:
       playwright: 1.56.1
+    optional: true
 
   '@pnpm/config.env-replace@1.1.0': {}
 
@@ -36691,13 +36711,23 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.56.1: {}
+  playwright-core@1.56.0: {}
+
+  playwright-core@1.56.1:
+    optional: true
+
+  playwright@1.56.0:
+    dependencies:
+      playwright-core: 1.56.0
+    optionalDependencies:
+      fsevents: 2.3.2
 
   playwright@1.56.1:
     dependencies:
       playwright-core: 1.56.1
     optionalDependencies:
       fsevents: 2.3.2
+    optional: true
 
   plimit-lit@1.6.1:
     dependencies:
