@@ -2,7 +2,7 @@ import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { vi } from 'vitest'
+import { type MutableArray, vi } from 'vitest'
 
 /**
  * A collection of tools which are used strictly for testing
@@ -26,7 +26,7 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
     'x-scalar-reference-config': {
       title: 'Test API',
       slug: 'test-api',
-      httpClients: AVAILABLE_CLIENTS,
+      httpClients: AVAILABLE_CLIENTS as MutableArray<typeof AVAILABLE_CLIENTS>,
       features: {
         showModels: true,
         showSidebar: true,

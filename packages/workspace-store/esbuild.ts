@@ -10,6 +10,7 @@ const entries = [
   './src/schemas/v3.1/strict/openapi-document.ts',
   './src/events/index.ts',
   './src/navigation/index.ts',
+  './src/persistence/index.ts',
 ]
 
 await build({
