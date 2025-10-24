@@ -1,1 +1,1 @@
-from .scalar_django_ninja import ScalarViewer
+from .scalar_django_ninja import Layout, ScalarViewer

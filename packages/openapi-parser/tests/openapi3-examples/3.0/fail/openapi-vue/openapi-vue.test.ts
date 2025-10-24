@@ -13,9 +13,7 @@ describe('openapi-vue', () => {
     // Semantic error at paths./pet.post.requestBody.content.application/json.schema.$ref
     // requestBody schema $refs must point to a position where a Schema Object can be legally placed
     // …
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 
@@ -26,9 +24,7 @@ describe('openapi-vue', () => {
     //
     // Structural error at paths./pet.post.requestBody.content.application/xml.examples
     // should be object
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 })

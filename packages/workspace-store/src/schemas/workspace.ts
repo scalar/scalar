@@ -1,3 +1,4 @@
+import { type ThemeId, themeIds } from '@scalar/themes'
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
@@ -43,7 +44,8 @@ export const WorkspaceMetaSchema = Type.Partial(
     [extensions.workspace.darkMode]: Type.Boolean(),
     [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
     [extensions.workspace.activeDocument]: Type.String(),
-    [extensions.workspace.theme]: Type.String(),
+    [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
+    [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
   }),
 )
 
@@ -51,7 +53,8 @@ export type WorkspaceMeta = {
   [extensions.workspace.darkMode]?: boolean
   [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string
-  [extensions.workspace.theme]?: string
+  [extensions.workspace.theme]?: ThemeId
+  [extensions.workspace.sidebarWidth]?: number
 }
 
 export const WorkspaceExtensionsSchema = Type.Partial(

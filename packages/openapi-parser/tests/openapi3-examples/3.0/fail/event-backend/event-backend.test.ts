@@ -10,9 +10,7 @@ describe('event-backend', () => {
     const result = await validate(openapi1)
 
     // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 
@@ -20,9 +18,7 @@ describe('event-backend', () => {
     const result = await validate(openapi2)
 
     // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 
@@ -30,9 +26,7 @@ describe('event-backend', () => {
     const result = await validate(openapi3)
 
     // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property '$ref'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
     expect(result.valid).toBe(false)
   })
 })

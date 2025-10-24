@@ -1,5 +1,6 @@
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { vi } from 'vitest'
 
@@ -15,6 +16,7 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   workspace: {
     documents: {},
     activeDocument,
+    [extensions.workspace.sidebarWidth]: 288,
   },
   update: vi.fn(),
   updateDocument: vi.fn(),

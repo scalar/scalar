@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { httpclient } from './httpclient/client.js'
 import { restsharp } from './restsharp/client.js'
 
 export const csharp = {
@@ -10,7 +9,6 @@ export const csharp = {
     default: 'restsharp',
   },
   clientsById: {
-    httpclient,
     restsharp,
   },
 }

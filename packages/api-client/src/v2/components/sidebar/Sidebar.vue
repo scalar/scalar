@@ -1,49 +1,114 @@
 <script setup lang="ts">
-import {
-  ScalarSidebar,
-  ScalarSidebarItems,
-  ScalarSidebarSection,
-} from '@scalar/components'
+import { ScalarIconButton, ScalarSidebarSearchInput } from '@scalar/components'
+import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import { createSidebarState, ScalarSidebar, type Item } from '@scalar/sidebar'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import type { ClientLayout } from '@/v2/types/layout'
 
-const { width = 300 } = defineProps<{
-  /** Sidebar title */
-  title?: string
-  /** Provided sidebar width */
-  width?: number
-}>()
+import SidebarMenu from './SidebarMenu.vue'
+import SidebarToggle from './SidebarToggle.vue'
 
-const emit = defineEmits<{
-  (e: 'update:width', value: number): void
+const { documents, layout } = defineProps<{
+  /** All documents to display sidebar items for */
+  documents: Record<string, WorkspaceDocument>
+  /** Layout for the client */
+  layout: ClientLayout
 }>()
 
 defineSlots<{
-  default?(): unknown
-  search?(): unknown
+  /** Slot to add the workspace button */
+  workspaceButton?(): unknown
+  /** Slot to add additional content to the footer */
   footer?(): unknown
 }>()
+
+/** Generate the sidebar state based on the current workspace */
+const sidebarState = computed(() => {
+  const documentEntries: Item[] = Object.entries(documents).map(
+    ([name, doc]) => ({
+      id: name,
+      type: 'document',
+      title: doc.info.title ?? name,
+      children: doc['x-scalar-navigation'] ?? [],
+    }),
+  )
+
+  return createSidebarState(documentEntries)
+})
+
+const log = (name: string, ...args: any[]) => {
+  console.log('[LOG] event name: ', name)
+  console.log('[LOG]', ...args)
+}
+
+/** Propagate up the workspace model to the parent */
+const workspaceModel = defineModel<string>('workspace', {
+  default: 'default',
+})
+
+/** Controls the visibility of the sidebar */
+const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
+  required: true,
+})
+
+/** Controls the visibility of the search input */
+const isSearchVisible = ref(false)
+
+/** Controls the width of the sidebar */
+const sidebarWidth = defineModel<number>('sidebarWidth', {
+  required: true,
+  default: 288,
+})
 </script>
 <template>
   <Resize
-    class="hidden lg:block"
-    :width="width"
-    @update:width="(value) => emit('update:width', value)">
+    v-model:width="sidebarWidth"
+    class="flex flex-col">
     <template #default>
-      <ScalarSidebar class="h-full w-full">
-        <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
-          <slot name="search" />
-          <ScalarSidebarItems>
-            <ScalarSidebarSection>
-              {{ title }}
-              <template #items>
-                <slot name="default" />
-              </template>
-            </ScalarSidebarSection>
-          </ScalarSidebarItems>
-          <div class="flex-1"></div>
-        </div>
-        <slot name="footer" />
+      <ScalarSidebar
+        class="flex w-auto flex-1"
+        layout="client"
+        :state="sidebarState"
+        @reorder="(...args) => log('reorder', ...args)">
+        <template #search>
+          <div
+            class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">
+            <div class="flex items-center justify-between">
+              <!-- Desktop gets the workspace menu here  -->
+              <SidebarMenu
+                v-if="layout === 'desktop'"
+                v-model:workspace="workspaceModel" />
+
+              <!-- Toggle the sidebar -->
+              <SidebarToggle
+                v-else-if="layout === 'modal'"
+                v-model="isSidebarOpen" />
+
+              <!-- Toggle search, always visible on web -->
+              <ScalarIconButton
+                v-if="layout !== 'web'"
+                :icon="ScalarIconMagnifyingGlass"
+                label="Search"
+                @click="isSearchVisible = !isSearchVisible" />
+            </div>
+
+            <!-- Search input, always visible on web -->
+            <ScalarSidebarSearchInput
+              v-if="isSearchVisible || layout === 'web'"
+              :autofocus="layout !== 'web'" />
+          </div>
+        </template>
+
+        <template #firstItem>
+          <slot name="workspaceButton" />
+        </template>
+
+        <template #footer>
+          <slot name="footer" />
+        </template>
       </ScalarSidebar>
     </template>
   </Resize>

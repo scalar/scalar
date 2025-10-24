@@ -74,7 +74,7 @@
     "dev:reference:react": "turbo playground --filter @scalar/api-reference-react",
     "dev:void-server": "pnpm --filter @scalar/void-server dev",
     "dev:web": "turbo dev --filter @scalar-examples/web",
-    "dev:documentation": "npx @scalar/cli project preview",
+    "dev:documentation": "npx @scalar/cli@latest project preview",
     "format:check": "pnpm prettier --check . && biome format",
     "format": "prettier --write . && biome format --write",
     "lint:check": "biome lint --diagnostic-level=error",

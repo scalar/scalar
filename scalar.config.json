@@ -48,6 +48,10 @@
               "type": "page"
             },
             {
+              "path": "documentation/guides/docs/redirects.md",
+              "type": "page"
+            },
+            {
               "name": "Components",
               "type": "folder",
               "defaultOpen": true,
@@ -563,6 +567,24 @@
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
-    "footer": ""
+    "footer": "",
+    "routing": {
+      "redirects": [{
+        "from": "/scalar/scalar-registry/github-workflows",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/one/*",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/two/:pathMatch(.*)*",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/three/:wildcard",
+        "to": "/scalar/scalar-registry/github-actions"
+      }, {
+        "from": "/regex/four/prefix-:wildcard",
+        "to": "/scalar/scalar-registry/github-actions"
+      }]
+    }
   }
 }

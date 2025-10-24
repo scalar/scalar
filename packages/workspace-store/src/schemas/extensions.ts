@@ -6,6 +6,7 @@ export const extensions = {
   },
   workspace: {
     darkMode: 'x-scalar-dark-mode',
+    sidebarWidth: 'x-scalar-sidebar-width',
     defaultClient: 'x-scalar-default-client',
     activeDocument: 'x-scalar-active-document',
     theme: 'x-scalar-theme',

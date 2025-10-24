@@ -2,7 +2,6 @@ import { getListOfReferences } from '@/utils/get-list-of-references'
 import { validate } from '@/utils/validate'
 import { describe, expect, it } from 'vitest'
 
-
 describe('cyclical', () => {
   it('resolves circular references', async () => {
     const specification = {
@@ -42,14 +41,9 @@ describe('cyclical', () => {
     expect(result.valid).toBe(true)
     expect(result.version).toBe('3.0')
     expect(result.schema.components.schemas.top.type).toEqual('object')
-    expect(result.schema.components.schemas.top.properties.cat.type).toEqual(
-      'object',
-    )
-    const category =
-      result.schema.components.schemas.top.properties.cat.properties
-    expect(category.subcategories.items.properties.subcategories.type).toEqual(
-      'array',
-    )
+    expect(result.schema.components.schemas.top.properties.cat.type).toEqual('object')
+    const category = result.schema.components.schemas.top.properties.cat.properties
+    expect(category.subcategories.items.properties.subcategories.type).toEqual('array')
   })
 
   it.todo('resolves circular dependencies in referenced files', async () => {
@@ -115,8 +109,6 @@ describe('cyclical', () => {
     expect(result.valid).toBe(true)
     expect(result.version).toBe('3.0')
     expect(result.schema.components.schemas.top.type).toEqual('object')
-    expect(result.schema.components.schemas.top.properties.cat.type).toEqual(
-      'object',
-    )
+    expect(result.schema.components.schemas.top.properties.cat.type).toEqual('object')
   })
 })

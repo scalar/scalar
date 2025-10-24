@@ -26,6 +26,7 @@ defineSlots<{
   footer?(): unknown
   header?(): unknown
   default?(): unknown
+  firstItem?(): unknown
 }>()
 
 /**
