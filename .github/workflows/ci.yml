@@ -358,6 +358,13 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -381,6 +388,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
     permissions:
@@ -407,6 +421,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -461,6 +482,13 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -510,6 +538,13 @@ jobs:
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -563,6 +598,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
     permissions:
@@ -595,6 +637,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     container:
       image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
