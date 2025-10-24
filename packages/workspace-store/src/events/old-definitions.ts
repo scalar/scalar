@@ -8,6 +8,8 @@ import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
  * Event definitions for scalar blocks
  *
  * Events can have a typed payload using the `data` property.
+ *
+ * @deprecated use the new definitions instead
  */
 export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject> = {
   // ---------------------------------------------------------------------------
@@ -184,6 +186,8 @@ export type ApiReferenceEvent = Simplify<keyof ApiReferenceEvents>
  * Scalar blocks will use vanilla events to allow more flexibility in integrations
  *
  * Event can include typed payloads using the `data` property. A target for the dispatch must be provided.
+ *
+ * @deprecated Use the the event bus instead
  */
 export function emitCustomEvent<E extends ApiReferenceEvent>(
   target: HTMLElement | null | undefined,
