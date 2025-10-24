@@ -99,7 +99,7 @@ class ScalarConfig(BaseModel):
 
     openapi_url: Optional[str] = Field(
         default=None,
-        description="The OpenAPI URL that Scalar should load and use. This is normally done automatically by FastAPI using the default URL `/api/openapi.json` If content or sources are provided, this parameter is ignored.",
+        description="The OpenAPI URL that Scalar should load and use. This is normally done automatically by FastAPI using the default URL `/api/openapi.json`. If content or sources are provided, this parameter is ignored.",
     )
 
     title: Optional[str] = Field(
