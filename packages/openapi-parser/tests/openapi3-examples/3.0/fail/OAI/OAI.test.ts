@@ -9,7 +9,7 @@ describe.todo('OAI', () => {
   it('apiWithExamples', async () => {
     const result = await validate(apiWithExamples)
 
-    expect(result.errors?.[0]?.message).toBe(`something went wrong`)
+    expect(result.errors?.[0]?.message).toBe('something went wrong')
     expect(result.valid).toBe(false)
   })
 })

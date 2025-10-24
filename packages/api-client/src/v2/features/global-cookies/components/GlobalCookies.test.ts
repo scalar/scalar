@@ -72,21 +72,6 @@ describe('GlobalCookies', () => {
     expect(cookiesTable.exists()).toBe(true)
   })
 
-  it('renders the CookiesSidebar component', () => {
-    const wrapper = mount(GlobalCookies, {
-      props: {
-        documentName: null,
-        documents: [],
-        cookies: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const sidebar = wrapper.findComponent({ name: 'CookiesSidebar' })
-    expect(sidebar.exists()).toBe(true)
-  })
-
   it('emits cookie:add when CookiesTable emits addRow', async () => {
     const wrapper = mount(GlobalCookies, {
       props: {
@@ -146,42 +131,6 @@ describe('GlobalCookies', () => {
 
     expect(wrapper.emitted('cookie:delete')).toBeTruthy()
     expect(wrapper.emitted('cookie:delete')?.[0]).toEqual([index])
-  })
-
-  it('emits navigation:update:selection when CookiesSidebar emits update:selection', async () => {
-    const wrapper = mount(GlobalCookies, {
-      props: {
-        documentName: null,
-        documents: ['API 1', 'API 2'],
-        cookies: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const sidebar = wrapper.findComponent({ name: 'CookiesSidebar' })
-    await sidebar.vm.$emit('update:selection', 'API 1')
-
-    expect(wrapper.emitted('navigation:update:selection')).toBeTruthy()
-    expect(wrapper.emitted('navigation:update:selection')?.[0]).toEqual(['API 1'])
-  })
-
-  it('emits navigation:update:sidebarWidth when CookiesSidebar emits update:width', async () => {
-    const wrapper = mount(GlobalCookies, {
-      props: {
-        documentName: null,
-        documents: [],
-        cookies: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const sidebar = wrapper.findComponent({ name: 'CookiesSidebar' })
-    await sidebar.vm.$emit('update:width', 300)
-
-    expect(wrapper.emitted('navigation:update:sidebarWidth')).toBeTruthy()
-    expect(wrapper.emitted('navigation:update:sidebarWidth')?.[0]).toEqual([300])
   })
 
   it('handles multiple event emissions correctly', async () => {
@@ -253,37 +202,5 @@ describe('GlobalCookies', () => {
     /** Test updating only the isDisabled flag */
     await cookiesTable.vm.$emit('updateRow', 1, { isDisabled: true })
     expect(wrapper.emitted('cookie:update')?.[1]).toEqual([1, { isDisabled: true }])
-  })
-
-  it('passes sidebarWidth prop to CookiesSidebar', () => {
-    const wrapper = mount(GlobalCookies, {
-      props: {
-        documentName: null,
-        documents: [],
-        cookies: [],
-        environment: mockEnvironment,
-        envVariables: [],
-        sidebarWidth: 250,
-      },
-    })
-
-    const sidebar = wrapper.findComponent({ name: 'CookiesSidebar' })
-    expect(sidebar.props('width')).toBe(250)
-  })
-
-  it('passes documentName and documents props to CookiesSidebar', () => {
-    const wrapper = mount(GlobalCookies, {
-      props: {
-        documentName: 'My API',
-        documents: ['My API', 'Other API'],
-        cookies: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const sidebar = wrapper.findComponent({ name: 'CookiesSidebar' })
-    expect(sidebar.props('documentName')).toBe('My API')
-    expect(sidebar.props('documents')).toEqual(['My API', 'Other API'])
   })
 })

@@ -8,9 +8,7 @@ describe('comp_pathitems', () => {
     const result = await validate(comp_pathitems)
 
     // TODO: Should probably complain about the pathItems?
-    expect(result.errors?.[0]?.message).toBe(
-      `must have required property 'paths'`,
-    )
+    expect(result.errors?.[0]?.message).toBe(`must have required property 'paths'`)
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })

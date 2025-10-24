@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createRouter, createWebHistory } from 'vue-router'
+import { type RouteLocationNormalized, createRouter, createWebHistory } from 'vue-router'
 
 import { routes } from './routes'
 
@@ -14,11 +14,11 @@ describe('Routes', () => {
     path: '',
     redirectedFrom: undefined,
     meta: {},
-  }
+  } as RouteLocationNormalized
 
   const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes: routes as any,
   })
 
   it('should contain the workspace route', () => {
@@ -33,7 +33,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof workspaceDefaultRoute?.redirect === 'function'
-        ? workspaceDefaultRoute.redirect(mockRouteLocation)
+        ? workspaceDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : workspaceDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(
@@ -56,7 +56,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof requestDefaultRoute?.redirect === 'function'
-        ? requestDefaultRoute.redirect(mockRouteLocation)
+        ? requestDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : requestDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(
@@ -79,7 +79,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof environmentDefaultRoute?.redirect === 'function'
-        ? environmentDefaultRoute.redirect(mockRouteLocation)
+        ? environmentDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : environmentDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(
@@ -102,7 +102,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof cookiesDefaultRoute?.redirect === 'function'
-        ? cookiesDefaultRoute.redirect(mockRouteLocation)
+        ? cookiesDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : cookiesDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(
@@ -119,7 +119,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof serversDefaultRoute?.redirect === 'function'
-        ? serversDefaultRoute.redirect(mockRouteLocation)
+        ? serversDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : serversDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(
@@ -142,7 +142,7 @@ describe('Routes', () => {
 
     const redirectResult =
       typeof settingsDefaultRoute?.redirect === 'function'
-        ? settingsDefaultRoute.redirect(mockRouteLocation)
+        ? settingsDefaultRoute.redirect(mockRouteLocation, mockRouteLocation)
         : settingsDefaultRoute?.redirect
 
     expect(redirectResult).toEqual(

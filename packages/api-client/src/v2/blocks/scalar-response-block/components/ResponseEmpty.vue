@@ -40,7 +40,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
       :class="{
-        'hidden opacity-0': totalPerformedRequests <= 1 && layout !== 'modal',
+        'hidden opacity-0': totalPerformedRequests < 1 && layout !== 'modal',
       }">
       <div
         v-if="layout !== 'modal'"
@@ -68,7 +68,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       v-if="layout !== 'modal'"
       class="hidden h-[calc(100%_-_50px)] items-center justify-center pb-5"
       :class="{
-        '!flex opacity-100': totalPerformedRequests == 1,
+        '!flex opacity-100': totalPerformedRequests == 0,
       }">
       <EmptyState />
     </div>

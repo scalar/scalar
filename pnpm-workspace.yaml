@@ -54,7 +54,7 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.9.11
+    hono: 4.10.2
     js-base64: ^3.7.8
     microdiff: ^1.5.0
     nanoid: 5.1.5
@@ -77,6 +77,7 @@ catalogs:
     vitest: 3.2.4
     vue-tsc: ^2.2.0
     vue: ^3.5.17
+    vue-router: 4.6.2
     yaml: 2.8.0
     zod: 4.1.11
 

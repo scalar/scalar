@@ -65,8 +65,6 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "fastify": "^4.26.2",
-    "rollup-plugin-node-externals": "^7.1.2",
-    "terser": "^5.30.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"

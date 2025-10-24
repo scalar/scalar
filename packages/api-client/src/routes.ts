@@ -51,7 +51,7 @@ const requestRoutes = [
     name: 'request.root',
     path: '',
     component: () => import('@/views/Request/RequestRoot.vue'),
-    redirect: (to) => ({
+    redirect: (to: RouteLocationNormalized, _from: RouteLocationNormalized) => ({
       name: 'request',
       params: { ...to.params, request: 'default' },
     }),
@@ -70,7 +70,7 @@ const requestRoutes = [
         name: 'collection',
         path: `collection/:${PathId.Collection}`,
         component: () => import('@/views/Collection/Collection.vue'),
-        redirect: () => {
+        redirect: (_to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
           return {
             name: 'collection.overview',
           }
@@ -127,7 +127,7 @@ const requestRoutes = [
       },
     ],
   },
-] satisfies RouteRecordRaw[]
+] as RouteRecordRaw[]
 
 /** Routes required by the API client modal */
 export const modalRoutes = [
@@ -154,7 +154,7 @@ export const modalRoutes = [
     },
     children: requestRoutes,
   },
-] satisfies RouteRecordRaw[]
+] as RouteRecordRaw[]
 
 /** Routes for the API client app */
 export const routes = [
@@ -184,7 +184,7 @@ export const routes = [
       {
         name: 'environment.default',
         path: 'environment',
-        redirect: (to) => ({
+        redirect: (to: RouteLocationNormalized, _from: RouteLocationNormalized) => ({
           name: 'environment',
           params: { ...to.params, [PathId.Environment]: 'default' },
         }),
@@ -203,7 +203,7 @@ export const routes = [
       {
         name: 'cookies.default',
         path: 'cookies',
-        redirect: (to) => ({
+        redirect: (to: RouteLocationNormalized, _from: RouteLocationNormalized) => ({
           name: 'cookies',
           params: { ...to.params, [PathId.Cookies]: 'default' },
         }),
@@ -216,7 +216,7 @@ export const routes = [
       {
         name: 'servers.default',
         path: 'servers',
-        redirect: (to) => ({
+        redirect: (to: RouteLocationNormalized, _from: RouteLocationNormalized) => ({
           name: 'servers',
           params: {
             ...to.params,
@@ -228,7 +228,7 @@ export const routes = [
       {
         name: 'settings.default',
         path: 'settings',
-        redirect: (to) => ({
+        redirect: (to: RouteLocationNormalized, _from: RouteLocationNormalized) => ({
           name: 'settings',
           params: { ...to.params, [PathId.Settings]: 'general' },
         }),
@@ -240,4 +240,4 @@ export const routes = [
       },
     ],
   },
-] satisfies RouteRecordRaw[]
+] as RouteRecordRaw[]

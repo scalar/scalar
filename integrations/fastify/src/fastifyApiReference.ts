@@ -65,7 +65,7 @@ const fastifyApiReference = fp<
   FastifyTypeProviderDefault,
   FastifyBaseLogger
 >(
-  async (fastify, options) => {
+  (fastify, options) => {
     const { configuration: givenConfiguration } = options
 
     // Merge the defaults
@@ -128,7 +128,7 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = async (spec: OpenAPI.Document) => {
+    const getSpecFilenameSlug = (spec: OpenAPI.Document) => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
@@ -140,9 +140,9 @@ const fastifyApiReference = fp<
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
-      async handler(_, reply) {
+      handler(_, reply) {
         const spec = normalize(specSource.get())
-        const filename: string = await getSpecFilenameSlug(spec)
+        const filename = getSpecFilenameSlug(spec)
         const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
 
         return reply
@@ -161,9 +161,9 @@ const fastifyApiReference = fp<
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
-      async handler(_, reply) {
+      handler(_, reply) {
         const spec = normalize(specSource.get())
-        const filename: string = await getSpecFilenameSlug(spec)
+        const filename = getSpecFilenameSlug(spec)
         const yaml = toYaml(spec)
         return reply
           .header('Content-Type', 'application/yaml')
@@ -209,7 +209,7 @@ const fastifyApiReference = fp<
       handler(request, reply) {
         // Redirect if it's the route without a slash
         const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
-        if (!request.routerPath.endsWith('/')) {
+        if (!currentUrl.pathname.endsWith('/')) {
           return reply.redirect(`${currentUrl.pathname}/`, 301)
         }
 
@@ -251,6 +251,10 @@ const fastifyApiReference = fp<
         return reply.header('Content-Type', 'application/javascript; charset=utf-8').send(fileContent)
       },
     })
+
+    // Return a resolved Promise to preserve async behavior
+    // without using `async` / `await`
+    return Promise.resolve()
   },
   {
     name: '@scalar/fastify-api-reference',

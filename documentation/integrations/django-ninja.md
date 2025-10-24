@@ -41,6 +41,18 @@ urlpatterns = [
 
 This renders a beautiful API reference at `/api/docs` based on your API.
 
+## Configuration
+
+Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+
+- `layout` (default `Layout.MODERN`)
+- `show_sidebar` (defualt `true`)
+- `hide_download_button` (default `false`)
+- `hide_models` (default `false`)
+- `hidden_clients` (default `[]`)
+- `servers` (default `[]`)
+- `default_open_all_tags` (default `false`)
+
 ## Guide
 
 Django Ninja is a simple way to create an API for Django and Scalar provides an easy way to generate a reference document and client for that API.

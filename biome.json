@@ -23,7 +23,7 @@
       "!**/dist/**",
       "!**/playwright-report/**",
       "!**/pnpm-lock.yaml",
-      "!**/openapi3-examples/**",
+      "!**/.pnpm-store/**",
       "!**/.docusaurus/**",
       "!**/examples/nestjs-api-reference-fastify/**",
       "!**/examples/nestjs-api-reference-express/**",
@@ -33,6 +33,7 @@
       "!**/obj/**",
       "!**/bin/**",
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
+      "!**/packages/openapi-parser/tests/openapi3-examples/**/*.{yml,yaml,json}",
       "!integrations/**/scalar.js",
       "!integrations/**/standalone.js",
       "!**/rust/**/target"
@@ -242,6 +243,16 @@
         "rules": {
           "performance": {
             "noReExportAll": "error"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/components/**/index.ts", "**/features/*/index.ts", "**/blocks/*/index.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
           }
         }
       }

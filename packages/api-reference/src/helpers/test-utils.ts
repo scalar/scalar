@@ -2,6 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createNavigation } from '@scalar/workspace-store/navigation'
+import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
@@ -53,6 +54,7 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   workspace: {
     documents: {},
     activeDocument,
+    [extensions.workspace.sidebarWidth]: 288,
   },
   update: vi.fn(),
   updateDocument: vi.fn(),
