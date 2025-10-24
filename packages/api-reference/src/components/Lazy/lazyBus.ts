@@ -91,8 +91,6 @@ const runLazyBus = () => {
 
     await nextTick()
 
-    console.log('onRenderComplete')
-
     onRenderComplete.forEach((fn) => fn())
     onRenderComplete.clear()
     unblock()

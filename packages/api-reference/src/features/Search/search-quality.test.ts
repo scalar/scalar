@@ -6,27 +6,24 @@ import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
 
 function search(query: string, document: Partial<OpenApiDocument>) {
-  const entries = createNavigation(
-    'test',
-    {
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      ...document,
-    } as OpenApiDocument,
-    {
-      'x-scalar-reference-config': {
-        features: {
-          showModels: true,
-        },
+  const doc = {
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
+    },
+    ...document,
+  } as OpenApiDocument
+  doc['x-scalar-navigation'] = createNavigation('test', doc, {
+    'x-scalar-reference-config': {
+      features: {
+        showModels: true,
       },
     },
-  )
+  })
 
   const fuse = createFuseInstance()
 
-  fuse.setCollection(createSearchIndex(entries.children, document as OpenApiDocument))
+  fuse.setCollection(createSearchIndex(doc))
 
   return fuse.search(query)
 }
@@ -100,10 +97,8 @@ describe('search quality', () => {
         },
       },
     }
-
     const result = search(query, document)
-
-    expect(result[0]?.item?.id).toEqual('getToken')
+    expect(result[0]?.item?.operationId).toEqual('getToken')
     expect(result[0]?.item?.title).toEqual('Get a token')
   })
 

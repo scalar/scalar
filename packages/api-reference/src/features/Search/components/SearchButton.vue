@@ -6,7 +6,6 @@ import {
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -17,11 +16,10 @@ const { searchHotKey = 'k', hideModels = false } = defineProps<{
   searchHotKey?: string
   hideModels?: boolean
   document?: OpenApiDocument
-  items: TraversedEntry[]
 }>()
 
 const emit = defineEmits<{
-  (e: 'toggleSidebarItem', id: string, open?: boolean): void
+  (e: 'scrollToId', id: string): void
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
@@ -95,7 +93,6 @@ function handleClick() {
   <SearchModal
     :document
     :hideModels="hideModels"
-    :items="items"
     :modalState="modalState"
-    @toggleSidebarItem="(id, open) => emit('toggleSidebarItem', id, open)" />
+    @scrollToId="(id) => emit('scrollToId', id)" />
 </template>

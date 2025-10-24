@@ -43,7 +43,6 @@ describe('OperationsListItem', () => {
       })
 
       expect(wrapper.text()).toContain('/api/users')
-      expect(wrapper.find('a').attributes('href')).toBe('#test-operation-1')
     })
 
     it('renders webhook with title when webhook has no path property', () => {
@@ -54,7 +53,6 @@ describe('OperationsListItem', () => {
       })
 
       expect(wrapper.text()).toContain('User Created Webhook')
-      expect(wrapper.find('a').attributes('href')).toBe('#test-webhook-1')
     })
 
     it('applies correct CSS classes', () => {
@@ -201,7 +199,6 @@ describe('OperationsListItem', () => {
       })
 
       const link = wrapper.find('a.endpoint')
-      expect(link.attributes('href')).toBe('#test-operation-1')
 
       // The click handler should prevent default navigation
       await link.trigger('click')

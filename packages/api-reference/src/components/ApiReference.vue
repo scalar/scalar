@@ -681,7 +681,6 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
  *        Open all parents and scroll to the operation
  */
 const handleSelectItem = async (id: string) => {
-  console.log('handleSelectItem', id)
   const item = sidebarState.getEntryById(id)
 
   if (
@@ -792,10 +791,10 @@ onBeforeMount(() => {
         @toggleSidebar="() => (isSidebarOpen = !isSidebarOpen)">
         <template #search>
           <SearchButton
+            v-if="!mergedConfig.hideSearch"
             class="my-2"
             :document="workspaceStore.workspace.activeDocument"
             :hideModels="mergedConfig.hideModels"
-            :items="sidebarItems"
             :searchHotKey="mergedConfig.searchHotKey"
             :showSidebar="mergedConfig.showSidebar"
             @toggleSidebarItem="(id) => handleSelectItem(id)" />
@@ -826,13 +825,12 @@ onBeforeMount(() => {
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="scalar-api-references-standalone-search">
+                class="flex flex-col p-3 pt-1.5">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :hideModels="mergedConfig.hideModels"
-                  :items="sidebarItems"
                   :searchHotKey="mergedConfig.searchHotKey"
-                  @toggleSidebarItem="(id) => handleSelectItem(id)" />
+                  @scrollToId="(id) => handleSelectItem(id)" />
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -935,10 +933,7 @@ onBeforeMount(() => {
                 :hideModels="mergedConfig.hideModels"
                 :items="sidebarItems"
                 :searchHotKey="mergedConfig.searchHotKey"
-                @toggleSidebarItem="
-                  (id) =>
-                    sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-                " />
+                @scrollToId="(id) => handleSelectItem(id)" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon
                   v-if="!mergedConfig.hideDarkModeToggle"
@@ -1132,11 +1127,6 @@ onBeforeMount(() => {
 }
 </style>
 <style scoped>
-.scalar-api-references-standalone-search {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 12px 6px 12px;
-}
 .darklight-reference {
   width: 100%;
   margin-top: auto;
