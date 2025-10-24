@@ -396,13 +396,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
         await persistence.meta.setItem(workspaceId, {
           'x-scalar-dark-mode': true,
-          'x-scalar-theme': 'custom',
+          'x-scalar-theme': 'moon',
         })
 
         const workspace = await persistence.workspace.getItem(workspaceId)
         expect(workspace?.workspace.meta).toEqual({
           'x-scalar-dark-mode': true,
-          'x-scalar-theme': 'custom',
+          'x-scalar-theme': 'moon',
         })
       })
     })
