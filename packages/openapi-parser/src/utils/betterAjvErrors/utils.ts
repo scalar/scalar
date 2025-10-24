@@ -10,7 +10,11 @@ export const notUndefined = (x) => x !== undefined
 const isXError = (x) => (error) => error.keyword === x
 export const isRequiredError = isXError('required')
 export const isAnyOfError = isXError('anyOf')
+export const isOneOfError = isXError('oneOf')
+export const isIfError = isXError('if')
 export const isEnumError = isXError('enum')
+export const isAdditionalPropertiesError = isXError('additionalProperties')
+export const isUnevaluatedPropertiesError = isXError('unevaluatedProperties')
 export const getErrors = (node) => node?.errors || []
 
 // Node
