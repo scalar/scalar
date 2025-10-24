@@ -1,5 +1,6 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+
 import { createParameterMap, deepMerge } from './openapi'
 
 describe('openapi', () => {
@@ -98,7 +99,7 @@ describe('openapi', () => {
       }
       const result = createParameterMap(operation)
       expect(result.query).toHaveLength(1)
-      expect(result.query[0].name).toBe('limit')
+      expect(result.query[0]?.name).toBe('limit')
     })
 
     it('ignores non-dereferenced parameters', () => {
@@ -117,7 +118,7 @@ describe('openapi', () => {
       }
       const result = createParameterMap(operation)
       expect(result.query).toHaveLength(1)
-      expect(result.query[0].name).toBe('limit')
+      expect(result.query[0]?.name).toBe('limit')
     })
 
     it('correctly categorizes all parameter types', () => {
@@ -131,13 +132,13 @@ describe('openapi', () => {
       }
       const result = createParameterMap(operation)
       expect(result.path).toHaveLength(1)
-      expect(result.path[0].name).toBe('path-param')
+      expect(result.path[0]?.name).toBe('path-param')
       expect(result.query).toHaveLength(1)
-      expect(result.query[0].name).toBe('query-param')
+      expect(result.query[0]?.name).toBe('query-param')
       expect(result.header).toHaveLength(1)
-      expect(result.header[0].name).toBe('header-param')
+      expect(result.header[0]?.name).toBe('header-param')
       expect(result.cookie).toHaveLength(1)
-      expect(result.cookie[0].name).toBe('cookie-param')
+      expect(result.cookie[0]?.name).toBe('cookie-param')
     })
   })
 })

@@ -78,7 +78,7 @@
   --scalar-sidebar-search--color: var(--scalar-color-3);
 }
 
-.dark-mode .sidebar {
+.dark-mode .t-doc__sidebar {
   --scalar-sidebar-background-1: var(--scalar-background-1);
   --scalar-sidebar-item-hover-color: currentColor;
   --scalar-sidebar-item-hover-background: var(--scalar-background-2);

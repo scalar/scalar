@@ -20,8 +20,6 @@ const { selectedClient } = defineProps<{
   selectedClient?: AvailableClients[number]
   /** List of featured clients */
   featuredClients: ClientOption[]
-  /** The id of the tab panel that contains for the non featured clients */
-  morePanel?: string
 }>()
 
 const containerRef = ref<HTMLElement>()
@@ -91,7 +89,8 @@ const selectedTargetKey = computed(
         :class="{
           'client-libraries__active':
             selectedClient && !isFeaturedClient(selectedClient),
-        }">
+        }"
+        type="button">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">

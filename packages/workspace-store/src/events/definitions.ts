@@ -10,16 +10,9 @@ import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
  * Events can have a typed payload using the `data` property.
  */
 export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject> = {
-  'scalar-update-sidebar': {
-    detail: {
-      value: boolean
-    }
-  }
-  'scalar-update-dark-mode': {
-    detail: {
-      value: boolean
-    }
-  }
+  // ---------------------------------------------------------------------------
+  /** Store mutation events */
+
   'scalar-update-active-document': {
     detail: {
       value: string
@@ -118,6 +111,7 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
       }
     }
   }
+
   // ---------------------------------------------------------------------------
   /** Auth events */
   'scalar-select-security-schemes': {
@@ -153,7 +147,7 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
     }
   }
   // ---------------------------------------------------------------------------
-  // UI Events. Allows users to tie into UI events as needed
+  /** UI Events. Allows users to tie into UI events as needed */
 
   /** Download the document from the store */
   'scalar-download-document': {
@@ -176,6 +170,11 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   }
   'scalar-on-loaded': {
     detail: {}
+  }
+  'scalar-update-dark-mode': {
+    detail: {
+      value: boolean
+    }
   }
 }
 

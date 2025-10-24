@@ -16,17 +16,20 @@ const options = computed<ThemeOption[]>(() =>
 const selected = computed<ThemeOption>({
   get: () => {
     const theme = model.value ?? 'default'
-    return options.value.find((o) => o.id === theme) ?? options.value[0]
+    return (
+      options.value.find((o) => o.id === theme) ??
+      (options.value[0] as ThemeOption)
+    )
   },
   set: (option) => (model.value = option.id),
 })
 </script>
 <template>
   <ScalarCombobox
+    v-slot="{ open }"
     v-model="selected"
-    resize
     :options
-    v-slot="{ open }">
+    resize>
     <ScalarListboxInput :open>
       {{ selected.label }}
     </ScalarListboxInput>

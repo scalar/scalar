@@ -1,12 +1,19 @@
 import { createNavigation } from '@scalar/workspace-store/navigation'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { createSearchIndex } from './create-search-index'
 
-function createEntriesFromDocument(document: Partial<OpenApiDocument>): TraversedEntry[] {
-  const { entries } = createNavigation(document as OpenApiDocument, {
+function createMockDocument(document: Partial<OpenApiDocument>) {
+  const doc = {
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
+    },
+    ...document,
+  } as OpenApiDocument
+
+  doc['x-scalar-navigation'] = createNavigation('test', doc, {
     'x-scalar-reference-config': {
       features: {
         showModels: true,
@@ -14,7 +21,7 @@ function createEntriesFromDocument(document: Partial<OpenApiDocument>): Traverse
     },
   })
 
-  return entries
+  return doc
 }
 
 describe('createSearchIndex', () => {
@@ -30,9 +37,7 @@ describe('createSearchIndex', () => {
         },
       }
 
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
-
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index.length).toEqual(1)
 
@@ -56,15 +61,13 @@ describe('createSearchIndex', () => {
         },
       }
 
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
-
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
         {
           type: 'operation',
           title: 'Create User',
-          id: 'createUser',
+          operationId: 'createUser',
           description: 'Creates a new user in the system',
           method: 'post',
           path: '/users',
@@ -83,9 +86,7 @@ describe('createSearchIndex', () => {
         },
       }
 
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
-
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
         {
@@ -117,9 +118,7 @@ describe('createSearchIndex', () => {
         },
       }
 
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
-
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index.length).toEqual(3)
       expect(index.map((item) => item.title)).toEqual(['Get Users', 'Create User', 'Get Posts'])
@@ -128,21 +127,19 @@ describe('createSearchIndex', () => {
 
   describe('schemas', () => {
     it('adds a single schema', () => {
-      const document = {
-        components: {
-          schemas: {
-            User: {
-              type: 'object',
-              title: 'User Model',
-              description: 'A user object',
+      const index = createSearchIndex(
+        createMockDocument({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                description: 'A user object',
+              },
             },
           },
-        },
-      }
-
-      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
-
-      const index = createSearchIndex(entries, document as any)
+        }),
+      )
 
       expect(index).toMatchObject([
         {
@@ -161,20 +158,18 @@ describe('createSearchIndex', () => {
     })
 
     it('adds schema without description', () => {
-      const document = {
-        components: {
-          schemas: {
-            Post: {
-              type: 'object',
-              title: 'Post Model',
+      const index = createSearchIndex(
+        createMockDocument({
+          components: {
+            schemas: {
+              Post: {
+                type: 'object',
+                title: 'Post Model',
+              },
             },
           },
-        },
-      }
-
-      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
-
-      const index = createSearchIndex(entries)
+        }),
+      )
 
       expect(index).toMatchObject([
         {
@@ -191,25 +186,24 @@ describe('createSearchIndex', () => {
     })
 
     it('adds multiple schemas', () => {
-      const document = {
-        components: {
-          schemas: {
-            User: {
-              type: 'object',
-              title: 'User Model',
-              description: 'A user object',
-            },
-            Post: {
-              type: 'object',
-              title: 'Post Model',
-              description: 'A post object',
+      const index = createSearchIndex(
+        createMockDocument({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                description: 'A user object',
+              },
+              Post: {
+                type: 'object',
+                title: 'Post Model',
+                description: 'A post object',
+              },
             },
           },
-        },
-      }
-      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
-
-      const index = createSearchIndex(entries, document as any)
+        }),
+      )
 
       expect(index.length).toEqual(3) // 1 heading + 2 schemas
       expect(index[0]).toMatchObject({ type: 'heading', title: 'Models' })
@@ -220,7 +214,7 @@ describe('createSearchIndex', () => {
 
   describe('webhooks', () => {
     it('adds a single webhook', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         webhooks: {
           userCreated: {
             post: {
@@ -230,7 +224,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(document)
 
       expect(index).toMatchObject([
         {
@@ -260,9 +254,8 @@ describe('createSearchIndex', () => {
           },
         },
       }
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
 
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
         {
@@ -291,9 +284,7 @@ describe('createSearchIndex', () => {
         },
       }
 
-      const entries: TraversedEntry[] = createEntriesFromDocument(document)
-
-      const index = createSearchIndex(entries, document as any)
+      const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
         {
@@ -314,7 +305,7 @@ describe('createSearchIndex', () => {
 
   describe('tags', () => {
     it('adds a single tag', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         tags: [
           {
             name: 'Users',
@@ -331,7 +322,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       // Should include the tag and the operation
       expect(index.length).toBeGreaterThanOrEqual(2)
@@ -346,7 +337,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds tag without description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         tags: [
           {
             name: 'Posts',
@@ -362,7 +353,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       const tagEntry = index.find((item) => item.type === 'tag' && item.title === 'Posts')
       expect(tagEntry).toMatchObject({
@@ -374,7 +365,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds tag group', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         tags: [
           {
             name: 'User Management',
@@ -391,7 +382,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       const tagGroupEntry = index.find((item) => item.type === 'tag' && item.title === 'User Management')
       expect(tagGroupEntry).toMatchObject({
@@ -405,13 +396,13 @@ describe('createSearchIndex', () => {
 
   describe('document info', () => {
     it('adds headings from the description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         info: {
           description: '# API Documentation\nThis is the API documentation.',
         },
       } as OpenApiDocument)
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       expect(index).toMatchObject([
         {
@@ -425,13 +416,13 @@ describe('createSearchIndex', () => {
     })
 
     it('adds multiple headings from description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         info: {
           description: '# Introduction\nWelcome to the API.\n\n## Getting Started\nFollow these steps.',
         },
       } as OpenApiDocument)
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       expect(index.length).toEqual(2)
       expect(index[0]).toMatchObject({
@@ -447,13 +438,13 @@ describe('createSearchIndex', () => {
     })
 
     it('handles entry with null title', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         info: {
           description: 'Plain text without headings',
         },
       } as OpenApiDocument)
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       expect(index).toMatchObject([
         {
@@ -469,7 +460,7 @@ describe('createSearchIndex', () => {
 
   describe('mixed content', () => {
     it('handles document with operations, schemas, and webhooks', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         paths: {
           '/users': {
             get: {
@@ -495,7 +486,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       const operationEntry = index.find((item) => item.type === 'operation')
       const schemaEntry = index.find((item) => item.type === 'model')
@@ -512,7 +503,7 @@ describe('createSearchIndex', () => {
 
   describe('recursive processing', () => {
     it('processes nested children entries', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         tags: [
           {
             name: 'User Management',
@@ -533,7 +524,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       // Should include tag group and both operations
       expect(index.length).toBeGreaterThanOrEqual(3)
@@ -548,12 +539,12 @@ describe('createSearchIndex', () => {
 
   describe('edge cases', () => {
     it('handles empty entries array', () => {
-      const index = createSearchIndex([])
+      const index = createSearchIndex(createMockDocument({}))
       expect(index).toEqual([])
     })
 
     it('handles entries with missing properties', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         paths: {
           '/test': {
             get: {
@@ -563,7 +554,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
       expect(index.length).toEqual(1)
       expect(index[0]).toMatchObject({
         type: 'operation',
@@ -573,7 +564,7 @@ describe('createSearchIndex', () => {
     })
 
     it('handles complex nested structure', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = createMockDocument({
         tags: [
           {
             name: 'Authentication',
@@ -618,7 +609,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(document)
 
       // Should include: 2 tag groups + 3 operations + 1 models heading + 2 schemas
       expect(index.length).toBeGreaterThanOrEqual(8)

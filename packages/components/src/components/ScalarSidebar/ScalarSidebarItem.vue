@@ -25,6 +25,7 @@ import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
 const { indent = undefined } = defineProps<ScalarSidebarItemProps>()
+
 // We need to expose the slots here or we get a type error :(
 const slots = defineSlots<ScalarSidebarItemSlots>()
 
