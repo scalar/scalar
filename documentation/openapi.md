@@ -46,7 +46,7 @@ x-scalar-active-environment: staging
 
 We provide examples for a lot of popular HTTP clients and frameworks. For something completely custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
 
-```diff
+```yaml added={7..21}
 openapi: 3.1.0
 info:
   title: Val Town API
@@ -54,28 +54,28 @@ info:
 paths:
   '/v1/eval':
     post:
-+      x-codeSamples:
-+      - label: ValTown JS SDK
-+        lang: JavaScript
-+        source: |-
-+          import ValTown from '@valtown/sdk';
-+
-+          const valTown = new ValTown();
-+
-+          async function main() {
-+            const valRunAnonymousResponse = await valTown.vals.runAnonymous({ code: 'console.log(1);' });
-+
-+            console.log(valRunAnonymousResponse);
-+          }
-+
-+          main();
+      x-codeSamples:
+      - label: ValTown JS SDK
+        lang: JavaScript
+        source: |-
+          import ValTown from '@valtown/sdk';
+
+          const valTown = new ValTown();
+
+          async function main() {
+            const valRunAnonymousResponse = await valTown.vals.runAnonymous({ code: 'console.log(1);' });
+
+            console.log(valRunAnonymousResponse);
+          }
+
+          main();
 ```
 
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.
 
-```diff
+```yaml added={6}
 openapi: 3.1.0
 info:
   title: Example
@@ -95,17 +95,17 @@ paths:
 
 You can group your tags with `x-tagGroups`.
 
-```diff
+```yaml added={6..9}
 openapi: 3.1.0
 info:
   title: Example
   version: 1.0
 tags:
   - name: planets
-+x-tagGroups:
-+  - name: galaxy
-+    tags:
-+      - planets
+x-tagGroups:
+  - name: galaxy
+    tags:
+      - planets
 paths:
   '/planets':
     get:
@@ -118,7 +118,7 @@ paths:
 
 You can hide operations and webhooks from the reference with `x-scalar-ignore`.
 
-```diff
+```yaml added={10}
 openapi: 3.1.0
 info:
   title: Example
@@ -129,19 +129,19 @@ paths:
       summary: Get all planets
     post:
       summary: Create a new planet
-+      x-scalar-ignore: true
+      x-scalar-ignore: true
 ```
 
 Or to hide a tag and the operations under it:
 
-```diff
+```yaml added={6}
 openapi: 3.1.0
 info:
   title: Example
   version: 1.0
 tags:
   - name: planets
-+    x-scalar-ignore: true
+    x-scalar-ignore: true
 paths:
   '/planets':
     get:
@@ -189,7 +189,7 @@ The additional properties appear in the documentation as `percentage*`.
 
 You can show the stability of an endpoint by settings the `x-scalar-stability` to either `stable`, `experimental` or `deprecated`. The native `deprecated` property will take precedence.
 
-```diff
+```yaml added={10}
 openapi: 3.1.0
 info:
   title: Example
@@ -200,14 +200,14 @@ paths:
       summary: Get all planets
     post:
       summary: Create a new planet
-+      x-scalar-stability: 'experimental'
+      x-scalar-stability: 'experimental'
 ```
 
 ## x-badges
 
 You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
 
-```diff
+```yaml added={8..14}
 openapi: 3.1.0
 info:
   title: x-badges
@@ -216,13 +216,13 @@ paths:
   /hello-world:
     get:
       summary: Hello World
-+      x-badges:
-+        - name: 'Alpha'
-+        - name: 'Beta'
-+          position: before
-+        - name: 'Gamma'
-+          position: after
-+          color: '#ffcc00'
+      x-badges:
+        - name: 'Alpha'
+        - name: 'Beta'
+          position: before
+        - name: 'Gamma'
+          position: after
+          color: '#ffcc00'
 ```
 
 | Option   | Type   | Description                                                                                                                 |
@@ -235,7 +235,7 @@ paths:
 
 You can add a descriptions to `enum` values with `x-enum-descriptions`:
 
-```diff
+```yaml added={13..17}
 openapi: 3.1.0
 info:
   title: Example
@@ -249,11 +249,11 @@ components:
       - too_expensive
       - unused
       - other
-+      x-enum-descriptions:
-+        missing_features: Missing features
-+        too_expensive: Too expensive
-+        unused: Unused
-+        other: Other
+      x-enum-descriptions:
+        missing_features: Missing features
+        too_expensive: Too expensive
+        unused: Unused
+        other: Other
 ```
 
 Aliases: `x-enumDescriptions`
@@ -262,7 +262,7 @@ Aliases: `x-enumDescriptions`
 
 You can provide variable names for `enum` values with `x-enum-varnames`. These names will be displayed alongside the enum values in the format `value = varname`:
 
-```diff
+```yaml added={14..19}
 openapi: 3.1.0
 info:
   title: Example
@@ -272,17 +272,18 @@ components:
     HttpStatusCode:
       type: integer
       enum:
-      - 100
-      - 200
-      - 300
-      - 400
-      - 500
-+      x-enum-varnames:
-+      - Continue
-+      - OK
-+      - MultipleChoices
-+      - BadRequest
-+      - InternalServerError
+        - 100
+        - 200
+        - 300
+        - 400
+        - 500
+      x-enum-varnames:
+        - Continue
+        - OK
+        - MultipleChoices
+        - BadRequest
+        - InternalServerError
+
 ```
 
 This will display as: `100 = Continue`, `200 = OK`, `300 = MultipleChoices`, etc.
@@ -295,7 +296,7 @@ We generate custom code examples for all languages, but you might have a custom 
 
 You can use `description` (supports Markdown) or `source` (for shell scripts) or both.
 
-```diff
+```yaml added={5}
 openapi: 3.1.0
 info:
   title: Example
