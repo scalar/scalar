@@ -38,7 +38,7 @@ const devServer: WebServer = {
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
-  testMatch: 'test-snapshots-cdn/**/*.e2e.ts',
+  testMatch: 'test-cdn/**/*.e2e.ts',
   workers: '100%',
   reporter: CI
     ? [
@@ -46,11 +46,11 @@ export default defineConfig({
         ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
         ['json', { outputFile: 'playwright-results-cdn.json' }],
         // Makes sure these tests always pass in CI
-        ['./test-snapshots-cdn/ci-reporter.ts'],
+        ['./test-cdn/ci-reporter.ts'],
       ]
     : [['list'], ['html', { open: 'always' }]],
 
-  snapshotPathTemplate: './test-snapshots-cdn/.snapshots/{arg}{ext}',
+  snapshotPathTemplate: './test-cdn/.snapshots/{arg}{ext}',
 
   expect: {
     toHaveScreenshot: {

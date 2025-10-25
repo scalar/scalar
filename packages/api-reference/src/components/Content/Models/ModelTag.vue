@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useId } from 'vue'
-
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { Section, SectionHeader } from '@/components/Section'
 import SectionContainer from '@/components/Section/SectionContainer.vue'

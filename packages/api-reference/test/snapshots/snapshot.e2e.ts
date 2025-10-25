@@ -1,6 +1,6 @@
-import { type Locator, expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
-import sources from '../test/data/sources'
+import sources from '../data/sources'
 
 type Sources = typeof sources
 type Slug = Sources[number]['slug']
@@ -10,6 +10,10 @@ const toTest: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']
 
 test.describe.configure({ mode: 'parallel', timeout: 45000 })
 
+/**
+ * Takes snapshots of various API Reference components across different
+ * API sources to ensure consistent rendering.
+ */
 sources
   .filter(({ slug }) => toTest.includes(slug))
   .forEach(({ title, slug }) => {
