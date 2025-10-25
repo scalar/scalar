@@ -129,6 +129,8 @@ const labelId = useId()
           <div class="operation-details">
             <ScalarMarkdown
               :anchorPrefix="id"
+              aria-label="Operation Description"
+              role="group"
               transformType="heading"
               :value="operation.description"
               withAnchors

@@ -25,6 +25,7 @@ const emit = defineEmits<{
 </script>
 <template>
   <SectionAccordion
+    :aria-label="schema.title ?? name"
     :modelValue="!isCollapsed"
     @update:modelValue="(value) => emit('toggleSchema', id, value)">
     <template #title>
