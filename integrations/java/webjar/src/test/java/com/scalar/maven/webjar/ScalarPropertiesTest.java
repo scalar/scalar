@@ -1,5 +1,9 @@
 package com.scalar.maven.webjar;
 
+import com.scalar.maven.webjar.config.ScalarSource;
+import com.scalar.maven.webjar.enums.DocumentDownloadType;
+import com.scalar.maven.webjar.enums.ScalarLayout;
+import com.scalar.maven.webjar.enums.ScalarTheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -77,13 +81,13 @@ class ScalarPropertiesTest {
         @Test
         @DisplayName("should have correct default theme")
         void shouldHaveCorrectDefaultTheme() {
-            assertThat(properties.getTheme()).isEqualTo("default");
+            assertThat(properties.getTheme()).isEqualTo(ScalarTheme.DEFAULT);
         }
 
         @Test
         @DisplayName("should have correct default layout")
         void shouldHaveCorrectDefaultLayout() {
-            assertThat(properties.getLayout()).isEqualTo("modern");
+            assertThat(properties.getLayout()).isEqualTo(ScalarLayout.MODERN);
         }
 
         @Test
@@ -95,7 +99,7 @@ class ScalarPropertiesTest {
         @Test
         @DisplayName("should have correct default documentDownloadType")
         void shouldHaveCorrectDefaultDocumentDownloadType() {
-            assertThat(properties.getDocumentDownloadType()).isEqualTo("both");
+            assertThat(properties.getDocumentDownloadType()).isEqualTo(DocumentDownloadType.BOTH);
         }
 
         @Test
@@ -157,12 +161,10 @@ class ScalarPropertiesTest {
         @DisplayName("should set and get custom sources")
         void shouldSetAndGetCustomSources() {
             // Given
-            final List<ScalarProperties.ScalarSource> sources = List.of(
-                    new ScalarProperties.ScalarSource(
-                            "url", "title", "slug", true
-                    ),
-                    new ScalarProperties.ScalarSource()
-            );
+            final List<ScalarSource> sources = List.of(
+                    new ScalarSource(
+                            "url", "title", "slug", true),
+                    new ScalarSource());
 
             // When
             properties.setSources(sources);
@@ -339,84 +341,6 @@ class ScalarPropertiesTest {
     }
 
     @Nested
-    @DisplayName("theme property")
-    class ThemeProperty {
-
-        @Test
-        @DisplayName("should set and get theme")
-        void shouldSetAndGetTheme() {
-            // Given
-            String theme = "mars";
-
-            // When
-            properties.setTheme(theme);
-
-            // Then
-            assertThat(properties.getTheme()).isEqualTo(theme);
-        }
-
-        @Test
-        @DisplayName("should handle null theme")
-        void shouldHandleNullTheme() {
-            // When
-            properties.setTheme(null);
-
-            // Then
-            assertThat(properties.getTheme()).isNull();
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"alternate", "default", "moon", "purple", "solarized", "bluePlanet", "saturn", "kepler", "mars", "deepSpace", "laserwave", "none"})
-        @DisplayName("should handle valid theme values")
-        void shouldHandleValidThemeValues(String theme) {
-            // When
-            properties.setTheme(theme);
-
-            // Then
-            assertThat(properties.getTheme()).isEqualTo(theme);
-        }
-    }
-
-    @Nested
-    @DisplayName("layout property")
-    class LayoutProperty {
-
-        @Test
-        @DisplayName("should set and get layout")
-        void shouldSetAndGetLayout() {
-            // Given
-            String layout = "classic";
-
-            // When
-            properties.setLayout(layout);
-
-            // Then
-            assertThat(properties.getLayout()).isEqualTo(layout);
-        }
-
-        @Test
-        @DisplayName("should handle null layout")
-        void shouldHandleNullLayout() {
-            // When
-            properties.setLayout(null);
-
-            // Then
-            assertThat(properties.getLayout()).isNull();
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"modern", "classic"})
-        @DisplayName("should handle valid layout values")
-        void shouldHandleValidLayoutValues(String layout) {
-            // When
-            properties.setLayout(layout);
-
-            // Then
-            assertThat(properties.getLayout()).isEqualTo(layout);
-        }
-    }
-
-    @Nested
     @DisplayName("hideSearch property")
     class HideSearchProperty {
 
@@ -429,45 +353,6 @@ class ScalarPropertiesTest {
 
             // Then
             assertThat(properties.isHideSearch()).isEqualTo(hideSearch);
-        }
-    }
-
-    @Nested
-    @DisplayName("documentDownloadType property")
-    class DocumentDownloadTypeProperty {
-
-        @Test
-        @DisplayName("should set and get documentDownloadType")
-        void shouldSetAndGetDocumentDownloadType() {
-            // Given
-            String documentDownloadType = "json";
-
-            // When
-            properties.setDocumentDownloadType(documentDownloadType);
-
-            // Then
-            assertThat(properties.getDocumentDownloadType()).isEqualTo(documentDownloadType);
-        }
-
-        @Test
-        @DisplayName("should handle null documentDownloadType")
-        void shouldHandleNullDocumentDownloadType() {
-            // When
-            properties.setDocumentDownloadType(null);
-
-            // Then
-            assertThat(properties.getDocumentDownloadType()).isNull();
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"json", "yaml", "both", "none"})
-        @DisplayName("should handle valid documentDownloadType values")
-        void shouldHandleValidDocumentDownloadTypeValues(String documentDownloadType) {
-            // When
-            properties.setDocumentDownloadType(documentDownloadType);
-
-            // Then
-            assertThat(properties.getDocumentDownloadType()).isEqualTo(documentDownloadType);
         }
     }
 
@@ -520,10 +405,10 @@ class ScalarPropertiesTest {
             properties.setDarkMode(customDarkMode);
             properties.setHideDarkModeToggle(customHideDarkModeToggle);
             properties.setCustomCss(customCss);
-            properties.setTheme(customTheme);
-            properties.setLayout(customLayout);
+            properties.setTheme(ScalarTheme.fromValue(customTheme));
+            properties.setLayout(ScalarLayout.fromValue(customLayout));
             properties.setHideSearch(customHideSearch);
-            properties.setDocumentDownloadType(customDocumentDownloadType);
+            properties.setDocumentDownloadType(DocumentDownloadType.fromValue(customDocumentDownloadType));
             properties.setActuatorEnabled(customActuatorEnabled);
 
             // Then
@@ -536,19 +421,20 @@ class ScalarPropertiesTest {
             assertThat(properties.isDarkMode()).isEqualTo(customDarkMode);
             assertThat(properties.isHideDarkModeToggle()).isEqualTo(customHideDarkModeToggle);
             assertThat(properties.getCustomCss()).isEqualTo(customCss);
-            assertThat(properties.getTheme()).isEqualTo(customTheme);
-            assertThat(properties.getLayout()).isEqualTo(customLayout);
+            assertThat(properties.getTheme()).isEqualTo(ScalarTheme.fromValue(customTheme));
+            assertThat(properties.getLayout()).isEqualTo(ScalarLayout.fromValue(customLayout));
             assertThat(properties.isHideSearch()).isEqualTo(customHideSearch);
-            assertThat(properties.getDocumentDownloadType()).isEqualTo(customDocumentDownloadType);
+            assertThat(properties.getDocumentDownloadType())
+                    .isEqualTo(DocumentDownloadType.fromValue(customDocumentDownloadType));
             assertThat(properties.isActuatorEnabled()).isEqualTo(customActuatorEnabled);
         }
 
         @Test
         @DisplayName("should maintain property independence")
         void shouldMaintainPropertyIndependence() {
-            final ScalarProperties.ScalarSource source = new ScalarProperties.ScalarSource();
+            final ScalarSource source = new ScalarSource();
             source.setUrl("https://example.com/openapi.json");
-            final List<ScalarProperties.ScalarSource> sources = List.of(source);
+            final List<ScalarSource> sources = List.of(source);
 
             // Given - set initial values
             properties.setUrl("https://initial.com");
@@ -558,7 +444,7 @@ class ScalarPropertiesTest {
             properties.setShowSidebar(false);
             properties.setHideModels(true);
             properties.setDarkMode(true);
-            properties.setTheme("mars");
+            properties.setTheme(ScalarTheme.MARS);
 
             // When - change only one property
             properties.setUrl("https://changed.com");
@@ -571,7 +457,7 @@ class ScalarPropertiesTest {
             assertThat(properties.isShowSidebar()).isFalse();
             assertThat(properties.isHideModels()).isTrue();
             assertThat(properties.isDarkMode()).isTrue();
-            assertThat(properties.getTheme()).isEqualTo("mars");
+            assertThat(properties.getTheme()).isEqualTo(ScalarTheme.MARS);
         }
     }
 }

@@ -1,12 +1,67 @@
 # Scalar API Reference for Java Spring Boot
 
-The Scalar WebJar provides automatic integration with Spring Boot applications. It includes auto-configuration that automatically sets up the API reference endpoint.
+The Scalar WebJar provides automatic integration with Spring Boot applications. It includes auto-configuration that automatically sets up the API reference endpoint with comprehensive configuration options, type-safe enums, and authentication support.
 
 ## Requirements
 
 - **Spring Boot**: 2.7.0 or higher (3.x recommended)
 - **Java**: 11 or higher (17 recommended)
 - **Maven**: 3.6+ or **Gradle**: 7.0+
+
+## Migration Guide
+
+### Breaking Changes in Latest Version
+
+The following string-based properties have been replaced with enum-based properties:
+
+- `theme` field and `getTheme()`/`setTheme()` methods
+- `layout` field and `getLayout()`/`setLayout()` methods  
+- `documentDownloadType` field and `getDocumentDownloadType()`/`setDocumentDownloadType()` methods
+
+The `ScalarSource` class has been moved from a nested class in `ScalarProperties` to a standalone class in the `config` package:
+
+- **Old location**: `com.scalar.maven.webjar.ScalarProperties.ScalarSource`
+- **New location**: `com.scalar.maven.webjar.config.ScalarSource`
+
+### Migration Steps
+
+**For Properties File Configuration (No Changes Required):**
+If you're using `application.properties` or `application.yml`, no changes are needed. Spring Boot automatically converts string values to enums:
+
+```properties
+# This still works exactly the same
+scalar.theme=deepSpace
+scalar.layout=modern
+scalar.documentDownloadType=both
+```
+
+**For Programmatic Configuration:**
+Replace string-based setters with enum-based setters:
+
+```java
+// OLD (will cause compilation errors)
+properties.setTheme("deepSpace");
+properties.setLayout("modern");
+properties.setDocumentDownloadType("both");
+
+// NEW (use enum-based setters)
+properties.setTheme(ScalarTheme.DEEP_SPACE);
+properties.setLayout(ScalarLayout.MODERN);
+properties.setDocumentDownloadType(DocumentDownloadType.BOTH);
+```
+
+**For ScalarSource Class Usage:**
+Update imports and class references when using ScalarSource programmatically:
+
+```java
+// OLD (will cause compilation errors)
+import com.scalar.maven.webjar.ScalarProperties.ScalarSource;
+ScalarProperties.ScalarSource source = new ScalarProperties.ScalarSource();
+
+// NEW (use the standalone class)
+import com.scalar.maven.webjar.config.ScalarSource;
+ScalarSource source = new ScalarSource();
+```
 
 ## Usage
 
@@ -180,17 +235,133 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.enabled`               | `false`                                                              | Enable or disable the Scalar API reference                                                                                                                       |
 | `scalar.path`                  | `/scalar`                                                            | Path where the API reference will be available                                                                                                                   |
 | `scalar.url`                   | `https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json` | URL of your OpenAPI document                                                                                                                                     |
+| `scalar.actuatorEnabled`       | `false`                                                              | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
 | `scalar.showSidebar`           | `true`                                                               | Whether the sidebar should be shown                                                                                                                              |
 | `scalar.hideModels`            | `false`                                                              | Whether models (components.schemas or definitions) should be hidden from the sidebar, search, and content                                                        |
 | `scalar.hideTestRequestButton` | `false`                                                              | Whether to hide the "Test Request" button                                                                                                                        |
-| `scalar.darkMode`              | `false`                                                              | Whether dark mode is on or off initially (light mode)                                                                                                            |
-| `scalar.hideDarkModeToggle`    | `false`                                                              | Whether to show the dark mode toggle                                                                                                                             |
+| `scalar.hideSearch`            | `false`                                                              | Whether to show the sidebar search bar                                                                                                                           |
 | `scalar.customCss`             | `null`                                                               | Custom CSS to inject into the API reference                                                                                                                      |
 | `scalar.theme`                 | `default`                                                            | The theme to use for the API reference. Can be one of: alternate, default, moon, purple, solarized, bluePlanet, saturn, kepler, mars, deepSpace, laserwave, none |
 | `scalar.layout`                | `modern`                                                             | The layout style to use for the API reference. Can be "modern" or "classic"                                                                                      |
-| `scalar.hideSearch`            | `false`                                                              | Whether to show the sidebar search bar                                                                                                                           |
+| `scalar.darkMode`              | `false`                                                              | Whether dark mode is on or off initially (light mode)                                                                                                            |
+| `scalar.hideDarkModeToggle`    | `false`                                                              | Whether to show the dark mode toggle                                                                                                                             |
+| `scalar.forceThemeMode`        | `null`                                                               | Force a specific theme mode. Can be "light" or "dark"                                                                                                            |
+| `scalar.operationTitleSource`  | `null`                                                               | Source for operation titles. Can be "path" or "summary"                                                                                                          |
+| `scalar.tagSorter`             | `null`                                                               | How to sort tags. Can be "alpha" or "order"                                                                                                                     |
+| `scalar.operationSorter`       | `null`                                                               | How to sort operations. Can be "alpha" or "method"                                                                                                               |
+| `scalar.schemaPropertyOrder`   | `null`                                                               | How to order schema properties. Can be "alpha" or "order"                                                                                                       |
 | `scalar.documentDownloadType`  | `both`                                                               | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
-| `scalar.actuatorEnabled`       | `false`                                                              | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
+| `scalar.searchHotKey`          | `null`                                                               | Hotkey for search functionality                                                                                                                                  |
+| `scalar.hiddenClients`         | `null`                                                               | List of client names to hide from the interface                                                                                                                  |
+| `scalar.servers`               | `null`                                                               | List of server configurations                                                                                                                                     |
+| `scalar.defaultHttpClient`     | `null`                                                               | Default HTTP client configuration                                                                                                                                |
+
+## Authentication Configuration
+
+The Scalar integration supports pre-filling authentication details for API testing and documentation. You can configure API keys, OAuth2 flows, and HTTP authentication schemes to make it easier for developers to test your endpoints.
+
+:::scalar-callout{ type=warning }
+**Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+
+**Important**: The security scheme names in your Scalar configuration must exactly match the security scheme names defined in your OpenAPI document. For example, if your OpenAPI document defines a security scheme named `my-oauth-scheme`, your Scalar configuration must use the same name.
+
+The security schemes are added by your OpenAPI generator (SpringDoc OpenAPI, Swagger, or similar). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
+:::
+
+:::scalar-callout{ type=danger }
+**Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
+:::
+
+### API Key Authentication
+
+Configure API key authentication:
+
+```properties
+# API Key authentication (security scheme name must match OpenAPI document)
+scalar.authentication.securitySchemes.my-api-key.value=my-api-key-value
+
+# Preferred security schemes (single scheme - simplified syntax)
+scalar.authentication.preferredSecurityScheme=my-api-key
+
+# Or multiple security schemes (list syntax)
+# scalar.authentication.preferredSecuritySchemes[0]=my-oauth-scheme
+# scalar.authentication.preferredSecuritySchemes[1]=my-api-key
+```
+
+### OAuth2 Authentication
+
+Configure OAuth2 with authorization code flow:
+
+```properties
+# OAuth2 security scheme (security scheme name must match OpenAPI document)
+scalar.authentication.securitySchemes.my-oauth-scheme.flows.authorizationCode.pkce=SHA-256
+scalar.authentication.securitySchemes.my-oauth-scheme.flows.authorizationCode.clientSecret=my-client-secret
+scalar.authentication.securitySchemes.my-oauth-scheme.flows.authorizationCode.credentialsLocation=body
+
+# Default OAuth scopes
+scalar.authentication.defaultScopes[0]=read
+scalar.authentication.defaultScopes[1]=write
+
+# Preferred security schemes (single scheme - simplified syntax)
+scalar.authentication.preferredSecurityScheme=my-oauth-scheme
+
+# Or multiple security schemes (list syntax)
+# scalar.authentication.preferredSecuritySchemes[0]=my-oauth-scheme
+# scalar.authentication.preferredSecuritySchemes[1]=my-api-key
+```
+
+### HTTP Authentication
+
+Configure HTTP Basic or Bearer authentication:
+
+```properties
+# HTTP Basic authentication (security scheme name must match OpenAPI document)
+scalar.authentication.securitySchemes.my-basic-auth.username=my-username
+scalar.authentication.securitySchemes.my-basic-auth.password=my-password
+
+# HTTP Bearer authentication (security scheme name must match OpenAPI document)
+scalar.authentication.securitySchemes.my-bearer-auth.token=my-bearer-token
+```
+
+### YAML Configuration Example
+
+```yaml
+scalar:
+  authentication:
+    # Security scheme names must match those defined in your OpenAPI document
+    # Single security scheme (simplified syntax)
+    preferredSecurityScheme: my-oauth-scheme
+    
+    # Or multiple security schemes (list syntax)
+    # preferredSecuritySchemes:
+    #   - my-oauth-scheme
+    #   - my-api-key
+    
+    defaultScopes:
+      - read
+      - write
+    securitySchemes:
+      my-api-key:
+        type: apiKey
+        name: X-API-Key
+        in: header
+      my-oauth-scheme:
+        type: oauth2
+        flows:
+          authorizationCode:
+            authorizationUrl: https://auth.example.com/oauth/authorize
+            tokenUrl: https://auth.example.com/oauth/token
+            scopes:
+              read: Read access
+              write: Write access
+      my-basic-auth:
+        type: http
+        scheme: basic
+      my-bearer-auth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+```
 
 ## Security Configuration
 
@@ -218,7 +389,7 @@ public class SecurityConfig {
 
 ## Example Configuration
 
-Here's an example showing all available configuration options:
+Here's an example showing common configuration options:
 
 ```properties
 # Basic configuration
@@ -227,25 +398,44 @@ scalar.path=/docs
 scalar.enabled=true
 
 # UI customization
-scalar.showSidebar=true
-scalar.hideModels=false
-scalar.hideTestRequestButton=false
-scalar.hideSearch=false
-
-# Theme and appearance
-scalar.darkMode=false
-scalar.hideDarkModeToggle=false
-scalar.theme=default
+scalar.theme=deepSpace
 scalar.layout=modern
+scalar.darkMode=false
+scalar.hideSearch=false
+scalar.customCss=body { font-family: 'Arial', sans-serif; }
 
-# Document options
+# Content organization
+scalar.operationTitleSource=path
+scalar.tagSorter=alpha
+scalar.operationSorter=method
 scalar.documentDownloadType=both
 
-# Actuator support
-scalar.actuatorEnabled=false
+# Search and navigation
+scalar.searchHotKey=ctrl+k
+scalar.hiddenClients[0]=fetch
+scalar.hiddenClients[1]=xhr
+```
 
-# Custom styling
-scalar.customCss=body { font-family: 'Arial', sans-serif; }
+Or in `application.yml`:
+
+```yaml
+scalar:
+  url: https://my-api-spec.json
+  path: /docs
+  enabled: true
+  theme: deepSpace
+  layout: modern
+  darkMode: false
+  hideSearch: false
+  customCss: "body { font-family: 'Arial', sans-serif; }"
+  operationTitleSource: path
+  tagSorter: alpha
+  operationSorter: method
+  documentDownloadType: both
+  searchHotKey: ctrl+k
+  hiddenClients:
+    - fetch
+    - xhr
 ```
 
 ## Multiple OpenAPI Documents (Sources)
@@ -299,6 +489,12 @@ Each source in the `sources` array supports the following properties:
 | `default` | No       | Whether this is the default source (first source is default if none specified) |
 
 When using sources, the `scalar.url` property is ignored. Users can switch between different APIs using the document selector in the interface.
+
+## Type-Safe Configuration
+
+The Scalar integration supports type-safe configuration for better IDE support and compile-time validation.
+
+Spring Boot automatically converts string values to enum types, so you can use string values in `application.properties` or `application.yml` files.
 
 ## Available Themes
 

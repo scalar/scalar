@@ -392,6 +392,13 @@
       "matchPackageNames": ["Microsoft.AspNetCore**"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+
+    {
+      "description": "Keep Spring Boot dependencies as low as possible for best compatibility",
+      "matchFileNames": ["integrations/java/**"],
+      "matchPackageNames": ["org.springframework.boot:*"],
+      "enabled": false
     }
   ]
 }
