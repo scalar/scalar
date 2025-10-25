@@ -389,6 +389,7 @@ jobs:
         BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
+      pull-requests: write
     timeout-minutes: 15
     strategy:
       matrix:
@@ -402,8 +403,32 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
-        run: CI=1 pnpm test:e2e:api-reference
+        run: pnpm --filter api-reference test:e2e:ci
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar References End to End Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/api-reference/playwright-results.json
+          report-tag: test-references-e2e
+          footer: |
+            > [!IMPORTANT]
+            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e:update` in `packages/api-reference` and commit the changes.
 
   test-galaxy-scalar-com:
     needs: [build]
@@ -554,7 +579,7 @@ jobs:
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
 
-  test-references-snapshots:
+  test-cdn-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204

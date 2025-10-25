@@ -75,7 +75,7 @@ const { copyToClipboard } = useClipboard()
 <template>
   <SectionAccordion
     :id="id"
-    :aria-label="`Operation: ${operationTitle}`"
+    :aria-label="operationTitle"
     class="reference-endpoint"
     :modelValue="!isCollapsed"
     transparent
