@@ -31,6 +31,9 @@ sources
     test(title, async ({ page }) => {
       await page.goto(`?api=${slug}`)
 
+      // Operations
+      // --------------------------------------------------------------------------
+
       // On modern we need to expand the tags
       if (!slug.endsWith('classic')) {
         for (const tag of ['Planets', 'Celestial Bodies']) {
@@ -74,5 +77,17 @@ sources
       // Snapshot the request example
       const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
       await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
+
+      // Models
+      // --------------------------------------------------------------------------
+
+      const models = await page.getByRole('region', { name: 'Models' })
+      await models.getByRole('button', { name: 'CelestialBody' }).click()
+      await models.getByRole('button', { name: 'One of' }).click()
+      await models.getByRole('option', { name: 'Satellite' }).click()
+      await models.getByRole('button', { name: 'Orbit' }).click()
+
+      const model = await models.getByRole('region', { name: 'CelestialBody' })
+      await expect(model).toHaveScreenshot(`${slug}-model.png`)
     })
   })
