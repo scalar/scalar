@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { type Locator, expect, test } from '@playwright/test'
 
 import sources from '../test/data/sources'
 
@@ -10,36 +10,69 @@ const toTest: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']
 
 test.describe.configure({ mode: 'parallel', timeout: 45000 })
 
+async function expandChildAttributes(locator: Locator, maxClicks = 12) {
+  let clicks = 0
+  while (true) {
+    const button = await locator.getByRole('button', { name: 'Show Child Attributes', expanded: false })
+
+    if (clicks >= maxClicks || (await button.count()) === 0) {
+      console.log(`Expanded ${clicks} sections`)
+      break
+    }
+
+    await button.first().click()
+    clicks++
+  }
+}
+
 sources
   .filter(({ slug }) => toTest.includes(slug))
   .forEach(({ title, slug }) => {
     test(title, async ({ page }) => {
       await page.goto(`?api=${slug}`)
 
-      // // Grab the first tag
-      // const tag = await page
-      //   .getByRole('region')
-      //   .filter({ has: page.getByRole('region', { name: 'Operations' }) })
-      //   .first()
-
-      // // Grab the first operation inside the tag
-      // const operation = await tag.getByRole('region').nth(1)
-
-      // Click to expand an operation
-      if (slug.endsWith('classic')) {
-        await page.getByRole('region', { name: 'Operation:' }).first().getByRole('button', { expanded: false }).click()
+      // On modern we need to expand the tags
+      if (!slug.endsWith('classic')) {
+        for (const tag of ['Planets', 'Celestial Bodies']) {
+          await page.getByRole('button', { name: `Show all ${tag} endpoints` }).click()
+        }
       }
 
-      // Snapshot a request body
-      const requestBody = await page.getByRole('group', { name: 'Request Body' }).first()
+      const getAllPlanets = await page.getByRole('region', { name: 'Get all planets' })
+      const createAPlanet = await page.getByRole('region', { name: 'Create a planet' })
+
+      // On classic we need to expand the operations
+      if (slug.endsWith('classic')) {
+        await getAllPlanets.getByRole('button', { expanded: false }).click()
+        await createAPlanet.getByRole('button', { expanded: false }).click()
+      }
+
+      // Snapshot the request body
+      const requestQueryParams = await getAllPlanets.getByRole('list', { name: 'Query Parameters' })
+      await expect(requestQueryParams).toHaveScreenshot(`${slug}-request-query-params.png`)
+      await expandChildAttributes(requestQueryParams)
+
+      // Snapshot the request body
+      const requestBody = await createAPlanet.getByRole('group', { name: 'Request Body' })
       await expect(requestBody).toHaveScreenshot(`${slug}-request-body.png`)
+      await expandChildAttributes(requestBody)
 
-      // Snapshot a request body
-      const requestResponses = await page.getByRole('list', { name: 'Responses' }).first()
-      await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses.png`)
+      // Snapshot the request response
+      const requestResponses = await createAPlanet.getByRole('list', { name: 'Responses' })
+      await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses-closed.png`)
+      // Open all the responses
+      for (const response of await requestResponses.getByRole('button', { name: /\d+/ }).all()) {
+        await response.click()
+      }
+      await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses-open.png`)
 
-      // Snapshot a request example
-      const requestExample = await page.getByRole('group', { name: 'Request Example' }).first()
+      // Snapshot the request callbacks
+      const requestCallbacks = await createAPlanet.getByRole('group', { name: 'Callbacks' })
+      await requestCallbacks.getByText('planetCreated').first().click()
+      await expect(requestCallbacks).toHaveScreenshot(`${slug}-request-callbacks.png`)
+
+      // Snapshot the request example
+      const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
       await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
     })
   })
