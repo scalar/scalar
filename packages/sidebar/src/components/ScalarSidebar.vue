@@ -45,6 +45,9 @@ const handleDragEnd = (
     <slot name="header" />
     <slot>
       <ScalarSidebarItems class="custom-scroll">
+        <!-- First item -->
+        <slot name="firstItem" />
+
         <SidebarItem
           v-for="item in items"
           :key="item.id"

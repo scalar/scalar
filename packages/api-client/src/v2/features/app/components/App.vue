@@ -12,6 +12,7 @@ import { ScalarTeleportRoot } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
@@ -49,6 +50,9 @@ const workspaceModel = ref('default')
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = ref(true)
+
+/** Workspace event bus */
+const eventBus = createWorkspaceEventBus()
 </script>
 
 <template>
@@ -83,11 +87,12 @@ const isSidebarOpen = ref(true)
 
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div class="bg-b-1 flex min-h-0 min-w-0 flex-1 flex-col">
         <RouterView v-slot="{ Component }">
           <keep-alive>
             <component
               :is="Component"
+              :eventBus="eventBus"
               :layout="layout"
               :workspaceStore="workspaceStore" />
           </keep-alive>

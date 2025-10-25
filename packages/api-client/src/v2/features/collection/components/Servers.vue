@@ -13,7 +13,6 @@ import { ref } from 'vue'
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import type { EnvVariable } from '@/store'
-import type { CommandPaletteActions } from '@/v2/blocks/command-palette'
 
 import Form from './Form.vue'
 
@@ -27,7 +26,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'open:commandPalette', action?: CommandPaletteActions): void
+  (e: 'open:commandPalette', action?: 'addServer'): void
   (e: 'server:delete', payload: { serverUrl: string }): void
   (
     e: 'server:update:variable',

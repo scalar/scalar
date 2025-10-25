@@ -1,4 +1,5 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { ClientLayout } from '@/v2/types/layout'
@@ -7,6 +8,7 @@ import type { ClientLayout } from '@/v2/types/layout'
 export type RouteProps = {
   layout: ClientLayout
   workspaceStore: WorkspaceStore
+  eventBus: WorkspaceEventBus
   // workspaceSlug: string
   // documentSlug?: string
   // pathEncoded?: string
@@ -30,7 +32,7 @@ export const ROUTES = [
       {
         name: 'workspace.overview',
         path: 'overview',
-        component: () => import('@/v2/features/overview/Overview.vue'),
+        component: () => import('@/v2/features/collection/Collection.vue'),
       },
       // Workspace servers
       {
@@ -62,52 +64,62 @@ export const ROUTES = [
         path: 'settings',
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
-      // Document
+      // Example page
+      {
+        name: 'example',
+        path: 'document/:documentSlug/path/:pathEncoded/method/:method/example/:exampleName',
+        component: () => import('@/v2/components/TempReplaceMe.vue'),
+      },
+      // Document Page
       {
         name: 'document',
         path: 'document/:documentSlug',
+        props: { type: 'document' },
+        component: () => import('@/v2/features/collection/Collection.vue'),
         children: [
+          // Redirect to overview
+          {
+            name: 'document.redirect',
+            path: '',
+            redirect: {
+              name: 'document.overview',
+            },
+          },
           // Document overview
           {
             name: 'document.overview',
             path: 'overview',
-            component: () => import('@/v2/features/overview/Overview.vue'),
+            component: () => import('@/v2/features/collection/components/Overview.vue'),
           },
           // Document servers
           {
             name: 'document.servers',
             path: 'servers',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Servers.vue'),
           },
           // Document environment
           {
             name: 'document.environment',
             path: 'environment',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Environment.vue'),
           },
           // Document authentication
           {
             name: 'document.authentication',
             path: 'authentication',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Authentication.vue'),
           },
           // Document cookies
           {
             name: 'document.cookies',
             path: 'cookies',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Cookies.vue'),
           },
           // Document settings
           {
             name: 'document.settings',
             path: 'settings',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Example page
-          {
-            name: 'example',
-            path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Settings.vue'),
           },
         ],
       },
