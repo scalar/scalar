@@ -10,21 +10,6 @@ const toTest: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']
 
 test.describe.configure({ mode: 'parallel', timeout: 45000 })
 
-async function expandChildAttributes(locator: Locator, maxClicks = 12) {
-  let clicks = 0
-  while (true) {
-    const button = await locator.getByRole('button', { name: 'Show Child Attributes', expanded: false })
-
-    if (clicks >= maxClicks || (await button.count()) === 0) {
-      console.log(`Expanded ${clicks} sections`)
-      break
-    }
-
-    await button.first().click()
-    clicks++
-  }
-}
-
 sources
   .filter(({ slug }) => toTest.includes(slug))
   .forEach(({ title, slug }) => {
@@ -34,10 +19,14 @@ sources
       // Operations
       // --------------------------------------------------------------------------
 
-      // On modern we need to expand the tags
-      if (!slug.endsWith('classic')) {
-        for (const tag of ['Planets', 'Celestial Bodies']) {
-          await page.getByRole('button', { name: `Show all ${tag} endpoints` }).click()
+      // Expand the tags
+
+      for (const tag of ['Planets', 'Celestial Bodies', 'Models']) {
+        const region = page.getByRole('region', { name: tag })
+        if (slug.endsWith('classic')) {
+          await region.getByRole('button', { expanded: false }).click()
+        } else {
+          await region.getByRole('button', { name: 'Show' }).click()
         }
       }
 
@@ -53,12 +42,10 @@ sources
       // Snapshot the request body
       const requestQueryParams = await getAllPlanets.getByRole('list', { name: 'Query Parameters' })
       await expect(requestQueryParams).toHaveScreenshot(`${slug}-request-query-params.png`)
-      await expandChildAttributes(requestQueryParams)
 
       // Snapshot the request body
       const requestBody = await createAPlanet.getByRole('group', { name: 'Request Body' })
       await expect(requestBody).toHaveScreenshot(`${slug}-request-body.png`)
-      await expandChildAttributes(requestBody)
 
       // Snapshot the request response
       const requestResponses = await createAPlanet.getByRole('list', { name: 'Responses' })
