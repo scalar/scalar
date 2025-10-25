@@ -3,19 +3,20 @@ import { fetchUrls } from '@/bundle/plugins/fetch-urls'
 import { createMagicProxy } from '@/magic-proxy'
 import type { UnknownObject } from '@/types'
 
-type DereferenceResult =
+type DereferenceResult<T extends UnknownObject = UnknownObject> =
   | {
       success: true
-      data: UnknownObject
+      data: T
     }
   | {
       success: false
       errors: string[]
     }
 
-type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] extends true
-  ? DereferenceResult
-  : Promise<DereferenceResult>
+type ReturnDereferenceResult<
+  Opt extends { sync?: boolean },
+  T extends UnknownObject = UnknownObject,
+> = Opt['sync'] extends true ? DereferenceResult<T> : Promise<DereferenceResult<T>>
 
 /**
  * Dereferences a JSON object, resolving all $ref pointers.
@@ -26,6 +27,8 @@ type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] exten
  *
  * @param input - JSON Schema object to dereference.
  * @param options - Optional settings. If `sync` is true, dereferencing is synchronous.
+ * @typeParam Opts - Options type, indicating if sync mode is enabled.
+ * @typeParam T - Type of the input JSON object, and result object.
  * @returns A DereferenceResult (or Promise thereof) indicating success and the dereferenced data, or errors.
  *
  * @example
@@ -46,20 +49,20 @@ type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] exten
  *     }
  *   });
  */
-export const dereference = <Opts extends { sync?: boolean }>(
-  input: UnknownObject,
+export const dereference = <Opts extends { sync?: boolean }, T extends UnknownObject = UnknownObject>(
+  input: T,
   options?: Opts,
-): ReturnDereferenceResult<Opts> => {
+): ReturnDereferenceResult<Opts, T> => {
   if (options?.sync) {
     return {
       success: true,
-      data: createMagicProxy(input),
-    } as ReturnDereferenceResult<Opts>
+      data: createMagicProxy<T, T>(input),
+    } as ReturnDereferenceResult<Opts, T>
   }
 
   const errors: string[] = []
 
-  return bundle(input, {
+  return bundle<T>(input, {
     plugins: [fetchUrls()],
     treeShake: false,
     urlMap: true,
@@ -78,7 +81,7 @@ export const dereference = <Opts extends { sync?: boolean }>(
 
     return {
       success: true,
-      data: createMagicProxy(result as UnknownObject),
+      data: createMagicProxy<T, T>(result),
     }
-  }) as ReturnDereferenceResult<Opts>
+  }) as ReturnDereferenceResult<Opts, T>
 }

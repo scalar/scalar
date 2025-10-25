@@ -562,6 +562,7 @@ const extensions = {
  *                If no plugin can process the input, the onReferenceError hook will be invoked
  *                and an error will be emitted to the console.
  * @param config - Configuration object containing plugins and options for bundling OpenAPI specifications
+ * @typeParam T - Type of the input JSON object, and result object.
  * @returns A promise that resolves to the bundled specification with all references embedded
  * @example
  * // Example with object input
@@ -614,7 +615,7 @@ const extensions = {
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
-export async function bundle(input: UnknownObject | string, config: Config) {
+export async function bundle<T extends UnknownObject = UnknownObject>(input: T | string, config: Config): Promise<T> {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -634,7 +635,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     const result = await resolveContents(input, loaderPlugins)
 
     if (result.ok && typeof result.data === 'object') {
-      return result.data
+      return result.data as T
     }
 
     throw new Error(
@@ -688,7 +689,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   }
   const { generate } = uniqueValueGeneratorFactory(
     config.compress ?? getHash,
-    documentRoot[extensions.externalDocumentsMappings],
+    documentRoot[extensions.externalDocumentsMappings] as Record<string, string>,
   )
 
   const bundler = async (
@@ -815,7 +816,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
             extensions.externalDocuments,
             compressedPath,
-            documentRoot[extensions.externalDocumentsMappings],
+            documentRoot[extensions.externalDocumentsMappings] as string,
           ])
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
@@ -911,5 +912,5 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     delete documentRoot[extensions.externalDocumentsMappings]
   }
 
-  return rawSpecification
+  return rawSpecification as T
 }

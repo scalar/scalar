@@ -5,7 +5,6 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fjson-magic)](https://www.npmjs.com/package/@scalar/json-magic)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-
 A collection of utilities for working with JSON objects, including diffing, conflict resolution, bundling and more.
 
 ## bundle
@@ -34,9 +33,11 @@ console.log(result)
 If you are on a browser environment import plugins from `@scalar/json-magic/bundle/plugins/browser` while if you are on a node environment you can import from `@scalar/json-magic/bundle/plugins/node`
 
 ##### fetchUrls
+
 This plugins handles all external urls. It works for both node.js and browser environment
 
 ```ts
+import { type Document } from '@scalar/openapi-types'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 
@@ -52,7 +53,7 @@ const document = {
 }
 
 // This will bundle all external documents and turn all references from external into internal
-await bundle(document, {
+await bundle<Document>(document, {
   plugins: [fetchUrls()],
   treeShake: true  // <------  This flag will try to remove any unused part of the external document
 })
@@ -75,6 +76,7 @@ await bundle(document, {
 ```
 
 ###### Custom headers
+
 To pass custom headers to requests for specific domains you can configure the fetch plugin like the example
 
 ```ts
@@ -102,6 +104,7 @@ await bundle(
 ```
 
 ###### Custom fetch function
+
 For advanced use cases like proxying requests or implementing custom network logic, you can provide your own fetch implementation. This allows you to handle things like CORS restrictions, custom authentication flows, or request/response transformations.
 
 ```ts
@@ -126,7 +129,7 @@ await bundle(
 ###### Bundle from remote url
 
 ```ts
-const result = await bundle(
+const result = await bundle<Document>(
   'https://example.com/openapi.json',
   {
     plugins: [
@@ -141,9 +144,11 @@ console.log(result)
 ```
 
 ##### readFiles
+
 This plugins handles local files. Only works on node.js environment
 
 ```ts
+import { type Document } from '@scalar/openapi-types'
 import { bundle } from '@scalar/json-magic/bundle'
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 
@@ -159,7 +164,7 @@ const document = {
 }
 
 // This will bundle all external documents and turn all references from external into internal
-await bundle(document, {
+await bundle<Document>(document, {
   plugins: [readFiles()],
   treeShake: false
 })
@@ -168,6 +173,7 @@ console.log(document)
 ```
 
 ###### Bundle from local file
+
 You can pass the file path directly but make sure to have the correct plugins to handle reading from the local files
 
 ```ts
@@ -188,11 +194,13 @@ console.log(result)
 ##### parseJson
 
 You can pass raw json string as input
+
 ```ts
+import { type Document } from '@scalar/openapi-types'
 import { bundle } from '@scalar/json-magic/bundle'
 import { parseJson } from '@scalar/json-magic/bundle/plugins/browser'
 
-const result = await bundle(
+const result = await bundle<Document>(
   '{ "openapi": "3.1.1" }',
   {
     plugins: [
@@ -209,11 +217,13 @@ console.log(result)
 ##### parseYaml
 
 You can pass raw yaml string as input
+
 ```ts
+import { type Document } from '@scalar/openapi-types'
 import { bundle } from '@scalar/json-magic/bundle'
 import { parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 
-const result = await bundle(
+const result = await bundle<Document>(
   'openapi: "3.1.1"\n',
   {
     plugins: [
@@ -245,7 +255,6 @@ await bundle(input, {
   depth: 2,
 })
 ```
-
 
 ## dereference
 
@@ -290,7 +299,6 @@ This package provides a way to compare two json objects and get the differences,
 
 ### Quickstart
 
-
 ```ts
 import { apply, diff, merge } from '@scalar/json-magic/diff'
 
@@ -331,7 +339,6 @@ const { diffs, conflicts } = merge(
 // Apply changes from v1 and v2 to the parent object to get the final object
 const finalDocument = apply(baseObject, diffs)
 ```
-
 
 ## magic-proxy
 
