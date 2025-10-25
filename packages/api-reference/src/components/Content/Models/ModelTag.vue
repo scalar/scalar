@@ -23,9 +23,6 @@ const emit = defineEmits<{
   (e: 'toggleTag', id: string, open: boolean): void
   (e: 'intersecting', id: string): void
 }>()
-
-/** UID used to associate the section header with the section content */
-const headerId = useId()
 </script>
 <template>
   <Lazy id="models">
@@ -34,14 +31,10 @@ const headerId = useId()
       v-if="options.layout === 'modern'"
       id="models">
       <Section
-        :aria-labelledby="headerId"
+        aria-label="Models"
         @intersecting="(id) => emit('intersecting', id)">
         <SectionHeader>
-          <SectionHeaderTag
-            :id="headerId"
-            :level="2">
-            Models
-          </SectionHeaderTag>
+          <SectionHeaderTag :level="2"> Models </SectionHeaderTag>
         </SectionHeader>
         <template v-if="!isCollapsed">
           <slot />
@@ -58,6 +51,7 @@ const headerId = useId()
     <!-- Classic Layout Model Container -->
     <SectionContainerAccordion
       v-else
+      aria-label="Models"
       class="pb-12"
       :modelValue="!isCollapsed"
       @update:modelValue="() => emit('toggleTag', id, isCollapsed)">
