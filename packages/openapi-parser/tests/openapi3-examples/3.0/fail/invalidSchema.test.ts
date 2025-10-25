@@ -7,11 +7,11 @@ describe('invalidSchema', () => {
   it('returns an error', async () => {
     const result = await validate(invalidSchema)
 
-    // TODO: Swagger Editor
-    //
-    // Resolver error at paths./test.$ref
-    // Could not resolve reference: undefined undefined
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    console.log(result.errors)
+
+    // The auth schema is invalid, it specifies true rather than a string for the type.
+    // If it provided a valid type, the error would reflect the incorrect keys for that type.
+    expect(result.errors?.[0]?.message).toBe('oneOf must match exactly one schema in oneOf')
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })

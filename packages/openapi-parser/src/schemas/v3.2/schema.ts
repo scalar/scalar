@@ -39,7 +39,7 @@ export default {
     "webhooks": {
       "type": "object",
       "additionalProperties": {
-        "$ref": "#/$defs/path-item"
+        "$ref": "#/$defs/path-item-or-reference"
       }
     },
     "components": {
@@ -259,7 +259,7 @@ export default {
         "pathItems": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/$defs/path-item"
+            "$ref": "#/$defs/path-item-or-reference"
           }
         },
         "mediaTypes": {
@@ -285,7 +285,7 @@ export default {
       "type": "object",
       "patternProperties": {
         "^/": {
-          "$ref": "#/$defs/path-item"
+          "$ref": "#/$defs/path-item-or-reference"
         }
       },
       "$ref": "#/$defs/specification-extensions",
@@ -295,10 +295,6 @@ export default {
       "$comment": "https://spec.openapis.org/oas/v3.2#path-item-object",
       "type": "object",
       "properties": {
-        "$ref": {
-          "type": "string",
-          "format": "uri-reference"
-        },
         "summary": {
           "type": "string"
         },
@@ -357,6 +353,18 @@ export default {
       },
       "$ref": "#/$defs/specification-extensions",
       "unevaluatedProperties": false
+    },
+    "path-item-or-reference": {
+      "if": {
+        "type": "object",
+        "required": ["$ref"]
+      },
+      "then": {
+        "$ref": "#/$defs/reference"
+      },
+      "else": {
+        "$ref": "#/$defs/path-item"
+      }
     },
     "operation": {
       "$comment": "https://spec.openapis.org/oas/v3.2#operation-object",
