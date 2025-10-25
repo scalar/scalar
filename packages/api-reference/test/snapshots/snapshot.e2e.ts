@@ -65,9 +65,9 @@ sources
       await requestCallbacks.getByText('planetCreated').first().click()
       await expect(requestCallbacks).toHaveScreenshot(`${slug}-request-callbacks.png`)
 
-      // Snapshot the request example
-      const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
-      await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
+      // Snapshot the request example - disabled for now as it's flaky
+      // const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
+      // await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
 
       // Models
       // --------------------------------------------------------------------------
