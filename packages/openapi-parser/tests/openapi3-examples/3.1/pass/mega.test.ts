@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import mega from './mega.yaml?raw'
 
 describe('mega', () => {
-  it('passes', async () => {
-    const result = await validate(mega)
+  it('passes', () => {
+    const result = validate(mega)
     expect(result.valid).toBe(true)
     expect(result.errors).toStrictEqual([])
     expect(result.version).toBe('3.1')

@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { validate } from './validate'
 
-describe('validate', async () => {
-  it('fails on invalid schema', async () => {
-    const result = await validate('')
+describe('validate', () => {
+  it('fails on invalid schema', () => {
+    const result = validate('')
 
     expect(result.valid).toBe(false)
     expect(result.errors).toMatchObject([
@@ -14,8 +14,8 @@ describe('validate', async () => {
     ])
   })
 
-  it('returns errors for an invalid schema', async () => {
-    const result = await validate(
+  it('returns errors for an invalid schema', () => {
+    const result = validate(
       `{
         "openapi": "3.1.0",
         "paths": {}
@@ -32,15 +32,15 @@ describe('validate', async () => {
     })
   })
 
-  it('returns errors for an invalid specification', async () => {
-    const result = await validate('pineapples')
+  it('returns errors for an invalid specification', () => {
+    const result = validate('pineapples')
 
     expect(result.errors).toHaveLength(1)
     expect(result.errors[0].message).toBe("Can't find JSON, YAML or filename in data.")
   })
 
-  it('works with YAML', async () => {
-    const result = await validate(`openapi: 3.1.0
+  it('works with YAML', () => {
+    const result = validate(`openapi: 3.1.0
 info:
   title: Hello World
   version: 1.0.0
@@ -50,8 +50,8 @@ paths: {}
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('works with OpenAPI 3.2.0', async () => {
-    const result = await validate(`{
+  it('works with OpenAPI 3.2.0', () => {
+    const result = validate(`{
       "openapi": "3.2.0",
       "info": {
           "title": "Hello World",
@@ -64,8 +64,8 @@ paths: {}
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it(`doesn't work with OpenAPI 4.0.0`, async () => {
-    const result = await validate(`{
+  it(`doesn't work with OpenAPI 4.0.0`, () => {
+    const result = validate(`{
       "openapi": "4.0.0",
       "info": {
           "title": "Hello World",
@@ -78,11 +78,11 @@ paths: {}
     expect(result.errors[0].message).toContain("Can't find supported Swagger/OpenAPI version in the provided document")
   })
 
-  it('throws an error', async () => {
-    expect(async () => {
-      await validate(undefined, {
+  it('throws an error', () => {
+    expect(() => {
+      validate(undefined, {
         throwOnError: true,
       })
-    }).rejects.toThrowError("Can't find JSON, YAML or filename in data")
+    }).toThrowError("Can't find JSON, YAML or filename in data")
   })
 })

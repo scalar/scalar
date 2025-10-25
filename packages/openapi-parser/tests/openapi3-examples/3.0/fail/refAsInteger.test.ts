@@ -4,8 +4,8 @@ import { validate } from '../../../../src/index'
 import refAsInteger from './refAsInteger.yaml?raw'
 
 describe('refAsInteger', () => {
-  it('returns an error', async () => {
-    const result = await validate(refAsInteger)
+  it('returns an error', () => {
+    const result = validate(refAsInteger)
 
     // TODO: Swagger Editor
     //

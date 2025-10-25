@@ -63,7 +63,7 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
     else if (name === 'validate') {
       result = {
         ...result,
-        ...(await validate(currentSpecification, options as Commands['validate']['task']['options'])),
+        ...validate(currentSpecification, options as Commands['validate']['task']['options']),
       }
     }
 
