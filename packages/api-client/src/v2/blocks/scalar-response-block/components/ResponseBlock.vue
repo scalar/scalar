@@ -6,10 +6,10 @@ import { computed, ref, useId } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import { usePluginManager } from '@/plugins'
 import type { createStoreEvents } from '@/store/events'
 import Headers from '@/v2/blocks/scalar-response-block/components/Headers.vue'
 import { textMediaTypes } from '@/v2/blocks/scalar-response-block/helpers/media-types'
+import type { ClientPlugin } from '@/v2/plugins'
 
 import ResponseBody from './ResponseBody.vue'
 import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
@@ -31,6 +31,10 @@ const { layout, totalPerformedRequests, response, request } = defineProps<{
   totalPerformedRequests: number
   /** Application version */
   appVersion: string
+
+  /** Registered app plugins */
+  plugins?: ClientPlugin[]
+
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
 }>()
@@ -40,9 +44,6 @@ const emits = defineEmits<{
   (e: 'sendRequest'): void
   (e: 'openCommandPalette'): void
 }>()
-
-const pluginManager = usePluginManager()
-const responseSectionViews = pluginManager.getViewComponents('response.section')
 
 // Headers
 const responseHeaders = computed(() => {
@@ -206,14 +207,14 @@ defineExpose({
           <template #title>Response Headers</template>
         </Headers>
 
-        <template
-          v-for="view in responseSectionViews"
-          :key="view.component">
+        <template v-for="plugin in plugins">
           <ScalarErrorBoundary>
             <component
-              :is="view.component"
-              v-show="activeFilter === 'All' || activeFilter === view.title"
-              v-bind="view.props ?? {}" />
+              v-if="plugin.components?.response"
+              :is="plugin.components.response"
+              v-show="activeFilter === 'All'"
+              :response="response"
+              :request="request" />
           </ScalarErrorBoundary>
         </template>
 

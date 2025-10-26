@@ -21,6 +21,7 @@ import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
+import type { ClientPlugin } from '@/v2/plugins'
 
 const {
   operation,
@@ -51,6 +52,8 @@ const {
   server?: ServerObject
   /** Client layout */
   layout: ClientLayout
+  /** Registered app plugins */
+  plugins?: ClientPlugin[]
 
   /** TODO: remove when we migrate */
   environment: Environment
@@ -418,6 +421,17 @@ const labelRequestNameId = useId()
         (payload) => emits('requestBody:update:formRow', payload)
       "
       @update:value="(payload) => emits('requestBody:update:value', payload)" />
+
+    <!-- Inject request section plugin components -->
+    <template v-for="plugin in plugins">
+      <ScalarErrorBoundary>
+        <component
+          v-if="plugin?.components?.request"
+          :is="plugin.components.request"
+          :operation="operation"
+          :selectedExample="exampleKey" />
+      </ScalarErrorBoundary>
+    </template>
   </ViewLayoutSection>
 </template>
 <style scoped>
