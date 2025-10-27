@@ -24,12 +24,13 @@ import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 export const useDocumentWatcher = ({
   documentName,
   store,
-  timeout,
+  timeout = 5000,
 }: {
   documentName: MaybeRefOrGetter<string>
   store: WorkspaceStore
   timeout?: number
 }) => {
+  let initialTimeout = timeout
   const document = computed(() => store.workspace.documents[toValue(documentName)])
 
   let interval: NodeJS.Timeout | null = null
@@ -44,6 +45,8 @@ export const useDocumentWatcher = ({
       }
 
       if (!sourceUrl || !watchMode) {
+        // Reset initial timeout
+        initialTimeout = timeout
         return
       }
 
@@ -54,11 +57,15 @@ export const useDocumentWatcher = ({
           url: sourceUrl,
         })
 
-        if (result) {
+        if (result?.ok) {
           // On conflicts, prefers remote changes by automatically choosing the first option for each conflict tuple
           await result.applyChanges(result.conflicts.flatMap((conflictTuple) => conflictTuple[0]))
         }
-      }, timeout)
+
+        if (result?.ok === false) {
+          initialTimeout *= 2 // Exponential backoff on failure
+        }
+      }, initialTimeout)
     },
     { immediate: true },
   )

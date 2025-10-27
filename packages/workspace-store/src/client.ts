@@ -393,10 +393,14 @@ export type WorkspaceStore = {
    *   await result.applyChanges(userResolvedConflicts);
    * }
    */
-  rebaseDocument: (input: WorkspaceDocumentInput) => Promise<void | {
-    conflicts: ReturnType<typeof merge>['conflicts']
-    applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
-  }>
+  rebaseDocument: (input: WorkspaceDocumentInput) => Promise<
+    | { ok: false; type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'; message: string }
+    | {
+        ok: true
+        conflicts: ReturnType<typeof merge>['conflicts']
+        applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+      }
+  >
 }
 
 /**
@@ -880,7 +884,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
-        return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
+        return {
+          ok: false,
+          type: 'CORRUPTED_STATE' as const,
+          message: `Cannot rebase document '${name}': missing original, intermediate, or active document state`,
+        }
       }
 
       // ---- Resolve input document
@@ -890,14 +898,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       if (!resolve.ok || !isObject(resolve.data)) {
-        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
+        return {
+          ok: false,
+          type: 'FETCH_FAILED' as const,
+          message: `Failed to fetch document '${name}': request was not successful or returned invalid data`,
+        }
       }
 
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
       const newHash = await generateHash(resolve.raw)
       if (activeDocument['x-scalar-original-document-hash'] === newHash) {
-        return
+        return {
+          ok: false,
+          type: 'NO_CHANGES_DETECTED' as const,
+          message: `No changes detected for document '${name}': document hash matches the active document`,
+        }
       }
 
       const newDocumentOrigin = resolve.data
@@ -913,7 +929,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // When there are no changes, we can return early since we don't need to do anything
       // This is not supposed to happen due to the hash check above, but just in case
       if (changelogAA.length === 0) {
-        return
+        return {
+          ok: false,
+          type: 'NO_CHANGES_DETECTED' as const,
+          message: `No changes detected for document '${name}' after fetching the latest version.`,
+        }
       }
 
       const changelogAB = diff(originalDocument, intermediateDocument)
@@ -921,6 +941,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const changesA = merge(changelogAA, changelogAB)
 
       return {
+        ok: true,
         conflicts: changesA.conflicts,
         applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
           const changesetA = changesA.diffs.concat(resolvedConflicts)
@@ -961,7 +982,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             documentHash: await generateHash(resolve.raw),
             initialize: false,
           })
-          return
         },
       }
     },

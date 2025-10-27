@@ -2837,7 +2837,7 @@ describe('create-workspace-store', () => {
         name: documentName,
       })
 
-      assert(result)
+      assert(result.ok)
 
       expect(result.conflicts).toEqual([
         [
@@ -2877,7 +2877,7 @@ describe('create-workspace-store', () => {
 
       const result = await store.rebaseDocument({ name: documentName, document: newDocument })
 
-      assert(result)
+      assert(result.ok)
 
       expect(result.conflicts).toEqual([
         [
@@ -2934,7 +2934,7 @@ describe('create-workspace-store', () => {
 
       const result = await store.rebaseDocument({ name: documentName, document: newDocument })
 
-      assert(result)
+      assert(result.ok)
 
       // Apply the resolved changes (we choose the incoming changes in this case)
       await result.applyChanges(result.conflicts.flatMap((it) => it[1]))
@@ -2943,11 +2943,9 @@ describe('create-workspace-store', () => {
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
     })
 
-    it('should log the error if the document we try to rebase does not exists', async () => {
-      consoleErrorSpy.mockReset()
-
+    it('should return the error if the document we try to rebase does not exists', async () => {
       const store = createWorkspaceStore()
-      await store.rebaseDocument({
+      const result = await store.rebaseDocument({
         name: 'some-document',
         document: {
           openapi: '3.1.1',
@@ -2955,10 +2953,12 @@ describe('create-workspace-store', () => {
         },
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[ERROR]: Specified document is missing or internal corrupted workspace state',
+      expect(result.ok).toBe(false)
+      assert(result.ok === false)
+      expect(result.type).toBe('CORRUPTED_STATE')
+      expect(result.message).toBe(
+        "Cannot rebase document 'some-document': missing original, intermediate, or active document state",
       )
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     })
 
     it('should load new origin from a url', async () => {
@@ -2990,7 +2990,7 @@ describe('create-workspace-store', () => {
         fetch: fetchDocument,
       })
 
-      assert(result)
+      assert(result.ok)
 
       await result.applyChanges([]) // No conflicts to apply
 
@@ -3061,7 +3061,7 @@ describe('create-workspace-store', () => {
         },
       })
 
-      assert(result)
+      assert(result.ok)
       await result.applyChanges([]) // No conflicts to apply
 
       expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual({
