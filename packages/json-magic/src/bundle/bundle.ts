@@ -549,6 +549,11 @@ const extensions = {
   externalDocumentsMappings: 'x-ext-urls',
 } as const
 
+type BundleResult<T extends UnknownObject> = T & {
+  'x-ext'?: Record<string, unknown>
+  'x-ext-urls'?: Record<string, string>
+}
+
 /**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and embeds external $ref
@@ -615,7 +620,10 @@ const extensions = {
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
-export async function bundle<T extends UnknownObject = UnknownObject>(input: T | string, config: Config): Promise<T> {
+export async function bundle<T extends UnknownObject = UnknownObject>(
+  input: T | string,
+  config: Config,
+): Promise<BundleResult<T>> {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -912,5 +920,5 @@ export async function bundle<T extends UnknownObject = UnknownObject>(input: T |
     delete documentRoot[extensions.externalDocumentsMappings]
   }
 
-  return rawSpecification as T
+  return rawSpecification as BundleResult<T>
 }
