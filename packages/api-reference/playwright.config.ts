@@ -30,11 +30,12 @@ const playwrightServer: WebServer = {
 export default defineConfig({
   testMatch: 'test/**/*.e2e.ts',
   workers: '100%',
+  fullyParallel: true,
   reporter: CI
     ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'playwright-results.json' }]]
     : [['list'], ['html', { open: 'always' }]],
 
-  snapshotPathTemplate: './test/snapshots/reference/{arg}{ext}',
+  snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
 
   expect: {
     toHaveScreenshot: {
