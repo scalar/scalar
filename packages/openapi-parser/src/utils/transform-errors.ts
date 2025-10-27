@@ -1,4 +1,5 @@
 import type { AnyObject } from '@/types/index'
+
 import { betterAjvErrors } from './betterAjvErrors/index'
 
 /**
@@ -20,7 +21,7 @@ export function transformErrors(specification: AnyObject, errors: any) {
   if (!specification || typeof specification !== 'object') {
     return [
       {
-        message: typeof errors === 'string' ? errors : 'Invalid specification',
+        message: 'Invalid specification',
       },
     ]
   }
@@ -36,6 +37,7 @@ export function transformErrors(specification: AnyObject, errors: any) {
       return error
     })
   } catch (error) {
+    console.error(error)
     // If betterAjvErrors fails, fall back to raw AJV errors
     if (Array.isArray(errors)) {
       return errors.map((err) => {
@@ -54,7 +56,7 @@ export function transformErrors(specification: AnyObject, errors: any) {
     }
     return [
       {
-        message: typeof errors === 'string' ? errors : 'Validation failed',
+        message: 'Validation failed',
       },
     ]
   }
