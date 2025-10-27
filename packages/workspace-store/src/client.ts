@@ -382,22 +382,21 @@ export type WorkspaceStore = {
    * If automatic resolution isn't possible due to conflicts, returns a conflict list for the caller to resolve.
    * If `resolvedConflicts` are provided (e.g., after user intervention), applies them to complete the rebase.
    *
-   * @param input - An object specifying which document to rebase, the new origin document, fetch/config info, and overrides.
-   * @param resolvedConflicts - (Optional) Conflict resolutions to apply if rebase hits merge conflicts.
-   * @returns If there are unresolved conflicts and no resolution is provided, resolves to the list of conflicts; otherwise resolves to void.
+   * @param input Object specifying which document to rebase
+   * @returns If there are unresolved conflicts, resolves to an object containing the list of conflicts and a method to apply user-resolved conflicts; otherwise resolves to void.
    *
    * @example
-   * // Example: Rebase a document and handle merge conflicts
-   * const conflicts = await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch })
-   * if (conflicts && conflicts.length > 0) {
-   *   // User resolves conflicts here...
-   *   await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch }, userResolvedConflicts)
+   * // Rebase a document and handle conflicts interactively
+   * const result = await store.rebaseDocument({ name: 'api', fetch: customFetch });
+   * if (result) {
+   *   // Present conflicts to the user and collect resolutions...
+   *   await result.applyChanges(userResolvedConflicts);
    * }
    */
-  rebaseDocument: (
-    input: WorkspaceDocumentInput,
-    resolvedConflicts?: Difference<unknown>[],
-  ) => Promise<void | ReturnType<typeof merge>['conflicts']>
+  rebaseDocument: (input: WorkspaceDocumentInput) => Promise<void | {
+    conflicts: ReturnType<typeof merge>['conflicts']
+    applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+  }>
 }
 
 /**
@@ -583,7 +582,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       {
         ...inputDocument,
         ...meta,
-        'x-original-oas-version': inputDocument.openapi ?? inputDocument.swagger,
+        'x-original-oas-version': originalDocuments[name]?.openapi ?? originalDocuments[name]?.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
@@ -868,20 +867,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: async (input: WorkspaceDocumentInput, resolvedConflicts?: Difference<unknown>[]) => {
+    rebaseDocument: async (input: WorkspaceDocumentInput) => {
       const { name } = input
-
-      // ---- Resolve input document
-      const resolve = await measureAsync(
-        'loadDocument',
-        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
-      )
-
-      if (!resolve.ok || !isObject(resolve.data)) {
-        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
-      }
-
-      const newDocumentOrigin = resolve.data
 
       // ---- Get the current documents
       const originalDocument = originalDocuments[name]
@@ -896,6 +883,25 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
+      // ---- Resolve input document
+      const resolve = await measureAsync(
+        'loadDocument',
+        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      )
+
+      if (!resolve.ok || !isObject(resolve.data)) {
+        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
+      }
+
+      // Compare document hashes to see if the document has changed
+      // When the hashes match, we can skip the rebase process
+      const newHash = await generateHash(resolve.raw)
+      if (activeDocument['x-scalar-original-document-hash'] === newHash) {
+        return
+      }
+
+      const newDocumentOrigin = resolve.data
+
       // ---- Override the configurations and metadata
       documentConfigs[name] = input.config ?? {}
       overrides[name] = input.overrides ?? {}
@@ -905,6 +911,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const changelogAA = diff(originalDocument, newDocumentOrigin)
 
       // When there are no changes, we can return early since we don't need to do anything
+      // This is not supposed to happen due to the hash check above, but just in case
       if (changelogAA.length === 0) {
         return
       }
@@ -913,50 +920,50 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       const changesA = merge(changelogAA, changelogAB)
 
-      if (resolvedConflicts === undefined) {
-        // If there are conflicts, return the list of conflicts for user resolution
-        return changesA.conflicts
-      }
+      return {
+        conflicts: changesA.conflicts,
+        applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
+          const changesetA = changesA.diffs.concat(resolvedConflicts)
 
-      const changesetA = changesA.diffs.concat(resolvedConflicts)
+          // Apply the changes to the original document to get the new intermediate
+          const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
+          intermediateDocuments[name] = newIntermediateDocument
 
-      // Apply the changes to the original document to get the new intermediate
-      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
-      intermediateDocuments[name] = newIntermediateDocument
+          // Update the original document
+          originalDocuments[name] = newDocumentOrigin
 
-      // Update the original document
-      originalDocuments[name] = newDocumentOrigin
+          // ---- Get the new active document
+          const changelogBA = diff(intermediateDocument, newIntermediateDocument)
+          const changelogBB = diff(intermediateDocument, activeDocument)
 
-      // ---- Get the new active document
-      const changelogBA = diff(intermediateDocument, newIntermediateDocument)
-      const changelogBB = diff(intermediateDocument, activeDocument)
+          const changesB = merge(changelogBA, changelogBB)
 
-      const changesB = merge(changelogBA, changelogBB)
+          // Auto-conflict resolution: pick only the changes from the first changeset
+          // TODO: In the future, implement smarter conflict resolution if needed
+          const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-      // Auto-conflict resolution: pick only the changes from the first changeset
-      // TODO: In the future, implement smarter conflict resolution if needed
-      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
+          const newActiveDocument = coerceValue(
+            OpenAPIDocumentSchemaStrict,
+            apply(deepClone(newIntermediateDocument), changesetB),
+          )
 
-      const newActiveDocument = coerceValue(
-        OpenAPIDocumentSchemaStrict,
-        apply(deepClone(newIntermediateDocument), changesetB),
-      )
-
-      // add the new active document to the workspace but don't re-initialize
-      await addInMemoryDocument({
-        ...input,
-        document: {
-          ...newActiveDocument,
-          // force regeneration of navigation
-          // when we are rebasing, we want to ensure that the navigation is always up to date
-          [extensions.document.navigation]: undefined,
+          // add the new active document to the workspace but don't re-initialize
+          await addInMemoryDocument({
+            ...input,
+            document: {
+              ...newActiveDocument,
+              // force regeneration of navigation
+              // when we are rebasing, we want to ensure that the navigation is always up to date
+              [extensions.document.navigation]: undefined,
+            },
+            documentSource: getDocumentSource(input),
+            // Update the original document hash
+            documentHash: await generateHash(resolve.raw),
+            initialize: false,
+          })
+          return
         },
-        documentSource: getDocumentSource(input),
-        // Update the original document hash
-        documentHash: await generateHash(resolve.raw),
-        initialize: false,
-      })
-      return
+      }
     },
   }
 }
