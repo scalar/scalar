@@ -1,14 +1,9 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src", "./test"],
+  "include": ["./src", "./test", "./vitest.config.ts", "./vite.config.ts", "./vite.standalone.config.ts"],
   "compilerOptions": {
-    // TODO: Reenable when we can fix all the issues
-    "noUncheckedIndexedAccess": true,
-    // TODO: Reenable when we can fix all the issues
-    "exactOptionalPropertyTypes": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@v2/*": ["./src/v2/*"],
       "@test/*": ["./test/*"]
     },
     "types": ["vite/client", "node"]

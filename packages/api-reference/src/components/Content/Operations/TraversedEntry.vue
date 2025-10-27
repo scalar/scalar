@@ -23,7 +23,7 @@ import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 const {
   level = 0,

@@ -12,7 +12,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { REGISTRY_SHARE_URL } from '@/consts/urls'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
-import { uploadTempDocument } from '@/v2/helpers/upload-temp-document'
+import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const { workspace } = defineProps<{
   workspace: WorkspaceStore

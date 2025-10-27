@@ -11,7 +11,7 @@ import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
-import { isFeaturedClient } from '@/v2/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 
 const { xSelectedClient } = defineProps<{
   /** Client options */

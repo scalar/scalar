@@ -10,8 +10,6 @@
     "esModuleInterop": true,
     // Ensure that casing is correct in imports.
     "forceConsistentCasingInFileNames": true,
-    // This rule leaves much to be fixed, will do it by package
-    // "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

@@ -75,10 +75,6 @@ const { cx } = useBindCx()
       </div>
       <slot />
     </div>
-    <div
-      v-if="$slots.aside"
-      class="flex items-center">
-      <slot name="aside" />
-    </div>
+    <slot name="aside" />
   </component>
 </template>

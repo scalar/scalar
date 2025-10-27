@@ -13,7 +13,7 @@ import { computed, useId, useTemplateRef } from 'vue'
 import {
   getFeaturedClients,
   isFeaturedClient,
-} from '@/v2/blocks/scalar-client-selector-block/helpers/featured-clients'
+} from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 
 import ClientDropdown from './ClientDropdown.vue'
 

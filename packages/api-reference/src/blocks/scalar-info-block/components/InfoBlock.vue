@@ -6,7 +6,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
+import DownloadLink from '@/blocks/scalar-info-block/components/DownloadLink.vue'
 
 import IntroductionCard from './IntroductionCard.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
