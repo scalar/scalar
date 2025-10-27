@@ -2,7 +2,7 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
@@ -13,7 +13,10 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
-import { validateParameters } from '@/libs/validate-parameters'
+import {
+  validateParameters,
+  type ValidationResult,
+} from '@/libs/validate-parameters'
 import { usePluginManager } from '@/plugins'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -45,8 +48,10 @@ const pluginManager = usePluginManager()
 const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
-const invalidParams = ref<Set<string>>(new Set())
-const hasBlockingErrors = ref(false)
+/** Computed Validation State Update on Example Change */
+const validation = computed<ValidationResult>(() =>
+  validateParameters(activeExample.value ?? null),
+)
 const requestResult = ref<SendRequestResult | null>(null)
 
 /**
@@ -73,13 +78,8 @@ const executeRequest = async () => {
     return
   }
 
-  // Validate before creating request operation
-  const validationResult = validateParameters(activeExample.value)
-  invalidParams.value = validationResult.invalidParams
-  hasBlockingErrors.value = validationResult.hasBlockingErrors
-
   // Block request if there are empty required path parameters
-  if (validationResult.hasBlockingErrors) {
+  if (validation.value.hasBlockingErrors) {
     toast('Path parameters must have values.', 'error')
     events.requestStatus.emit('abort')
     return
@@ -169,22 +169,11 @@ onBeforeUnmount(() => {
   events.executeRequest.off(logRequest)
 })
 
-// Re-validate parameters on parameter update to show real-time validation
-watch(
-  () => activeExample.value?.parameters,
-  () => {
-    const validationResult = validateParameters(activeExample.value ?? null)
-    invalidParams.value = validationResult.invalidParams
-    hasBlockingErrors.value = validationResult.hasBlockingErrors
-  },
-  { deep: true },
-)
-
 const cloneRequestResult = (result: any) => {
   // Create a structured clone that can handle Blobs, ArrayBuffers, etc.
   try {
     return structuredClone(result)
-  } catch (error) {
+  } catch {
     // Fallback to a custom cloning approach if structuredClone fails
     // or isn't available in the environment
     const clone = { ...result }
@@ -234,7 +223,7 @@ const cloneRequestResult = (result: any) => {
       <!-- Content -->
       <div class="flex h-full flex-1 flex-col">
         <RouterView
-          :invalidParams="invalidParams"
+          :invalidParams="validation.invalidParams"
           :requestResult="requestResult"
           :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
       </div>
