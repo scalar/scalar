@@ -4,7 +4,7 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { SecuritySchemaOpenId, SecuritySchemeOauth2 } from '@scalar/types/entities'
+import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
 import {
   type Oauth2FlowPayload,
   type SecurityScheme,
@@ -12,7 +12,7 @@ import {
   securitySchemeSchema,
 } from '@scalar/types/entities'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { Entries } from 'type-fest'
+import type { Entries, PartialDeep } from 'type-fest'
 
 import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility'
 import { type Collection, type CollectionPayload, collectionSchema } from '@/entities/spec/collection'
@@ -134,6 +134,38 @@ export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 
   }
 
 /**
+ * Merges security scheme with authentication overrides.
+ * For OAuth2 schemes, performs a deep merge of flows to preserve all flows from OIDC discovery
+ * while allowing authentication config to augment individual flow properties.
+ */
+function provableDeepMerge(
+  _scheme: OpenAPIV3_1.SecuritySchemeObject,
+  authOverride: PartialDeep<SecurityScheme>,
+  nameKey: string,
+): OpenAPIV3_1.SecuritySchemeObject {
+  // For OAuth2 schemes, we need to deep merge the flows object
+  if ((_scheme.type === 'oauth2' || authOverride.type === 'oauth2') && 'flows' in authOverride && authOverride.flows) {
+    const oauth2AuthOverride = authOverride as Partial<SecuritySchemeOauth2>
+    return {
+      ..._scheme,
+      ...authOverride,
+      flows: {
+        ...(_scheme.type === 'oauth2' && _scheme.flows ? _scheme.flows : {}),
+        ...oauth2AuthOverride.flows,
+      },
+      nameKey,
+    } as OpenAPIV3_1.SecuritySchemeObject
+  }
+
+  // For other schemes, use shallow merge
+  return {
+    ..._scheme,
+    ...authOverride,
+    nameKey,
+  } as OpenAPIV3_1.SecuritySchemeObject
+}
+
+/**
  * Imports an OpenAPI document and converts it to workspace entities (Collection, Request, Server, etc.)
  *
  * The imported entities maintain a close mapping to the original OpenAPI specification to enable:
@@ -221,45 +253,33 @@ export async function importSpecToWorkspace(
     Record<string, OpenAPIV3_1.SecuritySchemeObject>
   >) {
     if (scheme.type === 'openIdConnect' && scheme.openIdConnectUrl) {
-      let flows = {}
-
       try {
         // Fetch the OIDC discovery document
         const discovery = await fetchOidcDiscovery(scheme.openIdConnectUrl, proxyUrl)
 
         // Transform to OAuth2
-        const oauth2Result = transformOidcToOAuth2(discovery, schema as SecuritySchemaOpenId)
-        flows = oauth2Result.flows
+        const oauth2Result = transformOidcToOAuth2(discovery)
+
+        security[nameKey] = {
+          ...scheme,
+          type: 'oauth2',
+          flows: oauth2Result.flows,
+        } as OpenAPIV3_1.SecuritySchemeObject
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         importWarnings.push(`Failed to fetch OIDC discovery for security scheme "${nameKey}": ${message}`)
         console.error(`[importSpecToWorkspace] OIDC discovery failed for "${nameKey}":`, error)
-        // Continue with empty flows - the scheme will still be transformed to oauth2
+        continue
       }
-
-      // Always transform the scheme to OAuth2, even if discovery fails
-      // This ensures compatibility with existing OAuth2 UI components
-      security[nameKey] = {
-        ...scheme,
-        type: 'oauth2',
-        flows,
-      } as OpenAPIV3_1.SecuritySchemeObject
     }
   }
 
   const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_1.SecuritySchemeObject>>)
     .map?.(([nameKey, _scheme]) => {
       // Apply any transforms we need before parsing
-      const payload = {
-        ..._scheme,
-        // Add the new auth config overrides, we keep the old code below for backwards compatibility
-        ...(authentication?.securitySchemes?.[nameKey] ?? {}),
-        nameKey,
-      } as SecuritySchemePayload
+      const authOverride = authentication?.securitySchemes?.[nameKey] ?? {}
+      const payload = provableDeepMerge(_scheme, authOverride, nameKey) as SecuritySchemePayload
 
-      console.log('Auth', authentication)
-      console.log('Scheme', _scheme)
-      console.log('Payload', payload)
       // For oauth2 we need to add the type to the flows + prefill from authentication
       if (payload.type === 'oauth2' && payload.flows) {
         const flowKeys = Object.keys(payload.flows) as Array<keyof typeof payload.flows>
