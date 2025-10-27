@@ -18,6 +18,9 @@ toTest.forEach((source) => {
     const example = await serveExample(source)
     await page.goto(example)
 
+    // Narrow the viewport a bit for models
+    await page.setViewportSize({ width: 800, height: 600 })
+
     const region = page.getByRole('region', { name: 'Models' })
     if (isClassic(source)) {
       await region.getByRole('button', { expanded: false }).click()
@@ -29,12 +32,27 @@ toTest.forEach((source) => {
     // --------------------------------------------------------------------------
 
     const models = await page.getByRole('region', { name: 'Models' })
-    await models.getByRole('button', { name: 'CelestialBody' }).click()
-    await models.getByRole('button', { name: 'One of' }).click()
-    await models.getByRole('option', { name: 'Satellite' }).click()
-    await models.getByRole('button', { name: 'Orbit' }).click()
 
-    const model = await models.getByRole('region', { name: 'CelestialBody' })
-    await expect(model).toHaveScreenshot(`${slug}-model.png`)
+    // Simple Model
+    await models.getByRole('button', { name: 'User' }).click()
+    const userModel = await models.getByRole('region', { name: 'User' })
+    await expect(userModel).toHaveScreenshot(`${slug}-model-simple.png`)
+
+    // Nested Model
+    await models.getByRole('button', { name: 'Satellite' }).click()
+    const satelliteModel = await models.getByRole('region', { name: 'Satellite' })
+    const enumItem = satelliteModel.getByRole('listitem').filter({ hasText: 'Type: stringenum' })
+    await expect(enumItem).toHaveScreenshot(`${slug}-model-enum.png`)
+
+    await models.getByRole('button', { name: 'orbit', expanded: false }).click()
+    const nestedItem = satelliteModel.getByRole('listitem').filter({ hasText: 'orbitType: object' })
+    await expect(nestedItem).toHaveScreenshot(`${slug}-model-nested.png`)
+
+    // Discriminator
+    await models.getByRole('button', { name: 'CelestialBody' }).click()
+    const celestialBodyModel = await models.getByRole('region', { name: 'CelestialBody' })
+    await celestialBodyModel.getByRole('button', { name: 'One of' }).click()
+    await celestialBodyModel.getByRole('option', { name: 'Satellite' }).click()
+    await expect(celestialBodyModel).toHaveScreenshot(`${slug}-model-discriminator.png`)
   })
 })
