@@ -148,12 +148,12 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   }
 
   // Headings from info.description
-  if (entry.title) {
+  if (entry.type === 'text') {
     index.push({
       id: entry.id,
       type: 'heading',
       title: entry.title ?? '',
-      description: 'Description',
+      description: 'Heading',
       body: '',
       entry,
     })
