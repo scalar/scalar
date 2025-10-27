@@ -39,6 +39,7 @@ scalar
             .WithTheme(ScalarTheme.Saturn)
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithOpenApiRoutePattern("/swagger/{documentName}.json")
+            .AddAuthorizationCodeFlow("oidc", flow => flow.WithClientId("admin-cli"))
             .AddPreferredSecuritySchemes("oidc");
     })
     .WithApiReference(userService, options =>
