@@ -103,12 +103,8 @@ function filterRedundantErrors(root, parent, key) {
      * then we can just skip everything else.
      * And, also `required` should have more priority than `anyOf`. @see #8
      */
-    errors.forEach((error) => {
-      if (isRequiredError(error)) {
-        root.errors = [error]
-        root.children = {}
-      }
-    })
+    root.errors = errors.filter(isRequiredError)
+    root.children = {}
   }
 
   /**
