@@ -32,7 +32,7 @@ describe('security-scheme', () => {
 
       expect(result).toEqual({
         id: 'openIdConnect',
-        label: 'openIdConnect (coming soon)',
+        label: 'openIdConnect',
         value: { openIdConnect: [] },
       })
     })
