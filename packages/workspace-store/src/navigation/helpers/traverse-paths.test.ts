@@ -1,17 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { TagsMap } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traversePaths } from './traverse-paths'
 
 describe('traversePaths', () => {
-  // Mock getOperationId function
-  const mockGetOperationId: TraverseSpecOptions['getOperationId'] = ({ path, method }) =>
-    `${method.toUpperCase()}-${path}`
-
   // Helper to create a basic OpenAPI document
-  const createBasicSpec = (): OpenApiDocument => ({
+  const createDocument = (): OpenApiDocument => ({
     openapi: '3.1.0',
     info: {
       title: 'Test API',
@@ -21,16 +17,26 @@ describe('traversePaths', () => {
   })
 
   it('should handle empty paths', () => {
-    const spec = createBasicSpec()
+    const document = createDocument()
     const tagsMap: TagsMap = new Map()
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.size).toBe(0)
   })
 
   it('should correctly process operations with tags', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/users': {
         get: {
           tags: ['Users'],
@@ -46,10 +52,23 @@ describe('traversePaths', () => {
     }
 
     const tagsMap: TagsMap = new Map([
-      ['Users', { tag: { name: 'Users', description: 'User operations' }, entries: [] }],
+      [
+        'Users',
+        { id: 'tag/users', parentId: 'doc-1', tag: { name: 'Users', description: 'User operations' }, entries: [] },
+      ],
     ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
 
     expect(tagsMap.size).toBe(1)
     expect(tagsMap.get('Users')?.entries.length).toBe(2)
@@ -63,8 +82,8 @@ describe('traversePaths', () => {
   })
 
   it('should handle operations without tags', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/health': {
         get: {
           summary: 'Health check',
@@ -75,7 +94,17 @@ describe('traversePaths', () => {
 
     const tagsMap: TagsMap = new Map()
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
 
     expect(tagsMap.size).toBe(1)
     expect(tagsMap.get('default')?.entries.length).toBe(1)
@@ -87,14 +116,14 @@ describe('traversePaths', () => {
   })
 
   it('should handle operations with tags', () => {
-    const spec = createBasicSpec()
-    spec.tags = [
+    const document = createDocument()
+    document.tags = [
       {
         name: 'Foobar',
         description: 'Foobar',
       },
     ]
-    spec.paths = {
+    document.paths = {
       '/hello': {
         get: {
           summary: 'Get Hello World',
@@ -106,9 +135,21 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Foobar', { tag: { name: 'Foobar' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Foobar', { id: 'tag/foobar', parentId: 'doc-1', tag: { name: 'Foobar' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Foobar')?.entries.length).toBe(1)
     expect(tagsMap.get('Foobar')?.entries[0]?.title).toBe('Get Hello World')
     expect(tagsMap.get('default')?.entries.length).toBe(1)
@@ -116,8 +157,8 @@ describe('traversePaths', () => {
   })
 
   it('should handle deprecated operations', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/old-endpoint': {
         get: {
           tags: ['Legacy'],
@@ -127,9 +168,21 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Legacy', { tag: { name: 'Legacy' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Legacy', { id: 'tag/legacy', parentId: 'doc-1', tag: { name: 'Legacy' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
 
     expect(tagsMap.get('Legacy')?.entries).toEqual([
       {
@@ -145,8 +198,8 @@ describe('traversePaths', () => {
   })
 
   it('should skip internal operations', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/internal': {
         get: {
           tags: ['Internal'],
@@ -157,15 +210,27 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Internal', { tag: { name: 'Internal' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Internal', { id: 'tag/internal', parentId: 'doc-1', tag: { name: 'Internal' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Internal')?.entries).toEqual([])
   })
 
   it('should skip scalar-ignore operations', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/ignored': {
         get: {
           tags: ['Ignored'],
@@ -176,15 +241,27 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Ignored', { tag: { name: 'Ignored' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Ignored', { id: 'tag/ignored', parentId: 'doc-1', tag: { name: 'Ignored' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Ignored')?.entries).toEqual([])
   })
 
   it('should handle operations with missing summary', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/no-summary': {
         get: {
           tags: ['Misc'],
@@ -193,15 +270,27 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Misc', { tag: { name: 'Misc' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Misc', { id: 'tag/misc', parentId: 'doc-1', tag: { name: 'Misc' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Misc')?.entries[0]?.title).toBe('/no-summary')
   })
 
   it('should populate titlesMap correctly', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/test': {
         get: {
           tags: ['Test'],
@@ -211,15 +300,27 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Test', { tag: { name: 'Test' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Test', { id: 'tag/test', parentId: 'doc-1', tag: { name: 'Test' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Test')?.entries[0]?.title).toBe('Test endpoint')
   })
 
   it('should use the path when the summary is empty', () => {
-    const spec = createBasicSpec()
-    spec.paths = {
+    const document = createDocument()
+    document.paths = {
       '/test': {
         get: {
           tags: ['Test'],
@@ -229,9 +330,21 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap: TagsMap = new Map([['Test', { tag: { name: 'Test' }, entries: [] }]])
+    const tagsMap: TagsMap = new Map([
+      ['Test', { id: 'tag/test', parentId: 'doc-1', tag: { name: 'Test' }, entries: [] }],
+    ])
 
-    traversePaths(spec, tagsMap, mockGetOperationId)
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
     expect(tagsMap.get('Test')?.entries[0]?.title).toBe('/test')
   })
 })

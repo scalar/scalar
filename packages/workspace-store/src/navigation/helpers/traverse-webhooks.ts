@@ -5,8 +5,8 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedWebhook } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
+import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -21,16 +21,36 @@ import { getTag } from './get-tag'
  * @param tag - Optional tag object associated with the webhook
  * @returns A traversed webhook entry with ID, title, name, method and reference
  */
-const createWebhookEntry = (
-  ref: string,
-  method: HttpMethod,
-  name = 'Unknown',
-  title = 'Unknown',
-  getWebhookId: TraverseSpecOptions['getWebhookId'],
-  tag?: TagObject,
-  isDeprecated?: boolean,
-): TraversedWebhook => {
-  const id = getWebhookId({ name, method }, tag)
+const createWebhookEntry = ({
+  ref,
+  method,
+  name,
+  title,
+  generateId,
+  parentTag,
+  webhook,
+  isDeprecated,
+  parentId,
+}: {
+  ref: string
+  method: HttpMethod
+  webhook: OperationObject
+  name: string
+  title: string
+  generateId: TraverseSpecOptions['generateId']
+  tag?: TagObject
+  parentId: string
+  parentTag?: ParentTag
+  isDeprecated?: boolean
+}): TraversedWebhook => {
+  const id = generateId({
+    type: 'webhook',
+    name,
+    method,
+    webhook: webhook,
+    parentTag,
+    parentId: parentId,
+  })
 
   const entry = {
     id,
@@ -60,16 +80,25 @@ const createWebhookEntry = (
  * @param getWebhookId - Function to generate unique IDs for webhooks
  * @returns Array of untagged webhook entries
  */
-export const traverseWebhooks = (
-  content: OpenApiDocument,
+export const traverseWebhooks = ({
+  document,
+  tagsMap,
+  generateId,
+  untaggedWebhooksParentId,
+  documentId,
+}: {
+  /** Openapi document */
+  document: OpenApiDocument
   /** The tag map from from traversing paths */
-  tagsMap: TagsMap,
-  getWebhookId: TraverseSpecOptions['getWebhookId'],
-): TraversedWebhook[] => {
+  tagsMap: TagsMap
+  generateId: TraverseSpecOptions['generateId']
+  untaggedWebhooksParentId: string
+  documentId: string
+}): TraversedWebhook[] => {
   const untagged: TraversedWebhook[] = []
 
   // Traverse webhooks
-  Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
+  Object.entries(document.webhooks ?? {}).forEach(([name, pathItemObject]) => {
     const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
 
     pathKeys.forEach((method) => {
@@ -88,34 +117,35 @@ export const traverseWebhooks = (
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          const { tag } = getTag(tagsMap, tagName)
-          tagsMap
-            .get(tagName)
-            ?.entries.push(
-              createWebhookEntry(
-                ref,
-                method,
-                name,
-                operation.summary ?? name,
-                getWebhookId,
-                tag,
-                isDeprecatedOperation(operation),
-              ),
-            )
+          const { tag, id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
+          tagsMap.get(tagName)?.entries.push(
+            createWebhookEntry({
+              ref,
+              method,
+              name,
+              title: operation.summary ?? name,
+              webhook: operation,
+              generateId: generateId,
+              parentTag: { tag, id: tagId },
+              parentId: tagId,
+              isDeprecated: isDeprecatedOperation(operation),
+            }),
+          )
         })
       }
       // Add to untagged
       else {
         untagged.push(
-          createWebhookEntry(
+          createWebhookEntry({
             ref,
             method,
             name,
-            operation.summary ?? name,
-            getWebhookId,
-            undefined,
-            isDeprecatedOperation(operation),
-          ),
+            title: operation.summary ?? name,
+            generateId,
+            isDeprecated: isDeprecatedOperation(operation),
+            webhook: operation,
+            parentId: untaggedWebhooksParentId,
+          }),
         )
       }
     })

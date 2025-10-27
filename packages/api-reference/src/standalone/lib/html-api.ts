@@ -8,7 +8,6 @@ import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
-import type { ReferenceProps } from '@/types'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 
@@ -182,7 +181,7 @@ export const createApiReference: CreateApiReference = (
   // Create an id prefix for useId so we don't have collisions with other Vue apps
   const idPrefix = 'scalar-refs'
 
-  const props = reactive<ReferenceProps>({
+  const props = reactive<{ configuration: AnyApiReferenceConfiguration }>({
     // Either the configuration will be the second argument or it MUST be the first (configuration only)
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
@@ -251,7 +250,7 @@ export const createApiReference: CreateApiReference = (
 
   /** Destroy the current API Reference instance */
   const destroy = () => {
-    delete props['configuration']
+    props.configuration = {}
     app.unmount()
   }
 

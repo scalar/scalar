@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -30,7 +30,8 @@ const { options } = defineProps<{
     layout?: 'modern' | 'classic'
     /** The document download type. */
     documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
-    /** Optional callback invoked when the component has finished loading. */
+    /** Heading id generator for Markdown headings */
+    headingSlugGenerator: (heading: Heading) => string
   }
 }>()
 
@@ -49,6 +50,7 @@ const introCardsSlot = computed(() =>
     :id
     :documentExtensions
     :externalDocs
+    :headingSlugGenerator="options.headingSlugGenerator"
     :info
     :infoExtensions
     :oasVersion>

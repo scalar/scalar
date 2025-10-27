@@ -19,7 +19,7 @@ const client = createSidebarState([
 ] satisfies Item[])
 
 // Default open the first level of items for better visibility in the playground
-client.items.forEach((it) => client.setExpanded(it.id, true))
+client.items.value.forEach((it) => client.setExpanded(it.id, true))
 
 const log = (name: string, ...args: any[]) => {
   console.log('[LOG] event name: ', name)
@@ -28,8 +28,10 @@ const log = (name: string, ...args: any[]) => {
 </script>
 <template>
   <ScalarSidebar
-    layout="reference"
-    :state="reference">
+    :isExpanded="reference.isExpanded"
+    :isSelected="reference.isSelected"
+    :items="reference.items.value"
+    layout="reference">
     <template #search>
       <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
         <ScalarSidebarSearchInput />
@@ -40,6 +42,9 @@ const log = (name: string, ...args: any[]) => {
     </template>
   </ScalarSidebar>
   <ScalarSidebar
+    :isExpanded="reference.isExpanded"
+    :isSelected="reference.isSelected"
+    :items="reference.items.value"
     layout="client"
     :state="client"
     @reorder="(...args) => log('reorder', ...args)">

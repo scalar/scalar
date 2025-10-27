@@ -53,6 +53,7 @@ const { operation, path } = defineProps<{
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  isCollapsed: boolean
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -65,6 +66,11 @@ const { operation, path } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'toggleOperation', id: string, open: boolean): void
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
@@ -73,7 +79,9 @@ const { copyToClipboard } = useClipboard()
   <SectionAccordion
     :id="id"
     class="reference-endpoint"
-    transparent>
+    :modelValue="!isCollapsed"
+    transparent
+    @update:modelValue="(value) => emit('toggleOperation', id, value)">
     <template #title>
       <div class="operation-title">
         <div class="operation-details">
@@ -82,8 +90,8 @@ const { copyToClipboard } = useClipboard()
             :method="method"
             short />
           <Anchor
-            :id="id"
-            class="endpoint-anchor">
+            class="endpoint-anchor"
+            @copyAnchorUrl="() => emit('copyAnchorUrl', id)">
             <h3 class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath

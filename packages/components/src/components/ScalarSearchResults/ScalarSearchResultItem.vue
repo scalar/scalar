@@ -30,8 +30,8 @@ const { cx } = useBindCx()
       <slot name="icon">
         <ScalarIconLegacyAdapter
           v-if="icon"
-          :icon="icon"
-          class="size-4" />
+          class="size-4"
+          :icon="icon" />
       </slot>
       <span>&hairsp;</span>
     </div>

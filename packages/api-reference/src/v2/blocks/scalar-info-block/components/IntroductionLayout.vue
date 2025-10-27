@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Heading } from '@scalar/types'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -27,6 +28,11 @@ defineProps<{
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
+  headingSlugGenerator: (heading: Heading) => string
+}>()
+
+const emit = defineEmits<{
+  (e: 'intersecting', id: string): void
 }>()
 </script>
 
@@ -34,8 +40,9 @@ defineProps<{
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
-      :id
-      class="introduction-section z-1 gap-12">
+      :id="id"
+      class="introduction-section z-1 gap-12"
+      @intersecting="(id) => emit('intersecting', id)">
       <SectionContent :loading="!info">
         <div class="flex gap-1.5">
           <InfoVersion
@@ -59,7 +66,9 @@ defineProps<{
         <SectionColumns>
           <SectionColumn>
             <slot name="download-link" />
-            <InfoDescription :description="info?.description" />
+            <InfoDescription
+              :description="info?.description"
+              :headingSlugGenerator="headingSlugGenerator" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
             <div class="sticky-cards">

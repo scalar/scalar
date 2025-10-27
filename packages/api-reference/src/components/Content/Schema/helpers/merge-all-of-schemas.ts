@@ -202,8 +202,12 @@ const mergePropertiesIntoResult = (
 
   for (const key of propertyKeys) {
     const schema = getResolvedRef(properties[key])
+    if (!schema) {
+      delete result[key]
+      continue
+    }
 
-    if (!schema || typeof schema !== 'object') {
+    if (typeof schema !== 'object') {
       result[key] = schema
       continue
     }
@@ -217,7 +221,7 @@ const mergePropertiesIntoResult = (
           ...schema,
           items: mergeAllOfSchemas(getResolvedRef(schema.items)),
         }
-      } else {
+      } else if (properties[key]) {
         result[key] = properties[key]
       }
       continue

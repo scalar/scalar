@@ -221,11 +221,11 @@ describe('featured-clients', () => {
         const result = getFeaturedClients(mockClientOptions)
 
         // Check that the order matches the FEATURED_CLIENTS constant
-        expect(result[0].id).toBe('shell/curl')
-        expect(result[1].id).toBe('ruby/native')
-        expect(result[2].id).toBe('node/undici')
-        expect(result[3].id).toBe('php/guzzle')
-        expect(result[4].id).toBe('python/python3')
+        expect(result[0]?.id).toBe('shell/curl')
+        expect(result[1]?.id).toBe('ruby/native')
+        expect(result[2]?.id).toBe('node/undici')
+        expect(result[3]?.id).toBe('php/guzzle')
+        expect(result[4]?.id).toBe('python/python3')
       })
 
       it('should include all required properties for each client', () => {
@@ -312,7 +312,7 @@ describe('featured-clients', () => {
 
         const result = getFeaturedClients(emptyGroups)
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('shell/curl')
+        expect(result[0]?.id).toBe('shell/curl')
       })
 
       it('should handle empty featured clients list', () => {
@@ -326,7 +326,7 @@ describe('featured-clients', () => {
         const result = getFeaturedClients(mockClientOptions, singleFeaturedClient)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('shell/curl')
+        expect(result[0]?.id).toBe('shell/curl')
       })
     })
 

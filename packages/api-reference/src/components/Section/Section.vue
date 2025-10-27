@@ -1,28 +1,20 @@
 <script setup lang="ts">
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import { useNavState } from '@/hooks/useNavState'
 
-const props = defineProps<{
+defineProps<{
   id?: string
-  label?: string
 }>()
 
-const { isIntersectionEnabled, replaceUrlState } = useNavState()
-
-function handleScroll() {
-  if (!props.label || !isIntersectionEnabled.value) {
-    return
-  }
-
-  replaceUrlState(props.id ?? '')
-}
+const emit = defineEmits<{
+  (e: 'intersecting', id: string): void
+}>()
 </script>
 <template>
   <IntersectionObserver
     is="section"
     :id="id"
     class="section"
-    @intersecting="handleScroll">
+    @intersecting="(id) => emit('intersecting', id)">
     <slot />
   </IntersectionObserver>
 </template>

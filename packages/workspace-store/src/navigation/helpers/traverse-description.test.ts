@@ -6,18 +6,48 @@ describe('traverseDescription', () => {
   const getHeadingId = (heading: { value: string }) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
 
   it('should return empty array for undefined description', () => {
-    const result = traverseDescription(undefined, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description: undefined },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
     expect(result).toEqual([])
   })
 
   it('should return empty array for empty description', () => {
-    const result = traverseDescription('', getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description: '' },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
     expect(result).toEqual([])
   })
 
   it('should return an introduction entry for description with no headings', () => {
     const description = 'This is a paragraph without any headings.'
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
     expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
   })
 
@@ -30,7 +60,17 @@ More content
 # Third Heading
 Final content
     `
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
 
     expect(result).toHaveLength(3)
     expect(result[0]).toEqual({
@@ -66,7 +106,17 @@ More content
 ## Another Subsection
 Final content
     `
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -113,7 +163,17 @@ Content
 ### Subsection 2.1
 Content
     `
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -155,7 +215,17 @@ Content
 #### Level 4
 ##### Level 5
     `
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
 
     // Should only include Level 1 and Level 2
     expect(result).toHaveLength(1)
@@ -178,7 +248,17 @@ Content
 # Section with @#$%^&*() chars
 ## Sub-section with !@#$%^&*() chars
     `
-    const result = traverseDescription(description, getHeadingId)
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({

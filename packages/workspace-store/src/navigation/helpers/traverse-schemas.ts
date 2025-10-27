@@ -1,8 +1,8 @@
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedSchema } from '@/schemas/navigation'
-import type { OpenApiDocument, SchemaObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
+import type { OpenApiDocument, SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *
@@ -12,14 +12,22 @@ import type { OpenApiDocument, SchemaObject, TagObject } from '@/schemas/v3.1/st
  * @param getModelId - Function to generate unique IDs for schemas
  * @returns A traversed schema entry with ID, title, name and reference
  */
-const createSchemaEntry = (
-  ref: string,
-  name = 'Unknown',
-  getModelId: TraverseSpecOptions['getModelId'],
-  tag?: TagObject,
-  _schema?: SchemaObject,
-): TraversedSchema => {
-  const id = getModelId({ name }, tag)
+const createSchemaEntry = ({
+  ref,
+  name,
+  generateId,
+  parentTag,
+  _schema,
+  parentId,
+}: {
+  ref: string
+  name: string
+  generateId: TraverseSpecOptions['generateId']
+  parentTag?: ParentTag
+  _schema?: SchemaObject
+  parentId: string
+}): TraversedSchema => {
+  const id = generateId({ name, type: 'model', parentTag, parentId, schema: _schema })
   const schema = getResolvedRef(_schema)
 
   // Use schema.title if available, otherwise fall back to name
@@ -43,19 +51,20 @@ const createSchemaEntry = (
  * - Filter out internal schemas (marked with x-internal) and schemas to ignore (marked with x-scalar-ignore)
  * - Create model entries with unique references and IDs
  * - Store model IDs and titles for mobile header navigation
- *
- * @param content - The OpenAPI document to traverse
- * @param entitiesMap - Map to store schema IDs and titles for mobile header navigation
- * @param getModelId - Function to generate unique IDs for schemas
- * @returns Array of traversed schema entries
  */
-export const traverseSchemas = (
-  content: OpenApiDocument,
+export const traverseSchemas = ({
+  document,
+  tagsMap,
+  generateId,
+  documentId,
+}: {
+  document: OpenApiDocument
   /** Map of tagNames and their entries */
-  tagsMap: TagsMap,
-  getModelId: TraverseSpecOptions['getModelId'],
-): TraversedSchema[] => {
-  const schemas = content.components?.schemas ?? {}
+  tagsMap: TagsMap
+  generateId: TraverseSpecOptions['generateId']
+  documentId: string
+}): TraversedSchema[] => {
+  const schemas = document.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
   // biome-ignore lint/suspicious/useGuardForIn: we do have an if statement after de-ref
@@ -71,13 +80,29 @@ export const traverseSchemas = (
     // Add to tags
     if (schema?.['x-tags']) {
       schema['x-tags'].forEach((tagName: string) => {
-        const { tag } = getTag(tagsMap, tagName)
-        tagsMap.get(tagName)?.entries.push(createSchemaEntry(ref, name, getModelId, tag))
+        const { tag, id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
+        tagsMap.get(tagName)?.entries.push(
+          createSchemaEntry({
+            ref,
+            name,
+            generateId,
+            parentTag: { tag, id: tagId },
+            parentId: documentId,
+          }),
+        )
       })
     }
     // Add to untagged
     else {
-      untagged.push(createSchemaEntry(ref, name, getModelId, undefined, getResolvedRef(schemas[name])))
+      untagged.push(
+        createSchemaEntry({
+          ref,
+          name,
+          generateId,
+          _schema: getResolvedRef(schemas[name]),
+          parentId: documentId,
+        }),
+      )
     }
   }
 

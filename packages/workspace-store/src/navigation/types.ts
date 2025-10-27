@@ -1,7 +1,8 @@
-import type { TraversedEntry } from '@/schemas/navigation'
-import type { OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { IdGenerator, TraversedEntry } from '@/schemas/navigation'
+import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
 /** Map of tagNames and their entries */
-export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
+export type TagsMap = Map<string, { id: string; parentId: string; tag: TagObject; entries: TraversedEntry[] }>
 
 type OperationSortValue = {
   method: string
@@ -28,37 +29,7 @@ export type TraverseSpecOptions = {
   /** Whether to hide model schemas from the navigation */
   hideModels: boolean
 
-  /** Function to generate unique IDs for markdown headings */
-  getHeadingId: (heading: { depth: number; value: string; slug?: string }) => string
-
-  /** Function to generate unique IDs for operations */
-  getOperationId: (
-    operation: {
-      path: string
-      method: string
-    } & OperationObject,
-    parentTag: TagObject,
-  ) => string
-
-  /** Function to generate unique IDs for webhooks */
-  getWebhookId: (
-    webhook: {
-      name: string
-      method?: string
-    },
-    parentTag?: TagObject,
-  ) => string
-
-  /** Function to generate unique IDs for models/schemas */
-  getModelId: (
-    model: {
-      name?: string
-    },
-    parentTag?: TagObject,
-  ) => string
-
-  /** Function to generate unique IDs for tags */
-  getTagId: (tag: TagObject) => string
+  generateId: IdGenerator
 }
 
 export type Heading = { depth: number; value: string; slug?: string }

@@ -2,8 +2,6 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-import { createMockSidebar } from '@/helpers/test-utils'
-
 import TagSection from './TagSection.vue'
 
 // Mock the useConfig hook
@@ -11,11 +9,6 @@ vi.mock('@/hooks/useConfig', () => ({
   useConfig: () => ({
     isLoading: false,
   }),
-}))
-
-// Mock the sidebar like in ModernLayout.test.ts
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
 describe('TagSection', () => {
@@ -58,22 +51,6 @@ describe('TagSection', () => {
 
       const section = wrapper.findComponent({ name: 'Section' })
       expect(section.props('id')).toBe('custom-tag-id')
-      expect(section.props('label')).toBe('CUSTOM TAG TITLE')
-    })
-
-    it('renders anchor with correct id', () => {
-      const mockTag = createMockTag({
-        id: 'anchor-tag-id',
-      })
-
-      const wrapper = mount(TagSection, {
-        props: {
-          tag: mockTag,
-        },
-      })
-
-      const anchor = wrapper.findComponent({ name: 'Anchor' })
-      expect(anchor.props('id')).toBe('anchor-tag-id')
     })
   })
 

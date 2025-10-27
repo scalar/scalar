@@ -151,6 +151,7 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
+      // @ts-expect-error testing invalid view
       const components = manager.getViewComponents('non-existent-view')
       expect(components).toEqual([])
     })

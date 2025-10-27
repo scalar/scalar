@@ -11,6 +11,10 @@ const { name, header, breadcrumb } = defineProps<{
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
 }>()
+
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
 </script>
 <template>
   <SchemaProperty
@@ -22,5 +26,6 @@ const { name, header, breadcrumb } = defineProps<{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
       orderSchemaPropertiesBy: orderSchemaPropertiesBy,
     }"
-    :schema="getResolvedRef(header.schema)" />
+    :schema="getResolvedRef(header.schema)"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 </template>

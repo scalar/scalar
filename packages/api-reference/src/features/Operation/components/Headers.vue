@@ -12,6 +12,10 @@ const { headers, breadcrumb } = defineProps<{
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
 }>()
+
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
 </script>
 <template>
   <Disclosure v-slot="{ open }">
@@ -43,7 +47,8 @@ const { headers, breadcrumb } = defineProps<{
               :header="getResolvedRef(header)"
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-              :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
+              :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
+              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
           </template>
         </DisclosurePanel>
       </div>

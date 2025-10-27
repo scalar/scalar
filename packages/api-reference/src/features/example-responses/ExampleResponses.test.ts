@@ -1,9 +1,9 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import ExampleResponses from './ExampleResponses.vue'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 const mockCopyToClipboard = vi.fn()
 
@@ -37,7 +37,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0]?.text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Success')
     expect(wrapper.text()).not.toContain('value')
@@ -69,12 +69,12 @@ describe('ExampleResponses', () => {
     const textSelectLabel = wrapper.find('[data-testid="example-picker"]')
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0]?.text()).toContain('200')
 
     expect(codeBlock.length).toBe(1)
     expect(textSelectLabel.text()).toContain('example1')
-    expect(codeBlock[0].text()).toContain('Example 1')
-    expect(codeBlock[0].text()).not.toContain('Example 2')
+    expect(codeBlock[0]?.text()).toContain('Example 1')
+    expect(codeBlock[0]?.text()).not.toContain('Example 2')
 
     await examplePicker.vm.$emit('update:modelValue', 'example2')
     expect(wrapper.text()).not.toContain('Example 1')
@@ -104,7 +104,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('Status: 200')
+    expect(tabs[0]?.text()).toContain('Status: 200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('XML response')
     expect(wrapper.text()).toContain('<user><name>John</name><age>30</age></user>')
@@ -134,7 +134,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0]?.text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Plain text response')
     expect(wrapper.text()).toContain('Hello world')
@@ -164,7 +164,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0]?.text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('HTML response')
     expect(wrapper.text()).toContain('<div>Hello <strong>world</strong></div>')
@@ -211,9 +211,9 @@ describe('ExampleResponses', () => {
 
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
-    expect(tabs[0].text()).toContain('200')
-    expect(tabs[1].text()).toContain('400')
-    expect(tabs[2].text()).toContain('500')
+    expect(tabs[0]?.text()).toContain('200')
+    expect(tabs[1]?.text()).toContain('400')
+    expect(tabs[2]?.text()).toContain('500')
 
     const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
     expect(codeBlock.exists()).toBe(true)
@@ -264,9 +264,9 @@ describe('ExampleResponses', () => {
 
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
-    expect(tabs[0].text()).toContain('200')
-    expect(tabs[1].text()).toContain('404')
-    expect(tabs[2].text()).toContain('default')
+    expect(tabs[0]?.text()).toContain('200')
+    expect(tabs[1]?.text()).toContain('404')
+    expect(tabs[2]?.text()).toContain('default')
 
     const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
     expect(codeBlock.exists()).toBe(true)
@@ -317,9 +317,9 @@ describe('ExampleResponses', () => {
 
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
-    expect(tabs[0].text()).toContain('403')
-    expect(tabs[1].text()).toContain('404')
-    expect(tabs[2].text()).toContain('500')
+    expect(tabs[0]?.text()).toContain('403')
+    expect(tabs[1]?.text()).toContain('404')
+    expect(tabs[2]?.text()).toContain('500')
 
     const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
     expect(codeBlock.exists()).toBe(true)
@@ -427,7 +427,7 @@ describe('ExampleResponses', () => {
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0]?.text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Wildcard mimetype')
   })

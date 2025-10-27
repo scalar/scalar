@@ -4,68 +4,55 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { useNavState } from '@/hooks/useNavState'
-
-import IntersectionObserver from '../IntersectionObserver.vue'
-
-const { id } = defineProps<{
-  id?: string
+defineProps<{
   transparent?: boolean
+  modelValue: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
 }>()
 
 const button = ref()
 const isHovered = useElementHover(button)
-
-const { isIntersectionEnabled, replaceUrlState } = useNavState()
-
-/** On scroll over this section */
-const handleScroll = () => {
-  if (!id || !isIntersectionEnabled.value) {
-    return
-  }
-
-  replaceUrlState(id)
-}
 </script>
 <template>
-  <IntersectionObserver
-    :id="id"
-    class="section-wrapper"
-    @intersecting="handleScroll">
-    <Disclosure
-      v-slot="{ open }"
-      as="section"
-      class="section-accordion"
-      :class="{ 'section-accordion-transparent': transparent }">
-      <DisclosureButton
-        ref="button"
-        class="section-accordion-button">
-        <div class="section-accordion-button-content">
-          <slot name="title" />
-        </div>
-        <div
-          v-if="$slots.actions"
-          class="section-accordion-button-actions">
-          <slot
-            :active="isHovered || open"
-            name="actions" />
-        </div>
-        <ScalarIconCaretRight
-          class="section-accordion-chevron size-4.5 transition-transform"
-          :class="{ 'rotate-90': open }" />
-      </DisclosureButton>
-      <DisclosurePanel class="section-accordion-content">
-        <div
-          v-if="$slots.description"
-          class="section-accordion-description">
-          <slot name="description" />
-        </div>
-        <div class="section-accordion-content-card">
-          <slot />
-        </div>
-      </DisclosurePanel>
-    </Disclosure>
-  </IntersectionObserver>
+  <Disclosure
+    as="section"
+    class="section-accordion"
+    :class="{ 'section-accordion-transparent': transparent }">
+    <DisclosureButton
+      ref="button"
+      class="section-accordion-button"
+      @click="() => emit('update:modelValue', !modelValue)">
+      <div class="section-accordion-button-content">
+        <slot name="title" />
+      </div>
+      <div
+        v-if="$slots.actions"
+        class="section-accordion-button-actions">
+        <slot
+          :active="isHovered || modelValue"
+          name="actions" />
+      </div>
+      <ScalarIconCaretRight
+        class="section-accordion-chevron size-4.5 transition-transform"
+        :class="{ 'rotate-90': modelValue }" />
+    </DisclosureButton>
+    <DisclosurePanel
+      v-if="modelValue"
+      class="section-accordion-content"
+      static>
+      <div
+        v-if="$slots.description"
+        class="section-accordion-description">
+        <slot name="description" />
+      </div>
+      <div class="section-accordion-content-card">
+        <slot />
+      </div>
+    </DisclosurePanel>
+  </Disclosure>
 </template>
 <style scoped>
 .section-wrapper {

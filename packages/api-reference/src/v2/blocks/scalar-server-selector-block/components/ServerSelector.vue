@@ -65,7 +65,9 @@ watch(
 
     // Wait for next tick to ensure containerRef is available
     nextTick(() => {
-      updateServer(newServers[0].url)
+      if (newServers[0]) {
+        updateServer(newServers[0].url)
+      }
     })
   },
   { immediate: true },

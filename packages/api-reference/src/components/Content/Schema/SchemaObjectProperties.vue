@@ -23,6 +23,10 @@ const { schema, discriminator, options } = defineProps<{
   options: SchemaOptions
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /**
  * Sorts properties by required status first, then alphabetically.
  * Required properties appear first, followed by optional properties.
@@ -99,7 +103,8 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="getResolvedRef(schema.properties[property])" />
+      :schema="getResolvedRef(schema.properties[property])"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
   </template>
 
   <!-- patternProperties -->
@@ -115,7 +120,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="getResolvedRef(property)" />
+      :schema="getResolvedRef(property)"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
   </template>
 
   <!-- additionalProperties -->
@@ -131,6 +137,7 @@ const getAdditionalPropertiesValue = (
       noncollapsible
       :options="options"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
-      variant="additionalProperties" />
+      variant="additionalProperties"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
   </template>
 </template>

@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-    <PackageReference Include="Bogus" Version="35.6.4" />
+    <PackageReference Include="Bogus" Version="35.6.5" />
   </ItemGroup>
 
   <ItemGroup>

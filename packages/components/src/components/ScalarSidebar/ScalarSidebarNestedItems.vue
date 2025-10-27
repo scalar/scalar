@@ -97,11 +97,11 @@ defineOptions({ inheritAttrs: false })
     <slot name="button">
       <ScalarSidebarButton
         is="button"
-        class="text-c-1 font-sidebar-active"
         :aria-expanded="open"
+        class="text-c-1 font-sidebar-active"
+        :disabled
         :indent="level"
         :selected
-        :disabled
         @click="open = true">
         <template #icon>
           <slot name="icon">
@@ -120,11 +120,11 @@ defineOptions({ inheritAttrs: false })
     </slot>
     <!-- Make sure the div is around for the entire transition -->
     <Transition
+      :duration="300"
+      enterActiveClass="top-(--nested-items-offset)"
+      leaveActiveClass="top-(--nested-items-offset)"
       @enter="onOpen"
-      @leave="onClose"
-      enter-active-class="top-(--nested-items-offset)"
-      leave-active-class="top-(--nested-items-offset)"
-      :duration="300">
+      @leave="onClose">
       <div
         v-if="open"
         class="absolute inset-0 translate-x-full">
@@ -132,8 +132,8 @@ defineOptions({ inheritAttrs: false })
           <slot name="back">
             <ScalarSidebarButton
               is="button"
-              @click="open = false"
-              class="text-c-1 font-sidebar-active">
+              class="text-c-1 font-sidebar-active"
+              @click="open = false">
               <template #icon>
                 <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
               </template>

@@ -23,12 +23,13 @@ const filteredBadges = computed<XBadge[]>(() => {
 </script>
 
 <template>
-  <template
-    v-if="filteredBadges.length"
-    v-for="badge in filteredBadges"
-    :key="badge.name">
-    <Badge :color="badge.color">
-      {{ badge.name }}
-    </Badge>
+  <template v-if="filteredBadges.length">
+    <template
+      v-for="badge in filteredBadges"
+      :key="badge.name">
+      <Badge :color="badge.color">
+        {{ badge.name }}
+      </Badge>
+    </template>
   </template>
 </template>

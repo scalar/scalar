@@ -207,7 +207,7 @@ describe('SchemaComposition', () => {
       })
 
       const tab = wrapper.findAll('.composition-selector-label')[0]
-      expect(tab.text()).toBe('Planet')
+      expect(tab?.text()).toBe('Planet')
     })
   })
 

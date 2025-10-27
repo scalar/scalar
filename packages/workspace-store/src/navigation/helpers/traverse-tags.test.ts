@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { describe, expect, it } from 'vitest'
 
+import type { TagsMap } from '@/navigation/types'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -35,45 +36,94 @@ describe('traverseTags', () => {
 
   it('should handle empty tags map', () => {
     const document = createMockDocument()
-    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
+    const tagsMap: TagsMap = new Map()
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      options: {
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+      },
+    })
     expect(result).toEqual([])
   })
 
   it('should handle single default tag', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
-      ['default', { tag: createMockTag('default'), entries: [createMockEntry('Test Operation')] }],
+    const tagsMap: TagsMap = new Map([
+      [
+        'default',
+        {
+          id: 'default',
+          parentId: 'doc-1',
+          tag: createMockTag('default'),
+          entries: [createMockEntry('Test Operation')],
+        },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+    })
     expect(result).toEqual([createMockEntry('Test Operation')])
   })
 
   it('should handle a mix of tags and default tag', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
-      ['default', { tag: createMockTag('default'), entries: [createMockEntry('Test Operation')] }],
-      ['tag1', { tag: createMockTag('tag1'), entries: [createMockEntry('Test Operation')] }],
+    const tagsMap: TagsMap = new Map([
+      [
+        'default',
+        {
+          id: 'tag/default',
+          parentId: 'doc-1',
+          tag: createMockTag('default'),
+          entries: [createMockEntry('Test Operation')],
+        },
+      ],
+      [
+        'tag1',
+        { id: 'tag/tag1', parentId: 'doc-1', tag: createMockTag('tag1'), entries: [createMockEntry('Test Operation')] },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+    })
     expect(result).toEqual([
       {
         type: 'tag',
@@ -102,17 +152,43 @@ describe('traverseTags', () => {
 
   it('should sort tags alphabetically', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
-      ['zebra', { tag: createMockTag('zebra'), entries: [createMockEntry('Zebra Operation')] }],
-      ['alpha', { tag: createMockTag('alpha'), entries: [createMockEntry('Alpha Operation')] }],
+    const tagsMap: TagsMap = new Map([
+      [
+        'zebra',
+        {
+          id: 'tag/zebra',
+          parentId: 'doc-1',
+          tag: createMockTag('zebra'),
+          entries: [createMockEntry('Zebra Operation')],
+        },
+      ],
+      [
+        'alpha',
+        {
+          id: 'tag/alpha',
+          parentId: 'doc-1',
+          tag: createMockTag('alpha'),
+          entries: [createMockEntry('Alpha Operation')],
+        },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result[0]?.title).toBe('alpha')
     expect(result[1]?.title).toBe('zebra')
   })
@@ -125,17 +201,33 @@ describe('traverseTags', () => {
       },
     ]
     const document = createMockDocument(tagGroups)
-    const tagsMap = new Map([
-      ['tag1', { tag: createMockTag('tag1'), entries: [createMockEntry('Operation 1')] }],
-      ['tag2', { tag: createMockTag('tag2'), entries: [createMockEntry('Operation 2')] }],
+    const tagsMap: TagsMap = new Map([
+      [
+        'tag1',
+        { id: 'tag/tag1', parentId: 'doc-1', tag: createMockTag('tag1'), entries: [createMockEntry('Operation 1')] },
+      ],
+      [
+        'tag2',
+        { id: 'tag/tag2', parentId: 'doc-1', tag: createMockTag('tag2'), entries: [createMockEntry('Operation 2')] },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('Group A')
     expect((result[0] as TraversedTag).children).toHaveLength(2)
@@ -143,129 +235,233 @@ describe('traverseTags', () => {
 
   it('should sort operations by HTTP method', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
+    const tagsMap: TagsMap = new Map([
       [
         'default',
         {
+          id: 'tag/default',
+          parentId: 'doc-1',
           tag: createMockTag('default'),
           entries: [createMockEntry('POST Operation', 'post'), createMockEntry('GET Operation', 'get')],
         },
       ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha',
-      operationsSorter: 'method',
-    } as const
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha',
+        operationsSorter: 'method',
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect((result[0] as TraversedOperation).method).toBe('get')
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
 
   it('should handle custom operationSorter using [deprecated] httpVerb', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
+    const tagsMap: TagsMap = new Map([
       [
         'default',
         {
+          id: 'tag/default',
+          parentId: 'doc-1',
           tag: createMockTag('default'),
           entries: [createMockEntry('POST Operation', 'post'), createMockEntry('GET Operation', 'get')],
         },
       ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha',
-      operationsSorter: (a: { httpVerb: string }, b: { httpVerb: string }) =>
-        (a.httpVerb || '').localeCompare(b.httpVerb || ''),
-    } as const
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: (a: { httpVerb: string }, b: { httpVerb: string }) =>
+          (a.httpVerb || '').localeCompare(b.httpVerb || ''),
 
-    const result = traverseTags(document, tagsMap, options)
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect((result[0] as TraversedOperation).method).toBe('get')
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
 
   it('should handle custom tag sorter', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
-      ['tag1', { tag: createMockTag('tag1', 'Zebra'), entries: [createMockEntry('Operation 1')] }],
-      ['tag2', { tag: createMockTag('tag2', 'Alpha'), entries: [createMockEntry('Operation 2')] }],
+    const tagsMap: TagsMap = new Map([
+      [
+        'tag1',
+        {
+          id: 'tag/tag1',
+          parentId: 'doc-1',
+          tag: createMockTag('tag1', 'Zebra'),
+          entries: [createMockEntry('Operation 1')],
+        },
+      ],
+      [
+        'tag2',
+        {
+          id: 'tag/tag2',
+          parentId: 'doc-1',
+          tag: createMockTag('tag2', 'Alpha'),
+          entries: [createMockEntry('Operation 2')],
+        },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] ?? '').localeCompare(b['x-displayName'] || ''),
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] ?? '').localeCompare(b['x-displayName'] || ''),
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result[0]?.title).toBe('Alpha')
     expect(result[1]?.title).toBe('Zebra')
   })
 
   it('should handle custom operations sorter', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
+    const tagsMap: TagsMap = new Map([
       [
         'default',
         {
+          id: 'tag/default',
+          parentId: 'doc-1',
           tag: createMockTag('default'),
           entries: [createMockEntry('Operation B', 'post'), createMockEntry('Operation A', 'get')],
         },
       ],
     ])
 
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: (a: { method: string }, b: { method: string }) =>
-        (a.method || '').localeCompare(b.method || ''),
-    }
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: (a: { method: string }, b: { method: string }) =>
+          (a.method || '').localeCompare(b.method || ''),
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
 
-    const result = traverseTags(document, tagsMap, options)
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result[0]?.title).toBe('Operation A')
     expect(result[1]?.title).toBe('Operation B')
   })
 
   it('should handle internal tags', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
+    const tagsMap: TagsMap = new Map([
       [
         'internal',
-        { tag: { ...createMockTag('internal'), 'x-internal': true }, entries: [createMockEntry('Internal Operation')] },
+        {
+          id: 'tag/internal',
+          parentId: 'doc-1',
+          tag: { ...createMockTag('internal'), 'x-internal': true },
+          entries: [createMockEntry('Internal Operation')],
+        },
       ],
-      ['public', { tag: createMockTag('public'), entries: [createMockEntry('Public Operation')] }],
+      [
+        'public',
+        {
+          id: 'tag/public',
+          parentId: 'doc-1',
+          tag: createMockTag('public'),
+          entries: [createMockEntry('Public Operation')],
+        },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('public')
   })
 
   it('should handle scalar-ignore tags', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([
+    const tagsMap: TagsMap = new Map([
       [
         'ignored',
         {
+          id: 'tag/ignored',
+          parentId: 'doc-1',
           tag: { ...createMockTag('ignored'), 'x-scalar-ignore': true },
           entries: [createMockEntry('Ignored Operation')],
         },
       ],
-      ['visible', { tag: createMockTag('visible'), entries: [createMockEntry('Visible Operation')] }],
+      [
+        'visible',
+        {
+          id: 'tag/visible',
+          parentId: 'doc-1',
+          tag: createMockTag('visible'),
+          entries: [createMockEntry('Visible Operation')],
+        },
+      ],
     ])
-    const options = {
-      getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: 'alpha' as const,
-      operationsSorter: 'alpha' as const,
-    }
 
-    const result = traverseTags(document, tagsMap, options)
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('visible')
   })

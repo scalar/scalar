@@ -153,9 +153,7 @@ html[data-theme="light"] body .api-client-drawer {
   overflow: initial !important;
   grid-template-rows: 0 repeat(2, auto) !important;
 }
-.references-navigation-list {
-  height: 100% !important;
-}
+
 .section-column:nth-of-type(2) {
   max-height: calc(100dvh - var(--ifm-navbar-height));
 }
@@ -216,10 +214,6 @@ html[data-theme="light"] body .api-client-drawer {
   }
   html[data-theme="light"] body .sidebar {
     backdrop-filter: blur(50px);
-  }
-  .references-navigation-list {
-    border: 1px solid var(--scalar-border-color) !important;
-    border-radius: 12px;
   }
 }
 

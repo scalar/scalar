@@ -25,7 +25,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "dev": "vite",
@@ -82,6 +82,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
+    "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",

@@ -42,6 +42,7 @@ export const REF_DEFINITIONS = {
   TraversedWebhookObject: 'TraversedWebhookObject',
   TraversedTagObject: 'TraversedTagObject',
   TraversedEntryObject: 'TraversedEntryObject',
+  TraversedDocumentObject: 'TraversedDocumentObject',
 } as const
 
 // Type alias for schema definitions
@@ -76,3 +77,4 @@ export const ServerVariableObjectRef = Type.Ref(REF_DEFINITIONS.ServerVariableOb
 // Navigation schema references
 export const TraversedEntryObjectRef = Type.Ref(REF_DEFINITIONS.TraversedEntryObject)
 export const TraversedTagObjectRef = Type.Ref(REF_DEFINITIONS.TraversedTagObject)
+export const TraversedDocumentObjectRef = Type.Ref(REF_DEFINITIONS.TraversedDocumentObject)

@@ -2,15 +2,7 @@ import type { TraversedOperation, TraversedTag, TraversedWebhook } from '@scalar
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-import { createMockSidebar } from '@/helpers/test-utils'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-
 import OperationsList from './OperationsList.vue'
-
-// Mock the sidebar module
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: vi.fn(() => createMockSidebar()),
-}))
 
 // Mock Scalar components
 vi.mock('@scalar/components', () => ({
@@ -182,8 +174,6 @@ describe('OperationsList', () => {
   })
 
   it('applies correct CSS classes', async () => {
-    vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': true }))
-
     const operations = [createMockOperation()]
     const tag = createMockTag({ children: operations })
 
@@ -213,8 +203,8 @@ describe('OperationsList', () => {
     const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
     expect(operationsListItems).toHaveLength(2)
 
-    expect(operationsListItems[0].props('operation')).toEqual(operations[0])
-    expect(operationsListItems[1].props('operation')).toEqual(operations[1])
+    expect(operationsListItems[0]?.props('operation')).toEqual(operations[0])
+    expect(operationsListItems[1]?.props('operation')).toEqual(operations[1])
   })
 
   it('renders OperationsListItem components for webhooks', () => {
@@ -230,7 +220,7 @@ describe('OperationsList', () => {
 
     const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
     expect(operationsListItems).toHaveLength(1)
-    expect(operationsListItems[0].props('operation')).toEqual(webhooks[0])
+    expect(operationsListItems[0]?.props('operation')).toEqual(webhooks[0])
   })
 
   it('renders ScreenReader component with tag title', () => {

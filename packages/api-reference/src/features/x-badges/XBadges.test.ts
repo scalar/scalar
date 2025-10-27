@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import XBadges from './XBadges.vue'
 
 describe('XBadges', () => {
@@ -23,8 +24,8 @@ describe('XBadges', () => {
 
       const renderedBadges = wrapper.findAll('.badge')
       expect(renderedBadges).toHaveLength(2)
-      expect(renderedBadges[0].text()).toBe('Badge 1')
-      expect(renderedBadges[1].text()).toBe('Badge 3')
+      expect(renderedBadges[0]?.text()).toBe('Badge 1')
+      expect(renderedBadges[1]?.text()).toBe('Badge 3')
     })
 
     it('filters badges by after position', () => {
@@ -40,8 +41,8 @@ describe('XBadges', () => {
 
       const renderedBadges = wrapper.findAll('.badge')
       expect(renderedBadges).toHaveLength(2)
-      expect(renderedBadges[0].text()).toBe('Badge 2')
-      expect(renderedBadges[1].text()).toBe('Badge 3')
+      expect(renderedBadges[0]?.text()).toBe('Badge 2')
+      expect(renderedBadges[1]?.text()).toBe('Badge 3')
     })
 
     it('includes badges without position when filtering for after', () => {
@@ -57,8 +58,8 @@ describe('XBadges', () => {
 
       const renderedBadges = wrapper.findAll('.badge')
       expect(renderedBadges).toHaveLength(2)
-      expect(renderedBadges[0].text()).toBe('Badge 1')
-      expect(renderedBadges[1].text()).toBe('Badge 2')
+      expect(renderedBadges[0]?.text()).toBe('Badge 1')
+      expect(renderedBadges[1]?.text()).toBe('Badge 2')
     })
 
     it('excludes badges without position when filtering for before', () => {
@@ -74,8 +75,8 @@ describe('XBadges', () => {
 
       const renderedBadges = wrapper.findAll('.badge')
       expect(renderedBadges).toHaveLength(2)
-      expect(renderedBadges[0].text()).toBe('Badge 1')
-      expect(renderedBadges[1].text()).toBe('Badge 3')
+      expect(renderedBadges[0]?.text()).toBe('Badge 1')
+      expect(renderedBadges[1]?.text()).toBe('Badge 3')
     })
   })
 
@@ -129,8 +130,8 @@ describe('XBadges', () => {
 
       const renderedBadges = wrapper.findAll('.badge')
       expect(renderedBadges).toHaveLength(2)
-      expect(renderedBadges[0].text()).toBe('Valid Badge')
-      expect(renderedBadges[1].text()).toBe('Another Valid')
+      expect(renderedBadges[0]?.text()).toBe('Valid Badge')
+      expect(renderedBadges[1]?.text()).toBe('Another Valid')
     })
   })
 
@@ -143,8 +144,8 @@ describe('XBadges', () => {
       })
 
       const renderedBadges = wrapper.findAll('.badge')
-      expect(renderedBadges[0].attributes('style')).toContain('color: red')
-      expect(renderedBadges[1].attributes('style')).toContain('color: blue')
+      expect(renderedBadges[0]?.attributes('style')).toContain('color: red')
+      expect(renderedBadges[1]?.attributes('style')).toContain('color: blue')
     })
 
     it('renders badge names as text content', () => {
@@ -169,8 +170,8 @@ describe('XBadges', () => {
       expect(renderedBadges).toHaveLength(2)
 
       // Verify that badges are rendered in the correct order
-      expect(renderedBadges[0].text()).toBe('Badge 1')
-      expect(renderedBadges[1].text()).toBe('Badge 2')
+      expect(renderedBadges[0]?.text()).toBe('Badge 1')
+      expect(renderedBadges[1]?.text()).toBe('Badge 2')
     })
 
     describe('position-specific behavior', () => {
@@ -187,7 +188,7 @@ describe('XBadges', () => {
 
         const renderedBadges = wrapper.findAll('.badge')
         expect(renderedBadges).toHaveLength(1)
-        expect(renderedBadges[0].text()).toBe('Before Badge')
+        expect(renderedBadges[0]?.text()).toBe('Before Badge')
       })
 
       it('shows after badges and no-position badges when position is after', () => {
@@ -203,8 +204,8 @@ describe('XBadges', () => {
 
         const renderedBadges = wrapper.findAll('.badge')
         expect(renderedBadges).toHaveLength(2)
-        expect(renderedBadges[0].text()).toBe('After Badge')
-        expect(renderedBadges[1].text()).toBe('No Position Badge')
+        expect(renderedBadges[0]?.text()).toBe('After Badge')
+        expect(renderedBadges[1]?.text()).toBe('No Position Badge')
       })
     })
   })

@@ -43,6 +43,10 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /** The current composition */
 const composition = computed(() =>
   [props.schema[props.composition]]
@@ -66,7 +70,9 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
  * Two-way computed property for the selected option.
  * Handles conversion between the selected index and the listbox option format.
  */
-const selectedOption = ref<ScalarListboxOption>(listboxOptions.value[0])
+const selectedOption = ref<ScalarListboxOption | undefined>(
+  listboxOptions.value[0],
+)
 
 /**
  * Humanize composition keyword name for display.
@@ -81,7 +87,7 @@ const humanizeType = (type: CompositionKeyword): string =>
 
 /** Inside the currently selected composition */
 const selectedComposition = computed(
-  () => composition.value[Number(selectedOption.value.id)].value,
+  () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
 </script>
 
@@ -98,7 +104,8 @@ const selectedComposition = computed(
       :name="name"
       :noncollapsible="true"
       :options="options"
-      :schema="mergeAllOfSchemas(schema)" />
+      :schema="mergeAllOfSchemas(schema)"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -137,7 +144,8 @@ const selectedComposition = computed(
           :name="name"
           :noncollapsible="true"
           :options="options"
-          :schema="selectedComposition" />
+          :schema="selectedComposition"
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
       </div>
     </template>
   </div>

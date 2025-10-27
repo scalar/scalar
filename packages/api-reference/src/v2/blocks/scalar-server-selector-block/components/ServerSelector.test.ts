@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
-import ServerSelector from './ServerSelector.vue'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
+
+import ServerSelector from './ServerSelector.vue'
 
 describe('ServerSelector', () => {
   const mockServers: ServerObject[] = [
@@ -321,7 +322,7 @@ describe('ServerSelector', () => {
 
     const variables = wrapper.findComponent({ name: 'ServerVariablesForm' })
     expect(variables.text()).toContain('abcd')
-    store.workspace.activeDocument!.servers![1].variables!.protocol.default = '1234'
+    store.workspace.activeDocument!.servers![1]!.variables!.protocol!.default = '1234'
     await nextTick()
     expect(variables.text()).toContain('1234')
   })

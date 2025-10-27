@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { TagsMap } from '@/navigation/types'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
@@ -8,14 +8,6 @@ import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { traverseSchemas } from './traverse-schemas'
 
 describe('traverseSchemas', () => {
-  // Mock getModelId function
-  const mockGetModelId: TraverseSpecOptions['getModelId'] = (params) => {
-    if (!params) {
-      return 'model'
-    }
-    return `model-${params.name}`
-  }
-
   let mockTagsMap: TagsMap
 
   beforeEach(() => {
@@ -24,6 +16,8 @@ describe('traverseSchemas', () => {
       [
         'default',
         {
+          id: 'tag/default',
+          parentId: 'doc-1',
           tag: { name: 'default' },
           entries: [],
         },
@@ -31,6 +25,8 @@ describe('traverseSchemas', () => {
       [
         'users',
         {
+          id: 'tag/users',
+          parentId: 'doc-1',
           tag: { name: 'users' },
           entries: [],
         },
@@ -38,6 +34,8 @@ describe('traverseSchemas', () => {
       [
         'products',
         {
+          id: 'tag/products',
+          parentId: 'doc-1',
           tag: { name: 'products' },
           entries: [],
         },
@@ -46,7 +44,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should return empty array when no schemas exist', () => {
-    const content: OpenApiDocument = {
+    const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -54,7 +52,21 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
     expect(result).toEqual([])
   })
 
@@ -85,7 +97,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(2)
     expect(result).toEqual([
@@ -132,7 +158,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('PublicUser')
@@ -164,7 +204,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('ValidSchema')
@@ -186,7 +240,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
@@ -217,7 +285,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('User-Profile')
@@ -257,7 +339,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('ValidSchema')
@@ -297,7 +393,21 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('Foobar')
@@ -339,7 +449,21 @@ describe('traverseSchemas', () => {
         },
       })
 
-      const result = traverseSchemas(content, mockTagsMap, mockGetModelId)
+      const result = traverseSchemas({
+        document: content,
+        tagsMap: mockTagsMap,
+        documentId: 'doc-1',
+        generateId: (props) => {
+          if (props.type === 'model') {
+            if (props.name) {
+              return `model-${props.name}`
+            }
+            return 'model'
+          }
+
+          return 'unknown-id'
+        },
+      })
 
       // Verify the schemas are in the correct tags
       expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
@@ -390,7 +514,21 @@ describe('traverseSchemas', () => {
         },
       })
 
-      traverseSchemas(content, mockTagsMap, mockGetModelId)
+      traverseSchemas({
+        document: content,
+        tagsMap: mockTagsMap,
+        documentId: 'doc-1',
+        generateId: (props) => {
+          if (props.type === 'model') {
+            if (props.name) {
+              return `model-${props.name}`
+            }
+            return 'model'
+          }
+
+          return 'unknown-id'
+        },
+      })
 
       // Verify the schema is in both tags
       expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
@@ -432,7 +570,21 @@ describe('traverseSchemas', () => {
         },
       })
 
-      traverseSchemas(content, mockTagsMap, mockGetModelId)
+      traverseSchemas({
+        document: content,
+        tagsMap: mockTagsMap,
+        documentId: 'doc-1',
+        generateId: (props) => {
+          if (props.type === 'model') {
+            if (props.name) {
+              return `model-${props.name}`
+            }
+            return 'model'
+          }
+
+          return 'unknown-id'
+        },
+      })
 
       // Verify the entry in the default tag
       expect(mockTagsMap.get('non-existent-tag')?.entries).toHaveLength(1)

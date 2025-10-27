@@ -1,8 +1,8 @@
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Component } from 'vue'
 
 import type { Icon } from '../ScalarIcon'
 import type { SidebarGroupLevel } from './useSidebarGroups'
-import type { ScalarIconComponent } from '@scalar/icons/types'
 
 /** Scalar Sidebar Item Props */
 export type ScalarSidebarItemProps = {

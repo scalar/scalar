@@ -66,7 +66,7 @@ describe('ClientLibraries', () => {
 
       // The selectedClientOption computed property should resolve to the default client
       const vm = wrapper.vm
-      expect(vm.selectedClientOption.id).toBe(DEFAULT_CLIENT)
+      expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
 
     it('uses provided selectedClient when available', () => {

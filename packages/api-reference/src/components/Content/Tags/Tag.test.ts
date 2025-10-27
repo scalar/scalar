@@ -1,17 +1,8 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import Tag from './Tag.vue'
-
-// Mock the useSidebar hook
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: () => ({
-    collapsedSidebarItems: {
-      'test-tag': false, // This makes isCollapsed return false, so slot content is rendered
-    },
-  }),
-}))
 
 describe('Tag', () => {
   const mockTag: TraversedTag = {
@@ -32,6 +23,7 @@ describe('Tag', () => {
           layout: 'classic',
           moreThanOneTag: true,
           isLoading: false,
+          isCollapsed: false,
           onShowMore: undefined,
         },
       })
@@ -47,6 +39,7 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: true,
+          isCollapsed: false,
           isLoading: false,
           onShowMore: undefined,
         },
@@ -64,6 +57,7 @@ describe('Tag', () => {
         props: {
           tag: mockTag,
           layout: 'classic',
+          isCollapsed: false,
           moreThanOneTag: true,
           isLoading: false,
           onShowMore: undefined,
@@ -79,6 +73,7 @@ describe('Tag', () => {
         props: {
           tag: mockTag,
           layout: 'modern',
+          isCollapsed: false,
           moreThanOneTag: false,
           isLoading: false,
           onShowMore: undefined,
@@ -98,6 +93,7 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
+          isCollapsed: false,
           isLoading: false,
           onShowMore: undefined,
         },
@@ -117,6 +113,7 @@ describe('Tag', () => {
           layout: 'modern',
           moreThanOneTag: false, // Set to false so slot is rendered
           isLoading: false,
+          isCollapsed: false,
           onShowMore: undefined,
         },
         slots: {

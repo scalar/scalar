@@ -13,6 +13,10 @@ const { responses } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
+
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
 </script>
 <template>
   <div
@@ -26,7 +30,8 @@ const { responses } = defineProps<{
         :breadcrumb="breadcrumb"
         :name="status"
         :options="options"
-        :parameter="getResolvedRef(response)" />
+        :parameter="getResolvedRef(response)"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </ul>
   </div>
 </template>
