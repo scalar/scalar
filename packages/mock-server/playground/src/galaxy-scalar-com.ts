@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
-import type { Context } from 'hono'
+import type { Context, Hono } from 'hono'
 
 /**
  * Read the OpenAPI document from the filesystem.
@@ -21,7 +21,7 @@ export async function loadDocument(): Promise<string> {
 /**
  * Create and configure the mock server application.
  */
-export async function createApp(): Promise<any> {
+export async function createApp(): Promise<Hono> {
   const document = await loadDocument()
 
   return createMockServer({
@@ -35,7 +35,7 @@ export async function createApp(): Promise<any> {
 /**
  * Configure the API reference with Scalar.
  */
-export function configureApiReference(app: any, port: number, useLocalJsBundle: boolean): void {
+export function configureApiReference(app: Hono, port: number, useLocalJsBundle: boolean): void {
   app.get(
     '/',
     Scalar({
@@ -62,14 +62,14 @@ export function configureApiReference(app: any, port: number, useLocalJsBundle: 
   )
 
   if (useLocalJsBundle) {
-    app.get('/scalar.js', async (c: any) => c.text(await readFile(new URL('./scalar.js', import.meta.url), 'utf8')))
+    app.get('/scalar.js', async (c) => c.text(await readFile(new URL('./scalar.js', import.meta.url), 'utf8')))
   }
 }
 
 /**
  * Start the server with the given configuration.
  */
-export function startServer(app: any, port: number): void {
+export function startServer(app: Hono, port: number): void {
   serve(
     {
       fetch: app.fetch,

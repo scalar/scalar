@@ -27,7 +27,7 @@ describe('OpenID Connect', () => {
   }
 
   it('returns OpenID configuration', async () => {
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/.well-known/openid-configuration')
 
     expect(response.status).toBe(200)
@@ -42,7 +42,7 @@ describe('OpenID Connect', () => {
   })
 
   it('succeeds with valid OAuth token', async () => {
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
 
     const response = await server.request('/oauth-test', {
       headers: { Authorization: 'Bearer valid-token' },
@@ -52,7 +52,7 @@ describe('OpenID Connect', () => {
   })
 
   it('succeeds with valid OAuth token for scoped endpoint', async () => {
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
 
     const response = await server.request('/protected', {
       headers: { Authorization: 'Bearer valid-token' },
@@ -62,7 +62,7 @@ describe('OpenID Connect', () => {
   })
 
   it('fails without OAuth token', async () => {
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/oauth-test')
 
     expect(response.status).toBe(401)

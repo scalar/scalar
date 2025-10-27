@@ -69,7 +69,7 @@ const specification = {
 }
 
 // Create the mocked routes
-const app = await createMockServer({
+const app = createMockServer({
   specification,
   // Custom logging
   onRequest({ context, operation }) {
@@ -157,7 +157,7 @@ const specification = {
 }
 
 // Create the mocked routes
-const app = await createMockServer({
+const app = createMockServer({
   specification,
   // Custom logging
   onRequest({ context, operation }) {

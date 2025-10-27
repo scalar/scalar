@@ -14,7 +14,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification,
     })
 
@@ -35,7 +35,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification: JSON.stringify(specification),
     })
 
@@ -56,7 +56,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification: toYaml(specification),
     })
 
@@ -77,7 +77,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification,
     })
 
@@ -98,7 +98,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification: toYaml(specification),
     })
 
@@ -119,7 +119,7 @@ describe('openapi.{json|yaml}', () => {
       paths: {},
     }
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification: JSON.stringify(specification),
     })
 

@@ -17,7 +17,7 @@ import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 /**
  * Create a mock server instance
  */
-export function createMockServer(options: MockServerOptions) {
+export function createMockServer(options: MockServerOptions): Hono {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */

@@ -17,7 +17,7 @@ describe('HTTP Basic Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/basic-auth-test', {
       headers: { Authorization: 'Basic dXNlcm5hbWU6cGFzc3dvcmQ=' },
     })
@@ -38,7 +38,7 @@ describe('HTTP Basic Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/basic-auth-test')
 
     expect(response.status).toBe(401)

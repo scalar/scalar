@@ -27,7 +27,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -36,7 +36,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -65,7 +65,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -74,7 +74,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -103,7 +103,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -112,7 +112,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -142,7 +142,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
 
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
@@ -152,7 +152,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = createMockServer({ specification })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)

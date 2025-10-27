@@ -22,7 +22,7 @@ describe('onRequest', () => {
 
     const onRequestSpy = vi.fn<NonNullable<MockServerOptions['onRequest']>>()
 
-    const server = await createMockServer({
+    const server = createMockServer({
       specification,
       onRequest: onRequestSpy,
     })

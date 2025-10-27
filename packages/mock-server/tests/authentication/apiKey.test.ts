@@ -17,7 +17,7 @@ describe('API Key Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/api-key-test', {
       headers: { 'X-API-Key': 'test-api-key' },
     })
@@ -40,7 +40,7 @@ describe('API Key Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/api-key-test')
 
     expect(response.status).toBe(401)

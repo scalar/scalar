@@ -17,7 +17,7 @@ describe('Bearer Token Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/bearer-test', {
       headers: { Authorization: 'Bearer test-token' },
     })
@@ -40,7 +40,7 @@ describe('Bearer Token Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = createMockServer({ specification })
     const response = await server.request('/bearer-test')
 
     expect(response.status).toBe(401)
