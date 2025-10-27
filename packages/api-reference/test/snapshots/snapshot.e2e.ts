@@ -1,9 +1,8 @@
 import { expect, test } from '@playwright/test'
+import { isClassic } from '@test/utils/isClassic'
+import { serveExample } from '@test/utils/serve-example'
 
-import sources from '../data/sources'
-
-type Sources = typeof sources
-type Slug = Sources[number]['slug']
+import { type Slug, sources } from '../data/sources'
 
 /** A shorter list of slugs to test */
 const toTest: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']
@@ -16,9 +15,16 @@ test.describe.configure({ mode: 'parallel', timeout: 45000 })
  */
 sources
   .filter(({ slug }) => toTest.includes(slug))
-  .forEach(({ title, slug }) => {
-    test(title, async ({ page }) => {
-      await page.goto(`?api=${slug}`)
+  .forEach((source) => {
+    const { slug } = source
+
+    test(source.title, async ({ page }) => {
+      const example = await serveExample({
+        showToolbar: 'never',
+        ...source,
+      })
+
+      await page.goto(example)
 
       // Operations
       // --------------------------------------------------------------------------
@@ -27,7 +33,7 @@ sources
 
       for (const tag of ['Planets', 'Celestial Bodies', 'Models']) {
         const region = page.getByRole('region', { name: tag })
-        if (slug.endsWith('classic')) {
+        if (isClassic(source)) {
           await region.getByRole('button', { expanded: false }).click()
         } else {
           await region.getByRole('button', { name: 'Show' }).click()
@@ -38,7 +44,7 @@ sources
       const createAPlanet = await page.getByRole('region', { name: 'Create a planet' })
 
       // On classic we need to expand the operations
-      if (slug.endsWith('classic')) {
+      if (isClassic(source)) {
         await getAllPlanets.getByRole('button', { expanded: false }).click()
         await createAPlanet.getByRole('button', { expanded: false }).click()
       }
@@ -66,8 +72,8 @@ sources
       await expect(requestCallbacks).toHaveScreenshot(`${slug}-request-callbacks.png`)
 
       // Snapshot the request example - disabled for now as it's flaky
-      // const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
-      // await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
+      const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
+      await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
 
       // Models
       // --------------------------------------------------------------------------

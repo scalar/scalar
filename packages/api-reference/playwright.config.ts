@@ -26,16 +26,6 @@ const playwrightServer: WebServer = {
   },
 }
 
-/**
- * Vite Dev Server
- */
-const devServer: WebServer = {
-  name: 'Vite',
-  command: 'pnpm dev',
-  url: 'http://localhost:5173',
-  reuseExistingServer: !CI,
-}
-
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
   testMatch: 'test/**/*.e2e.ts',
@@ -57,15 +47,14 @@ export default defineConfig({
   },
 
   /**
-   * In CI we only need the dev server because the CI container is the playwright server
+   * In CI the container is the playwright server itself
    *
    * @see https://playwright.dev/docs/ci#via-containers
    */
-  webServer: CI ? [devServer] : [playwrightServer, devServer],
+  webServer: CI ? undefined : playwrightServer,
   use: {
     /** The base URL is on the docker host where we're running Vite */
     baseURL: CI || isLinux ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',
-
     /** Set a higher device scale factor for higher DPI screenshots */
     deviceScaleFactor: 2,
     /** Save a screenshot on failure */
