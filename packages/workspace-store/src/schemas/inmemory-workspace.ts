@@ -17,14 +17,6 @@ export const InMemoryWorkspaceSchema = Type.Object({
   originalDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   intermediateDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   overrides: Type.Record(Type.String(), Type.Any()),
-  documentMeta: Type.Record(
-    Type.String(),
-    Type.Partial(
-      Type.Object({
-        documentSource: Type.Optional(Type.String()),
-      }),
-    ),
-  ),
 })
 
 export type InMemoryWorkspace = {
@@ -34,5 +26,4 @@ export type InMemoryWorkspace = {
   originalDocuments: Record<string, unknown>
   intermediateDocuments: Record<string, unknown>
   overrides: Record<string, any>
-  documentMeta: Record<string, { documentSource?: string }>
 }

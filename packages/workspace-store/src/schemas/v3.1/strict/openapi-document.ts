@@ -62,8 +62,8 @@ import { ServerVariableObjectSchemaDefinition } from './server-variable'
 import { type TagObject, TagObjectSchemaDefinition } from './tag'
 import { XMLObjectSchemaDefinition } from './xml'
 
-const OpenApiExtensionsSchema = Type.Partial(
-  compose(
+const OpenApiExtensionsSchema = compose(
+  Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),
       /** A custom icon representing the collection */
@@ -72,10 +72,14 @@ const OpenApiExtensionsSchema = Type.Partial(
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
       'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
+      'x-scalar-original-source-url': Type.Optional(Type.String()),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
-    XTagGroupsSchema,
   ),
+  Type.Partial(XTagGroupsSchema),
+  Type.Object({
+    'x-scalar-original-document-hash': Type.String(),
+  }),
 )
 
 export type OpenAPIExtensions = Partial<
@@ -87,9 +91,14 @@ export type OpenAPIExtensions = Partial<
     'x-scalar-client-config-cookies': XScalarClientConfigCookies
     'x-original-oas-version': string
     'x-scalar-selected-security': SecurityRequirementObject[]
+    /** Original document source url / when loading a document from an external source */
+    'x-scalar-original-source-url': string
     [extensions.document.navigation]: TraversedDocument
   } & XTagGroups
->
+> & {
+  /** Original input document hash */
+  'x-scalar-original-document-hash': string
+}
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

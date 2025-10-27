@@ -13,6 +13,7 @@ import YAML from 'yaml'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
+import { generateHash } from '@/helpers/hash'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
@@ -109,6 +110,8 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   return {
     ok: true as const,
     data: workspaceDocument.document,
+    // string version of the raw document for hashing purposes
+    raw: JSON.stringify(workspaceDocument.document),
   }
 }
 
@@ -448,14 +451,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    */
   const overrides: InMemoryWorkspace['overrides'] = {}
   /**
-   * Holds additional metadata for each document in the workspace.
-   *
-   * This metadata should be persisted together with the document itself.
-   * It can include information such as user preferences, UI state, or other
-   * per-document attributes that are not part of the OpenAPI document structure.
-   */
-  const documentMeta: InMemoryWorkspace['documentMeta'] = {}
-  /**
    * Holds additional configuration options for each document in the workspace.
    *
    * This can include settings that can not be persisted between sessions (not JSON serializable)
@@ -554,7 +549,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
+  async function addInMemoryDocument(
+    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
+  ) {
     const { name, meta } = input
     const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
 
@@ -575,8 +572,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
         overrides[name] = input.overrides ?? {}
-        // Store the document metadata for this document, setting the origin if provided
-        documentMeta[name] = { documentSource: input.documentSource }
         // Store extra document configurations that can not be persisted
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
@@ -584,9 +579,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
-    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
-
-    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    const strictDocument: UnknownObject = createMagicProxy(
+      {
+        ...inputDocument,
+        ...meta,
+        'x-original-oas-version': inputDocument.openapi ?? inputDocument.swagger,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      },
+      { showInternal: true },
+    )
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -605,7 +607,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               refsEverywhere(),
             ],
             urlMap: true,
-            origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
+            origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),
       )
 
@@ -676,6 +678,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             title: `Document '${name}' could not be loaded`,
             version: 'unknown',
           },
+          'x-scalar-original-document-hash': 'not-a-hash',
         }
 
         return
@@ -691,6 +694,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             title: `Document '${name}' could not be loaded`,
             version: 'unknown',
           },
+          'x-scalar-original-document-hash': 'not-a-hash',
         }
 
         return
@@ -700,6 +704,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...input,
         document: resolve.data,
         documentSource: getDocumentSource(input),
+        documentHash: await generateHash(resolve.raw),
       })
     })
   }
@@ -753,6 +758,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         name: documentName,
         document: input,
         // Preserve the current metadata
+        documentSource: currentDocument['x-scalar-original-source-url'],
+        documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
           'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
           'x-scalar-active-server': currentDocument['x-scalar-active-server'],
@@ -800,6 +807,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await addInMemoryDocument({
         name: documentName,
         document: intermediate,
+        documentSource: workspaceDocument['x-scalar-original-source-url'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'],
         initialize: false,
       })
     },
@@ -824,7 +833,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments,
         intermediateDocuments,
         overrides,
-        documentMeta,
       } satisfies InMemoryWorkspace)
     },
     loadWorkspace(input: string) {
@@ -846,7 +854,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
-      safeAssign(documentMeta, result.documentMeta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
@@ -861,7 +868,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: async (input, resolvedConflicts) => {
+    rebaseDocument: async (input: WorkspaceDocumentInput, resolvedConflicts?: Difference<unknown>[]) => {
       const { name } = input
 
       // ---- Resolve input document
@@ -889,12 +896,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
-      const documentSource = getDocumentSource(input)
-
       // ---- Override the configurations and metadata
       documentConfigs[name] = input.config ?? {}
       overrides[name] = input.overrides ?? {}
-      documentMeta[name] = { documentSource }
       extraDocumentConfigurations[name] = { fetch: input.fetch }
 
       // ---- Get the new intermediate document
@@ -947,7 +951,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // when we are rebasing, we want to ensure that the navigation is always up to date
           [extensions.document.navigation]: undefined,
         },
-        documentSource,
+        documentSource: getDocumentSource(input),
+        // Update the original document hash
+        documentHash: await generateHash(resolve.raw),
         initialize: false,
       })
       return

@@ -20,6 +20,7 @@ export function parseJson(): LoaderPlugin {
         return {
           ok: true,
           data: JSON.parse(value),
+          raw: value,
         }
       } catch {
         return {
