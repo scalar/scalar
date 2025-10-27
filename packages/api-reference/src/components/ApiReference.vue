@@ -46,13 +46,13 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import { intersectionEnabled, scrollToLazy } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
+import { intersectionEnabled, scrollToLazy } from '@/helpers/lazy-bus'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { mapConfigToClientStore } from '@/v2/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/v2/helpers/map-config-to-workspace-store'
@@ -881,7 +881,6 @@ onBeforeMount(() => {
             headingSlugGenerator:
               mergedConfig.generateHeadingSlug ??
               ((heading) => `${activeSlug}/description/${heading.slug}`),
-            slug: mergedConfig.slug,
             hiddenClients: mergedConfig.hiddenClients,
             layout: mergedConfig.layout,
             persistAuth: mergedConfig.persistAuth,

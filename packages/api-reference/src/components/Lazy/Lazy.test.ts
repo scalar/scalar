@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { scrollToLazy } from '@/components/Lazy/lazyBus'
+import { scrollToLazy } from '@/helpers/lazy-bus'
 
 import Lazy from './Lazy.vue'
 

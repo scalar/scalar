@@ -12,10 +12,10 @@ import { computed } from 'vue'
 
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
-import { firstLazyLoadComplete } from '@/components/Lazy/lazyBus'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
+import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
@@ -32,7 +32,6 @@ const { options, document, items } = defineProps<{
   items: TraversedEntryType[]
   expandedItems: Record<string, boolean>
   options: {
-    slug: string | undefined
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
     persistAuth: boolean
