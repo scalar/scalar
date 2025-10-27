@@ -1288,6 +1288,9 @@ importers:
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
+      fastify:
+        specifier: catalog:*
+        version: 5.3.3
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0

@@ -71,8 +71,9 @@ const OpenApiExtensionsSchema = compose(
       'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
-      'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-      'x-scalar-original-source-url': Type.Optional(Type.String()),
+      'x-scalar-selected-security': Type.Array(SecurityRequirementObjectRef),
+      'x-scalar-original-source-url': Type.String(),
+      'x-scalar-watch-mode': Type.Boolean(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
   ),
@@ -93,6 +94,7 @@ export type OpenAPIExtensions = Partial<
     'x-scalar-selected-security': SecurityRequirementObject[]
     /** Original document source url / when loading a document from an external source */
     'x-scalar-original-source-url': string
+    'x-scalar-watch-mode': boolean
     [extensions.document.navigation]: TraversedDocument
   } & XTagGroups
 > & {
