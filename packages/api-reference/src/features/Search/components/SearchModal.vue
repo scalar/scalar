@@ -5,6 +5,7 @@ import {
   ScalarSearchResultList,
   type ModalState,
 } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nanoid } from 'nanoid'
 import { computed, ref, watch } from 'vue'
@@ -16,10 +17,7 @@ import SearchResult from './SearchResult.vue'
 const props = defineProps<{
   modalState: ModalState
   document: OpenApiDocument | undefined
-}>()
-
-const emit = defineEmits<{
-  (e: 'scrollToId', id: string): void
+  eventBus: WorkspaceEventBus
 }>()
 
 /** Base id for the search form */
@@ -66,7 +64,7 @@ function handleSelect(idx: number | undefined) {
 
   const result = results.value[idx]
   props.modalState.hide()
-  emit('scrollToId', result.item.id)
+  props.eventBus.emit('scroll-to:nav-item', { id: result.item.id })
 }
 
 /**

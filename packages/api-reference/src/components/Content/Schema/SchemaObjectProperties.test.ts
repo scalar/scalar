@@ -41,7 +41,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
     const props = wrapper.findAll('.schema-property')
     expect(props[0]?.attributes('data-name')).toBe('foo')
@@ -59,7 +59,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
     // The required prop is passed to SchemaProperty, but since we mock it, we cannot check directly.
     // Instead, check that both properties are rendered.
@@ -76,7 +76,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -92,7 +92,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -110,7 +110,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -125,7 +125,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -140,7 +140,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -154,7 +154,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     expect(wrapper.findAll('.schema-property')).toHaveLength(0)
@@ -170,7 +170,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -191,7 +191,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -214,7 +214,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {} },
+      props: { schema, options: {}, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -245,6 +245,7 @@ describe('SchemaObjectProperties', () => {
         options: {
           orderRequiredPropertiesFirst: false,
         },
+        eventBus: null,
       },
     })
 
@@ -273,6 +274,7 @@ describe('SchemaObjectProperties', () => {
     const wrapper = mount(SchemaObjectProperties, {
       props: {
         schema,
+        eventBus: null,
         options: {
           orderSchemaPropertiesBy: 'preserve',
           orderRequiredPropertiesFirst: false,

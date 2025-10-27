@@ -18,6 +18,7 @@ describe('InfoBlock', () => {
         options: {
           headingSlugGenerator: () => '',
         },
+        eventBus: null,
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',
@@ -35,6 +36,7 @@ describe('InfoBlock', () => {
         options: {
           headingSlugGenerator: () => '',
         },
+        eventBus: null,
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',

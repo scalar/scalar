@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -7,30 +8,29 @@ import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 
 import { SchemaHeading, SchemaProperty } from '../../Schema'
 
-defineProps<{
+const { eventBus, id } = defineProps<{
   id: string
   name: string
   schema: SchemaObject
   isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
-
-const emit = defineEmits<{
-  (e: 'toggleSchema', id: string, open: boolean): void
-  (e: 'copyAnchorUrl', id: string): void
-}>()
 </script>
 <template>
   <SectionAccordion
     :modelValue="!isCollapsed"
-    @update:modelValue="(value) => emit('toggleSchema', id, value)">
+    @update:modelValue="
+      (value) => eventBus?.emit('toggle:nav-item', { id, open: value })
+    ">
     <template #title>
       <Anchor
         class="reference-models-anchor"
-        @copyAnchorUrl="() => emit('copyAnchorUrl', id)">
+        :eventBus="eventBus"
+        @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
         <SectionHeaderTag :level="3">
           <SchemaHeading
             class="reference-models-label"
@@ -46,23 +46,23 @@ const emit = defineEmits<{
       <SchemaProperty
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
+        :eventBus="eventBus"
         :name="property"
         :options="{
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
         :required="schema.required?.includes(property)"
-        :schema="getResolvedRef(value)"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="getResolvedRef(value)" />
     </div>
     <div v-else>
       <SchemaProperty
+        :eventBus="eventBus"
         :options="{
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="schema"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="schema" />
     </div>
   </SectionAccordion>
 </template>

@@ -22,6 +22,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -38,12 +39,13 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
 
       const section = wrapper.findComponent({ name: 'Section' })
-      expect(section.props('id')).toBe('custom-tag-id')
+      expect(section.element.id).toBe('custom-tag-id')
     })
   })
 
@@ -53,6 +55,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -70,6 +73,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -87,6 +91,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: true,
         },
@@ -100,6 +105,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -113,6 +119,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: true,
         },
@@ -127,6 +134,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -143,6 +151,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -159,6 +168,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -170,6 +180,7 @@ describe('TagSection', () => {
     it('does not render when tag is null', () => {
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: null as any,
         },
       })
@@ -197,6 +208,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
@@ -214,6 +226,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
+          eventBus: null,
           tag: mockTag,
         },
       })
