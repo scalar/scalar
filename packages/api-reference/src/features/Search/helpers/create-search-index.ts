@@ -3,7 +3,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
-import { createParameterMap, extractRequestBody } from '@/libs/openapi'
+import { createParameterMap, extractRequestBody } from '@/helpers/openapi'
 
 /**
  * Create a search index from a list of entries.

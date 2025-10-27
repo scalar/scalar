@@ -4,13 +4,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import TagSection from './TagSection.vue'
 
-// Mock the useConfig hook
-vi.mock('@/hooks/useConfig', () => ({
-  useConfig: () => ({
-    isLoading: false,
-  }),
-}))
-
 describe('TagSection', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
     type: 'tag',
