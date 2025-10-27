@@ -207,17 +207,16 @@ defineExpose({
           <template #title>Response Headers</template>
         </Headers>
 
-        <template v-for="plugin in plugins">
-          <ScalarErrorBoundary>
-            <component
-              v-if="plugin.components?.response"
-              :is="plugin.components.response"
-              v-show="activeFilter === 'All'"
-              :response="response"
-              :request="request" />
-          </ScalarErrorBoundary>
-        </template>
-
+        <ScalarErrorBoundary
+          v-for="(plugin, index) in plugins"
+          :key="index">
+          <component
+            v-if="plugin.components?.response"
+            :is="plugin.components.response"
+            v-show="activeFilter === 'All'"
+            :response="response"
+            :request="request" />
+        </ScalarErrorBoundary>
         <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
           <!-- Streaming response body -->
           <ResponseBodyStreaming

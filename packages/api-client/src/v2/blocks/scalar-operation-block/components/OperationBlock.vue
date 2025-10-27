@@ -423,15 +423,15 @@ const labelRequestNameId = useId()
       @update:value="(payload) => emits('requestBody:update:value', payload)" />
 
     <!-- Inject request section plugin components -->
-    <template v-for="plugin in plugins">
-      <ScalarErrorBoundary>
-        <component
-          v-if="plugin?.components?.request"
-          :is="plugin.components.request"
-          :operation="operation"
-          :selectedExample="exampleKey" />
-      </ScalarErrorBoundary>
-    </template>
+    <ScalarErrorBoundary
+      v-for="(plugin, index) in plugins"
+      :key="index">
+      <component
+        v-if="plugin?.components?.request"
+        :is="plugin.components.request"
+        :operation="operation"
+        :selectedExample="exampleKey" />
+    </ScalarErrorBoundary>
   </ViewLayoutSection>
 </template>
 <style scoped>
