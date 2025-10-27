@@ -10,18 +10,18 @@ import type {
 } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
+import { AuthSelector } from '@/blocks/scalar-auth-selector-block'
+import { ClientSelector } from '@/blocks/scalar-client-selector-block'
+import { InfoBlock } from '@/blocks/scalar-info-block'
+import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
+import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
-import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
-import { InfoBlock } from '@/v2/blocks/scalar-info-block'
-import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
-import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 const { options, document, items } = defineProps<{
   activeServer: Server | undefined

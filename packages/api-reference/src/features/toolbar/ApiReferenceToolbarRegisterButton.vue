@@ -5,7 +5,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
 import { DASHBOARD_REGISTER_URL } from '@/consts/urls'
-import { uploadTempDocument } from '@/v2/helpers/upload-temp-document'
+import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const { sdks = [], workspace } = defineProps<{
   workspace: WorkspaceStore

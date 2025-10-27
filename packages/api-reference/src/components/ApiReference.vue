@@ -53,15 +53,15 @@ import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import { intersectionEnabled, scrollToLazy } from '@/helpers/lazy-bus'
-import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { mapConfigToClientStore } from '@/v2/helpers/map-config-to-client-store'
-import { mapConfigToWorkspaceStore } from '@/v2/helpers/map-config-to-workspace-store'
-import { mapConfiguration } from '@/v2/helpers/map-configuration'
+import { mapConfigToClientStore } from '@/helpers/map-config-to-client-store'
+import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
+import { mapConfiguration } from '@/helpers/map-configuration'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
-} from '@/v2/helpers/normalize-configurations'
-import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
+} from '@/helpers/normalize-configurations'
+import { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
+import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 
 const props = defineProps<{
   /**
