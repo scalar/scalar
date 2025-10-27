@@ -53,6 +53,15 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
+const childBreadcrumb = computed<string[] | undefined>(() =>
+  props.breadcrumb && props.name
+    ? [...props.breadcrumb, props.name]
+    : undefined,
+)
 const descriptions: Record<string, Record<string, string>> = {
   integer: {
     _default: 'Integer numbers.',
@@ -80,9 +89,11 @@ const generatePropertyDescription = (property?: Record<string, any>) => {
     return null
   }
 
-  return descriptions[property.type][
-    property.format || property.contentEncoding || '_default'
-  ]
+  return (
+    descriptions[property.type]?.[
+      property.format || property.contentEncoding || '_default'
+    ] || null
+  )
 }
 
 const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
@@ -272,9 +283,8 @@ const compositionsToRender = computed(() => {
         v-if="name"
         #name>
         <WithBreadcrumb
-          :breadcrumb="
-            shouldHaveLink && breadcrumb ? [...breadcrumb, name] : undefined
-          ">
+          :breadcrumb="shouldHaveLink ? childBreadcrumb : undefined"
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               {{ name }}
@@ -329,13 +339,14 @@ const compositionsToRender = computed(() => {
       v-if="shouldRenderObjectProperties"
       class="children">
       <Schema
-        :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
+        :breadcrumb="childBreadcrumb"
         :compact="compact"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schema="optimizedValue" />
+        :schema="optimizedValue"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </div>
 
     <!-- Array of objects -->
@@ -354,7 +365,8 @@ const compositionsToRender = computed(() => {
           :name="name"
           :noncollapsible="noncollapsible"
           :options="options"
-          :schema="getResolvedRef(optimizedValue.items)" />
+          :schema="getResolvedRef(optimizedValue.items)"
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
       </div>
     </template>
 
@@ -371,7 +383,8 @@ const compositionsToRender = computed(() => {
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="getResolvedRef(props.schema)!" />
+      :schema="getResolvedRef(props.schema)!"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

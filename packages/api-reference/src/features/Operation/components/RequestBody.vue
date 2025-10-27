@@ -22,6 +22,10 @@ const { requestBody, options } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /**
  * The maximum number of properties to show in the request body schema.
  */
@@ -34,7 +38,7 @@ const availableContentTypes = computed(() =>
 const selectedContentType = ref<string>('application/json')
 
 if (requestBody?.content) {
-  if (availableContentTypes.value.length > 0) {
+  if (availableContentTypes.value[0]) {
     selectedContentType.value = availableContentTypes.value[0]
   }
 }
@@ -129,7 +133,8 @@ const partitionedSchema = computed(() => {
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.visibleProperties" />
+        :schema="partitionedSchema.visibleProperties"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 
       <Schema
         additionalProperties
@@ -141,7 +146,8 @@ const partitionedSchema = computed(() => {
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.collapsedProperties" />
+        :schema="partitionedSchema.collapsedProperties"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </div>
 
     <!-- Show em all 12 and under -->
@@ -159,7 +165,8 @@ const partitionedSchema = computed(() => {
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema />
+        :schema
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </div>
   </div>
 </template>

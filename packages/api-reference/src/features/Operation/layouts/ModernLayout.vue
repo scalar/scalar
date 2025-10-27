@@ -62,6 +62,11 @@ const { path, operation, method } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+  (e: 'intersecting', id: string): void
+}>()
+
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
@@ -72,7 +77,8 @@ const labelId = useId()
     :id="id"
     :aria-labelledby="labelId"
     :label="operationTitle"
-    tabindex="-1">
+    tabindex="-1"
+    @intersecting="(id) => emit('intersecting', id)">
     <SectionContent>
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
@@ -109,7 +115,7 @@ const labelId = useId()
       </div>
       <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader>
-          <Anchor :id="id">
+          <Anchor @copyAnchorUrl="() => emit('copyAnchorUrl', id)">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
@@ -138,8 +144,8 @@ const labelId = useId()
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
               "
-              :requestBody="getResolvedRef(operation.requestBody)" />
-            <!-- TODO: why collapsableItems being set here? -->
+              :requestBody="getResolvedRef(operation.requestBody)"
+              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
             <OperationResponses
               :breadcrumb="[id]"
               :options="{
@@ -148,7 +154,8 @@ const labelId = useId()
                   options.orderRequiredPropertiesFirst,
                 orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
               }"
-              :responses="operation.responses" />
+              :responses="operation.responses"
+              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>

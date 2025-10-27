@@ -1,7 +1,6 @@
 import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
+import type { AnyApiReferenceConfiguration } from '@scalar/types'
 import { describe, expect, it, vi } from 'vitest'
-
-import type { ReferenceProps } from './types'
 
 describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
   // Generates the required script tag on the fly:
@@ -52,7 +51,9 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
             content: galaxyContent,
           },
         },
-      } satisfies ReferenceProps,
+      } satisfies {
+        configuration?: AnyApiReferenceConfiguration
+      },
     })
 
     document.dispatchEvent(event)

@@ -7,8 +7,8 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
-import type { TraversedExample, TraversedOperation } from '@/schemas/navigation'
-import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
+import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -28,22 +28,42 @@ export const isDeprecatedOperation = (operation: OperationObject) => {
  * @param getOperationId - Function to generate unique IDs for operations
  * @returns A traversed operation entry with ID, title, path, method and reference
  */
-const createOperationEntry = (
-  ref: string,
-  operation: OperationObject,
-  method: HttpMethod,
-  path = 'Unknown',
-  tag: TagObject,
-  getOperationId: TraverseSpecOptions['getOperationId'],
-): TraversedOperation => {
-  const id = getOperationId({ ...operation, method, path }, tag)
+const createOperationEntry = ({
+  ref,
+  operation,
+  method,
+  path,
+  generateId,
+  parentId,
+  parentTag,
+}: {
+  ref: string
+  operation: OperationObject
+  method: HttpMethod
+  path: string
+  parentTag: ParentTag
+  generateId: TraverseSpecOptions['generateId']
+  parentId: string
+}): TraversedOperation => {
+  const id = generateId({
+    type: 'operation',
+    operation,
+    parentTag,
+    method: method,
+    path: path,
+    parentId: parentId,
+  })
   const title = operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
 
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
-    id: `${id}/example-${example}`,
+    id: generateId({
+      type: 'example',
+      parentId: id,
+      name: example,
+    }),
     title: example,
     name: example,
   }))
@@ -79,14 +99,22 @@ const createOperationEntry = (
  * @param getOperationId - Function to generate unique IDs for operations
  * @returns Map of tag names to arrays of traversed operations
  */
-export const traversePaths = (
-  content: OpenApiDocument,
+export const traversePaths = ({
+  document,
+  tagsMap,
+  generateId,
+  documentId,
+}: {
+  document: OpenApiDocument
   /** Map of tags and their entries */
-  tagsMap: TagsMap,
-  getOperationId: TraverseSpecOptions['getOperationId'],
-) => {
+  tagsMap: TagsMap
+  /** Function used to generate unique IDs for operations */
+  generateId: TraverseSpecOptions['generateId']
+  /** Document ID */
+  documentId: string
+}) => {
   // Traverse paths
-  Object.entries(content.paths ?? {}).forEach(([path, pathItemObject]) => {
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
     const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
 
     pathKeys.forEach((method) => {
@@ -106,14 +134,44 @@ export const traversePaths = (
       // Traverse tags
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          const { tag } = getTag(tagsMap, tagName)
-          tagsMap.get(tagName)?.entries.push(createOperationEntry(ref, operation, method, path, tag, getOperationId))
+          const { tag, id: tagId } = getTag({
+            tagsMap,
+            name: tagName,
+            documentId,
+            generateId,
+          })
+          tagsMap.get(tagName)?.entries.push(
+            createOperationEntry({
+              ref,
+              operation,
+              method,
+              path,
+              parentTag: { tag, id: tagId },
+              generateId,
+              parentId: tagId,
+            }),
+          )
         })
       }
       // Add to default tag
       else {
-        const { tag } = getTag(tagsMap, 'default')
-        tagsMap.get('default')?.entries.push(createOperationEntry(ref, operation, method, path, tag, getOperationId))
+        const { tag, id: tagId } = getTag({
+          tagsMap,
+          name: 'default',
+          documentId,
+          generateId,
+        })
+        tagsMap.get('default')?.entries.push(
+          createOperationEntry({
+            ref,
+            operation,
+            method,
+            path,
+            parentTag: { tag, id: tagId },
+            generateId,
+            parentId: tagId,
+          }),
+        )
       }
     })
   })

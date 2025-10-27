@@ -6,12 +6,12 @@ export type EntryType = 'operation' | 'webhook' | 'model' | 'heading' | 'tag'
 
 export type FuseData = {
   type: EntryType
-  id?: string
+  id: string
   title: string
   description: string
-  href: string
   body?: string | string[] | ParameterMap
   method?: string
   path?: string
+  operationId?: string
   entry: TraversedEntry
 }

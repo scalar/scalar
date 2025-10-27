@@ -16,22 +16,22 @@ const { copyToClipboard } = useClipboard()
   <template v-if="example">
     <div class="property-example">
       <button
-        type="button"
-        class="property-example-label">
+        class="property-example-label"
+        type="button">
         <span>Example</span>
       </button>
       <div class="property-example-value-list">
         <button
-          type="button"
           class="property-example-value group"
+          type="button"
           @click="copyToClipboard(String(formatExample(example)))">
           <span>
             {{ formatExample(example) }}
           </span>
           <ScalarIcon
+            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
             icon="Clipboard"
-            size="xs"
-            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3" />
+            size="xs" />
         </button>
       </div>
     </div>
@@ -46,24 +46,24 @@ const { copyToClipboard } = useClipboard()
     ">
     <div class="property-example">
       <button
-        type="button"
-        class="property-example-label">
+        class="property-example-label"
+        type="button">
         <span>
           {{ Object.keys(examples).length === 1 ? 'Example' : 'Examples' }}
         </span>
       </button>
       <div class="property-example-value-list">
         <button
-          type="button"
-          v-for="(example, key) in examples"
+          v-for="(ex, key) in examples"
           :key="key"
           class="property-example-value group"
-          @click="copyToClipboard(String(formatExample(example)))">
-          <span>{{ formatExample(example) }} </span>
+          type="button"
+          @click="copyToClipboard(String(formatExample(ex)))">
+          <span>{{ formatExample(ex) }} </span>
           <ScalarIcon
+            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
             icon="Clipboard"
-            size="xs"
-            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3" />
+            size="xs" />
         </button>
       </div>
     </div>

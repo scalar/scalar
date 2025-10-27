@@ -1,36 +1,50 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, ref } from 'vue'
 
-import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
+import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
 import ScalarSidebarItem from './ScalarSidebarItem.vue'
 
 describe('ScalarSidebarGroup', () => {
   it('renders a single group with correct base level', async () => {
-    const wrapper = mount(ScalarSidebarGroup, {
-      slots: {
-        default: 'Group 1',
-        items: '<ScalarSidebarItem>Items</ScalarSidebarItem>',
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        const isOpen = ref(false)
+        return { isOpen }
       },
-      global: {
-        components: {
-          ScalarSidebarItem,
-        },
-      },
+      template: `
+        <ScalarSidebarGroup v-model="isOpen">
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
     })
 
+    const wrapper = mount(TestComponent)
+    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
+
     // The group button should have indent level 0 (base level)
-    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+    const groupButton = groupComponent.findComponent(ScalarSidebarButton)
     expect(groupButton.props('indent')).toBe(0)
+
+    // Group should be closed initially
+    expect(groupComponent.props('modelValue')).toBe(false)
 
     // Open the group to reveal the items
     await groupButton.trigger('click')
+
+    // Group should now be open
+    expect(groupComponent.props('modelValue')).toBe(true)
 
     // Verify the item component is rendered
     const itemComponents = wrapper.findAllComponents(ScalarSidebarItem)
     expect(itemComponents).toHaveLength(1)
 
-    // The ScalarSidebarItem doesn't receive an explicit indent prop - it uses the level from context
+    // The ScalarSidebarItem does not receive an explicit indent prop - it uses the level from context
     expect(itemComponents[0]?.props('indent')).toBeUndefined()
 
     // After opening, we should have the group button + item button
@@ -41,28 +55,30 @@ describe('ScalarSidebarGroup', () => {
   })
 
   it('supports nested groups with correct levels', async () => {
-    const wrapper = mount(ScalarSidebarGroup, {
-      slots: {
-        default: 'Parent Group',
-        items: {
-          template: `
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        const parentOpen = ref(false)
+        const nestedOpen = ref(false)
+        return { parentOpen, nestedOpen }
+      },
+      template: `
+        <ScalarSidebarGroup v-model="parentOpen">
+          Parent Group
+          <template #items>
             <ScalarSidebarItem>Level 1 Item</ScalarSidebarItem>
-            <ScalarSidebarGroup>
+            <ScalarSidebarGroup v-model="nestedOpen">
               Level 2 Group
               <template #items>
                 <ScalarSidebarItem>Level 2 Item</ScalarSidebarItem>
               </template>
             </ScalarSidebarGroup>
-          `,
-        },
-      },
-      global: {
-        components: {
-          ScalarSidebarGroup,
-          ScalarSidebarItem,
-        },
-      },
+          </template>
+        </ScalarSidebarGroup>
+      `,
     })
+
+    const wrapper = mount(TestComponent)
 
     // Open the parent group to reveal nested content
     const parentButton = wrapper.findComponent(ScalarSidebarButton)
@@ -79,25 +95,34 @@ describe('ScalarSidebarGroup', () => {
   })
 
   it('handles deeply nested groups', async () => {
-    const wrapper = mount(ScalarSidebarGroup, {
-      slots: {
-        default: 'Level 1',
-        items: {
-          template: `
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        const level1Open = ref(false)
+        const level2Open = ref(false)
+        const level3Open = ref(false)
+        const level4Open = ref(false)
+        const level5Open = ref(false)
+        return { level1Open, level2Open, level3Open, level4Open, level5Open }
+      },
+      template: `
+        <ScalarSidebarGroup v-model="level1Open">
+          Level 1
+          <template #items>
             <ScalarSidebarItem>Level 1 Item</ScalarSidebarItem>
-            <ScalarSidebarGroup>
+            <ScalarSidebarGroup v-model="level2Open">
               Level 2
               <template #items>
                 <ScalarSidebarItem>Level 2 Item</ScalarSidebarItem>
-                <ScalarSidebarGroup>
+                <ScalarSidebarGroup v-model="level3Open">
                   Level 3
                   <template #items>
                     <ScalarSidebarItem>Level 3 Item</ScalarSidebarItem>
-                    <ScalarSidebarGroup>
+                    <ScalarSidebarGroup v-model="level4Open">
                       Level 4
                       <template #items>
                         <ScalarSidebarItem>Level 4 Item</ScalarSidebarItem>
-                        <ScalarSidebarGroup>
+                        <ScalarSidebarGroup v-model="level5Open">
                           Level 5
                           <template #items>
                             <ScalarSidebarItem>Level 5 Item</ScalarSidebarItem>
@@ -109,20 +134,22 @@ describe('ScalarSidebarGroup', () => {
                 </ScalarSidebarGroup>
               </template>
             </ScalarSidebarGroup>
-          `,
-        },
-      },
-      global: {
-        components: {
-          ScalarSidebarGroup,
-          ScalarSidebarItem,
-        },
-      },
+          </template>
+        </ScalarSidebarGroup>
+      `,
     })
 
-    // Open all groups by clicking any unexpanded buttons
-    while (wrapper.find('button[aria-expanded="false"]').exists()) {
-      await wrapper.find('button[aria-expanded="false"]').trigger('click')
+    const wrapper = mount(TestComponent)
+
+    /**
+     * Open all groups iteratively.
+     * Nested groups only become visible after their parent is expanded,
+     * so we need to keep finding and clicking until all are open.
+     */
+    let unexpandedButtons = wrapper.findAll('button[aria-expanded="false"]')
+    while (unexpandedButtons.length > 0) {
+      await unexpandedButtons[0]?.trigger('click')
+      unexpandedButtons = wrapper.findAll('button[aria-expanded="false"]')
     }
 
     // Find all button components

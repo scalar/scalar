@@ -5,7 +5,8 @@ import { extensions } from '@/schemas/extensions'
 import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
-  type TraversedEntry,
+  type TraversedDocument,
+  TraversedDocumentSchemaDefinition,
   TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
@@ -48,7 +49,7 @@ import {
   SecurityRequirementObjectRef,
   ServerObjectRef,
   TagObjectRef,
-  TraversedEntryObjectRef,
+  TraversedDocumentObjectRef,
 } from './ref-definitions'
 import { RequestBodyObjectSchemaDefinition } from './request-body'
 import { ResponseObjectSchemaDefinition } from './response'
@@ -71,7 +72,7 @@ const OpenApiExtensionsSchema = Type.Partial(
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
       'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-      [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
+      [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
     XTagGroupsSchema,
   ),
@@ -86,7 +87,7 @@ export type OpenAPIExtensions = Partial<
     'x-scalar-client-config-cookies': XScalarClientConfigCookies
     'x-original-oas-version': string
     'x-scalar-selected-security': SecurityRequirementObject[]
-    [extensions.document.navigation]: TraversedEntry[]
+    [extensions.document.navigation]: TraversedDocument
   } & XTagGroups
 >
 
@@ -182,6 +183,7 @@ const module = Type.Module({
   [REF_DEFINITIONS.TraversedWebhookObject]: TraversedWebhookSchemaDefinition,
   [REF_DEFINITIONS.TraversedTagObject]: TraversedTagSchemaDefinition,
   [REF_DEFINITIONS.TraversedEntryObject]: TraversedEntrySchemaDefinition,
+  [REF_DEFINITIONS.TraversedDocumentObject]: TraversedDocumentSchemaDefinition,
   // Enforces that all references are included in the module
 } satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 

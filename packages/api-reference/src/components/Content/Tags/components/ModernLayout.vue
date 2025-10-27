@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { computed, nextTick, ref, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
 
-import { Lazy } from '@/components/Lazy'
+import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import TagSection from './TagSection.vue'
 
@@ -14,6 +12,14 @@ const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
   isLoading: boolean
+  isCollapsed: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'toggleTag', id: string, open: boolean): void
+  (e: 'scrollToId', id: string): void
+  (e: 'copyAnchorUrl', id: string): void
+  (e: 'intersecting', id: string): void
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -21,22 +27,9 @@ const contentsRef = ref<HTMLElement>()
 
 const headerId = useId()
 
-const { collapsedSidebarItems, setCollapsedSidebarItem } = useSidebar()
-const { hash } = useNavState()
-
 const moreThanOneDefaultTag = computed(
   () => moreThanOneTag || tag?.title !== 'default' || tag?.description !== '',
 )
-
-async function focusContents() {
-  setCollapsedSidebarItem(tag.id, true)
-  await nextTick()
-  contentsRef.value?.querySelector('button')?.focus()
-}
-
-const isCollapsed = (tagId: string) => {
-  return !collapsedSidebarItems[tagId]
-}
 </script>
 
 <template>
@@ -46,25 +39,26 @@ const isCollapsed = (tagId: string) => {
     class="tag-section-container"
     role="region">
     <!-- Lazy load this part -->
-    <Lazy
-      :id="`modern-tag-${tag.id}`"
-      :isLazy="Boolean(hash) && hash !== tag.id && hash.startsWith(tag.id)">
+    <Lazy :id="tag.id">
       <TagSection
         v-if="moreThanOneDefaultTag"
         :headerId="headerId"
-        :isCollapsed="isCollapsed(tag.id)"
+        :isCollapsed="isCollapsed"
         :isLoading="isLoading"
-        :tag="tag" />
+        :tag="tag"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
+        @intersecting="(id) => emit('intersecting', id)"
+        @scrollToId="(id) => emit('scrollToId', id)" />
       <ShowMoreButton
-        v-if="isCollapsed(tag.id) && moreThanOneTag"
+        v-if="isCollapsed && moreThanOneTag"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
-        @click="focusContents" />
+        @click="() => emit('toggleTag', tag.id, true)" />
     </Lazy>
 
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
-      v-if="!(isCollapsed(tag.id) && moreThanOneTag)"
+      v-if="!(isCollapsed && moreThanOneTag)"
       ref="contentsRef"
       class="contents">
       <slot />

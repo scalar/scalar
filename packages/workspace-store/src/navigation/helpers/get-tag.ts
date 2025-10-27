@@ -1,4 +1,4 @@
-import type { TagsMap } from '@/navigation/types'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 
 type TagMapValue = NonNullable<TagsMap extends Map<string, infer V> ? V : never>
 
@@ -10,9 +10,28 @@ type TagMapValue = NonNullable<TagsMap extends Map<string, infer V> ? V : never>
  * @param name - Name of the tag to get or create
  * @returns The tag object for the given name
  */
-export const getTag = (tagsMap: TagsMap, name: string): TagMapValue => {
+export const getTag = ({
+  tagsMap,
+  name,
+  documentId,
+  generateId,
+}: {
+  tagsMap: TagsMap
+  name: string
+  documentId: string
+  generateId: TraverseSpecOptions['generateId']
+}): TagMapValue => {
   if (!tagsMap.get(name)) {
-    tagsMap.set(name, { entries: [], tag: { name } })
+    tagsMap.set(name, {
+      id: generateId({
+        type: 'tag',
+        tag: { name },
+        parentId: documentId,
+      }),
+      parentId: documentId,
+      entries: [],
+      tag: { name },
+    })
   }
 
   return tagsMap.get(name)! // We can safely assert non-null since we just set the value if it didn't exist

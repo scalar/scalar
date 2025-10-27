@@ -16,6 +16,10 @@ const { parameters } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /** Filter out ignored and internal parameters */
 const filteredParameters = computed(() =>
   parameters.filter((parameter) => !shouldIgnoreEntity(parameter)),
@@ -35,7 +39,8 @@ const filteredParameters = computed(() =>
         :breadcrumb="breadcrumb"
         :name="item.name"
         :options="options"
-        :parameter="item" />
+        :parameter="item"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </ul>
   </div>
 </template>
