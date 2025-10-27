@@ -1,9 +1,9 @@
+import { mockRequestIdleCallbackController } from '@test/utils/idle-request-controller'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { scrollToLazy } from '@/components/Lazy/lazyBus'
-import { mockRequestIdleCallbackController } from '@/helpers/test-utils'
 
 import Lazy from './Lazy.vue'
 
