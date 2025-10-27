@@ -1,11 +1,12 @@
 import { URL, fileURLToPath } from 'node:url'
+
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import tailwindcss from '@tailwindcss/vite'
 import licenseBannerTemplate from './license-banner-template.txt'
 import { name, version } from './package.json'
 
@@ -23,7 +24,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@v2': fileURLToPath(new URL('./src/v2', import.meta.url)),
       '@test': fileURLToPath(new URL('./test', import.meta.url)),
     },
     dedupe: ['vue'],
