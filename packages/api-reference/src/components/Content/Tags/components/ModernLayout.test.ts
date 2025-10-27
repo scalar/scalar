@@ -30,7 +30,7 @@ const mockProps = {
 }
 
 beforeEach(() => {
-  vi.mock('@/components/Lazy/lazyBus', () => ({
+  vi.mock('@/helpers/lazy-bus', () => ({
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),

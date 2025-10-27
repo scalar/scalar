@@ -4,7 +4,6 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@v2/*": ["./src/v2/*"],
       "@test/*": ["./test/*"]
     },
     "types": ["vite/client", "node"]
