@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -47,12 +48,10 @@ const {
   discriminator?: DiscriminatorObject
   /** Breadcrumb for the schema */
   breadcrumb?: string[]
+  /** Event bus emitting actions */
+  eventBus: WorkspaceEventBus | null
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /**
@@ -188,24 +187,24 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :breadcrumb
             :compact
             :discriminator
+            :eventBus="eventBus"
             :hideHeading
             :hideModelNames
             :level="level + 1"
             :options
-            :schema
-            @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+            :schema />
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
               v-if="schema"
               :breadcrumb
               :compact
+              :eventBus="eventBus"
               :hideHeading
               :hideModelNames
               :level
               :options
-              :schema
-              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+              :schema />
           </template>
         </DisclosurePanel>
       </div>

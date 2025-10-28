@@ -422,8 +422,14 @@ Options:
   --namespace <namespace>  Scalar team namespace
   --version <version>      API version (e.g. 0.1.0)
   --private                Make API private (default: false)
-  --current                Set as the current active API version (default: true)
+  --no-current             Do not set as the current version
   --force                  Force override an existing version (default: false)
+  --bundle                 Bundle all external references before uploading
+  --treeShake              Remove unused components from the bundled document
+  --urlMap                 Generate a map of resolved URLs when bundling the
+                           document
+  --fetchLimit <limit>     Maximum number of concurrent URLs to fetch when
+                           bundling the document
   -h, --help               display help for command
 ```
 
@@ -657,6 +663,12 @@ Options:
   --namespace <namespace>  Scalar team namespace
   --version <version>      API version (e.g. 0.1.0)
   --private                Make API private (default: false)
+  --bundle                 Bundle all external references before uploading
+  --treeShake              Remove unused components from the bundled document
+  --urlMap                 Generate a map of resolved URLs when bundling the
+                           document
+  --fetchLimit <limit>     Maximum number of concurrent URLs to fetch when
+                           bundling the document
   -h, --help               display help for command
 ```
 

@@ -58,9 +58,9 @@ If you want to add a test and only run your test file, you can filter the test s
 Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-server`. Start them like so:
 
 ```bash
-pnpm dev:void-server
-pnpm dev:proxy-server
+pnpm script run test-servers
 ```
+
 ## PRs
 
 Don't worry, we'll help you to get your PR in. But here is how you can help us:
@@ -69,7 +69,7 @@ Don't worry, we'll help you to get your PR in. But here is how you can help us:
 
 We require a semantic PR title, here is an example:
 
-```
+```text
 docs: Add information about semantic commits
 ^     ^
 |     |__ Subject

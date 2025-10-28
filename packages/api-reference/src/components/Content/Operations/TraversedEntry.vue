@@ -2,6 +2,7 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedEntry,
@@ -47,6 +48,7 @@ const {
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus | null
   options: {
     layout: 'classic' | 'modern'
     showOperationId: boolean | undefined
@@ -57,16 +59,6 @@ const {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggleTag', id: string, open: boolean): void
-  (e: 'scrollToId', id: string): void
-  (e: 'intersecting', id: string): void
-  (e: 'toggleSchema', id: string, open: boolean): void
-  (e: 'toggleOperation', id: string, open: boolean): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
 }>()
 
 /**
@@ -113,6 +105,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :omit="level !== 0">
       <Operation
         :id="entry.id"
+        :eventBus="eventBus"
         :getSecurityScheme="getSecuritySchemes"
         :isCollapsed="!expandedItems[entry.id]"
         :method="entry.method"
@@ -124,28 +117,23 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :pathValue="getPathValue(entry)"
         :security="security"
         :server="activeServer"
-        :xScalarDefaultClient="xScalarDefaultClient"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-        @intersecting="(id) => emit('intersecting', id)"
-        @toggleOperation="(id, open) => emit('toggleOperation', id, open)" />
+        :xScalarDefaultClient="xScalarDefaultClient" />
     </SectionContainer>
 
     <!-- Webhook Group or Tag -->
     <Tag
       v-else-if="isTag(entry)"
+      :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :isLoading="false"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
-      :tag="entry"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)"
-      @scrollToId="(id) => emit('scrollToId', id)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
           :activeServer
           :entries="entry.children"
+          :eventBus="eventBus"
           :expandedItems="expandedItems"
           :getSecuritySchemes="getSecuritySchemes"
           :level="level + 1"
@@ -154,13 +142,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :schemas="schemas"
           :security="security"
           :webhooks="webhooks"
-          :xScalarDefaultClient="xScalarDefaultClient"
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-          @intersecting="(id) => emit('intersecting', id)"
-          @scrollToId="(id) => emit('scrollToId', id)"
-          @toggleOperation="(id, open) => emit('toggleOperation', id, open)"
-          @toggleSchema="(id, open) => emit('toggleSchema', id, open)"
-          @toggleTag="(id, open) => emit('toggleTag', id, open)">
+          :xScalarDefaultClient="xScalarDefaultClient">
         </TraversedEntry>
       </template>
     </Tag>
@@ -170,6 +152,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       v-else-if="isTagGroup(entry)"
       :activeServer
       :entries="entry.children || []"
+      :eventBus="eventBus"
       :expandedItems="expandedItems"
       :getSecuritySchemes="getSecuritySchemes"
       :level="level + 1"
@@ -178,31 +161,25 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :schemas="schemas"
       :security="security"
       :webhooks="webhooks"
-      :xScalarDefaultClient="xScalarDefaultClient"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)"
-      @scrollToId="(id) => emit('scrollToId', id)"
-      @toggleOperation="(id, open) => emit('toggleOperation', id, open)"
-      @toggleSchema="(id, open) => emit('toggleSchema', id, open)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>
 
     <!-- Models -->
     <ModelTag
       v-else-if="isModelsTag(entry) && schemas"
       :id="entry.id"
+      :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :options="{
         layout: options.layout,
         expandAllModelSections: options.expandAllModelSections,
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-      }"
-      @intersecting="(id) => emit('intersecting', id)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      }">
       <TraversedEntry
         :activeServer
         :entries="entry.children || []"
+        :eventBus="eventBus"
         :expandedItems="expandedItems"
         :getSecuritySchemes="getSecuritySchemes"
         :level="level + 1"
@@ -211,19 +188,14 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :schemas="schemas"
         :security="security"
         :webhooks="webhooks"
-        :xScalarDefaultClient="xScalarDefaultClient"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-        @intersecting="(id) => emit('intersecting', id)"
-        @scrollToId="(id) => emit('scrollToId', id)"
-        @toggleOperation="(id, open) => emit('toggleOperation', id, open)"
-        @toggleSchema="(id, open) => emit('toggleSchema', id, open)"
-        @toggleTag="(id, open) => emit('toggleTag', id, open)">
+        :xScalarDefaultClient="xScalarDefaultClient">
       </TraversedEntry>
     </ModelTag>
 
     <Model
       v-else-if="isModel(entry) && schemas"
       :id="entry.id"
+      :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options="{
@@ -231,10 +203,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
       }"
-      :schema="getResolvedRef(schemas[entry.name])"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)"
-      @toggleSchema="(id, open) => emit('toggleSchema', id, open)">
+      :schema="getResolvedRef(schemas[entry.name])">
     </Model>
   </Lazy>
 </template>

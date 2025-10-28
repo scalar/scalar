@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import ClassicLayout from './components/ClassicLayout.vue'
@@ -10,38 +11,28 @@ const { tag, layout, moreThanOneTag, isLoading } = defineProps<{
   moreThanOneTag: boolean
   isLoading: boolean
   isCollapsed: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggleTag', id: string, open: boolean): void
-  (e: 'scrollToId', id: string): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 
 <template>
   <template v-if="layout === 'classic'">
     <ClassicLayout
+      :eventBus="eventBus"
       :isCollapsed="isCollapsed"
       :layout="layout"
-      :tag="tag"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      :tag="tag">
       <slot />
     </ClassicLayout>
   </template>
   <template v-else>
     <ModernLayout
+      :eventBus="eventBus"
       :isCollapsed="isCollapsed"
       :isLoading="isLoading"
       :layout="layout"
       :moreThanOneTag="moreThanOneTag"
-      :tag="tag"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)"
-      @scrollToId="(id) => emit('scrollToId', id)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      :tag="tag">
       <slot />
     </ModernLayout>
   </template>

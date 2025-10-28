@@ -3,6 +3,7 @@ import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-c
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   PathItemObject,
@@ -33,6 +34,7 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
   getSecurityScheme: SecuritySchemeGetter
   isCollapsed: boolean
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus | null
   // ---------------------------------------------
   options: {
     layout: 'classic' | 'modern'
@@ -45,12 +47,6 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggleOperation', id: string, open: boolean): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
 }>()
 
 /**
@@ -99,6 +95,7 @@ const selectedServer = computed<ServerObject | undefined>(() =>
     <ClassicLayout
       v-if="options?.layout === 'classic'"
       :id="id"
+      :eventBus="eventBus"
       :isCollapsed="isCollapsed"
       :method="method"
       :operation="operation"
@@ -106,20 +103,17 @@ const selectedServer = computed<ServerObject | undefined>(() =>
       :path="path"
       :securitySchemes="selectedSecuritySchemes"
       :server="selectedServer"
-      :xScalarDefaultClient="xScalarDefaultClient"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @toggleOperation="(id, open) => emit('toggleOperation', id, open)" />
+      :xScalarDefaultClient="xScalarDefaultClient" />
     <ModernLayout
       v-else
       :id="id"
+      :eventBus="eventBus"
       :method="method"
       :operation="operation"
       :options="options"
       :path="path"
       :securitySchemes="selectedSecuritySchemes"
       :server="selectedServer"
-      :xScalarDefaultClient="xScalarDefaultClient"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)" />
+      :xScalarDefaultClient="xScalarDefaultClient" />
   </template>
 </template>

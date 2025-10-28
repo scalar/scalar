@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -20,11 +21,8 @@ const { schema, discriminator, options } = defineProps<{
   level?: number
   hideModelNames?: boolean
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: SchemaOptions
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /**
@@ -97,14 +95,14 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames
       :level
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="getResolvedRef(schema.properties[property])"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+      :schema="getResolvedRef(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->
@@ -115,13 +113,13 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames="hideModelNames"
       :level
       :name="key"
       :options="options"
-      :schema="getResolvedRef(property)"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+      :schema="getResolvedRef(property)" />
   </template>
 
   <!-- additionalProperties -->
@@ -130,6 +128,7 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames
       :level
@@ -137,7 +136,6 @@ const getAdditionalPropertiesValue = (
       noncollapsible
       :options="options"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
-      variant="additionalProperties"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+      variant="additionalProperties" />
   </template>
 </template>

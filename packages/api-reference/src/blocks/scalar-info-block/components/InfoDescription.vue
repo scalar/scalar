@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
-import { ScalarMarkdown } from '@scalar/components'
 import type { Heading } from '@scalar/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
+import InfoMarkdownSection from './InfoMarkdownSection.vue'
 
 const { description, headingSlugGenerator } = defineProps<{
+  eventBus: WorkspaceEventBus | null
   headingSlugGenerator: (heading: Heading) => string
   /** Markdown document */
   description?: string
 }>()
 
-const emit = defineEmits<{
-  (e: 'intersecting', id: string): void
-}>()
 /**
  * Descriptions, but split into multiple sections.
  * We need this to wrap the headings in IntersectionObserver components.
@@ -70,42 +68,18 @@ const transformHeading = (node: Record<string, any>) => {
 <template>
   <div
     v-if="description"
-    class="introduction-description">
-    <template
+    class="introduction-description mt-6 flex flex-col">
+    <InfoMarkdownSection
       v-for="section in sections"
-      :key="section.id">
-      <!-- Headings -->
-      <template v-if="section.id">
-        <IntersectionObserver
-          :id="section.id"
-          class="introduction-description-heading"
-          @intersecting="(id) => emit('intersecting', id)">
-          <ScalarMarkdown
-            :transform="transformHeading"
-            transformType="heading"
-            :value="section.content" />
-        </IntersectionObserver>
-      </template>
-      <!-- Everything else -->
-      <template v-else>
-        <ScalarMarkdown
-          :value="section.content"
-          withImages />
-      </template>
-    </template>
+      :id="section.id"
+      :key="section.id"
+      :content="section.content"
+      :eventBus="eventBus"
+      :transformHeading="transformHeading" />
   </div>
 </template>
 
 <style scoped>
-.introduction-description-heading {
-  scroll-margin-top: 64px;
-}
-
-.introduction-description {
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-}
 .references-classic .introduction-description :deep(img) {
   max-width: 720px;
 }

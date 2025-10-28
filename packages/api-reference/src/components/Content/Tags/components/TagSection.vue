@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
@@ -20,12 +21,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
   headerId?: string
   isCollapsed?: boolean
   isLoading?: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'scrollToId', id: string): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 <template>
@@ -33,9 +29,14 @@ const emit = defineEmits<{
     v-if="tag"
     :id="tag.id"
     role="none"
-    @intersecting="(id) => emit('intersecting', id)">
+    @intersecting="
+      () => eventBus?.emit('intersecting:nav-item', { id: tag.id })
+    ">
     <SectionHeader v-show="!isLoading">
-      <Anchor @copyAnchorUrl="() => emit('copyAnchorUrl', tag.id)">
+      <Anchor
+        @copyAnchorUrl="
+          () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
+        ">
         <SectionHeaderTag
           :id="headerId"
           :level="2">
@@ -54,8 +55,8 @@ const emit = defineEmits<{
         </SectionColumn>
         <SectionColumn>
           <OperationsList
-            :tag="tag"
-            @scrollToId="(id) => emit('scrollToId', id)" />
+            :eventBus="eventBus"
+            :tag="tag" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

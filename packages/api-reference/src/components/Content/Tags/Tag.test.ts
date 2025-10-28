@@ -19,6 +19,7 @@ describe('Tag', () => {
     it('renders ClassicLayout when layout is classic', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
@@ -36,6 +37,7 @@ describe('Tag', () => {
     it('renders ModernLayout when layout is modern', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: true,
@@ -55,6 +57,7 @@ describe('Tag', () => {
     it('passes correct props to ClassicLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
           isCollapsed: false,
@@ -71,6 +74,7 @@ describe('Tag', () => {
     it('passes correct props to ModernLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
           isCollapsed: false,
@@ -90,6 +94,7 @@ describe('Tag', () => {
     it('renders slot content in ClassicLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
@@ -109,6 +114,7 @@ describe('Tag', () => {
     it('renders slot content in ModernLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: false, // Set to false so slot is rendered

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
@@ -16,14 +17,11 @@ import ContentTypeSelect from './ContentTypeSelect.vue'
 const { requestBody, options } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
+  eventBus: WorkspaceEventBus | null
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /**
@@ -126,6 +124,7 @@ const partitionedSchema = computed(() => {
       <Schema
         :breadcrumb
         compact
+        :eventBus="eventBus"
         name="Request Body"
         noncollapsible
         :options="{
@@ -133,21 +132,20 @@ const partitionedSchema = computed(() => {
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.visibleProperties"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="partitionedSchema.visibleProperties" />
 
       <Schema
         additionalProperties
         :breadcrumb
         compact
+        :eventBus="eventBus"
         name="Request Body"
         :options="{
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.collapsedProperties"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="partitionedSchema.collapsedProperties" />
     </div>
 
     <!-- Show em all 12 and under -->
@@ -157,6 +155,7 @@ const partitionedSchema = computed(() => {
       <Schema
         :breadcrumb
         compact
+        :eventBus="eventBus"
         :hideReadOnly="true"
         name="Request Body"
         noncollapsible
@@ -165,8 +164,7 @@ const partitionedSchema = computed(() => {
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="schema" />
     </div>
   </div>
 </template>

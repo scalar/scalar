@@ -180,13 +180,16 @@ export function useLazyBus(id: string) {
 export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
-  getEntryById: (id: string) => { id: string; parent?: { id: string } } | undefined,
+  getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
 ) => {
+  const item = getEntryById(id)
+
   /**
    * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
    * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
    */
-  const isLazy = !readyQueue.has(id)
+  const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
+
   const unfreeze = isLazy ? freeze(id) : undefined
   addLazyCompleteCallback(unfreeze)
 
@@ -195,9 +198,31 @@ export const scrollToLazy = (
   const { rawId } = getSchemaParamsFromId(id)
 
   addToPriorityQueue(id)
-  setExpanded(rawId, true)
+
   addToPriorityQueue(rawId)
 
+  // When there are children we ensure the first 2 are loaded
+  if (item?.children) {
+    item.children.slice(0, 2).forEach((child) => {
+      addToPriorityQueue(child.id)
+    })
+  }
+
+  // When there are sibling items we attempt to load the next 2 to better fill the viewport
+  if (item?.parent) {
+    const parent = getEntryById(item.parent.id)
+    const elementIdx = parent?.children?.findIndex((child) => child.id === id)
+    if (elementIdx !== undefined && elementIdx >= 0) {
+      parent?.children?.slice(elementIdx, elementIdx + 2).forEach((child) => {
+        addToPriorityQueue(child.id)
+      })
+    }
+  }
+
+  /** Scroll to the element targeted */
+  tryScroll(id, Date.now() + 1000, unblock, unfreeze)
+
+  setExpanded(rawId, true)
   /**
    * Recursively expand the parents and set them as a loading priority
    * This ensures all parents will be immediately loaded and open
@@ -212,9 +237,6 @@ export const scrollToLazy = (
   }
   /** Must use the rawId as schema params are not in the navigation tree */
   addParents(rawId)
-
-  /** Scroll to the element targeted */
-  tryScroll(id, Date.now() + 1000, unblock, unfreeze)
 }
 
 /**

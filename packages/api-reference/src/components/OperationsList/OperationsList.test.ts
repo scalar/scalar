@@ -58,7 +58,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: [] })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.html()).toBe('<!--v-if-->')
@@ -72,7 +72,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: operations })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.text()).toContain('Operations')
@@ -92,7 +92,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.text()).toContain('Webhooks')
@@ -108,7 +108,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.text()).toContain('Operations')
@@ -130,7 +130,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.text()).toContain('/users')
@@ -146,7 +146,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     const ul = wrapper.find('ul')
@@ -157,7 +157,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: null as any })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.html()).toBe('<!--v-if-->')
@@ -167,7 +167,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: undefined as any })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     expect(wrapper.html()).toBe('<!--v-if-->')
@@ -178,7 +178,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: operations })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     // The custom-scroll class is applied to the ScalarCardSection component
@@ -197,7 +197,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: operations })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
@@ -215,7 +215,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
@@ -231,7 +231,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     const screenReader = wrapper.findComponent({ name: 'ScreenReader' })
@@ -247,7 +247,7 @@ describe('OperationsList', () => {
     const tag = createMockTag({ children: operations })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     // Check that the operations are rendered with their paths
@@ -267,7 +267,7 @@ describe('OperationsList', () => {
     })
 
     const wrapper = mount(OperationsList, {
-      props: { tag },
+      props: { tag, eventBus: null },
     })
 
     // Check that the webhooks are rendered with their titles

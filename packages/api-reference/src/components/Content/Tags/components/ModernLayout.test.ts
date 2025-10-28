@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -27,6 +28,7 @@ const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => (
 const mockProps = {
   isLoading: false,
   isCollapsed: false,
+  eventBus: null,
 }
 
 beforeEach(() => {
@@ -174,21 +176,24 @@ describe('component props and behavior', () => {
   })
 
   it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
-    const onToggleTag = vi.fn()
+    const eventBus = createWorkspaceEventBus()
+    const toggleHandler = vi.fn()
+    eventBus.on('toggle:nav-item', toggleHandler)
+
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
+        eventBus,
         tag: createMockTag(),
         moreThanOneTag: true,
         isCollapsed: true,
-        onToggleTag,
       },
     })
 
     const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
     await showMoreButton.find('button').trigger('click')
 
-    expect(onToggleTag).toHaveBeenCalledWith('test-tag', true)
+    expect(toggleHandler).toHaveBeenCalledWith({ id: 'test-tag', open: true })
   })
 
   it('handles tag with null tag property gracefully', () => {

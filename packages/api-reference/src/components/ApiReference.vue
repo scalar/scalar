@@ -26,7 +26,10 @@ import {
   createWorkspaceStore,
   type UrlDoc,
 } from '@scalar/workspace-store/client'
-import { onCustomEvent } from '@scalar/workspace-store/events'
+import {
+  createWorkspaceEventBus,
+  onCustomEvent,
+} from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedTag,
@@ -45,14 +48,16 @@ import {
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
-import { intersectionEnabled, scrollToLazy } from '@/helpers/lazy-bus'
+import {
+  scrollToLazy as _scrollToLazy,
+  intersectionEnabled,
+} from '@/helpers/lazy-bus'
 import { mapConfigToClientStore } from '@/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/helpers/map-configuration'
@@ -60,6 +65,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { useIntersection } from '@/hooks/use-intersection'
 import { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 
@@ -79,6 +85,8 @@ defineSlots<{
   'editor-placeholder'?(): { breadcrumb: string }
   footer?(): { breadcrumb: string }
 }>()
+
+const eventBus = createWorkspaceEventBus({ debug: false })
 
 if (typeof window !== 'undefined') {
   // @ts-expect-error - For debugging purposes expose the store
@@ -394,7 +402,7 @@ const setBreadcrumb = (id: string) => {
 const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
 }
 
 /** Set up event listeners for client store events */
@@ -702,31 +710,9 @@ const handleSelectItem = async (id: string) => {
     window.history.pushState({}, '', url)
   }
 }
-
-const handleToggleTag = (id: string, open: boolean) => {
-  sidebarState.setExpanded(id, open)
-}
-
-const handleToggleSchema = (id: string, open: boolean) => {
-  sidebarState.setExpanded(id, open)
-}
-
-const handleToggleOperation = (id: string, open: boolean) => {
-  sidebarState.setExpanded(id, open)
-}
-
-/** Ensure we copy the hash OR path if pathRouting is enabled */
-const handleCopyAnchorUrl = (id: string) => {
-  const url = makeUrlFromId(
-    id,
-    basePath.value,
-    isMultiDocument.value,
-  )?.toString()
-  return url && copyToClipboard(url)
-}
-
-/** Update the URL as the page is scrolled and the anchors intersect */
-const handleIntersecting = (id: string) => {
+eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
+eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
+eventBus.on('intersecting:nav-item', ({ id }) => {
   if (!intersectionEnabled.value) {
     return
   }
@@ -738,7 +724,21 @@ const handleIntersecting = (id: string) => {
   if (url && workspaceStore.workspace.activeDocument) {
     window.history.replaceState({}, '', url.toString())
   }
-}
+})
+eventBus.on('toggle:nav-item', ({ id, open }) =>
+  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id)),
+)
+eventBus.on('copy-url:nav-item', ({ id }) => {
+  const url = makeUrlFromId(
+    id,
+    basePath.value,
+    isMultiDocument.value,
+  )?.toString()
+  return url && copyToClipboard(url)
+})
+
+// ---------------------------------------------------------------------------
+// History and scroll restoration
 
 onBeforeMount(() => {
   window.history.scrollRestoration = 'manual'
@@ -753,9 +753,18 @@ onBeforeMount(() => {
       isMultiDocument.value ? undefined : activeSlug.value,
     )
     if (id) {
-      scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+      scrollToLazyElement(id)
     }
   })
+})
+
+// ---------------------------------------------------------------------------
+// Document start intersection observer
+
+const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
+
+useIntersection(documentStartRef, () => {
+  eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
 })
 </script>
 
@@ -794,10 +803,10 @@ onBeforeMount(() => {
             v-if="!mergedConfig.hideSearch"
             class="my-2"
             :document="workspaceStore.workspace.activeDocument"
+            :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
-            :showSidebar="mergedConfig.showSidebar"
-            @scrollToId="(id) => handleSelectItem(id)" />
+            :showSidebar="mergedConfig.showSidebar" />
         </template>
         <template #sidebar="{ sidebarClasses }">
           <ScalarSidebar
@@ -828,9 +837,9 @@ onBeforeMount(() => {
                 class="flex flex-col p-3 pt-1.5">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
+                  :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
-                  :searchHotKey="mergedConfig.searchHotKey"
-                  @scrollToId="(id) => handleSelectItem(id)" />
+                  :searchHotKey="mergedConfig.searchHotKey" />
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -873,6 +882,7 @@ onBeforeMount(() => {
         <Content
           :activeServer="activeServer"
           :document="workspaceStore.workspace.activeDocument"
+          :eventBus="eventBus"
           :expandedItems="sidebarState.expandedItems.value"
           :getSecuritySchemes="getSecuritySchemes"
           :infoSectionId="infoSectionId ?? 'description/introduction'"
@@ -895,13 +905,7 @@ onBeforeMount(() => {
           }"
           :xScalarDefaultClient="
             workspaceStore.workspace['x-scalar-default-client']
-          "
-          @copyAnchorUrl="handleCopyAnchorUrl"
-          @intersecting="handleIntersecting"
-          @scrollToId="handleSelectItem"
-          @toggleOperation="handleToggleOperation"
-          @toggleSchema="handleToggleSchema"
-          @toggleTag="handleToggleTag">
+          ">
           <template #start>
             <ApiReferenceToolbar
               v-if="
@@ -912,10 +916,7 @@ onBeforeMount(() => {
               :workspace="workspaceStore" />
 
             <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
-            <IntersectionObserver
-              id="scalar-document-start"
-              @intersecting="() => handleIntersecting(activeSlug)">
-            </IntersectionObserver>
+            <div ref="documentStartRef" />
 
             <!--  -->
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
@@ -929,10 +930,10 @@ onBeforeMount(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
+                :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
                 :items="sidebarItems"
-                :searchHotKey="mergedConfig.searchHotKey"
-                @scrollToId="(id) => handleSelectItem(id)" />
+                :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon
                   v-if="!mergedConfig.hideDarkModeToggle"

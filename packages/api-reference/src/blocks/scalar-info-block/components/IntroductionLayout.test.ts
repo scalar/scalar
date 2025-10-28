@@ -10,6 +10,7 @@ const mockProps = {
   headingSlugGenerator: (heading: Heading) => `document/${heading.slug}`,
   oasVersion: undefined,
   getOriginalDocument: () => '{}',
+  eventBus: null,
 }
 
 describe('IntroductionLayout', () => {

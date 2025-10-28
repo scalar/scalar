@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
+import { useTemplateRef } from 'vue'
 
-defineProps<{
-  id?: string
-}>()
+import { useIntersection } from '@/hooks/use-intersection'
 
 const emit = defineEmits<{
-  (e: 'intersecting', id: string): void
+  (e: 'intersecting'): void
 }>()
+
+const section = useTemplateRef<HTMLElement>('section')
+
+useIntersection(section, () => emit('intersecting'))
 </script>
 <template>
-  <IntersectionObserver
-    is="section"
-    :id="id"
-    class="section"
-    @intersecting="(id) => emit('intersecting', id)">
+  <section
+    ref="section"
+    class="section">
     <slot />
-  </IntersectionObserver>
+  </section>
 </template>
 
 <style scoped>

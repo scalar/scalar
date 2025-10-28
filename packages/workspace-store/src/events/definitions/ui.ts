@@ -29,4 +29,36 @@ export type UIEvents = {
     | 'addExample'
     | 'addOperation'
     | undefined
+
+  /** Set a navigation item's (such as a tag or operation) expanded state */
+  'toggle:nav-item': {
+    /** The name of the nav item to toggle */
+    id: string
+    /** Optional defined state for the nav item. */
+    open?: boolean
+  }
+
+  /** Select a navigation item. Run on sidebar clicks where a scroll handler would typically be expected */
+  'select:nav-item': {
+    /** The id of the nav item to select */
+    id: string
+  }
+
+  /** Fired when a navigation item intersects with the viewport */
+  'intersecting:nav-item': {
+    /** The id of the nav item that is intersecting */
+    id: string
+  }
+
+  /** Explicity scroll to a navigation item */
+  'scroll-to:nav-item': {
+    /** The id of the nav item to scroll to */
+    id: string
+  }
+
+  /** Copy the url including anchor details for a navigation item */
+  'copy-url:nav-item': {
+    /** The id of the nav item to copy the anchor url for */
+    id: string
+  }
 }

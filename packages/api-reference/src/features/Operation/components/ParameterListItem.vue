@@ -3,6 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarMarkdown } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
@@ -20,16 +21,13 @@ const { name, parameter, options } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: {
     collapsableItems?: boolean
     withExamples?: boolean
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /** Responses and params may both have a schema */
@@ -122,10 +120,10 @@ const shouldCollapse = computed<boolean>(() =>
         <Headers
           v-if="headers"
           :breadcrumb="breadcrumb"
+          :eventBus="eventBus"
           :headers="headers"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
-          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
 
         <!-- Schema -->
         <SchemaProperty
@@ -133,6 +131,7 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           compact
           :description="shouldCollapse ? '' : parameter.description"
+          :eventBus="eventBus"
           :hideWriteOnly="true"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
@@ -147,8 +146,7 @@ const shouldCollapse = computed<boolean>(() =>
             typeof options.withExamples === 'boolean'
               ? options.withExamples
               : true
-          "
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+          " />
       </DisclosurePanel>
     </Disclosure>
 

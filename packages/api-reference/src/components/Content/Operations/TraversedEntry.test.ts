@@ -118,6 +118,7 @@ const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof Travers
   xScalarDefaultClient: mockStore.workspace['x-scalar-default-client'],
   expandedItems: {},
   schemas: mockDocument.components.schemas,
+  eventBus: null,
   options: {
     layout: mockConfig.layout,
     showOperationId: mockConfig.showOperationId,

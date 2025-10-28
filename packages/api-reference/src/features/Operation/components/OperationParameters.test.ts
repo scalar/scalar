@@ -10,6 +10,7 @@ describe('OperationParameters', () => {
     it('renders path parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -38,6 +39,7 @@ describe('OperationParameters', () => {
     it('renders query parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -65,6 +67,7 @@ describe('OperationParameters', () => {
     it('renders header parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -93,6 +96,7 @@ describe('OperationParameters', () => {
     it('renders a required cookie parameter', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -121,6 +125,7 @@ describe('OperationParameters', () => {
     it('renders an optional cookie parameter', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -154,6 +159,7 @@ describe('OperationParameters', () => {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
           },
+          eventBus: null,
           requestBody: {
             content: {
               'application/json': {
@@ -179,6 +185,7 @@ describe('OperationParameters', () => {
     it.skip('renders request body without readOnly properties', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,
@@ -219,6 +226,7 @@ describe('OperationParameters', () => {
     it('renders form data parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
+          eventBus: null,
           options: {
             orderRequiredPropertiesFirst: undefined,
             orderSchemaPropertiesBy: undefined,

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -9,12 +10,9 @@ import Header from './Header.vue'
 const { headers, breadcrumb } = defineProps<{
   headers: Record<string, HeaderObject>
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 </script>
 <template>
@@ -44,11 +42,11 @@ const emit = defineEmits<{
             :key="key">
             <Header
               :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+              :eventBus="eventBus"
               :header="getResolvedRef(header)"
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-              :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+              :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
           </template>
         </DisclosurePanel>
       </div>

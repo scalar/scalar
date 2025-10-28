@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, useId } from 'vue'
 
@@ -13,13 +14,7 @@ const { tag, moreThanOneTag } = defineProps<{
   moreThanOneTag: boolean
   isLoading: boolean
   isCollapsed: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggleTag', id: string, open: boolean): void
-  (e: 'scrollToId', id: string): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
+  eventBus: WorkspaceEventBus | null
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -42,18 +37,18 @@ const moreThanOneDefaultTag = computed(
     <Lazy :id="tag.id">
       <TagSection
         v-if="moreThanOneDefaultTag"
+        :eventBus="eventBus"
         :headerId="headerId"
         :isCollapsed="isCollapsed"
         :isLoading="isLoading"
-        :tag="tag"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-        @intersecting="(id) => emit('intersecting', id)"
-        @scrollToId="(id) => emit('scrollToId', id)" />
+        :tag="tag" />
       <ShowMoreButton
         v-if="isCollapsed && moreThanOneTag"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
-        @click="() => emit('toggleTag', tag.id, true)" />
+        @click="
+          () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
+        " />
     </Lazy>
 
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->

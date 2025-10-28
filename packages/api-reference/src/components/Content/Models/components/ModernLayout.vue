@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
@@ -11,16 +12,11 @@ const { schema, options } = defineProps<{
   name: string
   schema: SchemaObject
   isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggleSchema', id: string, open: boolean): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
 }>()
 </script>
 <template>
@@ -29,9 +25,10 @@ const emit = defineEmits<{
     :key="name"
     :label="name"
     :modelValue="!isCollapsed"
-    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-    @intersecting="(id) => emit('intersecting', id)"
-    @update:modelValue="(value) => emit('toggleSchema', id, value)">
+    @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })"
+    @update:modelValue="
+      (value) => eventBus?.emit('toggle:nav-item', { id, open: value })
+    ">
     <template #heading>
       <SectionHeaderTag :level="3">
         <SchemaHeading
@@ -41,13 +38,13 @@ const emit = defineEmits<{
     </template>
     <ScalarErrorBoundary>
       <Schema
+        :eventBus="eventBus"
         hideHeading
         hideModelNames
         :level="1"
         noncollapsible
         :options="options"
-        :schema="schema"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="schema" />
     </ScalarErrorBoundary>
   </CompactSection>
 </template>
