@@ -25,10 +25,7 @@ import Tabs from './components/Tabs.vue'
 const { document, layout, workspaceStore, eventBus } = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
-const title = computed(
-  () =>
-    workspaceStore.workspace.activeDocument?.info?.title || 'Untitled Document',
-)
+const title = computed(() => document?.info?.title || 'Untitled Document')
 
 /** Default to the folder icon */
 const icon = computed(
