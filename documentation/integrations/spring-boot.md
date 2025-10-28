@@ -251,8 +251,7 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.operationSorter`       | `null`                                                               | How to sort operations. Can be "alpha" or "method"                                                                                                               |
 | `scalar.schemaPropertyOrder`   | `null`                                                               | How to order schema properties. Can be "alpha" or "order"                                                                                                       |
 | `scalar.documentDownloadType`  | `both`                                                               | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
-| `scalar.searchHotKey`          | `null`                                                               | Hotkey for search functionality                                                                                                                                  |
-| `scalar.hiddenClients`         | `null`                                                               | List of client names to hide from the interface                                                                                                                  |
+| `scalar.searchHotKey`          | `null`                                                               | Hotkey for search functionality (e.g., "ctrl+k")                                                                                                                 |
 | `scalar.servers`               | `null`                                                               | List of server configurations                                                                                                                                     |
 | `scalar.defaultHttpClient`     | `null`                                                               | Default HTTP client configuration                                                                                                                                |
 
@@ -418,8 +417,6 @@ scalar.documentDownloadType=both
 
 # Search and navigation
 scalar.searchHotKey=ctrl+k
-scalar.hiddenClients[0]=fetch
-scalar.hiddenClients[1]=xhr
 ```
 
 Or in `application.yml`:
@@ -439,9 +436,6 @@ scalar:
   operationSorter: method
   documentDownloadType: both
   searchHotKey: ctrl+k
-  hiddenClients:
-    - fetch
-    - xhr
 ```
 
 ## Multiple OpenAPI Documents (Sources)

@@ -55,7 +55,7 @@ class ScalarJsonSerializationTest {
         properties.setOrderRequiredPropertiesFirst(true);
         properties.setShowOperationId(true);
         properties.setBaseServerUrl("https://api.example.com");
-        // Note: searchHotKey property doesn't exist yet, skipping for now
+        properties.setSearchHotKey("ctrl+l");
 
         // Set enum properties
         properties.setTheme(ScalarTheme.MARS);
@@ -153,6 +153,7 @@ class ScalarJsonSerializationTest {
         assertThat(json).contains("\"orderRequiredPropertiesFirst\":true");
         assertThat(json).contains("\"showOperationId\":true");
         assertThat(json).contains("\"baseServerURL\":\"https://api.example.com\"");
+        assertThat(json).contains("\"searchHotKey\":\"ctrl+l\"");
 
         // Verify enum serialization (should be lowercase)
         assertThat(json).contains("\"theme\":\"mars\"");

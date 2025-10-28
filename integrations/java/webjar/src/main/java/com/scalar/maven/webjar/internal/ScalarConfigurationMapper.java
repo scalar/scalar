@@ -31,6 +31,7 @@ public class ScalarConfigurationMapper {
         config.setDarkMode(properties.isDarkMode());
         config.setHideDarkModeToggle(properties.isHideDarkModeToggle());
         config.setCustomCss(properties.getCustomCss());
+        config.setSearchHotKey(properties.getSearchHotKey());
         config.setServers(properties.getServers());
         config.setMetaData(properties.getMetadata());
         config.setDefaultHttpClient(properties.getDefaultHttpClient());

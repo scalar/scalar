@@ -107,6 +107,12 @@ public class ScalarProperties {
     private boolean hideSearch = false;
 
     /**
+     * Key used with CTRL/CMD to open the search modal.
+     * Defaults to null (uses default key).
+     */
+    private String searchHotKey;
+
+    /**
      * Whether to expose the Scalar UI as an actuator endpoint.
      * When enabled, the Scalar UI will be available at /actuator/scalar.
      * Defaults to false.
@@ -147,10 +153,7 @@ public class ScalarProperties {
      */
     private Map<String, String> metadata;
 
-    /**
-     * Controls whether HTTPSnippet clients are hidden from the clients menu.
-     */
-    private boolean hiddenClients = false;
+    // TODO: Add hiddenClients property to support hiding specific HTTP clients
 
     /**
      * Controls whether to use the default fonts (Inter and JetBrains Mono from
@@ -516,12 +519,12 @@ public class ScalarProperties {
         this.metadata = metadata;
     }
 
-    public boolean isHiddenClients() {
-        return hiddenClients;
+    public String getSearchHotKey() {
+        return searchHotKey;
     }
 
-    public void setHiddenClients(boolean hiddenClients) {
-        this.hiddenClients = hiddenClients;
+    public void setSearchHotKey(String searchHotKey) {
+        this.searchHotKey = searchHotKey;
     }
 
     public boolean isWithDefaultFonts() {

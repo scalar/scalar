@@ -67,13 +67,6 @@ public class ScalarConfiguration {
     @JsonProperty("defaultHttpClient")
     private DefaultHttpClient defaultHttpClient;
 
-    /**
-     * This could be a dictionary of ScalarTarget and ScalarClient arrays or a
-     * boolean if all clients are hidden.
-     */
-    @JsonProperty("hiddenClients")
-    private Object hiddenClients;
-
     @JsonProperty("authentication")
     private ScalarAuthenticationOptions authentication;
 
@@ -248,14 +241,6 @@ public class ScalarConfiguration {
 
     public void setDefaultHttpClient(DefaultHttpClient defaultHttpClient) {
         this.defaultHttpClient = defaultHttpClient;
-    }
-
-    public Object getHiddenClients() {
-        return hiddenClients;
-    }
-
-    public void setHiddenClients(Object hiddenClients) {
-        this.hiddenClients = hiddenClients;
     }
 
     public ScalarAuthenticationOptions getAuthentication() {
