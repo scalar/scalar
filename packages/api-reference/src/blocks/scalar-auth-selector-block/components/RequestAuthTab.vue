@@ -137,8 +137,9 @@ onMounted(() => {
 
   /** Restore the selected security scheme uids */
   try {
-    const selectedSchemeUids: (string | string[])[] | undefined = JSON.parse(
-      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES),
+    const selectedSchemeUids: (string | string[])[] | null = JSON.parse(
+      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ??
+        'null',
     )
 
     // Convert back to uids
