@@ -108,19 +108,19 @@ export const ROUTES = [
           {
             name: 'workspace.environment',
             path: 'environment',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Environment.vue'),
           },
           // Workspace cookies
           {
             name: 'workspace.cookies',
             path: 'cookies',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Cookies.vue'),
           },
           // Workspace settings
           {
             name: 'workspace.settings',
             path: 'settings',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/collection/components/Settings.vue'),
           },
         ],
       },
