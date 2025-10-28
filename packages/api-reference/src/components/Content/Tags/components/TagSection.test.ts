@@ -1,15 +1,8 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import TagSection from './TagSection.vue'
-
-// Mock the useConfig hook
-vi.mock('@/hooks/useConfig', () => ({
-  useConfig: () => ({
-    isLoading: false,
-  }),
-}))
 
 describe('TagSection', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({

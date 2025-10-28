@@ -23,5 +23,5 @@ export type AnalyticsEvents = {
   /**
    * Fired when the references are loaded
    */
-  'on:loaded': void
+  'on:loaded': undefined
 }

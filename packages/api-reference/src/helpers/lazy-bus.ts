@@ -2,7 +2,7 @@ import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { getSchemaParamsFromId } from '@/hooks/id-routing'
+import { getSchemaParamsFromId } from './id-routing'
 
 /**
  * List of items that are in the priority queue and will be immediately rendered
