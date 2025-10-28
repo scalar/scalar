@@ -26,14 +26,14 @@ export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T
  * - Special symbols are used to identify the proxy and to access the original target.
  *
  * @template T - The type of the target object.
- * @param targetObject - The original object to proxy.
+ * @param target - The original object to proxy.
  * @param overrides - An optional object containing override values (deeply partial).
  * @returns A proxy object that reflects overrides on top of the target.
  *
  * @example
  * const original = { a: 1, b: { c: 2 } }
  * const overrides = { b: { c: 42 } }
- * const proxy = createOverridesProxy(original, overrides)
+ * const proxy = createOverridesProxy(original, { overrides })
  *
  * console.log(proxy.a) // 1 (from original)
  * console.log(proxy.b.c) // 42 (from overrides)
@@ -45,12 +45,26 @@ export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T
  * console.log(overrides.b.c) // 99
  */
 export const createOverridesProxy = <T extends Record<string, unknown>>(
-  targetObject: T,
-  overrides?: DeepPartial<T>,
+  target: T,
+  options?: {
+    overrides?: DeepPartial<T>
+  },
+  args: {
+    cache: WeakMap<object, any>
+  } = {
+    cache: new WeakMap(),
+  },
 ): T => {
-  if (!targetObject || typeof targetObject !== 'object') {
-    return targetObject
+  if (!target || typeof target !== 'object') {
+    return target
   }
+
+  // Return existing proxy for the same target to ensure referential stability
+  if (args.cache.has(target)) {
+    return args.cache.get(target)!
+  }
+
+  const { overrides } = options ?? {}
 
   // Proxy handler to intercept get/set operations
   const handler: ProxyHandler<T> = {
@@ -73,7 +87,7 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
       }
 
       // For nested objects, recursively create a proxy with the corresponding overrides
-      return createOverridesProxy(value, Reflect.get(overrides ?? {}, prop))
+      return createOverridesProxy(value, { overrides: Reflect.get(overrides ?? {}, prop) }, args)
     },
 
     set(target, prop, value, receiver) {
@@ -96,7 +110,9 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
   }
 
   // Return the proxy object
-  return new Proxy<T>(targetObject, handler)
+  const proxy = new Proxy<T>(target, handler)
+  args.cache.set(target, proxy)
+  return proxy
 }
 
 /**
