@@ -130,8 +130,8 @@ const handleDragEnd = (
       :active="isSelected(item.id)"
       :modelValue="isExpanded(item.id)"
       @update:modelValue="() => emits('selectItem', item.id)">
-      <div class="group/entry flex flex-1 items-center justify-center">
-        <div class="flex-1 text-left">{{ item.title }}</div>
+      <div class="group/entry flex flex-1 items-center">
+        {{ item.title }}
         <slot
           :item="item"
           name="aside" />
@@ -177,15 +177,13 @@ const handleDragEnd = (
       class="text-left"
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
-      <div class="group/entry flex flex-1 items-center justify-center">
-        <div class="flex-1">
-          <template v-if="options?.operationTitleSource === 'path'">
-            {{ getPathOrTitle(item) }}
-          </template>
-          <template v-else>
-            {{ item.title }}
-          </template>
-        </div>
+      <div class="group/entry flex flex-1 items-center">
+        <template v-if="options?.operationTitleSource === 'path'">
+          {{ getPathOrTitle(item) }}
+        </template>
+        <template v-else>
+          {{ item.title }}
+        </template>
         <slot
           :item="item"
           name="aside" />

@@ -12,11 +12,13 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
 
-import { createMockPluginManager } from '@/helpers/test-utils'
-
 import TraversedEntryComponent from './TraversedEntry.vue'
 
-vi.mock('@/plugins/hooks/usePluginManager', () => ({ usePluginManager: () => createMockPluginManager() }))
+vi.mock('@/plugins/hooks/usePluginManager', () => ({
+  usePluginManager: () => ({
+    getSpecificationExtensions: vi.fn(),
+  }),
+}))
 
 const mockDocument = {
   openapi: '3.1.0' as const,
@@ -184,7 +186,7 @@ afterEach(() => {
 })
 
 beforeEach(() => {
-  vi.mock('@/components/Lazy/lazyBus', () => ({
+  vi.mock('@/helpers/lazy-bus', () => ({
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),

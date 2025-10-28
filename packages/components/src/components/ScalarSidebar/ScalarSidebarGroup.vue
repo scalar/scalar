@@ -40,7 +40,7 @@ defineSlots<{
   button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
   /** The list of sidebar subitems */
   items?(props: { open: boolean }): unknown
-  /** Side icon for the sidebar group */
+  /** Icon for the sidebar group */
   icon?(props: { open: boolean }): unknown
 }>()
 

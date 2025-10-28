@@ -174,7 +174,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -190,7 +190,7 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
-  test-packages:
+  test-packages-shard-1:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -210,7 +210,29 @@ jobs:
       - name: Run tests
         run: |
           pnpm script wait -p 5051 5052 &&
-          pnpm test:packages:ci
+          CI=1 pnpm vitest packages/* --silent --shard=1/2
+
+  test-packages-shard-2:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build packages
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+      - name: Start test servers
+        run: pnpm script run test-servers &
+      - name: Run tests
+        run: |
+          pnpm script wait -p 5051 5052 &&
+          CI=1 pnpm vitest packages/* --silent --shard=2/2
 
   test-integrations:
     needs: [build]
@@ -228,7 +250,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
       - name: Run tests
-        run: pnpm test:integrations:ci
+        run: CI=1 pnpm vitest integrations/* --silent
 
   test-proxy-server:
     needs: [build]
@@ -356,6 +378,15 @@ jobs:
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -370,15 +401,24 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
+          packages: '@scalar/api-reference...'
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
 
   test-galaxy-scalar-com:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    env:
+      HOME: '/root'
     permissions:
       contents: read
     timeout-minutes: 15
@@ -393,10 +433,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
-      - name: Install Playwright browsers
-        run: npx playwright install
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
       - name: Start @scalar/mock-server playground (galaxy.scalar.com)
         run: pnpm --filter @scalar/mock-server dev:local &
       - name: Run e2e tests (galaxy.scalar.com)
@@ -405,6 +441,15 @@ jobs:
   test-e2e-scalar-app:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -425,8 +470,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './projects/scalar-app'
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
@@ -459,6 +502,15 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -478,10 +530,6 @@ jobs:
           packages: '@scalar/components...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
-        with:
-          with-deps: 'false'
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
@@ -510,6 +558,15 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -529,10 +586,6 @@ jobs:
           packages: '@scalar/api-reference...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
-        with:
-          with-deps: 'false'
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:snapshots:ci
         # Only when the PR is from the same repository
@@ -565,6 +618,17 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    env:
+      HOME: '/root'
     permissions:
       contents: read
       pull-requests: write
@@ -584,10 +648,6 @@ jobs:
           packages: '@scalar/api-reference...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
-        with:
-          with-deps: 'false'
       - name: Start HTML server
         run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Run e2e tests (local)
@@ -597,6 +657,15 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -616,10 +685,6 @@ jobs:
           packages: './{packages,integrations}/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Install playwright
-        uses: ./.github/actions/install-playwright
-        with:
-          with-deps: 'false'
       - name: Start nuxt server
         run: pnpm --filter nuxt dev --host &
       - name: Run e2e tests
@@ -638,7 +703,15 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, format, types, test-packages, test-integrations]
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages-shard-1,
+        test-packages-shard-2,
+        test-integrations,
+      ]
     strategy:
       matrix:
         node-version: [22]
@@ -692,7 +765,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages]
+    needs: [build, test-packages-shard-1, test-packages-shard-2]
     strategy:
       matrix:
         node-version: [22]
@@ -807,7 +880,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages]
+    needs: [build, test-packages-shard-1, test-packages-shard-2]
     strategy:
       matrix:
         node-version: [22]
@@ -998,7 +1071,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1081,7 +1155,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1224,7 +1299,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         fastapi-build-test,
       ]
@@ -1331,7 +1407,15 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [build, format, types, test-packages, test-integrations, rust-build-test]
+      [
+        build,
+        format,
+        types,
+        test-packages-shard-1,
+        test-packages-shard-2,
+        test-integrations,
+        rust-build-test,
+      ]
 
     steps:
       - name: Checkout repository

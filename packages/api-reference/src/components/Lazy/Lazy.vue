@@ -7,7 +7,7 @@
  * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
  */
 
-import { useLazyBus } from './lazyBus'
+import { useLazyBus } from '@/helpers/lazy-bus'
 
 const { id } = defineProps<{
   // Identifier for loaded event, if no ID is passed then no event is dispatched

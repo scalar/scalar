@@ -17,13 +17,6 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
-// Mock the discriminator hook
-vi.mock('@/hooks/useOperationDiscriminator', () => ({
-  useOperationDiscriminator: () => ({
-    handleDiscriminatorChange: vi.fn(),
-  }),
-}))
-
 const clientOptions = [
   {
     label: 'Curl',
