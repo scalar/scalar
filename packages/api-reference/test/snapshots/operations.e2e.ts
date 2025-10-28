@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { isClassic } from '@test/utils/isClassic'
+import { isClassic } from '@test/utils/is-classic'
 import { serveExample } from '@test/utils/serve-example'
 
 import { type Slug, sources } from '../data/sources'
