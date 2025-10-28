@@ -6,33 +6,54 @@ type TableEntry<S extends TObject, K extends readonly (keyof Static<S>)[]> = {
 }
 
 /**
- * Creates a connection to an IndexedDB database for managing tables and persistence.
+ * Initializes and manages an IndexedDB database connection for table-based persistence.
  *
- * @param dbName - Optional database name (default 'scalar-workspace-store')
- * @returns An object with `createTable` and `closeDatabase` functions.
+ * @param name - The database name. Defaults to 'scalar-workspace-store'.
+ * @param tables - Table definitions: the tables to create and their key schemas.
+ * @param version - The database version. Bump this to trigger upgrades (default: 1).
+ * @param migrations - Optional migration steps to run for version upgrades.
+ * @returns An object with the following methods:
+ *   - `get(tableName)` — Get a wrapper to interact with the object store for the given table name.
+ *   - `closeDatabase()` — Closes the database connection.
  *
- * Example:
+ * Example usage:
  * ```ts
  * import { Type } from '@scalar/typebox'
  * import { createIndexDbConnection } from './indexdb'
  *
- * // Define a schema
+ * // Define a schema for a user
  * const UserSchema = Type.Object({
  *   id: Type.String(),
  *   name: Type.String(),
  *   age: Type.Number(),
  * })
  *
- * // Create the database connection
- * const { createTable, closeDatabase } = createIndexDbConnection()
+ * // Define tables in the database
+ * const dbConfig = {
+ *   users: {
+ *     schema: UserSchema,
+ *     index: ['id'] as const,
+ *   },
+ * }
  *
- * // Create (or open) a "users" table with "id" as key
- * const usersTable = await createTable('users', {
- *   schema: UserSchema,
- *   key: ['id'],
+ * // Open the database connection and get table API
+ * const { get, closeDatabase } = await createIndexDbConnection({
+ *   name: 'my-app-db',
+ *   tables: dbConfig,
+ *   version: 1,
  * })
  *
- * // Use usersTable methods for CRUD (see createTableWrapper)
+ * // Get a strongly-typed users table API
+ * const usersTable = get('users')
+ *
+ * // Add a user
+ * await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 25 })
+ *
+ * // Retrieve a user by id
+ * const user = await usersTable.getItem({ id: 'user-1' })
+ *
+ * // Don't forget to close the database when done!
+ * closeDatabase()
  * ```
  */
 export const createIndexDbConnection = async <T extends Record<string, TableEntry<any, readonly (keyof any)[]>>>({
