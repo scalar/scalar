@@ -39,6 +39,7 @@ defineProps<{
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
       :id="id"
+      aria-label="Introduction"
       class="introduction-section z-1 gap-12"
       @intersecting="
         () => id && eventBus?.emit('intersecting:nav-item', { id })

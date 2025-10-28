@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
+import { type Page, expect, test } from '@playwright/test'
+
 import sources from '../test/data/sources'
 
 /**

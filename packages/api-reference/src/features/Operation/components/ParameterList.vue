@@ -2,7 +2,7 @@
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -18,6 +18,9 @@ const { parameters } = defineProps<{
   }
 }>()
 
+/** Accessible id for the heading */
+const id = useId()
+
 /** Filter out ignored and internal parameters */
 const filteredParameters = computed(() =>
   parameters.filter((parameter) => !shouldIgnoreEntity(parameter)),
@@ -27,10 +30,14 @@ const filteredParameters = computed(() =>
   <div
     v-if="filteredParameters?.length"
     class="mt-6">
-    <div class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
+    <div
+      :id
+      class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
       <slot name="title" />
     </div>
-    <ul class="mb-3 list-none p-0 text-sm">
+    <ul
+      :aria-labelledby="id"
+      class="mb-3 list-none p-0 text-sm">
       <ParameterListItem
         v-for="item in filteredParameters"
         :key="item.name"

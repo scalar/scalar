@@ -2,8 +2,10 @@ import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('showToolbar', () => {
-  test('shows toolbar on localhost by default', async ({ page }) => {
-    const example = await serveExample()
+  test('shows toolbar when enabled', async ({ page }) => {
+    const example = await serveExample({
+      showToolbar: 'always',
+    })
 
     await page.goto(example)
 
