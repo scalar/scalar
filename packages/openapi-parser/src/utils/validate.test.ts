@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { validate } from './validate'
 
-describe('validate', async () => {
+describe('validate', () => {
   it('fails on invalid schema', async () => {
     const result = await validate('')
 
@@ -79,7 +79,7 @@ paths: {}
   })
 
   it('throws an error', async () => {
-    expect(async () => {
+    await expect(async () => {
       await validate(undefined, {
         throwOnError: true,
       })
