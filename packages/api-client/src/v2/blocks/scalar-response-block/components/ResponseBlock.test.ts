@@ -3,7 +3,7 @@
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 
 import type { ClientLayout } from '@/hooks'
 import { createStoreEvents } from '@/store/events'
@@ -349,12 +349,14 @@ describe('ResponseBlock', () => {
   })
 
   it('renders plugin component when provided', () => {
-    const PluginResponseComponent = defineComponent<{
-      request?: Request
-      response?: ResponseInstance
-    }>({
-      template: '<div>Plugin Response Component</div>',
-    })
+    const PluginResponseComponent = markRaw(
+      defineComponent<{
+        request?: Request
+        response?: ResponseInstance
+      }>({
+        template: '<div>Plugin Response Component</div>',
+      }),
+    )
 
     const wrapper = mount(ResponseBlock, {
       props: {
