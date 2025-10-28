@@ -12,7 +12,7 @@ import type {
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'

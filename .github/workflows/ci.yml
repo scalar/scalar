@@ -174,7 +174,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -190,7 +190,7 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
-  test-packages:
+  test-packages-shard-1:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -210,7 +210,29 @@ jobs:
       - name: Run tests
         run: |
           pnpm script wait -p 5051 5052 &&
-          pnpm test:packages:ci
+          CI=1 pnpm vitest packages/* --silent --shard=1/2
+
+  test-packages-shard-2:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build packages
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+      - name: Start test servers
+        run: pnpm script run test-servers &
+      - name: Run tests
+        run: |
+          pnpm script wait -p 5051 5052 &&
+          CI=1 pnpm vitest packages/* --silent --shard=2/2
 
   test-integrations:
     needs: [build]
@@ -228,7 +250,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
       - name: Run tests
-        run: pnpm test:integrations:ci
+        run: CI=1 pnpm vitest integrations/* --silent
 
   test-proxy-server:
     needs: [build]
@@ -681,7 +703,15 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, format, types, test-packages, test-integrations]
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages-shard-1,
+        test-packages-shard-2,
+        test-integrations,
+      ]
     strategy:
       matrix:
         node-version: [22]
@@ -735,7 +765,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages]
+    needs: [build, test-packages-shard-1, test-packages-shard-2]
     strategy:
       matrix:
         node-version: [22]
@@ -850,7 +880,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages]
+    needs: [build, test-packages-shard-1, test-packages-shard-2]
     strategy:
       matrix:
         node-version: [22]
@@ -1041,7 +1071,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1124,7 +1155,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1267,7 +1299,8 @@ jobs:
         build,
         format,
         types,
-        test-packages,
+        test-packages-shard-1,
+        test-packages-shard-2,
         test-integrations,
         fastapi-build-test,
       ]
@@ -1374,7 +1407,15 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [build, format, types, test-packages, test-integrations, rust-build-test]
+      [
+        build,
+        format,
+        types,
+        test-packages-shard-1,
+        test-packages-shard-2,
+        test-integrations,
+        rust-build-test,
+      ]
 
     steps:
       - name: Checkout repository

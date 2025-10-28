@@ -7,7 +7,7 @@ import { computed } from 'vue'
 import DownloadLink from './DownloadLink.vue'
 
 // Mock the download function
-vi.mock('@/libs/download', () => ({
+vi.mock('@/helpers/download', () => ({
   downloadDocument: vi.fn(),
 }))
 

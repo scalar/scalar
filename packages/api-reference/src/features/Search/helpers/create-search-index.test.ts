@@ -408,7 +408,7 @@ describe('createSearchIndex', () => {
         {
           type: 'heading',
           title: 'API Documentation',
-          description: 'Description',
+          description: 'Heading',
         },
       ])
 
@@ -428,12 +428,12 @@ describe('createSearchIndex', () => {
       expect(index[0]).toMatchObject({
         type: 'heading',
         title: 'Introduction',
-        description: 'Description',
+        description: 'Heading',
       })
       expect(index[1]).toMatchObject({
         type: 'heading',
         title: 'Getting Started',
-        description: 'Description',
+        description: 'Heading',
       })
     })
 
@@ -450,7 +450,7 @@ describe('createSearchIndex', () => {
         {
           type: 'heading',
           title: 'Introduction',
-          description: 'Description',
+          description: 'Heading',
         },
       ])
 

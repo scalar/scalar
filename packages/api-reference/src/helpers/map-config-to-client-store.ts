@@ -20,7 +20,7 @@ import microdiff from 'microdiff'
 import { type Ref, computed, provide, toRaw, toValue, watch } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
-import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
+import { useLegacyStoreEvents } from '@/hooks/use-legacy-store-events'
 
 /**
  * Temporary state mapping factory to handle syncing the client store with the workspace store.

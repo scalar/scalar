@@ -1,6 +1,6 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-import type { ParameterMap } from '@/libs/openapi'
+import type { ParameterMap } from '@/helpers/openapi'
 
 export type EntryType = 'operation' | 'webhook' | 'model' | 'heading' | 'tag'
 
