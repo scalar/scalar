@@ -18,7 +18,7 @@ if (CI) {
       ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
       ['json', { outputFile: 'playwright-results-cdn.json' }],
       // Makes sure the CDN tests always pass in CI
-      ['./test-cdn/ci-reporter.ts'],
+      ['./test/utils/ci-reporter.ts'],
     )
   } else {
     reporter.push(
