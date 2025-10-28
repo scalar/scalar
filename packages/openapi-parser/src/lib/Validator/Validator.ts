@@ -133,14 +133,14 @@ export class Validator {
     const schema = OpenApiSpecifications[version]
 
     // Load JSON Schema
-    const AjvClass = jsonSchemaVersions[schema.$schema]
+    const AjvClass = jsonSchemaVersions[schema.$schema] as typeof Ajv
 
     // Get the correct Ajv validator
     const ajv = new AjvClass({
       // Ajv is a bit too strict in its strict validation of OpenAPI schemas.
       // Switch strict mode off.
       strict: false,
-    }) as Ajv
+    })
 
     // Register formats
     // https://ajv.js.org/packages/ajv-formats.html#formats
