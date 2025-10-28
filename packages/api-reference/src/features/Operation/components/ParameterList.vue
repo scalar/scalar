@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -8,16 +9,13 @@ import ParameterListItem from './ParameterListItem.vue'
 const { parameters } = defineProps<{
   parameters: ParameterObject[]
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: {
     collapsableItems?: boolean
     withExamples?: boolean
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /** Filter out ignored and internal parameters */
@@ -37,10 +35,10 @@ const filteredParameters = computed(() =>
         v-for="item in filteredParameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
+        :eventBus="eventBus"
         :name="item.name"
         :options="options"
-        :parameter="item"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :parameter="item" />
     </ul>
   </div>
 </template>

@@ -2,6 +2,7 @@
 import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -34,6 +35,8 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
+    /** Event bus emitting actions */
+    eventBus: WorkspaceEventBus | null
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
   }>(),
@@ -42,10 +45,6 @@ const props = withDefaults(
     hideHeading: false,
   },
 )
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
-}>()
 
 /** The current composition */
 const composition = computed(() =>
@@ -99,13 +98,13 @@ const selectedComposition = computed(
       :breadcrumb="breadcrumb"
       :compact="compact"
       :discriminator="discriminator"
+      :eventBus="eventBus"
       :hideHeading="hideHeading"
       :level="level"
       :name="name"
       :noncollapsible="true"
       :options="options"
-      :schema="mergeAllOfSchemas(schema)"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+      :schema="mergeAllOfSchemas(schema)" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -139,13 +138,13 @@ const selectedComposition = computed(
           :breadcrumb="breadcrumb"
           :compact="compact"
           :discriminator="discriminator"
+          :eventBus="eventBus"
           :hideHeading="hideHeading"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
           :options="options"
-          :schema="selectedComposition"
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+          :schema="selectedComposition" />
       </div>
     </template>
   </div>

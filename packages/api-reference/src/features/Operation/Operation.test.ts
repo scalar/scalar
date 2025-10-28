@@ -65,8 +65,9 @@ const mountOperationWithConfig = (
       server: undefined,
       getSecurityScheme: () => [],
       isCollapsed: false,
-      ...config,
+      eventBus: null,
       xScalarDefaultClient: 'c/libcurl',
+      ...config,
       options: {
         layout: 'modern',
         isWebhook: false,

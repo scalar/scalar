@@ -12,6 +12,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -49,6 +50,7 @@ const { path, operation, method } = defineProps<{
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus | null
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -62,11 +64,6 @@ const { path, operation, method } = defineProps<{
   }
 }>()
 
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
-}>()
-
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
@@ -78,7 +75,7 @@ const labelId = useId()
     :aria-labelledby="labelId"
     :label="operationTitle"
     tabindex="-1"
-    @intersecting="(id) => emit('intersecting', id)">
+    @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
     <SectionContent>
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
@@ -115,7 +112,8 @@ const labelId = useId()
       </div>
       <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader>
-          <Anchor @copyAnchorUrl="() => emit('copyAnchorUrl', id)">
+          <Anchor
+            @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
@@ -135,6 +133,7 @@ const labelId = useId()
               withImages />
             <OperationParameters
               :breadcrumb="[id]"
+              :eventBus="eventBus"
               :options="{
                 orderRequiredPropertiesFirst:
                   options.orderRequiredPropertiesFirst,
@@ -144,18 +143,17 @@ const labelId = useId()
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
               "
-              :requestBody="getResolvedRef(operation.requestBody)"
-              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+              :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
               :breadcrumb="[id]"
+              :eventBus="eventBus"
               :options="{
                 collapsableItems: !options.expandAllResponses,
                 orderRequiredPropertiesFirst:
                   options.orderRequiredPropertiesFirst,
                 orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
               }"
-              :responses="operation.responses"
-              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+              :responses="operation.responses" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>
@@ -163,6 +161,7 @@ const labelId = useId()
                 v-if="operation.callbacks"
                 :callbacks="operation.callbacks"
                 class="mt-6"
+                :eventBus="eventBus"
                 :method="method"
                 :options="options"
                 :path="path" />

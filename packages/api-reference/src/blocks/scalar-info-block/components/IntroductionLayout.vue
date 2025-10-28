@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Heading } from '@scalar/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -29,10 +30,7 @@ defineProps<{
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
   headingSlugGenerator: (heading: Heading) => string
-}>()
-
-const emit = defineEmits<{
-  (e: 'intersecting', id: string): void
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 
@@ -42,7 +40,9 @@ const emit = defineEmits<{
     <Section
       :id="id"
       class="introduction-section z-1 gap-12"
-      @intersecting="(id) => emit('intersecting', id)">
+      @intersecting="
+        () => id && eventBus?.emit('intersecting:nav-item', { id })
+      ">
       <SectionContent :loading="!info">
         <div class="flex gap-1.5">
           <InfoVersion
@@ -68,6 +68,7 @@ const emit = defineEmits<{
             <slot name="download-link" />
             <InfoDescription
               :description="info?.description"
+              :eventBus="eventBus"
               :headingSlugGenerator="headingSlugGenerator" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">

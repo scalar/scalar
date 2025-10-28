@@ -3,6 +3,7 @@ import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-co
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import type {
   Workspace,
@@ -31,6 +32,7 @@ const { options, document, items } = defineProps<{
   getSecuritySchemes: SecuritySchemeGetter
   items: TraversedEntryType[]
   expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
   options: {
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
@@ -44,15 +46,6 @@ const { options, document, items } = defineProps<{
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
     headingSlugGenerator: (heading: Heading) => string
   }
-}>()
-
-const emit = defineEmits<{
-  (e: 'intersecting', id: string): void
-  (e: 'toggleTag', id: string, open: boolean): void
-  (e: 'toggleSchema', id: string, open: boolean): void
-  (e: 'toggleOperation', id: string, open: boolean): void
-  (e: 'scrollToId', id: string): void
-  (e: 'copyAnchorUrl', id: string): void
 }>()
 
 /**
@@ -79,6 +72,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
       <InfoBlock
         :id="infoSectionId"
         :documentExtensions
+        :eventBus="eventBus"
         :externalDocs="document?.externalDocs"
         :info="document?.info"
         :infoExtensions
@@ -142,6 +136,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
       v-if="items.length"
       :activeServer
       :entries="items"
+      :eventBus="eventBus"
       :expandedItems="expandedItems"
       :getSecuritySchemes="getSecuritySchemes"
       :options="{
@@ -158,13 +153,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
       :schemas="document?.components?.schemas ?? {}"
       :security="document?.security"
       :webhooks="document?.webhooks ?? {}"
-      :xScalarDefaultClient="xScalarDefaultClient"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)"
-      @intersecting="(id) => emit('intersecting', id)"
-      @scrollToId="(id) => emit('scrollToId', id)"
-      @toggleOperation="(id, open) => emit('toggleOperation', id, open)"
-      @toggleSchema="(id, open) => emit('toggleSchema', id, open)"
-      @toggleTag="(id, open) => emit('toggleTag', id, open)">
+      :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>
 
     <!-- Render plugins at content.end view -->

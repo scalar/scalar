@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -14,6 +15,7 @@ const {
   path: string
   method: HttpMethod
   callbacks: CallbackObject
+  eventBus: WorkspaceEventBus | null
   options: {
     collapsableItems?: boolean
     withExamples?: boolean
@@ -42,6 +44,7 @@ const {
           <Callback
             v-if="isHttpMethod(callbackMethod)"
             :callback="callback"
+            :eventBus="eventBus"
             :method="callbackMethod"
             :name="name"
             :operationMethod="operationMethod"
