@@ -29,7 +29,7 @@ defineProps<{
   align-items: stretch;
   position: relative;
 
-  --decorator-width: 0.5px;
+  --decorator-width: 1px;
 }
 
 .property-enum-value-content {
