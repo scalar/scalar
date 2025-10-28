@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ExampleObjectSchema } from './example-object'
 import { MediaTypeObjectSchemaWithoutEncoding } from './media-type-object-without-encoding'
 import { SchemaObjectSchema } from './schema-object'
@@ -37,7 +38,7 @@ export const HeaderObjectSchema = z.object({
   /**
    * Describes how the parameter value will be serialized. Only "simple" is allowed for headers.
    */
-  style: z.enum(['matrix', 'label', 'simple', 'form', 'spaceDelimited', 'pipeDelimited', 'deepObject']).optional(),
+  style: z.literal('simple').optional(),
   /**
    * When this is true, parameter values of type array or object generate separate parameters
    * for each value of the array or key-value pair of the map.

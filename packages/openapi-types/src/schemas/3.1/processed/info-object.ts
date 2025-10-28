@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ContactObjectSchema } from './contact-object'
 import { LicenseObjectSchema } from './license-object'
 
@@ -14,30 +15,30 @@ export const InfoObjectSchema = z.object({
   /**
    * REQUIRED. The title of the API.
    */
-  title: z.string().catch('API'),
+  title: z.string().default('API'),
   /**
    * A short summary of the API.
    */
-  summary: z.string().optional().catch(undefined),
+  summary: z.string().optional(),
   /**
    * A description of the API. CommonMark syntax MAY be used for rich text representation.
    */
-  description: z.string().optional().catch(undefined),
+  description: z.string().optional(),
   /**
    * A URL to the Terms of Service for the API. This MUST be in the form of a URL.
    */
-  termsOfService: z.string().url().optional().catch(undefined),
+  termsOfService: z.string().url().optional(),
   /**
    * The contact information for the exposed API.
    */
-  contact: ContactObjectSchema.optional().catch(undefined),
+  contact: ContactObjectSchema.optional(),
   /**
    * The license information for the exposed API.
    **/
-  license: LicenseObjectSchema.optional().catch(undefined),
+  license: LicenseObjectSchema.optional(),
   /**
    * REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the
    * version of the API being described or the version of the OpenAPI Description).
    */
-  version: z.string().catch('1.0'),
+  version: z.string().default('1.0.0'),
 })

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { BasePathItemObjectSchema } from './base-path-item-object'
 import { OperationObjectSchema } from './operation-object'
 
@@ -22,9 +23,18 @@ export const PathItemObjectSchema = BasePathItemObjectSchema.extend({
    *
    * Q: Why don't we just use `ReferenceObjectSchema`?
    * A: References work a little bit different here. It's the only place where they can be combined with other
-   *    properties.
+   *    properties. Unlike other Reference Objects, $ref is optional here and can coexist with other Path Item fields.
    */
   '$ref': z.string().optional(),
+  /**
+   * A short summary which by default SHOULD override that of the referenced component.
+   */
+  'summary': z.string().optional(),
+  /**
+   * A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for
+   * rich text representation.
+   */
+  'description': z.string().optional(),
   /**
    * A definition of a GET operation on this path.
    */

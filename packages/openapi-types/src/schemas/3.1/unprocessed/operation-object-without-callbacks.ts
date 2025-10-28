@@ -1,10 +1,12 @@
 import { z } from 'zod'
+
 import { OperationObjectSchemaWithoutCallbacks as OriginalOperationObjectSchemaWithoutCallbacks } from '../processed/operation-object-without-callbacks'
 import { ExternalDocumentationObjectSchema } from './external-documentation-object'
 import { ParameterObjectSchema } from './parameter-object'
 import { ReferenceObjectSchema } from './reference-object'
 import { RequestBodyObjectSchema } from './request-body-object'
 import { SecurityRequirementObjectSchema } from './security-requirement-object'
+import { ServerObjectSchema } from './server-object'
 
 /**
  * Operation Object (without callbacks, used in callbacks)
@@ -40,4 +42,9 @@ export const OperationObjectSchemaWithoutCallbacks = OriginalOperationObjectSche
    * security requirement ({}) can be included in the array.
    */
   'security': z.array(SecurityRequirementObjectSchema).optional(),
+  /**
+   * An alternative server array to service this operation. If an alternative server object is specified at the Path
+   * Item Object or Root level, it will be overridden by this value.
+   */
+  'servers': z.array(ServerObjectSchema).optional(),
 })

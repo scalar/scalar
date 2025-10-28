@@ -1,9 +1,11 @@
 import { z } from 'zod'
+
 import { ExternalDocumentationObjectSchema } from './external-documentation-object'
 import { ParameterObjectSchema } from './parameter-object'
 import { RequestBodyObjectSchema } from './request-body-object'
 import { ResponseObjectSchema } from './response-object'
 import { SecurityRequirementObjectSchema } from './security-requirement-object'
+import { ServerObjectSchema } from './server-object'
 
 /**
  * Operation Object (without callbacks, used in callbacks)
@@ -52,6 +54,8 @@ export const OperationObjectSchemaWithoutCallbacks = z.object({
   'requestBody': RequestBodyObjectSchema.optional(),
   /**
    * The list of possible responses as they are returned from executing this operation.
+   * Note: Per OpenAPI spec, this field is REQUIRED for a complete operation, but marked optional here
+   * to allow partial parsing/validation scenarios.
    */
   'responses': z.record(z.string(), ResponseObjectSchema).optional(),
   /**
@@ -62,6 +66,11 @@ export const OperationObjectSchemaWithoutCallbacks = z.object({
    * security requirement ({}) can be included in the array.
    */
   'security': z.array(SecurityRequirementObjectSchema).optional(),
+  /**
+   * An alternative server array to service this operation. If an alternative server object is specified at the Path
+   * Item Object or Root level, it will be overridden by this value.
+   */
+  'servers': z.array(ServerObjectSchema).optional(),
   /**
    * Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default
    * value is false.
