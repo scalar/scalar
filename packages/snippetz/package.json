@@ -239,7 +239,7 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@scalar/types": "workspace:*",
-    "js-base64": "^3.7.8",
+    "js-base64": "catalog:*",
     "stringify-object": "^5.0.0"
   },
   "devDependencies": {
