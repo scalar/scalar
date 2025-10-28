@@ -10,7 +10,7 @@ import type { ComputedRef } from 'vue'
  */
 export const useWorkspaceClientEvents = (
   eventBus: WorkspaceEventBus,
-  document: ComputedRef<WorkspaceDocument | undefined>,
+  document: ComputedRef<WorkspaceDocument | null>,
 ) => {
   //------------------------------------------------------------------------------------
   // Document Related Event Handlers

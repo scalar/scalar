@@ -2,7 +2,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
-import App from '@/v2/features/app/components/App.vue'
+import App from '@/v2/features/app/App.vue'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/plugins'
 import type { ClientLayout } from '@/v2/types/layout'

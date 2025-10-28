@@ -19,9 +19,9 @@ import { RouterView, useRoute } from 'vue-router'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import AppSidebar from './AppSidebar.vue'
-import DesktopTabs from './DesktopTabs.vue'
-import WebTopNav from './WebTopNav.vue'
+import AppSidebar from './components/AppSidebar.vue'
+import DesktopTabs from './components/DesktopTabs.vue'
+import WebTopNav from './components/WebTopNav.vue'
 
 const { layout, workspaceStore } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
@@ -63,10 +63,10 @@ const document = computed(() => {
 
   // In case of default we return the first document
   if (slug === 'default') {
-    return Object.values(workspaceStore.workspace.documents)[0]
+    return Object.values(workspaceStore.workspace.documents)[0] ?? null
   }
 
-  return workspaceStore.workspace.documents[slug]
+  return workspaceStore.workspace.documents[slug] ?? null
 })
 
 /** Event handler */
