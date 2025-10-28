@@ -22,7 +22,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'
 
-const { document, layout, workspaceStore, eventBus } = defineProps<RouteProps>()
+const { document, layout, eventBus } = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
 const title = computed(() => document?.info?.title || 'Untitled Document')
@@ -78,8 +78,7 @@ const icon = computed(
       <RouterView
         :eventBus="eventBus"
         :layout="layout"
-        type="document"
-        :workspaceStore="workspaceStore" />
+        type="document" />
     </div>
   </div>
 

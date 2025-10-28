@@ -1,4 +1,4 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+// import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
@@ -10,7 +10,7 @@ export type RouteProps = {
   document: WorkspaceDocument | null
   eventBus: WorkspaceEventBus
   layout: ClientLayout
-  workspaceStore: WorkspaceStore
+  // workspaceStore: WorkspaceStore
   // workspaceSlug: string
   // documentSlug?: string
   // pathEncoded?: string
