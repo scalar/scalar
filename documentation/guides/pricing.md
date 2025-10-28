@@ -70,25 +70,37 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">viewer seats</div>
+              <div class="pricing-table-column">Email Domain Access Control</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">editor seats</div>
+              <div class="pricing-table-column">Viewer Seats</div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Editor Seats</div>
               <div class="pricing-table-column">1</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Markdown + MDX</div>
+              <div class="pricing-table-column">Custom Domains</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Custom Domains</div>
+              <div class="pricing-table-column">Guides</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Versions</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -100,7 +112,7 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Guides & Versions</div>
+              <div class="pricing-table-column">Markdown + MDX</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -130,13 +142,13 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Dedicated Slack/Teams Channel</div>
+              <div class="pricing-table-column">Priority Support</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Priority Support</div>
+              <div class="pricing-table-column">Dedicated Slack/Teams Channel</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
