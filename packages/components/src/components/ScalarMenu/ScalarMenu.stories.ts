@@ -12,6 +12,7 @@ import {
   ScalarMenuTeamPicker,
   ScalarMenuTeamProfile,
 } from './'
+import { images } from './fixtures'
 
 const meta = {
   component: ScalarMenu,
@@ -51,17 +52,17 @@ export const TeamPicker: Story = {
       const teams: ScalarListboxOption[] = [
         {
           label: 'A Team',
-          src: 'https://picsum.photos/seed/1/100',
+          src: images[0],
           id: 'team-a ',
         },
         {
           label: 'B Team',
-          src: 'https://picsum.photos/seed/2/100',
+          src: images[1],
           id: 'team-b',
         },
         {
           label: 'C Team',
-          src: 'https://picsum.photos/seed/3/100',
+          src: images[2],
           id: 'team-c',
         },
       ]
