@@ -26,6 +26,7 @@ describe('ParameterList', () => {
 
     const wrapper = mount(ParameterList, {
       props: {
+        eventBus: null,
         parameters,
         options: defaultOptions,
       },
@@ -49,6 +50,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
       slots: {
         title: 'Parameters',
@@ -72,6 +74,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
       slots: {
         title: 'Parameters',
@@ -97,6 +100,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
       slots: {
         title: 'Parameters',
@@ -114,6 +118,7 @@ describe('ParameterList', () => {
       props: {
         parameters: [],
         options: defaultOptions,
+        eventBus: null,
       },
     })
 
@@ -130,6 +135,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
     })
 
@@ -144,6 +150,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
       slots: {
         title: 'Query Parameters',
@@ -162,6 +169,7 @@ describe('ParameterList', () => {
         parameters,
         breadcrumb,
         options: defaultOptions,
+        eventBus: null,
       },
     })
 
@@ -182,6 +190,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: customOptions,
+        eventBus: null,
       },
     })
 
@@ -202,6 +211,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
+        eventBus: null,
       },
     })
 

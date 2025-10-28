@@ -1,6 +1,14 @@
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
-export default [
+/** All of the sources */
+export type Sources = typeof sources
+/** A single source configuration */
+export type Source = Sources[number]
+/** The slug of a source */
+export type Slug = Source['slug']
+
+/** A selection of test sources and configurations */
+export const sources = [
   {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
@@ -174,4 +182,4 @@ export default [
     slug: 'galaxy-live',
     url: 'http://localhost:8080/3.1.yaml',
   },
-] satisfies AnyApiReferenceConfiguration
+] as const satisfies AnyApiReferenceConfiguration

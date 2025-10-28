@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -43,6 +44,7 @@ const props = withDefaults(
     hideHeading?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
     options: SchemaOptions
   }>(),
   {
@@ -52,10 +54,6 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
-}>()
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb && props.name
@@ -284,7 +282,7 @@ const compositionsToRender = computed(() => {
         #name>
         <WithBreadcrumb
           :breadcrumb="shouldHaveLink ? childBreadcrumb : undefined"
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
+          :eventBus="eventBus">
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               {{ name }}
@@ -341,12 +339,12 @@ const compositionsToRender = computed(() => {
       <Schema
         :breadcrumb="childBreadcrumb"
         :compact="compact"
+        :eventBus="eventBus"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schema="optimizedValue"
-        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+        :schema="optimizedValue" />
     </div>
 
     <!-- Array of objects -->
@@ -361,12 +359,12 @@ const compositionsToRender = computed(() => {
         class="children">
         <Schema
           :compact="compact"
+          :eventBus="eventBus"
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
           :options="options"
-          :schema="getResolvedRef(optimizedValue.items)"
-          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+          :schema="getResolvedRef(optimizedValue.items)" />
       </div>
     </template>
 
@@ -378,13 +376,13 @@ const compositionsToRender = computed(() => {
       :compact="compact"
       :composition="compositionData.composition"
       :discriminator="schema?.discriminator"
+      :eventBus="eventBus"
       :hideHeading="hideHeading"
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="getResolvedRef(props.schema)!"
-      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
+      :schema="getResolvedRef(props.schema)!" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

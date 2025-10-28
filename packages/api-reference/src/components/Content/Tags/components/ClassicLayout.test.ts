@@ -22,6 +22,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -37,6 +38,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -61,6 +63,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -79,6 +82,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -95,6 +99,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -112,6 +117,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -130,6 +136,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -145,6 +152,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -152,7 +160,7 @@ describe('ClassicLayout', () => {
 
       const accordion = wrapper.findComponent({ name: 'SectionContainerAccordion' })
       expect(accordion.exists()).toBe(true)
-      expect(wrapper.element.tagName).toBe('DIV') // Vue test utils wraps in div
+      expect(wrapper.element.tagName).toBe('SECTION') // Vue test utils wraps in div
     })
 
     it('renders SectionHeaderTag with level 2', () => {
@@ -160,6 +168,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -174,6 +183,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -194,6 +204,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -211,6 +222,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },
@@ -230,6 +242,7 @@ describe('ClassicLayout', () => {
 
       const wrapper = mount(ClassicLayout, {
         props: {
+          eventBus: null,
           tag: mockTag,
           isCollapsed: false,
         },

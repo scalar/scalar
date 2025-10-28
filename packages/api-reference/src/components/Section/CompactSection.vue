@@ -13,12 +13,13 @@ const { id } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
-  (e: 'copyAnchorUrl', id: string): void
-  (e: 'intersecting', id: string): void
+  (e: 'copyAnchorUrl'): void
 }>()
 </script>
 <template>
-  <div class="collapsible-section">
+  <section
+    :aria-label="label"
+    class="collapsible-section">
     <button
       :id="id"
       :aria-controls="id"
@@ -33,19 +34,17 @@ const emit = defineEmits<{
         weight="bold" />
       <Anchor
         class="collapsible-section-header"
-        @copyAnchorUrl="() => emit('copyAnchorUrl', id)">
+        @copyAnchorUrl="() => emit('copyAnchorUrl')">
         <slot name="heading" />
       </Anchor>
     </button>
     <Section
       v-if="modelValue"
-      :id="id"
       class="collapsible-section-content"
-      :label="label"
-      @intersecting="(id) => emit('intersecting', id)">
+      :label="label">
       <slot />
     </Section>
-  </div>
+  </section>
 </template>
 <style scoped>
 .collapsible-section {
