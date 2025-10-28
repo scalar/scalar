@@ -14,10 +14,6 @@ defineProps<{
 
   /** List of all available environments for the selected document */
   environments: Environment[]
-
-  /** TODO: remove when we migrate to the new store */
-  environment: EntitiesEnvironment
-  envVariables: EnvVariable[]
 }>()
 
 const emit = defineEmits<{
@@ -89,8 +85,8 @@ const emit = defineEmits<{
     <EnvironmentsList
       :documentName="documentName"
       :envVariables="envVariables"
-      :environment="environment"
-      :environments="environments"
+      :environment="{ uid: 'asdasdsadd', name: '', color: '', value: '' }"
+      :environments="[{ name: 'test', variables: [] }]"
       @environment:add="(payload) => emit('environment:add', payload)"
       @environment:add:variable="
         (payload) => emit('environment:add:variable', payload)
