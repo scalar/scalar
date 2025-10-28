@@ -28,6 +28,8 @@ defineProps<{
   display: flex;
   align-items: stretch;
   position: relative;
+
+  --decorator-width: 0.5px;
 }
 
 .property-enum-value-content {
@@ -50,7 +52,7 @@ defineProps<{
 .property-enum-value::before {
   content: '';
   margin-right: 12px;
-  width: var(--scalar-border-width);
+  width: var(--decorator-width);
   display: block;
   background: currentColor;
   color: var(--scalar-color-3);
@@ -62,22 +64,13 @@ defineProps<{
   height: 14px;
 }
 
-.property-enum-value:not(:last-child)::before {
-  content: '';
-  margin-right: 12px;
-  width: var(--scalar-border-width);
-  display: block;
-  background: currentColor;
-  color: var(--scalar-color-3);
-}
-
 .property-enum-value-label::after {
   content: '';
   position: absolute;
   top: 50%;
   left: -12px;
   width: 8px;
-  height: var(--scalar-border-width);
+  height: var(--decorator-width);
   background: var(--scalar-color-2);
 }
 
