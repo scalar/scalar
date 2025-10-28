@@ -13,18 +13,20 @@ export type ValidationResult = {
  * should prevent the request from being sent.
  */
 export const validateParameters = (example: Partial<RequestExample> | null): ValidationResult => {
-  const invalidParams = new Set<string>()
-  let hasBlockingErrors = false
+  const result = {
+    invalidParams: new Set<string>(),
+    hasBlockingErrors: false,
+  }
 
   if (!example) {
-    return { invalidParams, hasBlockingErrors }
+    return result
   }
 
   // Check path parameters separately - these are blocking
   example.parameters?.path?.forEach((param) => {
     if (param.enabled && param.value.trim() === '') {
-      invalidParams.add(param.key)
-      hasBlockingErrors = true
+      result.invalidParams.add(param.key)
+      result.hasBlockingErrors = true
     }
   })
 
@@ -33,10 +35,10 @@ export const validateParameters = (example: Partial<RequestExample> | null): Val
   nonBlockingParamTypes.forEach((paramType) => {
     example.parameters?.[paramType]?.forEach((param) => {
       if (param.required && param.value === '') {
-        invalidParams.add(param.key)
+        result.invalidParams.add(param.key)
       }
     })
   })
 
-  return { invalidParams, hasBlockingErrors }
+  return result
 }
