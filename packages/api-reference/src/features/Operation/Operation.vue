@@ -3,6 +3,7 @@ import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-c
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   PathItemObject,
@@ -12,7 +13,7 @@ import type {
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
@@ -31,7 +32,9 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
   security: SecurityRequirementObject[] | undefined
   /** Temporary getter function to handle overlap with the client store */
   getSecurityScheme: SecuritySchemeGetter
+  isCollapsed: boolean
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus | null
   // ---------------------------------------------
   options: {
     layout: 'classic' | 'modern'
@@ -89,27 +92,28 @@ const selectedServer = computed<ServerObject | undefined>(() =>
 
 <template>
   <template v-if="operation">
-    <template v-if="options?.layout === 'classic'">
-      <ClassicLayout
-        :id="id"
-        :method="method"
-        :operation="operation"
-        :options="options"
-        :path="path"
-        :securitySchemes="selectedSecuritySchemes"
-        :server="selectedServer"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </template>
-    <template v-else>
-      <ModernLayout
-        :id="id"
-        :method="method"
-        :operation="operation"
-        :options="options"
-        :path="path"
-        :securitySchemes="selectedSecuritySchemes"
-        :server="selectedServer"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </template>
+    <ClassicLayout
+      v-if="options?.layout === 'classic'"
+      :id="id"
+      :eventBus="eventBus"
+      :isCollapsed="isCollapsed"
+      :method="method"
+      :operation="operation"
+      :options="options"
+      :path="path"
+      :securitySchemes="selectedSecuritySchemes"
+      :server="selectedServer"
+      :xScalarDefaultClient="xScalarDefaultClient" />
+    <ModernLayout
+      v-else
+      :id="id"
+      :eventBus="eventBus"
+      :method="method"
+      :operation="operation"
+      :options="options"
+      :path="path"
+      :securitySchemes="selectedSecuritySchemes"
+      :server="selectedServer"
+      :xScalarDefaultClient="xScalarDefaultClient" />
   </template>
 </template>

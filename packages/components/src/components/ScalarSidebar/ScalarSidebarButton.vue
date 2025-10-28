@@ -24,8 +24,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { cva } from '@scalar/use-hooks/useBindCx'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
@@ -60,9 +59,9 @@ const { cx } = useBindCx()
     v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
       <ScalarSidebarIndent
+        :disabled
         :indent
-        :selected
-        :disabled />
+        :selected />
     </slot>
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
@@ -76,10 +75,6 @@ const { cx } = useBindCx()
       </div>
       <slot />
     </div>
-    <div
-      v-if="$slots.aside"
-      class="flex items-center">
-      <slot name="aside" />
-    </div>
+    <slot name="aside" />
   </component>
 </template>

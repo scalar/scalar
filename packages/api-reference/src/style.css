@@ -10,6 +10,7 @@
 }
 
 @import "@scalar/components/style.css"; /* Component Library Styles */
+@import "@scalar/sidebar/style.css"; /* Sidebar Styles */
 @import "@scalar/api-client/style.css"; /* API Client Styles */
 
 /* Search for Tailwind classes in the API Reference */

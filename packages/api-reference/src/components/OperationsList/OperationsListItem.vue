@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
@@ -10,20 +11,12 @@ import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
+  eventBus: WorkspaceEventBus | null
 }>()
-
-const { scrollToOperation } = useSidebar()
-
-const scrollHandler = async (
-  targetOperation: Pick<TraversedOperation, 'id'>,
-) => {
-  scrollToOperation(targetOperation.id, true)
-}
 
 const pathOrTitle = computed(() => {
   if ('path' in operation) {
@@ -51,8 +44,9 @@ const isWebhook = (
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${operation.id}`"
-      @click.prevent="scrollHandler(operation)">
+      @click.prevent="
+        () => eventBus?.emit('scroll-to:nav-item', { id: operation.id })
+      ">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"
         :method="operation.method">

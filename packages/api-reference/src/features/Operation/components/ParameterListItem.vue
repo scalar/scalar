@@ -3,6 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarMarkdown } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
@@ -20,6 +21,7 @@ const { name, parameter, options } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: {
     collapsableItems?: boolean
     withExamples?: boolean
@@ -40,7 +42,9 @@ const content = computed(() =>
   'content' in parameter && parameter.content ? parameter.content : null,
 )
 
-const selectedContentType = ref<string>(Object.keys(content.value || {})[0])
+const selectedContentType = ref<string>(
+  Object.keys(content.value || {})[0] ?? '',
+)
 
 /** Response headers */
 const headers = computed<ResponseObject['headers'] | null>(() =>
@@ -116,6 +120,7 @@ const shouldCollapse = computed<boolean>(() =>
         <Headers
           v-if="headers"
           :breadcrumb="breadcrumb"
+          :eventBus="eventBus"
           :headers="headers"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
@@ -126,6 +131,7 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           compact
           :description="shouldCollapse ? '' : parameter.description"
+          :eventBus="eventBus"
           :hideWriteOnly="true"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"

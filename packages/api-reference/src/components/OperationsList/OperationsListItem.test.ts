@@ -1,16 +1,10 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import OperationsListItem from './OperationsListItem.vue'
-
-// Mock the dependencies
-const mockScrollToOperation = vi.fn()
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: () => ({
-    scrollToOperation: mockScrollToOperation,
-  }),
-}))
 
 vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
@@ -46,29 +40,27 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation({ path: '/api/users' })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.text()).toContain('/api/users')
-      expect(wrapper.find('a').attributes('href')).toBe('#test-operation-1')
     })
 
     it('renders webhook with title when webhook has no path property', () => {
       const webhook = createMockWebhook({ title: 'User Created Webhook' })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.text()).toContain('User Created Webhook')
-      expect(wrapper.find('a').attributes('href')).toBe('#test-webhook-1')
     })
 
     it('applies correct CSS classes', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('li.contents').exists()).toBe(true)
@@ -82,7 +74,7 @@ describe('OperationsListItem', () => {
       const webhook = createMockWebhook()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(true)
@@ -92,7 +84,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(false)
@@ -103,7 +95,7 @@ describe('OperationsListItem', () => {
 
       webhooks.forEach((webhook) => {
         const wrapper = mount(OperationsListItem, {
-          props: { operation: webhook },
+          props: { operation: webhook, eventBus: null },
         })
 
         expect(wrapper.text()).toContain(webhook.method)
@@ -120,7 +112,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation({ isDeprecated: true })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(true)
@@ -133,7 +125,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(false)
@@ -146,7 +138,7 @@ describe('OperationsListItem', () => {
       const webhook = createMockWebhook()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(false)
@@ -160,7 +152,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation, isCollapsed: false },
+        props: { operation, isCollapsed: false, eventBus: null },
       })
 
       expect(wrapper.find('.sr-only').exists()).toBe(false)
@@ -168,30 +160,51 @@ describe('OperationsListItem', () => {
   })
 
   describe('interactions', () => {
-    it('calls scrollToOperation when link is clicked', async () => {
+    it('emits scrollToId event when link is clicked', async () => {
       const operation = createMockOperation()
+      const eventBus = createWorkspaceEventBus()
+      const testHandler = vi.fn()
+      eventBus.on('scroll-to:nav-item', testHandler)
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: {
+          operation,
+          eventBus,
+        },
+        attachTo: document.body,
       })
 
-      await wrapper.find('a').trigger('click')
-      expect(mockScrollToOperation).toHaveBeenCalledWith(operation.id, true)
+      const link = wrapper.find('a.endpoint')
+      expect(link.exists()).toBe(true)
+      await link.trigger('click')
+      await nextTick()
+
+      expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
+      wrapper.unmount()
     })
 
     it('prevents default link behavior', async () => {
       const operation = createMockOperation()
 
+      const eventBus = createWorkspaceEventBus()
+      const testHandler = vi.fn()
+      eventBus.on('scroll-to:nav-item', testHandler)
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: {
+          operation,
+          eventBus,
+        },
+        attachTo: document.body,
       })
 
-      const link = wrapper.find('a')
-      expect(link.attributes('href')).toBe('#test-operation-1')
+      const link = wrapper.find('a.endpoint')
 
       // The click handler should prevent default navigation
       await link.trigger('click')
-      // If preventDefault wasn't called, the test would fail due to navigation
+      // Verify the event was emitted (indicating preventDefault was called)
+      expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
+
+      wrapper.unmount()
     })
   })
 
@@ -206,7 +219,7 @@ describe('OperationsListItem', () => {
 
       operations.forEach((operation) => {
         const wrapper = mount(OperationsListItem, {
-          props: { operation },
+          props: { operation, eventBus: null },
         })
 
         expect(wrapper.text()).toContain(operation.method)

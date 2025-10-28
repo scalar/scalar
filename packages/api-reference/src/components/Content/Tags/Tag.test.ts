@@ -1,17 +1,8 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import Tag from './Tag.vue'
-
-// Mock the useSidebar hook
-vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
-  useSidebar: () => ({
-    collapsedSidebarItems: {
-      'test-tag': false, // This makes isCollapsed return false, so slot content is rendered
-    },
-  }),
-}))
 
 describe('Tag', () => {
   const mockTag: TraversedTag = {
@@ -28,10 +19,12 @@ describe('Tag', () => {
     it('renders ClassicLayout when layout is classic', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
           isLoading: false,
+          isCollapsed: false,
           onShowMore: undefined,
         },
       })
@@ -44,9 +37,11 @@ describe('Tag', () => {
     it('renders ModernLayout when layout is modern', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: true,
+          isCollapsed: false,
           isLoading: false,
           onShowMore: undefined,
         },
@@ -62,8 +57,10 @@ describe('Tag', () => {
     it('passes correct props to ClassicLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
+          isCollapsed: false,
           moreThanOneTag: true,
           isLoading: false,
           onShowMore: undefined,
@@ -77,8 +74,10 @@ describe('Tag', () => {
     it('passes correct props to ModernLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
+          isCollapsed: false,
           moreThanOneTag: false,
           isLoading: false,
           onShowMore: undefined,
@@ -95,9 +94,11 @@ describe('Tag', () => {
     it('renders slot content in ClassicLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
+          isCollapsed: false,
           isLoading: false,
           onShowMore: undefined,
         },
@@ -113,10 +114,12 @@ describe('Tag', () => {
     it('renders slot content in ModernLayout', () => {
       const wrapper = mount(Tag, {
         props: {
+          eventBus: null,
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: false, // Set to false so slot is rendered
           isLoading: false,
+          isCollapsed: false,
           onShowMore: undefined,
         },
         slots: {

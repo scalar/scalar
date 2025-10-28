@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -8,6 +9,7 @@ const { name, header, breadcrumb } = defineProps<{
   header: HeaderObject
   name: string
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
 }>()
@@ -17,6 +19,7 @@ const { name, header, breadcrumb } = defineProps<{
     v-if="'schema' in header && header.schema"
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :description="header.description"
+    :eventBus="eventBus"
     :name="name"
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,

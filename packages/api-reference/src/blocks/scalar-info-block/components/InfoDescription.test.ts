@@ -1,0 +1,48 @@
+import { ScalarMarkdown } from '@scalar/components'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+
+import InfoDescription from './InfoDescription.vue'
+
+describe('InfoDescription', () => {
+  it('renders nothing when no description is provided', () => {
+    const wrapper = mount(InfoDescription)
+    expect(wrapper.find('.introduction-description').exists()).toBe(false)
+  })
+
+  it('renders markdown content when description is provided', () => {
+    const wrapper = mount(InfoDescription, {
+      props: {
+        eventBus: null,
+        description: '# Hello World',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
+      },
+    })
+    expect(wrapper.findComponent(ScalarMarkdown).exists()).toBe(true)
+    expect(wrapper.find('.introduction-description').exists()).toBe(true)
+  })
+
+  it('splits content into sections', () => {
+    const wrapper = mount(InfoDescription, {
+      props: {
+        eventBus: null,
+        description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
+      },
+    })
+    const sections = wrapper.findAllComponents(ScalarMarkdown)
+    expect(sections).toHaveLength(4) // 2 headings + 2 content sections
+  })
+
+  it('prefixes the heading section id', () => {
+    const wrapper = mount(InfoDescription, {
+      props: {
+        eventBus: null,
+        description: '# Test Heading',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
+      },
+    })
+    const observer = wrapper.find('[id="description/test-heading"]')
+    expect(observer.exists()).toBe(true)
+  })
+})

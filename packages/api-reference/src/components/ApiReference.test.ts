@@ -31,6 +31,13 @@ beforeEach(() => {
   mockLocation.search = ''
   mockLocation.hash = ''
 
+  vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
+    useBreakpoints: () => ({
+      mediaQueries: {
+        lg: { value: true },
+      },
+    }),
+  }))
   vi.stubGlobal('location', mockLocation)
 })
 
@@ -60,8 +67,8 @@ describe('multiple configurations', () => {
     // Wait for the API reference to be rendered
     await wrapper.vm.$nextTick()
 
-    // Check whether it renders the ApiReferenceLayout component only once
-    expect(wrapper.findAllComponents({ name: 'ApiReferenceLayout' })).toHaveLength(1)
+    // Check whether it renders the Content component only once
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
     wrapper.unmount()
   })
 
@@ -85,8 +92,8 @@ describe('multiple configurations', () => {
     // Wait for the API reference to be rendered
     await wrapper.vm.$nextTick()
 
-    // Check whether it renders the ApiReferenceLayout component
-    expect(wrapper.findAllComponents({ name: 'ApiReferenceLayout' })).toHaveLength(1)
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
     const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
     // Check whether it doesn't render the select
@@ -123,8 +130,8 @@ describe('multiple configurations', () => {
     // Wait for the API reference to be rendered
     await wrapper.vm.$nextTick()
 
-    // Check whether it renders the ApiReferenceLayout component
-    expect(wrapper.findAllComponents({ name: 'ApiReferenceLayout' })).toHaveLength(1)
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
     const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
     // Ensure the select is rendered
@@ -164,8 +171,8 @@ describe('multiple configurations', () => {
     await flushPromises()
     await wrapper.vm.$nextTick()
 
-    // Check whether it renders the ApiReferenceLayout component
-    expect(wrapper.findAllComponents({ name: 'ApiReferenceLayout' })).toHaveLength(1)
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
 
     // Check whether it renders the select
     const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
@@ -235,15 +242,15 @@ describe('circular documents', () => {
     // await flushPromises()
     await wrapper.vm.$nextTick()
 
-    // Check whether it renders the ApiReferenceLayout component
-    expect(wrapper.findAllComponents({ name: 'ApiReferenceLayout' })).toHaveLength(1)
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
 
     // Verify the component doesn't crash or throw errors when processing circular references
     expect(wrapper.exists()).toBe(true)
 
     // Check that the component is still functional despite circular dependencies
-    const ApiReferenceLayout = wrapper.findComponent({ name: 'ApiReferenceLayout' })
-    expect(ApiReferenceLayout.exists()).toBe(true)
+    const Content = wrapper.findComponent({ name: 'Content' })
+    expect(Content.exists()).toBe(true)
 
     wrapper.unmount()
   })

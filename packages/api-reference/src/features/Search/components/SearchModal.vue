@@ -2,33 +2,22 @@
 import {
   ScalarModal,
   ScalarSearchInput,
-  ScalarSearchResultItem,
   ScalarSearchResultList,
   type ModalState,
 } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
-import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
-import {
-  ScalarIconBracketsCurly,
-  ScalarIconTag,
-  ScalarIconTerminalWindow,
-  ScalarIconTextAlignLeft,
-} from '@scalar/icons'
-import type { ScalarIconComponent } from '@scalar/icons/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import { lazyBus } from '@/components/Lazy'
-import { SidebarHttpBadge, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import { useSearchIndex } from '@/features/Search/hooks/useSearchIndex'
 
-import { useSearchIndex } from '../hooks/useSearchIndex'
-import type { EntryType, FuseData } from '../types'
+import SearchResult from './SearchResult.vue'
 
 const props = defineProps<{
   modalState: ModalState
-  document?: OpenApiDocument
+  document: OpenApiDocument | undefined
+  eventBus: WorkspaceEventBus
 }>()
 
 /** Base id for the search form */
@@ -37,137 +26,56 @@ const id = nanoid()
 const listboxId = `${id}-search-result`
 /** An id for the results instructions */
 const instructionsId = `${id}-search-instructions`
-/** Constructs and unique id for a given option */
-const getOptionId = (href: string) => `${id}${href}`
 
-const { items } = useSidebar()
+const { query, results } = useSearchIndex(() => props.document)
 
-const {
-  resetSearch,
-  selectedIndex,
-  selectedSearchResult,
-  searchResultsWithPlaceholderResults,
-  query,
-} = useSearchIndex(items, props.document)
+const selectedIndex = ref<number | undefined>(undefined)
 
-const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
-  heading: ScalarIconTextAlignLeft,
-  model: ScalarIconBracketsCurly,
-  operation: ScalarIconTerminalWindow,
-  tag: ScalarIconTag,
-  webhook: ScalarIconTerminalWindow,
-}
-
-const ENTRY_LABELS: { [x in EntryType]: string } = {
-  heading: 'Heading',
-  operation: 'Operation',
-  tag: 'Tag',
-  model: 'Model',
-  webhook: 'Webhook',
-}
-
-const searchModalRef = ref<HTMLElement | null>(null)
-
+/** Clear the query value when the modal is opened */
 watch(
   () => props.modalState.open,
   (open) => {
     if (open) {
-      resetSearch()
+      query.value = ''
     }
   },
 )
 
-const { setCollapsedSidebarItem } = useSidebar()
-
-// TODO: Does this work with custom slugs?
-const tagRegex = /#(tag\/[^/]*)/
-
-// Ensure we open the section
-function onSearchResultClick(result: FuseResult<FuseData>) {
-  // Determine the parent ID for sidebar navigation
-  let parentId = 'models'
-  const tagMatch = result.item.href.match(tagRegex)
-
-  if (tagMatch?.length && tagMatch.length > 1) {
-    parentId = tagMatch[1]
-  }
-  // Expand the corresponding sidebar item
-  setCollapsedSidebarItem(parentId, true)
-
-  // Extract the target ID from the href
-  const targetId = result.item.href.replace('#', '')
-
-  if (!document.getElementById(targetId)) {
-    const unsubscribe = lazyBus.on((ev) => {
-      if (ev.loaded === targetId) {
-        scrollToId(targetId)
-        unsubscribe()
-        props.modalState.hide()
-      }
-    })
-  } else {
-    scrollToId(targetId)
-    props.modalState.hide()
-  }
-}
-
-// Scroll to the currently selected result
-watch(selectedIndex, (index) => {
-  if (typeof index !== 'number') {
-    return
-  }
-
-  const newResult = searchResultsWithPlaceholderResults.value[index]
-  const optionId = getOptionId(newResult?.item.href)
-
-  document.getElementById(optionId)?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'nearest',
-  })
-})
-
 /** Keyboard navigation */
 const navigateSearchResults = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
-  const length = searchResultsWithPlaceholderResults.value.length
+  const length = results.value.length
 
   if (typeof selectedIndex.value === 'number') {
     // Ensures we loop around the array by using the remainder
-    const newIndex = (selectedIndex.value + offset + length) % length
-    selectedIndex.value = newIndex
+    selectedIndex.value = (selectedIndex.value + offset + length) % length
   } else {
     // If no index is selected, we select the first or last item depending on the direction
+
     selectedIndex.value = offset === -1 ? length - 1 : 0
   }
 }
 
+/** Handle the selection of a search result */
+function handleSelect(idx: number | undefined) {
+  if (typeof idx !== 'number' || !results.value[idx]) {
+    return
+  }
+
+  const result = results.value[idx]
+  props.modalState.hide()
+  props.eventBus.emit('scroll-to:nav-item', { id: result.item.id })
+}
+
 /**
- * Given just a #hash-name, we grab the full URL to be explicit to
- * handle edge cases of other framework routers resetting to base URL
- * on navigation
+ * Active descendant id for the search input
+ * NOTE: Result items MUST share this id for the aria-activedescendant attribute to work correctly
  */
-function getFullUrlFromHash(href: string) {
-  const newUrl = new URL(window.location.href)
+const activeDescendantId = computed(() => {
+  const selectedResult = results.value[selectedIndex.value ?? -1]
 
-  newUrl.hash = href
-
-  return newUrl.toString()
-}
-
-function onSearchResultEnter() {
-  if (!isDefined(selectedIndex.value)) {
-    return
-  }
-
-  const results = searchResultsWithPlaceholderResults.value
-
-  // Prevents the user from navigating if there are no results
-  if (results.length === 0) {
-    return
-  }
-
-  onSearchResultClick(results[selectedIndex.value])
-}
+  return selectedResult ? `search-result-${selectedResult.item.id}` : undefined
+})
 </script>
 <template>
   <ScalarModal
@@ -175,88 +83,35 @@ function onSearchResultEnter() {
     :state="modalState"
     variant="search">
     <div
-      ref="searchModalRef"
-      class="ref-search-container"
+      class="mb-0 flex flex-col"
       role="search">
       <ScalarSearchInput
         v-model="query"
-        :aria-activedescendant="
-          selectedSearchResult
-            ? getOptionId(selectedSearchResult.item.href)
-            : undefined
-        "
+        :aria-activedescendant="activeDescendantId"
         aria-autocomplete="list"
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
         role="combobox"
         @blur="selectedIndex = undefined"
         @keydown.down.stop.prevent="navigateSearchResults('down')"
-        @keydown.enter.stop.prevent="onSearchResultEnter"
+        @keydown.enter.stop.prevent="() => handleSelect(selectedIndex)"
         @keydown.up.stop.prevent="navigateSearchResults('up')" />
     </div>
     <ScalarSearchResultList
       :id="listboxId"
       aria-label="Reference Search Results"
-      class="ref-search-results custom-scroll"
-      :noResults="!searchResultsWithPlaceholderResults.length">
-      <ScalarSearchResultItem
-        v-for="(result, index) in searchResultsWithPlaceholderResults"
-        :id="getOptionId(result.item.href)"
-        :key="result.refIndex"
-        :href="getFullUrlFromHash(result.item.href)"
-        :icon="ENTRY_ICONS[result.item.type]"
-        :selected="selectedIndex === index"
-        @click="onSearchResultClick(result)"
-        @focus="selectedIndex = index">
-        <span
-          :class="{
-            deprecated:
-              result.item.entry.type === 'operation' &&
-              result.item.entry.isDeprecated,
-          }">
-          <span class="sr-only">
-            {{ ENTRY_LABELS[result.item.type] }}:&nbsp;
-            <template
-              v-if="
-                result.item.entry.type === 'operation' &&
-                result.item.entry.isDeprecated
-              ">
-              (Deprecated)&nbsp;
-            </template>
-          </span>
-          {{ result.item.title }}
-          <span class="sr-only">,</span>
-        </span>
-        <template
-          v-if="
-            result.item.type !== 'webhook' &&
-            (result.item.method || result.item.path) &&
-            result.item.path !== result.item.title
-          "
-          #description>
-          <span class="inline-flex items-center gap-1">
-            <template v-if="result.item.type === 'operation'">
-              <SidebarHttpBadge
-                aria-hidden="true"
-                :method="result.item.method ?? 'get'" />
-              <span class="sr-only">
-                HTTP Method: {{ result.item.method ?? 'get' }}
-              </span>
-            </template>
-            <span class="sr-only">Path:&nbsp;</span>
-            {{ result.item.path }}
-          </span>
-        </template>
-        <template
-          v-else-if="result.item.description"
-          #description>
-          <span class="sr-only">Description:&nbsp;</span>
-          {{ result.item.description }}
-        </template>
-      </ScalarSearchResultItem>
+      class="custom-scroll p-1 pt-0"
+      :noResults="!results.length">
       <template #query>
         {{ query }}
       </template>
+      <SearchResult
+        v-for="(result, idx) in results"
+        :id="`search-result-${result.item.id}`"
+        :key="result.refIndex"
+        :isSelected="selectedIndex === idx"
+        :result="result"
+        @click.prevent="() => handleSelect(idx)" />
     </ScalarSearchResultList>
     <div
       :id="instructionsId"
@@ -275,17 +130,6 @@ function onSearchResultEnter() {
   </ScalarModal>
 </template>
 <style scoped>
-a {
-  text-decoration: none;
-}
-.ref-search-container {
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 0px;
-}
-.ref-search-results {
-  padding: 0 4px 4px 4px;
-}
 .ref-search-meta {
   background: var(--scalar-background-1);
   border-bottom-left-radius: var(--scalar-radius-lg);
@@ -297,8 +141,5 @@ a {
   display: flex;
   gap: 12px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.deprecated {
-  text-decoration: line-through;
 }
 </style>

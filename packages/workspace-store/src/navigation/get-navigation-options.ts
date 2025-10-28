@@ -1,6 +1,7 @@
 import { slug } from 'github-slugger'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
+import type { IdGenerator } from '@/schemas/navigation'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 /**
@@ -8,109 +9,109 @@ import type { DocumentConfiguration } from '@/schemas/workspace-specification/co
  * how IDs and slugs are generated for tags, headings, models, operations, and webhooks.
  * The returned options can be influenced by the provided DocumentConfiguration
  */
-export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSpecOptions => {
+export const getNavigationOptions = (documentName: string, config?: DocumentConfiguration): TraverseSpecOptions => {
   const referenceConfig = config?.['x-scalar-reference-config']
 
-  /**
-   * Generate a tag id.
-   * If a custom generateTagSlug function is provided in the referenceConfig, use it to generate the tag slug.
-   * Otherwise, fall back to using the default slug function from 'github-slugger' on the tag name.
-   */
-  const getTagIdDefault: TraverseSpecOptions['getTagId'] = (tag) => {
-    const generateTagSlug = referenceConfig?.generateTagSlug
-    if (generateTagSlug) {
-      return `tag/${generateTagSlug(tag)}`
-    }
-    return `tag/${slug(tag.name ?? '')}`
-  }
+  const generateId: IdGenerator = (props) => {
+    const documentId = `${slug(documentName)}`
 
-  /**
-   * Generate a heading id.
-   * If a custom generateHeadingSlug function is provided in the referenceConfig, use it to generate the heading slug.
-   * Otherwise, if the heading has a slug property, prefix it with 'description/'.
-   * If neither is available, return an empty string.
-   */
-  const getHeadingIdDefault: TraverseSpecOptions['getHeadingId'] = (heading) => {
-    const generateHeadingSlug = referenceConfig?.generateHeadingSlug
+    // -------- Default text id generation logic --------
+    if (props.type === 'text') {
+      if (referenceConfig?.generateHeadingSlug) {
+        return referenceConfig?.generateHeadingSlug({ slug: props.slug })
+      }
 
-    if (generateHeadingSlug) {
-      return `${generateHeadingSlug(heading)}`
+      if (props.slug) {
+        return `${documentId}/description/${props.slug}`
+      }
+
+      return `${documentId}/`
     }
 
-    if (heading.slug) {
-      return `description/${heading.slug}`
-    }
-    return ''
-  }
+    // -------- Default tag id generation logic --------
+    if (props.type === 'tag') {
+      if (referenceConfig?.generateTagSlug) {
+        return `${documentId}/tag/${referenceConfig.generateTagSlug(props.tag)}`
+      }
 
-  /**
-   * Generate a model id.
-   * If a custom generateModelSlug function is provided in the referenceConfig, use it to generate the model slug.
-   * If the model does not have a name, return 'models'.
-   * Otherwise, prefix with the tag (if provided) and use the default slug function from 'github-slugger' on the model name.
-   */
-  const getModelIdDefault: TraverseSpecOptions['getModelId'] = (model, parentTag) => {
-    const generateModelSlug = referenceConfig?.generateModelSlug
-
-    if (!model?.name) {
-      return 'models'
+      return `${documentId}/tag/${slug(props.tag.name ?? '')}`
     }
 
-    // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
-
-    if (generateModelSlug) {
-      return `${prefixTag}model/${generateModelSlug(model)}`
-    }
-    return `${prefixTag}model/${slug(model.name)}`
-  }
-
-  /**
-   * Generate an operation id.
-   * If a custom generateOperationSlug function is provided in the referenceConfig, use it to generate the operation slug.
-   * Otherwise, use the default format: <tagId>/<method><path>
-   */
-  const getOperationIdDefault: TraverseSpecOptions['getOperationId'] = (operation, parentTag) => {
-    const generateOperationSlug = referenceConfig?.generateOperationSlug
-    if (generateOperationSlug) {
-      return `${getTagId(parentTag)}/${generateOperationSlug({
-        path: operation.path,
-        operationId: operation.operationId,
-        method: operation.method,
-        summary: operation.summary,
+    // -------- Default operation id generation logic --------
+    if (props.type === 'operation') {
+      const tagId = `${generateId({
+        type: 'tag',
+        tag: props.parentTag.tag,
+        parentId: props.parentTag.id,
       })}`
+
+      if (referenceConfig?.generateOperationSlug) {
+        return `${tagId}/${referenceConfig.generateOperationSlug({
+          path: props.path,
+          operationId: props.operation.operationId,
+          method: props.method,
+          summary: props.operation.summary,
+        })}`
+      }
+
+      return `${tagId}/${props.method}${props.path}`
     }
 
-    return `${getTagId(parentTag)}/${operation.method}${operation.path}`
+    // -------- Default webhook id generation logic --------
+    if (props.type === 'webhook') {
+      const prefixTag = props.parentTag
+        ? `${generateId({
+            type: 'tag',
+            parentId: props.parentTag.id,
+            tag: props.parentTag.tag,
+          })}/`
+        : `${documentId}/`
+
+      if (referenceConfig?.generateWebhookSlug) {
+        return `${prefixTag}webhook/${referenceConfig.generateWebhookSlug({
+          name: props.name,
+          method: props.method,
+        })}`
+      }
+
+      return `${prefixTag}webhook/${props.method}/${slug(props.name)}`
+    }
+
+    // -------- Default model id generation logic --------
+    if (props.type === 'model') {
+      if (!props.name) {
+        return `${documentId}/models`
+      }
+
+      const prefixTag = props.parentTag
+        ? `${generateId({
+            type: 'tag',
+            parentId: props.parentTag.id,
+            tag: props.parentTag.tag,
+          })}/`
+        : `${documentId}/`
+
+      if (referenceConfig?.generateModelSlug) {
+        return `${prefixTag}model/${referenceConfig.generateModelSlug({
+          name: props.name,
+        })}`
+      }
+
+      return `${prefixTag}model/${slug(props.name)}`
+    }
+
+    if (props.type === 'example') {
+      return `${props.parentId}/example/${slug(props.name)}`
+    }
+
+    if (props.type === 'document') {
+      // -------- Default document id generation logic --------
+      return documentId
+    }
+
+    console.warn('[WARNING]: unhandled id generation for navigation item:', props)
+    return 'unknown-id'
   }
-
-  /**
-   * Generate a webhook id.
-   * If a custom generateWebhookSlug function is provided in the referenceConfig, use it to generate the webhook slug.
-   * If the webhook does not have a name, return 'webhooks'.
-   * Otherwise, prefix with the tag (if provided) and use the default slug function from 'github-slugger' on the webhook name.
-   */
-  const getWebhookIdDefault: TraverseSpecOptions['getWebhookId'] = (webhook, parentTag) => {
-    const generateWebhookSlug = referenceConfig?.generateWebhookSlug
-
-    if (!webhook?.name) {
-      return 'webhooks'
-    }
-
-    // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
-
-    if (generateWebhookSlug) {
-      return `${prefixTag}webhook/${generateWebhookSlug(webhook)}`
-    }
-    return `${prefixTag}webhook/${webhook.method}/${slug(webhook.name)}`
-  }
-
-  const getHeadingId = referenceConfig?.getHeadingId ?? getHeadingIdDefault
-  const getModelId = referenceConfig?.getModelId ?? getModelIdDefault
-  const getOperationId = referenceConfig?.getOperationId ?? getOperationIdDefault
-  const getWebhookId = referenceConfig?.getWebhookId ?? getWebhookIdDefault
-  const getTagId = referenceConfig?.getTagId ?? getTagIdDefault
 
   const hideModels = referenceConfig?.features?.showModels === false
   const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter
@@ -120,10 +121,6 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
     hideModels,
     operationsSorter,
     tagsSorter,
-    getHeadingId,
-    getModelId,
-    getOperationId,
-    getWebhookId,
-    getTagId,
+    generateId,
   }
 }

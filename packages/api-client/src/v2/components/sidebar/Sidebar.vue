@@ -32,7 +32,7 @@ const sidebarState = computed(() => {
       id: name,
       type: 'document',
       title: doc.info.title ?? name,
-      children: doc['x-scalar-navigation'] ?? [],
+      children: doc['x-scalar-navigation']?.children ?? [],
     }),
   )
 
@@ -70,8 +70,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     <template #default>
       <ScalarSidebar
         class="flex w-auto flex-1"
+        :isExpanded="sidebarState.isExpanded"
+        :isSelected="sidebarState.isSelected"
+        :items="sidebarState.items.value"
         layout="client"
-        :state="sidebarState"
         @reorder="(...args) => log('reorder', ...args)">
         <template #search>
           <div

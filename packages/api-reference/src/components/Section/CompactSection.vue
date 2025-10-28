@@ -1,57 +1,43 @@
 <script setup lang="ts">
-import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { nextTick, ref, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { Section } from '@/components/Section'
-import { useNavState } from '@/hooks/useNavState'
 
-const { id, defaultOpen = false } = defineProps<{
+import Section from './Section.vue'
+
+const { id } = defineProps<{
   id: string
   label?: string
-  /** Control the initial open state of the section */
-  defaultOpen?: boolean
+  modelValue: boolean
 }>()
-const { hash } = useNavState()
 
-const open = ref(defaultOpen)
-
-watch(
-  hash,
-  async (newHash) => {
-    if (id === newHash && !open.value) {
-      open.value = true
-      await nextTick()
-      scrollToId(id)
-    }
-  },
-  { immediate: true },
-)
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+  (e: 'copyAnchorUrl'): void
+}>()
 </script>
 <template>
   <div class="collapsible-section">
     <button
       :id="id"
       :aria-controls="id"
-      :aria-expanded="open"
+      :aria-expanded="modelValue"
       class="collapsible-section-trigger"
-      :class="{ 'collapsible-section-trigger-open': open }"
+      :class="{ 'collapsible-section-trigger-open': modelValue }"
       type="button"
-      @click="open = !open">
+      @click="emit('update:modelValue', !modelValue)">
       <ScalarIconCaretRight
         class="size-3 transition-transform duration-100"
-        :class="{ 'rotate-90': open }"
+        :class="{ 'rotate-90': modelValue }"
         weight="bold" />
       <Anchor
-        :id="id"
-        class="collapsible-section-header">
+        class="collapsible-section-header"
+        @copyAnchorUrl="() => emit('copyAnchorUrl')">
         <slot name="heading" />
       </Anchor>
     </button>
     <Section
-      v-if="open"
-      :id="id"
+      v-if="modelValue"
       class="collapsible-section-content"
       :label="label">
       <slot />
@@ -89,9 +75,7 @@ watch(
 .collapsible-section-content {
   padding: 0;
   margin: 0;
-  scroll-margin-top: 140px;
-}
-.collapsible-section:not(:last-child) .collapsible-section-content {
   margin-bottom: 10px;
+  scroll-margin-top: 140px;
 }
 </style>

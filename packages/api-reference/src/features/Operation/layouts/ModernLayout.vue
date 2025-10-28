@@ -12,6 +12,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -49,6 +50,7 @@ const { path, operation, method } = defineProps<{
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus | null
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -72,7 +74,8 @@ const labelId = useId()
     :id="id"
     :aria-labelledby="labelId"
     :label="operationTitle"
-    tabindex="-1">
+    tabindex="-1"
+    @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
     <SectionContent>
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
@@ -109,7 +112,8 @@ const labelId = useId()
       </div>
       <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader>
-          <Anchor :id="id">
+          <Anchor
+            @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
@@ -129,6 +133,7 @@ const labelId = useId()
               withImages />
             <OperationParameters
               :breadcrumb="[id]"
+              :eventBus="eventBus"
               :options="{
                 orderRequiredPropertiesFirst:
                   options.orderRequiredPropertiesFirst,
@@ -139,9 +144,9 @@ const labelId = useId()
                 operation.parameters as ParameterObject[]
               "
               :requestBody="getResolvedRef(operation.requestBody)" />
-            <!-- TODO: why collapsableItems being set here? -->
             <OperationResponses
               :breadcrumb="[id]"
+              :eventBus="eventBus"
               :options="{
                 collapsableItems: !options.expandAllResponses,
                 orderRequiredPropertiesFirst:
@@ -156,6 +161,7 @@ const labelId = useId()
                 v-if="operation.callbacks"
                 :callbacks="operation.callbacks"
                 class="mt-6"
+                :eventBus="eventBus"
                 :method="method"
                 :options="options"
                 :path="path" />

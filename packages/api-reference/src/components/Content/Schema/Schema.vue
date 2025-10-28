@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -47,6 +48,8 @@ const {
   discriminator?: DiscriminatorObject
   /** Breadcrumb for the schema */
   breadcrumb?: string[]
+  /** Event bus emitting actions */
+  eventBus: WorkspaceEventBus | null
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
 }>()
@@ -63,7 +66,7 @@ const shouldShowToggle = computed((): boolean => {
 const schemaDescription = computed(() => {
   // For the request body we want to show the base description or the first allOf schema description
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return schema.description || schema.allOf[0].description
+    return schema.description || schema.allOf[0]?.description || null
   }
 
   // Don't show description if there's no description or it's not a string
@@ -184,18 +187,19 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :breadcrumb
             :compact
             :discriminator
+            :eventBus="eventBus"
             :hideHeading
             :hideModelNames
             :level="level + 1"
             :options
             :schema />
-
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
               v-if="schema"
               :breadcrumb
               :compact
+              :eventBus="eventBus"
               :hideHeading
               :hideModelNames
               :level

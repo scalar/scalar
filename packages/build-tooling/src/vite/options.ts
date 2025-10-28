@@ -23,7 +23,10 @@ export function createViteBuildOptions<
 >(props: {
   entry: LibraryOptions['entry']
   pkgFile?: Record<string, any>
-  options?: Partial<T>
+  options?: Partial<Omit<T, 'lib' | 'rollupOptions'>> & {
+    lib?: Partial<T['lib']>
+    rollupOptions?: T['rollupOptions']
+  }
 }): {
   outDir: string
   lib: {
@@ -57,7 +60,7 @@ export function createViteBuildOptions<
     external.push(...Object.keys(pkgFile.devDependencies))
   }
   if ('peerDependencies' in pkgFile) {
-    external.push(...Object.keys(pkgFile.peerDependencies))
+    external.push(...Object.keys(pkgFile.peerDependencies as Record<string, string>))
   }
 
   return {
@@ -93,7 +96,7 @@ export function createViteBuildOptions<
         dir: './dist',
       },
       /** Do not bundle any dependencies by default. */
-      external: external.map((packageName) => new RegExp(`^${packageName}(/.*)?`)),
+      external: external.map((packageName: string) => new RegExp(`^${packageName}(/.*)?`)),
     },
   }
 }

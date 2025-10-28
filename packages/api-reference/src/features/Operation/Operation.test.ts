@@ -1,13 +1,10 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
 
@@ -18,18 +15,6 @@ vi.mock('@scalar/api-client/store', () => ({
   useWorkspace: () => ({
     securitySchemes: [],
   }),
-}))
-
-// Mock the discriminator hook
-vi.mock('@/hooks/useOperationDiscriminator', () => ({
-  useOperationDiscriminator: () => ({
-    handleDiscriminatorChange: vi.fn(),
-  }),
-}))
-
-// Mock the sidebar provider
-vi.mock('@/v2/blocks/scalar-sidebar-block/hooks/useSidebar', () => ({
-  useSidebar: () => createMockSidebar({}),
 }))
 
 const clientOptions = [
@@ -48,8 +33,6 @@ const clientOptions = [
     ],
   },
 ] as ClientOptionGroup[]
-
-const mockCollection = collectionSchema.parse({})
 
 const createDocumentWithOperationId = () =>
   coerceValue(OpenAPIDocumentSchema, {
@@ -81,8 +64,10 @@ const mountOperationWithConfig = (
       security: doc.security,
       server: undefined,
       getSecurityScheme: () => [],
-      ...config,
+      isCollapsed: false,
+      eventBus: null,
       xScalarDefaultClient: 'c/libcurl',
+      ...config,
       options: {
         layout: 'modern',
         isWebhook: false,

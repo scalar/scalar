@@ -2,52 +2,59 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedEntry,
+  TraversedModels,
   TraversedOperation,
+  TraversedSchema,
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
 import type {
+  ComponentsObject,
   PathsObject,
   SecurityRequirementObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
 
-import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
+import Model from '@/components/Content/Models/Model.vue'
+import ModelTag from '@/components/Content/Models/ModelTag.vue'
 import { Tag } from '@/components/Content/Tags'
-import { Lazy } from '@/components/Lazy'
+import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 const {
   level = 0,
   entries,
-  rootIndex,
   paths,
   webhooks,
   security,
-  hash,
 } = defineProps<{
   level?: number
-  hash: string
-  rootIndex: number
   entries: TraversedEntry[]
   /** The path entries from the document `document.paths` */
   paths: PathsObject
   /** The webhook path entries from the document `document.webhooks` */
   webhooks: PathsObject
+  /** The schema entries from the document `document.components.schemas` */
+  schemas: ComponentsObject['schemas']
   /** The security requirements from the document `document.security` */
   security: SecurityRequirementObject[] | undefined
   activeServer: Server | undefined
   getSecuritySchemes: SecuritySchemeGetter
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** Used to determine if an entry is collapsed */
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus | null
   options: {
     layout: 'classic' | 'modern'
     showOperationId: boolean | undefined
     hideTestRequestButton: boolean | undefined
     expandAllResponses: boolean | undefined
+    expandAllModelSections: boolean | undefined
     clientOptions: ClientOptionGroup[]
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -65,7 +72,7 @@ const isTagGroup = (
 const isTag = (
   entry: TraversedEntry,
 ): entry is TraversedTag & { isGroup: false } =>
-  entry['type'] === 'tag' && !isTagGroup(entry)
+  entry['type'] === 'tag' && !isTagGroup(entry) && entry.id !== 'models'
 
 const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
   entry['type'] === 'operation'
@@ -73,114 +80,130 @@ const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
 const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   entry['type'] === 'webhook'
 
-const isRootLevel = computed(() => level === 0)
+/** Models are special form of tag entry */
+const isModelsTag = (entry: TraversedEntry): entry is TraversedModels =>
+  entry['type'] === 'models'
 
-/** The index of the current entry */
-const currentIndex = computed(() => {
-  if (isRootLevel.value) {
-    return rootIndex
-  }
-
-  return getCurrentIndex(hash, entries)
-})
-
-/**
- * Check if the entry should be lazy loaded
- * We care more about the previous entries so we track those
- */
-const isLazy = (entry: TraversedEntry, index: number) => {
-  // Don't be lazy if we are a tag group
-  if (isTagGroup(entry)) {
-    return null
-  }
-
-  // Make all previous entries lazy
-  if (index < currentIndex.value) {
-    return 'prev'
-  }
-
-  // We make the next two siblings not lazy
-  if (index > currentIndex.value + 2) {
-    return 'after'
-  }
-
-  return null
-}
+const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
+  entry['type'] === 'model'
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   return isWebhook(entry) ? webhooks[entry.name] : paths[entry.path]
 }
-
-defineExpose({
-  currentIndex,
-  isLazy,
-})
 </script>
 
 <template>
+  <!-- The key must be joined with the layout to force a re-render when the layout changes -->
+  <!-- Without this we get a timing issue where the lazy bus is reset and the element is not rendered -->
   <Lazy
-    v-for="(entry, index) in entries"
+    v-for="entry in entries"
     :id="entry.id"
-    :key="entry.id"
-    :isLazy="Boolean(isLazy(entry, index))"
-    :prev="isLazy(entry, index) === 'prev'">
-    <template v-if="isOperation(entry) || isWebhook(entry)">
-      <!-- Operation or Webhook -->
-      <SectionContainer :omit="!isRootLevel">
-        <Operation
-          :id="entry.id"
-          :getSecurityScheme="getSecuritySchemes"
-          :method="entry.method"
-          :options="{
-            ...options,
-            isWebhook: isWebhook(entry),
-          }"
-          :path="isWebhook(entry) ? entry.name : entry.path"
-          :pathValue="getPathValue(entry)"
-          :security="security"
-          :server="activeServer"
-          :xScalarDefaultClient="xScalarDefaultClient" />
-      </SectionContainer>
-    </template>
+    :key="`${entry.id}-${options.layout}`">
+    <!-- Operation or Webhook -->
+    <SectionContainer
+      v-if="isOperation(entry) || isWebhook(entry)"
+      :omit="level !== 0">
+      <Operation
+        :id="entry.id"
+        :eventBus="eventBus"
+        :getSecurityScheme="getSecuritySchemes"
+        :isCollapsed="!expandedItems[entry.id]"
+        :method="entry.method"
+        :options="{
+          ...options,
+          isWebhook: isWebhook(entry),
+        }"
+        :path="isWebhook(entry) ? entry.name : entry.path"
+        :pathValue="getPathValue(entry)"
+        :security="security"
+        :server="activeServer"
+        :xScalarDefaultClient="xScalarDefaultClient" />
+    </SectionContainer>
 
     <!-- Webhook Group or Tag -->
-    <template v-else-if="isTag(entry)">
-      <Tag
-        :isLoading="false"
-        :layout="options.layout"
-        :moreThanOneTag="entries.filter(isTag).length > 1"
-        :tag="entry">
-        <template v-if="'children' in entry && entry.children?.length">
-          <TraversedEntry
-            :activeServer
-            :entries="entry.children"
-            :getSecuritySchemes="getSecuritySchemes"
-            :hash="hash"
-            :level="level + 1"
-            :options
-            :paths="paths"
-            :rootIndex
-            :security="security"
-            :webhooks="webhooks"
-            :xScalarDefaultClient="xScalarDefaultClient" />
-        </template>
-      </Tag>
-    </template>
+    <Tag
+      v-else-if="isTag(entry)"
+      :eventBus="eventBus"
+      :isCollapsed="!expandedItems[entry.id]"
+      :isLoading="false"
+      :layout="options.layout"
+      :moreThanOneTag="entries.filter(isTag).length > 1"
+      :tag="entry">
+      <template v-if="'children' in entry && entry.children?.length">
+        <TraversedEntry
+          :activeServer
+          :entries="entry.children"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :getSecuritySchemes="getSecuritySchemes"
+          :level="level + 1"
+          :options
+          :paths="paths"
+          :schemas="schemas"
+          :security="security"
+          :webhooks="webhooks"
+          :xScalarDefaultClient="xScalarDefaultClient">
+        </TraversedEntry>
+      </template>
+    </Tag>
 
-    <template v-else-if="isTagGroup(entry)">
-      <!-- Tag Group -->
+    <!-- Tag Group -->
+    <TraversedEntry
+      v-else-if="isTagGroup(entry)"
+      :activeServer
+      :entries="entry.children || []"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :getSecuritySchemes="getSecuritySchemes"
+      :level="level + 1"
+      :options
+      :paths="paths"
+      :schemas="schemas"
+      :security="security"
+      :webhooks="webhooks"
+      :xScalarDefaultClient="xScalarDefaultClient">
+    </TraversedEntry>
+
+    <!-- Models -->
+    <ModelTag
+      v-else-if="isModelsTag(entry) && schemas"
+      :id="entry.id"
+      :eventBus="eventBus"
+      :isCollapsed="!expandedItems[entry.id]"
+      :options="{
+        layout: options.layout,
+        expandAllModelSections: options.expandAllModelSections,
+        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+      }">
       <TraversedEntry
         :activeServer
         :entries="entry.children || []"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
         :getSecuritySchemes="getSecuritySchemes"
-        :hash="hash"
         :level="level + 1"
         :options
         :paths="paths"
-        :rootIndex
+        :schemas="schemas"
         :security="security"
         :webhooks="webhooks"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </template>
+        :xScalarDefaultClient="xScalarDefaultClient">
+      </TraversedEntry>
+    </ModelTag>
+
+    <Model
+      v-else-if="isModel(entry) && schemas"
+      :id="entry.id"
+      :eventBus="eventBus"
+      :isCollapsed="!expandedItems[entry.id]"
+      :name="entry.name"
+      :options="{
+        layout: options.layout,
+        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+      }"
+      :schema="getResolvedRef(schemas[entry.name])">
+    </Model>
   </Lazy>
 </template>

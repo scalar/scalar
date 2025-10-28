@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
+import {
+  ScalarIconButton,
+  ScalarSidebarSearchButton,
+  useModal,
+} from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import SearchModal from './SearchModal.vue'
 
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
+  forceIcon?: boolean
   searchHotKey?: string
   hideModels?: boolean
   document?: OpenApiDocument
+  eventBus: WorkspaceEventBus
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
@@ -30,12 +38,11 @@ const handleHotKey = (e: KeyboardEvent) => {
 
 watch(
   () => modalState.open,
-  (next, prev) => {
+  async (next, prev) => {
     // Return focus to the button when the modal is closed
     if (!next && prev) {
-      nextTick(() => {
-        button.value?.$el.focus()
-      })
+      await nextTick()
+      button.value?.$el.focus()
     }
   },
 )
@@ -51,7 +58,13 @@ function handleClick() {
 }
 </script>
 <template>
+  <ScalarIconButton
+    v-if="forceIcon"
+    :icon="ScalarIconMagnifyingGlass"
+    label="Search"
+    @click="handleClick" />
   <ScalarSidebarSearchButton
+    v-else
     ref="button"
     class="w-full"
     :class="$attrs.class"
@@ -74,8 +87,10 @@ function handleClick() {
       {{ searchHotKey }}
     </template>
   </ScalarSidebarSearchButton>
+
   <SearchModal
     :document
+    :eventBus="eventBus"
     :hideModels="hideModels"
     :modalState="modalState" />
 </template>

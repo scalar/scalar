@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
@@ -20,16 +21,22 @@ const { tag, headerId, isCollapsed } = defineProps<{
   headerId?: string
   isCollapsed?: boolean
   isLoading?: boolean
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 <template>
   <Section
     v-if="tag"
     :id="tag.id"
-    :label="tag.title?.toUpperCase()"
-    role="none">
+    role="none"
+    @intersecting="
+      () => eventBus?.emit('intersecting:nav-item', { id: tag.id })
+    ">
     <SectionHeader v-show="!isLoading">
-      <Anchor :id="tag.id">
+      <Anchor
+        @copyAnchorUrl="
+          () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
+        ">
         <SectionHeaderTag
           :id="headerId"
           :level="2">
@@ -47,7 +54,9 @@ const { tag, headerId, isCollapsed } = defineProps<{
             withImages />
         </SectionColumn>
         <SectionColumn>
-          <OperationsList :tag="tag" />
+          <OperationsList
+            :eventBus="eventBus"
+            :tag="tag" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

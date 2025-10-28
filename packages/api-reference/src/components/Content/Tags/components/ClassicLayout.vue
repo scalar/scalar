@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
@@ -9,16 +10,26 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 
-defineProps<{
+const { tag, isCollapsed } = defineProps<{
   tag: TraversedTag
+  isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 
 <template>
-  <SectionContainerAccordion class="tag-section">
+  <SectionContainerAccordion
+    class="tag-section"
+    :modelValue="!isCollapsed"
+    @update:modelValue="
+      (value) => eventBus?.emit('toggle:nav-item', { id: tag.id, open: value })
+    ">
     <template #title>
       <SectionHeader class="tag-name">
-        <Anchor :id="tag.id">
+        <Anchor
+          @copyAnchorUrl="
+            () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
+          ">
           <SectionHeaderTag :level="2">
             {{ tag.title }}
           </SectionHeaderTag>

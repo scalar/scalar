@@ -12,8 +12,7 @@ export default {}
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { cva } from '@scalar/use-hooks/useBindCx'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
@@ -52,9 +51,9 @@ const { cx } = useBindCx()
         v-if="icon"
         :icon="icon" />
       <ScalarIconCaretRight
+        v-else
         class="size-3"
-        weight="bold"
-        v-else />
+        weight="bold" />
     </slot>
     <span class="sr-only">
       <slot

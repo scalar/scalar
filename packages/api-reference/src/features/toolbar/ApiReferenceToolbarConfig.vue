@@ -30,12 +30,12 @@ const snippet = computed<string>(() => {
 
 const theme = computed<ThemeId>({
   get: () => overrides.value?.theme ?? configuration?.theme ?? 'default',
-  set: (theme) => (overrides.value = { ...overrides.value, theme }),
+  set: (t) => (overrides.value = { ...overrides.value, theme: t }),
 })
 
 const layout = computed<'modern' | 'classic'>({
   get: () => overrides.value?.layout ?? configuration?.layout ?? 'modern',
-  set: (layout) => (overrides.value = { ...overrides.value, layout }),
+  set: (l) => (overrides.value = { ...overrides.value, layout: l }),
 })
 </script>
 <template>
@@ -60,8 +60,8 @@ const layout = computed<'modern' | 'classic'>({
       <ScalarFormField is="div">
         <template #label>Layout Options</template>
         <ApiReferenceToolbarConfigLayoutOptions
-          :configuration
-          v-model="overrides" />
+          v-model="overrides"
+          :configuration />
       </ScalarFormField>
     </div>
   </ApiReferenceToolbarPopover>

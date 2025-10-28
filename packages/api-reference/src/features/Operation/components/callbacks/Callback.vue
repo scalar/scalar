@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretRight } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -13,7 +14,7 @@ const { method, name, url } = defineProps<{
   method: HttpMethodType
   name: string
   url: string
-  breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -44,6 +45,7 @@ const { method, name, url } = defineProps<{
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
+        :eventBus="eventBus"
         :options="options"
         :parameters="
           callback.parameters?.map((param) => getResolvedRef(param)) ?? []
@@ -53,6 +55,7 @@ const { method, name, url } = defineProps<{
       <!-- Responses -->
       <OperationResponses
         :collapsableItems="false"
+        :eventBus="eventBus"
         :options="{
           collapsableItems: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
@@ -65,7 +68,7 @@ const { method, name, url } = defineProps<{
 <style scoped>
 .callback-sticky-offset {
   top: var(--refs-viewport-offset, 0px);
-  z-index: 100;
+  /* z-index: 100; */
 }
 .callback-operation-container :deep(.request-body),
 .callback-operation-container :deep(.request-body-description),

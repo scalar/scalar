@@ -2,6 +2,7 @@
 import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -34,6 +35,8 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
+    /** Event bus emitting actions */
+    eventBus: WorkspaceEventBus | null
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
   }>(),
@@ -66,7 +69,9 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
  * Two-way computed property for the selected option.
  * Handles conversion between the selected index and the listbox option format.
  */
-const selectedOption = ref<ScalarListboxOption>(listboxOptions.value[0])
+const selectedOption = ref<ScalarListboxOption | undefined>(
+  listboxOptions.value[0],
+)
 
 /**
  * Humanize composition keyword name for display.
@@ -81,7 +86,7 @@ const humanizeType = (type: CompositionKeyword): string =>
 
 /** Inside the currently selected composition */
 const selectedComposition = computed(
-  () => composition.value[Number(selectedOption.value.id)].value,
+  () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
 </script>
 
@@ -93,6 +98,7 @@ const selectedComposition = computed(
       :breadcrumb="breadcrumb"
       :compact="compact"
       :discriminator="discriminator"
+      :eventBus="eventBus"
       :hideHeading="hideHeading"
       :level="level"
       :name="name"
@@ -132,6 +138,7 @@ const selectedComposition = computed(
           :breadcrumb="breadcrumb"
           :compact="compact"
           :discriminator="discriminator"
+          :eventBus="eventBus"
           :hideHeading="hideHeading"
           :level="level + 1"
           :name="name"

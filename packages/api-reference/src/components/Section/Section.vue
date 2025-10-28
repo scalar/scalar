@@ -1,30 +1,22 @@
 <script setup lang="ts">
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import { useNavState } from '@/hooks/useNavState'
+import { useTemplateRef } from 'vue'
 
-const props = defineProps<{
-  id?: string
-  label?: string
+import { useIntersection } from '@/hooks/use-intersection'
+
+const emit = defineEmits<{
+  (e: 'intersecting'): void
 }>()
 
-const { isIntersectionEnabled, replaceUrlState } = useNavState()
+const section = useTemplateRef<HTMLElement>('section')
 
-function handleScroll() {
-  if (!props.label || !isIntersectionEnabled.value) {
-    return
-  }
-
-  replaceUrlState(props.id ?? '')
-}
+useIntersection(section, () => emit('intersecting'))
 </script>
 <template>
-  <IntersectionObserver
-    is="section"
-    :id="id"
-    class="section"
-    @intersecting="handleScroll">
+  <section
+    ref="section"
+    class="section">
     <slot />
-  </IntersectionObserver>
+  </section>
 </template>
 
 <style scoped>

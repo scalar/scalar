@@ -2,54 +2,51 @@
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/spec'
-import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
+import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
-import IntroductionSection from '@/components/Content/IntroductionSection.vue'
-import { Models } from '@/components/Content/Models'
-import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
+import { AuthSelector } from '@/blocks/scalar-auth-selector-block'
+import { ClientSelector } from '@/blocks/scalar-client-selector-block'
+import { InfoBlock } from '@/blocks/scalar-info-block'
+import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
+import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
+import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
-import { useFreezing } from '@/hooks/useFreezing'
-import { useNavState } from '@/hooks/useNavState'
-import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
-import { InfoBlock } from '@/v2/blocks/scalar-info-block'
-import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
-import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
+import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
+import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
-const { options, document } = defineProps<{
-  contentId: string
+const { options, document, items } = defineProps<{
   activeServer: Server | undefined
+  infoSectionId: string
   document: WorkspaceDocument | undefined
   xScalarDefaultClient: Workspace['x-scalar-default-client']
   getSecuritySchemes: SecuritySchemeGetter
+  items: TraversedEntryType[]
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
   options: {
-    slug: string | undefined
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
     persistAuth: boolean
     showOperationId?: boolean | undefined
     hideTestRequestButton: boolean | undefined
     expandAllResponses?: boolean
-    hideModels: boolean | undefined
     expandAllModelSections: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
+    headingSlugGenerator: (heading: Heading) => string
   }
 }>()
-
-useFreezing()
 
 /**
  * Generate all client options so that it can be shared between the top client picker and the operations
@@ -63,20 +60,6 @@ const documentExtensions = computed(() => getXKeysFromObject(document))
 
 // Computed property to get all OpenAPI extension fields from the document's info object
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
-
-const { items } = useSidebar()
-const { hash } = useNavState()
-
-/** The index of the root entry */
-const rootIndex = computed(() =>
-  getCurrentIndex(hash.value, items.value.entries),
-)
-
-const models = computed<TraversedDescription | undefined>(() => {
-  const item = items.value.entries.find((i) => i.id === 'models')
-
-  return item && item.type === 'text' ? item : undefined
-})
 </script>
 <template>
   <SectionFlare />
@@ -85,16 +68,18 @@ const models = computed<TraversedDescription | undefined>(() => {
     <slot name="start" />
 
     <!-- Introduction -->
-    <IntroductionSection :showEmptyState="false">
+    <Lazy :id="infoSectionId">
       <InfoBlock
-        :id="contentId"
+        :id="infoSectionId"
         :documentExtensions
+        :eventBus="eventBus"
         :externalDocs="document?.externalDocs"
         :info="document?.info"
         :infoExtensions
         :layout="options.layout"
         :oasVersion="document?.['x-original-oas-version']"
         :options="{
+          headingSlugGenerator: options.headingSlugGenerator,
           documentDownloadType: options.documentDownloadType,
           layout: options.layout,
         }">
@@ -114,6 +99,10 @@ const models = computed<TraversedDescription | undefined>(() => {
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <AuthSelector
+                v-if="
+                  Object.keys(document?.components?.securitySchemes ?? {})
+                    .length
+                "
                 layout="reference"
                 :persistAuth="options.persistAuth"
                 :server="activeServer"
@@ -139,44 +128,33 @@ const models = computed<TraversedDescription | undefined>(() => {
       <template #empty-state>
         <slot name="empty-state" />
       </template>
-    </IntroductionSection>
+    </Lazy>
 
     <!-- Render traversed operations and webhooks -->
-    <div v-if="items.entries.length">
-      <!-- Use recursive component for cleaner rendering -->
-      <TraversedEntry
-        :activeServer
-        :entries="items.entries"
-        :getSecuritySchemes="getSecuritySchemes"
-        :hash="hash"
-        :options="{
-          layout: options.layout ?? 'modern',
-          showOperationId: options.showOperationId,
-          hideTestRequestButton: options.hideTestRequestButton,
-          expandAllResponses: options.expandAllResponses,
-          clientOptions: clientOptions,
-          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        }"
-        :paths="document?.paths ?? {}"
-        :rootIndex
-        :security="document?.security"
-        :webhooks="document?.webhooks ?? {}"
-        :xScalarDefaultClient="xScalarDefaultClient" />
-    </div>
-
-    <!-- Models -->
-    <Models
-      v-if="!options.hideModels && document"
-      :hash
-      :models
+    <!-- Use recursive component for cleaner rendering -->
+    <TraversedEntry
+      v-if="items.length"
+      :activeServer
+      :entries="items"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :getSecuritySchemes="getSecuritySchemes"
       :options="{
         layout: options.layout ?? 'modern',
-        expandAllModelSections: options.expandAllModelSections,
+        showOperationId: options.showOperationId,
+        hideTestRequestButton: options.hideTestRequestButton,
+        expandAllResponses: options.expandAllResponses,
+        clientOptions: clientOptions,
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+        expandAllModelSections: options.expandAllModelSections,
       }"
-      :schemas="document?.components?.schemas" />
+      :paths="document?.paths ?? {}"
+      :schemas="document?.components?.schemas ?? {}"
+      :security="document?.security"
+      :webhooks="document?.webhooks ?? {}"
+      :xScalarDefaultClient="xScalarDefaultClient">
+    </TraversedEntry>
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
@@ -184,6 +162,10 @@ const models = computed<TraversedDescription | undefined>(() => {
       viewName="content.end" />
 
     <slot name="end" />
+    <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->
+    <div
+      v-if="!firstLazyLoadComplete"
+      class="h-dvh"></div>
   </div>
 </template>
 

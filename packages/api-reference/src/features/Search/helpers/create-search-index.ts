@@ -3,12 +3,12 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
-import { createParameterMap, extractRequestBody } from '@/libs/openapi'
+import { createParameterMap, extractRequestBody } from '@/helpers/openapi'
 
 /**
  * Create a search index from a list of entries.
  */
-export function createSearchIndex(entries: TraversedEntry[], document?: OpenApiDocument): FuseData[] {
+export function createSearchIndex(document: OpenApiDocument | undefined): FuseData[] {
   const index: FuseData[] = []
 
   /**
@@ -25,7 +25,7 @@ export function createSearchIndex(entries: TraversedEntry[], document?: OpenApiD
     })
   }
 
-  processEntries(entries)
+  processEntries(document?.['x-scalar-navigation']?.children ?? [])
 
   return index
 }
@@ -44,12 +44,12 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     index.push({
       type: 'operation',
       title: entry.title,
-      href: `#${entry.id}`,
-      id: operation.operationId,
+      id: entry.id,
       description: operation.description || '',
       method: entry.method,
       path: entry.path,
       body: body || '',
+      operationId: operation.operationId,
       entry,
     })
 
@@ -61,12 +61,13 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method]) ?? {}
 
     index.push({
+      id: entry.id,
       type: 'webhook',
       title: entry.title,
-      href: `#${entry.id}`,
       description: 'Webhook',
       method: entry.method,
       body: webhook.description || '',
+      operationId: webhook.operationId,
       entry,
     })
 
@@ -82,8 +83,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     index.push({
       type: 'model',
       title: entry.title,
-      href: `#${entry.id}`,
       description: 'Model',
+      id: entry.id,
       body: description,
       entry,
     })
@@ -92,11 +93,11 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   }
 
   // Models heading
-  if (entry.title === 'Models') {
+  if (entry.type === 'models') {
     index.push({
+      id: entry.id,
       type: 'heading',
       title: 'Models',
-      href: `#${entry.id}`,
       description: 'Heading',
       body: '',
       entry,
@@ -108,9 +109,9 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   // Tag
   if (entry.type === 'tag' && entry.isWebhooks === true) {
     index.push({
+      id: entry.id,
       type: 'heading',
       title: 'Webhooks',
-      href: `#${entry.id}`,
       description: 'Heading',
       body: '',
       entry,
@@ -121,8 +122,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
 
   if (entry.type === 'tag' && entry.isGroup === false) {
     index.push({
+      id: entry.id,
       title: entry.title,
-      href: `#${entry.id}`,
       description: entry.description || '',
       type: 'tag',
       body: '',
@@ -135,8 +136,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   // Tag group
   if (entry.type === 'tag' && entry.isGroup === true) {
     index.push({
+      id: entry.id,
       title: entry.title,
-      href: `#${entry.id}`,
       description: 'Tag Group',
       type: 'tag',
       body: '',
@@ -147,12 +148,12 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   }
 
   // Headings from info.description
-  if (entry.title) {
+  if (entry.type === 'text') {
     index.push({
+      id: entry.id,
       type: 'heading',
       title: entry.title ?? '',
-      description: 'Description',
-      href: `#${entry.id}`,
+      description: 'Heading',
       body: '',
       entry,
     })

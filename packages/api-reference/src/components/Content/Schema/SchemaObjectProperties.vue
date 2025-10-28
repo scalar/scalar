@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -20,6 +21,7 @@ const { schema, discriminator, options } = defineProps<{
   level?: number
   hideModelNames?: boolean
   breadcrumb?: string[]
+  eventBus: WorkspaceEventBus | null
   options: SchemaOptions
 }>()
 
@@ -93,6 +95,7 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames
       :level
@@ -110,6 +113,7 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames="hideModelNames"
       :level
@@ -124,6 +128,7 @@ const getAdditionalPropertiesValue = (
       :breadcrumb
       :compact
       :discriminator
+      :eventBus="eventBus"
       :hideHeading
       :hideModelNames
       :level

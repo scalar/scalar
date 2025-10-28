@@ -12,7 +12,8 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
         name="button"
         :open>
         <button
-          class="text-c-2 hover:text-c-1 hover:bg-b-2 flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none">
+          class="text-c-2 hover:text-c-1 hover:bg-b-2 flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none"
+          type="button">
           <slot name="label" />
           <ScalarIconCaretDown
             class="transition-transform"

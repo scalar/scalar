@@ -4,6 +4,7 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
@@ -13,6 +14,7 @@ import OperationsListItem from './OperationsListItem.vue'
 
 const { tag } = defineProps<{
   tag: TraversedTag
+  eventBus: WorkspaceEventBus | null
 }>()
 
 const operationsAndWebhooks = computed(() => {
@@ -38,6 +40,7 @@ const operationsAndWebhooks = computed(() => {
           <OperationsListItem
             v-for="operationOrWebhook in operationsAndWebhooks"
             :key="operationOrWebhook.id"
+            :eventBus="eventBus"
             :operation="operationOrWebhook" />
         </ul>
       </ScalarCardSection>

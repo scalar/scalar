@@ -10,6 +10,7 @@ describe('SchemaComposition', () => {
     it('displays schema title when name is not present', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -31,6 +32,7 @@ describe('SchemaComposition', () => {
     it('displays type when neither name nor title are present', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -51,6 +53,7 @@ describe('SchemaComposition', () => {
     it('humanizes array types with item type', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -76,6 +79,7 @@ describe('SchemaComposition', () => {
     it('humanizes composition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'object' }],
@@ -92,6 +96,7 @@ describe('SchemaComposition', () => {
     it('renders primitive type in composition panel', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
@@ -107,6 +112,7 @@ describe('SchemaComposition', () => {
     it('renders nullable schema in composition panel', async () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'anyOf',
           schema: {
             anyOf: [
@@ -134,6 +140,7 @@ describe('SchemaComposition', () => {
     it('renders const schema in composition panel', async () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -166,6 +173,7 @@ describe('SchemaComposition', () => {
     it('renders enum schema in composition panel', async () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -194,6 +202,7 @@ describe('SchemaComposition', () => {
     it('handles nested compositions with titles', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
+          eventBus: null,
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -207,13 +216,14 @@ describe('SchemaComposition', () => {
       })
 
       const tab = wrapper.findAll('.composition-selector-label')[0]
-      expect(tab.text()).toBe('Planet')
+      expect(tab?.text()).toBe('Planet')
     })
   })
 
   it('passes required array to Schema component for schema composition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
+        eventBus: null,
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
@@ -250,6 +260,7 @@ describe('SchemaComposition', () => {
   it('does not merge allOf schemas within anyOf composition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
+        eventBus: null,
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
@@ -301,6 +312,7 @@ describe('SchemaComposition', () => {
   it('does not merge allOf object schemas within anyOf composition', async () => {
     const wrapper = mount(SchemaComposition, {
       props: {
+        eventBus: null,
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
