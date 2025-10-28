@@ -9,7 +9,7 @@ const { type } = defineProps<{
 /** Different routes for workspace vs document */
 const routes = computed(() =>
   type === 'workspace'
-    ? ['overview', 'servers', 'environment', 'cookies', 'settings']
+    ? ['overview', 'environment', 'cookies', 'settings']
     : [
         'overview',
         'servers',

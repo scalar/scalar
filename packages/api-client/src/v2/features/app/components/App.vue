@@ -14,8 +14,9 @@ import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 
+import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import AppSidebar from './AppSidebar.vue'
@@ -53,6 +54,23 @@ const isSidebarOpen = ref(true)
 
 /** Workspace event bus */
 const eventBus = createWorkspaceEventBus()
+
+const route = useRoute()
+
+/** Grab the document from the slug */
+const document = computed(() => {
+  const slug = route.params.documentSlug as string
+
+  // In case of default we return the first document
+  if (slug === 'default') {
+    return Object.values(workspaceStore.workspace.documents)[0]
+  }
+
+  return workspaceStore.workspace.documents[slug]
+})
+
+/** Event handler */
+useWorkspaceClientEvents(eventBus, document, workspaceStore)
 </script>
 
 <template>
@@ -92,6 +110,7 @@ const eventBus = createWorkspaceEventBus()
           <keep-alive>
             <component
               :is="Component"
+              :document="document"
               :eventBus="eventBus"
               :layout="layout"
               :workspaceStore="workspaceStore" />
