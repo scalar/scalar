@@ -13,12 +13,15 @@ import { ref } from 'vue'
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import type { EnvVariable } from '@/store'
+import type { createStoreEvents } from '@/store/events'
 
 import Form from './Form.vue'
 
-defineProps<{
+const { events } = defineProps<{
   /** List of server objects */
   servers: ServerObject[]
+  /** Event bus */
+  events: ReturnType<typeof createStoreEvents>
 
   // ------- To be removed -------
   environment: Environment
@@ -26,7 +29,6 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'open:commandPalette', action?: 'addServer'): void
   (e: 'server:delete', payload: { serverUrl: string }): void
   (
     e: 'server:update:variable',
@@ -42,6 +44,10 @@ const selectedServer = ref<string | null>(null)
 const openDeleteModal = (serverUrl: string) => {
   selectedServer.value = serverUrl
   deleteModal.show()
+}
+
+const handleAddServer = () => {
+  events.commandPalette.emit({ commandName: 'Add Server' })
 }
 </script>
 
@@ -129,7 +135,7 @@ const openDeleteModal = (serverUrl: string) => {
         class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
         size="sm"
         variant="ghost"
-        @click="() => emit('open:commandPalette', 'addServer')">
+        @click="handleAddServer">
         <ScalarIconPlus />
         <span>Add Server</span>
       </ScalarButton>
