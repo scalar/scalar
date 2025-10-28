@@ -137,14 +137,13 @@ onMounted(() => {
 
   /** Restore the selected security scheme uids */
   try {
-    const selectedSchemeUids: (string | string[])[] = JSON.parse(
-      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ??
-        '[]',
+    const selectedSchemeUids: (string | string[])[] | undefined = JSON.parse(
+      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES),
     )
 
     // Convert back to uids
     const uids = selectedSchemeUids
-      .map((nameKeys) => {
+      ?.map((nameKeys) => {
         if (Array.isArray(nameKeys)) {
           return nameKeys.map((key) => dict[key]).filter(isDefined)
         }
@@ -152,10 +151,12 @@ onMounted(() => {
       })
       .filter(isDefined)
 
-    // Update selected schemes
-    emitCustomEvent(wrapperRef.value, 'scalar-select-security-schemes', {
-      uids: uids as string[],
-    })
+    if (uids) {
+      // Update selected schemes
+      emitCustomEvent(wrapperRef.value, 'scalar-select-security-schemes', {
+        uids: uids as string[],
+      })
+    }
   } catch {
     // Nothing to restore
   }
