@@ -79,10 +79,10 @@ paths: {}
   })
 
   it('throws an error', async () => {
-    await expect(async () => {
-      await validate(undefined, {
+    await expect(() =>
+      validate(undefined, {
         throwOnError: true,
-      })
-    }).rejects.toThrowError("Can't find JSON, YAML or filename in data")
+      }),
+    ).rejects.toThrowError("Can't find JSON, YAML or filename in data")
   })
 })
