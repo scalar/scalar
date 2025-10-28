@@ -56,6 +56,7 @@ if (IS_CDN) {
     reporter.push(
       ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
       ['json', { outputFile: 'playwright-results-cdn.json' }],
+      ['./test/utils/ci-reporter.ts'],
     )
   }
 }
