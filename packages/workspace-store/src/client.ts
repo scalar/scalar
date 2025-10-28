@@ -388,7 +388,7 @@ export type WorkspaceStore = {
    * @example
    * // Rebase a document and handle conflicts interactively
    * const result = await store.rebaseDocument({ name: 'api', fetch: customFetch });
-   * if (result) {
+   * if (result && result.ok) {
    *   // Present conflicts to the user and collect resolutions...
    *   await result.applyChanges(userResolvedConflicts);
    * }
