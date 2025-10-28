@@ -3,7 +3,7 @@ import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 import App from '@/v2/features/app/components/App.vue'
-import { ROUTES, type RouteProps } from '@/v2/features/app/helpers/routes'
+import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -43,7 +43,7 @@ export const createApiClientApp = (
   { layout = 'desktop' }: CreateApiClientOptions,
 ) => {
   // Pass in our initial props at the top level
-  const app = createApp(App, { workspaceStore, layout } satisfies RouteProps)
+  const app = createApp(App, { workspaceStore, layout })
 
   // Add the router
   app.use(createAppRouter(layout))

@@ -70,7 +70,7 @@ const document = computed(() => {
 })
 
 /** Event handler */
-useWorkspaceClientEvents(eventBus, document, workspaceStore)
+useWorkspaceClientEvents(eventBus, document)
 </script>
 
 <template>
