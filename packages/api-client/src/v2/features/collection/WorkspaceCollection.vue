@@ -16,7 +16,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
 import Tabs from './components/Tabs.vue'
 
-const { layout, workspaceStore, eventBus } = defineProps<RouteProps>()
+const { layout, eventBus } = defineProps<RouteProps>()
 
 const workspaceTitle = 'Workspace Title [replace with name]'
 </script>
@@ -44,8 +44,7 @@ const workspaceTitle = 'Workspace Title [replace with name]'
       <RouterView
         :eventBus="eventBus"
         :layout="layout"
-        type="workspace"
-        :workspaceStore="workspaceStore" />
+        type="workspace" />
     </div>
   </div>
 </template>
