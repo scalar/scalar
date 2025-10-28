@@ -55,13 +55,16 @@ describe('DocumentCollection', () => {
       },
     }
 
-    // Create a mock document with custom icon if provided
+    // Create a mock document with custom icon and title
     const document =
       documentConfig.hasDocument === false
         ? null
-        : documentConfig.icon
-          ? { 'x-scalar-client-config-icon': documentConfig.icon }
-          : {}
+        : {
+            info: {
+              title: documentConfig.title || 'Test Document',
+            },
+            ...(documentConfig.icon ? { 'x-scalar-client-config-icon': documentConfig.icon } : {}),
+          }
 
     // Push to a specific document route
     await router.push({

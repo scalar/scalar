@@ -58,16 +58,11 @@ const eventBus = createWorkspaceEventBus()
 const route = useRoute()
 
 /** Grab the document from the slug */
-const document = computed(() => {
-  const slug = route.params.documentSlug as string
-
-  // In case of default we return the first document
-  if (slug === 'default') {
-    return Object.values(workspaceStore.workspace.documents)[0] ?? null
-  }
-
-  return workspaceStore.workspace.documents[slug] ?? null
-})
+const document = computed(
+  () =>
+    workspaceStore.workspace.documents[route.params.documentSlug as string] ??
+    null,
+)
 
 /** Event handler */
 useWorkspaceClientEvents(eventBus, document)
