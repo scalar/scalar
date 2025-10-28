@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
@@ -285,5 +286,28 @@ describe('OperationBlock', () => {
     const updateFormRowPayload = { index: 1, payload: { key: 'x', value: 'y' } }
     body.vm.$emit('update:formRow', updateFormRowPayload)
     expect(wrapper.emitted('requestBody:update:formRow')?.[0]?.[0]).toEqual(updateFormRowPayload)
+  })
+
+  it('renders plugin component when provided', () => {
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...defaultProps,
+        plugins: [
+          {
+            components: {
+              request: defineComponent({
+                props: {
+                  operation: { type: Object, required: true },
+                  selectedExample: { type: String, required: false },
+                },
+                template: '<div>Plugin Request Component</div>',
+              }),
+            },
+          },
+        ],
+      },
+    })
+
+    expect(wrapper.text()).toContain('Plugin Request Component')
   })
 })
