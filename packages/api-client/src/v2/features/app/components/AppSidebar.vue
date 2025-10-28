@@ -16,7 +16,7 @@ const { documents, layout } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'open:commandPalette', action?: any): void
+  (e: 'open:commandPalette', action?: 'import'): void
   (e: 'click:workspace'): void
 }>()
 

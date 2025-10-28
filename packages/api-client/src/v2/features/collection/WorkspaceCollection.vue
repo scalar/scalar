@@ -1,12 +1,9 @@
 <script lang="ts">
 /**
- * Main "Collection" Page Component
+ * Document Collection Page
  *
- * Displays primary document/workspace editing and viewing interface, enabling users to:
- *   - Choose a document/workspace icon
- *   - Edit the document/workspace title
- *   - Navigate among Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
- *   - Interact with associated document/workspace features and settings for each tab
+ * Displays primary document editing and viewing interface, enabling users navigate among
+ * Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
  */
 export default {}
 </script>
