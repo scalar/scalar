@@ -359,6 +359,7 @@ describe('ResponseBlock', () => {
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
+        response: getDefaultResponse(),
         plugins: [
           {
             components: {
