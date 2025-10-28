@@ -1534,6 +1534,9 @@ describe('bundle', () => {
                 data: {
                   message: 'resolved value',
                 },
+                raw: JSON.stringify({
+                  message: 'resolved value',
+                }),
               }
             },
           },
@@ -1590,6 +1593,9 @@ describe('bundle', () => {
                 data: {
                   message: 'resolved value',
                 },
+                raw: JSON.stringify({
+                  message: 'resolved value',
+                }),
               }
             },
           },
@@ -1646,6 +1652,7 @@ describe('bundle', () => {
                 return {
                   ok: true,
                   data: input,
+                  raw: JSON.stringify(input),
                 }
               }
 
@@ -1654,6 +1661,9 @@ describe('bundle', () => {
                 data: {
                   message: 'resolved value',
                 },
+                raw: JSON.stringify({
+                  message: 'resolved value',
+                }),
               }
             },
           },
@@ -1718,6 +1728,9 @@ describe('bundle', () => {
                   data: {
                     message: 'resolved value',
                   },
+                  raw: JSON.stringify({
+                    message: 'resolved value',
+                  }),
                 }
               }
               return { ok: false }
@@ -2390,6 +2403,7 @@ describe('bundle', () => {
             return {
               ok: true,
               data: { message: 'Resolved document' },
+              raw: JSON.stringify({ message: 'Resolved document' }),
             }
           },
         }
@@ -2422,6 +2436,7 @@ describe('bundle', () => {
             return {
               ok: true,
               data: { message: 'Resolved document' },
+              raw: JSON.stringify({ message: 'Resolved document' }),
             }
           },
         }
@@ -2451,6 +2466,7 @@ describe('bundle', () => {
             return {
               ok: true,
               data: { message: 'Resolved document' },
+              raw: JSON.stringify({ message: 'Resolved document' }),
             }
           },
         }
@@ -2491,6 +2507,7 @@ describe('bundle', () => {
             return {
               ok: true,
               data: { message: 'Resolved document' },
+              raw: JSON.stringify({ message: 'Resolved document' }),
             }
           },
         }
@@ -2640,6 +2657,10 @@ describe('bundle', () => {
                     message: 'Resolved value',
                     'x-original-value': value,
                   },
+                  raw: JSON.stringify({
+                    message: 'Resolved value',
+                    'x-original-value': value,
+                  }),
                 }
               },
             },
