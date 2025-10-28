@@ -17,59 +17,58 @@ type WorkspaceStoreShape = {
  * Each logical group (meta, documents, etc) gets its own table keyed appropriately for efficient sub-document access.
  * Returns an object containing `meta`, `documents`, `originalDocuments`, `intermediateDocuments`, `overrides`,
  * `documentMeta`, `documentConfigs`, and `workspace` sections, each exposing a `setItem` method
- * for upserting records, and in the case of `workspace`, also `getItem` and `deleteItem`.
+ * for upsetting records, and in the case of `workspace`, also `getItem` and `deleteItem`.
  */
 export const createWorkspaceStorePersistence = async () => {
   // Create the database connection and setup all required tables for workspace storage.
-  const connection = createIndexDbConnection('scalar-workspace-store')
-
-  // Table for the main workspace entity (name, id).
-  const workspaceTable = await connection.createTable('workspace', {
-    schema: Type.Object({ id: Type.String(), name: Type.String() }),
-    key: ['id'],
+  const connection = await createIndexDbConnection({
+    name: 'scalar-workspace-store',
+    version: 1,
+    tables: {
+      workspace: {
+        schema: Type.Object({ id: Type.String(), name: Type.String() }),
+        index: ['id'],
+      },
+      meta: {
+        schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),
+        index: ['workspaceId'],
+      },
+      documents: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+      originalDocuments: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+      intermediateDocuments: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+      overrides: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+      documentMeta: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+      documentConfigs: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        index: ['workspaceId', 'documentName'],
+      },
+    },
   })
 
-  // Table for workspace meta information (by workspace id).
-  const metaTable = await connection.createTable('workspace-meta', {
-    schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),
-    key: ['workspaceId'],
-  })
-
-  // Table for persisted workspace documents (by workspace id and document name).
-  const documentsTable = await connection.createTable('workspace-documents', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
-
-  // Table for original/raw documents.
-  const originalDocumentTable = await connection.createTable('workspace-original-documents', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
-
-  // Table for intermediate-format documents for a workspace.
-  const intermediateDocumentTable = await connection.createTable('workspace-intermediate-documents', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
-
-  // Table for per-document overrides in a workspace.
-  const overridesTable = await connection.createTable('workspace-overrides', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
-
-  // Table for document metadata (such as source information).
-  const documentMetaTable = await connection.createTable('workspace-document-meta', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
-
-  // Table for per-document configuration records.
-  const documentConfigsTable = await connection.createTable('workspace-document-configs', {
-    schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-    key: ['workspaceId', 'documentName'],
-  })
+  // Tables wrappers for each logical section.
+  const workspaceTable = connection.get('workspace')
+  const metaTable = connection.get('meta')
+  const documentsTable = connection.get('documents')
+  const originalDocumentTable = connection.get('originalDocuments')
+  const intermediateDocumentTable = connection.get('intermediateDocuments')
+  const overridesTable = connection.get('overrides')
+  const documentMetaTable = connection.get('documentMeta')
+  const documentConfigsTable = connection.get('documentConfigs')
 
   // The returned persistence API with logical sections for each table and mapping.
   return {
@@ -186,7 +185,7 @@ export const createWorkspaceStorePersistence = async () => {
 
       /**
        * Saves a workspace to the database.
-       * All chunks (meta, documents, configs, etc.) are upserted in their respective tables.
+       * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
       setItem: async (id: string, value: WorkspaceStoreShape): Promise<void> => {

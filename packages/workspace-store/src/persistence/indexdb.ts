@@ -1,5 +1,10 @@
 import type { Static, TObject, TRecord } from '@scalar/typebox'
 
+type TableEntry<S extends TObject, K extends readonly (keyof Static<S>)[]> = {
+  schema: S
+  index: K
+}
+
 /**
  * Creates a connection to an IndexedDB database for managing tables and persistence.
  *
@@ -30,78 +35,55 @@ import type { Static, TObject, TRecord } from '@scalar/typebox'
  * // Use usersTable methods for CRUD (see createTableWrapper)
  * ```
  */
-export function createIndexDbConnection(dbName = 'scalar-workspace-store') {
-  let dbPromise: Promise<IDBDatabase>
+export const createIndexDbConnection = async <T extends Record<string, TableEntry<any, readonly (keyof any)[]>>>({
+  name = 'scalar-workspace-store',
+  tables,
+  version = 1,
+  migrations = [],
+}: {
+  name: string
+  tables: T
+  version: number
+  migrations?: { version: number; exec: (db: IDBDatabase, event: IDBVersionChangeEvent) => {} }[]
+}) => {
+  const db = indexedDB.open(name, version)
 
-  // Open DB without version first to detect existing version
-  async function openDatabase(): Promise<IDBDatabase> {
-    if (!dbPromise) {
-      dbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName)
-        request.onerror = () => reject(request.error)
-        request.onsuccess = () => resolve(request.result)
-      })
-    }
-    return dbPromise
-  }
+  db.onupgradeneeded = (e) => {
+    // Initial setup of object stores
+    if (e.oldVersion < 1) {
+      const database = db.result
 
-  /**
-   * Creates an object store ("table") in the database if it doesn't exist, using the provided schema and key.
-   * Returns a typed table wrapper for CRUD operations.
-   *
-   * @param name - Object store name
-   * @param options - { schema, key } where schema is the TypeBox schema and key is array of key fields
-   */
-  async function createTable<T extends TRecord | TObject, const K extends keyof Static<T>>(
-    name: string,
-    options: {
-      schema: T
-      key: K[]
-    },
-  ) {
-    let db = await openDatabase()
-
-    if (!db.objectStoreNames.contains(name)) {
-      // Need to create store -> increment version
-      const newVersion = db.version + 1
-      db.close()
-
-      dbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, newVersion)
-
-        request.onupgradeneeded = () => {
-          const upgradeDb = request.result
-          if (!upgradeDb.objectStoreNames.contains(name)) {
-            upgradeDb.createObjectStore(name, {
-              keyPath: options.key.length === 1 ? (options.key[0] as string) : (options.key as string[]),
-            })
-          }
+      // Initialize all the tables
+      Object.entries(tables).forEach(([name, options]) => {
+        if (!database.objectStoreNames.contains(name)) {
+          database.createObjectStore(name, {
+            keyPath: options.index.length === 1 ? (options.index[0] as string) : (options.index as string[]),
+          })
         }
-
-        request.onsuccess = () => resolve(request.result)
-        request.onerror = () => reject(request.error)
       })
-
-      db = await dbPromise
     }
 
-    return createTableWrapper<T, K>(name, openDatabase)
+    // Run any future migrations here
+    migrations.forEach((migration) => {
+      if (e.oldVersion < migration.version) {
+        migration.exec(db.result, e)
+      }
+    })
   }
 
-  /**
-   * Closes the database connection.
-   * After calling this, a new connection will be opened on the next operation.
-   */
-  async function closeDatabase(): Promise<void> {
-    if (dbPromise) {
-      const db = await dbPromise
-      db.close()
-      // Reset the promise so next operation opens a fresh connection
-      dbPromise = undefined as any
-    }
-  }
+  await new Promise((resolve, reject) => {
+    db.onsuccess = () => resolve(true)
+    db.onerror = () => reject(db.error)
+  })
 
-  return { createTable, closeDatabase }
+  return {
+    get: <Name extends keyof T>(name: Name) => {
+      return createTableWrapper<T[Name]['schema'], T[Name]['index'][number]>(name as string, db.result)
+    },
+    closeDatabase: () => {
+      db.result.close()
+    },
+  }
 }
 
 /**
@@ -141,13 +123,12 @@ export function createIndexDbConnection(dbName = 'scalar-workspace-store') {
  */
 function createTableWrapper<T extends TRecord | TObject, const K extends keyof Static<T>>(
   name: string,
-  getDb: () => Promise<IDBDatabase>,
+  db: IDBDatabase,
 ) {
   /**
    * Gets the object store from the latest DB connection, for the given transaction mode.
    */
   const getStore = async (mode: IDBTransactionMode) => {
-    const db = await getDb()
     const tx = db.transaction(name, mode)
     return tx.objectStore(name)
   }
@@ -163,6 +144,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     const keyObj: any = { ...key }
     const finalValue = { ...keyObj, ...value }
     await requestAsPromise(store.put(finalValue))
+
     return finalValue
   }
 

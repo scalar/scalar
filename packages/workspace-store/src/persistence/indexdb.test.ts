@@ -20,15 +20,29 @@ const OrderSchema = Type.Object({
 
 describe('indexdb', () => {
   const testDbName = 'test-db'
-  let dbConnection: ReturnType<typeof createIndexDbConnection>
+  let dbConnection: Awaited<
+    ReturnType<
+      typeof createIndexDbConnection<{
+        users: { schema: typeof UserSchema; index: ['id'] }
+        orders: { schema: typeof OrderSchema; index: ['userId', 'orderId'] }
+      }>
+    >
+  >
 
-  beforeEach(() => {
-    dbConnection = createIndexDbConnection(testDbName)
+  beforeEach(async () => {
+    dbConnection = await createIndexDbConnection({
+      name: testDbName,
+      version: 1,
+      tables: {
+        users: { schema: UserSchema, index: ['id'] as const },
+        orders: { schema: OrderSchema, index: ['userId', 'orderId'] as const },
+      },
+    })
   })
 
   afterEach(async () => {
     // Clean up: close connection and delete database
-    await dbConnection.closeDatabase()
+    dbConnection.closeDatabase()
     const deleteRequest = indexedDB.deleteDatabase(testDbName)
     await new Promise((resolve, reject) => {
       deleteRequest.onsuccess = () => resolve(undefined)
@@ -37,24 +51,24 @@ describe('indexdb', () => {
   })
 
   it('adds and retrieves a single item', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
-
-    const user = await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
+    const user = await dbConnection.get('users').addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
 
     expect(user).toEqual({ id: 'user-1', name: 'Alice', age: 30 })
 
-    const retrieved = await usersTable.getItem({ id: 'user-1' })
+    const retrieved = await dbConnection.get('users').getItem({ id: 'user-1' })
     expect(retrieved).toEqual({ id: 'user-1', name: 'Alice', age: 30 })
   })
 
   it('updates an existing item when adding with same key', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    await dbConnection.get('users').addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
+    await dbConnection.get('users').addItem({ id: 'user-1' }, { name: 'Alice Updated', age: 31 })
+
+    const retrieved = await dbConnection.get('users').getItem({ id: 'user-1' })
+    expect(retrieved).toEqual({ id: 'user-1', name: 'Alice Updated', age: 31 })
+  })
+
+  it('returns undefined when getting non-existent item', async () => {
+    const usersTable = dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice Updated', age: 31 })
@@ -64,20 +78,14 @@ describe('indexdb', () => {
   })
 
   it('returns undefined when getting non-existent item', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = await dbConnection.get('users')
 
     const retrieved = await usersTable.getItem({ id: 'non-existent' })
     expect(retrieved).toBeUndefined()
   })
 
   it('adds and retrieves multiple items', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = await dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-2' }, { name: 'Bob', age: 25 })
@@ -93,10 +101,7 @@ describe('indexdb', () => {
   })
 
   it('retrieves range with composite key - partial match', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = await dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -111,10 +116,7 @@ describe('indexdb', () => {
   })
 
   it('retrieves range with composite key - full match', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = await dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -130,10 +132,7 @@ describe('indexdb', () => {
   })
 
   it('returns empty array for range with no matches', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = await dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
 
@@ -142,10 +141,7 @@ describe('indexdb', () => {
   })
 
   it('deletes a single item', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = await dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-2' }, { name: 'Bob', age: 25 })
@@ -160,10 +156,7 @@ describe('indexdb', () => {
   })
 
   it('deletes item with composite key', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = await dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -178,19 +171,13 @@ describe('indexdb', () => {
   })
 
   it('does not error when deleting non-existent item', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = await dbConnection.get('users')
 
     await expect(usersTable.deleteItem({ id: 'non-existent' })).resolves.toBeUndefined()
   })
 
   it('deletes range with composite key', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = await dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -208,50 +195,24 @@ describe('indexdb', () => {
   })
 
   it('returns zero when deleting range with no matches', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = dbConnection.get('orders')
 
-    await usersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
+    await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
 
-    const deletedCount = await usersTable.deleteRange(['admin'])
+    const deletedCount = await ordersTable.deleteRange(['admin'])
     expect(deletedCount).toBe(0)
   })
 
   it('closes database connection', async () => {
-    await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    await dbConnection.get('users').addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
 
-    await expect(dbConnection.closeDatabase()).resolves.toBeUndefined()
-  })
-
-  it('reopens database after closing', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
-
-    await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
-    await dbConnection.closeDatabase()
-
-    // Should be able to perform operations after closing
-    const retrieved = await usersTable.getItem({ id: 'user-1' })
-    expect(retrieved).toEqual({ id: 'user-1', name: 'Alice', age: 30 })
+    expect(dbConnection.closeDatabase()).toBe(undefined)
   })
 
   it('handles multiple tables in same database', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = dbConnection.get('users')
 
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = dbConnection.get('orders')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
@@ -264,10 +225,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items from empty table', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = dbConnection.get('users')
 
     const allItems = await usersTable.getAll()
 
@@ -275,10 +233,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items from table with single key', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-2' }, { name: 'Bob', age: 25 })
@@ -295,10 +250,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items from table with composite key', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -315,10 +267,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items after some have been deleted', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-2' }, { name: 'Bob', age: 25 })
@@ -336,10 +285,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items after range deletion', async () => {
-    const ordersTable = await dbConnection.createTable('orders', {
-      schema: OrderSchema,
-      key: ['userId', 'orderId'],
-    })
+    const ordersTable = dbConnection.get('orders')
 
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-1' }, { amount: 100, status: 'pending' })
     await ordersTable.addItem({ userId: 'user-1', orderId: 'order-2' }, { amount: 200, status: 'completed' })
@@ -354,10 +300,7 @@ describe('indexdb', () => {
   })
 
   it('gets all items after updates', async () => {
-    const usersTable = await dbConnection.createTable('users', {
-      schema: UserSchema,
-      key: ['id'],
-    })
+    const usersTable = dbConnection.get('users')
 
     await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 30 })
     await usersTable.addItem({ id: 'user-2' }, { name: 'Bob', age: 25 })

@@ -995,7 +995,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           Object.entries(result.documents).map(([name, doc]) => [
             name,
             createOverridesProxy(createMagicProxy(doc), {
-              overrides: result.overrides[name]
+              overrides: result.overrides[name],
             }),
           ]),
         ),
