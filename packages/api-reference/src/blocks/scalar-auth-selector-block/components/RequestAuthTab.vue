@@ -139,7 +139,7 @@ onMounted(() => {
   try {
     const selectedSchemeUids: (string | string[])[] = JSON.parse(
       safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ??
-        '',
+        '[]',
     )
 
     // Convert back to uids
