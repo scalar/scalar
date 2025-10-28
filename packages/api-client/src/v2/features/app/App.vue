@@ -12,14 +12,16 @@ import { ScalarTeleportRoot } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 
+import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import AppSidebar from './AppSidebar.vue'
-import DesktopTabs from './DesktopTabs.vue'
-import WebTopNav from './WebTopNav.vue'
+import AppSidebar from './components/AppSidebar.vue'
+import DesktopTabs from './components/DesktopTabs.vue'
+import WebTopNav from './components/WebTopNav.vue'
 
 const { layout, workspaceStore } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
@@ -49,6 +51,21 @@ const workspaceModel = ref('default')
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = ref(true)
+
+/** Workspace event bus */
+const eventBus = createWorkspaceEventBus()
+
+const route = useRoute()
+
+/** Grab the document from the slug */
+const document = computed(
+  () =>
+    workspaceStore.workspace.documents[route.params.documentSlug as string] ??
+    null,
+)
+
+/** Event handler */
+useWorkspaceClientEvents(eventBus, document)
 </script>
 
 <template>
@@ -83,12 +100,15 @@ const isSidebarOpen = ref(true)
 
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div class="bg-b-1 flex min-h-0 min-w-0 flex-1 flex-col">
         <RouterView v-slot="{ Component }">
           <keep-alive>
             <component
               :is="Component"
-              :layout="layout" />
+              :document="document"
+              :eventBus="eventBus"
+              :layout="layout"
+              :workspaceStore="workspaceStore" />
           </keep-alive>
         </RouterView>
       </div>

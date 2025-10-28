@@ -16,36 +16,38 @@
 /.cursor @hanspagel @amritk 
 
 # Packages
-/packages/api-client @amritk @hanspagel @marclave
+/integrations/django-ninja @marclave
+/integrations/docusaurus @amritk @marclave
+/integrations/dotnet @marclave @hanspagel @xC0dex
+/integrations/express @hanspagel @marclave
+/integrations/fastapi @marclave
+/integrations/fastify @hanspagel @marclave
+/integrations/hono @hanspagel @marclave
+/integrations/nestjs @marclave
+/integrations/nextjs @amritk @marclave
+/integrations/nuxt @amritk @marclave
+/packages/api-client @amritk @hanspagel @marclave @DemonHa
+/packages/api-client-react @amritk @marclave
+/packages/api-reference @hanspagel @marclave
 /packages/api-reference-editor @geoffgscott @marclave
+/packages/api-reference-react @amritk @marclave
+/packages/build-tooling @geoffgscott @marclave
+/packages/build-watch @geoffgscott @marclave
+/packages/code-highlight @geoffgscott @marclave
 /packages/components @hwkr @marclave
-/packages/icons @hwkr @marclave
+/packages/draggable @amritk @marclave
 /packages/galaxy @hanspagel @marclave
+/packages/json-magic @DemonHa
+/packages/icons @hwkr @marclave
+/packages/mock-server @hanspagel @marclave
 /packages/oas-utils @amritk @hanspagel @marclave
 /packages/themes @hwkr @cameronrohani @marclave
+/packages/use-hooks @hwkr @hanspagel @marclave
+/packages/void-server @hanspagel @marclave
+/packages/workspace-store @DemonHa @amritk
 /projects/scalar-app @hanspagel @marclave
-/packages/api-reference-react @amritk @marclave
-/integrations/docusaurus @amritk @marclave
-/integrations/hono @hanspagel @marclave
 # /packages/object-utils
 # /packages/use-codemirror
-/packages/build-tooling @geoffgscott @marclave
-/packages/draggable @amritk @marclave
-/packages/mock-server @hanspagel @marclave
 # /packages/use-modal
-/packages/build-watch @geoffgscott @marclave
-/integrations/nestjs @marclave
-/integrations/dotnet @marclave @hanspagel @xC0dex
-/packages/use-hooks @hwkr @hanspagel @marclave
 # /packages/use-toasts
-/packages/api-client-react @amritk @marclave
-/integrations/express @hanspagel @marclave
-/integrations/nextjs @amritk @marclave
-/integrations/django-ninja @marclave
-/packages/api-reference @hanspagel @marclave
-/packages/code-highlight @geoffgscott @marclave
-/integrations/fastify @hanspagel @marclave
-/integrations/nuxt @amritk @marclave
-/integrations/fastapi @marclave
-/packages/void-server @hanspagel @marclave
 
