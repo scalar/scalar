@@ -103,7 +103,6 @@
     "@scalar/themes": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "fake-indexeddb": "^6.2.3",
     "github-slugger": "^2.0.0",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
@@ -114,6 +113,7 @@
     "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "fake-indexeddb": "catalog:*"
   }
 }

@@ -87,6 +87,9 @@ catalogs:
     express:
       specifier: 5.1.0
       version: 5.1.0
+    fake-indexeddb:
+      specifier: 6.2.3
+      version: 6.2.3
     fastify:
       specifier: ^5.3.3
       version: 5.3.3
@@ -2760,9 +2763,6 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      fake-indexeddb:
-        specifier: ^6.2.3
-        version: 6.2.3
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -2782,6 +2782,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      fake-indexeddb:
+        specifier: catalog:*
+        version: 6.2.3
       fastify:
         specifier: catalog:*
         version: 5.3.3
