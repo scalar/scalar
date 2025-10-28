@@ -4,61 +4,31 @@ const IS_CDN = process.env.TEST_MODE === 'CDN'
 const CI = Boolean(process.env.CI)
 const isLinux = process.platform === 'linux' && !CI
 
-/** Linux uses the host network to connect to the dev server */
-const network = isLinux ? 'host' : 'bridge'
-
-const servers: Exclude<NonNullable<PlaywrightTestConfig['webServer']>, any[]>[] = [
-  {
-    name: 'Vite',
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !CI,
-  },
-]
+/**
+ * A list of reporters to use for the tests
+ * @see https://playwright.dev/docs/test-reporters
+ */
 const reporter: PlaywrightTestConfig['reporter'] = [['list']]
 
-/**
- * Outside of CI we run the playwright test server in a docker container for
- * consistent cross-platform results.
- */
-if (!CI) {
-  servers.push({
-    name: 'Playwright',
-    command: `NETWORK=${network} docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.56.0`,
-    url: 'http://localhost:5001',
-    timeout: 120 * 1000,
-    reuseExistingServer: !CI,
-    gracefulShutdown: {
-      signal: 'SIGINT',
-      timeout: 10 * 1000,
-    },
-  })
-}
-
-/**
- * When not running the CDN tests we run the Vite dev server
- * and report the results to the playwright-report directory.
- */
-if (!IS_CDN) {
-  if (CI) {
+if (CI) {
+  // In CI we need to generate JSON and HTML reports for the GitHub Actions helpers
+  if (IS_CDN) {
+    reporter.push(
+      // We suffix cdn the report and results when testing the CDN
+      ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
+      ['json', { outputFile: 'playwright-results-cdn.json' }],
+      // Makes sure the CDN tests always pass in CI
+      ['./test-cdn/ci-reporter.ts'],
+    )
+  } else {
     reporter.push(
       ['html', { open: 'never', outputFolder: 'playwright-report' }],
       ['json', { outputFile: 'playwright-results.json' }],
     )
   }
-}
-
-/**
- * When running the CDN tests we report the results to the playwright-report-cdn directory.
- */
-if (IS_CDN) {
-  if (CI) {
-    reporter.push(
-      ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
-      ['json', { outputFile: 'playwright-results-cdn.json' }],
-      ['./test/utils/ci-reporter.ts'],
-    )
-  }
+} else {
+  // Locally we just generate the HTML report in case there's a failure
+  reporter.push(['html', { open: 'on-failure' }])
 }
 
 // https://playwright.dev/docs/test-configuration
@@ -67,6 +37,23 @@ export default defineConfig({
   workers: '100%',
   fullyParallel: true,
   reporter,
+  /**
+   * Outside of CI we run the playwright test server in a docker container for
+   * consistent cross-platform results.
+   */
+  webServer: CI
+    ? undefined
+    : {
+        name: 'Playwright',
+        command: 'docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.56.0',
+        url: 'http://localhost:5001',
+        timeout: 120 * 1000,
+        reuseExistingServer: !CI,
+        gracefulShutdown: {
+          signal: 'SIGINT',
+          timeout: 10 * 1000,
+        },
+      },
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {
@@ -76,7 +63,6 @@ export default defineConfig({
     },
     timeout: 15000,
   },
-  webServer: servers,
   use: {
     /** The base URL is on the docker host where we're running Vite */
     baseURL: CI || isLinux ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',

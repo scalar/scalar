@@ -1,6 +1,9 @@
 import { type Page, expect, test } from '@playwright/test'
+import { serveExample } from '@test/utils/serve-example'
 
 import { sources } from '../utils/sources'
+
+const cdn = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference' as const
 
 /**
  * Wait for the ARIA snapshot (e.g. the dom structure) to stabilize
@@ -33,21 +36,23 @@ async function waitForStableAriaSnapshot(page: Page, options?: { matches?: numbe
 
 test.describe.configure({ mode: 'parallel', timeout: 45000 })
 
-sources.forEach(({ title, slug }) => {
-  test(`Diff with CDN - ${title}`, async ({ page }) => {
-    const filename = `snapshot-${slug}.png`
+sources.forEach((source) => {
+  test(`Diff with CDN - ${source.title}`, async ({ page }) => {
+    const filename = `snapshot-${source.slug}.png`
     const path = test.info().snapshotPath(filename, { kind: 'screenshot' })
 
     // Wait longer between polling intervals on CI
     const polling = process.env.CI ? 800 : 400
 
     // Capture screenshot of CDN
-    await page.goto(`cdn?api=${slug}`, { waitUntil: 'networkidle' })
+    const cdnExample = await serveExample({ ...source, cdn })
+    await page.goto(cdnExample, { waitUntil: 'networkidle' })
     await waitForStableAriaSnapshot(page, { polling })
     await page.screenshot({ path, fullPage: true })
 
     // Compare with local
-    await page.goto(`?api=${slug}`, { waitUntil: 'networkidle' })
+    const localExample = await serveExample(source)
+    await page.goto(localExample, { waitUntil: 'networkidle' })
     await waitForStableAriaSnapshot(page, { polling })
     await expect(page).toHaveScreenshot(filename, { fullPage: true })
   })
