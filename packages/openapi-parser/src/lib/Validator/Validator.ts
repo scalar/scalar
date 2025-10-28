@@ -1,4 +1,4 @@
-import type { Ajv, ValidateFunction } from 'ajv'
+import type { ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
@@ -12,7 +12,7 @@ import { transformErrors } from '@/utils/transform-errors'
 /**
  * Configure available JSON Schema versions
  */
-export const jsonSchemaVersions = {
+const jsonSchemaVersions = {
   'http://json-schema.org/draft-04/schema#': Ajv04,
   'https://json-schema.org/draft/2020-12/schema': Ajv2020,
 }
@@ -133,7 +133,7 @@ export class Validator {
     const schema = OpenApiSpecifications[version]
 
     // Load JSON Schema
-    const AjvClass = jsonSchemaVersions[schema.$schema] as typeof Ajv
+    const AjvClass = jsonSchemaVersions[schema.$schema as keyof typeof jsonSchemaVersions]
 
     // Get the correct Ajv validator
     const ajv = new AjvClass({
