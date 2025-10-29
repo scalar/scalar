@@ -62,6 +62,7 @@ export const useDocumentWatcher = ({
 
           // Reset initial timeout on success
           if (interval && timeout !== initialTimeout) {
+            timeout = initialTimeout
             clearInterval(interval)
             interval = setInterval(poll, initialTimeout)
           }
