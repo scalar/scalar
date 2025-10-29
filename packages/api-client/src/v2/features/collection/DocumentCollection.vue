@@ -22,7 +22,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'
 
-const { document, layout, eventBus } = defineProps<RouteProps>()
+const { document, layout, eventBus, environment } = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
 const title = computed(() => document?.info?.title || 'Untitled Document')
@@ -75,10 +75,18 @@ const icon = computed(
 
     <!-- Router views -->
     <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
-      <RouterView
-        :eventBus="eventBus"
-        :layout="layout"
-        type="document" />
+      <RouterView v-slot="{ Component }">
+        <keep-alive>
+          <component
+            :is="Component"
+            :document="document"
+            :environment="environment"
+            :eventBus="eventBus"
+            :layout="layout"
+            type="document"
+            :workspaceStore="workspaceStore" />
+        </keep-alive>
+      </RouterView>
     </div>
   </div>
 

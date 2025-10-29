@@ -13,7 +13,7 @@ export const useWorkspaceClientEvents = (
   document: ComputedRef<WorkspaceDocument | null>,
 ) => {
   //------------------------------------------------------------------------------------
-  // Document Related Event Handlers
+  // Document Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on(
     'update:document-icon',
@@ -25,4 +25,12 @@ export const useWorkspaceClientEvents = (
     (info: PartialDeep<InfoObject>) =>
       document.value && (document.value.info = mergeObjects(document.value.info, info)),
   )
+
+  //------------------------------------------------------------------------------------
+  // Environment Event Handlers
+  //------------------------------------------------------------------------------------
+
+  //------------------------------------------------------------------------------------
+  // Workspace Event Handlers
+  //------------------------------------------------------------------------------------
 }

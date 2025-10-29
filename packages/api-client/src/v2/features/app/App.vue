@@ -13,6 +13,11 @@ import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  xScalarEnvironmentSchema,
+  type XScalarEnvironment,
+} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 
@@ -61,11 +66,35 @@ const route = useRoute()
 const document = computed(
   () =>
     workspaceStore.workspace.documents[route.params.documentSlug as string] ??
+    Object.values(workspaceStore.workspace.documents)[0] ??
     null,
 )
 
 /** Event handler */
 useWorkspaceClientEvents(eventBus, document)
+
+/** Discriminated and merged environment variables by name */
+const environment = computed<XScalarEnvironment>(() => {
+  const activeEnv = workspaceStore.workspace['x-scalar-active-environment']
+  if (!activeEnv) {
+    return coerceValue(xScalarEnvironmentSchema, {})
+  }
+
+  // Grab the correct environment from the workspace and document
+  const workspaceEnv = workspaceStore.workspace['x-scalar-environments']?.[
+    activeEnv
+  ] ?? { variables: {} }
+  const documentEnv = document.value?.['x-scalar-environments']?.[
+    activeEnv
+  ] ?? { variables: {} }
+
+  // Merge the workspace and document environments
+  return coerceValue(xScalarEnvironmentSchema, {
+    ...workspaceEnv,
+    ...documentEnv,
+    variables: { ...workspaceEnv.variables, ...documentEnv.variables },
+  })
+})
 </script>
 
 <template>
@@ -106,6 +135,7 @@ useWorkspaceClientEvents(eventBus, document)
             <component
               :is="Component"
               :document="document"
+              :environment="environment"
               :eventBus="eventBus"
               :layout="layout"
               :workspaceStore="workspaceStore" />
