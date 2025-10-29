@@ -6,26 +6,22 @@ Contributions are welcome. We're using [pnpm](https://pnpm.io/).
 
 1. Clone the repository: `$ git clone git@github.com:scalar/scalar.git`
 2. Install all dependencies: `$ pnpm install`
-3. Build all packages once: `$ pnpm turbo build`
-4. Run the development server: `$ pnpm run dev`
-5. Open your browser: <http://localhost:5050>
+3. Build all packages once: `$ pnpm build:packages`
+4. Run the development server in a specific packages: `$ pnpm dev`
 
 This should give you a nice start page with entrypoints to the various previews and examples.
 
 ### Quick start Development Scripts
 
-These scripts use [`turbo`](https://turbo.build/) to build all the dependencies and run a development server.
+From the root:
+```bash
+pnpm build:packages
 
-| Command                    | Description                                                               |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `pnpm dev:client:desktop`  | Runs the API Client desktop app in an electron dev environment            |
-| `pnpm dev:client:app`      | Runs the API Client desktop app in a browser dev environment (with HMR\*) |
-| `pnpm dev:client:modal`    | Runs the API Client modal layout (with HMR\*)                             |
-| `pnpm dev:client:web`      | Runs the API Client client web app (with HMR\*)                           |
-| `pnpm dev:components`      | Runs storybook for `@scalar/components`                                   |
-| `pnpm dev:reference`       | Runs the API References dev environment (with HMR\*)                      |
+cd packages/package_name
+pnpm dev
+```
 
-\* Hot module replacement and file watching only works for the main package being worked on, e.g. changes to `@scalar/api-client` if you're running `pnpm dev:client:app` or `@scalar/api-reference` if you're running `pnpm dev:reference`
+\* Hot module replacement and file watching only works for the main package being worked on. Other changes require building the package. Running `pnpm build:packages` from the root is slightly less efficient than building only the required dependencies but adequate for most use cases.
 
 ## GitHub Codespaces & Devcontainers
 
