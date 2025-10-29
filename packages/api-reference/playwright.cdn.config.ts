@@ -1,4 +1,5 @@
-import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
+import { type PlaywrightTestConfig, defineConfig } from '@playwright/test'
+
 type WebServer = PlaywrightTestConfig['webServer']
 
 const CI = Boolean(process.env.CI)
@@ -37,18 +38,19 @@ const devServer: WebServer = {
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
-  testMatch: 'test-snapshots/**/*.e2e.ts',
+  testMatch: 'test-cdn/**/*.e2e.ts',
   workers: '100%',
   reporter: CI
     ? [
         ['list'],
-        ['html', { open: 'never' }],
-        ['json', { outputFile: 'playwright-results.json' }],
-        ['./test-snapshots/ci-reporter.ts'],
+        ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
+        ['json', { outputFile: 'playwright-results-cdn.json' }],
+        // Makes sure these tests always pass in CI
+        ['./test-cdn/ci-reporter.ts'],
       ]
     : [['list'], ['html', { open: 'always' }]],
 
-  snapshotPathTemplate: './test-snapshots/.snapshots/{arg}{ext}',
+  snapshotPathTemplate: './test-cdn/.snapshots/{arg}{ext}',
 
   expect: {
     toHaveScreenshot: {

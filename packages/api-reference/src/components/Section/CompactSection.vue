@@ -17,7 +17,9 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div class="collapsible-section">
+  <section
+    :aria-label="label"
+    class="collapsible-section">
     <button
       :id="id"
       :aria-controls="id"
@@ -42,7 +44,7 @@ const emit = defineEmits<{
       :label="label">
       <slot />
     </Section>
-  </div>
+  </section>
 </template>
 <style scoped>
 .collapsible-section {

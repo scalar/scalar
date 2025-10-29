@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import { ScalarCard, ScalarCardSection, ScalarCardFooter, ScalarCardHeader } from './index'
 import { nextTick } from 'vue'
+
+import { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './index'
 
 describe('ScalarCard', () => {
   it('renders properly', () => {
@@ -20,8 +20,8 @@ describe('ScalarCard', () => {
         label: 'Test card',
       },
     })
-    expect(wrapper.find('section').attributes('aria-label')).toBe('Test card')
-    expect(wrapper.find('section').attributes('aria-labelledby')).not.toBeDefined()
+    expect(wrapper.find('div[role="group"]').attributes('aria-label')).toBe('Test card')
+    expect(wrapper.find('div[role="group"]').attributes('aria-labelledby')).not.toBeDefined()
   })
 
   it('sets aria-labelledby when card header is present', async () => {
@@ -40,8 +40,8 @@ describe('ScalarCard', () => {
     // Wait for the ref to propagate
     await nextTick()
 
-    const section = wrapper.find('section')
-    expect(section.attributes('aria-labelledby')).toBeDefined()
+    const card = wrapper.find('div[role="group"]')
+    expect(card.attributes('aria-labelledby')).toBeDefined()
   })
 })
 

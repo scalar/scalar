@@ -26,11 +26,13 @@ const {
 </script>
 
 <template>
-  <div class="callbacks-list gap-3">
+  <div
+    aria-label="Callbacks"
+    class="callbacks-list gap-3"
+    role="group">
     <div class="callbacks-title text-c-1 my-3 text-lg font-medium">
       Callbacks
     </div>
-
     <!-- Loop over names -->
     <template
       v-for="(pathItem, name) in callbacks"

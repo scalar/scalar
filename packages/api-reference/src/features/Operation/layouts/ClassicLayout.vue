@@ -75,6 +75,7 @@ const { copyToClipboard } = useClipboard()
 <template>
   <SectionAccordion
     :id="id"
+    :aria-label="operationTitle"
     class="reference-endpoint"
     :modelValue="!isCollapsed"
     transparent
@@ -156,6 +157,8 @@ const { copyToClipboard } = useClipboard()
       #description>
       <ScalarMarkdown
         :anchorPrefix="id"
+        aria-label="Operation Description"
+        role="group"
         transformType="heading"
         :value="operation.description"
         withAnchors

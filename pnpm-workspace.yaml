@@ -80,6 +80,7 @@ catalogs:
     vue-router: 4.6.2
     yaml: 2.8.0
     zod: 4.1.11
+    fake-indexeddb: 6.2.3
 
 ignoredBuiltDependencies:
   - '@firebase/util'

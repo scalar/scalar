@@ -97,16 +97,18 @@ const partitionedSchema = computed(() => {
 <template>
   <div
     v-if="requestBody"
-    class="request-body">
+    aria-label="Request Body"
+    class="request-body"
+    role="group">
     <div class="request-body-header">
-      <span class="request-body-title">
+      <div class="request-body-title">
         <slot name="title" />
         <div
           v-if="requestBody.required"
           class="request-body-required">
           required
         </div>
-      </span>
+      </div>
       <ContentTypeSelect
         v-model="selectedContentType"
         :content="requestBody.content" />

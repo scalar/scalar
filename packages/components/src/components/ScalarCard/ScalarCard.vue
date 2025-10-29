@@ -46,7 +46,8 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <section
+  <div
+    role="group"
     v-bind="{
       ...labelAttrs,
       ...cx(
@@ -54,5 +55,5 @@ const { cx } = useBindCx()
       ),
     }">
     <slot />
-  </section>
+  </div>
 </template>

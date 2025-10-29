@@ -49,7 +49,7 @@ const {
 
 const requestSections = [
   'Auth',
-  'Variables',
+  'Path Parameters',
   'Cookies',
   'Headers',
   'Query',
@@ -66,7 +66,7 @@ const filters = computed<Filter[]>(() => {
   const allSections = new Set<Filter>(['All', ...requestSections])
 
   if (!example.parameters.path.length) {
-    allSections.delete('Variables')
+    allSections.delete('Path Parameters')
   }
   if (!canMethodHaveBody(operation.method ?? 'get')) {
     allSections.delete('Body')
@@ -223,10 +223,10 @@ watch(
         :workspace="workspace" />
       <RequestPathParams
         v-show="
-          (selectedFilter === 'All' || selectedFilter === 'Variables') &&
+          (selectedFilter === 'All' || selectedFilter === 'Path Parameters') &&
           example.parameters.path.length
         "
-        :id="filterIds.Variables"
+        :id="filterIds['Path Parameters']"
         class="request-section-content-path-params"
         :envVariables="envVariables"
         :environment="environment"
@@ -235,7 +235,7 @@ watch(
         :operation="operation"
         paramKey="path"
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
-        title="Variables"
+        title="Path Parameters"
         :workspace="workspace" />
       <RequestParams
         v-show="selectedFilter === 'All' || selectedFilter === 'Cookies'"

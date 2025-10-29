@@ -12,12 +12,14 @@ import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
+import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
@@ -30,6 +32,7 @@ import {
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
+import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
 type ExtraDocumentConfigurations = Record<
   string,
@@ -137,6 +140,8 @@ type WorkspaceProps = {
   config?: PartialDeep<Config>
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
+  /** A list of all registered plugins for the current workspace */
+  plugins?: WorkspacePlugin[]
 }
 
 /**
@@ -325,16 +330,17 @@ export type WorkspaceStore = {
    */
   commitDocument(documentName: string): void
   /**
-   * Serializes the current workspace state to a JSON string for backup, persistence, or sharing.
+   * Exports the complete current workspace state as a plain JavaScript object.
    *
-   * This method exports all workspace documents (removing Vue reactivity proxies), workspace metadata,
-   * document configurations, and both the original and intermediate document states. The resulting JSON
-   * can be imported later to fully restore the workspace to this exact state, including all documents
-   * and their configurations.
+   * The returned object includes all workspace documents (with Vue reactivity removed), workspace metadata,
+   * document configurations, and both the original and intermediate document maps. This object can be
+   * serialized (e.g., with JSON.stringify) and later imported to fully restore the workspace—including
+   * all documents, their configurations, metadata, and historical states.
    *
-   * @returns A JSON string representing the complete workspace state.
+   * @returns An `InMemoryWorkspace` object representing the entire workspace state,
+   *          suitable for persistence, backup, or sharing.
    */
-  exportWorkspace(): string
+  exportWorkspace(): InMemoryWorkspace
   /**
    * Imports a workspace from a serialized JSON string.
    *
@@ -344,7 +350,7 @@ export type WorkspaceStore = {
    *
    * @param input - The serialized workspace JSON string to import.
    */
-  loadWorkspace(input: string): void
+  loadWorkspace(input: InMemoryWorkspace): void
   /**
    * Imports a workspace from a WorkspaceSpecification object.
    *
@@ -410,76 +416,229 @@ export type WorkspaceStore = {
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
   /**
-   * Holds the original, unmodified documents as they were initially loaded into the workspace.
-   * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
-   * This map preserves the pristine structure of each document, using deep clones to ensure that
-   * subsequent mutations in the workspace do not affect the originals.
-   * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
-   */
-  const originalDocuments = {} as Record<string, UnknownObject>
-  /**
-   * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
-   *
-   * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
-   * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
-   *
-   * Use this map to stage local changes that are ready to be propagated back to the remote registry.
-   * This separation allows us to distinguish between:
-   *   - The last known remote version (`originalDocuments`)
-   *   - The latest locally saved version (`intermediateDocuments`)
-   *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
-   */
-  const intermediateDocuments = {} as Record<string, UnknownObject>
-  /**
-   * A map of document configurations keyed by document name.
-   * This stores the configuration options for each document in the workspace,
-   * allowing for document-specific settings like navigation options, appearance,
-   * and other reference configuration.
-   */
-  const documentConfigs: Record<string, Config> = {}
-  /**
-   * Stores per-document overrides for OpenAPI documents.
-   * This object is used to override specific fields of a document
-   * when you cannot (or should not) modify the source document directly.
-   * For example, this enables UI-driven or temporary changes to be applied
-   * on top of the original document, without mutating the source.
-   * The key is the document name, and the value is a deep partial
-   * OpenAPI document representing the overridden fields.
-   */
-  const overrides: InMemoryWorkspace['overrides'] = {}
-  /**
-   * Holds additional metadata for each document in the workspace.
-   *
-   * This metadata should be persisted together with the document itself.
-   * It can include information such as user preferences, UI state, or other
-   * per-document attributes that are not part of the OpenAPI document structure.
-   */
-  const documentMeta: InMemoryWorkspace['documentMeta'] = {}
-  /**
    * Holds additional configuration options for each document in the workspace.
    *
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
 
-  // Create a reactive workspace object with proxied documents
-  // Each document is wrapped in a proxy to enable reactive updates and reference resolution
-  const workspace = reactive<Workspace>({
-    ...workspaceProps?.meta,
-    documents: {},
-    /**
-     * Returns the currently active document from the workspace.
-     * The active document is determined by the 'x-scalar-active-document' metadata field,
-     * falling back to the first document in the workspace if no active document is specified.
-     *
-     * @returns The active document or undefined if no document is found
-     */
-    get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
-      const activeDocumentKey =
-        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
-      return workspace.documents[activeDocumentKey]
-    },
-  })
+  /**
+   * Notifies all workspace plugins of a workspace state change event.
+   *
+   * This function iterates through all registered plugins (if any) and invokes
+   * their onWorkspaceStateChanges hook with the given event object.
+   *
+   * @param event - The workspace state change event to broadcast to plugins
+   */
+  const fireWorkspaceChange = (event: WorkspaceStateChangeEvent) => {
+    workspaceProps?.plugins?.forEach((plugin) => plugin.hooks?.onWorkspaceStateChanges?.(event))
+  }
+
+  /**
+   * An object containing the reactive workspace state.
+   *
+   * Every change to the workspace, is tracked and broadcast to all registered plugins.
+   * allowing for change tracking.
+   *
+   * NOTE:
+   * The detect changes proxy is applied separately beacause the vue reactitvity proxy have to be the outer most proxy.
+   * If the order is reversed, Vue cannot properly track mutations, leading to lost reactivity and bugs.
+   * By wrapping the contents with the detect changes proxy first, and then passing the result to Vue's `reactive`,
+   * we ensure that Vue manages its reactivity as expected and our change detection hooks
+   * are also triggered reliably.
+   * Do not reverse this order‼️
+   */
+  const workspace = reactive<Workspace>(
+    createDetectChangesProxy(
+      {
+        ...workspaceProps?.meta,
+        documents: {},
+        /**
+         * Returns the currently active document from the workspace.
+         * The active document is determined by the 'x-scalar-active-document' metadata field,
+         * falling back to the first document in the workspace if no active document is specified.
+         *
+         * @returns The active document or undefined if no document is found
+         */
+        get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
+          return workspace.documents[getActiveDocumentName()]
+        },
+      },
+      {
+        hooks: {
+          onAfterChange(path) {
+            const type = path[0]
+
+            /** Document changes */
+            if (type === 'documents') {
+              // We are overriding the while documents object, ignore. This should not happen
+              if (path.length < 2) {
+                console.log('[WARN]: Overriding entire documents object is not supported')
+                return
+              }
+
+              const documentName = path[1] as string
+              const event = {
+                type: 'documents',
+                documentName,
+                value: unpackProxyObject(
+                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                ),
+              } satisfies WorkspaceStateChangeEvent
+
+              fireWorkspaceChange(event)
+              return
+            }
+
+            /** Active document changes */
+            if (type === 'activeDocument') {
+              const documentName = getActiveDocumentName()
+              // Active document changed
+              const event = {
+                type: 'documents',
+                documentName,
+                value: unpackProxyObject(
+                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                ),
+              } satisfies WorkspaceStateChangeEvent
+
+              fireWorkspaceChange(event)
+              return
+            }
+
+            /** Document meta changes */
+            const { activeDocument: _a, documents: _d, ...meta } = workspace
+            const event = {
+              type: 'meta',
+              value: unpackProxyObject(meta),
+            } satisfies WorkspaceStateChangeEvent
+
+            fireWorkspaceChange(event)
+            return
+          },
+        },
+      },
+    ),
+  )
+
+  /**
+   * An object containing all the workspace state, wrapped in a detect changes proxy.
+   *
+   * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
+   * allowing for change tracking.
+   */
+  const { originalDocuments, intermediateDocuments, overrides, documentMeta, documentConfigs } =
+    createDetectChangesProxy(
+      {
+        /**
+         * Holds the original, unmodified documents as they were initially loaded into the workspace.
+         * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
+         * This map preserves the pristine structure of each document, using deep clones to ensure that
+         * subsequent mutations in the workspace do not affect the originals.
+         * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
+         */
+        originalDocuments: {} as Record<string, UnknownObject>,
+        /**
+         * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
+         *
+         * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
+         * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
+         *
+         * Use this map to stage local changes that are ready to be propagated back to the remote registry.
+         * This separation allows us to distinguish between:
+         *   - The last known remote version (`originalDocuments`)
+         *   - The latest locally saved version (`intermediateDocuments`)
+         *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
+         */
+        intermediateDocuments: {} as Record<string, UnknownObject>,
+        /**
+         * A map of document configurations keyed by document name.
+         * This stores the configuration options for each document in the workspace,
+         * allowing for document-specific settings like navigation options, appearance,
+         * and other reference configuration.
+         */
+        documentConfigs: {} as Record<string, Config>,
+        /**
+         * Stores per-document overrides for OpenAPI documents.
+         * This object is used to override specific fields of a document
+         * when you cannot (or should not) modify the source document directly.
+         * For example, this enables UI-driven or temporary changes to be applied
+         * on top of the original document, without mutating the source.
+         * The key is the document name, and the value is a deep partial
+         * OpenAPI document representing the overridden fields.
+         */
+        overrides: {} as InMemoryWorkspace['overrides'],
+        /**
+         * Holds additional metadata for each document in the workspace.
+         *
+         * This metadata should be persisted together with the document itself.
+         * It can include information such as user preferences, UI state, or other
+         * per-document attributes that are not part of the OpenAPI document structure.
+         */
+        documentMeta: {} as InMemoryWorkspace['documentMeta'],
+      },
+      {
+        hooks: {
+          onAfterChange(path) {
+            const type = path[0]
+
+            if (!type) {
+              return
+            }
+
+            if (path.length < 2) {
+              return
+            }
+
+            const documentName = path[1] as string
+            if (type === 'originalDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+
+            if (type === 'intermediateDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+
+            if (type === 'documentConfigs') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(documentConfigs[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+
+            if (type === 'overrides') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(overrides[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+
+            if (type === 'documentMeta') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(documentMeta[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+          },
+        },
+      },
+    )
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -648,10 +807,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
-    workspace.documents[name] = createOverridesProxy(
-      createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
-      overrides[name],
-    )
+    workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
+      overrides: overrides[name],
+    })
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -808,14 +966,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
     },
     exportWorkspace() {
-      return JSON.stringify({
+      return {
         documents: {
           ...Object.fromEntries(
             Object.entries(workspace.documents).map(([name, doc]) => [
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              getRaw(doc),
+              toRaw(getRaw(unpackOverridesProxy(doc))),
             ]),
           ),
         },
@@ -825,10 +983,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         intermediateDocuments,
         overrides,
         documentMeta,
-      } satisfies InMemoryWorkspace)
+      }
     },
-    loadWorkspace(input: string) {
-      const result = coerceValue(InMemoryWorkspaceSchema, JSON.parse(input))
+    loadWorkspace(input: InMemoryWorkspace) {
+      const result = coerceValue(InMemoryWorkspaceSchema, input)
 
       // Assign the magic proxy to the documents
       safeAssign(
@@ -836,7 +994,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         Object.fromEntries(
           Object.entries(result.documents).map(([name, doc]) => [
             name,
-            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+            createOverridesProxy(createMagicProxy(doc), {
+              overrides: result.overrides[name],
+            }),
           ]),
         ),
       )

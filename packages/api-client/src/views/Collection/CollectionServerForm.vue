@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 import Form from '@/components/Form/Form.vue'
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
@@ -88,13 +87,13 @@ watch(
 
     serverMutators.edit(activeServer.value.uid, 'variables', variables)
 
-    emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
-      key: 'variables',
-      value: variables,
-      options: {
-        disableOldStoreUpdate: true,
-      },
-    })
+    // emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
+    //   key: 'variables',
+    //   value: variables,
+    //   options: {
+    //     disableOldStoreUpdate: true,
+    //   },
+    // })
   },
   { immediate: true },
 )
@@ -105,15 +104,15 @@ const updateServer = (key: string, value: string) => {
   }
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 
-  if (key === 'url' || key === 'description') {
-    emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
-      key: key,
-      value: value,
-      options: {
-        disableOldStoreUpdate: true,
-      },
-    })
-  }
+  // if (key === 'url' || key === 'description') {
+  //   emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
+  //     key: key,
+  //     value: value,
+  //     options: {
+  //       disableOldStoreUpdate: true,
+  //     },
+  //   })
+  // }
 }
 
 const updateServerVariable = (key: string, value: string) => {
@@ -126,21 +125,18 @@ const updateServerVariable = (key: string, value: string) => {
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
 
-  emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
-    key: 'variables',
-    value: variables,
-    options: {
-      disableOldStoreUpdate: true,
-    },
-  })
+  // emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
+  //   key: 'variables',
+  //   value: variables,
+  //   options: {
+  //     disableOldStoreUpdate: true,
+  //   },
+  // })
 }
-
-const wrapper = useTemplateRef('wrapper-ref')
 </script>
 
 <template>
   <div
-    ref="wrapper-ref"
     class="divide-0.5 flex w-full flex-col divide-y rounded-b-lg text-sm"
     :class="activeServer?.variables && 'bg-b-1'">
     <template v-if="activeServer">

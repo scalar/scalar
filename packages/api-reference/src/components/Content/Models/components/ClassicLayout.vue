@@ -22,6 +22,7 @@ const { eventBus, id } = defineProps<{
 </script>
 <template>
   <SectionAccordion
+    :aria-label="schema.title ?? name"
     :modelValue="!isCollapsed"
     @update:modelValue="
       (value) => eventBus?.emit('toggle:nav-item', { id, open: value })

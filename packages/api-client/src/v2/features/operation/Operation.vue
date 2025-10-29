@@ -19,6 +19,7 @@ import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import { OperationBlock } from '@/v2/blocks/scalar-operation-block'
 import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
+import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
 
@@ -81,6 +82,8 @@ defineProps<{
   security: OpenApiDocument['security']
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
+
+  plugins?: ClientPlugin[]
 
   /** TODO: to be removed once we fully migrate to the new store */
   environment: Environment
@@ -246,13 +249,15 @@ const emit = defineEmits<{
           "
           @requestBody:update:value="
             (payload) => emit('requestBody:update:value', payload)
-          " />
+          "
+          :plugins="plugins" />
         <ResponseBlock
           :appVersion="appVersion"
           :events="events"
           :layout="layout"
           :request="request"
           :response="response"
+          :plugins="plugins"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="emit('response:addRequest')"
           @openCommandPalette="emit('response:openCommandPalette')"

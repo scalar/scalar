@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { useId } from 'vue'
 
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { Section, SectionHeader } from '@/components/Section'
@@ -20,9 +19,6 @@ defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
-
-/** UID used to associate the section header with the section content */
-const headerId = useId()
 </script>
 <template>
   <Lazy id="models">
@@ -32,14 +28,10 @@ const headerId = useId()
       id="model">
       <Section
         :id="id"
-        :aria-labelledby="headerId"
+        aria-label="Models"
         @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
         <SectionHeader>
-          <SectionHeaderTag
-            :id="headerId"
-            :level="2">
-            Models
-          </SectionHeaderTag>
+          <SectionHeaderTag :level="2"> Models </SectionHeaderTag>
         </SectionHeader>
         <template v-if="!isCollapsed">
           <slot />
@@ -58,6 +50,7 @@ const headerId = useId()
     <!-- Classic Layout Model Container -->
     <SectionContainerAccordion
       v-else
+      aria-label="Models"
       class="pb-12"
       :modelValue="!isCollapsed"
       @update:modelValue="

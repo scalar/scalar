@@ -1,12 +1,16 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+// import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
 export type RouteProps = {
+  document: WorkspaceDocument | null
+  eventBus: WorkspaceEventBus
   layout: ClientLayout
-  workspaceStore: WorkspaceStore
+  // workspaceStore: WorkspaceStore
   // workspaceSlug: string
   // documentSlug?: string
   // pathEncoded?: string
@@ -23,104 +27,100 @@ export const ROUTES = [
     component: () => import('@/v2/components/TempReplaceMe.vue'),
   },
   {
-    name: 'workspace',
     path: '/workspace/:workspaceSlug',
     children: [
-      // Workspace overview
       {
-        name: 'workspace.overview',
-        path: 'overview',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Workspace servers
-      {
-        name: 'workspace.servers',
-        path: 'servers',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Workspace environment
-      {
-        name: 'workspace.environment',
-        path: 'environment',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Workspace authentication
-      {
-        name: 'workspace.authentication',
-        path: 'authentication',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Workspace cookies
-      {
-        name: 'workspace.cookies',
-        path: 'cookies',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Workspace settings
-      {
-        name: 'workspace.settings',
-        path: 'settings',
-        props: true,
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
-      },
-      // Document
-      {
-        name: 'document',
         path: 'document/:documentSlug',
         children: [
-          // Document overview
-          {
-            name: 'document.overview',
-            path: 'overview',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Document servers
-          {
-            name: 'document.servers',
-            path: 'servers',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Document environment
-          {
-            name: 'document.environment',
-            path: 'environment',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Document authentication
-          {
-            name: 'document.authentication',
-            path: 'authentication',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Document cookies
-          {
-            name: 'document.cookies',
-            path: 'cookies',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
-          // Document settings
-          {
-            name: 'document.settings',
-            path: 'settings',
-            props: true,
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
-          },
           // Example page
           {
             name: 'example',
             path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
+          },
+          // Document Page
+          {
+            name: 'document',
+            path: '',
+            component: () => import('@/v2/features/collection/DocumentCollection.vue'),
+            children: [
+              // Redirect to overview
+              {
+                name: 'document.redirect',
+                path: '',
+                redirect: {
+                  name: 'document.overview',
+                },
+              },
+              // Document overview
+              {
+                name: 'document.overview',
+                path: 'overview',
+                component: () => import('@/v2/features/collection/components/Overview.vue'),
+              },
+              // Document servers
+              {
+                name: 'document.servers',
+                path: 'servers',
+                component: () => import('@/v2/features/collection/components/Servers.vue'),
+              },
+              // Document environment
+              {
+                name: 'document.environment',
+                path: 'environment',
+                component: () => import('@/v2/features/collection/components/Environment.vue'),
+              },
+              // Document authentication
+              {
+                name: 'document.authentication',
+                path: 'authentication',
+                component: () => import('@/v2/features/collection/components/Authentication.vue'),
+              },
+              // Document cookies
+              {
+                name: 'document.cookies',
+                path: 'cookies',
+                component: () => import('@/v2/features/collection/components/Cookies.vue'),
+              },
+              // Document settings
+              {
+                name: 'document.settings',
+                path: 'settings',
+                component: () => import('@/v2/features/collection/components/Settings.vue'),
+              },
+            ],
+          },
+        ],
+      },
+      // Workspace page
+      {
+        name: 'workspace',
+        path: '',
+        component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
+        children: [
+          // Workspace overview
+          {
+            name: 'workspace.overview',
+            path: 'overview',
+            component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
+          },
+          // Workspace environment
+          {
+            name: 'workspace.environment',
+            path: 'environment',
+            component: () => import('@/v2/features/collection/components/Environment.vue'),
+          },
+          // Workspace cookies
+          {
+            name: 'workspace.cookies',
+            path: 'cookies',
+            component: () => import('@/v2/features/collection/components/Cookies.vue'),
+          },
+          // Workspace settings
+          {
+            name: 'workspace.settings',
+            path: 'settings',
+            component: () => import('@/v2/features/collection/components/Settings.vue'),
           },
         ],
       },

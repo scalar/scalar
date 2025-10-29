@@ -44,6 +44,16 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./persistence": {
+      "import": "./dist/persistence/index.js",
+      "types": "./dist/persistence/index.d.ts",
+      "default": "./dist/persistence/index.js"
+    },
+    "./plugins/client": {
+      "import": "./dist/plugins/client/index.js",
+      "types": "./dist/plugins/client/index.d.ts",
+      "default": "./dist/plugins/client/index.js"
+    },
     "./schemas": {
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
@@ -103,6 +113,7 @@
     "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "fake-indexeddb": "catalog:*"
   }
 }
