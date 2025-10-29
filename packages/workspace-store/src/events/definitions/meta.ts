@@ -8,9 +8,4 @@ export type MetaEvents = {
   'update:active-document': string
   /** Update the selected client on the workspace */
   'update:selected-client': AvailableClients[number]
-  /** Update the icon of the active document/workspace*/
-  'update:icon': {
-    icon: string
-    type: 'document' | 'workspace'
-  }
 }

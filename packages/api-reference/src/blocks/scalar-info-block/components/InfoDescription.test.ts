@@ -13,6 +13,7 @@ describe('InfoDescription', () => {
   it('renders markdown content when description is provided', () => {
     const wrapper = mount(InfoDescription, {
       props: {
+        eventBus: null,
         description: '# Hello World',
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
@@ -24,6 +25,7 @@ describe('InfoDescription', () => {
   it('splits content into sections', () => {
     const wrapper = mount(InfoDescription, {
       props: {
+        eventBus: null,
         description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
@@ -35,11 +37,12 @@ describe('InfoDescription', () => {
   it('prefixes the heading section id', () => {
     const wrapper = mount(InfoDescription, {
       props: {
+        eventBus: null,
         description: '# Test Heading',
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
     })
-    const observer = wrapper.findComponent({ name: 'IntersectionObserver' })
-    expect(observer.attributes('id')).toBe('description/test-heading')
+    const observer = wrapper.find('[id="description/test-heading"]')
+    expect(observer.exists()).toBe(true)
   })
 })

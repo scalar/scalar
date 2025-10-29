@@ -63,6 +63,7 @@ describe('Model', async () => {
         props: {
           id: 'user',
           name: 'User',
+          eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigClassic,
@@ -83,6 +84,7 @@ describe('Model', async () => {
         props: {
           id: 'user',
           name: 'User',
+          eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigModern,
@@ -103,6 +105,7 @@ describe('Model', async () => {
         props: {
           id: 'user',
           name: 'User',
+          eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: true,
           options: mockConfigModern,
@@ -119,6 +122,7 @@ describe('Model', async () => {
         props: {
           id: 'user',
           name: 'User',
+          eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigModern,

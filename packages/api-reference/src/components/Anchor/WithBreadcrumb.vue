@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ScalarIconLink } from '@scalar/icons'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 const { breadcrumb } = defineProps<{
   breadcrumb?: string[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'copyAnchorUrl', id: string): void
+  eventBus: WorkspaceEventBus | null
 }>()
 </script>
 
@@ -20,7 +18,10 @@ const emit = defineEmits<{
       <button
         class="text-c-3 hover:text-c-1 absolute -top-2 -left-4.5 flex h-[calc(100%+16px)] w-4.5 cursor-pointer items-center justify-center pr-1.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         type="button"
-        @click="() => emit('copyAnchorUrl', breadcrumb.join('.'))">
+        @click="
+          () =>
+            eventBus?.emit('copy-url:nav-item', { id: breadcrumb.join('.') })
+        ">
         <!-- Copy button -->
         <ScalarIconLink
           class="size-3"

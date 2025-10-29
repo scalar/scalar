@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -24,7 +25,8 @@ const { options } = defineProps<{
   documentExtensions?: Record<string, unknown>
   /** OpenAPI extension fields at the info object level. */
   infoExtensions?: Record<string, unknown>
-
+  /** The event bus for the handling all events. */
+  eventBus: WorkspaceEventBus | null
   options: {
     /** Determines the layout style for the info block ('modern' or 'classic'). */
     layout?: 'modern' | 'classic'
@@ -49,6 +51,7 @@ const introCardsSlot = computed(() =>
   <IntroductionLayout
     :id
     :documentExtensions
+    :eventBus="eventBus"
     :externalDocs
     :headingSlugGenerator="options.headingSlugGenerator"
     :info

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useId } from 'vue'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { Section, SectionHeader } from '@/components/Section'
@@ -11,6 +11,7 @@ import ShowMoreButton from '@/components/ShowMoreButton.vue'
 defineProps<{
   id: string
   isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
   options: {
     layout: 'classic' | 'modern'
     expandAllModelSections: boolean | undefined
@@ -18,30 +19,19 @@ defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
-
-const emit = defineEmits<{
-  (e: 'toggleTag', id: string, open: boolean): void
-  (e: 'intersecting', id: string): void
-}>()
-
-/** UID used to associate the section header with the section content */
-const headerId = useId()
 </script>
 <template>
   <Lazy id="models">
     <!-- Modern Layout Model Container -->
     <SectionContainer
       v-if="options.layout === 'modern'"
-      id="models">
+      id="model">
       <Section
-        :aria-labelledby="headerId"
-        @intersecting="(id) => emit('intersecting', id)">
+        :id="id"
+        aria-label="Models"
+        @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
         <SectionHeader>
-          <SectionHeaderTag
-            :id="headerId"
-            :level="2">
-            Models
-          </SectionHeaderTag>
+          <SectionHeaderTag :level="2"> Models </SectionHeaderTag>
         </SectionHeader>
         <template v-if="!isCollapsed">
           <slot />
@@ -50,7 +40,9 @@ const headerId = useId()
           <ShowMoreButton
             :id="id"
             class="top-0"
-            @click="() => emit('toggleTag', id, true)">
+            @click="
+              () => eventBus?.emit('toggle:nav-item', { id, open: true })
+            ">
           </ShowMoreButton>
         </template>
       </Section>
@@ -58,9 +50,12 @@ const headerId = useId()
     <!-- Classic Layout Model Container -->
     <SectionContainerAccordion
       v-else
+      aria-label="Models"
       class="pb-12"
       :modelValue="!isCollapsed"
-      @update:modelValue="() => emit('toggleTag', id, isCollapsed)">
+      @update:modelValue="
+        () => eventBus?.emit('toggle:nav-item', { id, open: isCollapsed })
+      ">
       <template #title>
         <SectionHeader :level="2">Models</SectionHeader>
       </template>

@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -39,7 +40,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation({ path: '/api/users' })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.text()).toContain('/api/users')
@@ -49,7 +50,7 @@ describe('OperationsListItem', () => {
       const webhook = createMockWebhook({ title: 'User Created Webhook' })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.text()).toContain('User Created Webhook')
@@ -59,7 +60,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('li.contents').exists()).toBe(true)
@@ -73,7 +74,7 @@ describe('OperationsListItem', () => {
       const webhook = createMockWebhook()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(true)
@@ -83,7 +84,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(false)
@@ -94,7 +95,7 @@ describe('OperationsListItem', () => {
 
       webhooks.forEach((webhook) => {
         const wrapper = mount(OperationsListItem, {
-          props: { operation: webhook },
+          props: { operation: webhook, eventBus: null },
         })
 
         expect(wrapper.text()).toContain(webhook.method)
@@ -111,7 +112,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation({ isDeprecated: true })
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(true)
@@ -124,7 +125,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation },
+        props: { operation, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(false)
@@ -137,7 +138,7 @@ describe('OperationsListItem', () => {
       const webhook = createMockWebhook()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation: webhook },
+        props: { operation: webhook, eventBus: null },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(false)
@@ -151,7 +152,7 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
 
       const wrapper = mount(OperationsListItem, {
-        props: { operation, isCollapsed: false },
+        props: { operation, isCollapsed: false, eventBus: null },
       })
 
       expect(wrapper.find('.sr-only').exists()).toBe(false)
@@ -161,15 +162,14 @@ describe('OperationsListItem', () => {
   describe('interactions', () => {
     it('emits scrollToId event when link is clicked', async () => {
       const operation = createMockOperation()
-      let emittedId: string | undefined
+      const eventBus = createWorkspaceEventBus()
+      const testHandler = vi.fn()
+      eventBus.on('scroll-to:nav-item', testHandler)
 
       const wrapper = mount(OperationsListItem, {
         props: {
           operation,
-          // TODO: replace this with emitted captures. Is flakey right now
-          onScrollToId: (id: string) => {
-            emittedId = id
-          },
+          eventBus,
         },
         attachTo: document.body,
       })
@@ -179,21 +179,20 @@ describe('OperationsListItem', () => {
       await link.trigger('click')
       await nextTick()
 
-      expect(emittedId).toBe(operation.id)
+      expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
       wrapper.unmount()
     })
 
     it('prevents default link behavior', async () => {
       const operation = createMockOperation()
-      let emittedId: string | undefined
 
+      const eventBus = createWorkspaceEventBus()
+      const testHandler = vi.fn()
+      eventBus.on('scroll-to:nav-item', testHandler)
       const wrapper = mount(OperationsListItem, {
         props: {
           operation,
-          // TODO: replace this with emitted captures. Is flakey right now
-          onScrollToId: (id: string) => {
-            emittedId = id
-          },
+          eventBus,
         },
         attachTo: document.body,
       })
@@ -202,9 +201,8 @@ describe('OperationsListItem', () => {
 
       // The click handler should prevent default navigation
       await link.trigger('click')
-
       // Verify the event was emitted (indicating preventDefault was called)
-      expect(emittedId).toBe(operation.id)
+      expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
 
       wrapper.unmount()
     })
@@ -221,7 +219,7 @@ describe('OperationsListItem', () => {
 
       operations.forEach((operation) => {
         const wrapper = mount(OperationsListItem, {
-          props: { operation },
+          props: { operation, eventBus: null },
         })
 
         expect(wrapper.text()).toContain(operation.method)

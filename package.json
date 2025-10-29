@@ -30,8 +30,6 @@
     "remark-validate-links": "^13.0.2",
     "rollup": "catalog:*",
     "shx": "catalog:*",
-    "start-server-and-test": "^2.0.9",
-    "syncpack": "^12.4.0",
     "tailwindcss": "catalog:*",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
