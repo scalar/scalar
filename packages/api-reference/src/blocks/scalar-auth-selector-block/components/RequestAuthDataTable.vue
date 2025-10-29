@@ -97,7 +97,7 @@ watch(
     </div>
 
     <DataTable
-      v-if="hasActiveSchemes"
+      v-show="hasActiveSchemes"
       class="flex-1"
       :class="layout === 'reference' && 'bg-b-1 rounded-b-lg border border-t-0'"
       :columns="['']"
@@ -114,7 +114,7 @@ watch(
     </DataTable>
 
     <div
-      v-else
+      v-if="!hasActiveSchemes"
       class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm"
       :class="
         layout === 'reference' && 'min-h-[calc(4rem+0.5px)] rounded-b-lg border'

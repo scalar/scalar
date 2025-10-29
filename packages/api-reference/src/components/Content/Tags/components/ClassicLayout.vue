@@ -19,6 +19,7 @@ const { tag, isCollapsed } = defineProps<{
 
 <template>
   <SectionContainerAccordion
+    :aria-label="tag.title"
     class="tag-section"
     :modelValue="!isCollapsed"
     @update:modelValue="

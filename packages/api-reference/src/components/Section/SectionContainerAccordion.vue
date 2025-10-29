@@ -11,7 +11,7 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div class="section-accordion-wrapper">
+  <section class="section-accordion-wrapper">
     <Disclosure
       as="div"
       class="section-accordion">
@@ -32,7 +32,7 @@ const emit = defineEmits<{
         <slot />
       </DisclosurePanel>
     </Disclosure>
-  </div>
+  </section>
 </template>
 <style scoped>
 .section-accordion-wrapper {

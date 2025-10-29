@@ -68,7 +68,7 @@ const { method, name, url } = defineProps<{
 <style scoped>
 .callback-sticky-offset {
   top: var(--refs-viewport-offset, 0px);
-  /* z-index: 100; */
+  z-index: 1;
 }
 .callback-operation-container :deep(.request-body),
 .callback-operation-container :deep(.request-body-description),
