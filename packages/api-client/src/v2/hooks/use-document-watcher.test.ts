@@ -62,7 +62,7 @@ describe('useDocumentWatcher', () => {
 
     vi.advanceTimersByTime(200)
     // Wait for the timer to complete
-    await setTimeout(10)
+    await setTimeout(100)
 
     expect(store.workspace.documents['default']?.info?.title).toBe('New updated API')
   })
@@ -152,11 +152,11 @@ describe('useDocumentWatcher', () => {
 
     vi.advanceTimersByTime(200)
     // Wait for the timer to complete
-    await setTimeout(10)
+    await setTimeout(100)
 
     vi.advanceTimersByTime(200 * 2)
     // Wait for the timer to complete
-    await setTimeout(10)
+    await setTimeout(100)
 
     expect(fn).toHaveBeenCalledTimes(3)
   })

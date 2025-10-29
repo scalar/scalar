@@ -50,6 +50,16 @@ export const useDocumentWatcher = ({
         return
       }
 
+      // Reset timeout on successful call
+      const onSuccessfulCall = () => {
+        timeout = initialTimeout
+        if (interval) {
+          clearInterval(interval)
+          interval = null
+        }
+        interval = setInterval(poll, timeout)
+      }
+
       const poll = async () => {
         const result = await store.rebaseDocument({
           name: toValue(documentName),
@@ -60,15 +70,11 @@ export const useDocumentWatcher = ({
           // On conflicts, prefers remote changes by automatically choosing the first option for each conflict tuple
           await result.applyChanges(result.conflicts.flatMap((conflictTuple) => conflictTuple[0]))
 
-          // Reset initial timeout on success
-          if (interval && timeout !== initialTimeout) {
-            timeout = initialTimeout
-            clearInterval(interval)
-            interval = setInterval(poll, initialTimeout)
-          }
-        }
-
-        if (result?.ok === false) {
+          onSuccessfulCall()
+        } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
+          // Its still a successful call, just nothing changed
+          onSuccessfulCall()
+        } else {
           timeout *= 2 // Exponential backoff on failure
 
           if (interval) {
