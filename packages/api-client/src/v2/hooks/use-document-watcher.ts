@@ -24,16 +24,16 @@ import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 export const useDocumentWatcher = ({
   documentName,
   store,
-  timeout = 5000,
+  initialTimeout = 5000,
 }: {
   documentName: MaybeRefOrGetter<string>
   store: WorkspaceStore
-  timeout?: number
+  initialTimeout?: number
 }) => {
-  let initialTimeout = timeout
+  let timeout = initialTimeout
   const document = computed(() => store.workspace.documents[toValue(documentName)])
 
-  let interval: NodeJS.Timeout | null = null
+  let interval: ReturnType<typeof setInterval> | null = null
 
   watch(
     [() => document.value?.['x-scalar-original-source-url'], () => document.value?.['x-scalar-watch-mode']],
@@ -59,20 +59,26 @@ export const useDocumentWatcher = ({
         if (result?.ok) {
           // On conflicts, prefers remote changes by automatically choosing the first option for each conflict tuple
           await result.applyChanges(result.conflicts.flatMap((conflictTuple) => conflictTuple[0]))
+
+          // Reset initial timeout on success
+          if (interval && timeout !== initialTimeout) {
+            clearInterval(interval)
+            interval = setInterval(poll, initialTimeout)
+          }
         }
 
         if (result?.ok === false) {
-          initialTimeout *= 2 // Exponential backoff on failure
+          timeout *= 2 // Exponential backoff on failure
 
           if (interval) {
             clearInterval(interval)
-            interval = setInterval(poll, initialTimeout)
+            interval = setInterval(poll, timeout)
           }
         }
       }
 
       // Poll the remote source every x seconds and attempt to rebase
-      interval = setInterval(poll, initialTimeout)
+      interval = setInterval(poll, timeout)
     },
     { immediate: true },
   )

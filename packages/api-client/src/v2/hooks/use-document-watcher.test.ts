@@ -29,11 +29,11 @@ describe('useDocumentWatcher', () => {
   })
 
   it('watch the document and rebase it with the remote source', async () => {
-    let showInital = true
+    let showInitial = true
 
     server.get('/', () => {
-      if (showInital) {
-        showInital = false
+      if (showInitial) {
+        showInitial = false
         return {
           openapi: '3.0.0',
           info: { title: 'My API', version: '1.0.0' },
@@ -58,7 +58,7 @@ describe('useDocumentWatcher', () => {
     // Enable watch mode on the document so the watcher starts polling
     defaultDocument['x-scalar-watch-mode'] = true
 
-    useDocumentWatcher({ documentName: ref('default'), store, timeout: 200 })
+    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout: 200 })
 
     vi.advanceTimersByTime(200)
     // Wait for the timer to complete
@@ -107,7 +107,7 @@ describe('useDocumentWatcher', () => {
 
     const selectedDocument = ref<'a' | 'b'>('a')
 
-    useDocumentWatcher({ documentName: selectedDocument, store, timeout: 200 })
+    useDocumentWatcher({ documentName: selectedDocument, store, initialTimeout: 200 })
 
     selectedDocument.value = 'b'
     await setTimeout(10)
@@ -148,7 +148,7 @@ describe('useDocumentWatcher', () => {
     assert(defaultDocument)
     defaultDocument['x-scalar-watch-mode'] = true
 
-    useDocumentWatcher({ documentName: ref('default'), store, timeout: 200 })
+    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout: 200 })
 
     vi.advanceTimersByTime(200)
     // Wait for the timer to complete
