@@ -50,8 +50,7 @@ export const useDocumentWatcher = ({
         return
       }
 
-      // Poll the remote source every x seconds and attempt to rebase
-      interval = setInterval(async () => {
+      const poll = async () => {
         const result = await store.rebaseDocument({
           name: toValue(documentName),
           url: sourceUrl,
@@ -64,8 +63,16 @@ export const useDocumentWatcher = ({
 
         if (result?.ok === false) {
           initialTimeout *= 2 // Exponential backoff on failure
+
+          if (interval) {
+            clearInterval(interval)
+            interval = setInterval(poll, initialTimeout)
+          }
         }
-      }, initialTimeout)
+      }
+
+      // Poll the remote source every x seconds and attempt to rebase
+      interval = setInterval(poll, initialTimeout)
     },
     { immediate: true },
   )

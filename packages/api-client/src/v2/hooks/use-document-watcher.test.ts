@@ -119,4 +119,45 @@ describe('useDocumentWatcher', () => {
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
     expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
   })
+
+  it('does exponential backoff on failure', async () => {
+    let calls = 0
+    const fn = vi.fn()
+    server.get('/', (_, res) => {
+      calls++
+      fn()
+      if (calls <= 1) {
+        return {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        }
+      }
+
+      return res.status(500).send('Internal Server Error')
+    })
+    await server.listen({ port })
+
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      url,
+    })
+
+    const defaultDocument = store.workspace.documents['default']
+    assert(defaultDocument)
+    defaultDocument['x-scalar-watch-mode'] = true
+
+    useDocumentWatcher({ documentName: ref('default'), store, timeout: 200 })
+
+    vi.advanceTimersByTime(200)
+    // Wait for the timer to complete
+    await setTimeout(10)
+
+    vi.advanceTimersByTime(200 * 2)
+    // Wait for the timer to complete
+    await setTimeout(10)
+
+    expect(fn).toHaveBeenCalledTimes(3)
+  })
 })
