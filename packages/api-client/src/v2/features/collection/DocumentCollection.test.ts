@@ -1,4 +1,7 @@
 // @vitest-environment jsdom
+
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -59,12 +62,12 @@ describe('DocumentCollection', () => {
     const document =
       documentConfig.hasDocument === false
         ? null
-        : {
+        : ({
             info: {
               title: documentConfig.title || 'Test Document',
             },
             ...(documentConfig.icon ? { 'x-scalar-client-config-icon': documentConfig.icon } : {}),
-          }
+          } as WorkspaceDocument)
 
     // Push to a specific document route
     await router.push({
@@ -78,9 +81,9 @@ describe('DocumentCollection', () => {
     const wrapper = mount(DocumentCollection, {
       props: {
         layout: 'web' as const,
-        workspaceStore: workspaceStore as any,
-        eventBus: eventBus as any,
-        document: document as any,
+        workspaceStore: workspaceStore,
+        eventBus: eventBus,
+        document: document,
       },
       global: {
         plugins: [router],
@@ -136,9 +139,9 @@ describe('DocumentCollection', () => {
       const wrapper = mount(DocumentCollection, {
         props: {
           layout: 'web' as const,
-          workspaceStore: workspaceStore as any,
-          eventBus: { emit: vi.fn() } as any,
-          document: {} as any,
+          workspaceStore: workspaceStore,
+          eventBus: { emit: vi.fn() } as unknown as WorkspaceEventBus,
+          document: {} as WorkspaceDocument,
         },
         global: {
           plugins: [router],
