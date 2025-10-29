@@ -46,7 +46,7 @@ export const useDocumentWatcher = ({
 
       if (!sourceUrl || !watchMode) {
         // Reset initial timeout
-        initialTimeout = timeout
+        timeout = initialTimeout
         return
       }
 
