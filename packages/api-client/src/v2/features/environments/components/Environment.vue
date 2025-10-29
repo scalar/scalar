@@ -2,66 +2,30 @@
 import { ScalarButton } from '@scalar/components'
 import { Draggable } from '@scalar/draggable'
 import { ScalarIconTrash } from '@scalar/icons'
-import type { Environment as EntitiesEnvironment } from '@scalar/oas-utils/entities/environment'
+import type {
+  CollectionType,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 
-import type { EnvVariable } from '@/store'
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
 
-export type EnvironmentVariable = {
-  name: string
-  value: string
-}
-
-export type Environment = {
-  name: string
-  color?: string
-  variables: EnvironmentVariable[]
-}
-
-const { isReadonly = false } = defineProps<{
-  /** Environment name */
-  name: string
-  /** Environment color */
-  color?: string
-  /** List of all environment variables */
-  variables: EnvironmentVariable[]
-  /** Marks the environment as readonly */
-  isReadonly?: boolean
-
-  /** TODO: remove when we migrate to the new store */
-  environment: EntitiesEnvironment
-  envVariables: EnvVariable[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'delete'): void
-  (
-    e: 'reorder',
-    draggingItem: { id: string },
-    hoveredItem: { id: string },
-  ): void
-  (e: 'add:variable', payload: Partial<EnvironmentVariable>): void
-  (e: 'update:name'): void
-  (e: 'update:color'): void
-  (
-    e: 'update:variable',
-    payload: {
-      id: number
-      value: Partial<EnvironmentVariable>
-    },
-  ): void
-  (e: 'delete:variable', payload: { id: number }): void
-}>()
-
-defineSlots<{
-  default?(): unknown
-}>()
+const { name, environment, eventBus, type } = defineProps<
+  {
+    /** Environment name */
+    name: string
+    /** Environment */
+    environment: XScalarEnvironment
+    /** Event bus */
+    eventBus: WorkspaceEventBus
+  } & CollectionType
+>()
 
 const handleDragEnd = (
   draggingItem: { id: string },
   hoveredItem: { id: string },
 ) => {
-  emit('reorder', draggingItem, hoveredItem)
+  eventBus.emit('update:environment-order', { draggingItem, hoveredItem, type })
 }
 </script>
 <template>
