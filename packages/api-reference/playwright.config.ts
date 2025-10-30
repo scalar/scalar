@@ -33,7 +33,14 @@ if (CI) {
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
-  testMatch: IS_CDN ? 'test/snapshots-cdn/**/*.e2e.ts' : ['test/features/*.e2e.ts', 'test/snapshots/**/*.e2e.ts'],
+  testMatch: IS_CDN
+    ? 'test/snapshots-cdn/**/*.e2e.ts'
+    : [
+        'test/features/*.e2e.ts',
+        'test/snapshots/**/*.e2e.ts',
+        'test/configuration/**/*.e2e.ts',
+        'test/standalone/**/*.e2e.ts',
+      ],
   workers: '100%',
   fullyParallel: true,
   reporter,
