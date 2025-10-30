@@ -1,44 +1,48 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type {
+  CollectionType,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
-import { CodeInput } from '@/components/CodeInput'
+import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTable,
   DataTableCell,
   DataTableHeader,
   DataTableRow,
-} from '@/components/DataTable'
-import type { EnvVariable } from '@/store'
+} from '@/v2/components/data-table'
 
-type TableRow = {
-  name: string
-  value: string
-}
+const { environment, eventBus, type } = defineProps<
+  {
+    environment: XScalarEnvironment
+    environmentName: string
+    eventBus: WorkspaceEventBus
+  } & CollectionType
+>()
 
-const { data } = defineProps<{
-  data: TableRow[]
-
-  /** TODO: remove once we migrate */
-  environment: Environment
-  envVariables: EnvVariable[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'addRow', payload: Partial<TableRow>): void
-  (e: 'updateRow', index: number, payload: Partial<TableRow>): void
-  (e: 'deleteRow', index: number): void
-}>()
+/** Map the variables to table rows */
+const variableRows = computed(() =>
+  Object.entries(environment.variables ?? {}).map(([name, value]) => ({
+    name,
+    value: typeof value === 'string' ? value : value.default,
+  })),
+)
 
 /** Add the last empty row (for ui purposes only) */
 const displayData = computed(() => {
-  const last = data.at(-1)
+  const last = variableRows.value.at(-1)
   if (!last || last.name !== '' || last.value !== '') {
-    return [...data, { name: '', value: '', domain: '', isDisabled: true }]
+    return [
+      ...variableRows.value,
+      { name: '', value: '', domain: '', isDisabled: true },
+    ]
   }
-  return data
+
+  return variableRows.value
 })
 
 /**
@@ -52,8 +56,13 @@ const updateOrAdd = ({
   payload: Partial<TableRow>
 }) => {
   /** If the update happen on the last row, it means we need to add a new row */
-  if (index >= data.length) {
-    emit('addRow', payload)
+  if (index >= variableRows.value.length) {
+    eventBus.emit('environment:upsert:environment-variable', {
+      environmentName,
+      variableName: payload.name,
+      payload,
+      type,
+    })
     return
   }
   /** Otherwise we just update the existing row */
@@ -81,7 +90,6 @@ const columns = ['1fr', '1fr', '36px']
           aria-label="Cookie Name"
           disableCloseBrackets
           disableTabIndent
-          :envVariables="envVariables"
           :environment="environment"
           lineWrapping
           :modelValue="row.name"
@@ -94,7 +102,6 @@ const columns = ['1fr', '1fr', '36px']
         <CodeInput
           aria-label="Cookie Value"
           disableTabIndent
-          :envVariables="envVariables"
           :environment="environment"
           lineWrapping
           :modelValue="row.value"
@@ -109,7 +116,13 @@ const columns = ['1fr', '1fr', '36px']
           class="text-c-2 hover:text-c-1 hover:bg-b-2 hidden h-fit rounded p-1 group-focus-within:flex group-hover/row:flex"
           size="sm"
           variant="ghost"
-          @click="emit('deleteRow', id)">
+          @click="
+            eventBus.emit('environment:delete:environment-variable', {
+              environmentName,
+              variableName: row.name,
+              type,
+            })
+          ">
           <ScalarIconTrash class="size-3.5" />
         </ScalarButton>
       </DataTableCell>

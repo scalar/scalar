@@ -13,9 +13,17 @@ export type EnvironmentEvents = {
     newName?: string
   } & CollectionType
   /**
-   * Add OR update an environment variable
+   * Add an environment variable
    */
-  'environment:upsert:environment-variable': {
+  'environment:add:environment-variable': {
+    environmentName: string
+    variableName: string
+    payload: Partial<XScalarEnvVar>
+  } & CollectionType
+  /**
+   * Update an environment variable
+   */
+  'environment:update:environment-variable': {
     environmentName: string
     variableName: string
     payload: Partial<XScalarEnvVar>
