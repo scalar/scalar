@@ -46,7 +46,7 @@ const icon = computed(
           :modelValue="icon"
           placement="bottom-start"
           @update:modelValue="
-            (icon) => eventBus.emit('update:document-icon', icon)
+            (icon) => eventBus.emit('document:update:icon', icon)
           ">
           <ScalarButton
             class="hover:bg-b-2 aspect-square h-7 w-7 cursor-pointer rounded border border-transparent p-0 hover:border-inherit"
@@ -65,7 +65,7 @@ const icon = computed(
           inputId="documentName"
           :modelValue="title"
           @update:modelValue="
-            (title) => eventBus.emit('update:document-info', { title })
+            (title) => eventBus.emit('document:update:info', { title })
           " />
       </div>
     </div>

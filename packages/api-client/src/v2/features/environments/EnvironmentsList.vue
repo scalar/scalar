@@ -5,13 +5,14 @@ import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironments } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type {
+  XScalarEnvironment,
+  XScalarEnvironments,
+} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { ref } from 'vue'
 
-import EnvironmentColorUpdateModal from '@/v2/features/environments/components/EnvironmentColorUpdateModal.vue'
 import EnvironmentCreateModal from '@/v2/features/environments/components/EnvironmentCreateModal.vue'
 import EnvironmentDeleteModal from '@/v2/features/environments/components/EnvironmentDeleteModal.vue'
-import EnvironmentNameUpdateModal from '@/v2/features/environments/components/EnvironmentNameUpdateModal.vue'
 
 import EnvironmentComponent from './components/Environment.vue'
 
@@ -24,11 +25,32 @@ const { environments, eventBus, type } = defineProps<
 
 const createEnvironmentModalState = useModal()
 const deleteEnvironmentModalState = useModal()
-const updateNameEnvironmentModalState = useModal()
-const updateColorEnvironmentModalState = useModal()
 
-// Track the currently selected environment for editing or deleting
-const selectedEnvironment = ref<Environment | null>(null)
+/** Track the currently selected environment for editing or deleting */
+const selectedEnvironmentName = ref<string | null>(null)
+
+/** Opens the delete modal */
+const openDeleteModal = (name: string) => {
+  selectedEnvironmentName.value = name
+  deleteEnvironmentModalState.show()
+}
+
+/** Deletes the selected environment */
+const deleteEnvironment = () => {
+  if (!selectedEnvironmentName.value) {
+    return
+  }
+  eventBus.emit('environment:delete:environment', {
+    environmentName: selectedEnvironmentName.value,
+    type,
+  })
+}
+
+/** Opens the upsert modal, leave name empty for add */
+const openUpsertModal = (name?: string) => {
+  selectedEnvironmentName.value = name ?? null
+  createEnvironmentModalState.show()
+}
 </script>
 
 <template>
@@ -38,7 +60,9 @@ const selectedEnvironment = ref<Environment | null>(null)
     :environment="env"
     :eventBus="eventBus"
     :name="name"
-    :type="type" />
+    :type="type"
+    @delete="() => openDeleteModal(name)"
+    @edit="() => openUpsertModal(name)" />
 
   <!-- Add Environment CTA -->
   <div
@@ -47,55 +71,23 @@ const selectedEnvironment = ref<Environment | null>(null)
       class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
       size="sm"
       variant="ghost"
-      @click="createEnvironmentModalState.show()">
+      @click="() => openUpsertModal()">
       <ScalarIconPlus />
       Add Environment
     </ScalarButton>
   </div>
 
-  <!-- Modals -->
+  <!-- Upsert Modal -->
   <EnvironmentCreateModal
+    :environments="environments"
+    :eventBus="eventBus"
+    :selectedEnvironmentName="selectedEnvironmentName"
     :state="createEnvironmentModalState"
-    @submit="
-      (payload) =>
-        emit('environment:add', {
-          environment: {
-            name: payload.name,
-            color: payload.color,
-            variables: [],
-          },
-        })
-    " />
+    :type="type" />
+
+  <!-- Delete Modal -->
   <EnvironmentDeleteModal
-    v-if="selectedEnvironment"
-    :name="selectedEnvironment.name"
+    :name="selectedEnvironmentName"
     :state="deleteEnvironmentModalState"
-    @submit="
-      () =>
-        emit('environment:delete', {
-          environmentName: selectedEnvironment!.name,
-        })
-    " />
-  <EnvironmentNameUpdateModal
-    v-if="selectedEnvironment"
-    :name="selectedEnvironment.name"
-    :state="updateNameEnvironmentModalState"
-    @submit="
-      (payload) =>
-        emit('environment:update', {
-          environmentName: selectedEnvironment!.name,
-          environment: { name: payload.name },
-        })
-    " />
-  <EnvironmentColorUpdateModal
-    v-if="selectedEnvironment"
-    :color="selectedEnvironment.color || '#FFFFFF'"
-    :state="updateColorEnvironmentModalState"
-    @submit="
-      (payload) =>
-        emit('environment:update', {
-          environmentName: selectedEnvironment!.name,
-          environment: { color: payload.color },
-        })
-    " />
+    @submit="deleteEnvironment" />
 </template>

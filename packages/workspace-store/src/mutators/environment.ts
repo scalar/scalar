@@ -1,75 +1,63 @@
-import type { UnknownObject } from '@/helpers/general'
-import type { XScalarEnvironment, XScalarEnvironments } from '@/schemas/extensions/document/x-scalar-environments'
+import type { Workspace, WorkspaceDocument } from '@/schemas'
+import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@/schemas/typebox-coerce'
 
 /**
- * Environment mutators for managing client configuration environments in OpenAPI documents.
- * Provides functions to add and delete environments from the document's x-scalar-environments extension.
+ * Adds OR updates an environment to the document or workspace.
  *
- * @param store - The workspace store containing the documents
- * @param documentName - The name of the document to operate on
- * @returns Object containing addEnvironment and deleteEnvironment functions
+ * @param collection - Workspace OR document
+ * @param name - The name of the environment to add
+ * @param environment - The environment configuration to add
+ * @returns the parsed environment that was added or updated or undefined if the collection is not found
+ *
+ * @example
+ * // Add a new development environment
+ * const success = addEnvironment('development', {
+ *   variables: { apiUrl: 'https://dev.example.com/api' }
+ * })
+ *
+ * if (success) {
+ *   console.log('Environment added successfully')
+ * } else {
+ *   console.log('Environment already exists')
+ * }
  */
-export const environmentMutators = (document?: UnknownObject & XScalarEnvironments) => {
-  /**
-   * Adds a new environment to the document's client configuration.
-   * If an environment with the same name already exists, it will log a warning and return false.
-   *
-   * @param name - The name of the environment to add
-   * @param environment - The environment configuration to add
-   * @returns true if the environment was added successfully, false if it already exists or document is missing
-   *
-   * @example
-   * // Add a new development environment
-   * const success = addEnvironment('development', {
-   *   variables: { apiUrl: 'https://dev.example.com/api' }
-   * })
-   *
-   * if (success) {
-   *   console.log('Environment added successfully')
-   * } else {
-   *   console.log('Environment already exists')
-   * }
-   */
-  const addEnvironment = (name: string, environment: XScalarEnvironment) => {
-    if (!document) {
-      return false
-    }
-
-    if (!document['x-scalar-environments']) {
-      document['x-scalar-environments'] = {}
-    }
-
-    if (document['x-scalar-environments'][name]) {
-      console.warn(`Environment with name "${name}" already exists in the document.`)
-      return false
-    }
-
-    document['x-scalar-environments'][name] = environment
-    return true
+export const upsertEnvironment = (
+  collection: WorkspaceDocument | Workspace | null,
+  environmentName: string,
+  payload: Partial<XScalarEnvironment>,
+  newName?: string,
+): XScalarEnvironment | undefined => {
+  if (!collection) {
+    return
   }
 
-  /**
-   * Removes an environment from the document's x-scalar-environments extension by its name.
-   * Returns false if the document or environments object does not exist, otherwise deletes the environment and returns true.
-   *
-   * @param environmentName - The name of the environment to remove
-   * @returns true if the environment was deleted, false otherwise
-   *
-   * @example
-   * // Remove a development environment
-   * deleteEnvironment('development')
-   */
-  const deleteEnvironment = (environmentName: string) => {
-    if (!document || !document['x-scalar-environments']) {
-      return false
-    }
-
-    delete document['x-scalar-environments'][environmentName]
-    return true
+  if (!collection['x-scalar-environments']) {
+    collection['x-scalar-environments'] = {}
   }
 
-  return {
-    addEnvironment,
-    deleteEnvironment,
+  // Ensure we parse the payload for type safety
+  const parsed = coerceValue(xScalarEnvironmentSchema, payload)
+  collection['x-scalar-environments'][environmentName] = parsed
+
+  // Rename the environment
+  if (newName && newName !== environmentName) {
+    console.log('renaming environment', environmentName, 'to', newName)
+    collection['x-scalar-environments'][newName] = parsed
+    delete collection['x-scalar-environments'][environmentName]
   }
+
+  return parsed
 }
+
+/**
+ * Removes an environment from the document or workspace's x-scalar-environments extension by its name.
+ *
+ * @param name - The name of the environment to remove
+ *
+ * @example
+ * // Remove a development environment
+ * deleteEnvironment('development')
+ */
+export const deleteEnvironment = (collection: WorkspaceDocument | Workspace | null, environmentName: string) =>
+  delete collection?.['x-scalar-environments']?.[environmentName]
