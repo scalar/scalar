@@ -5,7 +5,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, onMounted, ref, type CSSProperties } from 'vue'
-import { useRouter } from 'vue-router'
 
 const { query, environment, dropdownPosition } = defineProps<{
   query: string
@@ -15,40 +14,15 @@ const { query, environment, dropdownPosition } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'select', variable: string): void
+  (e: 'redirect'): void
 }>()
 
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
-const router = useRouter()
 
 const redirectToEnvironment = () => {
-  if (!router) {
-    return
-  }
-  // const { currentRoute, push } = router
-  // const workspaceId = currentRoute.value.params.workspace
-
-  // // Global environment page for draft collection
-  // if (
-  //   !activeCollection.value ||
-  //   activeCollection.value.info?.title === 'Drafts'
-  // ) {
-  //   push({
-  //     name: 'environment.default',
-  //     params: {
-  //       [PathId.Workspace]: workspaceId,
-  //     },
-  //   })
-  // } else {
-  //   // Collection environment page for collections
-  //   push({
-  //     name: 'collection.environment',
-  //     params: {
-  //       [PathId.Collection]: activeCollection.value.uid,
-  //     },
-  //   })
-  // }
+  emit('redirect')
   isOpen.value = false
 }
 
@@ -169,7 +143,7 @@ onClickOutside(
         </template>
       </ul>
       <ScalarButton
-        v-else-if="router"
+        v-else
         class="font-code text-xxs bg-b-inherit hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
