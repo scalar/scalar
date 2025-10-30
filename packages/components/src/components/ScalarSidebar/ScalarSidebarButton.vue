@@ -63,7 +63,7 @@ const { cx } = useBindCx()
         :indent
         :selected />
     </slot>
-    <div class="flex items-center gap-1 flex-1 py-2 leading-5">
+    <div class="flex items-center gap-1 flex-1 py-2 leading-5 min-w-0">
       <div
         v-if="icon || $slots.icon"
         class="size-4">
