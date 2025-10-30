@@ -98,7 +98,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/picomatch": "^2.3.3",
+    "@types/picomatch": "catalog:*",
     "vite": "catalog:*"
   },
   "peerDependencies": {
