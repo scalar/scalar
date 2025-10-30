@@ -2,6 +2,7 @@ package com.scalar.maven.webjar;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,7 @@ public class ScalarAutoConfiguration {
      * @return a configured ScalarController instance
      */
     @Bean
+    @ConditionalOnMissingBean(ScalarController.class)
     public ScalarController scalarController(ScalarProperties properties) {
         return new ScalarController(properties);
     }
