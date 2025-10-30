@@ -149,9 +149,7 @@ const environment = computed<XScalarEnvironment>(() => {
 #scalar-client {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  width: 100dvw;
-  position: relative;
+  min-height: 100dvh;
   background-color: var(--scalar-background-2);
 }
 .dark-mode #scalar-client {
