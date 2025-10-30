@@ -81,6 +81,11 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
 
       const value = Reflect.get(target, prop, receiver)
 
+      // Return early if the value is already an overrides proxy
+      if (isOverridesProxyObject(value)) {
+        return value
+      }
+
       // If the value is not an object, return the override if it exists, else the original value
       if (!isObject(value)) {
         return Reflect.get(overrides ?? {}, prop) ?? value
@@ -113,6 +118,10 @@ export const createOverridesProxy = <T extends Record<string, unknown>>(
   const proxy = new Proxy<T>(target, handler)
   args.cache.set(target, proxy)
   return proxy
+}
+
+export const isOverridesProxyObject = (obj: unknown): boolean => {
+  return typeof obj === 'object' && obj !== null && (obj as { [isOverridesProxy]: boolean })[isOverridesProxy] === true
 }
 
 /**

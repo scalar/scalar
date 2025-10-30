@@ -46,6 +46,7 @@ describe('plugins', () => {
               return {
                 ok: true,
                 data: { resolved: true },
+                raw: JSON.stringify({ message: 'Resolved document' }),
               }
             },
           },

@@ -35,7 +35,7 @@ const storybookServer: WebServer = {
   command: 'pnpm preview',
   url: 'http://localhost:5100',
   reuseExistingServer: !CI,
-}
+} as const
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({

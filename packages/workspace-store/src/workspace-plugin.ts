@@ -36,11 +36,6 @@ export type WorkspaceStateChangeEvent =
       value: InMemoryWorkspace['overrides'][string]
     }
   | {
-      type: 'documentMeta'
-      documentName: string
-      value: InMemoryWorkspace['documentMeta'][string]
-    }
-  | {
       type: 'meta'
       value: InMemoryWorkspace['meta']
     }

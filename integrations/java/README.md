@@ -18,4 +18,4 @@ cd integrations/java/springboot
 mvn clean spring-boot:run
 ```
 
-Then visit `http://localhost:8080/scalar` to see the API reference.
+Then visit `http://localhost:8080/scalar` to see the API Reference.

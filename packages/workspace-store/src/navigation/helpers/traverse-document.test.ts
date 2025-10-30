@@ -25,6 +25,8 @@ describe('traverseDocument', () => {
         title: 'Test API',
         version: '1.0.0',
       },
+
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', emptyDoc, mockOptions)
@@ -40,6 +42,7 @@ describe('traverseDocument', () => {
         version: '1.0.0',
         description: '# Test Description\n## Section 1\nContent',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -85,6 +88,7 @@ describe('traverseDocument', () => {
           description: 'Test Tag',
         },
       ],
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -134,6 +138,7 @@ describe('traverseDocument', () => {
           },
         },
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -170,6 +175,7 @@ describe('traverseDocument', () => {
           }),
         },
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -204,6 +210,7 @@ describe('traverseDocument', () => {
           }),
         },
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const optionsWithHiddenModels = {
@@ -261,6 +268,7 @@ describe('traverseDocument', () => {
           description: 'Tag 2',
         },
       ],
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -331,6 +339,7 @@ describe('traverseDocument', () => {
           },
         },
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)
@@ -390,6 +399,7 @@ describe('traverseDocument', () => {
           description: 'A Tag',
         },
       ],
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseDocument('doc-1', doc, mockOptions)

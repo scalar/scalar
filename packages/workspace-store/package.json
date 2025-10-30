@@ -111,9 +111,9 @@
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
+    "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "fake-indexeddb": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

@@ -1,5 +1,6 @@
-import { parseJson } from '@/bundle/plugins/parse-json'
 import { describe, expect, it } from 'vitest'
+
+import { parseJson } from '@/bundle/plugins/parse-json'
 
 describe('parse-json', () => {
   it.each([
@@ -17,6 +18,7 @@ describe('parse-json', () => {
     expect(await parseJson().exec('{ "message": "Hello World" }')).toEqual({
       ok: true,
       data: { message: 'Hello World' },
+      'raw': '{ "message": "Hello World" }',
     })
   })
 })

@@ -44,7 +44,7 @@ const handleDragEnd = (
   <ScalarSidebar class="flex min-h-0 flex-col">
     <slot name="header" />
     <slot>
-      <ScalarSidebarItems class="custom-scroll">
+      <ScalarSidebarItems class="custom-scroll pt-0">
         <!-- First item -->
         <slot name="firstItem" />
 
