@@ -1,6 +1,6 @@
 import { dereference } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { type Context, Hono } from 'hono'
+import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import type { HttpMethod, MockServerOptions } from '@/types'
@@ -17,7 +17,7 @@ import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 /**
  * Create a mock server instance
  */
-export function createMockServer(options: MockServerOptions) {
+export function createMockServer(options: MockServerOptions): Promise<Hono> {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
@@ -50,7 +50,7 @@ export function createMockServer(options: MockServerOptions) {
       }
 
       // Actual route
-      app[method](route, (c: Context) => mockAnyResponse(c, operation, options))
+      app[method](route, (c) => mockAnyResponse(c, operation, options))
     })
   })
 
@@ -60,5 +60,9 @@ export function createMockServer(options: MockServerOptions) {
   // OpenAPI YAML file
   app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.specification, 'yaml'))
 
-  return app
+  /**
+   * No async code, but returning a Promise to allow future async logic to be implemented
+   * @see https://github.com/scalar/scalar/pull/7174#discussion_r2470046281
+   */
+  return Promise.resolve(app)
 }

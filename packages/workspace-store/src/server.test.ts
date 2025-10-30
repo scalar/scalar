@@ -106,6 +106,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-original-document-hash': '',
       })
 
       expect(store.getWorkspace()).toEqual({
@@ -202,6 +203,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-original-document-hash': '',
       })
 
       expect(workspace.documents['doc-3']).toEqual({
@@ -240,6 +242,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-original-document-hash': '',
       })
     })
   })
@@ -320,6 +323,7 @@ describe('create-server-store', () => {
                 },
               ],
             },
+            'x-scalar-original-document-hash': '',
           },
           'doc-2': {
             'x-scalar-active-auth': 'test',
@@ -355,6 +359,7 @@ describe('create-server-store', () => {
                 },
               ],
             },
+            'x-scalar-original-document-hash': '',
           },
         },
         'x-scalar-active-document': 'test',
@@ -551,6 +556,7 @@ describe('externalize-component-references', () => {
             }),
           },
         },
+        'x-scalar-original-document-hash': '',
       },
       {
         mode: 'ssr',
@@ -587,6 +593,7 @@ describe('externalize-component-references', () => {
             }),
           },
         },
+        'x-scalar-original-document-hash': '',
       },
       {
         mode: 'static',
@@ -617,6 +624,7 @@ describe('externalize-path-references', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       },
       {
         mode: 'ssr',
@@ -675,6 +683,7 @@ describe('externalize-path-references', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       },
       {
         mode: 'static',

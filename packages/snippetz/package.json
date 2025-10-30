@@ -16,9 +16,10 @@
   "scripts": {
     "build": "scalar-build-esbuild",
     "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
+    "generate:java-enums": "vite-node scripts/generate-java-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "postbuild": "pnpm generate:dotnet-enums",
+    "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
