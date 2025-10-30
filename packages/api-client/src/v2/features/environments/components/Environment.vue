@@ -1,10 +1,5 @@
 <script lang="ts" setup>
 import { ScalarIconButton } from '@scalar/components'
-import {
-  Draggable,
-  type DraggingItem,
-  type HoveredItem,
-} from '@scalar/draggable'
 import { ScalarIconNotePencil, ScalarIconTrash } from '@scalar/icons'
 import type {
   CollectionType,
@@ -26,33 +21,11 @@ const emit = defineEmits<{
   (e: 'edit'): void
   (e: 'delete'): void
 }>()
-
-/** Handle drag end event to reorder environments */
-const handleDragEnd = (
-  draggingItem: { id: string },
-  hoveredItem: { id: string },
-) => {
-  eventBus.emit('environment:update:environment-order', {
-    draggingItem,
-    hoveredItem,
-    type,
-  })
-}
-
-/** Prevent dropping inside another environment */
-const isDroppable = (_: DraggingItem, { offset }: HoveredItem) => offset !== 2
 </script>
 <template>
-  <Draggable
-    :id="environmentName"
-    class="group rounded-lg border"
-    :isDraggable="true"
-    :isDroppable="isDroppable"
-    :parentIds="[]"
-    @onDragEnd="handleDragEnd">
+  <div class="group rounded-lg border">
     <!-- Info -->
-    <div
-      class="bg-b-2 flex cursor-grab justify-between rounded-t-lg px-1 py-1 text-sm">
+    <div class="bg-b-2 flex justify-between rounded-t-lg px-1 py-1 text-sm">
       <div class="flex items-center gap-1">
         <div class="flex h-6 w-6 items-center justify-center p-1">
           <span
@@ -86,5 +59,5 @@ const isDroppable = (_: DraggingItem, { offset }: HoveredItem) => offset !== 2
       :environmentName="environmentName"
       :eventBus="eventBus"
       :type="type" />
-  </Draggable>
+  </div>
 </template>

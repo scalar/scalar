@@ -22,13 +22,6 @@ export type EnvironmentEvents = {
     index?: number
   } & CollectionType
   /**
-   * Reorder environments
-   */
-  'environment:update:environment-order': {
-    draggingItem: { id: string }
-    hoveredItem: { id: string }
-  } & CollectionType
-  /**
    * Delete an environment
    */
   'environment:delete:environment': { environmentName: string } & CollectionType
