@@ -73,7 +73,7 @@ const runLazyBus = () => {
    * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
    */
   const executeRender = async () => {
-    if (pendingQueue.size > 0) {
+    if (pendingQueue.size > 0 || priorityQueue.size > 0) {
       isRunning.value = true
 
       for (const id of pendingQueue.values()) {
