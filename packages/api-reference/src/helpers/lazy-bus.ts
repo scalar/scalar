@@ -109,11 +109,15 @@ const runLazyBus = () => {
 /**
  * Run the lazy bus when the queue changes and is not currently running
  * Debounce so that multiple changes to the queue are batched together
+ *
+ * We must run when the priority queue changes because we rely on finish callbacks
+ * anytime we request potentially lazy elements. If we don't run when the priority queue changes
+ * we may not have a finish callback even though the element is set to load.
  */
 watchDebounced(
-  [() => pendingQueue.size, () => isRunning.value],
+  [() => pendingQueue.size, () => priorityQueue.size, () => isRunning.value],
   () => {
-    if (pendingQueue.size > 0 && !isRunning.value) {
+    if ((pendingQueue.size > 0 || priorityQueue.size > 0) && !isRunning.value) {
       runLazyBus()
     }
   },
