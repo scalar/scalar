@@ -101,7 +101,7 @@ const handleVariableDelete = (index: number): void =>
 <template>
   <!-- Environment variables table -->
   <DataTable
-    class="group/table data-table h-min flex-1 rounded border"
+    class="group/table data-table h-min flex-1 rounded"
     :columns="COLUMNS">
     <!-- Accessibility header row -->
     <DataTableRow class="sr-only !block">

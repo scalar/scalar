@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { ScalarIconButton } from '@scalar/components'
-import { Draggable } from '@scalar/draggable'
+import {
+  Draggable,
+  type DraggingItem,
+  type HoveredItem,
+} from '@scalar/draggable'
 import { ScalarIconNotePencil, ScalarIconTrash } from '@scalar/icons'
 import type {
   CollectionType,
@@ -34,13 +38,16 @@ const handleDragEnd = (
     type,
   })
 }
+
+/** Prevent dropping inside another environment */
+const isDroppable = (_: DraggingItem, { offset }: HoveredItem) => offset !== 2
 </script>
 <template>
   <Draggable
     :id="environmentName"
     class="group rounded-lg border"
     :isDraggable="true"
-    :isDroppable="true"
+    :isDroppable="isDroppable"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
     <!-- Info -->
