@@ -10,10 +10,11 @@ import type {
   SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
 import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
+import { useVirtual } from '@/hooks/use-virtual'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
@@ -88,32 +89,41 @@ const selectedServer = computed<ServerObject | undefined>(() =>
     server,
   ),
 )
+
+const virtual = useTemplateRef<HTMLElement>('virtual')
+
+const { isVisible, placeholderHeight } = useVirtual(virtual)
 </script>
 
 <template>
-  <template v-if="operation">
-    <ClassicLayout
-      v-if="options?.layout === 'classic'"
-      :id="id"
-      :eventBus="eventBus"
-      :isCollapsed="isCollapsed"
-      :method="method"
-      :operation="operation"
-      :options="options"
-      :path="path"
-      :securitySchemes="selectedSecuritySchemes"
-      :server="selectedServer"
-      :xScalarDefaultClient="xScalarDefaultClient" />
-    <ModernLayout
-      v-else
-      :id="id"
-      :eventBus="eventBus"
-      :method="method"
-      :operation="operation"
-      :options="options"
-      :path="path"
-      :securitySchemes="selectedSecuritySchemes"
-      :server="selectedServer"
-      :xScalarDefaultClient="xScalarDefaultClient" />
-  </template>
+  <div
+    :id="id"
+    ref="virtual"
+    :style="{ minHeight: `${placeholderHeight}px` }">
+    <template v-if="isVisible && operation">
+      <ClassicLayout
+        v-if="options?.layout === 'classic'"
+        :id="id"
+        :eventBus="eventBus"
+        :isCollapsed="isCollapsed"
+        :method="method"
+        :operation="operation"
+        :options="options"
+        :path="path"
+        :securitySchemes="selectedSecuritySchemes"
+        :server="selectedServer"
+        :xScalarDefaultClient="xScalarDefaultClient" />
+      <ModernLayout
+        v-else
+        :id="id"
+        :eventBus="eventBus"
+        :method="method"
+        :operation="operation"
+        :options="options"
+        :path="path"
+        :securitySchemes="selectedSecuritySchemes"
+        :server="selectedServer"
+        :xScalarDefaultClient="xScalarDefaultClient" />
+    </template>
+  </div>
 </template>
