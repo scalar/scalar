@@ -50,6 +50,7 @@ describe('traverseSchemas', () => {
         title: 'Test API',
         version: '1.0.0',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const result = traverseSchemas({

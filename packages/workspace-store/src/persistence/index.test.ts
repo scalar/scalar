@@ -38,7 +38,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -51,7 +50,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -75,7 +73,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -88,7 +85,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -101,7 +97,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -123,7 +118,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -136,7 +130,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -149,7 +142,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -176,7 +168,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
           meta: {},
           documentConfigs: {},
         },
@@ -190,7 +181,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
+
           meta: {},
           documentConfigs: {},
         },
@@ -215,7 +206,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -242,6 +233,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               openapi: '3.1.0',
               info: { title: 'API Doc', version: '1.0.0' },
               paths: {},
+              'x-scalar-original-document-hash': '',
             },
           },
           originalDocuments: {
@@ -252,9 +244,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           },
           overrides: {
             'doc-1': { custom: 'value' },
-          },
-          documentMeta: {
-            'doc-1': { documentSource: 'https://example.com/api.json' },
           },
           meta: {
             'x-scalar-active-document': 'doc-1',
@@ -285,7 +274,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
+
           meta: {},
           documentConfigs: {},
         },
@@ -298,7 +287,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentMeta: {},
+
           meta: {},
           documentConfigs: {},
         },
@@ -325,7 +314,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -356,7 +345,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -384,7 +373,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -419,7 +408,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -429,6 +418,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0.0' },
           paths: {},
+          'x-scalar-original-document-hash': '',
         }
 
         await persistence.documents.setItem(workspaceId, documentName, document)
@@ -447,7 +437,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -457,12 +447,14 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           openapi: '3.1.0',
           info: { title: 'API 1', version: '1.0.0' },
           paths: {},
+          'x-scalar-original-document-hash': '',
         }
 
         const doc2 = {
           openapi: '3.1.0',
           info: { title: 'API 2', version: '2.0.0' },
           paths: {},
+          'x-scalar-original-document-hash': '',
         }
 
         await persistence.documents.setItem(workspaceId, 'doc-1', doc1)
@@ -487,7 +479,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -518,7 +510,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -549,7 +541,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },
@@ -567,58 +559,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       })
     })
 
-    describe('documentMeta.setItem', () => {
-      it('sets document meta information', async () => {
-        const workspaceId = 'workspace-1'
-        const documentName = 'api-doc'
-
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            documentMeta: {},
-            meta: {},
-            documentConfigs: {},
-          },
-        })
-
-        const meta = {
-          documentSource: 'https://api.example.com/openapi.json',
-        }
-
-        await persistence.documentMeta.setItem(workspaceId, documentName, meta)
-
-        const workspace = await persistence.workspace.getItem(workspaceId)
-        expect(workspace?.workspace.documentMeta[documentName]).toEqual(meta)
-      })
-
-      it('handles optional documentSource', async () => {
-        const workspaceId = 'workspace-1'
-        const documentName = 'api-doc'
-
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            documentMeta: {},
-            meta: {},
-            documentConfigs: {},
-          },
-        })
-
-        await persistence.documentMeta.setItem(workspaceId, documentName, {})
-
-        const workspace = await persistence.workspace.getItem(workspaceId)
-        expect(workspace?.workspace.documentMeta[documentName]).toEqual({})
-      })
-    })
-
     describe('documentConfigs.setItem', () => {
       it('sets document configuration', async () => {
         const workspaceId = 'workspace-1'
@@ -631,7 +571,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-            documentMeta: {},
+
             meta: {},
             documentConfigs: {},
           },

@@ -26,6 +26,7 @@ describe('openapi-document', () => {
           title: 'Test API',
           version: '1.0.0',
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const result = coerceValue(OpenAPIDocumentSchema, validInput)
@@ -95,6 +96,7 @@ describe('openapi-document', () => {
           description: 'Find more info here',
           url: 'https://example.com/docs',
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const result = coerceValue(OpenAPIDocumentSchema, comprehensiveInput)
@@ -124,6 +126,7 @@ describe('openapi-document', () => {
             get: { responses: { '200': { description: 'OK' } } },
           },
         },
+        'x-scalar-original-document-hash': '',
       })
     })
   })

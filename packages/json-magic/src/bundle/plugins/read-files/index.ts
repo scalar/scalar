@@ -29,6 +29,7 @@ export async function readFile(path: string): Promise<ResolveResult> {
     return {
       ok: true,
       data: normalize(fileContents),
+      raw: fileContents,
     }
   } catch {
     return {

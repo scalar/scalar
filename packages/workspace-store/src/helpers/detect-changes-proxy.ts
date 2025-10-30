@@ -78,7 +78,7 @@ export const createDetectChangesProxy = <T>(
       // Recursively wrap property values in the detect changes proxy
       const value = Reflect.get(target, prop, receiver)
 
-      if (isPropsVue(prop)) {
+      if (isDetectChangesProxyObject(value) || isPropsVue(prop)) {
         return value
       }
 
@@ -98,6 +98,14 @@ export const createDetectChangesProxy = <T>(
   // Cache the proxy for this target
   args.proxyCache.set(target, proxy)
   return proxy
+}
+
+export const isDetectChangesProxyObject = (obj: unknown): boolean => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    (obj as { [isDetectChangesProxy]: boolean })[isDetectChangesProxy] === true
+  )
 }
 
 /**

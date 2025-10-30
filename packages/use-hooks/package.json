@@ -67,8 +67,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
-    "vite": "catalog:*",
-    "zod-to-ts": "^1.2.0"
+    "@vue/test-utils": "catalog:*",
+    "vite": "catalog:*"
   }
 }

@@ -1,4 +1,4 @@
-import type { Source } from '@test/data/sources'
+import type { Source } from '@test/utils/sources'
 
 /** Type guard for classic layout */
 export function isClassic(config: Source): config is Source & { layout: 'classic' } {

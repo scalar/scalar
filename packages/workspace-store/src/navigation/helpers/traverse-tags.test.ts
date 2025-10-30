@@ -16,6 +16,7 @@ describe('traverseTags', () => {
     info: { title: 'Test API', version: '1.0.0' },
     paths: {},
     ...(tagGroups && { 'x-tagGroups': tagGroups }),
+    'x-scalar-original-document-hash': '',
   })
 
   // Helper function to create a mock tag

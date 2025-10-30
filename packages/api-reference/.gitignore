@@ -1,5 +1,7 @@
 /coverage
 /test-results
+/test-results-cdn
 /playwright-report
-/test-cdn/.snapshots
+/playwright-report-cdn
+/test/snapshots-cdn/*.snapshots
 content.json

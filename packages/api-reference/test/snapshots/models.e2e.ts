@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { isClassic } from '@test/utils/is-classic'
 import { serveExample } from '@test/utils/serve-example'
 
-import { type Slug, sources } from '../data/sources'
+import { type Slug, sources } from '../utils/sources'
 
 /** A shorter list of slugs to test */
 const slugs: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']

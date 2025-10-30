@@ -14,6 +14,7 @@ describe('traversePaths', () => {
       version: '1.0.0',
     },
     paths: {},
+    'x-scalar-original-document-hash': '',
   })
 
   it('should handle empty paths', () => {

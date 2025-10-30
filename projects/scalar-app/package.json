@@ -26,7 +26,6 @@
     "preview": "electron-vite preview",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
     "todesktop:build": "todesktop build",
     "todesktop:build:ci": "todesktop build --async",
     "todesktop:release": "todesktop release",

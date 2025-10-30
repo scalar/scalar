@@ -59,6 +59,7 @@ export async function fetchUrl(
       return {
         ok: true,
         data: normalize(body),
+        raw: body,
       }
     }
 

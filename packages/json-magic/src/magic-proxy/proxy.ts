@@ -140,6 +140,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
         // Resolve the reference and create a new magic proxy
         const resolvedValue = getValueByPath(args.root, parseJsonPointer(`#/${path}`))
+        // Return early if the value is already a magic proxy
+        if (isMagicProxyObject(resolvedValue.value)) {
+          return resolvedValue.value
+        }
         const proxiedValue = createMagicProxy(resolvedValue.value, options, {
           ...args,
           currentContext: resolvedValue.context,
@@ -152,6 +156,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
+
+      // Return early if the value is already a magic proxy
+      if (isMagicProxyObject(value)) {
+        return value
+      }
+
       return createMagicProxy(value as T, options, { ...args, currentContext: id ?? args.currentContext })
     },
     /**
@@ -284,6 +294,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   const proxied = new Proxy<T>(target, handler)
   args.proxyCache.set(target, proxied)
   return proxied
+}
+
+export const isMagicProxyObject = (obj: unknown): boolean => {
+  return typeof obj === 'object' && obj !== null && (obj as { [isMagicProxy]: boolean })[isMagicProxy] === true
 }
 
 /**

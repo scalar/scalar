@@ -2,8 +2,7 @@ import { Type } from '@scalar/typebox'
 
 import { createIndexDbConnection } from '@/persistence/indexdb'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import type { WorkspaceDocument, WorkspaceMeta } from '@/schemas/workspace'
-import type { Config } from '@/schemas/workspace-specification/config'
+import type { WorkspaceMeta } from '@/schemas/workspace'
 
 type WorkspaceStoreShape = {
   name: string
@@ -49,10 +48,6 @@ export const createWorkspaceStorePersistence = async () => {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
         index: ['workspaceId', 'documentName'],
       },
-      documentMeta: {
-        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
-      },
       documentConfigs: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
         index: ['workspaceId', 'documentName'],
@@ -67,13 +62,12 @@ export const createWorkspaceStorePersistence = async () => {
   const originalDocumentTable = connection.get('originalDocuments')
   const intermediateDocumentTable = connection.get('intermediateDocuments')
   const overridesTable = connection.get('overrides')
-  const documentMetaTable = connection.get('documentMeta')
   const documentConfigsTable = connection.get('documentConfigs')
 
   // The returned persistence API with logical sections for each table and mapping.
   return {
     close: async () => {
-      return await connection.closeDatabase()
+      return connection.closeDatabase()
     },
     meta: {
       /**
@@ -87,7 +81,7 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Set (persist) a workspace document using workspaceId and documentName as composite key.
        */
-      setItem: async (workspaceId: string, documentName: string, data: WorkspaceDocument) => {
+      setItem: async (workspaceId: string, documentName: string, data: InMemoryWorkspace['documents'][string]) => {
         await documentsTable.addItem({ workspaceId, documentName }, { data })
       },
     },
@@ -95,7 +89,11 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Set an original (raw) document for a workspace/document pair.
        */
-      setItem: async (workspaceId: string, documentName: string, data: Record<string, unknown>) => {
+      setItem: async (
+        workspaceId: string,
+        documentName: string,
+        data: InMemoryWorkspace['originalDocuments'][string],
+      ) => {
         await originalDocumentTable.addItem({ workspaceId, documentName }, { data })
       },
     },
@@ -103,7 +101,11 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Set an intermediate (transformed) document for a workspace/document pair.
        */
-      setItem: async (workspaceId: string, documentName: string, data: Record<string, unknown>) => {
+      setItem: async (
+        workspaceId: string,
+        documentName: string,
+        data: InMemoryWorkspace['intermediateDocuments'][string],
+      ) => {
         await intermediateDocumentTable.addItem({ workspaceId, documentName }, { data })
       },
     },
@@ -111,23 +113,19 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Set document overrides for a workspace/document pair.
        */
-      setItem: async (workspaceId: string, documentName: string, data: Record<string, unknown>) => {
+      setItem: async (workspaceId: string, documentName: string, data: InMemoryWorkspace['overrides'][string]) => {
         await overridesTable.addItem({ workspaceId, documentName }, { data })
-      },
-    },
-    documentMeta: {
-      /**
-       * Set document meta information such as documentSource.
-       */
-      setItem: async (workspaceId: string, documentName: string, data: { documentSource?: string }) => {
-        await documentMetaTable.addItem({ workspaceId, documentName }, { data })
       },
     },
     documentConfigs: {
       /**
        * Set configuration for a document in a workspace.
        */
-      setItem: async (workspaceId: string, documentName: string, data: Config) => {
+      setItem: async (
+        workspaceId: string,
+        documentName: string,
+        data: InMemoryWorkspace['documentConfigs'][string],
+      ) => {
         await documentConfigsTable.addItem({ workspaceId, documentName }, { data })
       },
     },
@@ -149,7 +147,6 @@ export const createWorkspaceStorePersistence = async () => {
         const workspaceOriginalDocuments = await originalDocumentTable.getRange([id])
         const workspaceIntermediateDocuments = await intermediateDocumentTable.getRange([id])
         const workspaceOverrides = await overridesTable.getRange([id])
-        const workspaceDocumentMeta = await documentMetaTable.getRange([id])
         const workspaceMeta = await metaTable.getItem({ workspaceId: id })
         const workspaceDocumentConfigs = await documentConfigsTable.getRange([id])
 
@@ -166,7 +163,6 @@ export const createWorkspaceStorePersistence = async () => {
               workspaceIntermediateDocuments.map((item) => [item.documentName, item.data]),
             ),
             overrides: Object.fromEntries(workspaceOverrides.map((item) => [item.documentName, item.data])),
-            documentMeta: Object.fromEntries(workspaceDocumentMeta.map((item) => [item.documentName, item.data])),
             meta: workspaceMeta?.data,
             documentConfigs: Object.fromEntries(workspaceDocumentConfigs.map((item) => [item.documentName, item.data])),
           },
@@ -222,13 +218,6 @@ export const createWorkspaceStorePersistence = async () => {
           }),
         )
 
-        // Persist all document meta info.
-        await Promise.all(
-          Object.entries(value.workspace.documentMeta ?? {}).map(([name, data]) => {
-            return documentMetaTable.addItem({ workspaceId: id, documentName: name }, { data })
-          }),
-        )
-
         // Persist all document configs.
         await Promise.all(
           Object.entries(value.workspace.documentConfigs ?? {}).map(([name, data]) => {
@@ -253,7 +242,6 @@ export const createWorkspaceStorePersistence = async () => {
           originalDocumentTable.deleteRange([id]),
           intermediateDocumentTable.deleteRange([id]),
           overridesTable.deleteRange([id]),
-          documentMetaTable.deleteRange([id]),
           documentConfigsTable.deleteRange([id]),
         ])
       },

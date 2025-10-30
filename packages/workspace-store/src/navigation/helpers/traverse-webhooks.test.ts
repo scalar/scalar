@@ -12,6 +12,7 @@ describe('traverse-webhooks', () => {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -47,6 +48,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -90,6 +92,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -133,6 +136,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -168,6 +172,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -203,6 +208,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()
@@ -249,6 +255,7 @@ describe('traverse-webhooks', () => {
             },
           },
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const tagsMap: TagsMap = new Map()

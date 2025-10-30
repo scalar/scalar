@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@scalar-examples/*", "playwright", "client-scalar-com", "proxy-scalar-com", "@scalar-internal/*"]
+  "ignore": ["@scalar-examples/*", "client-scalar-com", "proxy-scalar-com", "@scalar-internal/*"]
 }

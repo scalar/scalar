@@ -14,6 +14,7 @@ describe('ClientLibraries', () => {
     },
     paths: {},
     openapi: '3.0.0',
+    'x-scalar-original-document-hash': '',
   }
 
   const mockClientOptions: ClientOptionGroup[] = [

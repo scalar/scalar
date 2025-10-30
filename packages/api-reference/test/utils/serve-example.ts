@@ -88,6 +88,37 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
   })
 }
 
+export async function serveHTMLExample(
+  htmlPath: string,
+  port = 3745,
+): Promise<{
+  url: string
+  shutdown: () => void
+}> {
+  const app = new Hono()
+
+  app.get('/scalar.js', (c) => c.text(readFileSync(getPathToJavaScriptBundle(), 'utf8')))
+
+  app.get('*', (c) => {
+    return c.html(readFileSync(htmlPath, 'utf8'))
+  })
+
+  return new Promise((resolve) => {
+    const server = serve(
+      {
+        fetch: app.fetch,
+        port,
+      },
+      ({ port }) => {
+        resolve({
+          url: `http://localhost:${port}`,
+          shutdown: () => server.close(),
+        })
+      },
+    )
+  })
+}
+
 /**
  * Looks into the package.json and returns the path to the browser bundle.
  */

@@ -79,6 +79,11 @@
       "import": "./dist/url/*.js",
       "types": "./dist/url/*.d.ts",
       "default": "./dist/url/*.js"
+    },
+    "./crypto/*": {
+      "import": "./dist/crypto/*.js",
+      "types": "./dist/crypto/*.d.ts",
+      "default": "./dist/crypto/*.js"
     }
   },
   "files": [

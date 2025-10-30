@@ -93,7 +93,7 @@ const handleDragEnd = (
 <template>
   <Draggable
     :id="item.id"
-    class="grid flex-1"
+    class="flex flex-1 flex-col wrap-break-word"
     :isDraggable="layout === 'client'"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
@@ -130,8 +130,8 @@ const handleDragEnd = (
       :active="isSelected(item.id)"
       :modelValue="isExpanded(item.id)"
       @update:modelValue="() => emits('selectItem', item.id)">
-      <div class="group/entry flex flex-1 items-center">
-        {{ item.title }}
+      <div class="group/entry flex min-w-0 flex-1 items-center">
+        <div class="min-w-0 flex-1">{{ item.title }}</div>
         <slot
           :item="item"
           name="aside" />
@@ -177,13 +177,15 @@ const handleDragEnd = (
       class="text-left"
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
-      <div class="group/entry flex flex-1 items-center">
-        <template v-if="options?.operationTitleSource === 'path'">
-          {{ getPathOrTitle(item) }}
-        </template>
-        <template v-else>
-          {{ item.title }}
-        </template>
+      <div class="group/entry flex min-w-0 flex-1 items-center">
+        <div class="min-w-0 flex-1">
+          <template v-if="options?.operationTitleSource === 'path'">
+            {{ getPathOrTitle(item) }}
+          </template>
+          <template v-else>
+            {{ item.title }}
+          </template>
+        </div>
         <slot
           :item="item"
           name="aside" />
