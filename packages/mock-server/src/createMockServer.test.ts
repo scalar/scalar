@@ -30,7 +30,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -83,7 +83,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -128,7 +128,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar', {
       headers: {
@@ -170,7 +170,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -207,7 +207,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -246,7 +246,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -283,7 +283,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar', {
       method: 'POST',
@@ -322,7 +322,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar', {
       method: 'POST',
@@ -361,7 +361,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar/123')
 
@@ -405,7 +405,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar/123')
 
@@ -448,7 +448,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -491,7 +491,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar/123')
 
@@ -528,7 +528,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     // Options request
     let response = await server.request('/foobar', {
@@ -591,7 +591,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/foobar')
 
@@ -627,7 +627,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = createMockServer({ specification })
+    const server = await createMockServer({ specification })
 
     const response = await server.request('/redirect')
 

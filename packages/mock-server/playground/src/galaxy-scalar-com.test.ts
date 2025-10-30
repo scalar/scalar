@@ -1,9 +1,11 @@
 import { readFile } from 'node:fs/promises'
+
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
-import type { Context } from 'hono'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Context, Hono } from 'hono'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { configureApiReference, createApp, loadDocument, main, startServer } from './galaxy-scalar-com'
 
 // Mock all external dependencies
@@ -12,13 +14,16 @@ vi.mock('@hono/node-server')
 vi.mock('@scalar/hono-api-reference')
 vi.mock('@scalar/mock-server')
 
-// Mock environment variables
-const originalEnv = process.env
-
 describe('galaxy-scalar-com', () => {
+  const mockApp = {
+    get: vi.fn(),
+    fetch: vi.fn(),
+  } as Partial<Hono>
+
   beforeEach(() => {
+    vi.unstubAllEnvs()
+
     vi.clearAllMocks()
-    process.env = { ...originalEnv }
 
     // Reset mocks
     vi.mocked(readFile).mockReset()
@@ -27,13 +32,12 @@ describe('galaxy-scalar-com', () => {
     vi.mocked(createMockServer).mockReset()
 
     // Mock console methods
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(console, 'error').mockImplementation(() => {})
-  })
+    vi.spyOn(console, 'log').mockImplementation(vi.fn())
+    vi.spyOn(console, 'error').mockImplementation(vi.fn())
 
-  afterEach(() => {
-    process.env = originalEnv
-    vi.restoreAllMocks()
+    return () => {
+      vi.restoreAllMocks()
+    }
   })
 
   describe('loadDocument', () => {
@@ -64,11 +68,7 @@ describe('galaxy-scalar-com', () => {
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       const app = await createApp()
 
@@ -83,11 +83,7 @@ describe('galaxy-scalar-com', () => {
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       await createApp()
 
@@ -118,12 +114,7 @@ describe('galaxy-scalar-com', () => {
 
   describe('configureApiReference', () => {
     it('configures Scalar with correct options', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      configureApiReference(mockApp as any, 5052, false)
+      configureApiReference(mockApp as Hono, 5052, false)
 
       expect(Scalar).toHaveBeenCalledWith({
         pageTitle: 'Scalar Galaxy',
@@ -149,12 +140,7 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('configures Scalar with local JS bundle when enabled', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      configureApiReference(mockApp as any, 5052, true)
+      configureApiReference(mockApp as Hono, 5052, true)
 
       expect(Scalar).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -165,23 +151,13 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('adds scalar.js route when local JS bundle is enabled', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      configureApiReference(mockApp as any, 5052, true)
+      configureApiReference(mockApp as Hono, 5052, true)
 
       expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
     })
 
     it('does not add scalar.js route when local JS bundle is disabled', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      configureApiReference(mockApp as any, 5052, false)
+      configureApiReference(mockApp as Hono, 5052, false)
 
       expect(mockApp.get).not.toHaveBeenCalledWith('/scalar.js', expect.any(Function))
     })
@@ -189,12 +165,7 @@ describe('galaxy-scalar-com', () => {
 
   describe('startServer', () => {
     it('starts server with correct configuration', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      startServer(mockApp as any, 5052)
+      startServer(mockApp as Hono, 5052)
 
       expect(serve).toHaveBeenCalledWith(
         {
@@ -207,19 +178,14 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('logs server startup message', () => {
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-
-      startServer(mockApp as any, 5052)
+      startServer(mockApp as Hono, 5052)
 
       // Get the callback passed to serve
       const serveCall = vi.mocked(serve).mock.calls[0]
-      const callback = serveCall?.[1] as any
+      const callback = serveCall?.[1]
 
       // Call the callback with mock info
-      callback({ port: 5052, address: '0.0.0.0', family: 'IPv4' })
+      callback?.({ port: 5052, address: '0.0.0.0', family: 'IPv4' })
 
       expect(console.log).toHaveBeenCalledWith()
       expect(console.log).toHaveBeenCalledWith('🚧 Mock Server listening on http://localhost:5052')
@@ -229,16 +195,10 @@ describe('galaxy-scalar-com', () => {
 
   describe('main', () => {
     it('uses default port when PORT is not set', async () => {
-      delete process.env.PORT
-
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       await main()
 
@@ -251,16 +211,12 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('uses custom port when PORT is set', async () => {
-      process.env.PORT = '8080'
+      vi.stubEnv('PORT', '8080')
 
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       await main()
 
@@ -273,16 +229,12 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('uses local JS bundle when LOCAL_JS_BUNDLE is true', async () => {
-      process.env.LOCAL_JS_BUNDLE = 'true'
+      vi.stubEnv('LOCAL_JS_BUNDLE', 'true')
 
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       await main()
 
@@ -296,16 +248,12 @@ describe('galaxy-scalar-com', () => {
     })
 
     it('does not use local JS bundle when LOCAL_JS_BUNDLE is not true', async () => {
-      process.env.LOCAL_JS_BUNDLE = 'false'
+      vi.stubEnv('LOCAL_JS_BUNDLE', 'false')
 
       const mockDocument = 'openapi: 3.1.0'
       vi.mocked(readFile).mockResolvedValue(mockDocument)
 
-      const mockApp = {
-        get: vi.fn(),
-        fetch: vi.fn(),
-      }
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as any)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
 
       await main()
 
