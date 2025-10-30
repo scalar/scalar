@@ -122,15 +122,6 @@ pnpm lint:fix
 pnpm types:check
 ```
 
-### Package-Specific Commands
-```bash
-# API Client development
-pnpm dev:client:web
-
-# API Reference development
-pnpm dev:reference
-```
-
 ## Code Standards
 
 ### Vue Component Guidelines
