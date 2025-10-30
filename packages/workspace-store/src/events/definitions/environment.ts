@@ -10,23 +10,16 @@ export type EnvironmentEvents = {
     environmentName: string
     payload: Partial<XScalarEnvironment>
     /** Only needed when renaming the environment */
-    newName?: string
+    oldEnvironmentName?: string
   } & CollectionType
   /**
-   * Add an environment variable
+   * Add or update an environment variable
    */
-  'environment:add:environment-variable': {
+  'environment:upsert:environment-variable': {
     environmentName: string
-    variableName: string
-    payload: Partial<XScalarEnvVar>
-  } & CollectionType
-  /**
-   * Update an environment variable
-   */
-  'environment:update:environment-variable': {
-    environmentName: string
-    variableName: string
-    payload: Partial<XScalarEnvVar>
+    variable: XScalarEnvVar
+    /** Only needed for update, omit it for add */
+    index?: number
   } & CollectionType
   /**
    * Reorder environments
@@ -40,7 +33,7 @@ export type EnvironmentEvents = {
    */
   'environment:delete:environment': { environmentName: string } & CollectionType
   /**
-   * Delete an environment variable
+   * Delete an environment variable by index
    */
-  'environment:delete:environment-variable': { environmentName: string; variableName: string } & CollectionType
+  'environment:delete:environment-variable': { environmentName: string; index: number } & CollectionType
 }
