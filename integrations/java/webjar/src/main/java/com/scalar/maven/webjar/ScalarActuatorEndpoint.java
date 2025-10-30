@@ -53,7 +53,7 @@ public class ScalarActuatorEndpoint extends AbstractScalarController {
      *
      * @param request the HTTP request
      * @return a ResponseEntity containing the HTML content for the API Reference
-     *         interface
+     * interface
      * @throws IOException if the HTML template cannot be loaded
      */
     @ReadOperation(produces = MediaType.TEXT_HTML_VALUE)
