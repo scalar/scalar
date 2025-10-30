@@ -17,22 +17,13 @@ export const InMemoryWorkspaceSchema = Type.Object({
   originalDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   intermediateDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   overrides: Type.Record(Type.String(), Type.Any()),
-  documentMeta: Type.Record(
-    Type.String(),
-    Type.Partial(
-      Type.Object({
-        documentSource: Type.Optional(Type.String()),
-      }),
-    ),
-  ),
 })
 
 export type InMemoryWorkspace = {
   meta: WorkspaceMeta
+  documentConfigs: Record<string, Config>
   documents: Record<string, WorkspaceDocument>
   originalDocuments: Record<string, Record<string, unknown>>
   intermediateDocuments: Record<string, Record<string, unknown>>
   overrides: Record<string, any>
-  documentConfigs: Record<string, Config>
-  documentMeta: Record<string, { documentSource?: string }>
 }

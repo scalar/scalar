@@ -283,6 +283,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "^5.1.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "fastify": "catalog:*"
   }
 }

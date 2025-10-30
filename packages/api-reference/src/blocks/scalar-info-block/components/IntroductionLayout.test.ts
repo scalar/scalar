@@ -35,6 +35,7 @@ describe('IntroductionLayout', () => {
         description: 'Documentation',
         url: 'https://scalar.com',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
@@ -62,6 +63,8 @@ describe('IntroductionLayout', () => {
         description: '',
         version: '',
       },
+
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
@@ -87,6 +90,7 @@ describe('IntroductionLayout', () => {
         description: 'Example description',
         version: '1.0.0',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
@@ -110,6 +114,7 @@ describe('IntroductionLayout', () => {
         description: '',
         version: '2.0.0',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
@@ -131,6 +136,7 @@ describe('IntroductionLayout', () => {
         description: '',
         version: 'beta',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
@@ -153,6 +159,7 @@ describe('IntroductionLayout', () => {
         description: '',
         version: 'v1.0.0',
       },
+      'x-scalar-original-document-hash': '',
     }
 
     const wrapper = mount(IntroductionLayout, {
