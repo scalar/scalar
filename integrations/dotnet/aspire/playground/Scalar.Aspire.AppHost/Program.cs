@@ -23,8 +23,9 @@ var scalar = builder
     .AddScalarApiReference(options =>
     {
         options
-            .WithBundleUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
+            // .WithBundleUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
             .PreferHttpsEndpoint()
+            .DisableDefaultProxy()
             .AllowSelfSignedCertificates();
     })
     .WithReference(keycloak)
@@ -38,11 +39,8 @@ scalar
             .WithTheme(ScalarTheme.Saturn)
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithOpenApiRoutePattern("/swagger/{documentName}.json")
-            .AddPreferredSecuritySchemes("oauth2")
-            .AddAuthorizationCodeFlow("oauth2", flow =>
-            {
-                flow.WithClientId("admin-cli");
-            });
+            .AddAuthorizationCodeFlow("oidc", flow => flow.WithClientId("admin-cli"))
+            .AddPreferredSecuritySchemes("oidc");
     })
     .WithApiReference(userService, options =>
     {

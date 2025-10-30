@@ -25,6 +25,18 @@
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
+        authentication: {
+          preferredSecurityScheme: 'oidc',
+          securitySchemes: {
+            oidc: {
+              flows: {
+                authorizationCode: {
+                  'x-scalar-client-id': 'admin-cli',
+                },
+              },
+            },
+          },
+        },
       })
     </script>
   </body>
