@@ -1,35 +1,47 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarMarkdown } from '@scalar/components'
 import { ScalarIconPencil } from '@scalar/icons'
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
+import {
+  computed,
+  nextTick,
+  ref,
+  useTemplateRef,
+  type ComputedRef,
+  type Ref,
+} from 'vue'
 
 import { CodeInput } from '@/v2/components/code-input'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
 const { environment, document, eventBus } = defineProps<CollectionProps>()
 
-const description = computed(() => document?.info?.description ?? '')
+const description: ComputedRef<string> = computed(
+  () => document?.info?.description ?? '',
+)
 
-const mode = ref<'edit' | 'preview'>('preview')
+const mode: Ref<'edit' | 'preview'> = ref('preview')
 
-const switchMode = async (newMode: 'edit' | 'preview') => {
+const codeInputRef = useTemplateRef('codeInputRef')
+
+/**
+ * Switch between edit and preview modes.
+ * When switching to edit mode, focus the input after the DOM updates.
+ */
+const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
   mode.value = newMode
 
   if (newMode === 'edit') {
-    await nextTick(() => {
-      // Focus the input after switching to edit mode
-      codeInputRef.value?.focus()
-    })
+    await nextTick()
+    codeInputRef.value?.focus()
   }
 }
-
-const codeInputRef = useTemplateRef('codeInputRef')
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
-    <div class="flex min-h-8 items-center justify-between gap-2 pl-1.5">
+    <div class="flex items-center justify-between gap-2 pl-1.5">
       <h3 class="font-bold">Description</h3>
+
       <ScalarButton
         v-if="mode === 'preview'"
         class="text-c-2 hover:text-c-1 flex items-center gap-2"
@@ -43,8 +55,7 @@ const codeInputRef = useTemplateRef('codeInputRef')
         <span>Edit</span>
       </ScalarButton>
     </div>
-    <div
-      class="has-[:focus-visible]:bg-b-1 group relative z-1 flex flex-col rounded-lg">
+    <div class="has-[:focus-visible]:bg-b-1 group rounded-lg">
       <!-- Preview -->
       <template v-if="mode === 'preview'">
         <template v-if="description.trim().length">
@@ -56,6 +67,7 @@ const codeInputRef = useTemplateRef('codeInputRef')
           <div
             class="brightness-lifted bg-b-1 absolute inset-0 -z-1 hidden rounded group-hover:block group-has-[:focus-visible]:hidden" />
         </template>
+
         <div
           v-else
           class="text-c-3 flex items-center justify-center rounded-lg border p-4">
@@ -73,7 +85,8 @@ const codeInputRef = useTemplateRef('codeInputRef')
       </template>
 
       <!-- Edit -->
-      <template v-if="mode === 'edit'">
+      <!-- @blur="switchMode('preview')" -->
+      <template v-else>
         <CodeInput
           ref="codeInputRef"
           class="border px-0.5 py-0"

@@ -74,7 +74,7 @@ const icon = computed(
     <Tabs type="document" />
 
     <!-- Router views -->
-    <div class="flex flex-col gap-12 px-1.5 pt-8">
+    <div class="px-1.5 pt-8">
       <RouterView v-slot="{ Component }">
         <keep-alive>
           <component
