@@ -108,8 +108,7 @@ const environment = computed<XScalarEnvironment>(() => {
       v-else
       v-model="workspaceModel" />
 
-    <!-- min-h-0 is to allow scrolling of individual flex children, do not remove it -->
-    <main class="flex min-h-0 flex-1 flex-row items-stretch">
+    <main class="flex flex-1">
       <!-- App sidebar -->
       <AppSidebar
         v-show="isSidebarOpen"
@@ -129,7 +128,7 @@ const environment = computed<XScalarEnvironment>(() => {
 
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-      <div class="bg-b-1 flex min-h-0 min-w-0 flex-1 flex-col">
+      <div class="bg-b-1 flex flex-1 flex-col">
         <RouterView v-slot="{ Component }">
           <keep-alive>
             <component
