@@ -71,7 +71,7 @@ const document = computed(
 )
 
 /** Event handler */
-useWorkspaceClientEvents(eventBus, document)
+useWorkspaceClientEvents(eventBus, document, workspaceStore)
 
 /** Discriminated and merged environment variables by name */
 const environment = computed<XScalarEnvironment>(() => {

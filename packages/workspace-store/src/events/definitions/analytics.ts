@@ -5,7 +5,7 @@ export type AnalyticsEvents = {
   /**
    * Fired when a request is sent through the API client
    */
-  'on:send-request': {
+  'analytics:on:send-request': {
     /** The HTTP method of the request */
     method: HttpMethod
     /** The path of the request */
@@ -16,12 +16,12 @@ export type AnalyticsEvents = {
   /**
    * Fired when the user clicks the "Show more" button on the references
    */
-  'on:show-more': {
+  'analytics:on:show-more': {
     /** The id of the tag that was opened */
     id: string
   }
   /**
    * Fired when the references are loaded
    */
-  'on:loaded': undefined
+  'analytics:on:loaded': undefined
 }

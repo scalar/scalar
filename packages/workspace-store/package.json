@@ -69,6 +69,11 @@
       "types": "./dist/helpers/*.d.ts",
       "default": "./dist/helpers/*.js"
     },
+    "./mutators": {
+      "import": "./dist/mutators/index.js",
+      "types": "./dist/mutators/index.d.ts",
+      "default": "./dist/mutators/index.js"
+    },
     "./schemas/extensions/operation": {
       "import": "./dist/schemas/extensions/operation/index.js",
       "types": "./dist/schemas/extensions/operation/index.d.ts",

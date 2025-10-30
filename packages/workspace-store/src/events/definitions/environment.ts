@@ -6,14 +6,16 @@ export type EnvironmentEvents = {
   /**
    * Add OR update an environment
    */
-  'upsert:environment': {
+  'environment:upsert:environment': {
     environmentName: string
     payload: Partial<XScalarEnvironment>
+    /** Only needed when renaming the environment */
+    newName?: string
   } & CollectionType
   /**
    * Add OR update an environment variable
    */
-  'upsert:environment-variable': {
+  'environment:upsert:environment-variable': {
     environmentName: string
     variableName: string
     payload: Partial<XScalarEnvVar>
@@ -21,16 +23,16 @@ export type EnvironmentEvents = {
   /**
    * Reorder environments
    */
-  'update:environment-order': {
+  'environment:update:environment-order': {
     draggingItem: { id: string }
     hoveredItem: { id: string }
   } & CollectionType
   /**
    * Delete an environment
    */
-  'delete:environment': { environmentName: string } & CollectionType
+  'environment:delete:environment': { environmentName: string } & CollectionType
   /**
    * Delete an environment variable
    */
-  'delete:environment-variable': { environmentName: string; variableName: string } & CollectionType
+  'environment:delete:environment-variable': { environmentName: string; variableName: string } & CollectionType
 }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarModal, type ModalState } from '@scalar/components'
 
-const { state, name } = defineProps<{
+const { state, name = 'unknown' } = defineProps<{
   state: ModalState
-  name: string
+  name: string | null
 }>()
 
 const emit = defineEmits<{
