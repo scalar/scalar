@@ -9,8 +9,10 @@ import { ScalarIconFolder } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { Item } from '@/types'
+
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
-import SidebarItem, { type Item } from './SidebarItem.vue'
+import SidebarItem from './SidebarItem.vue'
 
 describe('SidebarItem', () => {
   const baseProps = {
@@ -744,7 +746,7 @@ describe('SidebarItem', () => {
   })
 
   describe('slots', () => {
-    it('renders aside slot content', () => {
+    it('renders decorator slot content', () => {
       const item: Item = {
         id: '1',
         title: 'Test Item',
@@ -760,15 +762,15 @@ describe('SidebarItem', () => {
           item,
         },
         slots: {
-          aside: '<div class="custom-aside">Custom Content</div>',
+          decorator: '<div class="custom-decorator">Custom Content</div>',
         },
       })
 
-      expect(wrapper.find('.custom-aside').exists()).toBe(true)
+      expect(wrapper.find('.custom-decorator').exists()).toBe(true)
       expect(wrapper.text()).toContain('Custom Content')
     })
 
-    it('passes item prop to aside slot', () => {
+    it('passes item prop to decorator slot', () => {
       const item: Item = {
         id: 'test-id',
         title: 'Test Item',
@@ -784,14 +786,14 @@ describe('SidebarItem', () => {
           item,
         },
         slots: {
-          aside: '<div class="slot-test">{{ item.id }}</div>',
+          decorator: '<div class="slot-test">{{ item.id }}</div>',
         },
       })
 
       expect(wrapper.html()).toContain('test-id')
     })
 
-    it('passes aside slot to child items', () => {
+    it('passes decorator slot to child items', () => {
       const item: Item = {
         id: '1',
         title: 'Parent',
@@ -807,13 +809,13 @@ describe('SidebarItem', () => {
           item,
         },
         slots: {
-          aside: '<div class="custom-aside">Aside</div>',
+          decorator: '<div class="custom-decorator">Decorator</div>',
         },
       })
 
-      // Aside slot should be present in both parent and child
-      const asideElements = wrapper.findAll('.custom-aside')
-      expect(asideElements.length).toBeGreaterThan(0)
+      // Decorator slot should be present in both parent and child
+      const decoratorElements = wrapper.findAll('.custom-decorator')
+      expect(decoratorElements.length).toBeGreaterThan(0)
     })
   })
 

@@ -11,13 +11,10 @@ import {
   type HoveredItem,
 } from '@scalar/draggable'
 import { ScalarIconFolder } from '@scalar/icons'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+
+import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
-
-export type Item =
-  | TraversedEntry
-  | { id: string; title: string; children: TraversedEntry[]; type: 'document' }
 
 const { item, layout, isSelected, isExpanded } = defineProps<{
   item: Item
@@ -37,12 +34,12 @@ const emits = defineEmits<{
 }>()
 
 defineSlots<{
-  aside?(props: { item: Item }): unknown
+  decorator?(props: { item: Item }): unknown
 }>()
 
 const hasChildren = (
   currentItem: Item,
-): currentItem is Item & { children: TraversedEntry[] } => {
+): currentItem is Item & { children: Item[] } => {
   return (
     'children' in currentItem &&
     Array.isArray(currentItem.children) &&
@@ -112,10 +109,10 @@ const handleDragEnd = (
           :options="options"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
-          <template #aside="slotProps">
+          <template #decorator="slotProps">
             <slot
               v-bind="slotProps"
-              name="aside" />
+              name="decorator" />
           </template>
         </SidebarItem>
       </template>
@@ -134,7 +131,7 @@ const handleDragEnd = (
         <div class="min-w-0 flex-1">{{ item.title }}</div>
         <slot
           :item="item"
-          name="aside" />
+          name="decorator" />
       </div>
       <SidebarHttpBadge
         v-if="'method' in item"
@@ -163,10 +160,10 @@ const handleDragEnd = (
           :parentIds="[]"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
-          <template #aside="slotProps">
+          <template #decorator="slotProps">
             <slot
               v-bind="slotProps"
-              name="aside" />
+              name="decorator" />
           </template>
         </SidebarItem>
       </template>
@@ -188,7 +185,7 @@ const handleDragEnd = (
         </div>
         <slot
           :item="item"
-          name="aside" />
+          name="decorator" />
       </div>
       <template
         v-if="'method' in item"
