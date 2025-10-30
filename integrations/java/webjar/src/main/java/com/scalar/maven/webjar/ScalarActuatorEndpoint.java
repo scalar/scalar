@@ -57,7 +57,7 @@ public class ScalarActuatorEndpoint extends AbstractScalarController {
      * @throws IOException if the HTML template cannot be loaded
      */
     @ReadOperation(produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<String> scalarUi(HttpServletRequest request) throws IOException {
+    public final ResponseEntity<String> scalarUi(HttpServletRequest request) throws IOException {
         String basePath = properties.getPath();
         if (basePath == null || basePath.isEmpty()) {
             basePath = "/scalar";
@@ -82,7 +82,7 @@ public class ScalarActuatorEndpoint extends AbstractScalarController {
      * @throws IOException if the JavaScript file cannot be loaded
      */
     @ReadOperation(produces = "application/javascript")
-    public ResponseEntity<byte[]> scalarJs() throws IOException {
+    public final ResponseEntity<byte[]> scalarJs() throws IOException {
         return getScalarJsContent();
     }
 

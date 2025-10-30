@@ -66,7 +66,7 @@ public class ScalarController extends AbstractScalarController {
      * @throws IOException if the HTML template cannot be loaded
      */
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}")
-    public ResponseEntity<String> getDocs(HttpServletRequest request) throws IOException {
+    public final ResponseEntity<String> getDocs(HttpServletRequest request) throws IOException {
         String basePath = properties.getPath();
         if (basePath == null || basePath.isEmpty()) {
             basePath = DEFAULT_PATH;
@@ -92,7 +92,7 @@ public class ScalarController extends AbstractScalarController {
      * @throws IOException if the JavaScript file cannot be loaded
      */
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}/" + JS_FILENAME)
-    public ResponseEntity<byte[]> getScalarJs() throws IOException {
+    public final ResponseEntity<byte[]> getScalarJs() throws IOException {
         return getScalarJsContent();
     }
 
