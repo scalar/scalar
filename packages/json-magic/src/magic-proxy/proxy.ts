@@ -141,7 +141,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         // Resolve the reference and create a new magic proxy
         const resolvedValue = getValueByPath(args.root, parseJsonPointer(`#/${path}`))
         // Return early if the value is already a magic proxy
-        if (isMagicProxyObject(resolvedValue)) {
+        if (isMagicProxyObject(resolvedValue.value)) {
           return resolvedValue
         }
         const proxiedValue = createMagicProxy(resolvedValue.value, options, {
