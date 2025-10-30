@@ -1,25 +1,31 @@
 import { Type } from '@scalar/typebox'
 
-export const xScalarEnvVarSchema = Type.Union([
-  Type.Object({
-    description: Type.Optional(Type.String()),
-    default: Type.String({ default: '' }),
-  }),
-  Type.String(),
-])
+export const xScalarEnvVarSchema = Type.Object({
+  name: Type.String(),
+  value: Type.Union([
+    Type.Object({
+      description: Type.Optional(Type.String()),
+      default: Type.String({ default: '' }),
+    }),
+    Type.String(),
+  ]),
+})
 
 /** A scalar environment variable */
-export type XScalarEnvVar =
-  | {
-      description?: string
-      default: string
-    }
-  | string
+export type XScalarEnvVar = {
+  name: string
+  value:
+    | {
+        description?: string
+        default: string
+      }
+    | string
+}
 
 export const xScalarEnvironmentSchema = Type.Object({
   description: Type.Optional(Type.String()),
   color: Type.String({ default: '#FFFFFF' }),
-  variables: Type.Record(Type.String(), xScalarEnvVarSchema),
+  variables: Type.Array(xScalarEnvVarSchema),
 })
 
 export type XScalarEnvironment = {
@@ -27,8 +33,8 @@ export type XScalarEnvironment = {
   description?: string
   /** Color for the environment */
   color: string
-  /** A map of variables by name */
-  variables: Record<string, XScalarEnvVar>
+  /** An array of variables */
+  variables: XScalarEnvVar[]
 }
 
 export const xScalarEnvironmentsSchema = Type.Object({

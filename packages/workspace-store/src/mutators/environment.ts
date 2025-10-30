@@ -1,32 +1,25 @@
+import type { EnvironmentEvents } from '@/events/definitions/environment'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
-import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document/x-scalar-environments'
+import {
+  type XScalarEnvVar,
+  type XScalarEnvironment,
+  xScalarEnvVarSchema,
+  xScalarEnvironmentSchema,
+} from '@/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 /**
  * Adds OR updates an environment to the document or workspace.
  *
  * @param collection - Workspace OR document
- * @param name - The name of the environment to add
- * @param environment - The environment configuration to add
+ * @param environmentName - Name of the environment to add
+ * @param payload - The environment configuration to add
+ * @param oldEnvironmentName - Only needed when renaming the environment
  * @returns the parsed environment that was added or updated or undefined if the collection is not found
- *
- * @example
- * // Add a new development environment
- * const success = addEnvironment('development', {
- *   variables: { apiUrl: 'https://dev.example.com/api' }
- * })
- *
- * if (success) {
- *   console.log('Environment added successfully')
- * } else {
- *   console.log('Environment already exists')
- * }
  */
 export const upsertEnvironment = (
   collection: WorkspaceDocument | Workspace | null,
-  environmentName: string,
-  payload: Partial<XScalarEnvironment>,
-  newName?: string,
+  { environmentName, payload, oldEnvironmentName }: Omit<EnvironmentEvents['environment:upsert:environment'], 'type'>,
 ): XScalarEnvironment | undefined => {
   if (!collection) {
     return
@@ -40,24 +33,50 @@ export const upsertEnvironment = (
   const parsed = coerceValue(xScalarEnvironmentSchema, payload)
   collection['x-scalar-environments'][environmentName] = parsed
 
-  // Rename the environment
-  if (newName && newName !== environmentName) {
-    console.log('renaming environment', environmentName, 'to', newName)
-    collection['x-scalar-environments'][newName] = parsed
-    delete collection['x-scalar-environments'][environmentName]
+  // If we are renaming the environment, we need to delete the old one
+  if (oldEnvironmentName && oldEnvironmentName !== environmentName) {
+    delete collection['x-scalar-environments'][oldEnvironmentName]
   }
 
   return parsed
 }
 
 /**
- * Removes an environment from the document or workspace's x-scalar-environments extension by its name.
+ * Adds OR updates an environment variable to the document or workspace.
  *
- * @param name - The name of the environment to remove
- *
- * @example
- * // Remove a development environment
- * deleteEnvironment('development')
+ * @param collection - Workspace OR document
+ * @param environmentName - Name of the environment to add the variable to
+ * @param variableName - Name of the variable to add
+ * @param value - Value of the variable to add
+ * @returns the parsed variable that was added or updated or undefined if the collection is not found
  */
-export const deleteEnvironment = (collection: WorkspaceDocument | Workspace | null, environmentName: string) =>
-  delete collection?.['x-scalar-environments']?.[environmentName]
+export const upsertEnvironmentVariable = (
+  collection: WorkspaceDocument | Workspace | null,
+  { environmentName, variable, index }: Omit<EnvironmentEvents['environment:upsert:environment-variable'], 'type'>,
+): XScalarEnvVar | undefined => {
+  // The environment should exist by now if we are upserting a variable
+  if (!collection?.['x-scalar-environments']?.[environmentName]) {
+    console.error('Environment not found', environmentName)
+    return
+  }
+
+  // Ensure we parse the variable for type safety
+  const parsed = coerceValue(xScalarEnvVarSchema, variable)
+
+  if (index !== undefined) {
+    // Delete the row if the name is empty
+    if (parsed.name === '') {
+      collection['x-scalar-environments'][environmentName].variables.splice(index, 1)
+      return
+    }
+
+    // Update
+    collection['x-scalar-environments'][environmentName].variables[index] = variable
+  }
+  // Add
+  else {
+    collection['x-scalar-environments'][environmentName].variables.push(parsed)
+  }
+
+  return parsed
+}

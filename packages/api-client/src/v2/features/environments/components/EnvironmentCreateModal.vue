@@ -63,11 +63,11 @@ const handleSubmit = (): void => {
   // Editing an existing environment
   if (selectedEnvironmentName) {
     eventBus.emit('environment:upsert:environment', {
-      environmentName: selectedEnvironmentName,
+      oldEnvironmentName: selectedEnvironmentName,
       payload: {
         color: selectedColor.value,
       },
-      newName: name.value.trim(),
+      environmentName: name.value.trim(),
       type,
     })
   }

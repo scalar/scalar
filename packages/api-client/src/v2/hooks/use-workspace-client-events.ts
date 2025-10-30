@@ -1,7 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { CollectionType, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
-import { deleteEnvironment, upsertEnvironment } from '@scalar/workspace-store/mutators'
+import { upsertEnvironment, upsertEnvironmentVariable } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { ComputedRef } from 'vue'
 
@@ -33,12 +33,21 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('environment:upsert:environment', ({ environmentName, payload, type, newName }) =>
-    upsertEnvironment(getCollection(document, type), environmentName, payload, newName),
+  eventBus.on('environment:upsert:environment', (payload) =>
+    upsertEnvironment(getCollection(document, payload.type), payload),
   )
 
-  eventBus.on('environment:delete:environment', ({ environmentName, type }) =>
-    deleteEnvironment(getCollection(document, type), environmentName),
+  eventBus.on(
+    'environment:delete:environment',
+    ({ environmentName, type }) => delete getCollection(document, type)?.['x-scalar-environments']?.[environmentName],
+  )
+
+  eventBus.on('environment:upsert:environment-variable', (payload) =>
+    upsertEnvironmentVariable(getCollection(document, payload.type), payload),
+  )
+
+  eventBus.on('environment:delete:environment-variable', ({ environmentName, index, type }) =>
+    getCollection(document, type)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
   )
 
   //------------------------------------------------------------------------------------

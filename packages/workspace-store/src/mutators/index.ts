@@ -9,6 +9,8 @@ import { serverMutators } from '@/mutators/server'
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
  *
+ * @deprecated use the individual mutators instead, this will be removed after we move fully to the new store
+ *
  * @param store - The workspace store containing all documents and workspace-level data
  * @returns An object with mutators for the workspace, the active document, and any named document
  */
@@ -91,4 +93,7 @@ export function generateClientMutators(store: WorkspaceStore) {
   }
 }
 
-export { deleteEnvironment, upsertEnvironment } from './environment'
+export {
+  upsertEnvironment,
+  upsertEnvironmentVariable,
+} from './environment'
