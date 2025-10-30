@@ -93,6 +93,7 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
           :environment="environment"
           :modelValue="description"
           @blur="switchMode('preview')"
+          @redirect="() => console.log('redirect')"
           @update:modelValue="
             (description) =>
               eventBus.emit('document:update:info', { description })

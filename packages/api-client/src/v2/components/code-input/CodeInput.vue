@@ -62,6 +62,8 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
   (e: 'curl', v: string): void
   (e: 'blur', v: string): void
+  /** Redirect to the environment page */
+  (e: 'redirect'): void
 }>()
 
 const attrs = useAttrs() as { id?: string }
@@ -327,6 +329,7 @@ export default {
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
+    @redirect="emit('redirect')"
     @select="handleDropdownSelect" />
 </template>
 <style scoped>
