@@ -20,11 +20,18 @@ export type RouteProps = {
   // exampleName?: string
 }
 
-/** When in the document collections route */
-export type CollectionPropsDocument = RouteProps & {
-  type: 'document'
-  document: WorkspaceDocument
-}
+/** When in the collections pages */
+export type CollectionProps = RouteProps &
+  (
+    | {
+        type: 'document'
+        document: WorkspaceDocument
+      }
+    | {
+        type: 'workspace'
+        document: null
+      }
+  )
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
@@ -106,12 +113,6 @@ export const ROUTES = [
         path: '',
         component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
         children: [
-          // Workspace overview
-          {
-            name: 'workspace.overview',
-            path: 'overview',
-            component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
-          },
           // Workspace environment
           {
             name: 'workspace.environment',

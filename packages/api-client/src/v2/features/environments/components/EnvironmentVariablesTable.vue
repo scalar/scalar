@@ -24,19 +24,16 @@ const { environment, environmentName, eventBus, type } = defineProps<
   } & CollectionType
 >()
 
-/**
- * Represents a single row in the environment variables table.
- */
-type VariableRow = {
-  name: string
-  value: string
-}
-
 /** Column widths: Name, Value, Actions (delete button) */
 const COLUMNS = ['1fr', '1fr', '36px']
 
 /** Adds an empty row at the end for creating new variables */
-const displayRows = computed<VariableRow[]>(() => {
+const displayRows = computed<
+  {
+    name: string
+    value: string
+  }[]
+>(() => {
   /** Normalize the variables to have a name and value */
   const variableRows = environment.variables.map((v) => ({
     name: v.name,
@@ -121,7 +118,7 @@ const handleVariableDelete = (index: number): void =>
           aria-label="Environment Variable Name"
           disableCloseBrackets
           disableTabIndent
-          :environment="environment"
+          :environment="undefined"
           lineWrapping
           :modelValue="row.name"
           placeholder="Name"
@@ -135,7 +132,7 @@ const handleVariableDelete = (index: number): void =>
         <CodeInput
           aria-label="Environment Variable Value"
           disableTabIndent
-          :environment="environment"
+          :environment="undefined"
           lineWrapping
           :modelValue="row.value"
           placeholder="Value"
