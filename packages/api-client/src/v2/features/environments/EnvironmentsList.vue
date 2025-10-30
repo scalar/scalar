@@ -5,10 +5,7 @@ import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type {
-  XScalarEnvironment,
-  XScalarEnvironments,
-} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { ref } from 'vue'
 
 import EnvironmentCreateModal from '@/v2/features/environments/components/EnvironmentCreateModal.vue'
@@ -58,8 +55,8 @@ const openUpsertModal = (name?: string) => {
     v-for="[name, env] in Object.entries(environments)"
     :key="name"
     :environment="env"
+    :environmentName="name"
     :eventBus="eventBus"
-    :name="name"
     :type="type"
     @delete="() => openDeleteModal(name)"
     @edit="() => openUpsertModal(name)" />

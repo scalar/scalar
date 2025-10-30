@@ -10,13 +10,10 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
 
-const { name, environment, eventBus, type } = defineProps<
+const { environmentName, environment, eventBus, type } = defineProps<
   {
-    /** Environment name */
-    name: string
-    /** Environment */
     environment: XScalarEnvironment
-    /** Event bus */
+    environmentName: string
     eventBus: WorkspaceEventBus
   } & CollectionType
 >()
@@ -40,7 +37,7 @@ const handleDragEnd = (
 </script>
 <template>
   <Draggable
-    :id="name"
+    :id="environmentName"
     class="group rounded-lg border"
     :isDraggable="true"
     :isDroppable="true"
@@ -56,7 +53,7 @@ const handleDragEnd = (
             :style="{ backgroundColor: environment.color }"></span>
         </div>
         <span class="px-1 py-0.5 text-sm">
-          {{ name }}
+          {{ environmentName }}
         </span>
       </div>
 
@@ -77,19 +74,10 @@ const handleDragEnd = (
     </div>
 
     <!-- Variables Table -->
-    <!-- <EnvironmentVariablesTable
+    <EnvironmentVariablesTable
       :environment="environment"
-      :varo="environment.variables"
-      @addRow="
-        (data) => emit('add:variable', { name: data.name, value: data.value })
-      "
-      @deleteRow="(id) => emit('delete:variable', { id: id })"
-      @updateRow="
-        (id, data) =>
-          emit('update:variable', {
-            id: id,
-            value: { name: data.name, value: data.value },
-          })
-      " /> -->
+      :environmentName="environmentName"
+      :eventBus="eventBus"
+      :type="type" />
   </Draggable>
 </template>
