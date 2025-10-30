@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { CollectionPropsDocument } from '@/v2/features/app/helpers/routes'
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { EnvironmentsList } from '@/v2/features/environments'
 
 const { document, eventBus, type, workspaceStore } =
-  defineProps<CollectionPropsDocument>()
+  defineProps<CollectionProps>()
 
 /** Document or workspace environments */
 const environments = computed(

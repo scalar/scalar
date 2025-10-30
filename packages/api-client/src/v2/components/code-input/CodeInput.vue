@@ -41,7 +41,7 @@ const props = withDefaults(
     withVariables?: boolean
     importCurl?: boolean
     default?: string | number
-    environment: XScalarEnvironment
+    environment: XScalarEnvironment | undefined
     lineWrapping?: boolean
   }>(),
   {
@@ -322,7 +322,7 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="displayVariablesDropdown"
+    v-if="displayVariablesDropdown && environment"
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :environment="environment"
