@@ -1,22 +1,15 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTeleport } from '@scalar/components'
-import { ScalarIconGlobe, ScalarIconPlus } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
+import { ScalarIconPlus } from '@scalar/icons'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, onMounted, ref, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { parseEnvVariables } from '@/libs'
-import { getEnvColor, type EnvVariables } from '@/libs/env-helpers'
-import { PathId } from '@/routes'
-import { useActiveEntities } from '@/store'
-
-const props = defineProps<{
+const { query, environment, dropdownPosition } = defineProps<{
   query: string
-  environment: Environment
-  envVariables: EnvVariables
-  // withServers?: boolean
+  environment: XScalarEnvironment
   dropdownPosition?: { left: number; top: number }
 }>()
 
@@ -28,54 +21,59 @@ const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
 const router = useRouter()
-const { activeCollection } = useActiveEntities()
 
 const redirectToEnvironment = () => {
   if (!router) {
     return
   }
-  const { currentRoute, push } = router
-  const workspaceId = currentRoute.value.params.workspace
+  // const { currentRoute, push } = router
+  // const workspaceId = currentRoute.value.params.workspace
 
-  // Global environment page for draft collection
-  if (
-    !activeCollection.value ||
-    activeCollection.value.info?.title === 'Drafts'
-  ) {
-    push({
-      name: 'environment.default',
-      params: {
-        [PathId.Workspace]: workspaceId,
-      },
-    })
-  } else {
-    // Collection environment page for collections
-    push({
-      name: 'collection.environment',
-      params: {
-        [PathId.Collection]: activeCollection.value.uid,
-      },
-    })
-  }
+  // // Global environment page for draft collection
+  // if (
+  //   !activeCollection.value ||
+  //   activeCollection.value.info?.title === 'Drafts'
+  // ) {
+  //   push({
+  //     name: 'environment.default',
+  //     params: {
+  //       [PathId.Workspace]: workspaceId,
+  //     },
+  //   })
+  // } else {
+  //   // Collection environment page for collections
+  //   push({
+  //     name: 'collection.environment',
+  //     params: {
+  //       [PathId.Collection]: activeCollection.value.uid,
+  //     },
+  //   })
+  // }
   isOpen.value = false
 }
 
-const fuse = new Fuse(parseEnvVariables(props.envVariables), {
+/** Normalize the variables to have a name and value */
+const normalizedVariables = computed(() =>
+  environment.variables.map((v) => ({
+    key: v.name,
+    value: typeof v.value === 'string' ? v.value : v.value.default,
+  })),
+)
+
+const fuse = new Fuse(normalizedVariables.value, {
   keys: ['key', 'value'],
 })
 
 const filteredVariables = computed(() => {
-  const searchQuery = props.query
-
-  if (!searchQuery) {
+  if (!query) {
     /** return the last 4 environment variables on first display */
-    return parseEnvVariables(props.envVariables)
+    return normalizedVariables.value
       .slice(-4)
       .filter(({ key, value }) => key !== '' || value !== '')
   }
 
   /** filter environment variables by name */
-  const result = fuse.search(searchQuery, { limit: 10 })
+  const result = fuse.search(query, { limit: 10 })
   if (result.length > 0) {
     return result
       .map((res) => res.item)
@@ -123,9 +121,9 @@ onMounted(() => {
 
 const dropdownStyle = computed<CSSProperties>(() => {
   return {
-    left: (props.dropdownPosition?.left ?? 0) + 'px',
+    left: (dropdownPosition?.left ?? 0) + 'px',
     // Add a 5px offset from the editor
-    top: (props.dropdownPosition?.top ?? 0) + 5 + 'px',
+    top: (dropdownPosition?.top ?? 0) + 5 + 'px',
   }
 })
 
@@ -157,18 +155,10 @@ onClickOutside(
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-2 whitespace-nowrap">
               <span
-                v-if="
-                  item.source === 'collection' &&
-                  environment.name !== 'No Environment'
-                "
                 class="h-2.25 w-2.25 min-w-2.25 rounded-full"
                 :style="{
-                  backgroundColor: getEnvColor(environment),
+                  backgroundColor: environment.color,
                 }"></span>
-              <ScalarIconGlobe
-                v-else
-                class="-ml-0.25 size-2.5"
-                icon="Globe" />
               {{ item.key }}
             </div>
             <span

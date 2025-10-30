@@ -29,8 +29,11 @@ export const upsertEnvironment = (
     collection['x-scalar-environments'] = {}
   }
 
-  // Ensure we parse the payload for type safety
-  const parsed = coerceValue(xScalarEnvironmentSchema, payload)
+  // Ensure we parse the payload but keep the old variables
+  const parsed = coerceValue(xScalarEnvironmentSchema, {
+    ...collection['x-scalar-environments'][oldEnvironmentName ?? environmentName],
+    ...payload,
+  })
   collection['x-scalar-environments'][environmentName] = parsed
 
   // If we are renaming the environment, we need to delete the old one
