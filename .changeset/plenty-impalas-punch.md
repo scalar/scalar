@@ -2,4 +2,4 @@
 '@scalar/webjar': patch
 ---
 
-make endpoints final
+make endpoints final and controller overwritable
