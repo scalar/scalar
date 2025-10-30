@@ -47,10 +47,10 @@ const sections = computed(() => {
   return items
 })
 
-const slugger = new GitHubSlugger()
-
 /** Add ids to all headings */
 const transformHeading = (node: Record<string, any>) => {
+  const slugger = new GitHubSlugger()
+
   node.data = {
     hProperties: {
       id: headingSlugGenerator({
