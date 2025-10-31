@@ -16,7 +16,7 @@ import {
   DataTableRow,
 } from '@/v2/components/data-table'
 
-const { environment, environmentName, eventBus, type } = defineProps<
+const { environment, environmentName, eventBus, collectionType } = defineProps<
   {
     environment: XScalarEnvironment
     environmentName: string
@@ -73,7 +73,7 @@ const handleVariableChange = (
     eventBus.emit('environment:upsert:environment-variable', {
       environmentName,
       variable: { name, value },
-      type,
+      collectionType,
     })
     return
   }
@@ -83,7 +83,7 @@ const handleVariableChange = (
     environmentName,
     variable: { name, value },
     index,
-    type,
+    collectionType,
   })
 }
 
@@ -92,7 +92,7 @@ const handleVariableDelete = (index: number): void =>
   eventBus.emit('environment:delete:environment-variable', {
     environmentName,
     index,
-    type,
+    collectionType,
   })
 </script>
 <template>

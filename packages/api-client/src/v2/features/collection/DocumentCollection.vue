@@ -79,12 +79,12 @@ const icon = computed(
         <keep-alive>
           <component
             :is="Component"
-            :document="document"
-            :environment="environment"
-            :eventBus="eventBus"
-            :layout="layout"
-            type="document"
-            :workspaceStore="workspaceStore" />
+            collectionType="document"
+            :document
+            :environment
+            :eventBus
+            :layout
+            :workspaceStore />
         </keep-alive>
       </RouterView>
     </div>

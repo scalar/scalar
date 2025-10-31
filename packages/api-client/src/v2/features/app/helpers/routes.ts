@@ -24,11 +24,11 @@ export type RouteProps = {
 export type CollectionProps = RouteProps &
   (
     | {
-        type: 'document'
+        collectionType: 'document'
         document: WorkspaceDocument
       }
     | {
-        type: 'workspace'
+        collectionType: 'workspace'
         document: null
       }
   )

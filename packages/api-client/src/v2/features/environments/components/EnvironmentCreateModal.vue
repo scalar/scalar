@@ -12,15 +12,20 @@ import CommandActionInput from '@/components/CommandPalette/CommandActionInput.v
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
-const { state, eventBus, type, environments, selectedEnvironmentName } =
-  defineProps<
-    {
-      environments: NonNullable<XScalarEnvironments['x-scalar-environments']>
-      selectedEnvironmentName: string | null
-      state: ModalState
-      eventBus: WorkspaceEventBus
-    } & CollectionType
-  >()
+const {
+  state,
+  eventBus,
+  collectionType,
+  environments,
+  selectedEnvironmentName,
+} = defineProps<
+  {
+    environments: NonNullable<XScalarEnvironments['x-scalar-environments']>
+    selectedEnvironmentName: string | null
+    state: ModalState
+    eventBus: WorkspaceEventBus
+  } & CollectionType
+>()
 
 /** Default color for new environments. */
 const DEFAULT_COLOR = '#FFFFFF'
@@ -68,7 +73,7 @@ const handleSubmit = (): void => {
         color: selectedColor.value,
       },
       environmentName: name.value.trim(),
-      type,
+      collectionType,
     })
   }
   // Adding a new environment
@@ -78,7 +83,7 @@ const handleSubmit = (): void => {
       payload: {
         color: selectedColor.value,
       },
-      type,
+      collectionType,
     })
   }
 
