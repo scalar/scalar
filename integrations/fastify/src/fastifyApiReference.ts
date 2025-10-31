@@ -106,9 +106,9 @@ const fastifyApiReference = fp<
     })()
 
     // If no OpenAPI specification is passed and @fastify/swagger isn't loaded, show a warning.
-    if (!specSource) {
+    if (!specSource && !configuration.sources) {
       fastify.log.warn(
-        "[@scalar/fastify-api-reference] You didn't provide a `content` or `url`, and @fastify/swagger could not be found. Please provide one of these options.",
+        "[@scalar/fastify-api-reference] You didn't provide a `content`, `url`, `sources` or @fastify/swagger could not be found. Please provide one of these options.",
       )
 
       return next()
@@ -133,46 +133,49 @@ const fastifyApiReference = fp<
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
 
-    const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
-    fastify.route({
-      method: 'GET',
-      url: openApiSpecUrlJson,
-      schema: schemaToHideRoute,
-      ...hooks,
-      ...(options.logLevel && { logLevel: options.logLevel }),
-      handler(_, reply) {
-        const spec = normalize(specSource.get())
-        const filename = getSpecFilenameSlug(spec)
-        const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
+    // Only expose the endpoints if specSource is available
+    if (specSource) {
+      const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
+      fastify.route({
+        method: 'GET',
+        url: openApiSpecUrlJson,
+        schema: schemaToHideRoute,
+        ...hooks,
+        ...(options.logLevel && { logLevel: options.logLevel }),
+        handler(_, reply) {
+          const spec = normalize(specSource.get())
+          const filename = getSpecFilenameSlug(spec)
+          const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
 
-        return reply
-          .header('Content-Type', 'application/json')
-          .header('Content-Disposition', `filename=${filename}.json`)
-          .header('Access-Control-Allow-Origin', '*')
-          .header('Access-Control-Allow-Methods', '*')
-          .send(json)
-      },
-    })
+          return reply
+            .header('Content-Type', 'application/json')
+            .header('Content-Disposition', `filename=${filename}.json`)
+            .header('Access-Control-Allow-Origin', '*')
+            .header('Access-Control-Allow-Methods', '*')
+            .send(json)
+        },
+      })
 
-    const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).yaml}`
-    fastify.route({
-      method: 'GET',
-      url: openApiSpecUrlYaml,
-      schema: schemaToHideRoute,
-      ...hooks,
-      ...(options.logLevel && { logLevel: options.logLevel }),
-      handler(_, reply) {
-        const spec = normalize(specSource.get())
-        const filename = getSpecFilenameSlug(spec)
-        const yaml = toYaml(spec)
-        return reply
-          .header('Content-Type', 'application/yaml')
-          .header('Content-Disposition', `filename=${filename}.yaml`)
-          .header('Access-Control-Allow-Origin', '*')
-          .header('Access-Control-Allow-Methods', '*')
-          .send(yaml)
-      },
-    })
+      const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).yaml}`
+      fastify.route({
+        method: 'GET',
+        url: openApiSpecUrlYaml,
+        schema: schemaToHideRoute,
+        ...hooks,
+        ...(options.logLevel && { logLevel: options.logLevel }),
+        handler(_, reply) {
+          const spec = normalize(specSource.get())
+          const filename = getSpecFilenameSlug(spec)
+          const yaml = toYaml(spec)
+          return reply
+            .header('Content-Type', 'application/yaml')
+            .header('Content-Disposition', `filename=${filename}.yaml`)
+            .header('Access-Control-Allow-Origin', '*')
+            .header('Access-Control-Allow-Methods', '*')
+            .send(yaml)
+        },
+      })
+    }
 
     // Redirect route without a trailing slash to force a trailing slash:
     // We need this so the request to the JS file is relative.
@@ -218,7 +221,7 @@ const fastifyApiReference = fp<
          * download button point to the exposed endpoint.
          * If the URL is explicitly passed, defer to that URL instead.
          */
-        if (specSource.type !== 'url') {
+        if (specSource && specSource.type !== 'url') {
           configuration = {
             ...configuration,
             // Use a relative URL in case we're proxied
