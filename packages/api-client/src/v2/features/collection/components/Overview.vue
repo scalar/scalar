@@ -13,8 +13,7 @@ import {
 import { CodeInput } from '@/v2/components/code-input'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-const { environment, document, eventBus, layout } =
-  defineProps<CollectionProps>()
+const { document, eventBus, layout } = defineProps<CollectionProps>()
 
 const description: ComputedRef<string> = computed(
   () => document?.info?.description ?? '',
@@ -29,13 +28,12 @@ const codeInputRef = useTemplateRef('codeInputRef')
  * When switching to edit mode, focus the input after the DOM updates.
  */
 const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
-  setTimeout(() => {
-    mode.value = newMode
-    // if (newMode === 'edit') {
-    //   await nextTick()
-    //   codeInputRef.value?.focus()
-    // }
-  }, 100)
+  mode.value = newMode
+
+  if (newMode === 'edit') {
+    await nextTick()
+    codeInputRef.value?.focus()
+  }
 }
 </script>
 

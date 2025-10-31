@@ -106,7 +106,7 @@ export const pillPlugin = (props: { environment: XScalarEnvironment | undefined;
   ViewPlugin.fromClass(
     class {
       decorations: DecorationSet
-      private lastEnvironment: XScalarEnvironment | undefined
+      lastEnvironment: XScalarEnvironment | undefined
 
       constructor(view: EditorView) {
         this.lastEnvironment = props.environment
