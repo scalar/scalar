@@ -44,6 +44,7 @@
               "type": "page"
             },
             {
+              "name": "GitHub Actions",
               "path": "documentation/guides/docs/github-actions.md",
               "type": "page"
             },
@@ -573,17 +574,8 @@
         "from": "/scalar/scalar-registry/github-workflows",
         "to": "/scalar/scalar-registry/github-actions"
       }, {
-        "from": "/regex/one/*",
-        "to": "/scalar/scalar-registry/github-actions"
-      }, {
-        "from": "/regex/two/:pathMatch(.*)*",
-        "to": "/scalar/scalar-registry/github-actions"
-      }, {
-        "from": "/regex/three/:wildcard",
-        "to": "/scalar/scalar-registry/github-actions"
-      }, {
-        "from": "/regex/four/prefix-:wildcard",
-        "to": "/scalar/scalar-registry/github-actions"
+        "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
+        "to": "/scalar/scalar-docs/github-actions"
       }]
     }
   }
