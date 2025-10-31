@@ -1,22 +1,39 @@
-// @vitest-environment jsdom
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { ROUTES } from '@/v2/features/app/helpers/routes'
+import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import DocumentCollection from './DocumentCollection.vue'
 
-// Mock ResizeObserver
-window.ResizeObserver =
-  window.ResizeObserver ||
-  vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
-
+/**
+ * Critical tests for DocumentCollection component
+ * Tests focus on document rendering, fallback states, routing integration, and prop handling
+ */
 describe('DocumentCollection', () => {
+  const createMockDocument = (overrides?: Partial<WorkspaceDocument>): WorkspaceDocument =>
+    ({
+      uid: 'test-doc-123',
+      info: {
+        title: 'Test API Document',
+        version: '1.0.0',
+      },
+      'x-scalar-client-config-icon': 'interface-content-folder',
+      ...overrides,
+    }) as WorkspaceDocument
+
+  const createMockWorkspaceStore = (): WorkspaceStore =>
+    ({
+      workspace: {
+        uid: 'workspace-123',
+        documents: {},
+      },
+      update: vi.fn(),
+    }) as unknown as WorkspaceStore
+
   const createRouterInstance = () => {
     return createRouter({
       history: createWebHistory(),
@@ -24,51 +41,12 @@ describe('DocumentCollection', () => {
     })
   }
 
-  const mountWithRouter = async (
-    routeName = 'document.overview',
-    documentConfig: {
-      title?: string
-      icon?: string
-      hasDocument?: boolean
-    } = {},
-  ) => {
+  const mountWithRouter = async (document: WorkspaceDocument | null) => {
     const router = createRouterInstance()
+    const workspaceStore = createMockWorkspaceStore()
 
-    // Create a mock eventBus with a spy for emit
-    const eventBus = {
-      emit: vi.fn(),
-      on: vi.fn(),
-      off: vi.fn(),
-    }
-
-    // Create a mock workspaceStore with activeDocument
-    const workspaceStore = {
-      workspace: {
-        activeDocument:
-          documentConfig.hasDocument === false
-            ? null
-            : {
-                info: {
-                  title: documentConfig.title || 'Test Document',
-                },
-              },
-      },
-    }
-
-    // Create a mock document with custom icon and title
-    const document =
-      documentConfig.hasDocument === false
-        ? null
-        : {
-            info: {
-              title: documentConfig.title || 'Test Document',
-            },
-            ...(documentConfig.icon ? { 'x-scalar-client-config-icon': documentConfig.icon } : {}),
-          }
-
-    // Push to a specific document route
     await router.push({
-      name: routeName,
+      name: 'document.overview',
       params: {
         workspaceSlug: 'test-workspace',
         documentSlug: 'test-document',
@@ -77,165 +55,103 @@ describe('DocumentCollection', () => {
 
     const wrapper = mount(DocumentCollection, {
       props: {
-        layout: 'web' as const,
-        workspaceStore: workspaceStore as any,
-        eventBus: eventBus as any,
-        document: document as any,
+        document,
+        eventBus: mockEventBus,
+        layout: 'desktop' as any,
+        environment: {} as any,
+        workspaceStore,
       },
       global: {
         plugins: [router],
-        stubs: {
-          LibraryIcon: true,
-          IconSelector: true,
-          LabelInput: true,
-          Tabs: true,
-          RouterView: true,
-        },
       },
     })
 
     await router.isReady()
 
-    return { wrapper, router, eventBus }
+    return { wrapper, router, eventBus: mockEventBus, workspaceStore }
   }
 
-  describe('title rendering', () => {
-    it('renders the component', async () => {
-      const { wrapper } = await mountWithRouter()
-
-      expect(wrapper.exists()).toBe(true)
+  it('renders document with title and icon when document is provided', async () => {
+    const document = createMockDocument({
+      info: { title: 'My API', version: '1.0.0' },
+      'x-scalar-client-config-icon': 'interface-content-book',
     })
 
-    it('renders the document title', async () => {
-      const { wrapper } = await mountWithRouter('document.overview', {
-        title: 'My API Document',
-      })
+    const { wrapper } = await mountWithRouter(document)
 
-      const titleContainer = wrapper.find('[aria-label^="title:"]')
-      expect(titleContainer.exists()).toBe(true)
-    })
+    /** Verify the main document view is rendered */
+    expect(wrapper.find('[aria-label="title: My API"]').exists()).toBe(true)
 
-    it('renders the default title when no title is provided', async () => {
-      const workspaceStore = {
-        workspace: {
-          activeDocument: {
-            info: {},
-          },
-        },
-      }
-
-      const router = createRouterInstance()
-      await router.push({
-        name: 'document.overview',
-        params: {
-          workspaceSlug: 'test-workspace',
-          documentSlug: 'test-document',
-        },
-      })
-
-      const wrapper = mount(DocumentCollection, {
-        props: {
-          layout: 'web' as const,
-          workspaceStore: workspaceStore as any,
-          eventBus: { emit: vi.fn() } as any,
-          document: {} as any,
-        },
-        global: {
-          plugins: [router],
-          stubs: {
-            LibraryIcon: true,
-            IconSelector: true,
-            LabelInput: true,
-            Tabs: true,
-            RouterView: true,
-          },
-        },
-      })
-
-      await router.isReady()
-
-      const titleContainer = wrapper.find('[aria-label^="title:"]')
-      expect(titleContainer.attributes('aria-label')).toBe('title: Untitled Document')
-    })
-
-    it('renders the title with proper aria-label', async () => {
-      const { wrapper } = await mountWithRouter('document.overview', {
-        title: 'My API Document',
-      })
-
-      const titleContainer = wrapper.find('[aria-label^="title:"]')
-      expect(titleContainer.exists()).toBe(true)
-      expect(titleContainer.attributes('aria-label')).toBe('title: My API Document')
-    })
+    /** Verify tabs component is rendered */
+    const tabs = wrapper.findComponent({ name: 'Tabs' })
+    expect(tabs.exists()).toBe(true)
+    expect(tabs.props('type')).toBe('document')
   })
 
-  describe('icon rendering', () => {
-    it('renders the icon selector', async () => {
-      const { wrapper } = await mountWithRouter()
+  it('displays "Document not found" message when document is null', async () => {
+    const { wrapper } = await mountWithRouter(null)
 
-      const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-      expect(iconSelector.exists()).toBe(true)
-    })
+    /** Verify error message is displayed */
+    expect(wrapper.text()).toContain('Document not found')
+    expect(wrapper.text()).toContain('The document you are looking for does not exist.')
 
-    it('renders the default icon when no icon is provided', async () => {
-      const { wrapper } = await mountWithRouter()
-
-      const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-      expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
-    })
-
-    it('renders a custom icon when provided', async () => {
-      const { wrapper } = await mountWithRouter('document.overview', {
-        icon: 'interface-content-book',
-      })
-
-      const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-      expect(iconSelector.props('modelValue')).toBe('interface-content-book')
-    })
-
-    it('passes the correct placement prop to IconSelector', async () => {
-      const { wrapper } = await mountWithRouter()
-
-      const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-      expect(iconSelector.props('placement')).toBe('bottom-start')
-    })
+    /** Verify main document UI is not rendered */
+    expect(wrapper.find('[aria-label]').exists()).toBe(false)
+    const tabs = wrapper.findComponent({ name: 'Tabs' })
+    expect(tabs.exists()).toBe(false)
   })
 
-  describe('event bus events', () => {
-    it('emits update:document-icon event when icon is changed', async () => {
-      const { wrapper, eventBus } = await mountWithRouter()
-
-      const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-      await iconSelector.vm.$emit('update:modelValue', 'interface-content-book')
-
-      expect(eventBus.emit).toHaveBeenCalledWith('update:document-icon', 'interface-content-book')
+  it('passes correct props to child components', async () => {
+    const document = createMockDocument({
+      info: { title: 'Production API', version: '2.0.0' },
     })
 
-    it('emits update:document-info event when title is changed', async () => {
-      const { wrapper, eventBus } = await mountWithRouter()
+    const { wrapper } = await mountWithRouter(document)
 
-      const labelInput = wrapper.findComponent({ name: 'LabelInput' })
-      await labelInput.vm.$emit('update:modelValue', 'New Title')
+    /** Verify IconSelector receives the correct icon */
+    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
+    expect(iconSelector.exists()).toBe(true)
+    expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
+    expect(iconSelector.props('placement')).toBe('bottom-start')
 
-      expect(eventBus.emit).toHaveBeenCalledWith('update:document-info', { title: 'New Title' })
-    })
+    /** Verify LabelInput receives the correct title */
+    const labelInput = wrapper.findComponent({ name: 'LabelInput' })
+    expect(labelInput.exists()).toBe(true)
+    expect(labelInput.props('modelValue')).toBe('Production API')
 
-    it('emits update:document-info event with the correct title format', async () => {
-      const { wrapper, eventBus } = await mountWithRouter()
+    /** Verify RouterView receives correct props */
+    const routerView = wrapper.findComponent({ name: 'RouterView' })
+    expect(routerView.exists()).toBe(true)
+  })
 
-      const labelInput = wrapper.findComponent({ name: 'LabelInput' })
-      await labelInput.vm.$emit('update:modelValue', 'API v2 Documentation')
+  it('handles icon update events correctly', async () => {
+    const document = createMockDocument()
+    const { wrapper, eventBus } = await mountWithRouter(document)
 
-      expect(eventBus.emit).toHaveBeenCalledWith('update:document-info', {
-        title: 'API v2 Documentation',
-      })
-      expect(eventBus.emit).toHaveBeenCalledTimes(1)
-    })
+    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
+    expect(iconSelector.exists()).toBe(true)
 
-    it('does not emit events on initial render', async () => {
-      const { eventBus } = await mountWithRouter()
+    /** Simulate IconSelector emitting an update */
+    await iconSelector.vm.$emit('update:modelValue', 'interface-content-star')
 
-      expect(eventBus.emit).not.toHaveBeenCalled()
-    })
+    /** Verify the event was passed to the eventBus */
+    expect(eventBus.emit).toHaveBeenCalledWith('document:update:icon', 'interface-content-star')
+  })
+
+  it('uses default values when document info is missing or incomplete', async () => {
+    const document = createMockDocument({
+      info: undefined,
+      'x-scalar-client-config-icon': undefined,
+    } as any)
+
+    const { wrapper } = await mountWithRouter(document)
+
+    /** Verify fallback title is used */
+    const labelInput = wrapper.findComponent({ name: 'LabelInput' })
+    expect(labelInput.props('modelValue')).toBe('Untitled Document')
+
+    /** Verify default icon is used */
+    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
+    expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
   })
 })

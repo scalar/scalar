@@ -10,125 +10,175 @@ const emit = defineEmits<{
   (e: 'select', color: string): void
 }>()
 
-const customColorRaw = ref('')
-
-/** Make sure to add '#' prefix to the color value */
-const customColor = computed({
-  get: () => customColorRaw.value,
-  set: (value: string) => {
-    if (value && !value.startsWith('#')) {
-      customColorRaw.value = `#${value}`
-    } else {
-      customColorRaw.value = value
-    }
-    if (value) {
-      showCustomInput.value = true
-    }
-  },
-})
+const customColor = ref('')
 const customColorInputRef = ref<HTMLInputElement | null>(null)
 const showCustomInput = ref(false)
+const showSelector = ref(false)
 
+/**
+ * Predefined color options available in the color picker.
+ * Each option provides a standard color choice for the environment.
+ */
 const colorOptions = [
-  { color: '#FFFFFF' },
-  { color: '#EF0006' },
-  { color: '#EDBE20' },
-  { color: '#069061' },
-  { color: '#FB892C' },
-  { color: '#0082D0' },
-  { color: '#5203D1' },
-  { color: '#FFC0CB' },
-]
+  '#FFFFFF',
+  '#EF0006',
+  '#EDBE20',
+  '#069061',
+  '#FB892C',
+  '#0082D0',
+  '#5203D1',
+  '#FFC0CB',
+] as const
 
-const linearGradient =
-  'linear-gradient(to right, rgb(235, 87, 87), rgb(242, 201, 76), rgb(76, 183, 130), rgb(78, 167, 252), rgb(250, 96, 122));'
+/** Default gradient shown when no custom color is selected. */
+const DEFAULT_GRADIENT =
+  'linear-gradient(to right, rgb(235, 87, 87), rgb(242, 201, 76), rgb(76, 183, 130), rgb(78, 167, 252), rgb(250, 96, 122))'
 
-const isCustomColor = computed(() => {
-  return (
-    (activeColor &&
-      !colorOptions.some((option) => option.color === activeColor)) ||
-    customColor.value
-  )
+/** Check if the active color is one of the preset options. */
+const isPresetColor = computed(() =>
+  colorOptions.includes(activeColor as (typeof colorOptions)[number]),
+)
+
+/** Check if a custom color is being used (not in the preset list). */
+const isCustomColor = computed(
+  () => activeColor && !isPresetColor.value && !showCustomInput.value,
+)
+
+/** Check if the given color matches the currently active color. */
+const isActiveColor = (color: string): boolean => activeColor === color
+
+/**
+ * Style for the custom color button.
+ * Shows the actual color if custom, otherwise shows a gradient.
+ */
+const customButtonStyle = computed(() => {
+  const displayColor = customColor.value || activeColor
+  return isCustomColor.value || customColor.value
+    ? `background-color: ${displayColor};`
+    : `background: ${DEFAULT_GRADIENT};`
 })
 
-const backgroundColor = computed(() => {
-  return `background: ${
-    isCustomColor.value ? (activeColor ?? customColor.value) : linearGradient
-  }`
-})
-
-const handleClick = () => {
+/**
+ * Toggle the custom color input visibility.
+ * Focuses the input after it becomes visible.
+ */
+const toggleCustomInput = async () => {
   showCustomInput.value = !showCustomInput.value
-  nextTick(() => {
-    if (customColorInputRef.value) {
-      customColorInputRef.value.focus()
-    }
-  })
+  showSelector.value = false
+
+  if (!showCustomInput.value) {
+    return
+  }
+
+  await nextTick()
+  customColorInputRef.value?.focus()
 }
 
-const selectColor = (color: string) => {
-  emit('select', color)
+/** Toggle the color selector visibility. */
+const toggleSelector = (): void => {
+  showSelector.value = !showSelector.value
+}
+
+/**
+ * Select a color and emit the selection event.
+ * Ensures the color value has a # prefix for hex colors.
+ */
+const selectColor = (color: string): void => {
+  const formattedColor = color && !color.startsWith('#') ? `#${color}` : color
+  emit('select', formattedColor)
+  showSelector.value = false
+}
+
+/**
+ * Handle custom color input changes.
+ * Formats the color and emits the selection.
+ */
+const handleCustomColorInput = (): void => {
+  if (!customColor.value) {
+    return
+  }
+
+  const formattedColor = customColor.value.startsWith('#')
+    ? customColor.value
+    : `#${customColor.value}`
+
+  customColor.value = formattedColor
+  selectColor(formattedColor)
 }
 </script>
 <template>
-  <!-- Show color selector -->
-  <template v-if="!showCustomInput">
+  <div>
+    <!-- Collapsed view: single color dot -->
     <div
-      class="flex min-h-10 min-w-[296px] flex-row items-center justify-between gap-1.5 space-x-1">
+      v-if="!showCustomInput && !showSelector"
+      class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
+      :style="{ backgroundColor: activeColor }"
+      @click="toggleSelector">
+      <ScalarIcon
+        v-if="activeColor"
+        class="text-c-btn p-0.5"
+        icon="Checkmark"
+        size="xs" />
+    </div>
+
+    <!-- Expanded view: color palette selector -->
+    <div
+      v-if="!showCustomInput && showSelector"
+      class="color-selector flex h-4 flex-row items-center justify-between gap-1.5 space-x-1">
+      <!-- Preset color options -->
       <div
         v-for="option in colorOptions"
-        :key="option.color"
-        class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full"
-        data-testid="color-option"
-        :style="{ backgroundColor: option.color }"
-        @click="selectColor(option.color)">
+        :key="option"
+        class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
+        :style="{ backgroundColor: option }"
+        @click="selectColor(option)">
         <ScalarIcon
-          v-if="activeColor === option.color && !customColor"
-          class="text-c-btn"
+          v-if="isActiveColor(option)"
+          class="text-c-btn p-0.5"
           icon="Checkmark"
           size="xs" />
       </div>
+
+      <!-- Divider -->
       <hr class="border-ghost h-5 w-0.5 border-l" />
-      <label
-        class="z-10 flex h-5 w-5 cursor-pointer flex-row items-center justify-center gap-2 rounded-full"
-        :style="backgroundColor"
-        @click="handleClick">
+
+      <!-- Custom color button -->
+      <button
+        class="z-10 flex h-4 w-4 cursor-pointer flex-row items-center justify-center gap-2 rounded-full"
+        :style="customButtonStyle"
+        type="button"
+        @click="toggleCustomInput">
         <ScalarIcon
-          v-if="
-            !showCustomInput &&
-            (activeColor === customColor ||
-              (activeColor &&
-                !colorOptions.some((option) => option.color === activeColor)))
-          "
+          v-if="isCustomColor"
           class="text-c-btn"
           icon="Checkmark"
           size="xs" />
-      </label>
+      </button>
     </div>
-  </template>
-  <!-- Custom color input -->
-  <div
-    v-else
-    class="flex min-h-10 flex-1 items-center gap-2 rounded">
-    <span class="absolute h-5 w-5 rounded-full border border-dashed" />
-    <span
-      class="z-[1] h-5 w-5 rounded-full"
-      :style="backgroundColor">
-    </span>
-    <input
-      ref="customColorInputRef"
-      v-model="customColor"
-      class="w-full flex-1 border-transparent text-sm outline-none"
-      :placeholder="activeColor || '#000000'"
-      type="text"
-      @input="selectColor(customColor)" />
-    <button
-      class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
-      type="button"
-      @click="handleClick">
-      <ScalarIcon
-        icon="Checkmark"
-        size="xs" />
-    </button>
+
+    <!-- Custom color input view -->
+    <div
+      v-if="showCustomInput"
+      class="color-selector flex h-4 flex-1 items-center gap-2 rounded">
+      <span class="absolute h-4 w-4 rounded-full border border-dashed" />
+      <span
+        class="z-[1] h-4 w-4 rounded-full"
+        :style="customButtonStyle" />
+      <input
+        ref="customColorInputRef"
+        v-model="customColor"
+        class="w-full flex-1 border-transparent text-sm outline-none"
+        :placeholder="activeColor || '#000000'"
+        type="text"
+        @input="handleCustomColorInput" />
+      <button
+        class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
+        type="button"
+        @click="toggleCustomInput">
+        <ScalarIcon
+          icon="Checkmark"
+          size="xs" />
+      </button>
+    </div>
   </div>
 </template>

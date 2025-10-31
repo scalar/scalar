@@ -40,7 +40,7 @@ const workspaceTitle = 'Workspace Title [replace with name]'
     <Tabs type="workspace" />
 
     <!-- Router views -->
-    <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
+    <div class="flex flex-col gap-12 px-1.5 pt-8">
       <RouterView
         :eventBus="eventBus"
         :layout="layout"

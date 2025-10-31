@@ -1,17 +1,8 @@
 import { mount } from '@vue/test-utils'
-import { assert, describe, expect, it, vi } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
-
-// Mock ResizeObserver
-window.ResizeObserver =
-  window.ResizeObserver ||
-  vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
 
 describe('RequestAuthDataTable', () => {
   const baseEnvironment = {

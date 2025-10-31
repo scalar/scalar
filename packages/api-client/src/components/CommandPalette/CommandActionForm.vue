@@ -22,7 +22,7 @@ const { cx } = useBindCx()
   <form
     class="flex w-full flex-col gap-3"
     @keydown.enter.stop
-    @submit.prevent.stop="$emit('submit')">
+    @submit.prevent.stop="!disabled && $emit('submit')">
     <div v-bind="cx('relative flex min-h-20 flex-col rounded')">
       <slot />
     </div>

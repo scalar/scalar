@@ -13,6 +13,11 @@ import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  xScalarEnvironmentSchema,
+  type XScalarEnvironment,
+} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 
@@ -61,11 +66,35 @@ const route = useRoute()
 const document = computed(
   () =>
     workspaceStore.workspace.documents[route.params.documentSlug as string] ??
+    Object.values(workspaceStore.workspace.documents)[0] ??
     null,
 )
 
 /** Event handler */
-useWorkspaceClientEvents(eventBus, document)
+useWorkspaceClientEvents(eventBus, document, workspaceStore)
+
+/** Discriminated and merged environment variables by name */
+const environment = computed<XScalarEnvironment>(() => {
+  const activeEnv = workspaceStore.workspace['x-scalar-active-environment']
+  if (!activeEnv) {
+    return coerceValue(xScalarEnvironmentSchema, {})
+  }
+
+  // Grab the correct environment from the workspace and document
+  const workspaceEnv = workspaceStore.workspace['x-scalar-environments']?.[
+    activeEnv
+  ] ?? { variables: [] }
+  const documentEnv = document.value?.['x-scalar-environments']?.[
+    activeEnv
+  ] ?? { variables: [] }
+
+  // Merge the workspace and document environments
+  return coerceValue(xScalarEnvironmentSchema, {
+    ...workspaceEnv,
+    ...documentEnv,
+    variables: [...workspaceEnv.variables, ...documentEnv.variables],
+  })
+})
 </script>
 
 <template>
@@ -79,15 +108,14 @@ useWorkspaceClientEvents(eventBus, document)
       v-else
       v-model="workspaceModel" />
 
-    <!-- min-h-0 is to allow scrolling of individual flex children, do not remove it -->
-    <main class="flex min-h-0 flex-1 flex-row items-stretch">
+    <main class="flex flex-1">
       <!-- App sidebar -->
       <AppSidebar
         v-show="isSidebarOpen"
         v-model:isSidebarOpen="isSidebarOpen"
         v-model:workspace="workspaceModel"
         :documents="workspaceStore.workspace.documents"
-        :layout="layout"
+        :layout
         :sidebarWidth="
           workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
         "
@@ -100,15 +128,16 @@ useWorkspaceClientEvents(eventBus, document)
 
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-      <div class="bg-b-1 flex min-h-0 min-w-0 flex-1 flex-col">
+      <div class="bg-b-1 flex flex-1 flex-col">
         <RouterView v-slot="{ Component }">
           <keep-alive>
             <component
               :is="Component"
-              :document="document"
-              :eventBus="eventBus"
-              :layout="layout"
-              :workspaceStore="workspaceStore" />
+              :document
+              :environment
+              :eventBus
+              :layout
+              :workspaceStore />
           </keep-alive>
         </RouterView>
       </div>
@@ -120,9 +149,7 @@ useWorkspaceClientEvents(eventBus, document)
 #scalar-client {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  width: 100dvw;
-  position: relative;
+  min-height: 100dvh;
   background-color: var(--scalar-background-2);
 }
 .dark-mode #scalar-client {
