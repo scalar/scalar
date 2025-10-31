@@ -2,9 +2,9 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
 import ScalarComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
+import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
 import type { Option, OptionGroup } from './types'
 
 // Mock data
@@ -110,7 +110,7 @@ describe('ScalarComboboxOptions', () => {
   })
 
   describe('slot functionality', () => {
-    it('passes correct props to option slot', async () => {
+    it('passes correct props to option slot', () => {
       const wrapper = mount(ScalarComboboxOptions, {
         props: {
           options: extendedOptions,
@@ -148,7 +148,7 @@ describe('ScalarComboboxOptions', () => {
       expect(secondOption?.find('[data-test="option-selected"]').text()).toBe('false')
     })
 
-    it('passes correct props to group slot', async () => {
+    it('passes correct props to group slot', () => {
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: extendedGroups },
         slots: {
@@ -217,7 +217,7 @@ describe('ScalarComboboxOptions', () => {
       expect(visibleGroups[0]?.text()).toBe('Fruits')
     })
 
-    it('handles multiselect mode with custom slots', async () => {
+    it('handles multiselect mode with custom slots', () => {
       const wrapper = mount(ScalarComboboxOptions, {
         props: {
           options: extendedOptions,
@@ -374,7 +374,7 @@ describe('ScalarComboboxOptions', () => {
       expect(filteredOptions).toHaveLength(0)
     })
 
-    it('handles empty grouped options array gracefully', async () => {
+    it('handles empty grouped options array gracefully', () => {
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: [] as OptionGroup[] },
       })

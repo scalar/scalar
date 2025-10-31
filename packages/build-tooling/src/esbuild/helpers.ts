@@ -1,7 +1,8 @@
 import { exec } from 'node:child_process'
+
 import as, { type AnsiColors } from 'ansis'
 
-export async function runCommand(command: string, processName: string) {
+export function runCommand(command: string, processName: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const comm = exec(command)
 

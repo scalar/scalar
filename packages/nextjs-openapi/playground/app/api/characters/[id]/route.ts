@@ -1,12 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-export type Troothy = boolean
-
 /**
  * Get a simpsons character
- * @desc Hits up the sampleapis simpsons characters and narrows it down by id
+ * @desc Hits up the sample apis simpsons characters and narrows it down by id
  */
-export async function GET(
+export function GET(
   _request: NextRequest,
   {
     params,

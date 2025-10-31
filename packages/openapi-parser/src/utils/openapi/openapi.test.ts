@@ -1,8 +1,10 @@
 import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
 import { readFiles } from '@/plugins/read-files/read-files'
+
 import { openapi } from './openapi'
 
 const example = {
@@ -264,7 +266,7 @@ describe('pipeline', () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('throws an error when dereference fails (global)', async () => {
+  it('throws an error when dereference fails (global)', () => {
     expect(async () => {
       await openapi({
         throwOnError: true,
@@ -288,7 +290,7 @@ describe('pipeline', () => {
   })
 
   it('throws an error when dereference fails (only dereference)', async () => {
-    expect(async () => {
+    await expect(async () => {
       await openapi()
         .load({
           openapi: '3.1.0',
@@ -311,7 +313,7 @@ describe('pipeline', () => {
   })
 
   it('throws an error when validate fails (global)', async () => {
-    expect(async () => {
+    await expect(async () => {
       await openapi({
         throwOnError: true,
       })
@@ -336,7 +338,7 @@ describe('pipeline', () => {
   })
 
   it('throws an error when validate fails (only validate)', async () => {
-    expect(async () => {
+    await expect(async () => {
       await openapi()
         .load({
           openapi: '3.1.0',
@@ -361,35 +363,32 @@ describe('pipeline', () => {
   })
 
   it('works with then & catch', async () => {
-    return new Promise((resolve, reject) => {
-      openapi()
-        .load({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-          },
-          paths: {
-            '/foobar': {
-              post: {
-                requestBody: {
-                  $ref: '#/components/requestBodies/DoesNotExist',
-                },
+    expect.assertions(1)
+
+    await openapi()
+      .load({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+        },
+        paths: {
+          '/foobar': {
+            post: {
+              requestBody: {
+                $ref: '#/components/requestBodies/DoesNotExist',
               },
             },
           },
-        })
-        .validate({
-          throwOnError: true,
-        })
-        .get()
-        .then(() => {
-          reject()
-        })
-        .catch((error) => {
-          expect(error.message).toBe("Can't resolve reference: #/components/requestBodies/DoesNotExist")
-
-          resolve(null)
-        })
-    })
+        },
+      })
+      .validate({
+        throwOnError: true,
+      })
+      .get()
+      // biome-ignore lint/suspicious/noEmptyBlockStatements: should never come here
+      .then(() => {})
+      .catch((error) => {
+        expect(error.message).toBe("Can't resolve reference: #/components/requestBodies/DoesNotExist")
+      })
   })
 })

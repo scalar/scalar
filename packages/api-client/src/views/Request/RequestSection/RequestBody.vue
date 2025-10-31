@@ -372,9 +372,9 @@ const updateActiveBody = (type: ContentType) => {
   requestExampleMutators.edit(example.uid, 'parameters.headers', headers)
 }
 
-const handleFileUploadFormData = async (rowIdx: number) => {
+const handleFileUploadFormData = (rowIdx: number) => {
   const { open } = useFileDialog({
-    onChange: async (files) => {
+    onChange: (files) => {
       const file = files?.[0]
       if (file) {
         const currentParams = formParams.value
@@ -428,7 +428,7 @@ function handleRemoveFileFormData(rowIdx: number) {
 
 function handleFileUpload() {
   const { open } = useFileDialog({
-    onChange: async (files) => {
+    onChange: (files) => {
       const file = files?.[0]
       if (file) {
         requestExampleMutators.edit(example.uid, 'body.binary', file)

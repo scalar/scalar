@@ -4,7 +4,7 @@ import type { Context } from 'hono'
 /**
  * OpenAPI endpoints
  */
-export async function respondWithOpenApiDocument(
+export function respondWithOpenApiDocument(
   c: Context,
   input?: string | Record<string, any>,
   format: 'json' | 'yaml' = 'json',

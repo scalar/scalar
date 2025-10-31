@@ -113,7 +113,7 @@ watch(
       }
 
       // Query parameters:
-      prefetchUrl(value, activeWorkspace.value?.proxyUrl)
+      void prefetchUrl(value, activeWorkspace.value?.proxyUrl)
 
       modalState.show()
 
@@ -249,7 +249,7 @@ function handleImportFinished() {
           </div>
           <PrefetchError :url="prefetchResult?.input || props.source" />
         </template>
-        <!-- Sucess -->
+        <!-- Success -->
         <template v-else>
           <!-- Integration Logo -->
           <div

@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises'
 
 import { type FastifyInstance, fastify } from 'fastify'
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrl } from '.'
 
@@ -13,11 +13,11 @@ describe('fetchUrl', () => {
 
   beforeEach(() => {
     server = fastify({ logger: false })
-  })
 
-  afterEach(async () => {
-    await server.close()
-    await setTimeout(100)
+    return async () => {
+      await server.close()
+      await setTimeout(100)
+    }
   })
 
   it('reads json response', async () => {
@@ -72,14 +72,14 @@ describe('fetchUrl', () => {
 
   it('send headers to the specified domain', async () => {
     const url = `http://localhost:${PORT}`
-    const fn = vi.fn()
+    const headersSpy = vi.fn()
 
     const response = {
       message: '200OK',
     }
 
     server.get('/', (request, reply) => {
-      fn(request.headers)
+      headersSpy(request.headers)
       reply.send(response)
     })
 
@@ -88,8 +88,8 @@ describe('fetchUrl', () => {
       headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: [`localhost:${PORT}`] }],
     })
 
-    expect(fn).toHaveBeenCalled()
-    expect(fn.mock.calls[0][0]).toEqual({
+    expect(headersSpy).toHaveBeenCalledOnce()
+    expect(headersSpy).toHaveBeenCalledWith({
       'accept': '*/*',
       'accept-encoding': 'gzip, deflate',
       'accept-language': '*',
@@ -103,14 +103,14 @@ describe('fetchUrl', () => {
 
   it('does not send headers to other domains', async () => {
     const url = `http://localhost:${PORT}`
-    const fn = vi.fn()
+    const headersSpy = vi.fn()
 
     const response = {
       message: '200OK',
     }
 
     server.get('/', (request, reply) => {
-      fn(request.headers)
+      headersSpy(request.headers)
       reply.send(response)
     })
 
@@ -119,8 +119,8 @@ describe('fetchUrl', () => {
       headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: ['localhost:9932', 'localhost'] }],
     })
 
-    expect(fn).toHaveBeenCalled()
-    expect(fn.mock.calls[0][0]).toEqual({
+    expect(headersSpy).toHaveBeenCalledOnce()
+    expect(headersSpy).toHaveBeenNthCalledWith(1, {
       'accept': '*/*',
       'accept-encoding': 'gzip, deflate',
       'accept-language': '*',
@@ -132,17 +132,13 @@ describe('fetchUrl', () => {
   })
 
   it('runs custom fetcher', async () => {
-    const fn = vi.fn()
+    const customFetch = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }))
 
     await fetchUrl('https://example.com', (fn) => fn(), {
-      fetch: async (input, init) => {
-        fn(input, init)
-
-        return new Response('{}', { status: 200 })
-      },
+      fetch: customFetch,
     })
 
-    expect(fn).toHaveBeenCalled()
-    expect(fn).toHaveBeenCalledWith('https://example.com', { headers: undefined })
+    expect(customFetch).toHaveBeenCalledOnce()
+    expect(customFetch).toHaveBeenCalledWith('https://example.com', { headers: undefined })
   })
 })

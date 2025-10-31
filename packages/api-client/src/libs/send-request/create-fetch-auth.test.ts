@@ -1,9 +1,9 @@
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { requestExampleSchema, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { createRequestOperation } from './create-request-operation'
 import { VOID_URL, createRequestPayload } from './create-request-operation.test'
-import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 
 describe('authentication', () => {
   it('adds apiKey auth in header', async () => {
@@ -243,6 +243,7 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+
     if (!result || !('data' in result.response)) {
       throw new Error('No data')
     }
@@ -251,7 +252,7 @@ describe('authentication', () => {
     })
   })
 
-  it('ensures we only have one auth header', async () => {
+  it('ensures we only have one auth header', () => {
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({
         serverPayload: { url: VOID_URL },

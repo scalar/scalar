@@ -1,5 +1,6 @@
 import { createSynchronousResponse } from '@/helpers/create-synchronous-response'
 import type { SynchronousResponse } from '@/types'
+
 import { type ResponseAssertions, createResponseAssertions } from './create-response-assertions'
 
 export type ExtendedSynchronousResponse = Omit<SynchronousResponse, 'headers'> & {

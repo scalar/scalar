@@ -83,7 +83,7 @@ describe('ScalarVirtualText', () => {
     expect(content.attributes('style')).toContain('transform: translateY')
   })
 
-  it('updates container height on window resize', async () => {
+  it('updates container height on window resize', () => {
     vi.spyOn(window, 'addEventListener')
     vi.spyOn(window, 'removeEventListener')
 

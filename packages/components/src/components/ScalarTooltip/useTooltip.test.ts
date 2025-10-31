@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { cleanupTooltipElement, useTooltip } from './useTooltip'
-import { ELEMENT_ID } from './constants'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
+
+import { ELEMENT_ID } from './constants'
+import { cleanupTooltipElement, useTooltip } from './useTooltip'
 
 describe('useTooltip', () => {
   let targetElement: HTMLElement
@@ -24,7 +25,7 @@ describe('useTooltip', () => {
     vi.useRealTimers()
   })
 
-  it('should initialize tooltip element on first use', async () => {
+  it('should initialize tooltip element on first use', () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,
@@ -76,7 +77,7 @@ describe('useTooltip', () => {
     expect(tooltipElement?.textContent).toBe('Test tooltip')
   })
 
-  it('should hide tooltip on mouseleave', async () => {
+  it('should hide tooltip on mouseleave', () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,
@@ -197,7 +198,7 @@ describe('useTooltip', () => {
     expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Updated content')
   })
 
-  it('should set aria-describedby on target element', async () => {
+  it('should set aria-describedby on target element', () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,

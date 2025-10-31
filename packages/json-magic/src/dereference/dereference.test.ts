@@ -1,11 +1,13 @@
-import { dereference } from '@/dereference/dereference'
-import { fastify, type FastifyInstance } from 'fastify'
 import { setTimeout } from 'node:timers/promises'
+
+import { type FastifyInstance, fastify } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { dereference } from '@/dereference/dereference'
 
 describe('dereference', () => {
   describe('sync', () => {
-    it('should dereference JSON pointers', async () => {
+    it('should dereference JSON pointers', () => {
       const data = {
         users: {
           name: 'John Doe',
@@ -82,9 +84,7 @@ describe('dereference', () => {
           street: 'Sunset Boulevard',
         },
       }
-      server.get('/users', async () => {
-        return userProfile
-      })
+      server.get('/users', () => userProfile)
 
       await server.listen({ port: port })
 

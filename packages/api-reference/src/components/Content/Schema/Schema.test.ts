@@ -206,7 +206,7 @@ describe('Schema', () => {
       expect(disclosurePanelAfter.exists()).toBe(true)
     })
 
-    it('prevents click propagation when noncollapsible is true', async () => {
+    it('prevents click propagation when noncollapsible is true', () => {
       const wrapper = mount(Schema, {
         props: {
           eventBus: null,
@@ -233,7 +233,7 @@ describe('Schema', () => {
       expect(wrapper.find('.schema-card').exists()).toBe(true)
     })
 
-    it('does not prevent click propagation when noncollapsible is false', async () => {
+    it('does not prevent click propagation when noncollapsible is false', () => {
       const wrapper = mount(Schema, {
         props: {
           eventBus: null,

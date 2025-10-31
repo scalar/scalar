@@ -3,9 +3,9 @@ import { setTimeout } from 'node:timers/promises'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createWorkspaceStore } from '@/client'
+import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -66,14 +66,14 @@ describe('create-workspace-store', () => {
 
   beforeEach(() => {
     server = fastify({ logger: false })
+
+    return async () => {
+      await server.close()
+      await setTimeout(100)
+    }
   })
 
-  afterEach(async () => {
-    await server.close()
-    await setTimeout(100)
-  })
-
-  it('correctly update workspace metadata', async () => {
+  it('correctly update workspace metadata', () => {
     const store = createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
@@ -1315,8 +1315,6 @@ describe('create-workspace-store', () => {
   })
 
   it('uses the fetcher to resolve external refs', async () => {
-    const fn = vi.fn()
-
     server.get('/', () => {
       return {
         paths: {
@@ -1337,10 +1335,7 @@ describe('create-workspace-store', () => {
 
     await server.listen({ port })
 
-    const customFetch = async (input: string | URL | globalThis.Request, init?: RequestInit) => {
-      fn(input, init)
-      return fetch(input, init)
-    }
+    const customFetch = vi.fn<NonNullable<WorkspaceDocumentInput['fetch']>>(fetch)
 
     const client = createWorkspaceStore()
 
@@ -1402,14 +1397,12 @@ describe('create-workspace-store', () => {
       'x-scalar-original-source-url': 'http://localhost:9988',
     })
 
-    expect(fn).toBeCalledTimes(2)
-    expect(fn).toHaveBeenNthCalledWith(1, url, { headers: undefined })
-    expect(fn).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
+    expect(customFetch).toBeCalledTimes(2)
+    expect(customFetch).toHaveBeenNthCalledWith(1, url, { headers: undefined })
+    expect(customFetch).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
   })
 
   it('uses workspace fetcher to resolve documents if not specified per document', async () => {
-    const fn = vi.fn()
-
     server.get('/', () => {
       return {
         paths: {
@@ -1430,10 +1423,7 @@ describe('create-workspace-store', () => {
 
     await server.listen({ port })
 
-    const customFetch = async (input: string | URL | globalThis.Request, init?: RequestInit) => {
-      fn(input, init)
-      return fetch(input, init)
-    }
+    const customFetch = vi.fn<NonNullable<WorkspaceDocumentInput['fetch']>>(fetch)
 
     const client = createWorkspaceStore({
       fetch: customFetch,
@@ -1496,9 +1486,9 @@ describe('create-workspace-store', () => {
       'x-scalar-original-source-url': 'http://localhost:9988',
     })
 
-    expect(fn).toBeCalledTimes(2)
-    expect(fn).toHaveBeenNthCalledWith(1, url, { headers: undefined })
-    expect(fn).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
+    expect(customFetch).toBeCalledTimes(2)
+    expect(customFetch).toHaveBeenNthCalledWith(1, url, { headers: undefined })
+    expect(customFetch).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
   })
 
   it('add the original oas version on the consuming document #1', async () => {
@@ -2232,16 +2222,15 @@ describe('create-workspace-store', () => {
   describe('importWorkspaceFromSpecification', () => {
     let server: FastifyInstance
     const port = 9989
-
     const url = `http://localhost:${port}`
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('should create a workspace from a specification file', async () => {
@@ -2300,10 +2289,10 @@ describe('create-workspace-store', () => {
   describe('addDocument error handling', () => {
     beforeEach(() => {
       resetConsoleSpies()
-    })
 
-    afterEach(() => {
-      resetConsoleSpies()
+      return () => {
+        resetConsoleSpies()
+      }
     })
 
     it('logs specific error when resolve.ok is false', async () => {
@@ -2898,14 +2887,7 @@ describe('create-workspace-store', () => {
     })
 
     it('should load new origin from a url', async () => {
-      const fn = vi.fn()
-
       const store = createWorkspaceStore()
-
-      const fetchDocument = async (): Promise<Response> => {
-        fn()
-        return new Response(JSON.stringify(getDocument()))
-      }
 
       await store.addDocument({
         name: 'default',
@@ -2920,6 +2902,8 @@ describe('create-workspace-store', () => {
 
       expect(store.workspace.documents.default?.info.title).toBe('Some API')
 
+      const fetchDocument = vi.fn().mockResolvedValue(new Response(JSON.stringify(getDocument())))
+
       const result = await store.rebaseDocument({
         name: 'default',
         url: 'https://api.example.com',
@@ -2930,7 +2914,7 @@ describe('create-workspace-store', () => {
 
       await result.applyChanges([]) // No conflicts to apply
 
-      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fetchDocument).toHaveBeenCalledTimes(1)
       expect(store.workspace.documents.default?.info.title).toBe('My API')
     })
 

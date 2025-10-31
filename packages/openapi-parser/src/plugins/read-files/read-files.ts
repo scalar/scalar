@@ -36,7 +36,7 @@ export const readFiles: () => LoadPlugin = () => {
 
       return true
     },
-    async get(value?: any) {
+    get(value?: any) {
       if (!fs.existsSync(value)) {
         throw new Error(ERRORS.FILE_DOES_NOT_EXIST.replace('%s', value))
       }

@@ -46,13 +46,11 @@ describe('single reference', () => {
     )
   })
 
-  bench('@scalar/openapi-parser', async () => {
+  bench('@scalar/openapi-parser', () => {
     // Action!
-    const { schema } = await resolveNew(specification)
+    const { schema } = resolveNew(specification)
 
     // Check whether the reference was resolved
-    expect((schema as any).paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe(
-      'Hello World!',
-    )
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('Hello World!')
   })
 })

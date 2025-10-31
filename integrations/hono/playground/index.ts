@@ -205,9 +205,7 @@ const content = app.getOpenAPI31Document({
 
 const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
 
-app.get('/llms.txt', async (c) => {
-  return c.text(markdown)
-})
+app.get('/llms.txt', (c) => c.text(markdown))
 
 // Listen
 serve(

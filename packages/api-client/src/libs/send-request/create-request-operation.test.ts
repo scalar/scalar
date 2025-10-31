@@ -296,7 +296,7 @@ describe('create-request-operation', () => {
     })
   })
 
-  it('creates query parameters from the url', async () => {
+  it('creates query parameters from the url', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },

@@ -255,7 +255,7 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
     })
 
-    it('allows an async function as onDocumentSelect', async () => {
+    it('allows an async function as onDocumentSelect', () => {
       const config = {
         onDocumentSelect: vi.fn().mockResolvedValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>
@@ -272,7 +272,7 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
     })
 
-    it('allows an async function as onBeforeRequest', async () => {
+    it('allows an async function as onBeforeRequest', () => {
       const config = {
         onBeforeRequest: vi.fn().mockResolvedValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>
@@ -289,7 +289,7 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
     })
 
-    it('allows an async function as onShowMore', async () => {
+    it('allows an async function as onShowMore', () => {
       const config = {
         onShowMore: vi.fn().mockResolvedValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>
@@ -306,7 +306,7 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
     })
 
-    it('allows an async function as onSidebarClick', async () => {
+    it('allows an async function as onSidebarClick', () => {
       const config = {
         onSidebarClick: vi.fn().mockResolvedValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>

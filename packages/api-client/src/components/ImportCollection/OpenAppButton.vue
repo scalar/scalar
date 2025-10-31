@@ -46,7 +46,7 @@ function openScalarApp() {
   }
 }
 
-async function redirectToWaitList() {
+function redirectToWaitList() {
   window.location.href = APP_DOWNLOAD_URL
 }
 </script>

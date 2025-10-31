@@ -4,7 +4,7 @@ import { setTimeout } from 'node:timers/promises'
 
 import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import YAML from 'yaml'
 
 import { parseJson } from '@/bundle/plugins/parse-json'
@@ -32,11 +32,11 @@ describe('bundle', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('bundles external urls', async () => {
@@ -1423,9 +1423,7 @@ describe('bundle', () => {
       await bundle(input, {
         plugins: [
           fetchUrls({
-            fetch: async () => {
-              return Response.json({ message: 'should not be called' })
-            },
+            fetch: () => Promise.resolve(Response.json({ message: 'should not be called' })),
           }),
           readFiles(),
         ],
@@ -1519,7 +1517,15 @@ describe('bundle', () => {
         },
       }
 
-      const fn = vi.fn()
+      const exec = vi.fn<LoaderPlugin['exec']>().mockResolvedValue({
+        ok: true,
+        data: {
+          message: 'resolved value',
+        },
+        raw: JSON.stringify({
+          message: 'resolved value',
+        }),
+      })
 
       await bundle(input, {
         treeShake: false,
@@ -1527,18 +1533,7 @@ describe('bundle', () => {
           {
             type: 'loader',
             validate: () => true,
-            exec: async (value) => {
-              fn(value)
-              return {
-                ok: true,
-                data: {
-                  message: 'resolved value',
-                },
-                raw: JSON.stringify({
-                  message: 'resolved value',
-                }),
-              }
-            },
+            exec,
           },
         ],
       })
@@ -1559,8 +1554,8 @@ describe('bundle', () => {
         },
       })
 
-      expect(fn).toHaveBeenCalled()
-      expect(fn).toHaveBeenCalledWith('https://example.com/b')
+      expect(exec).toHaveBeenCalled()
+      expect(exec).toHaveBeenCalledWith('https://example.com/b')
     })
 
     it('prioritizes $id when resolving refs with origin #1', async () => {
@@ -1577,7 +1572,15 @@ describe('bundle', () => {
         },
       }
 
-      const fn = vi.fn()
+      const exec = vi.fn<LoaderPlugin['exec']>().mockResolvedValue({
+        ok: true,
+        data: {
+          message: 'resolved value',
+        },
+        raw: JSON.stringify({
+          message: 'resolved value',
+        }),
+      })
 
       await bundle(input, {
         treeShake: false,
@@ -1586,18 +1589,7 @@ describe('bundle', () => {
           {
             type: 'loader',
             validate: () => true,
-            exec: async (value) => {
-              fn(value)
-              return {
-                ok: true,
-                data: {
-                  message: 'resolved value',
-                },
-                raw: JSON.stringify({
-                  message: 'resolved value',
-                }),
-              }
-            },
+            exec,
           },
         ],
       })
@@ -1618,8 +1610,8 @@ describe('bundle', () => {
         },
       })
 
-      expect(fn).toHaveBeenCalled()
-      expect(fn).toHaveBeenCalledWith('/b')
+      expect(exec).toHaveBeenCalled()
+      expect(exec).toHaveBeenCalledWith('/b')
     })
 
     it('prioritizes $id when resolving refs with origin #2', async () => {
@@ -1636,7 +1628,25 @@ describe('bundle', () => {
         },
       }
 
-      const fn = vi.fn()
+      const exec = vi.fn<LoaderPlugin['exec']>((value) => {
+        if (value === url) {
+          return Promise.resolve({
+            ok: true,
+            data: input,
+            raw: JSON.stringify(input),
+          })
+        }
+
+        return Promise.resolve({
+          ok: true,
+          data: {
+            message: 'resolved value',
+          },
+          raw: JSON.stringify({
+            message: 'resolved value',
+          }),
+        })
+      })
 
       await bundle(url, {
         treeShake: false,
@@ -1645,27 +1655,7 @@ describe('bundle', () => {
           {
             type: 'loader',
             validate: () => true,
-            exec: async (value) => {
-              fn(value)
-
-              if (value === url) {
-                return {
-                  ok: true,
-                  data: input,
-                  raw: JSON.stringify(input),
-                }
-              }
-
-              return {
-                ok: true,
-                data: {
-                  message: 'resolved value',
-                },
-                raw: JSON.stringify({
-                  message: 'resolved value',
-                }),
-              }
-            },
+            exec,
           },
         ],
       })
@@ -1686,9 +1676,9 @@ describe('bundle', () => {
         },
       })
 
-      expect(fn).toHaveBeenCalledTimes(2)
-      expect(fn.mock.calls[0][0]).toBe(url)
-      expect(fn.mock.calls[1][0]).toBe('http://example.com/b')
+      expect(exec).toHaveBeenCalledTimes(2)
+      expect(exec).toHaveBeenNthCalledWith(1, url)
+      expect(exec).toHaveBeenNthCalledWith(2, 'http://example.com/b')
     })
 
     it('correctly bundles when doing a partial bundle with $anchor on a different context', async () => {
@@ -1712,18 +1702,15 @@ describe('bundle', () => {
         },
       }
 
-      const fn = vi.fn()
-
       await bundle(input.a, {
         treeShake: false,
         plugins: [
           {
             type: 'loader',
             validate: () => true,
-            exec: async (value) => {
-              fn(value)
+            exec: (value) => {
               if (value === 'http://example.com') {
-                return {
+                return Promise.resolve({
                   ok: true,
                   data: {
                     message: 'resolved value',
@@ -1731,9 +1718,9 @@ describe('bundle', () => {
                   raw: JSON.stringify({
                     message: 'resolved value',
                   }),
-                }
+                })
               }
-              return { ok: false }
+              return Promise.resolve({ ok: false })
             },
           },
         ],
@@ -2002,11 +1989,11 @@ describe('bundle', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('should process yaml inputs', async () => {
@@ -2081,11 +2068,11 @@ describe('bundle', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('bundles external urls', async () => {
@@ -2294,7 +2281,7 @@ describe('bundle', () => {
   describe('hooks', () => {
     describe('onBeforeNodeProcess', () => {
       it('should correctly call the `onBeforeNodeProcess` correctly on all the nodes', async () => {
-        const fn = vi.fn()
+        const onBeforeNodeProcess = vi.fn()
 
         const input = {
           someKey: 'someValue',
@@ -2307,21 +2294,17 @@ describe('bundle', () => {
           plugins: [],
           treeShake: false,
           hooks: {
-            onBeforeNodeProcess(node) {
-              fn(node)
-            },
+            onBeforeNodeProcess,
           },
         })
 
-        expect(fn).toHaveBeenCalled()
-        expect(fn).toBeCalledTimes(2)
-
-        expect(fn.mock.calls[0][0]).toEqual(input)
-        expect(fn.mock.calls[1][0]).toEqual(input.anotherKey)
+        expect(onBeforeNodeProcess).toBeCalledTimes(2)
+        expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(1, input, expect.any(Object))
+        expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(2, input.anotherKey, expect.any(Object))
       })
 
       it('should run bundle on the mutated object properties', async () => {
-        const fn = vi.fn()
+        const onBeforeNodeProcessSpy = vi.fn()
 
         const input = {
           a: {
@@ -2341,21 +2324,19 @@ describe('bundle', () => {
               if ('e' in node) {
                 node['processedKey'] = { 'message': 'Processed node' }
               }
-              fn(node)
+              onBeforeNodeProcessSpy(node)
             },
           },
         })
 
-        expect(fn).toHaveBeenCalled()
-        expect(fn).toBeCalledTimes(4)
-
-        expect(fn.mock.calls[3][0]).toEqual({ 'message': 'Processed node' })
+        expect(onBeforeNodeProcessSpy).toBeCalledTimes(4)
+        expect(onBeforeNodeProcessSpy).toHaveBeenNthCalledWith(4, { 'message': 'Processed node' })
       })
     })
 
     describe('onAfterNodeProcess', () => {
       it('should call `onAfterNodeProcess` hook on the nodes', async () => {
-        const fn = vi.fn()
+        const onAfterNodeProcessSpy = vi.fn()
 
         const input = {
           a: {
@@ -2375,110 +2356,87 @@ describe('bundle', () => {
               if ('e' in node) {
                 node['processedKey'] = { 'message': 'Processed node' }
               }
-              fn(node)
+              onAfterNodeProcessSpy(node)
             },
           },
         })
 
-        expect(fn).toHaveBeenCalled()
-        expect(fn).toHaveBeenCalledTimes(3)
+        expect(onAfterNodeProcessSpy).toHaveBeenCalledTimes(3)
       })
     })
   })
 
   describe('plugins', () => {
     it('use load plugins to load the documents', async () => {
-      const validate = vi.fn()
-      const exec = vi.fn()
+      const validate = vi.fn<LoaderPlugin['validate']>().mockReturnValue(true)
+      const exec = vi.fn<LoaderPlugin['exec']>().mockResolvedValue({
+        ok: true,
+        data: { message: 'Resolved document' },
+        raw: JSON.stringify({ message: 'Resolved document' }),
+      })
 
       const resolver = (): LoaderPlugin => {
         return {
           type: 'loader',
-          validate(value) {
-            validate(value)
-            return true
-          },
-          async exec(value) {
-            exec(value)
-            return {
-              ok: true,
-              data: { message: 'Resolved document' },
-              raw: JSON.stringify({ message: 'Resolved document' }),
-            }
-          },
+          validate,
+          exec,
         }
       }
 
       const result = await bundle('hello', { treeShake: false, plugins: [resolver()] })
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(exec).toHaveBeenCalledOnce()
+      expect(validate).toHaveBeenLastCalledWith('hello')
 
-      expect(validate.mock.calls[0][0]).toBe('hello')
-      expect(exec.mock.calls[0][0]).toBe('hello')
+      expect(exec).toHaveBeenCalledOnce()
+      expect(exec).toHaveBeenLastCalledWith('hello')
 
       expect(result).toEqual({ message: 'Resolved document' })
     })
 
     it('throws if we can not process the input with any of the provided loaders', async () => {
-      const validate = vi.fn()
-      const exec = vi.fn()
+      const validate = vi.fn<LoaderPlugin['validate']>().mockReturnValue(false)
+      const exec = vi.fn<LoaderPlugin['exec']>()
 
       const resolver = (): LoaderPlugin => {
         return {
           type: 'loader',
-          validate(value) {
-            validate(value)
-            return false
-          },
-          async exec(value) {
-            exec(value)
-            return {
-              ok: true,
-              data: { message: 'Resolved document' },
-              raw: JSON.stringify({ message: 'Resolved document' }),
-            }
-          },
+          validate,
+          exec,
         }
       }
 
       await expect(bundle('hello', { treeShake: false, plugins: [resolver()] })).rejects.toThrow()
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(validate.mock.calls[0][0]).toBe('hello')
+      expect(validate).toHaveBeenLastCalledWith('hello')
 
       expect(exec).not.toHaveBeenCalled()
     })
 
     it('use load plugin to resolve external refs', async () => {
-      const validate = vi.fn()
-      const exec = vi.fn()
+      const validate = vi.fn<LoaderPlugin['validate']>().mockReturnValue(true)
+      const exec = vi.fn<LoaderPlugin['exec']>().mockResolvedValue({
+        ok: true,
+        data: { message: 'Resolved document' },
+        raw: JSON.stringify({ message: 'Resolved document' }),
+      })
 
       const resolver = (): LoaderPlugin => {
         return {
           type: 'loader',
-          validate(value) {
-            validate(value)
-            return true
-          },
-          async exec(value) {
-            exec(value)
-            return {
-              ok: true,
-              data: { message: 'Resolved document' },
-              raw: JSON.stringify({ message: 'Resolved document' }),
-            }
-          },
+          validate,
+          exec,
         }
       }
 
       const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(exec).toHaveBeenCalledOnce()
+      expect(validate).toHaveBeenLastCalledWith('hello')
 
-      expect(validate.mock.calls[0][0]).toBe('hello')
-      expect(exec.mock.calls[0][0]).toBe('hello')
+      expect(exec).toHaveBeenCalledOnce()
+      expect(exec).toHaveBeenLastCalledWith('hello')
 
       expect(result).toEqual({
         $ref: '#/x-ext/aaf4c61',
@@ -2492,31 +2450,21 @@ describe('bundle', () => {
 
     it('emits warning when there is no loader to resolve the external ref', async () => {
       resetConsoleSpies()
-      const validate = vi.fn()
-      const exec = vi.fn()
+      const validate = vi.fn<LoaderPlugin['validate']>().mockReturnValue(false)
+      const exec = vi.fn<LoaderPlugin['exec']>()
 
       const resolver = (): LoaderPlugin => {
         return {
           type: 'loader',
-          validate(value) {
-            validate(value)
-            return false
-          },
-          async exec(value) {
-            exec(value)
-            return {
-              ok: true,
-              data: { message: 'Resolved document' },
-              raw: JSON.stringify({ message: 'Resolved document' }),
-            }
-          },
+          validate,
+          exec,
         }
       }
 
       const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(validate.mock.calls[0][0]).toBe('hello')
+      expect(validate).toHaveBeenLastCalledWith('hello')
 
       expect(exec).not.toHaveBeenCalled()
 
@@ -2529,8 +2477,8 @@ describe('bundle', () => {
     })
 
     it('lets plugins hook into nodes lifecycle #1', async () => {
-      const onBeforeNodeProcessCallback = vi.fn()
-      const onAfterNodeProcessCallback = vi.fn()
+      const onBeforeNodeProcess = vi.fn()
+      const onAfterNodeProcess = vi.fn()
 
       await bundle(
         {
@@ -2543,88 +2491,118 @@ describe('bundle', () => {
           plugins: [
             {
               type: 'lifecycle',
-              onBeforeNodeProcess: onBeforeNodeProcessCallback,
-              onAfterNodeProcess: onAfterNodeProcessCallback,
+              onBeforeNodeProcess,
+              onAfterNodeProcess,
             },
           ],
         },
       )
 
-      expect(onBeforeNodeProcessCallback).toHaveBeenCalledTimes(2)
-      expect(onBeforeNodeProcessCallback.mock.calls[0][0]).toEqual({
-        prop: {
+      expect(onBeforeNodeProcess).toHaveBeenCalledTimes(2)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        1,
+        {
+          prop: {
+            innerProp: 'string',
+          },
+        },
+        {
+          path: [],
+          resolutionCache: new Map(),
+          parentNode: null,
+          rootNode: {
+            prop: {
+              innerProp: 'string',
+            },
+          },
+          loaders: [],
+        },
+      )
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        2,
+        {
           innerProp: 'string',
         },
-      })
-      expect(onBeforeNodeProcessCallback.mock.calls[0][1]).toEqual({
-        path: [],
-        resolutionCache: new Map(),
-        parentNode: null,
-        rootNode: {
-          prop: {
-            innerProp: 'string',
+        {
+          path: ['prop'],
+          resolutionCache: new Map(),
+          parentNode: {
+            prop: {
+              innerProp: 'string',
+            },
           },
-        },
-        loaders: [],
-      })
-      expect(onBeforeNodeProcessCallback.mock.calls[1][0]).toEqual({
-        innerProp: 'string',
-      })
-      expect(onBeforeNodeProcessCallback.mock.calls[1][1]).toEqual({
-        path: ['prop'],
-        resolutionCache: new Map(),
-        parentNode: {
-          prop: {
-            innerProp: 'string',
+          rootNode: {
+            prop: {
+              innerProp: 'string',
+            },
           },
+          loaders: [],
         },
-        rootNode: {
-          prop: {
-            innerProp: 'string',
-          },
-        },
-        loaders: [],
-      })
-      expect(onAfterNodeProcessCallback).toHaveBeenCalledTimes(2)
-      expect(onAfterNodeProcessCallback.mock.calls[0][0]).toEqual({
-        innerProp: 'string',
-      })
-      expect(onAfterNodeProcessCallback.mock.calls[0][1]).toEqual({
-        path: ['prop'],
-        resolutionCache: new Map(),
-        parentNode: {
-          prop: {
-            innerProp: 'string',
-          },
-        },
-        rootNode: {
-          prop: {
-            innerProp: 'string',
-          },
-        },
-        loaders: [],
-      })
-      expect(onAfterNodeProcessCallback.mock.calls[1][0]).toEqual({
-        prop: {
+      )
+
+      expect(onAfterNodeProcess).toHaveBeenCalledTimes(2)
+      expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
+        1,
+        {
           innerProp: 'string',
         },
-      })
-      expect(onAfterNodeProcessCallback.mock.calls[1][1]).toEqual({
-        path: [],
-        resolutionCache: new Map(),
-        parentNode: null,
-        rootNode: {
+        {
+          path: ['prop'],
+          resolutionCache: new Map(),
+          parentNode: {
+            prop: {
+              innerProp: 'string',
+            },
+          },
+          rootNode: {
+            prop: {
+              innerProp: 'string',
+            },
+          },
+          loaders: [],
+        },
+      )
+      expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
+        2,
+        {
           prop: {
             innerProp: 'string',
           },
         },
-        loaders: [],
-      })
+        {
+          path: [],
+          resolutionCache: new Map(),
+          parentNode: null,
+          rootNode: {
+            prop: {
+              innerProp: 'string',
+            },
+          },
+          loaders: [],
+        },
+      )
     })
 
     it('lets plugins hook into nodes lifecycle #2', async () => {
-      const validate = vi.fn()
-      const exec = vi.fn()
+      const validate = vi.fn<LoaderPlugin['validate']>((value) => {
+        if (value === 'resolve') {
+          return true
+        }
+        return false
+      })
+      const exec = vi.fn<LoaderPlugin['exec']>((value) =>
+        Promise.resolve({
+          ok: true,
+          data: {
+            message: 'Resolved value',
+            'x-original-value': value,
+          },
+          raw: JSON.stringify({
+            message: 'Resolved value',
+            'x-original-value': value,
+          }),
+        }),
+      )
       const onResolveStart = vi.fn()
       const onResolveError = vi.fn()
       const onResolveSuccess = vi.fn()
@@ -2642,27 +2620,8 @@ describe('bundle', () => {
           plugins: [
             {
               type: 'loader',
-              validate(value) {
-                validate()
-                if (value === 'resolve') {
-                  return true
-                }
-                return false
-              },
-              async exec(value) {
-                exec()
-                return {
-                  ok: true,
-                  data: {
-                    message: 'Resolved value',
-                    'x-original-value': value,
-                  },
-                  raw: JSON.stringify({
-                    message: 'Resolved value',
-                    'x-original-value': value,
-                  }),
-                }
-              },
+              validate,
+              exec,
             },
             {
               type: 'lifecycle',
@@ -2718,29 +2677,58 @@ describe('bundle', () => {
         treeShake: false,
       })
 
-      expect(onBeforeNodeProcess).toHaveBeenCalled()
+      expect(onBeforeNodeProcess).toHaveBeenCalledTimes(7)
 
       // First call should be the root with a null parent
-      expect(onBeforeNodeProcess.mock.calls[0][0]).toEqual(input)
-      expect(onBeforeNodeProcess.mock.calls[0][1].parentNode).toEqual(null)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        1,
+        input,
+        expect.objectContaining({
+          parentNode: null,
+        }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[1][0]).toEqual(input.a)
-      expect(onBeforeNodeProcess.mock.calls[1][1].parentNode).toEqual(input)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        2,
+        input.a,
+        expect.objectContaining({
+          parentNode: input,
+        }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[2][0]).toEqual(input.d)
-      expect(onBeforeNodeProcess.mock.calls[2][1].parentNode).toEqual(input)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        3,
+        input.d,
+        expect.objectContaining({
+          parentNode: input,
+        }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[3][0]).toEqual(input.e)
-      expect(onBeforeNodeProcess.mock.calls[3][1].parentNode).toEqual(input)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        4,
+        input.e,
+        expect.objectContaining({
+          parentNode: input,
+        }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[4][0]).toEqual(input.a.b)
-      expect(onBeforeNodeProcess.mock.calls[4][1].parentNode).toEqual(input.a)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        5,
+        input.a.b,
+        expect.objectContaining({ parentNode: input.a }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[5][0]).toEqual(input.e.f)
-      expect(onBeforeNodeProcess.mock.calls[5][1].parentNode).toEqual(input.e)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        6,
+        input.e.f,
+        expect.objectContaining({ parentNode: input.e }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[6][0]).toEqual(input.a.b.c)
-      expect(onBeforeNodeProcess.mock.calls[6][1].parentNode).toEqual(input.a.b)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        7,
+        input.a.b.c,
+        expect.objectContaining({ parentNode: input.a.b }),
+      )
     })
 
     it('correctly provides the parent node on partial bundle for referenced nodes', async () => {
@@ -2768,15 +2756,31 @@ describe('bundle', () => {
         ],
       })
 
-      expect(onBeforeNodeProcess).toHaveBeenCalled()
-      expect(onBeforeNodeProcess.mock.calls[0][0]).toEqual(input.b)
-      expect(onBeforeNodeProcess.mock.calls[0][1].parentNode).toEqual(null)
+      expect(onBeforeNodeProcess).toHaveBeenCalledTimes(3)
 
-      expect(onBeforeNodeProcess.mock.calls[1][0]).toEqual(input.b.c)
-      expect(onBeforeNodeProcess.mock.calls[1][1].parentNode).toEqual(input.b)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        1,
+        input.b,
+        expect.objectContaining({
+          parentNode: null,
+        }),
+      )
 
-      expect(onBeforeNodeProcess.mock.calls[2][0]).toEqual(input.a)
-      expect(onBeforeNodeProcess.mock.calls[2][1].parentNode).toEqual(input)
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        2,
+        input.b.c,
+        expect.objectContaining({
+          parentNode: input.b,
+        }),
+      )
+
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
+        3,
+        input.a,
+        expect.objectContaining({
+          parentNode: input,
+        }),
+      )
     })
   })
 })
@@ -2888,7 +2892,7 @@ describe('resolveAndCopyReferences', () => {
     },
   }
 
-  it('correctly resolves and copies local references, and leaves out the rest', async () => {
+  it('correctly resolves and copies local references, and leaves out the rest', () => {
     const target = {}
 
     resolveAndCopyReferences(target, source, '/paths/~1', '', '', true)

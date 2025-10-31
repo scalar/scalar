@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import ScalarContextMenu from './ScalarContextMenu.vue'
 
 describe('ScalarContextMenu', () => {
-  it('renders properly', async () => {
+  it('renders properly', () => {
     const wrapper = mount(ScalarContextMenu, {
       props: {
         items: [

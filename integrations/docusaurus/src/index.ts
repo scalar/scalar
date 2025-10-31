@@ -59,11 +59,11 @@ const ScalarDocusaurus = (
       }
     },
 
-    async loadContent() {
+    loadContent() {
       return defaultOptions
     },
 
-    async contentLoaded({ content, actions }) {
+    contentLoaded({ content, actions }) {
       const { addRoute } = actions
 
       // If showNavLink is true, add a link to the navbar

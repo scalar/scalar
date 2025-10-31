@@ -689,8 +689,11 @@ describe('RequestExample', () => {
           ...defaultProps,
           operation: {
             summary: 'Referenced operation',
-            // @ts-expect-error - this is a test
-            requestBody: { $ref: '#/components/requestBodies/TestBody', '$ref-value': undefined },
+            requestBody: {
+              $ref: '#/components/requestBodies/TestBody',
+              // @ts-expect-error - this is a test
+              '$ref-value': undefined,
+            },
           },
         },
       })
@@ -1139,7 +1142,7 @@ describe('RequestExample', () => {
       expect(copiedContent).toContain('2024-01-15T10:30:00Z')
     })
 
-    it('handles handles null payload gracefully', async () => {
+    it('handles handles null payload gracefully', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,

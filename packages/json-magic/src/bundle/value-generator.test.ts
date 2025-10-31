@@ -1,9 +1,10 @@
-import { generateUniqueValue, uniqueValueGeneratorFactory } from './value-generator'
 import { describe, expect, it } from 'vitest'
+
+import { generateUniqueValue, uniqueValueGeneratorFactory } from './value-generator'
 
 describe('generateUniqueHash', () => {
   it('should generate hash values from the function we pass in', async () => {
-    const hashFunction = async (value: string) => {
+    const hashFunction = (value: string) => {
       if (value === 'a') {
         return 'a'
       }
@@ -16,7 +17,7 @@ describe('generateUniqueHash', () => {
   })
 
   it('should return same value for the same input', async () => {
-    const hashFunction = async (value: string) => {
+    const hashFunction = (value: string) => {
       if (value === 'a') {
         return value
       }
@@ -33,7 +34,7 @@ describe('generateUniqueHash', () => {
   })
 
   it('should handle hash collisions', async () => {
-    const hashFunction = async (value: string) => {
+    const hashFunction = (value: string) => {
       // Hash a, b and c will produce collisions
       if (value === 'a' || value === 'b' || value === 'c') {
         return 'd'
@@ -83,9 +84,7 @@ describe('generateUniqueHash', () => {
   })
 
   it('should throw when it reaches max depth', async () => {
-    const hashFunction = async () => {
-      return 'a'
-    }
+    const hashFunction = () => 'a'
 
     const map = {}
     const result1 = await generateUniqueValue(hashFunction, 'a', map)
@@ -94,7 +93,7 @@ describe('generateUniqueHash', () => {
     const result2 = await generateUniqueValue(hashFunction, 'a', map)
     expect(result2).toBe('a')
 
-    expect(() => generateUniqueValue(hashFunction, 'b', map)).rejects.toThrowError()
+    await expect(() => generateUniqueValue(hashFunction, 'b', map)).rejects.toThrowError()
   })
 })
 

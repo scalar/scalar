@@ -1,22 +1,23 @@
 import { describe, expect, it } from 'vitest'
 
-import specification from './specification.json'
-import { resolveReferences } from '@/utils/resolve-references'
 import { normalize } from '@/utils/normalize'
+import { resolveReferences } from '@/utils/resolve-references'
+
+import specification from './specification.json'
 
 // Circular $refs to ancestor
 describe.todo('ancestor', () => {
-  it('relative path', async () => {
+  it('relative path', () => {
     const schema = resolveReferences(normalize(specification))
 
     expect(schema).not.toBe(undefined)
   })
 
-  it('absolute path', async () => {
+  it('absolute path', () => {
     //
   })
 
-  it('URL', async () => {
+  it('URL', () => {
     //
   })
 })

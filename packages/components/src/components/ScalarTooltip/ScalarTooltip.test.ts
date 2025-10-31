@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+
+import { ELEMENT_ID } from './constants'
 import ScalarTooltip from './ScalarTooltip.vue'
 import { cleanupTooltipElement } from './useTooltip'
-import { ELEMENT_ID } from './constants'
 
 describe('ScalarTooltip', () => {
   beforeEach(() => {
@@ -20,7 +21,7 @@ describe('ScalarTooltip', () => {
     vi.useRealTimers()
   })
 
-  it('renders trigger element and tooltip content', async () => {
+  it('renders trigger element and tooltip content', () => {
     const wrapper = mount(ScalarTooltip, {
       props: {
         content: 'Tooltip Content',

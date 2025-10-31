@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
 describe('ContentTypeSelect', () => {
-  it('renders with multiple content types as a dropdown', async () => {
+  it('renders with multiple content types as a dropdown', () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
         content: {
@@ -19,7 +19,7 @@ describe('ContentTypeSelect', () => {
     expect(wrapper.text()).toContain('application/json')
   })
 
-  it('renders with a single content type as plain text', async () => {
+  it('renders with a single content type as plain text', () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
         content: {

@@ -18,8 +18,8 @@ describe('no reference', () => {
     await resolveOld(specification)
   })
 
-  bench('@scalar/openapi-parser', async () => {
+  bench('@scalar/openapi-parser', () => {
     // Action!
-    await resolveNew(specification)
+    resolveNew(specification)
   })
 })

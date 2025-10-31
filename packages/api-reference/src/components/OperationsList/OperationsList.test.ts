@@ -173,7 +173,7 @@ describe('OperationsList', () => {
     expect(wrapper.html()).toBe('<!--v-if-->')
   })
 
-  it('applies correct CSS classes', async () => {
+  it('applies correct CSS classes', () => {
     const operations = [createMockOperation()]
     const tag = createMockTag({ children: operations })
 

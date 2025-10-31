@@ -5,7 +5,7 @@ import { createParameterMap, deepMerge } from './openapi'
 
 describe('openapi', () => {
   describe('deepMerge', () => {
-    it('merges objects', async () => {
+    it('merges objects', () => {
       expect(
         deepMerge(
           {
@@ -21,7 +21,7 @@ describe('openapi', () => {
       })
     })
 
-    it('merges objects in objects', async () => {
+    it('merges objects in objects', () => {
       expect(
         deepMerge(
           {
@@ -48,7 +48,7 @@ describe('openapi', () => {
       })
     })
 
-    it("doesn't merge undefined properties", async () => {
+    it("doesn't merge undefined properties", () => {
       expect(
         deepMerge(
           {

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -217,7 +218,7 @@ export function externalizePathReferences(
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
+function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
     return fetchUrls().exec(workspaceDocument.url)
   }
@@ -226,10 +227,11 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
     return readFiles().exec(workspaceDocument.path)
   }
 
-  return {
-    ok: true as const,
+  return Promise.resolve({
+    ok: true,
     data: workspaceDocument.document,
-  }
+    raw: JSON.stringify(workspaceDocument.document),
+  })
 }
 
 /**

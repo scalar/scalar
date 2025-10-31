@@ -25,7 +25,7 @@ const configuration = reactive({
 
 let app: ReturnType<typeof createApiReference> | null = null
 
-onMounted(async () => {
+onMounted(() => {
   app = createApiReference(containerRef.value, configuration)
 })
 

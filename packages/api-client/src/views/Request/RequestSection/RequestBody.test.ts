@@ -1,12 +1,13 @@
-import { useWorkspace } from '@/store'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { operationSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
-import { createStoreEvents } from '@/store/events'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
-import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { useWorkspace } from '@/store'
+import { createStoreEvents } from '@/store/events'
 
 import RequestBody from './RequestBody.vue'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 
 // Mock the useWorkspace hook
 vi.mock('@/store', () => ({
@@ -32,8 +33,9 @@ describe('RequestBody.vue', () => {
     uid: 'mockWorkspaceUid',
   })
   const mockRequestExampleMutators = {
-    edit: vi.fn(),
+    edit: vi.fn<ReturnType<typeof useWorkspace>['requestExampleMutators']['edit']>(),
   }
+
   const props = {
     props: {
       title: 'Body',
@@ -52,23 +54,23 @@ describe('RequestBody.vue', () => {
 
   // Mock our request + example
   beforeEach(() => {
-    ;(useWorkspace as Mock).mockReturnValue({
+    vi.mocked(useWorkspace).mockReturnValue({
       events: createStoreEvents(),
       requestExampleMutators: mockRequestExampleMutators,
-    })
+    } as unknown as ReturnType<typeof useWorkspace>)
+
+    return () => {
+      vi.clearAllMocks()
+    }
   })
 
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('renders correctly with no body', async () => {
+  it('renders correctly with no body', () => {
     const wrapper = mount(RequestBody, props)
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('None')
     wrapper.unmount()
   })
 
-  it('renders with multipart form', async () => {
+  it('renders with multipart form', () => {
     mockActiveExample.body = {
       activeBody: 'formData',
       formData: {
@@ -82,8 +84,8 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with url encoded form', async () => {
-    mockActiveExample.body = mockActiveExample.body = {
+  it('renders with url encoded form', () => {
+    mockActiveExample.body = {
       activeBody: 'formData',
       formData: {
         encoding: 'urlencoded',
@@ -96,7 +98,7 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with binary file', async () => {
+  it('renders with binary file', () => {
     mockActiveExample.body = {
       activeBody: 'binary',
     }
@@ -122,7 +124,7 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with xml', async () => {
+  it('renders with xml', () => {
     mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
@@ -136,7 +138,7 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with yaml', async () => {
+  it('renders with yaml', () => {
     mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
@@ -150,7 +152,7 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with edn', async () => {
+  it('renders with edn', () => {
     mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
@@ -164,7 +166,7 @@ describe('RequestBody.vue', () => {
     wrapper.unmount()
   })
 
-  it('renders with other', async () => {
+  it('renders with other', () => {
     mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
@@ -303,13 +305,13 @@ describe('RequestBody.vue', () => {
       }
 
       const wrapper = mount(RequestBody, props)
-      const initialCallCount = mockRequestExampleMutators.edit.mock.calls.length
+      const initialCallCount = vi.mocked(mockRequestExampleMutators.edit).mock.calls.length
 
       const requestTable = wrapper.findComponent({ name: 'RequestTable' })
       await requestTable.vm.$emit('deleteRow', 5) // Invalid index
 
       // Verify that edit was not called for the invalid deletion
-      expect(mockRequestExampleMutators.edit.mock.calls.length).toBe(initialCallCount)
+      expect(vi.mocked(mockRequestExampleMutators.edit).mock.calls.length).toBe(initialCallCount)
 
       wrapper.unmount()
     })

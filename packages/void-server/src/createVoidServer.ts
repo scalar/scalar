@@ -1,6 +1,7 @@
-import { type Context, Hono } from 'hono'
+import { Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { errors } from '@/utils/constants'
@@ -10,12 +11,11 @@ import { createStreamResponse } from '@/utils/createStreamResponse'
 import { createXmlResponse } from '@/utils/createXmlResponse'
 import { createZipFileResponse } from '@/utils/createZipFileResponse'
 import { getRequestData } from '@/utils/getRequestData'
-import { logger } from 'hono/logger'
 
 /**
  * Create a mock server instance
  */
-export async function createVoidServer() {
+export function createVoidServer() {
   const app = new Hono()
 
   // Logger
@@ -27,7 +27,7 @@ export async function createVoidServer() {
   app.use(cors())
 
   // HTTP errors
-  app.all('/:status{[4-5][0-9][0-9]}', async (c: Context) => {
+  app.all('/:status{[4-5][0-9][0-9]}', (c) => {
     const { status: originalStatusCode } = c.req.param()
     const status = Number.parseInt(originalStatusCode ?? '0', 10) as StatusCode
 
@@ -37,12 +37,12 @@ export async function createVoidServer() {
   })
 
   // No content
-  app.all('/:status{204}', async (c: Context) => {
+  app.all('/:status{204}', (c) => {
     return c.body(null, 204)
   })
 
   // Return content based on the file extension
-  app.all('/:filename{.+\\.(html|xml|json|zip)$}', async (c: Context) => {
+  app.all('/:filename{.+\\.(html|xml|json|zip)$}', async (c) => {
     const requestData = await getRequestData(c)
 
     const { filename } = c.req.param()
@@ -60,12 +60,10 @@ export async function createVoidServer() {
     return createJsonResponse(c, requestData)
   })
 
-  app.get('/stream', async (c: Context) => {
-    return createStreamResponse(c)
-  })
+  app.get('/stream', (c) => createStreamResponse(c))
 
   // All other requests just respond with a JSON containing all the request data
-  app.all('/*', async (c: Context) => {
+  app.all('/*', async (c) => {
     const requestData = await getRequestData(c)
 
     const acceptedContentType = accepts(c, {
