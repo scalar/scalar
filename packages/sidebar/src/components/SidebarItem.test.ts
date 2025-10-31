@@ -457,7 +457,7 @@ describe('SidebarItem', () => {
       })
 
       // Should contain the path with zero-width spaces after slashes
-      expect(wrapper.text()).toContain('/​users/​{id}')
+      expect(wrapper.text()).toContain('​/users​/{id}')
     })
 
     it('inserts zero-width space after slashes in path for line-break opportunities', () => {
@@ -482,7 +482,7 @@ describe('SidebarItem', () => {
 
       const html = wrapper.html()
       // Check for zero-width space character (U+200B)
-      expect(html).toContain('/\u200B')
+      expect(html).toContain('\u200B/')
     })
 
     it('uses title for items without path even when operationTitleSource is path', () => {

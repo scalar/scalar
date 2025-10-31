@@ -7,28 +7,28 @@ describe('formatSidebarLabel', () => {
     it('adds zero-width space before forward slashes', () => {
       const label = '/user/signup'
       const result = formatSidebarLabel(label)
-      expect(result).toBe('&ZeroWidthSpace;/user&ZeroWidthSpace;/signup')
+      expect(result).toBe('​/user​/signup')
     })
 
     it('adds zero-width space before dashes', () => {
       const label = 'long-string-test'
       const result = formatSidebarLabel(label)
-      expect(result).toBe('long&ZeroWidthSpace;-string&ZeroWidthSpace;-test')
+      expect(result).toBe('long​-string​-test')
     })
 
     it('handles both slashes and dashes', () => {
       const label = '/api/user-profile'
       const result = formatSidebarLabel(label)
-      expect(result).toBe('&ZeroWidthSpace;/api&ZeroWidthSpace;/user&ZeroWidthSpace;-profile')
+      expect(result).toBe('​/api​/user​-profile')
     })
 
     it('handles long URI strings with multiple slashes', () => {
       const label = '/long/uri/that/also/needs/to/be/handled/properly/in/the/sidebar'
       const result = formatSidebarLabel(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
       expect(result).not.toBe(label)
       // Check that slashes have zero-width spaces after them
-      expect(result.split('&ZeroWidthSpace;').length).toBeGreaterThan(1)
+      expect(result.split('​').length).toBeGreaterThan(1)
     })
 
     it('handles strings without wrap characters', () => {
@@ -56,7 +56,7 @@ describe('formatSidebarLabel', () => {
       const result = formatSidebarLabel(label, {
         wrapCharacters: /\./g,
       })
-      expect(result).toBe('test&ZeroWidthSpace;.dot&ZeroWidthSpace;.separated')
+      expect(result).toBe('test​.dot​.separated')
     })
 
     it('handles multiple custom wrap characters', () => {
@@ -64,7 +64,7 @@ describe('formatSidebarLabel', () => {
       const result = formatSidebarLabel(label, {
         wrapCharacters: /[._]/g,
       })
-      expect(result).toBe('test&ZeroWidthSpace;_dot&ZeroWidthSpace;_separated')
+      expect(result).toBe('test​_dot​_separated')
     })
 
     it('handles custom regex that does not match', () => {
@@ -90,9 +90,7 @@ describe('formatSidebarLabel', () => {
       const result = formatSidebarLabel(label, {
         wrapCharacters: /([A-Z])/g,
       })
-      expect(result).toBe(
-        '&ZeroWidthSpace;Long&ZeroWidthSpace;Pascal&ZeroWidthSpace;Case&ZeroWidthSpace;String&ZeroWidthSpace;That&ZeroWidthSpace;Needs&ZeroWidthSpace;To&ZeroWidthSpace;Wrap&ZeroWidthSpace;To&ZeroWidthSpace;Multiple&ZeroWidthSpace;Lines',
-      )
+      expect(result).toBe('​Long​Pascal​Case​String​That​Needs​To​Wrap​To​Multiple​Lines')
     })
 
     it('handles PascalCase with default settings (should not wrap)', () => {
@@ -107,7 +105,7 @@ describe('formatSidebarLabel', () => {
       const result = formatSidebarLabel(label, {
         wrapCharacters: /([A-Z])/g,
       })
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
       expect(result).not.toBe(label)
     })
 
@@ -116,7 +114,7 @@ describe('formatSidebarLabel', () => {
       const result = formatSidebarLabel(label, {
         wrapCharacters: /(?<!^)([A-Z])/g, // Not at start
       })
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
   })
 
@@ -131,7 +129,7 @@ describe('formatSidebarLabel', () => {
       const label = '/long/uri/that/also/needs/to/be/handled/properly/in/the/sidebar'
       const result = formatSidebarLabel(label)
       expect(result).not.toBe(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
 
     it('formats "LongPascalCaseStringThatNeedsToWrapToMultipleLines" with PascalCase regex', () => {
@@ -140,20 +138,20 @@ describe('formatSidebarLabel', () => {
         wrapCharacters: /(?<!^)([A-Z])/g,
       })
       expect(result).not.toBe(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
 
     it('formats "tag/authentication/post/user/signup"', () => {
       const label = 'tag/authentication/post/user/signup'
       const result = formatSidebarLabel(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
 
     it('formats "tag/long-string-test/post/user/signup" with both separators', () => {
       const label = 'tag/long-string-test/post/user/signup'
       const result = formatSidebarLabel(label)
-      expect(result).toContain('&ZeroWidthSpace;')
-      expect(result).toContain('&ZeroWidthSpace;-')
+      expect(result).toContain('​')
+      expect(result).toContain('​-')
     })
 
     it('formats "Celestial Bodies" (with space)', () => {
@@ -173,32 +171,32 @@ describe('formatSidebarLabel', () => {
     it('handles string with only forward slash', () => {
       const label = '/'
       const result = formatSidebarLabel(label)
-      expect(result).toBe('&ZeroWidthSpace;/')
+      expect(result).toBe('​/')
     })
 
     it('handles string with only dash', () => {
       const label = '-'
       const result = formatSidebarLabel(label)
-      expect(result).toBe('&ZeroWidthSpace;-')
+      expect(result).toBe('​-')
     })
 
     it('handles multiple consecutive wrap characters', () => {
       const label = '///---'
       const result = formatSidebarLabel(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
 
     it('handles string that starts and ends with wrap characters', () => {
       const label = '/start-and-end/'
       const result = formatSidebarLabel(label)
-      expect(result).toContain('&ZeroWidthSpace;')
+      expect(result).toContain('​')
     })
 
     it('preserves original string structure', () => {
       const label = '/api/v1/users'
       const result = formatSidebarLabel(label)
       // Should still contain all original characters in order
-      expect(result.replace(/&ZeroWidthSpace;/g, '')).toBe(label)
+      expect(result.replace(/​/g, '')).toBe(label)
     })
   })
 })
