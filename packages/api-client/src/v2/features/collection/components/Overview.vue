@@ -37,8 +37,6 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
     // }
   }, 100)
 }
-
-console.log(environment)
 </script>
 
 <template>

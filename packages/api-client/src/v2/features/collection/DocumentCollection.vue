@@ -7,7 +7,9 @@
  *   - Edit the document title
  *   - Navigate among Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
  */
-export default {}
+export default {
+  name: 'DocumentCollection',
+}
 </script>
 
 <script setup lang="ts">

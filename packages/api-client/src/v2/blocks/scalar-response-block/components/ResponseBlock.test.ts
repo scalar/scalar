@@ -1,5 +1,3 @@
-// @vitest-environment jsdom
-
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
