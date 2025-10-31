@@ -11,16 +11,20 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 /**
  * Adds OR updates an environment to the document or workspace.
  *
- * @param collection - Workspace OR document
+ * @param document - current document if available
+ * @param workspace - current workspace if available
  * @param environmentName - Name of the environment to add
  * @param payload - The environment configuration to add
  * @param oldEnvironmentName - Only needed when renaming the environment
  * @returns the parsed environment that was added or updated or undefined if the collection is not found
  */
 export const upsertEnvironment = (
-  collection: WorkspaceDocument | Workspace | null,
-  { environmentName, payload, oldEnvironmentName }: Omit<EnvironmentEvents['environment:upsert:environment'], 'type'>,
+  document: WorkspaceDocument | null,
+  workspace: Workspace,
+  { environmentName, payload, type, oldEnvironmentName }: EnvironmentEvents['environment:upsert:environment'],
 ): XScalarEnvironment | undefined => {
+  /** Discriminating between document and workspace */
+  const collection = type === 'document' ? document : workspace
   if (!collection) {
     return
   }
@@ -28,6 +32,9 @@ export const upsertEnvironment = (
   if (!collection['x-scalar-environments']) {
     collection['x-scalar-environments'] = {}
   }
+
+  // Check if this is a new environment before we create it
+  const isNewEnvironment = !collection['x-scalar-environments'][oldEnvironmentName ?? environmentName]
 
   // Ensure we parse the payload but keep the old variables
   const parsed = coerceValue(xScalarEnvironmentSchema, {
@@ -39,6 +46,11 @@ export const upsertEnvironment = (
   // If we are renaming the environment, we need to delete the old one
   if (oldEnvironmentName && oldEnvironmentName !== environmentName) {
     delete collection['x-scalar-environments'][oldEnvironmentName]
+  }
+
+  // Set the newly created workspace environment as active
+  if (isNewEnvironment) {
+    workspace['x-scalar-active-environment'] = environmentName
   }
 
   return parsed
