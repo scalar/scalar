@@ -11,10 +11,11 @@ import {
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { isDefined } from '@scalar/oas-utils/helpers'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
-  SecuritySchemeObject,
+  SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId } from 'vue'
@@ -23,7 +24,6 @@ import { ViewLayoutCollapse } from '@/components/ViewLayout'
 import { useLayout } from '@/hooks'
 import { type EnvVariable } from '@/store'
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import {
   formatComplexScheme,
   formatScheme,
@@ -42,31 +42,17 @@ const {
   security,
   selectedSecurity,
   securitySchemes,
+  eventBus,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   security: OpenApiDocument['security']
-  selectedSecurity: OpenApiDocument['security']
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   server: ServerObject | undefined
   title: string
-}>()
-
-const emits = defineEmits<{
-  (e: 'deleteOperationAuth', names: string[]): void
-  (e: 'update:securityScheme', payload: UpdateSecuritySchemeEvent): void
-  (
-    e: 'update:selectedScopes',
-    payload: { id: string[]; name: string; scopes: string[] },
-  ): void
-  (
-    e: 'update:selectedSecurity',
-    payload: {
-      value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
-      create: SecuritySchemeObject[]
-    },
-  ): void
+  eventBus: WorkspaceEventBus
 }>()
 
 const { layout: clientLayout } = useLayout()
@@ -77,7 +63,7 @@ const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{
   label: string
-  payload: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+  payload: SecurityRequirementObject
 } | null>(null)
 const isViewLayoutOpen = ref(false)
 
@@ -111,11 +97,11 @@ const authIndicator = computed(() => {
  * in the string
  */
 const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() => {
-  if (!selectedSecurity?.length) {
+  if (!selectedSecurity?.['x-schemes'].length) {
     return []
   }
 
-  return selectedSecurity
+  return selectedSecurity['x-schemes']
     .map((s) => {
       const schemaNames = Object.keys(s)
 
@@ -146,7 +132,7 @@ function handleDeleteScheme({
   value,
 }: {
   label: string
-  value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+  value: SecurityRequirementObject
 }) {
   selectedScheme.value = { label, payload: value }
   deleteSchemeModal.show()
@@ -171,8 +157,8 @@ const openAuthCombobox = (event: Event) => {
 }
 
 const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
-  emits('update:selectedSecurity', {
-    value: selected.map((s) => s.value),
+  eventBus.emit('update:selected-security-schemes', {
+    updated: selected.map((s) => s.value),
     create: selected.map((it) => it.payload).filter(isDefined),
   })
 }
@@ -182,8 +168,9 @@ const deleteScheme = () => {
     return
   }
 
-  // Emit the delete event with the scheme names
-  emits('deleteOperationAuth', Object.keys(selectedScheme.value.payload))
+  eventBus.emit('delete:security-scheme', {
+    names: Object.keys(selectedScheme.value.payload),
+  })
 
   // Clear the selected scheme to delete
   selectedScheme.value = null
@@ -278,8 +265,8 @@ defineExpose({
       :securitySchemes="securitySchemes"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
-      @update:securityScheme="emits('update:securityScheme', $event)"
-      @update:selectedScopes="emits('update:selectedScopes', $event)" />
+      :activeAuthIndex="selectedSecurity?.['x-selected-index'] ?? 0"
+      :eventBus="eventBus" />
     <DeleteRequestAuthModal
       v-if="selectedScheme"
       :label="selectedScheme.label"

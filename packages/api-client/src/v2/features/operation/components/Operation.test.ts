@@ -16,7 +16,7 @@ import type { EnvVariable } from '@/store'
 import { createStoreEvents } from '@/store/events'
 import type { History } from '@/v2/blocks/scalar-address-bar-block'
 
-import Operation from './Operation.vue'
+import Operation from './OperationContainer.vue'
 
 /** Helper to create a minimal operation object */
 function createMockOperation(overrides: Partial<OperationObject> = {}): OperationObject {

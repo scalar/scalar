@@ -1,4 +1,6 @@
 // import type { WorkspaceStore } from '@scalar/workspace-store/client'
+
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
@@ -10,12 +12,12 @@ export type RouteProps = {
   document: WorkspaceDocument | null
   eventBus: WorkspaceEventBus
   layout: ClientLayout
+  path?: string
+  method?: HttpMethod
+  exampleName?: string
   // workspaceStore: WorkspaceStore
   // workspaceSlug: string
   // documentSlug?: string
-  // pathEncoded?: string
-  // method?: string
-  // exampleName?: string
 }
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
@@ -36,7 +38,7 @@ export const ROUTES = [
           {
             name: 'example',
             path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/operation/Operation.vue'),
           },
           // Document Page
           {

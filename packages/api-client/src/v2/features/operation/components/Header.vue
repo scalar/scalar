@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 import { OpenApiClientButton } from '@/components'
@@ -44,9 +45,10 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
    * The amount remaining to load from 100 -> 0
    */
   requestLoadingPercentage?: number
-  /**
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
+
+  eventBus: WorkspaceEventBus
 
   /** TODO: to be removed once we fully migrate to the new store */
   environment: Environment
@@ -54,16 +56,7 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  /** Address bar events */
-  (e: 'importCurl', value: string): void
-  (e: 'update:method', payload: { method: HttpMethod }): void
-  (e: 'update:path', payload: { path: string }): void
   (e: 'execute'): void
-  (e: 'update:selectedServer', payload: { id: string }): void
-  (e: 'update:variable', payload: { key: string; value: string }): void
-  (e: 'add:server'): void
-  /** On modal mode hide the modal */
-  (e: 'hideModal'): void
 }>()
 </script>
 
@@ -93,15 +86,8 @@ const emit = defineEmits<{
       :percentage="requestLoadingPercentage"
       :server="server"
       :servers="servers"
-      @add:server="emit('add:server')"
-      @execute="emit('execute')"
-      @importCurl="(value) => emit('importCurl', value)"
-      @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)"
-      @update:selectedServer="
-        (payload) => emit('update:selectedServer', payload)
-      "
-      @update:variable="(payload) => emit('update:variable', payload)" />
+      :eventBus="eventBus"
+      @execute="emit('execute')" />
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
       <!-- 
@@ -125,7 +111,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal'"
         class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
-        @click="emit('hideModal')">
+        @click="eventBus.emit('hide:modal')">
         <ScalarIcon
           icon="Close"
           size="lg"
@@ -141,7 +127,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal'"
         class="text-c-1 hover:bg-b-2 active:text-c-1 gitbook-show -mr-1.5 rounded p-2"
         type="button"
-        @click="emit('hideModal')">
+        @click="eventBus.emit('hide:modal')">
         <ScalarIcon
           icon="Close"
           size="md"

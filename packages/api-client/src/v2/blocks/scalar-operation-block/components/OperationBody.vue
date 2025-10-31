@@ -112,6 +112,20 @@ const example = computed(
     requestBody &&
     getExampleFromBody(requestBody, selectedContentType, exampleKey),
 )
+
+const bodyValue = computed(() => {
+  if (!example.value) {
+    return ''
+  }
+
+  const value = example.value.value
+
+  if (typeof value === 'string') {
+    return value
+  }
+
+  return JSON.stringify(value, null, 2)
+})
 </script>
 <template>
   <ViewLayoutCollapse>
@@ -236,7 +250,7 @@ const example = computed(
             "
             lineNumbers
             lint
-            :modelValue="example?.value ?? ''"
+            :modelValue="bodyValue"
             @update:modelValue="(value) => emits('update:value', { value })" />
         </template>
       </DataTableRow>

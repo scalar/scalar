@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
@@ -37,12 +38,12 @@ const { layout, totalPerformedRequests, response, request } = defineProps<{
 
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
+
+  eventBus: WorkspaceEventBus
 }>()
 
 const emits = defineEmits<{
-  (e: 'addRequest'): void
   (e: 'sendRequest'): void
-  (e: 'openCommandPalette'): void
 }>()
 
 // Headers
@@ -176,8 +177,8 @@ defineExpose({
           :events="events"
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
-          @addRequest="emits('addRequest')"
-          @openCommandPalette="emits('openCommandPalette')"
+          @addRequest="eventBus.emit('open:command-palette', 'addOperation')"
+          @openCommandPalette="eventBus.emit('open:command-palette')"
           @sendRequest="emits('sendRequest')" />
       </template>
       <template v-else>

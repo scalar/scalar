@@ -20,7 +20,7 @@ const emit = defineEmits<{
   (e: 'click:workspace'): void
 }>()
 
-/** Propogate up the workspace model to the parent */
+/** Propagate up the workspace model to the parent */
 const workspaceModel = defineModel<string>('workspace', {
   required: true,
   default: 'default',

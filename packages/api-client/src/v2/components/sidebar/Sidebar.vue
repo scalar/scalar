@@ -74,6 +74,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
+        @selectItem="(id) => sidebarState.setExpanded(id, true)"
         @reorder="(...args) => log('reorder', ...args)">
         <template #search>
           <div

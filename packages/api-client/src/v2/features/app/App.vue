@@ -9,6 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarTeleportRoot } from '@scalar/components'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -64,6 +65,32 @@ const document = computed(
     null,
 )
 
+const path = computed(() => {
+  const pathEncoded = route.params.pathEncoded
+
+  return pathEncoded && typeof pathEncoded === 'string'
+    ? decodeURIComponent(pathEncoded)
+    : undefined
+})
+
+const method = computed(() => {
+  const methodParam = route.params.method
+
+  return methodParam &&
+    typeof methodParam === 'string' &&
+    isHttpMethod(methodParam)
+    ? methodParam
+    : undefined
+})
+
+const exampleName = computed(() => {
+  const exampleNameParam = route.params.exampleName
+
+  return exampleNameParam && typeof exampleNameParam === 'string'
+    ? exampleNameParam
+    : undefined
+})
+
 /** Event handler */
 useWorkspaceClientEvents(eventBus, document)
 </script>
@@ -108,7 +135,10 @@ useWorkspaceClientEvents(eventBus, document)
               :document="document"
               :eventBus="eventBus"
               :layout="layout"
-              :workspaceStore="workspaceStore" />
+              :workspaceStore="workspaceStore"
+              :path="path"
+              :method="method"
+              :exampleName="exampleName" />
           </keep-alive>
         </RouterView>
       </div>

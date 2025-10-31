@@ -3,6 +3,7 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { ref, useId } from 'vue'
 
@@ -43,24 +44,16 @@ const {
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
 
+  eventBus: WorkspaceEventBus
+
   /** TODO: to be removed once we fully migrate to the new store */
   environment: Environment
   envVariables: EnvVariable[]
 }>()
 
 const emits = defineEmits<{
-  /** Import a cURL command */
-  (e: 'importCurl', value: string): void
-  /** Update the current operation method */
-  (e: 'update:method', payload: { method: HttpMethodType }): void
-  /** Update the current operation path */
-  (e: 'update:path', payload: { path: string }): void
   /** Execute the current operation example */
   (e: 'execute'): void
-  /** Server events */
-  (e: 'update:selectedServer', payload: { id: string }): void
-  (e: 'update:variable', payload: { key: string; value: string }): void
-  (e: 'addServer'): void
 }>()
 
 const id = useId()
@@ -110,7 +103,13 @@ events.focusAddressBar.on(() => {
           isSquare
           :method="method"
           teleport
-          @change="emits('update:method', { method: $event })" />
+          @change="
+            (payload) =>
+              eventBus.emit('operation:update:method', {
+                method: payload,
+                meta: { method, path },
+              })
+          " />
       </div>
 
       <div
@@ -122,9 +121,15 @@ events.focusAddressBar.on(() => {
           :server="server"
           :servers="servers"
           :target="id"
-          @addServer="emits('addServer')"
-          @update:selectedServer="emits('update:selectedServer', $event)"
-          @update:variable="emits('update:variable', $event)" />
+          @addServer="eventBus.emit('open:command-palette', 'addServer')"
+          @update:selectedServer="
+            (payload) =>
+              eventBus.emit('update:selected-server', { url: payload.id })
+          "
+          @update:variable="
+            ({ key, value }) =>
+              eventBus.emit('update:selected-server-variables', { key, value })
+          " />
 
         <div class="fade-left" />
         <!-- Path + URL + env vars -->
@@ -143,9 +148,15 @@ events.focusAddressBar.on(() => {
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL or cURL command'"
           server
-          @curl="$emit('importCurl', $event)"
+          @curl="(payload) => eventBus.emit('import:curl', { value: payload })"
           @submit="emits('execute')"
-          @update:modelValue="emits('update:path', { path: $event })" />
+          @update:modelValue="
+            (payload) =>
+              eventBus.emit('operation:update:path', {
+                path: payload,
+                meta: { method, path },
+              })
+          " />
         <div class="fade-right" />
       </div>
 

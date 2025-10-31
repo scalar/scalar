@@ -63,7 +63,7 @@ const columns = ['36px', '', '', 'auto']
 const displayData = computed(() => {
   const last = data.at(-1)
 
-  if (!last || (last.name !== '' && last.value !== '')) {
+  if (!last || last.name !== '' || last.value !== '') {
     return [...data, { name: '', value: '', isDisabled: true }]
   }
 

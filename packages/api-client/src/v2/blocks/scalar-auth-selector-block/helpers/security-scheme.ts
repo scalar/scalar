@@ -3,6 +3,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   ComponentsObject,
   OpenApiDocument,
+  SecurityRequirementObject,
   SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -16,7 +17,7 @@ export const formatScheme = ({
 }: {
   name: string
   type: SecuritySchemeObject['type'] | 'complex'
-  value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+  value: SecurityRequirementObject
 }) => ({
   id: name,
   label: type === 'openIdConnect' ? `${name} (coming soon)` : name,
@@ -38,7 +39,7 @@ export const formatComplexScheme = (scheme: NonNullable<OpenApiDocument['securit
 export type SecuritySchemeOption = {
   id: string
   label: string
-  value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+  value: SecurityRequirementObject
   isDeletable?: boolean
   payload?: SecuritySchemeObject
 }

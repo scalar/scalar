@@ -2,6 +2,10 @@ import { type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
+import {
+  type XScalarSelectedSecurity,
+  XScalarSelectedSecuritySchema,
+} from '@/schemas/extensions/security/x-scalar-selected-security'
 import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
@@ -71,10 +75,10 @@ const OpenApiExtensionsSchema = Type.Partial(
       'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
-      'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
     XTagGroupsSchema,
+    XScalarSelectedSecuritySchema,
   ),
 )
 
@@ -86,9 +90,10 @@ export type OpenAPIExtensions = Partial<
     'x-scalar-client-config-environments': XScalarClientConfigEnvironments
     'x-scalar-client-config-cookies': XScalarClientConfigCookies
     'x-original-oas-version': string
-    'x-scalar-selected-security': SecurityRequirementObject[]
+
     [extensions.document.navigation]: TraversedDocument
-  } & XTagGroups
+  } & XTagGroups &
+    XScalarSelectedSecurity
 >
 
 const OpenApiDocumentSchemaDefinition = compose(

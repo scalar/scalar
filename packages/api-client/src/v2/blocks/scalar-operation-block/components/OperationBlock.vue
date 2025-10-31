@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { canMethodHaveBody, REGEX } from '@scalar/oas-utils/helpers'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
   OperationObject,
-  ParameterObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
@@ -17,7 +17,6 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import type { EnvVariable } from '@/store'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
@@ -29,6 +28,7 @@ const {
   layout,
   securitySchemes,
   path,
+  exampleKey,
   security,
   selectedContentType,
 } = defineProps<{
@@ -55,10 +55,18 @@ const {
   /** Registered app plugins */
   plugins?: ClientPlugin[]
 
+  eventBus: WorkspaceEventBus
+
   /** TODO: remove when we migrate */
   environment: Environment
   envVariables: EnvVariable[]
 }>()
+
+const meta = computed(() => ({
+  method,
+  path,
+  exampleKey,
+}))
 
 /**
  * All events that are emitted by the operation block
@@ -67,50 +75,6 @@ const {
  * - scope:action:name
  */
 const emits = defineEmits<{
-  (e: 'operation:update:requestName', payload: { name: string }): void
-
-  /** Auth events */
-  (e: 'auth:delete', names: string[]): void
-  (e: 'auth:update:securityScheme', payload: UpdateSecuritySchemeEvent): void
-  (
-    e: 'auth:update:selectedScopes',
-    payload: { id: string[]; name: string; scopes: string[] },
-  ): void
-  (
-    e: 'auth:update:selectedSecurity',
-    payload: {
-      value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
-      create: SecuritySchemeObject[]
-    },
-  ): void
-
-  /** Parameter events */
-  (
-    e: 'parameters:add',
-    payload: {
-      type: ParameterObject['in']
-      payload: Partial<{ key: string; value: string }>
-    },
-  ): void
-  (
-    e: 'parameters:update',
-    payload: {
-      index: number
-      type: ParameterObject['in']
-      payload: Partial<{ key: string; value: string; isEnabled: boolean }>
-    },
-  ): void
-  (
-    e: 'parameters:delete',
-    payload: { type: ParameterObject['in']; index: number },
-  ): void
-  (
-    e: 'parameters:deleteAll',
-    payload: {
-      type: ParameterObject['in']
-    },
-  ): void
-
   /** Request Body events */
   (e: 'requestBody:update:contentType', payload: { value: string }): void
   /** We use this event to update raw values */
@@ -129,9 +93,8 @@ const emits = defineEmits<{
   ): void
 }>()
 
-const sections = groupBy(
-  operation.parameters?.map((it) => getResolvedRef(it)) ?? [],
-  'in',
+const sections = computed(() =>
+  groupBy(operation.parameters?.map((it) => getResolvedRef(it)) ?? [], 'in'),
 )
 
 const operationSections = [
@@ -152,7 +115,7 @@ const selectedFilter = ref<Filter>('All')
 const filters = computed<Filter[]>(() => {
   const allSections = new Set<Filter>(['All', ...operationSections])
 
-  if (!sections.path?.length) {
+  if (!sections.value.path?.length) {
     allSections.delete('Variables')
   }
   if (!canMethodHaveBody(method)) {
@@ -228,8 +191,9 @@ const labelRequestNameId = useId()
           :value="operation.summary"
           @input="
             (event) =>
-              emits('operation:update:requestName', {
-                name: (event.target as HTMLInputElement).value,
+              eventBus.emit('operation:update:description', {
+                description: (event.target as HTMLInputElement).value,
+                meta,
               })
           " />
         <span
@@ -254,16 +218,7 @@ const labelRequestNameId = useId()
       :selectedSecurity="selectedSecurity"
       :server="server"
       :title="'Authorization'"
-      @deleteOperationAuth="(payload) => emits('auth:delete', payload)"
-      @update:securityScheme="
-        (payload) => emits('auth:update:securityScheme', payload)
-      "
-      @update:selectedScopes="
-        (payload) => emits('auth:update:selectedScopes', payload)
-      "
-      @update:selectedSecurity="
-        (payload) => emits('auth:update:selectedSecurity', payload)
-      " />
+      :eventBus="eventBus" />
     <OperationParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
       :id="filterIds.Variables"
@@ -273,30 +228,35 @@ const labelRequestNameId = useId()
       :parameters="sections.path ?? []"
       title="Variables"
       @add="
-        (payload) =>
-          emits('parameters:add', {
+        ({ key, value }) =>
+          eventBus.emit('operation:add:parameter', {
             type: 'path',
-            payload,
+            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
+            meta,
           })
       "
       @delete="
-        (payload) =>
-          emits('parameters:delete', {
+        ({ index }) =>
+          eventBus.emit('operation:delete:parameter', {
             type: 'path',
-            ...payload,
+            index,
+            meta,
           })
       "
       @deleteAll="
         () =>
-          emits('parameters:deleteAll', {
+          eventBus.emit('operation:delete-all:parameters', {
             type: 'path',
+            meta,
           })
       "
       @update="
-        (payload) =>
-          emits('parameters:update', {
+        ({ index, payload }) =>
+          eventBus.emit('operation:update:parameter', {
             type: 'path',
-            ...payload,
+            index,
+            payload,
+            meta,
           })
       " />
     <OperationParams
@@ -308,30 +268,35 @@ const labelRequestNameId = useId()
       :parameters="sections.cookie ?? []"
       title="Cookies"
       @add="
-        (payload) =>
-          emits('parameters:add', {
+        ({ key, value }) =>
+          eventBus.emit('operation:add:parameter', {
             type: 'cookie',
-            payload,
+            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
+            meta,
           })
       "
       @delete="
-        (payload) =>
-          emits('parameters:delete', {
+        ({ index }) =>
+          eventBus.emit('operation:delete:parameter', {
             type: 'cookie',
-            ...payload,
+            index,
+            meta,
           })
       "
       @deleteAll="
         () =>
-          emits('parameters:deleteAll', {
+          eventBus.emit('operation:delete-all:parameters', {
             type: 'cookie',
+            meta,
           })
       "
       @update="
-        (payload) =>
-          emits('parameters:update', {
+        ({ index, payload }) =>
+          eventBus.emit('operation:update:parameter', {
             type: 'cookie',
-            ...payload,
+            index,
+            payload,
+            meta,
           })
       " />
     <OperationParams
@@ -343,30 +308,35 @@ const labelRequestNameId = useId()
       :parameters="sections.header ?? []"
       title="Headers"
       @add="
-        (payload) =>
-          emits('parameters:add', {
+        ({ key, value }) =>
+          eventBus.emit('operation:add:parameter', {
             type: 'header',
-            payload,
+            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
+            meta,
           })
       "
       @delete="
-        (payload) =>
-          emits('parameters:delete', {
+        ({ index }) =>
+          eventBus.emit('operation:delete:parameter', {
             type: 'header',
-            ...payload,
+            index,
+            meta,
           })
       "
       @deleteAll="
         () =>
-          emits('parameters:deleteAll', {
+          eventBus.emit('operation:delete-all:parameters', {
             type: 'header',
+            meta,
           })
       "
       @update="
-        (payload) =>
-          emits('parameters:update', {
+        ({ index, payload }) =>
+          eventBus.emit('operation:update:parameter', {
             type: 'header',
-            ...payload,
+            index,
+            payload,
+            meta,
           })
       " />
     <OperationParams
@@ -378,30 +348,35 @@ const labelRequestNameId = useId()
       :parameters="sections.query ?? []"
       title="Query Parameters"
       @add="
-        (payload) =>
-          emits('parameters:add', {
+        ({ key, value }) =>
+          eventBus.emit('operation:add:parameter', {
             type: 'query',
-            payload,
+            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
+            meta,
           })
       "
       @delete="
-        (payload) =>
-          emits('parameters:delete', {
+        ({ index }) =>
+          eventBus.emit('operation:delete:parameter', {
             type: 'query',
-            ...payload,
+            index,
+            meta,
           })
       "
       @deleteAll="
         () =>
-          emits('parameters:deleteAll', {
+          eventBus.emit('operation:delete-all:parameters', {
             type: 'query',
+            meta,
           })
       "
       @update="
-        (payload) =>
-          emits('parameters:update', {
+        ({ index, payload }) =>
+          eventBus.emit('operation:update:parameter', {
             type: 'query',
-            ...payload,
+            index,
+            payload,
+            meta,
           })
       " />
     <OperationBody
