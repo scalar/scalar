@@ -29,7 +29,7 @@ describe('schema-name', () => {
   describe('getModelName', () => {
     it('returns null when value has no type', () => {
       const value = { properties: { name: { type: 'string' } } }
-      // @ts-ignore
+      // @ts-expect-error
       expect(getModelName(value)).toBe(null)
     })
 
