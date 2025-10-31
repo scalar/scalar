@@ -34,7 +34,7 @@ export const useWorkspaceClientEvents = (
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('environment:upsert:environment', (payload) =>
-    upsertEnvironment(getCollection(document, payload.type), payload),
+    upsertEnvironment(document.value, workspaceStore.workspace, payload),
   )
 
   eventBus.on(

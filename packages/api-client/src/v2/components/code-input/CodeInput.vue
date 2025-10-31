@@ -10,9 +10,9 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { nanoid } from 'nanoid'
 import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
 
-import { useLayout } from '@/hooks'
 import DataTableInputSelect from '@/v2/components/data-table/DataTableInputSelect.vue'
 import EnvironmentVariableDropdown from '@/v2/features/environments/components/EnvironmentVariablesDropdown.vue'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import { backspaceCommand, pillPlugin } from './code-variable-widget'
 
@@ -30,6 +30,7 @@ const props = withDefaults(
     language?: CodeMirrorLanguage
     handleFieldSubmit?: (e: string) => void
     handleFieldChange?: (e: string) => void
+    layout: ClientLayout
     placeholder?: string
     required?: boolean
     disableEnter?: boolean
@@ -41,6 +42,7 @@ const props = withDefaults(
     withVariables?: boolean
     importCurl?: boolean
     default?: string | number
+    /**  We force the prop but allow you to pass undefined if you don't want to show the env vars */
     environment: XScalarEnvironment | undefined
     lineWrapping?: boolean
   }>(),
@@ -62,8 +64,8 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
   (e: 'curl', v: string): void
   (e: 'blur', v: string): void
-  /** Redirect to the environment page */
-  (e: 'redirect'): void
+  /** Event to redirect to the environment variables page */
+  (e: 'redirectToEnvironment'): void
 }>()
 
 const attrs = useAttrs() as { id?: string }
@@ -78,8 +80,6 @@ const dropdownPosition = ref({ left: 0, top: 0 })
 const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
-
-const { layout } = useLayout()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -140,7 +140,7 @@ if (props.colorPicker) {
 const pillPluginExtension = computed(() =>
   pillPlugin({
     environment: props.environment,
-    isReadOnly: layout === 'modal',
+    isReadOnly: props.layout === 'modal',
   }),
 )
 
@@ -228,7 +228,7 @@ const displayVariablesDropdown = computed(
   () =>
     showDropdown.value &&
     props.withVariables &&
-    layout !== 'modal' &&
+    props.layout !== 'modal' &&
     props.environment,
 )
 
@@ -329,7 +329,7 @@ export default {
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
-    @redirect="emit('redirect')"
+    @redirect="emit('redirectToEnvironment')"
     @select="handleDropdownSelect" />
 </template>
 <style scoped>

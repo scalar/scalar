@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, type VueWrapper } from '@vue/test-utils'
-import CodeInput from './CodeInput.vue'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
-import { ref, toValue } from 'vue'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { useCodeMirror } from '@scalar/use-codemirror'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { nanoid } from 'nanoid'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref, toValue } from 'vue'
+
+import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
+
+import CodeInput from './CodeInput.vue'
 
 // Mock dependencies
 vi.mock('@scalar/use-codemirror', async (importOriginal) => {
@@ -65,6 +67,7 @@ describe('CodeInput', () => {
     workspace: workspaceSchema.parse({
       name: 'Test Workspace',
     }),
+    layout: 'default' as const,
   }
 
   const createWrapper = (props = {}, attrs = {}) => {
@@ -174,5 +177,38 @@ describe('CodeInput', () => {
     // Check that extensions are set up correctly
     const extensions = toValue(vi.mocked(useCodeMirror).mock.calls[0]?.[0].extensions)
     expect(extensions?.length).toBeGreaterThan(0)
+  })
+
+  it('handles multiline input with variables without errors', async () => {
+    // This test ensures that the component can handle variables that span line breaks
+    // without throwing the "Decorations that replace line breaks may not be specified via plugins" error
+    wrapper = createWrapper({
+      modelValue: '{{test\nVar}}',
+      withVariables: true,
+    })
+
+    // The component should mount successfully without errors
+    expect(wrapper.exists()).toBe(true)
+
+    // Test that we can update to multiline content with variables
+    wrapper.vm.handleChange('{{validVar}}\n{{anotherVar}}')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+  })
+
+  it('prevents curl import when curl is pasted', async () => {
+    const curlHandler = vi.fn()
+    wrapper = createWrapper({
+      importCurl: true,
+      modelValue: 'original value',
+    })
+
+    wrapper.vm.$emit = curlHandler
+
+    // Simulate pasting a curl command
+    wrapper.vm.handleChange('curl https://example.com')
+
+    // The codeMirror dispatch should be called to revert to original value
+    const mockCodeMirror = vi.mocked(useCodeMirror).mock.results[0]?.value.codeMirror.value
+    expect(mockCodeMirror.dispatch).toHaveBeenCalled()
   })
 })

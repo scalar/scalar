@@ -83,16 +83,16 @@ const environment = computed<XScalarEnvironment>(() => {
   // Grab the correct environment from the workspace and document
   const workspaceEnv = workspaceStore.workspace['x-scalar-environments']?.[
     activeEnv
-  ] ?? { variables: {} }
+  ] ?? { variables: [] }
   const documentEnv = document.value?.['x-scalar-environments']?.[
     activeEnv
-  ] ?? { variables: {} }
+  ] ?? { variables: [] }
 
   // Merge the workspace and document environments
   return coerceValue(xScalarEnvironmentSchema, {
     ...workspaceEnv,
     ...documentEnv,
-    variables: { ...workspaceEnv.variables, ...documentEnv.variables },
+    variables: [...workspaceEnv.variables, ...documentEnv.variables],
   })
 })
 </script>

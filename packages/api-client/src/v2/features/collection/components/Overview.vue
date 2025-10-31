@@ -13,7 +13,8 @@ import {
 import { CodeInput } from '@/v2/components/code-input'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-const { environment, document, eventBus } = defineProps<CollectionProps>()
+const { environment, document, eventBus, layout } =
+  defineProps<CollectionProps>()
 
 const description: ComputedRef<string> = computed(
   () => document?.info?.description ?? '',
@@ -28,13 +29,16 @@ const codeInputRef = useTemplateRef('codeInputRef')
  * When switching to edit mode, focus the input after the DOM updates.
  */
 const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
-  mode.value = newMode
-
-  if (newMode === 'edit') {
-    await nextTick()
-    codeInputRef.value?.focus()
-  }
+  setTimeout(() => {
+    mode.value = newMode
+    // if (newMode === 'edit') {
+    //   await nextTick()
+    //   codeInputRef.value?.focus()
+    // }
+  }, 100)
 }
+
+console.log(environment)
 </script>
 
 <template>
@@ -85,15 +89,14 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
       </template>
 
       <!-- Edit -->
-      <!-- @blur="switchMode('preview')" -->
       <template v-else>
         <CodeInput
           ref="codeInputRef"
           class="border px-0.5 py-0"
-          :environment="environment"
+          :environment="undefined"
+          :layout="layout"
           :modelValue="description"
           @blur="switchMode('preview')"
-          @redirect="() => console.log('redirect')"
           @update:modelValue="
             (description) =>
               eventBus.emit('document:update:info', { description })
