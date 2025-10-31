@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.9.0
+
+### Minor Changes
+
+- 0d9c945: feat: update vue to 3.5.21
+
 ## 0.8.0
 
 ### Minor Changes

@@ -1,5 +1,29 @@
 # @scalar/webjar
 
+## 0.4.0
+
+### Minor Changes
+
+- 0218524: feat: improved java types, structure and serialization
+
+### Patch Changes
+
+- 80317ed: make endpoints final and controller overwritable
+- Updated dependencies [3ecf139]
+- Updated dependencies [eb022f2]
+- Updated dependencies [23a5628]
+- Updated dependencies [6aa06b0]
+- Updated dependencies [a796162]
+- Updated dependencies [0d9c945]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [d9e911a]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [8a5a6a0]
+- Updated dependencies [33edbf2]
+- Updated dependencies [eba18d0]
+- Updated dependencies [0d9c945]
+  - @scalar/api-reference@1.39.0
+
 ## 0.3.12
 
 ### Patch Changes

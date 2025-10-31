@@ -1,5 +1,14 @@
 # @scalar/openapi-upgrader
 
+## 0.1.4
+
+### Patch Changes
+
+- 11a6e64: fix: don't upgrade "example" if it's just a key
+- 134ff5f: feat - upgrader - adds support for migrating XML nodes to 3.2.0
+- Updated dependencies [2239843]
+  - @scalar/openapi-types@0.5.1
+
 ## 0.1.3
 
 ### Patch Changes

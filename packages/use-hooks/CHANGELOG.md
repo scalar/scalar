@@ -1,5 +1,18 @@
 # @scalar/use-hooks
 
+## 0.3.0
+
+### Minor Changes
+
+- 0d9c945: feat: update vue to 3.5.21
+
+### Patch Changes
+
+- 6a090a2: feat(useBindCx): add support for style attr
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [0d9c945]
+  - @scalar/use-toasts@0.9.0
+
 ## 0.2.5
 
 ### Patch Changes

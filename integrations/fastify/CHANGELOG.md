@@ -1,5 +1,25 @@
 # @scalar/fastify-api-reference
 
+## 1.39.0
+
+### Patch Changes
+
+- 155bb60: fix(fastify-api-reference): remove uneeded async in plugin function
+- 68aec7d: fix(fastify-api-reference): account from plugin prefix in redirect without trailing slash
+- 2902396: fix(fastify): correct plugin callback signature
+- aa217db: fix(fastify-api-reference): use `currentUrl.pathname` instead of deprecated `request.routerPath`
+- Updated dependencies [2239843]
+- Updated dependencies [9661e81]
+- Updated dependencies [134ff5f]
+- Updated dependencies [c84b7c5]
+- Updated dependencies [134ff5f]
+- Updated dependencies [eba18d0]
+- Updated dependencies [a821986]
+- Updated dependencies [e23229d]
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/core@0.3.21
+
 ## 1.38.1
 
 ### Patch Changes

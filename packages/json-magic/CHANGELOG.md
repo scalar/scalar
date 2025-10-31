@@ -1,5 +1,17 @@
 # @scalar/json-magic
 
+## 0.7.0
+
+### Minor Changes
+
+- 6ca835e: feat: add support for watch mode
+
+### Patch Changes
+
+- 43bc5e8: fix: proxy performance issue because of multiple proxies
+- Updated dependencies [6ec8c29]
+  - @scalar/helpers@0.0.13
+
 ## 0.6.1
 
 ### Patch Changes

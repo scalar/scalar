@@ -1,5 +1,80 @@
 # @scalar/api-client
 
+## 2.9.0
+
+### Minor Changes
+
+- d34f31e: feat: implement global cookies feature
+- 6ca835e: feat: add support for watch mode
+- 7cda4c5: feat: settings feature
+- 573c5a6: feat(api-client): request feature
+- 7c1e09e: feat: new plugin interface for v2
+- 0d9c945: feat: update vue to 3.5.21
+- f612140: feat: document page feature
+
+### Patch Changes
+
+- 0319b8a: fix(api-client): use request content type "other" when api supports `text/*` content types
+- 729ad06: fix(api-client): remove `async` from `convertPostmanToOpenApi`
+- c22fc4e: feat: added new layouts for client v2
+- c162bb6: feat: hooking up event bus to the store
+- 0865e66: fix: remove old custom event emitting
+- eba18d0: Migrate to workspace store as primary source of truth.
+- d386ae2: feat: block requests with empty path parameters
+- Updated dependencies [eb022f2]
+- Updated dependencies [913607c]
+- Updated dependencies [348f8f6]
+- Updated dependencies [17817ad]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [c162bb6]
+- Updated dependencies [b64265b]
+- Updated dependencies [6ca835e]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6aa06b0]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [8a5a6a0]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [c84b7c5]
+- Updated dependencies [0319b8a]
+- Updated dependencies [da7ab2f]
+- Updated dependencies [a26ced6]
+- Updated dependencies [134ff5f]
+- Updated dependencies [33edbf2]
+- Updated dependencies [6a090a2]
+- Updated dependencies [4fe1643]
+- Updated dependencies [5db92db]
+- Updated dependencies [592533f]
+- Updated dependencies [75ad74c]
+- Updated dependencies [eba18d0]
+- Updated dependencies [a821986]
+- Updated dependencies [c72a2c5]
+- Updated dependencies [0d9c945]
+- Updated dependencies [43bc5e8]
+- Updated dependencies [e23229d]
+  - @scalar/types@0.4.0
+  - @scalar/workspace-store@0.18.0
+  - @scalar/components@0.16.0
+  - @scalar/sidebar@0.2.0
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/json-magic@0.7.0
+  - @scalar/snippetz@0.5.2
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+  - @scalar/themes@0.13.23
+  - @scalar/use-codemirror@0.12.44
+  - @scalar/analytics-client@1.0.0
+  - @scalar/import@0.4.32
+  - @scalar/object-utils@1.2.9
+  - @scalar/postman-to-openapi@0.3.41
+
 ## 2.8.1
 
 ### Patch Changes
