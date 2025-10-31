@@ -10,12 +10,8 @@ describe('ScalarSidebarGroup', () => {
   it('renders a single group with correct base level', async () => {
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
-      setup() {
-        const isOpen = ref(false)
-        return { isOpen }
-      },
       template: `
-        <ScalarSidebarGroup v-model="isOpen">
+        <ScalarSidebarGroup>
           Group 1
           <template #items>
             <ScalarSidebarItem>Items</ScalarSidebarItem>
@@ -32,13 +28,13 @@ describe('ScalarSidebarGroup', () => {
     expect(groupButton.props('indent')).toBe(0)
 
     // Group should be closed initially
-    expect(groupComponent.props('modelValue')).toBe(false)
+    expect(groupButton.attributes('aria-expanded')).toBe('false')
 
     // Open the group to reveal the items
     await groupButton.trigger('click')
 
     // Group should now be open
-    expect(groupComponent.props('modelValue')).toBe(true)
+    expect(groupButton.attributes('aria-expanded')).toBe('true')
 
     // Verify the item component is rendered
     const itemComponents = wrapper.findAllComponents(ScalarSidebarItem)
@@ -52,6 +48,44 @@ describe('ScalarSidebarGroup', () => {
     expect(allButtons).toHaveLength(2)
     expect(allButtons[0]?.props('indent')).toBe(0) // Group button
     expect(allButtons[1]?.props('indent')).toBe(1) // Item button (one level deeper)
+  })
+
+  it('allows a group to be controlled externally', async () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      props: { open: { type: Boolean, default: false } },
+      template: `
+        <ScalarSidebarGroup :open>
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent, {
+      props: { controlled: true, open: false },
+    })
+    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
+
+    // The group button should have indent level 0 (base level)
+    const groupButton = groupComponent.findComponent(ScalarSidebarButton)
+
+    // Group should be closed initially
+    expect(groupButton.attributes('aria-expanded')).toBe('false')
+
+    // Click the group button
+    await groupButton.trigger('click')
+
+    // The group should still be closed since it's controlled externally
+    expect(groupButton.attributes('aria-expanded')).toBe('false')
+
+    // Now update the prop to open the group
+    await wrapper.setProps({ open: true })
+
+    // Group should now be open
+    expect(groupButton.attributes('aria-expanded')).toBe('true')
   })
 
   it('supports nested groups with correct levels', async () => {
@@ -97,32 +131,24 @@ describe('ScalarSidebarGroup', () => {
   it('handles deeply nested groups', async () => {
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
-      setup() {
-        const level1Open = ref(false)
-        const level2Open = ref(false)
-        const level3Open = ref(false)
-        const level4Open = ref(false)
-        const level5Open = ref(false)
-        return { level1Open, level2Open, level3Open, level4Open, level5Open }
-      },
       template: `
-        <ScalarSidebarGroup v-model="level1Open">
+        <ScalarSidebarGroup>
           Level 1
           <template #items>
             <ScalarSidebarItem>Level 1 Item</ScalarSidebarItem>
-            <ScalarSidebarGroup v-model="level2Open">
+            <ScalarSidebarGroup>
               Level 2
               <template #items>
                 <ScalarSidebarItem>Level 2 Item</ScalarSidebarItem>
-                <ScalarSidebarGroup v-model="level3Open">
+                <ScalarSidebarGroup>
                   Level 3
                   <template #items>
                     <ScalarSidebarItem>Level 3 Item</ScalarSidebarItem>
-                    <ScalarSidebarGroup v-model="level4Open">
+                    <ScalarSidebarGroup>
                       Level 4
                       <template #items>
                         <ScalarSidebarItem>Level 4 Item</ScalarSidebarItem>
-                        <ScalarSidebarGroup v-model="level5Open">
+                        <ScalarSidebarGroup>
                           Level 5
                           <template #items>
                             <ScalarSidebarItem>Level 5 Item</ScalarSidebarItem>

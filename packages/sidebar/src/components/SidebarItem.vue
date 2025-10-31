@@ -125,8 +125,9 @@ const handleDragEnd = (
           layout === 'client')
       "
       :active="isSelected(item.id)"
-      :modelValue="isExpanded(item.id)"
-      @update:modelValue="() => emits('selectItem', item.id)">
+      controlled
+      :open="isExpanded(item.id)"
+      @click="() => emits('selectItem', item.id)">
       <div class="group/entry flex min-w-0 flex-1 items-center">
         <div class="min-w-0 flex-1">{{ item.title }}</div>
         <slot

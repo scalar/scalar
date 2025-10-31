@@ -28,6 +28,30 @@ export type ScalarSidebarItemProps = {
   indent?: SidebarGroupLevel
 }
 
+export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
+  /**
+   * Disables the internal open state for the group
+   *
+   *
+   * @example
+   * <script setup lang="ts">
+   * import { ref } from 'vue'
+   *
+   * // External state to control the group
+   * const myRef = ref(false)
+   * </script>
+   * <template>
+   *   <ScalarSidebarGroup
+   *     :open="myRef"
+   *     controlled
+   *     @click="myRef = !myRef">
+   *     ...
+   *   </ScalarSidebarGroup>
+   * </template>
+   */
+  controlled?: boolean
+}
+
 /** Scalar Sidebar Item Slots */
 export type ScalarSidebarItemSlots = {
   /** The main text content of the button */

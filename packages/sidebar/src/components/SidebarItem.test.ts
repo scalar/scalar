@@ -679,7 +679,7 @@ describe('SidebarItem', () => {
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      expect(group.props('modelValue')).toBe(true)
+      expect(group.props('open')).toBe(true)
     })
 
     it('defaults to false when item is not in expandedItems', () => {
@@ -709,7 +709,7 @@ describe('SidebarItem', () => {
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      expect(group.props('modelValue')).toBe(false)
+      expect(group.props('open')).toBe(false)
     })
 
     it('emits click event when group is toggled', async () => {
@@ -738,7 +738,7 @@ describe('SidebarItem', () => {
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      group.vm.$emit('update:modelValue')
+      group.vm.$emit('click')
 
       expect(wrapper.emitted('selectItem')).toBeTruthy()
       expect(wrapper.emitted('selectItem')?.[0]).toEqual(['group-1'])
