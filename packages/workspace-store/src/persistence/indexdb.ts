@@ -149,7 +149,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
   /**
    * Gets the object store from the latest DB connection, for the given transaction mode.
    */
-  const getStore = async (mode: IDBTransactionMode) => {
+  const getStore = (mode: IDBTransactionMode): IDBObjectStore => {
     const tx = db.transaction(name, mode)
     return tx.objectStore(name)
   }
@@ -161,7 +161,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    * @returns The full inserted/updated object
    */
   async function addItem(key: Record<K, IDBValidKey>, value: Omit<Static<T>, K>): Promise<Static<T>> {
-    const store = await getStore('readwrite')
+    const store = getStore('readwrite')
     const keyObj: any = { ...key }
     const finalValue = { ...keyObj, ...value }
     await requestAsPromise(store.put(finalValue))
@@ -174,8 +174,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    * @param key - Key values. For a single key: { id: '...' }
    * @returns The found object or undefined
    */
-  async function getItem(key: Record<K, IDBValidKey>): Promise<Static<T> | undefined> {
-    const store = await getStore('readonly')
+  function getItem(key: Record<K, IDBValidKey>): Promise<Static<T> | undefined> {
+    const store = getStore('readonly')
     const keyValues = Object.values(key)
     // For single keys, pass value directly; for compound keys, pass array
     const keyToUse = keyValues.length === 1 ? keyValues[0] : keyValues
@@ -193,8 +193,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    *   getRange(['foo']) // All with a === 'foo'
    *   getRange(['foo', 'bar']) // All with a === 'foo' and b === 'bar'
    */
-  async function getRange(partialKey: IDBValidKey[]): Promise<Static<T>[]> {
-    const store = await getStore('readonly')
+  function getRange(partialKey: IDBValidKey[]): Promise<Static<T>[]> {
+    const store = getStore('readonly')
     const results: Static<T>[] = []
 
     // Construct upper bound to match all keys starting with partialKey
@@ -223,7 +223,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    * @returns void
    */
   async function deleteItem(key: Record<K, IDBValidKey>): Promise<void> {
-    const store = await getStore('readwrite')
+    const store = getStore('readwrite')
     const keyValues = Object.values(key)
     // For single keys, pass value directly; for compound keys, pass array
     const keyToUse = keyValues.length === 1 ? keyValues[0] : keyValues
@@ -241,8 +241,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    *   deleteRange(['foo']) // Delete all with a === 'foo'
    *   deleteRange(['foo', 'bar']) // Delete all with a === 'foo' and b === 'bar'
    */
-  async function deleteRange(partialKey: IDBValidKey[]): Promise<number> {
-    const store = await getStore('readwrite')
+  function deleteRange(partialKey: IDBValidKey[]): Promise<number> {
+    const store = getStore('readwrite')
     let deletedCount = 0
 
     // Construct upper bound to match all keys starting with partialKey
@@ -270,8 +270,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    * Retrieves all items from the table.
    * @returns Array of all objects in the store
    */
-  async function getAll(): Promise<Static<T>[]> {
-    const store = await getStore('readonly')
+  function getAll(): Promise<Static<T>[]> {
+    const store = getStore('readonly')
     return requestAsPromise(store.getAll())
   }
 

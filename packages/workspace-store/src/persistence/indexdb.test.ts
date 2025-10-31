@@ -1,5 +1,5 @@
 import { Type } from '@scalar/typebox'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
 import { createIndexDbConnection } from './indexdb'
@@ -38,16 +38,16 @@ describe('indexdb', () => {
         orders: { schema: OrderSchema, index: ['userId', 'orderId'] as const },
       },
     })
-  })
 
-  afterEach(async () => {
-    // Clean up: close connection and delete database
-    dbConnection.closeDatabase()
-    const deleteRequest = indexedDB.deleteDatabase(testDbName)
-    await new Promise((resolve, reject) => {
-      deleteRequest.onsuccess = () => resolve(undefined)
-      deleteRequest.onerror = () => reject(deleteRequest.error)
-    })
+    return async () => {
+      // Clean up: close connection and delete database
+      dbConnection.closeDatabase()
+      const deleteRequest = indexedDB.deleteDatabase(testDbName)
+      await new Promise((resolve, reject) => {
+        deleteRequest.onsuccess = () => resolve(undefined)
+        deleteRequest.onerror = () => reject(deleteRequest.error)
+      })
+    }
   })
 
   it('adds and retrieves a single item', async () => {

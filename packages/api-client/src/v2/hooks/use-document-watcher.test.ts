@@ -1,9 +1,8 @@
-import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
 
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type FastifyInstance, fastify } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
@@ -18,14 +17,14 @@ describe('useDocumentWatcher', () => {
     vi.useFakeTimers()
 
     server = fastify({ logger: false })
-  })
 
-  afterEach(async () => {
-    vi.clearAllTimers()
-    vi.useRealTimers()
-    vi.restoreAllMocks()
-    await server.close()
-    await setTimeout(100)
+    return async () => {
+      vi.clearAllTimers()
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+      await server.close()
+      await setTimeout(100)
+    }
   })
 
   it('watch the document and rebase it with the remote source', async () => {

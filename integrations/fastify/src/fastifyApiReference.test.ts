@@ -482,4 +482,17 @@ describe('fastifyApiReference', () => {
 
     expect(loggedRequests).toStrictEqual([])
   })
+
+  it('does not fail when registered without specSource configuration', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {},
+    })
+
+    expect(fastify.hasPlugin('@scalar/fastify-api-reference')).toBeTruthy()
+  })
 })

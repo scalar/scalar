@@ -65,7 +65,7 @@ const fastifyApiReference = fp<
   FastifyTypeProviderDefault,
   FastifyBaseLogger
 >(
-  (fastify, options) => {
+  (fastify, options, next) => {
     const { configuration: givenConfiguration } = options
 
     // Merge the defaults
@@ -111,7 +111,7 @@ const fastifyApiReference = fp<
         "[@scalar/fastify-api-reference] You didn't provide a `content` or `url`, and @fastify/swagger could not be found. Please provide one of these options.",
       )
 
-      return
+      return next()
     }
 
     // Read the JavaScript file once.
@@ -252,9 +252,7 @@ const fastifyApiReference = fp<
       },
     })
 
-    // Return a resolved Promise to preserve async behavior
-    // without using `async` / `await`
-    return Promise.resolve()
+    next()
   },
   {
     name: '@scalar/fastify-api-reference',

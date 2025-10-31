@@ -66,8 +66,8 @@ export const createWorkspaceStorePersistence = async () => {
 
   // The returned persistence API with logical sections for each table and mapping.
   return {
-    close: async () => {
-      return connection.closeDatabase()
+    close: () => {
+      connection.closeDatabase()
     },
     meta: {
       /**

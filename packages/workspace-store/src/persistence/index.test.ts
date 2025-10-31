@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
 import { createWorkspaceStorePersistence } from './index'
@@ -9,17 +9,17 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
   beforeEach(async () => {
     persistence = await createWorkspaceStorePersistence()
-  })
 
-  afterEach(async () => {
-    await persistence.close()
+    return async () => {
+      persistence.close()
 
-    // Clean up: delete database
-    const deleteRequest = indexedDB.deleteDatabase(testDbName)
-    await new Promise((resolve, reject) => {
-      deleteRequest.onsuccess = () => resolve(undefined)
-      deleteRequest.onerror = () => reject(deleteRequest.error)
-    })
+      // Clean up: delete database
+      const deleteRequest = indexedDB.deleteDatabase(testDbName)
+      await new Promise((resolve, reject) => {
+        deleteRequest.onsuccess = () => resolve(undefined)
+        deleteRequest.onerror = () => reject(deleteRequest.error)
+      })
+    }
   })
 
   describe('workspace.getAll', () => {
