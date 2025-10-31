@@ -1,11 +1,11 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { ROUTES } from '@/v2/features/app/helpers/routes'
+import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import DocumentCollection from './DocumentCollection.vue'
 
@@ -25,13 +25,6 @@ describe('DocumentCollection', () => {
       ...overrides,
     }) as WorkspaceDocument
 
-  const createMockEventBus = () =>
-    ({
-      emit: vi.fn(),
-      on: vi.fn(),
-      off: vi.fn(),
-    }) as unknown as WorkspaceEventBus
-
   const createMockWorkspaceStore = (): WorkspaceStore =>
     ({
       workspace: {
@@ -50,7 +43,6 @@ describe('DocumentCollection', () => {
 
   const mountWithRouter = async (document: WorkspaceDocument | null) => {
     const router = createRouterInstance()
-    const eventBus = createMockEventBus()
     const workspaceStore = createMockWorkspaceStore()
 
     await router.push({
@@ -64,7 +56,7 @@ describe('DocumentCollection', () => {
     const wrapper = mount(DocumentCollection, {
       props: {
         document,
-        eventBus,
+        eventBus: mockEventBus,
         layout: 'desktop' as any,
         environment: {} as any,
         workspaceStore,
@@ -76,7 +68,7 @@ describe('DocumentCollection', () => {
 
     await router.isReady()
 
-    return { wrapper, router, eventBus, workspaceStore }
+    return { wrapper, router, eventBus: mockEventBus, workspaceStore }
   }
 
   it('renders document with title and icon when document is provided', async () => {

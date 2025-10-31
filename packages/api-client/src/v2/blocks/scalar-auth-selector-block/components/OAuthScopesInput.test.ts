@@ -1,19 +1,8 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-
-// Minimal polyfill for environments without ResizeObserver (Headless UI can rely on it)
-// This avoids errors without mocking application code.
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-window.ResizeObserver =
-  window.ResizeObserver ||
-  vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
 
 describe('OAuthScopesInput', () => {
   const baseFlow = {
