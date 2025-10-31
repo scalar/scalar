@@ -12,6 +12,7 @@ import {
 } from '@scalar/draggable'
 import { ScalarIconFolder } from '@scalar/icons'
 
+import { formatSidebarLabel } from '@/helpers/format-sidebar-label'
 import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
@@ -51,15 +52,6 @@ const isGroup = (
   currentItem: Item,
 ): currentItem is Item & { isGroup: true } => {
   return 'isGroup' in currentItem && currentItem.isGroup
-}
-
-/** Extract the path or title from a TraversedEntry */
-const getPathOrTitle = (currentItem: Item): string => {
-  if ('path' in currentItem) {
-    // Insert zero-width space after every slash, to give line-break opportunity.
-    return currentItem.path.replace(/\//g, '/\u200B')
-  }
-  return currentItem.title
 }
 
 const filterItems = (items: Item[]) => {
@@ -176,11 +168,17 @@ const handleDragEnd = (
       class="text-left"
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
-      <template v-if="options?.operationTitleSource === 'path'">
-        {{ getPathOrTitle(item) }}
+      <template v-if="item.type === 'model'">
+        {{
+          formatSidebarLabel(item.title, { wrapCharacters: /[\/\-\_A-Z\.]/g })
+        }}
       </template>
       <template v-else>
-        {{ item.title }}
+        {{
+          options?.operationTitleSource === 'path' && 'path' in item
+            ? formatSidebarLabel(item.path)
+            : formatSidebarLabel(item.title)
+        }}
       </template>
       <template
         v-if="'method' in item || $slots.decorator"
