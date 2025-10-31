@@ -443,6 +443,47 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
     })
+
+    it('converts example to examples for schema properties named "examples"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                examples: {
+                  type: 'object',
+                  description: 'A property named examples',
+                  example: { foo: 'bar' },
+                },
+                name: {
+                  type: 'string',
+                  example: 'John',
+                },
+              },
+            },
+          },
+        },
+      })
+
+      // The 'examples' property should have its 'example' converted to 'examples' array
+      expect(result.components?.schemas?.MySchema?.properties?.examples).toEqual({
+        type: 'object',
+        description: 'A property named examples',
+        examples: [{ foo: 'bar' }],
+      })
+
+      // The 'name' property should also have its 'example' converted
+      expect(result.components?.schemas?.MySchema?.properties?.name).toEqual({
+        type: 'string',
+        examples: ['John'],
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {
