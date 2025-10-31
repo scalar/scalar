@@ -84,7 +84,11 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   }
 
   // 3. Handle examples
-  if (schema.example !== undefined) {
+  // Skip conversion if we're already inside an examples map to avoid double nesting
+  // Check if 'examples' appears as an exact path segment (not just a substring)
+  const isInsideExamplesMap = path?.some((segment) => segment === 'examples')
+
+  if (schema.example !== undefined && !isInsideExamplesMap) {
     if (isSchemaPath(path)) {
       schema.examples = [schema.example]
     } else {
