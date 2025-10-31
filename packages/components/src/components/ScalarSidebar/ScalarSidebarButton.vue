@@ -36,7 +36,8 @@ defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
   base: [
-    'group/button flex items-stretch rounded px-2 font-sidebar text-c-2 no-underline',
+    'group/button flex items-stretch rounded p-2 ',
+    'font-sidebar leading-5 text-c-2 no-underline wrap-break-word',
   ],
   variants: {
     active: { true: 'text-c-1 font-sidebar-active' },
@@ -63,16 +64,16 @@ const { cx } = useBindCx()
         :indent
         :selected />
     </slot>
-    <div class="flex items-center gap-1 flex-1 py-2 leading-5 min-w-0">
-      <div
-        v-if="icon || $slots.icon"
-        class="size-4">
-        <slot name="icon">
-          <ScalarIconLegacyAdapter
-            v-if="icon"
-            :icon="icon" />
-        </slot>
-      </div>
+    <div
+      v-if="icon || $slots.icon"
+      class="h-[1lh] w-au *:size-4 mr-1">
+      <slot name="icon">
+        <ScalarIconLegacyAdapter
+          v-if="icon"
+          :icon="icon" />
+      </slot>
+    </div>
+    <div class="flex-1 min-w-0">
       <slot />
     </div>
     <slot name="aside" />

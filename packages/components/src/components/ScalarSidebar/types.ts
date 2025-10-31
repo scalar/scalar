@@ -63,3 +63,18 @@ export type ScalarSidebarItemSlots = {
   /** The indent to display before content */
   indent?(): unknown
 }
+/** Scalar Sidebar Item Slots */
+export type ScalarSidebarGroupSlots = {
+  /** The text content of the toggle */
+  default?(props: { open: boolean }): unknown
+  /** Override the entire toggle button */
+  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
+  /** Icon for the sidebar group */
+  icon?(props: { open: boolean }): unknown
+  /** Override the entire toggle button */
+  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
+  /** The content to display to the right of the text content */
+  aside?(props: { open: boolean }): unknown
+  /** The list of sidebar subitems */
+  items?(props: { open: boolean }): unknown
+}

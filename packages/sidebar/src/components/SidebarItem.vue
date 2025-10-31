@@ -90,13 +90,11 @@ const handleDragEnd = (
 <template>
   <Draggable
     :id="item.id"
-    class="flex flex-1 flex-col wrap-break-word"
+    class="flex flex-1 flex-col"
     :isDraggable="layout === 'client'"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
-    <ScalarSidebarSection
-      v-if="hasChildren(item) && isGroup(item)"
-      @selectItem="() => emits('selectItem', item.id)">
+    <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
       {{ item.title }}
       <template #items>
         <SidebarItem
@@ -128,18 +126,6 @@ const handleDragEnd = (
       controlled
       :open="isExpanded(item.id)"
       @click="() => emits('selectItem', item.id)">
-      <div class="group/entry flex min-w-0 flex-1 items-center">
-        <div class="min-w-0 flex-1">{{ item.title }}</div>
-        <slot
-          :item="item"
-          name="decorator" />
-      </div>
-      <SidebarHttpBadge
-        v-if="'method' in item"
-        :active="isSelected(item.id)"
-        class="min-w-9.75 justify-end text-right"
-        :method="item.method"
-        :webhook="item.type === 'webhook'" />
       <template
         v-if="item.type === 'document'"
         #icon="{ open }">
@@ -148,6 +134,21 @@ const handleDragEnd = (
         <ScalarSidebarGroupToggle
           class="text-c-3 hidden group-hover/group-button:block"
           :open="open" />
+      </template>
+      {{ item.title }}
+      <template
+        v-if="'method' in item || $slots.decorator"
+        #aside>
+        <slot
+          v-if="$slots.decorator"
+          :item="item"
+          name="decorator" />
+        <SidebarHttpBadge
+          v-if="'method' in item"
+          :active="isSelected(item.id)"
+          class="ml-2 h-4 self-start"
+          :method="item.method"
+          :webhook="item.type === 'webhook'" />
       </template>
       <template #items>
         <SidebarItem
@@ -175,25 +176,23 @@ const handleDragEnd = (
       class="text-left"
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
-      <div class="group/entry flex min-w-0 flex-1 items-center">
-        <div class="min-w-0 flex-1">
-          <template v-if="options?.operationTitleSource === 'path'">
-            {{ getPathOrTitle(item) }}
-          </template>
-          <template v-else>
-            {{ item.title }}
-          </template>
-        </div>
+      <template v-if="options?.operationTitleSource === 'path'">
+        {{ getPathOrTitle(item) }}
+      </template>
+      <template v-else>
+        {{ item.title }}
+      </template>
+      <template
+        v-if="'method' in item || $slots.decorator"
+        #aside>
         <slot
+          v-if="$slots.decorator"
           :item="item"
           name="decorator" />
-      </div>
-      <template
-        v-if="'method' in item"
-        #aside>
         <SidebarHttpBadge
+          v-if="'method' in item"
           :active="isSelected(item.id)"
-          class="min-w-9.75 justify-end text-right"
+          class="ml-2 h-4 self-start"
           :method="item.method"
           :webhook="item.type === 'webhook'" />
       </template>

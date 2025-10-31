@@ -30,23 +30,14 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
-import type { ScalarSidebarGroupProps } from './types'
-import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
+import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
+import { useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul', controlled } = defineProps<ScalarSidebarGroupProps>()
 
 const model = defineModel<boolean>('open', { default: false })
 
-defineSlots<{
-  /** The text content of the toggle */
-  default?(props: { open: boolean }): unknown
-  /** Override the entire toggle button */
-  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
-  /** The list of sidebar subitems */
-  items?(props: { open: boolean }): unknown
-  /** Icon for the sidebar group */
-  icon?(props: { open: boolean }): unknown
-}>()
+defineSlots<ScalarSidebarGroupSlots>()
 
 const { level } = useSidebarGroups({ increment: true })
 
@@ -82,6 +73,13 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
               class="text-c-3"
               :open="model" />
           </slot>
+        </template>
+        <template
+          v-if="$slots.aside"
+          #aside>
+          <slot
+            name="aside"
+            :open="model" />
         </template>
         <slot :open="model" />
       </ScalarSidebarButton>
