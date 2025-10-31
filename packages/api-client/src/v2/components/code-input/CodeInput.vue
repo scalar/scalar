@@ -16,137 +16,243 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 import { backspaceCommand, pillPlugin } from './code-variable-widget'
 
-const props = withDefaults(
-  defineProps<{
-    colorPicker?: boolean
-    disabled?: boolean
-    modelValue: string | number
-    error?: boolean
-    emitOnBlur?: boolean
-    extensions?: Extension[]
-    lineNumbers?: boolean
-    lint?: boolean
-    disableTabIndent?: boolean
-    language?: CodeMirrorLanguage
-    handleFieldSubmit?: (e: string) => void
-    handleFieldChange?: (e: string) => void
-    layout: ClientLayout
-    placeholder?: string
-    required?: boolean
-    disableEnter?: boolean
-    disableCloseBrackets?: boolean
-    enum?: string[]
-    examples?: string[]
-    type?: string | string[] | undefined
-    nullable?: boolean
-    withVariables?: boolean
-    importCurl?: boolean
-    default?: string | number
-    /**  We force the prop but allow you to pass undefined if you don't want to show the env vars */
-    environment: XScalarEnvironment | undefined
-    lineWrapping?: boolean
-  }>(),
-  {
-    disableCloseBrackets: false,
-    disableEnter: false,
-    extensions: () => [],
-    disableTabIndent: false,
-    emitOnBlur: true,
-    colorPicker: false,
-    nullable: false,
-    withVariables: true,
-    disabled: false,
-    lineWrapping: false,
-  },
-)
-const emit = defineEmits<{
-  (e: 'submit', v: string): void
-  (e: 'update:modelValue', v: string): void
-  (e: 'curl', v: string): void
-  (e: 'blur', v: string): void
-  /** Event to redirect to the environment variables page */
-  (e: 'redirectToEnvironment'): void
-}>()
+/**
+ * CodeInput is a flexible input component that can render as:
+ * - A disabled text display
+ * - A select dropdown (for enums, booleans, or examples)
+ * - A CodeMirror editor with environment variable support
+ */
+type Props = {
+  modelValue: string | number
+  /** Environment for variable substitution. Pass undefined to disable environment variables */
+  environment: XScalarEnvironment | undefined
+  /** Type of the input value, affects rendering mode for booleans */
+  type?: string | string[]
+  /** Render as disabled text display */
+  disabled?: boolean
+  /** Show error styling */
+  error?: boolean
+  /** Layout context affects styling and behavior */
+  layout?: ClientLayout
+  /** Predefined enum values, triggers select mode */
+  enum?: string[]
+  /** Example values, triggers select mode */
+  examples?: string[]
+  /** Default value to show in select mode */
+  default?: string | number
+  /** Allow null in boolean select options */
+  nullable?: boolean
+  /** Placeholder text for empty input */
+  placeholder?: string
+  /** Show required indicator */
+  required?: boolean
+  /** Enable color picker extension */
+  colorPicker?: boolean
+  /** Show line numbers in editor */
+  lineNumbers?: boolean
+  /** Enable linting */
+  lint?: boolean
+  /** Enable line wrapping */
+  lineWrapping?: boolean
+  /** CodeMirror language mode */
+  language?: CodeMirrorLanguage
+  /** Additional CodeMirror extensions */
+  extensions?: Extension[]
+  /** Disable tab key for indentation */
+  disableTabIndent?: boolean
+  /** Disable enter key */
+  disableEnter?: boolean
+  /** Disable automatic bracket closing */
+  disableCloseBrackets?: boolean
+  /** Emit submit event on blur */
+  emitOnBlur?: boolean
+  /** Enable environment variable pills */
+  withVariables?: boolean
+  /** Detect and emit curl commands */
+  importCurl?: boolean
+  /** Custom change handler, prevents default emit */
+  handleFieldChange?: (value: string) => void
+  /** Custom submit handler, prevents default emit */
+  handleFieldSubmit?: (value: string) => void
+}
 
-const attrs = useAttrs() as { id?: string }
-const uid = (attrs.id as string) || `id-${nanoid()}`
+const {
+  modelValue,
+  environment,
+  type,
+  disabled = false,
+  error = false,
+  layout = 'desktop',
+  enum: enumProp,
+  examples,
+  default: defaultProp,
+  nullable = false,
+  placeholder,
+  required,
+  colorPicker = false,
+  lineNumbers = false,
+  lint = false,
+  lineWrapping = false,
+  language,
+  extensions = [],
+  disableTabIndent = false,
+  disableEnter = false,
+  disableCloseBrackets = false,
+  emitOnBlur = true,
+  withVariables = true,
+  importCurl = false,
+  handleFieldChange,
+  handleFieldSubmit,
+} = defineProps<Props>()
 
-const isFocused = ref(false)
+const emit = defineEmits<Emits>()
 
-// Environment variable dropdown init
-const showDropdown = ref(false)
-const dropdownQuery = ref('')
-const dropdownPosition = ref({ left: 0, top: 0 })
-const dropdownRef = ref<InstanceType<
-  typeof EnvironmentVariableDropdown
-> | null>(null)
+type Emits = {
+  'update:modelValue': [value: string]
+  'submit': [value: string]
+  'blur': [value: string]
+  'curl': [value: string]
+  'redirectToEnvironment': []
+}
 
 // ---------------------------------------------------------------------------
-// Event mapping from codemirror to standard input interfaces
+// Component identity and focus state
 
-/** Change is emitted during typing. This does not trigger validation */
-function handleChange(value: string) {
-  // We need to be careful, only if the value is different we trigger an update
-  // on initial load of the component, this gets triggered cause we set the content
-  if (value === props.modelValue) {
-    return null
+const attrs = useAttrs() as { id?: string }
+const componentId = attrs.id || `id-${nanoid()}`
+const isFocused = ref(false)
+
+// ---------------------------------------------------------------------------
+// Rendering mode detection
+
+/**
+ * Determines if we should render a select dropdown for boolean types.
+ */
+const isBooleanMode = computed((): boolean => {
+  if (enumProp?.length) {
+    return false
   }
-  if (props.importCurl && value.trim().toLowerCase().startsWith('curl')) {
+  return type === 'boolean' || (Array.isArray(type) && type.includes('boolean'))
+})
+
+/**
+ * Options for boolean select mode.
+ */
+const booleanOptions = computed((): string[] => {
+  return nullable ? ['true', 'false', 'null'] : ['true', 'false']
+})
+
+/**
+ * Default type when dealing with type arrays.
+ * Finds the first non-null type.
+ */
+const defaultType = computed((): string | undefined => {
+  if (Array.isArray(type)) {
+    return type.find((t) => t !== 'null') ?? 'string'
+  }
+  return type
+})
+
+// ---------------------------------------------------------------------------
+// Event handlers
+
+/**
+ * Handles value changes during typing.
+ * Detects curl commands and manages update flow.
+ */
+const handleChange = (value: string): void => {
+  if (value === modelValue) {
+    return
+  }
+
+  // Detect curl command import
+  if (importCurl && value.trim().toLowerCase().startsWith('curl')) {
     emit('curl', value)
-    // Maintain previous input value
-    codeMirror.value?.dispatch({
-      changes: {
-        from: 0,
-        to: codeMirror.value.state.doc.length,
-        insert: String(props.modelValue),
-      },
-    })
-    // Prevent table value population on current request
-    return null
+
+    // Revert to previous value
+    if (codeMirror.value) {
+      codeMirror.value.dispatch({
+        changes: {
+          from: 0,
+          to: codeMirror.value.state.doc.length,
+          insert: String(modelValue),
+        },
+      })
+    }
+    return
   }
 
-  return props.handleFieldChange
-    ? props.handleFieldChange(value)
-    : emit('update:modelValue', value)
+  // Use custom handler or emit update
+  if (handleFieldChange) {
+    handleFieldChange(value)
+  } else {
+    emit('update:modelValue', value)
+  }
 }
 
-/** Submit is emitted on blur and enter. This will trigger validation */
-function handleSubmit(value: string) {
-  return props.handleFieldSubmit
-    ? props.handleFieldSubmit(value)
-    : emit('submit', value)
+/**
+ * Handles form submission (enter key or blur with emitOnBlur).
+ */
+const handleSubmit = (value: string): void => {
+  if (handleFieldSubmit) {
+    handleFieldSubmit(value)
+  } else {
+    emit('submit', value)
+  }
 }
 
-/** Optional submit on blur.  */
-function handleBlur(value: string) {
+/**
+ * Handles input blur event.
+ */
+const handleBlur = (value: string): void => {
   isFocused.value = false
-  if (props.emitOnBlur && props.modelValue) {
+
+  if (emitOnBlur && modelValue) {
     handleSubmit(value)
   }
+
   emit('blur', value)
 }
 
-// ---------------------------------------------------------------------------
-// Codemirror instance handling
-
-// WARNING: Extensions are non-reactive! If props change nothing will happen
-
-const extensions: Extension[] = [...props.extensions]
-if (props.colorPicker) {
-  extensions.push(colorPickerExtension)
+/**
+ * Handles model value updates from select components.
+ */
+const handleSelectChange = (value: string): void => {
+  emit('update:modelValue', value)
 }
 
-// Create a reactive pill plugin that updates when environment changes
+// ---------------------------------------------------------------------------
+// CodeMirror setup
+
+/**
+ * Build extensions array.
+ * Note: Extensions are not reactive after initialization.
+ */
+const buildExtensions = (): Extension[] => {
+  const extensionsList: Extension[] = [...extensions]
+
+  if (colorPicker) {
+    extensionsList.push(colorPickerExtension)
+  }
+
+  return extensionsList
+}
+
+/**
+ * Reactive pill plugin for environment variable visualization.
+ */
 const pillPluginExtension = computed(() =>
   pillPlugin({
-    environment: props.environment,
-    isReadOnly: props.layout === 'modal',
+    environment,
+    isReadOnly: layout === 'modal',
   }),
 )
 
-// Base extensions that will be used for the editor
-const baseExtensions = computed(() => [
-  ...extensions,
+/**
+ * Combined extensions for CodeMirror.
+ */
+const codeMirrorExtensions = computed((): Extension[] => [
+  ...buildExtensions(),
   pillPluginExtension.value,
   backspaceCommand,
 ])
@@ -154,34 +260,44 @@ const baseExtensions = computed(() => [
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({
-  content: toRef(() =>
-    props.modelValue !== undefined ? String(props.modelValue) : '',
-  ),
+  content: toRef(() => String(modelValue ?? '')),
   onChange: (value) => {
     handleChange(value)
     updateDropdownVisibility()
   },
-  onFocus: () => (isFocused.value = true),
-  onBlur: (val) => handleBlur(val),
+  onFocus: () => {
+    isFocused.value = true
+  },
+  onBlur: handleBlur,
   codeMirrorRef,
-  disableTabIndent: toRef(() => props.disableTabIndent),
-  disableEnter: toRef(() => props.disableEnter),
-  disableCloseBrackets: toRef(() => props.disableCloseBrackets),
-  lineNumbers: toRef(() => props.lineNumbers),
-  language: toRef(() => props.language),
-  lint: toRef(() => props.lint),
-  extensions: baseExtensions,
-  placeholder: toRef(() => props.placeholder),
+  disableTabIndent: toRef(() => disableTabIndent),
+  disableEnter: toRef(() => disableEnter),
+  disableCloseBrackets: toRef(() => disableCloseBrackets),
+  lineNumbers: toRef(() => lineNumbers),
+  language: toRef(() => language),
+  lint: toRef(() => lint),
+  extensions: codeMirrorExtensions,
+  placeholder: toRef(() => placeholder),
 })
 
-codeMirror.value?.focus()
-
-// If we specify autofocus then focus codemirror on creation
+/**
+ * Handle autofocus attribute.
+ */
 watch(codeMirror, () => {
   if (codeMirror.value && Object.hasOwn(attrs, 'autofocus')) {
     codeMirror.value.focus()
   }
 })
+
+// ---------------------------------------------------------------------------
+// Environment variable dropdown
+
+const showDropdown = ref(false)
+const dropdownQuery = ref('')
+const dropdownPosition = ref({ left: 0, top: 0 })
+const dropdownRef = ref<InstanceType<
+  typeof EnvironmentVariableDropdown
+> | null>(null)
 
 const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
   codeMirror,
@@ -190,60 +306,56 @@ const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
   dropdownPosition,
 })
 
-// Computed property to check if type is boolean and nullable
-const booleanOptions = computed(() =>
-  props.nullable ? ['true', 'false', 'null'] : ['true', 'false'],
-)
+/**
+ * Determines if the environment variable dropdown should be visible.
+ */
+const displayVariablesDropdown = computed((): boolean => {
+  return (
+    showDropdown.value &&
+    withVariables &&
+    layout !== 'modal' &&
+    Boolean(environment)
+  )
+})
 
-const handleKeyDown = (key: string, event: KeyboardEvent) => {
+// ---------------------------------------------------------------------------
+// Keyboard event handling
+
+/**
+ * Handles keyboard navigation for dropdown and form submission.
+ */
+const handleKeyDown = (key: string, event: KeyboardEvent): void => {
   if (showDropdown.value) {
-    if (key === 'down') {
+    if (key === 'down' || key === 'up') {
       event.preventDefault()
-      dropdownRef.value?.handleArrowKey('down')
-    } else if (key === 'up') {
-      event.preventDefault()
-      dropdownRef.value?.handleArrowKey('up')
+      dropdownRef.value?.handleArrowKey(key)
     } else if (key === 'enter') {
       event.preventDefault()
       dropdownRef.value?.handleSelect()
     }
-  } else if (key === 'escape') {
-    if (!props.disableTabIndent) {
-      event.stopPropagation()
-    }
-  } else if (key === 'enter' && event.target instanceof HTMLDivElement) {
+    return
+  }
+
+  if (key === 'escape' && !disableTabIndent) {
+    event.stopPropagation()
+  }
+
+  if (key === 'enter' && event.target instanceof HTMLDivElement) {
     handleSubmit(event.target.textContent ?? '')
   }
 }
 
-const defaultType = computed(() => {
-  return Array.isArray(props.type)
-    ? // Find the first type, that's not 'null'
-      (props.type.find((type) => type !== 'null') ?? 'string')
-    : // If it's not an array, just return the type
-      props.type
-})
-
-const displayVariablesDropdown = computed(
-  () =>
-    showDropdown.value &&
-    props.withVariables &&
-    props.layout !== 'modal' &&
-    props.environment,
-)
+// ---------------------------------------------------------------------------
+// Public API
 
 defineExpose({
-  /** Expose focus method */
-  focus: () => {
-    codeMirror.value?.focus()
-  },
-  // Expose these methods for testing
+  focus: () => codeMirror.value?.focus(),
   handleChange,
   handleSubmit,
   handleBlur,
   booleanOptions,
   codeMirror,
-  modelValue: props.modelValue,
+  modelValue,
 })
 </script>
 <script lang="ts">
@@ -253,76 +365,89 @@ export default {
 }
 </script>
 <template>
-  <template v-if="disabled">
+  <!-- Disabled mode: read-only text display -->
+  <div
+    v-if="disabled"
+    class="text-c-2 flex cursor-default items-center justify-center"
+    :class="layout === 'modal' ? 'font-code pr-2 pl-1 text-base' : 'px-2'"
+    data-testid="code-input-disabled">
+    <span class="whitespace-nowrap">{{ modelValue }}</span>
+  </div>
+
+  <!-- Enum mode: select dropdown with predefined values -->
+  <DataTableInputSelect
+    v-else-if="enumProp?.length"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :type="defaultType"
+    :value="enumProp"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Boolean mode: select dropdown with true/false (and optionally null) -->
+  <DataTableInputSelect
+    v-else-if="isBooleanMode"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :value="booleanOptions"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Examples mode: select dropdown with example values -->
+  <DataTableInputSelect
+    v-else-if="examples?.length"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :value="examples"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Editor mode: CodeMirror with environment variable support -->
+  <div
+    v-else
+    :id="componentId"
+    v-bind="$attrs"
+    ref="codeMirrorRef"
+    class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden text-xs leading-[1.44] whitespace-nowrap -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
+    :class="{
+      'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:absolute has-[:focus-visible]:z-1':
+        lineWrapping,
+      'flow-code-input--error': error,
+    }"
+    @keydown.down.stop="handleKeyDown('down', $event)"
+    @keydown.enter="handleKeyDown('enter', $event)"
+    @keydown.escape="handleKeyDown('escape', $event)"
+    @keydown.up.stop="handleKeyDown('up', $event)">
+    <!-- Tab exit hint (shown when focused) -->
     <div
-      class="text-c-2 flex cursor-default items-center justify-center"
-      :class="layout === 'modal' ? 'font-code pr-2 pl-1 text-base' : 'px-2'"
-      data-testid="code-input-disabled">
-      <span class="whitespace-nowrap">{{ modelValue }}</span>
+      v-if="!disableTabIndent"
+      class="z-context text-c-2 absolute right-1.5 bottom-1 hidden font-sans group-has-[:focus-visible]/input:block"
+      role="alert">
+      Press
+      <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Esc</kbd> then
+      <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Tab</kbd> to exit
     </div>
-  </template>
-  <template v-else-if="props.enum && props.enum.length">
-    <DataTableInputSelect
-      :default="props.default"
-      :modelValue="modelValue"
-      :type="defaultType"
-      :value="props.enum"
-      @update:modelValue="emit('update:modelValue', $event)" />
-  </template>
-  <template v-else-if="type === 'boolean' || type?.includes('boolean')">
-    <DataTableInputSelect
-      :default="props.default"
-      :modelValue="modelValue"
-      :value="booleanOptions"
-      @update:modelValue="emit('update:modelValue', $event)" />
-  </template>
-  <template v-else-if="props.examples && props.examples.length">
-    <DataTableInputSelect
-      :default="props.default"
-      :modelValue="props.modelValue"
-      :value="props.examples"
-      @update:modelValue="emit('update:modelValue', $event)" />
-  </template>
-  <template v-else>
-    <div
-      :id="uid"
-      v-bind="$attrs"
-      ref="codeMirrorRef"
-      class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden text-xs leading-[1.44] whitespace-nowrap -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
-      :class="{
-        'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:absolute has-[:focus-visible]:z-1':
-          lineWrapping,
-        'flow-code-input--error': error,
-      }"
-      @keydown.down.stop="handleKeyDown('down', $event)"
-      @keydown.enter="handleKeyDown('enter', $event)"
-      @keydown.escape="handleKeyDown('escape', $event)"
-      @keydown.up.stop="handleKeyDown('up', $event)">
-      <div
-        v-if="!disableTabIndent"
-        class="z-context text-c-2 absolute right-1.5 bottom-1 hidden font-sans group-has-[:focus-visible]/input:block"
-        role="alert">
-        Press
-        <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Esc</kbd> then
-        <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Tab</kbd> to exit
-      </div>
-    </div>
-  </template>
+  </div>
+
+  <!-- Warning slot (positioned absolutely) -->
   <div
     v-if="$slots.warning"
     class="centered-y text-orange absolute right-7 text-xs">
     <slot name="warning" />
   </div>
+
+  <!-- Icon slot (positioned absolutely) -->
   <div
     v-if="$slots.icon"
     class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.cm-focused]:z-1">
     <slot name="icon" />
   </div>
+
+  <!-- Required indicator -->
   <div
     v-if="required"
     class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.alert]:shadow-none group-[.error]:bg-transparent group-[.error]:shadow-none peer-has-[.cm-focused]:opacity-0">
     Required
   </div>
+
+  <!-- Environment variable autocomplete dropdown -->
   <EnvironmentVariableDropdown
     v-if="displayVariablesDropdown && environment"
     ref="dropdownRef"
