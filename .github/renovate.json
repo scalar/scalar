@@ -259,7 +259,7 @@
     },
     {
       "description": "Integrations - Fastify",
-      "matchFileNames": ["integrations/fastify/**", "examples/fastify/**"],
+      "matchFileNames": ["integrations/fastify/**"],
       "additionalBranchPrefix": "fastify"
     },
     {

@@ -23,9 +23,8 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild && pnpm copy:standalone",
-    "build:playground": "cd playground && pnpm build",
     "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
-    "dev:doesnt-work": "cd playground && pnpm dev",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "format": "scalar-format",
