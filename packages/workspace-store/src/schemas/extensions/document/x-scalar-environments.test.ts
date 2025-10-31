@@ -6,15 +6,21 @@ import { xScalarEnvVarSchema, xScalarEnvironmentSchema, xScalarEnvironmentsSchem
 describe('xScalarEnvVarSchema', () => {
   it('validates environment variables with description and default', () => {
     const validVar = {
-      description: 'API key for production',
-      default: 'default-key',
+      name: 'API_KEY',
+      value: {
+        description: 'API key for production',
+        default: 'default-key',
+      },
     }
 
     expect(Value.Check(xScalarEnvVarSchema, validVar)).toBe(true)
   })
 
   it('validates environment variables as plain strings', () => {
-    const validVar = 'simple-value'
+    const validVar = {
+      name: 'SIMPLE_VAR',
+      value: 'simple-value',
+    }
 
     expect(Value.Check(xScalarEnvVarSchema, validVar)).toBe(true)
   })
@@ -25,13 +31,19 @@ describe('xScalarEnvironmentSchema', () => {
     const validEnvironment = {
       description: 'Production environment',
       color: '#ff0000',
-      variables: {
-        API_KEY: {
-          description: 'Production API key',
-          default: 'prod-key',
+      variables: [
+        {
+          name: 'API_KEY',
+          value: {
+            description: 'Production API key',
+            default: 'prod-key',
+          },
         },
-        BASE_URL: 'https://api.example.com',
-      },
+        {
+          name: 'BASE_URL',
+          value: 'https://api.example.com',
+        },
+      ],
     }
 
     expect(Value.Check(xScalarEnvironmentSchema, validEnvironment)).toBe(true)
@@ -39,9 +51,13 @@ describe('xScalarEnvironmentSchema', () => {
 
   it('validates minimal environment with only variables', () => {
     const minimalEnvironment = {
-      variables: {
-        TOKEN: 'abc123',
-      },
+      color: '#FFFFFF',
+      variables: [
+        {
+          name: 'TOKEN',
+          value: 'abc123',
+        },
+      ],
     }
 
     expect(Value.Check(xScalarEnvironmentSchema, minimalEnvironment)).toBe(true)
@@ -55,22 +71,35 @@ describe('xScalarEnvironmentsSchema', () => {
         production: {
           description: 'Production environment',
           color: '#00ff00',
-          variables: {
-            API_KEY: {
-              description: 'Production API key',
-              default: 'prod-key',
+          variables: [
+            {
+              name: 'API_KEY',
+              value: {
+                description: 'Production API key',
+                default: 'prod-key',
+              },
             },
-            BASE_URL: 'https://api.example.com',
-          },
+            {
+              name: 'BASE_URL',
+              value: 'https://api.example.com',
+            },
+          ],
         },
         staging: {
           description: 'Staging environment',
-          variables: {
-            API_KEY: 'staging-key',
-            BASE_URL: {
-              default: 'https://staging.example.com',
+          color: '#ff9900',
+          variables: [
+            {
+              name: 'API_KEY',
+              value: 'staging-key',
             },
-          },
+            {
+              name: 'BASE_URL',
+              value: {
+                default: 'https://staging.example.com',
+              },
+            },
+          ],
         },
       },
     }
