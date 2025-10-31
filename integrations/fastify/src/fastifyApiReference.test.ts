@@ -495,4 +495,29 @@ describe('fastifyApiReference', () => {
 
     expect(fastify.hasPlugin('@scalar/fastify-api-reference')).toBeTruthy()
   })
+
+  it('serves Scalar UI when only sources option is provided', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        sources: [{ url: '/openapi.json' }],
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response1 = await fetch(`${address}/reference/`)
+    const response2 = await fetch(`${address}/reference/js/scalar.js`)
+    const response3 = await fetch(`${address}/reference/openapi.json`)
+    const response4 = await fetch(`${address}/reference/openapi.yaml`)
+
+    expect(response1.status).toBe(200)
+    expect(response2.status).toBe(200)
+    expect(response3.status).toBe(404)
+    expect(response4.status).toBe(404)
+    expect(await response1.text()).toContain('/openapi.json')
+  })
 })
