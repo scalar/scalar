@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.8
+
+### Patch Changes
+
+- a796162: Add addtional export entry points for api-referenc. Patch types on build-tooling
+
 ## 0.2.7
 
 ### Patch Changes

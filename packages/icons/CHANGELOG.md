@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.5.0
+
+### Minor Changes
+
+- 0d9c945: feat: update vue to 3.5.21
+
 ## 0.4.7
 
 ### Patch Changes

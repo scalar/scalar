@@ -1,5 +1,46 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.0
+
+### Minor Changes
+
+- 9661e81: feat(oas-utils): make `dereference` synchronous
+- 0d9c945: feat: update vue to 3.5.21
+
+### Patch Changes
+
+- Updated dependencies [eb022f2]
+- Updated dependencies [348f8f6]
+- Updated dependencies [11a6e64]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [2239843]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [134ff5f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [8a5a6a0]
+- Updated dependencies [c84b7c5]
+- Updated dependencies [0319b8a]
+- Updated dependencies [da7ab2f]
+- Updated dependencies [a26ced6]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6a090a2]
+- Updated dependencies [592533f]
+- Updated dependencies [eba18d0]
+- Updated dependencies [a821986]
+- Updated dependencies [c72a2c5]
+- Updated dependencies [0d9c945]
+- Updated dependencies [e23229d]
+  - @scalar/types@0.4.0
+  - @scalar/components@0.16.0
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/snippetz@0.5.2
+
 ## 0.2.45
 
 ### Patch Changes

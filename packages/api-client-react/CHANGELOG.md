@@ -1,5 +1,29 @@
 # @scalar/api-client-react
 
+## 1.3.47
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [0319b8a]
+- Updated dependencies [eb022f2]
+- Updated dependencies [729ad06]
+- Updated dependencies [c22fc4e]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [d34f31e]
+- Updated dependencies [c162bb6]
+- Updated dependencies [6ca835e]
+- Updated dependencies [7cda4c5]
+- Updated dependencies [573c5a6]
+- Updated dependencies [0865e66]
+- Updated dependencies [7c1e09e]
+- Updated dependencies [eba18d0]
+- Updated dependencies [0d9c945]
+- Updated dependencies [f612140]
+- Updated dependencies [d386ae2]
+  - @scalar/api-client@2.9.0
+  - @scalar/types@0.4.0
+
 ## 1.3.46
 
 ### Patch Changes

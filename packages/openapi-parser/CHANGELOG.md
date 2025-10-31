@@ -1,5 +1,29 @@
 # @scalar/openapi-parser
 
+## 0.23.0
+
+### Minor Changes
+
+- 9661e81: feat(oas-utils): make `dereference` synchronous
+- 134ff5f: feat - parser - adds support for OpenAPI 3.2.0
+
+### Patch Changes
+
+- 2239843: docs adds a mention that OpenAPI 3.2.0 is now supported
+- 134ff5f: feat: update OpenAPI 3.0 and 3.1 JSON schemas for validation
+- c84b7c5: [fix] adds missing dereference options export in parser
+- eba18d0: Migrate to workspace store as primary source of truth.
+- a821986: fix(openapi-parser): remove internal unneeded async logic without changing the public API
+- e23229d: [docs] updates readme to bundle method and adds migration from load guidance
+- Updated dependencies [11a6e64]
+- Updated dependencies [2239843]
+- Updated dependencies [134ff5f]
+- Updated dependencies [6ca835e]
+- Updated dependencies [43bc5e8]
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/openapi-types@0.5.1
+  - @scalar/json-magic@0.7.0
+
 ## 0.22.3
 
 ### Patch Changes

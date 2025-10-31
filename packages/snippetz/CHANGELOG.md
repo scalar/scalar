@@ -1,5 +1,15 @@
 # @scalar/snippetz
 
+## 0.5.2
+
+### Patch Changes
+
+- da7ab2f: feat: custom httpclient generator for C#
+- Updated dependencies [eb022f2]
+- Updated dependencies [6ec8c29]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.4.0
+
 ## 0.5.1
 
 ### Patch Changes

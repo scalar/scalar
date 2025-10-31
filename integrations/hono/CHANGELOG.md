@@ -1,5 +1,12 @@
 # @scalar/hono-api-reference
 
+## 0.9.23
+
+### Patch Changes
+
+- 5d2a740: Bump dependency to patch GHSA-q7jf-gf43-6x6p
+  - @scalar/core@0.3.21
+
 ## 0.9.22
 
 ### Patch Changes

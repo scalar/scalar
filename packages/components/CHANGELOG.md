@@ -1,5 +1,37 @@
 # @scalar/components
 
+## 0.16.0
+
+### Minor Changes
+
+- 0d9c945: feat: update vue to 3.5.21
+
+### Patch Changes
+
+- 348f8f6: export sidebar components
+- c22fc4e: feat: added new layouts for client v2
+- 6ec8c29: Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+- 8a5a6a0: test(api-reference): add visual regression testing
+- a26ced6: fix(sidebar): word break sidebar entries with no spaces
+- 6a090a2: feat(useBindCx): add support for style attr
+- 592533f: refactor(sidebar): remove some divs from sidebar elements
+- eba18d0: Migrate to workspace store as primary source of truth.
+- c72a2c5: test(components): fixture team picker snapshots
+- Updated dependencies [6ec8c29]
+- Updated dependencies [9661e81]
+- Updated dependencies [81b0a7a]
+- Updated dependencies [0319b8a]
+- Updated dependencies [6a090a2]
+- Updated dependencies [eba18d0]
+- Updated dependencies [0d9c945]
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+  - @scalar/icons@0.5.0
+  - @scalar/themes@0.13.23
+  - @scalar/code-highlight@0.2.0
+
 ## 0.15.1
 
 ### Patch Changes
