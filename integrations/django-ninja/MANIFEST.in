@@ -1,0 +1,4 @@
+include README.md
+include package.json
+include LICENSE
+prune tests
