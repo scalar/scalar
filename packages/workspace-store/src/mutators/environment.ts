@@ -86,7 +86,7 @@ export const upsertEnvironmentVariable = (
     }
 
     // Update
-    collection['x-scalar-environments'][environmentName].variables[index] = variable
+    collection['x-scalar-environments'][environmentName].variables[index] = parsed
   }
   // Add
   else {
