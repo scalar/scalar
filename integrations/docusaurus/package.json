@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "shx rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
-    "dev:doesnt-work": "cd ./playground && pnpm dev",
+    "dev:doesnt-work": "cd ./playground && pnpm run dev",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@docusaurus/types": "^3.7.0",
     "@docusaurus/utils": "^3.7.0",
+    "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "path": "^0.12.7",

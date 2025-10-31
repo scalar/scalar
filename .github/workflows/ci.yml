@@ -192,6 +192,25 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
+  knip:
+    name: Run Knip checks
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
+      - name: Knip
+        run: pnpm lint:knip
+
   test-packages:
     name: Test packages (shard ${{ matrix.shard-index }}/${{ matrix.shard-total }})
     needs: [build]
@@ -510,7 +529,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, format, types, test-packages, test-integrations]
+    needs: [build, format, types, knip, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [22]
@@ -873,6 +892,7 @@ jobs:
         build,
         format,
         types,
+        knip,
         test-packages,
         test-integrations,
         dotnet-build-test,
@@ -956,6 +976,7 @@ jobs:
         build,
         format,
         types,
+        knip,
         test-packages,
         test-integrations,
         dotnet-build-test,
@@ -1098,6 +1119,7 @@ jobs:
         build,
         format,
         types,
+        knip,
         test-packages,
         test-integrations,
         fastapi-build-test,
@@ -1205,7 +1227,15 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [build, format, types, test-packages, test-integrations, rust-build-test]
+      [
+        build,
+        format,
+        types,
+        knip,
+        test-packages,
+        test-integrations,
+        rust-build-test,
+      ]
 
     steps:
       - name: Checkout repository
@@ -1392,6 +1422,7 @@ jobs:
       [
         build,
         format,
+        knip,
         test-packages,
         test-integrations,
         test-proxy-server,

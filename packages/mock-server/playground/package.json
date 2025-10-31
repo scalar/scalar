@@ -46,7 +46,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "vite": "catalog:*",
     "@types/node": "catalog:*"
   },

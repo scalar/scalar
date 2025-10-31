@@ -59,7 +59,7 @@ export const update = new Command('update')
 
 // ---------------------------------------------------------------------------
 
-export const pnpmWorkspaceSchema = z.object({
+const pnpmWorkspaceSchema = z.object({
   packages: z.string().array(),
   catalog: z.record(z.string()).optional(),
   catalogs: z.record(z.string(), z.record(z.string(), z.string())).default({}),

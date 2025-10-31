@@ -53,9 +53,7 @@
     "hono": "catalog:*"
   },
   "devDependencies": {
-    "@hono/node-server": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/hono-api-reference": "workspace:*",
     "@types/node": "catalog:*",
     "vite": "catalog:*"
   }

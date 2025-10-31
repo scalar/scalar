@@ -30,7 +30,7 @@ export default command
 
 type PackageType = 'packages' | 'integrations' | 'projects' | 'examples'
 
-export async function formatJson(json: string) {
+async function formatJson(json: string) {
   const filePath = `${getWorkspaceRoot()}/.prettierrc`
   const options = await prettier.resolveConfig(filePath)
 

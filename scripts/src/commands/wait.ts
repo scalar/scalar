@@ -24,7 +24,7 @@ async function ping(port: number): Promise<boolean> {
   return ok ? true : await new Promise((resolve) => setTimeout(() => resolve(ping(port)), 1000))
 }
 
-export async function waitForService(ports: number[]) {
+async function waitForService(ports: number[]) {
   log(as.green(`Waiting for ${as.bold(ports.join(', '))} to start...`))
 
   const success = await Promise.race([
