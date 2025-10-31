@@ -9,7 +9,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
 
-const { environmentName, environment, eventBus, type } = defineProps<
+const { environmentName, environment, eventBus, collectionType } = defineProps<
   {
     environment: XScalarEnvironment
     environmentName: string
@@ -55,9 +55,9 @@ const emit = defineEmits<{
 
     <!-- Variables Table -->
     <EnvironmentVariablesTable
-      :environment="environment"
-      :environmentName="environmentName"
-      :eventBus="eventBus"
-      :type="type" />
+      :collectionType
+      :environment
+      :environmentName
+      :eventBus />
   </div>
 </template>

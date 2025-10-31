@@ -4,13 +4,13 @@ import { computed } from 'vue'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { EnvironmentsList } from '@/v2/features/environments'
 
-const { document, eventBus, type, workspaceStore } =
+const { document, eventBus, collectionType, workspaceStore } =
   defineProps<CollectionProps>()
 
 /** Document or workspace environments */
 const environments = computed(
   () =>
-    (type === 'document'
+    (collectionType === 'document'
       ? document['x-scalar-environments']
       : workspaceStore.workspace['x-scalar-environments']) ?? {},
 )
@@ -37,8 +37,8 @@ const environments = computed(
     </div>
 
     <EnvironmentsList
-      :environments="environments"
-      :eventBus="eventBus"
-      :type="type" />
+      :collectionType
+      :environments
+      :eventBus />
   </div>
 </template>

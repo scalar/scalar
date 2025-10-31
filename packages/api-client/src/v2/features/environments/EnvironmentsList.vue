@@ -13,7 +13,7 @@ import EnvironmentDeleteModal from '@/v2/features/environments/components/Enviro
 
 import EnvironmentComponent from './components/Environment.vue'
 
-const { environments, eventBus, type } = defineProps<
+const { environments, eventBus, collectionType } = defineProps<
   {
     environments: NonNullable<XScalarEnvironments['x-scalar-environments']>
     eventBus: WorkspaceEventBus
@@ -39,7 +39,7 @@ const deleteEnvironment = () => {
   }
   eventBus.emit('environment:delete:environment', {
     environmentName: selectedEnvironmentName.value,
-    type,
+    collectionType,
   })
 }
 
@@ -52,14 +52,14 @@ const openUpsertModal = (name?: string) => {
 
 <template>
   <EnvironmentComponent
-    v-for="[name, env] in Object.entries(environments)"
-    :key="name"
-    :environment="env"
-    :environmentName="name"
+    v-for="[environmentName, environment] in Object.entries(environments)"
+    :key="environmentName"
+    :collectionType="collectionType"
+    :environment
+    :environmentName
     :eventBus="eventBus"
-    :type="type"
-    @delete="() => openDeleteModal(name)"
-    @edit="() => openUpsertModal(name)" />
+    @delete="() => openDeleteModal(environmentName)"
+    @edit="() => openUpsertModal(environmentName)" />
 
   <!-- Add Environment CTA -->
   <div
@@ -76,11 +76,11 @@ const openUpsertModal = (name?: string) => {
 
   <!-- Upsert Modal -->
   <EnvironmentCreateModal
-    :environments="environments"
-    :eventBus="eventBus"
-    :selectedEnvironmentName="selectedEnvironmentName"
-    :state="createEnvironmentModalState"
-    :type="type" />
+    :collectionType
+    :environments
+    :eventBus
+    :selectedEnvironmentName
+    :state="createEnvironmentModalState" />
 
   <!-- Delete Modal -->
   <EnvironmentDeleteModal

@@ -14,8 +14,10 @@ export const useWorkspaceClientEvents = (
   workspaceStore: WorkspaceStore,
 ) => {
   /** Selects between the workspace or document based on the type */
-  const getCollection = (document: ComputedRef<WorkspaceDocument | null>, type: CollectionType['type']) =>
-    type === 'document' ? document.value : workspaceStore.workspace
+  const getCollection = (
+    document: ComputedRef<WorkspaceDocument | null>,
+    collectionType: CollectionType['collectionType'],
+  ) => (collectionType === 'document' ? document.value : workspaceStore.workspace)
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers
@@ -39,15 +41,16 @@ export const useWorkspaceClientEvents = (
 
   eventBus.on(
     'environment:delete:environment',
-    ({ environmentName, type }) => delete getCollection(document, type)?.['x-scalar-environments']?.[environmentName],
+    ({ environmentName, collectionType }) =>
+      delete getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName],
   )
 
   eventBus.on('environment:upsert:environment-variable', (payload) =>
-    upsertEnvironmentVariable(getCollection(document, payload.type), payload),
+    upsertEnvironmentVariable(getCollection(document, payload.collectionType), payload),
   )
 
-  eventBus.on('environment:delete:environment-variable', ({ environmentName, index, type }) =>
-    getCollection(document, type)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
+  eventBus.on('environment:delete:environment-variable', ({ environmentName, index, collectionType }) =>
+    getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
   )
 
   //------------------------------------------------------------------------------------

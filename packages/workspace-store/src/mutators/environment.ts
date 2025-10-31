@@ -21,10 +21,10 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 export const upsertEnvironment = (
   document: WorkspaceDocument | null,
   workspace: Workspace,
-  { environmentName, payload, type, oldEnvironmentName }: EnvironmentEvents['environment:upsert:environment'],
+  { environmentName, payload, collectionType, oldEnvironmentName }: EnvironmentEvents['environment:upsert:environment'],
 ): XScalarEnvironment | undefined => {
   /** Discriminating between document and workspace */
-  const collection = type === 'document' ? document : workspace
+  const collection = collectionType === 'document' ? document : workspace
   if (!collection) {
     return
   }
@@ -67,7 +67,7 @@ export const upsertEnvironment = (
  */
 export const upsertEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
-  { environmentName, variable, index }: Omit<EnvironmentEvents['environment:upsert:environment-variable'], 'type'>,
+  { environmentName, variable, index }: EnvironmentEvents['environment:upsert:environment-variable'],
 ): XScalarEnvVar | undefined => {
   // The environment should exist by now if we are upserting a variable
   if (!collection?.['x-scalar-environments']?.[environmentName]) {

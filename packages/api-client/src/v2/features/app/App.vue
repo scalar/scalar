@@ -115,7 +115,7 @@ const environment = computed<XScalarEnvironment>(() => {
         v-model:isSidebarOpen="isSidebarOpen"
         v-model:workspace="workspaceModel"
         :documents="workspaceStore.workspace.documents"
-        :layout="layout"
+        :layout
         :sidebarWidth="
           workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
         "
@@ -133,11 +133,11 @@ const environment = computed<XScalarEnvironment>(() => {
           <keep-alive>
             <component
               :is="Component"
-              :document="document"
-              :environment="environment"
-              :eventBus="eventBus"
-              :layout="layout"
-              :workspaceStore="workspaceStore" />
+              :document
+              :environment
+              :eventBus
+              :layout
+              :workspaceStore />
           </keep-alive>
         </RouterView>
       </div>
