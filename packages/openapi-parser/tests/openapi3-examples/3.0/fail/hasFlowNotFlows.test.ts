@@ -7,8 +7,10 @@ describe('hasFlowNotFlows', () => {
   it('returns an error', async () => {
     const result = await validate(hasFlowNotFlows)
 
-    // TODO: This should probably mention the incorrect security type?
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    // The security scheme has "flow" instead of "flows" (typo).
+    // Thanks to the discriminator on the SecurityScheme oneOf (using the "type" property),
+    // AJV knows to validate against OAuth2SecurityScheme and gives us a specific error.
+    expect(result.errors?.[0]?.message).toBe('Property flow is not expected to be here')
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })
