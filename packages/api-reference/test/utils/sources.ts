@@ -36,6 +36,11 @@ export const sources = [
     url: 'examples/openapi.json',
   },
   {
+    title: 'Long Strings Example',
+    slug: 'long-strings',
+    url: 'examples/long-strings.yaml',
+  },
+  {
     title: 'Swagger Petstore 2.0',
     slug: 'swagger-petstore-2-0',
     url: 'https://petstore.swagger.io/v2/swagger.json',

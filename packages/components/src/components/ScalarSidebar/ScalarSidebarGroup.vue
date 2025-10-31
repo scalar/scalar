@@ -45,7 +45,7 @@ defineOptions({ inheritAttrs: false })
 const { stylingAttrsCx, otherAttrs } = useBindCx()
 </script>
 <template>
-  <li class="group/item contents">
+  <li class="group/item flex flex-col gap-px">
     <slot
       :level="level"
       name="button"

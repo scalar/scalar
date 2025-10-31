@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 import { Hono } from 'hono'
@@ -49,6 +50,9 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
 
     // Serve the JS bundle
     app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
+
+    // Serve the examples directory
+    app.get('/examples/*', serveStatic({ root: './' }))
 
     // Serve static files from the current directory
     app.get('*', (c) => {
