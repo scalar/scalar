@@ -43,7 +43,6 @@ export const HttpSchema = DescriptionSchema.extend({
     .toLowerCase()
     .pipe(
       z.union([
-        z.string().nonempty(),
         z.enum([
           'bearer',
           'basic',
@@ -56,6 +55,7 @@ export const HttpSchema = DescriptionSchema.extend({
           'scram-sha-256',
           'vapid',
         ]),
+        z.string().nonempty(),
       ]),
     ),
 
