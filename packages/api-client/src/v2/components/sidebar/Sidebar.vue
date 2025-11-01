@@ -104,7 +104,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           </div>
         </template>
 
-        <template #firstItem>
+        <template #before>
           <slot name="workspaceButton" />
         </template>
 

@@ -30,13 +30,13 @@ import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
 import { findScrollContainer } from './findScrollContainer'
-import type { ScalarSidebarItemProps } from './types'
+import type { ScalarSidebarGroupProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
-const { icon = ScalarIconListDashes } = defineProps<ScalarSidebarItemProps>()
+const { icon = ScalarIconListDashes } = defineProps<ScalarSidebarGroupProps>()
 
-const open = defineModel<boolean>({ default: false })
+const open = defineModel<boolean>('open', { default: false })
 useSidebarNestedItem(open)
 
 defineSlots<{
@@ -102,7 +102,8 @@ defineOptions({ inheritAttrs: false })
         :disabled
         :indent="level"
         :selected
-        @click="open = true">
+        v-bind="$attrs"
+        @click="!controlled && (open = true)">
         <template #icon>
           <slot name="icon">
             <ScalarIconLegacyAdapter
@@ -133,7 +134,7 @@ defineOptions({ inheritAttrs: false })
             <ScalarSidebarButton
               is="button"
               class="text-c-1 font-sidebar-active"
-              @click="open = false">
+              @click="!controlled && (open = false)">
               <template #icon>
                 <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
               </template>

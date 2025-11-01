@@ -20,7 +20,7 @@
     "format:check": "pnpm prettier --check .",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "playground": "vite ./playground -c ./vite.config.ts",
+    "dev": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"

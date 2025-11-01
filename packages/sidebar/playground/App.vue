@@ -21,6 +21,16 @@ const client = createSidebarState([
 // Default open the first level of items for better visibility in the playground
 client.items.value.forEach((it) => client.setExpanded(it.id, true))
 
+function handleSelectItem(
+  sidebar: typeof reference | typeof client,
+  id: string,
+) {
+  if (sidebar.getEntryById(id)?.children) {
+    sidebar.setExpanded(id, !sidebar.isExpanded(id))
+  }
+  sidebar.setSelected(id)
+}
+
 const log = (name: string, ...args: any[]) => {
   console.log('[LOG] event name: ', name)
   console.log('[LOG]', ...args)
@@ -31,7 +41,8 @@ const log = (name: string, ...args: any[]) => {
     :isExpanded="reference.isExpanded"
     :isSelected="reference.isSelected"
     :items="reference.items.value"
-    layout="reference">
+    layout="reference"
+    @selectItem="(id) => handleSelectItem(reference, id)">
     <template #search>
       <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
         <ScalarSidebarSearchInput />
@@ -42,12 +53,12 @@ const log = (name: string, ...args: any[]) => {
     </template>
   </ScalarSidebar>
   <ScalarSidebar
-    :isExpanded="reference.isExpanded"
-    :isSelected="reference.isSelected"
-    :items="reference.items.value"
+    :isExpanded="client.isExpanded"
+    :isSelected="client.isSelected"
+    :items="client.items.value"
     layout="client"
-    :state="client"
-    @reorder="(...args) => log('reorder', ...args)">
+    @reorder="(...args) => log('reorder', ...args)"
+    @selectItem="(id) => handleSelectItem(client, id)">
     <template #search>
       <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
         <ScalarSidebarSearchInput />

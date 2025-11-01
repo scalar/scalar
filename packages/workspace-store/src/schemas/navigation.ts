@@ -14,7 +14,13 @@ export const NavigationBaseSchemaDefinition = Type.Object({
 })
 
 type BaseSchema = {
+  /**
+   * The unique identifier for the entry
+   *
+   * Must be unique across the entire navigation structure.
+   */
   id: string
+  /** The user readable title of the entry */
   title: string
 }
 
@@ -26,6 +32,11 @@ export const TraversedDocumentSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing an OpenAPI in the navigation structure.
+ *
+ * Used in the client to represent the root document and its operations or tags.
+ */
 export type TraversedDocument = BaseSchema & {
   type: 'document'
   children?: TraversedEntry[]
@@ -39,6 +50,9 @@ export const TraversedDescriptionSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing a markdown description in the navigation structure.
+ */
 export type TraversedDescription = BaseSchema & {
   type: 'text'
   children?: TraversedEntry[]
@@ -52,6 +66,9 @@ export const TraversedExampleSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing an operation example in the navigation structure.
+ */
 export type TraversedExample = BaseSchema & {
   type: 'example'
   name: string
@@ -68,7 +85,9 @@ export const TraversedOperationSchemaDefinition = compose(
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
-
+/**
+ * An entry representing an operation in the navigation structure.
+ */
 export type TraversedOperation = BaseSchema & {
   type: 'operation'
   ref: string
@@ -87,6 +106,9 @@ export const TraversedSchemaSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing a model in the navigation structure.
+ */
 export type TraversedSchema = BaseSchema & {
   type: 'model'
   ref: string
@@ -104,6 +126,9 @@ export const TraversedWebhookSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing a webhook in the navigation structure.
+ */
 export type TraversedWebhook = BaseSchema & {
   type: 'webhook'
   ref: string
@@ -125,6 +150,11 @@ export const TraversedTagSchemaDefinition = compose(
   }),
 )
 
+/**
+ * An entry representing a tag in the navigation structure.
+ *
+ * Used to group operations or webhooks under a common heading.
+ */
 export type TraversedTag = BaseSchema & {
   type: 'tag'
   name: string
@@ -143,7 +173,9 @@ export const TraversedModelsSchemaDefinition = compose(
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
-
+/**
+ *  Top level models navigation entry.
+ */
 export type TraversedModels = BaseSchema & {
   type: 'models'
   name: string

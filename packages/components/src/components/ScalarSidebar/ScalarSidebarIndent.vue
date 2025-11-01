@@ -32,7 +32,7 @@ const { cx } = useBindCx()
 <template>
   <div
     v-bind="
-      cx('scalar-sidebar-indent flex justify-center', {
+      cx('scalar-sidebar-indent -my-2 flex justify-center', {
         'mr-[calc(20px-var(--scalar-sidebar-indent))]': indent > 0,
         'scalar-sidebar-indent-selected': selected,
       })
