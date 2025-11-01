@@ -148,7 +148,7 @@ describe('isArrayEqual', () => {
       [1, 2, 3],
       [1, 2, 3],
     ],
-    // @ts-ignore
+    // @ts-expect-error
   ])('should return true', (a, b) => expect(isArrayEqual(a, b)).toEqual(true))
 
   test.each([
@@ -164,6 +164,6 @@ describe('isArrayEqual', () => {
       [2, 2, 4],
       [1, 2, 3],
     ],
-    // @ts-ignore
+    // @ts-expect-error
   ])('should return false', (a, b) => expect(isArrayEqual(a, b)).toEqual(false))
 })

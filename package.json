@@ -44,7 +44,7 @@
   "scripts": {
     "build": "turbo build",
     "build:packages": "turbo --filter './packages/**' --concurrency=100% build",
-    "build:integrations": "turbo --filter ./integrations/** build",
+    "build:integrations": "turbo --filter './integrations/**' build",
     "clean": "shx rm -rf \"**/dist\" \"**/.turbo\" \"**/.nuxt\" \"**/.next\" \"**/target\" \"**/node_modules\"",
     "clean:build": "pnpm clean && pnpm install && pnpm build:packages",
     "dev:docs": "npx @scalar/cli@latest project preview",

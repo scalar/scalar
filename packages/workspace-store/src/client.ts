@@ -886,7 +886,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return workspace
     },
     update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
-      // @ts-ignore
+      // @ts-expect-error
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         throw new Error('Invalid key: cannot modify prototype')
       }

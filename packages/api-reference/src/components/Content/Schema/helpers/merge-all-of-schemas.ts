@@ -87,12 +87,12 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     if ((key as string) === 'required') {
       // Merge required fields with deduplication
       if (Array.isArray(value) && value.length > 0) {
-        // @ts-ignore
+        // @ts-expect-error
         if (result.required?.length) {
-          // @ts-ignore
+          // @ts-expect-error
           result.required = [...new Set([...result.required, ...value])]
         } else {
-          // @ts-ignore
+          // @ts-expect-error
           result.required = value.slice()
         }
       }
@@ -101,13 +101,13 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     else if ((key as string) === 'properties') {
       // Merge properties recursively
       if (value && typeof value === 'object') {
-        // @ts-ignore
+        // @ts-expect-error
         if (!result.properties) {
-          // @ts-ignore
+          // @ts-expect-error
           result.properties = {}
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         mergePropertiesIntoResult(result.properties, value)
       }
     }
@@ -117,19 +117,19 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
       const items = getResolvedRef(value)
       if (items) {
         if (isArraySchema(schema)) {
-          // @ts-ignore
+          // @ts-expect-error
           if (!result.items) {
-            // @ts-ignore
+            // @ts-expect-error
             result.items = {}
           }
 
           // Handle allOf within array items
           if (items.allOf) {
             const mergedItems = mergeAllOfSchemas(items)
-            // @ts-ignore
+            // @ts-expect-error
             Object.assign(result.items, mergedItems)
           } else {
-            // @ts-ignore
+            // @ts-expect-error
             mergeItemsIntoResult(getResolvedRef(result.items), items)
           }
         }
@@ -138,7 +138,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
           const mergedItems = mergeAllOfSchemas(items)
           if ('properties' in mergedItems) {
             if (!('properties' in result)) {
-              // @ts-ignore
+              // @ts-expect-error
               result.properties = {}
             }
 
@@ -147,7 +147,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
         }
         // For non-array types without allOf, still set items if not already set
         else if (!('items' in result)) {
-          // @ts-ignore
+          // @ts-expect-error
           result.items = items
         }
       }
@@ -163,7 +163,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
       // Merge oneOf/anyOf subschema
       if (Array.isArray(value)) {
         if (!('properties' in result)) {
-          // @ts-ignore
+          // @ts-expect-error
           result.properties = {}
         }
         for (const _option of value) {
@@ -181,7 +181,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     // For all other properties, preserve the first occurrence or override if specified
     else {
       if (override || result[key] === undefined) {
-        // @ts-ignore
+        // @ts-expect-error
         result[key] = value
       }
     }
@@ -249,7 +249,6 @@ const mergePropertiesIntoResult = (
       }
       // Simple merge without property recursion
       else {
-        // @ts-ignore
         result[key] = { ...schema, ...existing }
       }
     }
@@ -327,9 +326,9 @@ const mergeItems = (existing: SchemaObject, incoming: SchemaObject): SchemaObjec
 
   // Recursively merge properties if both have properties
   if ('properties' in existing && 'properties' in incoming) {
-    // @ts-ignore
+    // @ts-expect-error
     merged.properties = { ...existing.properties }
-    // @ts-ignore
+    // @ts-expect-error
     mergePropertiesIntoResult(merged.properties, incoming.properties)
   }
 

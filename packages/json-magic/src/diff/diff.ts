@@ -76,7 +76,6 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
       const keys = new Set([...Object.keys(el1), ...Object.keys(el2)])
 
       for (const key of keys) {
-        // @ts-ignore
         bfs(el1[key], el2[key], [...prefix, key])
       }
       return

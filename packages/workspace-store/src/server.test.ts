@@ -646,7 +646,7 @@ describe('externalize-path-references', () => {
             get: {
               description: 'string',
             },
-            // @ts-ignore
+            // @ts-expect-error
             otherProperty: {
               description: 'I should still be in the output',
             },

@@ -175,6 +175,7 @@
         "noRedeclare": "warn",
         "noShadowRestrictedNames": "warn",
         "noSparseArray": "warn",
+        "noTsIgnore": "error",
         "noUnsafeDeclarationMerging": "warn",
         "noUnsafeNegation": "warn",
         "useGetterReturn": "warn",
