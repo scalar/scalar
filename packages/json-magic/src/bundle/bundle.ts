@@ -1,7 +1,8 @@
+import path from '@scalar/helpers/node/path'
+
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
-import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
