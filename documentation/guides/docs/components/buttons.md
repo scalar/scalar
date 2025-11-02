@@ -19,6 +19,11 @@ The URL that the button links to. When clicked, this will open in a new tab with
 
 An icon to display alongside the button text. Can be either a path to a local Scalar icon or a URL to an external icon. If not provided, the button will display only text.
 
+### icon-dark
+`string` _optional_
+
+An icon to display alongside the button text in dark mode. If not provided, the specified `icon` will be shown in both modes.
+
 ## Examples
 
 ### Basic Button
@@ -86,24 +91,26 @@ An icon to display alongside the button text. Can be either a path to a local Sc
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://scalar.com/logo-dark.svg">
+  icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  icon-dark="https://scalar.com/logo-dark.svg">
 </scalar-button>
 
 ```html
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://scalar.com/logo-dark.svg">
+  icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  icon-dark="https://scalar.com/logo-dark.svg">
 </scalar-button>
 ```
 </scalar-tab>
 
 <scalar-tab title="Directive">
 
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://scalar.com/logo-dark.svg"}
+::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4" icon-dark="https://scalar.com/logo-dark.svg"}
 
 ```markdown
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://scalar.com/logo-dark.svg"}
+::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4" icon-dark="https://scalar.com/logo-dark.svg"}
 ```
 </scalar-tab>
 </scalar-tabs>
