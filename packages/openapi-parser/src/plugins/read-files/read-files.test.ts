@@ -15,7 +15,7 @@ describe('readFiles', () => {
     expect(readFiles().check({})).toBe(false)
   })
 
-  it('returns false for undefinded', () => {
+  it('returns false for undefined', () => {
     expect(readFiles().check()).toBe(false)
   })
 
