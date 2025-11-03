@@ -1265,14 +1265,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference'
-      - name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
-      - name: Check if the JS file exists
+          name: scalar-js
+          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
+      - name: Check if the scalar.js file exists
         run: |
           ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
       - name: Setup Java
@@ -1280,8 +1278,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: '**/webjar/pom.xml'
       - name: Run Maven tests
-        run: pnpm --filter @scalar/webjar test
+        run: mvn clean test
 
   java-webjar-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
