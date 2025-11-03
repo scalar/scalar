@@ -529,7 +529,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, format, types, knip, test-packages, test-integrations]
+    needs: [build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [22]
@@ -892,7 +892,6 @@ jobs:
         build,
         format,
         types,
-        knip,
         test-packages,
         test-integrations,
         dotnet-build-test,
@@ -976,7 +975,6 @@ jobs:
         build,
         format,
         types,
-        knip,
         test-packages,
         test-integrations,
         dotnet-build-test,
@@ -1119,7 +1117,6 @@ jobs:
         build,
         format,
         types,
-        knip,
         test-packages,
         test-integrations,
         fastapi-build-test,
@@ -1227,15 +1224,7 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [
-        build,
-        format,
-        types,
-        knip,
-        test-packages,
-        test-integrations,
-        rust-build-test,
-      ]
+      [build, format, types, test-packages, test-integrations, rust-build-test]
 
     steps:
       - name: Checkout repository
