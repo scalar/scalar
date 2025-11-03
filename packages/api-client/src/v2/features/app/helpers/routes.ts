@@ -1,5 +1,6 @@
-// import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
@@ -10,13 +11,27 @@ export type RouteProps = {
   document: WorkspaceDocument | null
   eventBus: WorkspaceEventBus
   layout: ClientLayout
-  // workspaceStore: WorkspaceStore
+  environment: XScalarEnvironment
+  workspaceStore: WorkspaceStore
   // workspaceSlug: string
   // documentSlug?: string
   // pathEncoded?: string
   // method?: string
   // exampleName?: string
 }
+
+/** When in the collections pages */
+export type CollectionProps = RouteProps &
+  (
+    | {
+        collectionType: 'document'
+        document: WorkspaceDocument
+      }
+    | {
+        collectionType: 'workspace'
+        document: null
+      }
+  )
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
@@ -98,12 +113,6 @@ export const ROUTES = [
         path: '',
         component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
         children: [
-          // Workspace overview
-          {
-            name: 'workspace.overview',
-            path: 'overview',
-            component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
-          },
           // Workspace environment
           {
             name: 'workspace.environment',

@@ -1,552 +1,158 @@
-// @vitest-environment jsdom
+import { xScalarEnvironmentsSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { mockEventBus } from '@/v2/helpers/test-utils'
+
 import Environment from './Environment.vue'
+import EnvironmentVariablesTable from './EnvironmentVariablesTable.vue'
 
-const mockEnvironment = {
-  uid: '' as any,
-  name: '',
-  value: '',
-  color: '',
-}
-
-const mockVariables = [
-  { name: 'API_URL', value: 'https://api.example.com' },
-  { name: 'API_KEY', value: 'secret-key-123' },
-]
+const mockEnvironments = coerceValue(xScalarEnvironmentsSchema, {
+  'x-scalar-environments': {
+    production: {
+      color: '#FF0000',
+      variables: [
+        {
+          uid: '1' as any,
+          name: 'API_URL',
+          value: 'https://api.production.com',
+          color: '',
+        },
+        {
+          uid: '2' as any,
+          name: 'API_KEY',
+          value: 'prod-key-123',
+          color: '',
+        },
+      ],
+    },
+    development: {
+      color: '#00FF00',
+      variables: [],
+    },
+  },
+})['x-scalar-environments']!
 
 describe('Environment', () => {
-  it('renders the component', () => {
+  it('renders environment name and color indicator correctly', () => {
     const wrapper = mount(Environment, {
       props: {
-        name: 'Production',
-        color: '#FF0000',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
+        environmentName: 'production',
+        environment: mockEnvironments.production!,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    expect(wrapper.exists()).toBe(true)
+    /**
+     * The environment name is displayed to help users identify
+     * which environment they are viewing or editing.
+     */
+    expect(wrapper.text()).toContain('production')
+
+    /**
+     * The color indicator is a small circle that helps users
+     * visually distinguish between different environments.
+     */
+    const colorIndicator = wrapper.find('.rounded-full')
+    expect(colorIndicator.exists()).toBe(true)
+    expect(colorIndicator.attributes('style')).toContain('background-color: rgb(255, 0, 0)')
   })
 
-  it('renders the Draggable component', () => {
+  it('emits edit event when edit button is clicked', async () => {
     const wrapper = mount(Environment, {
       props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
+        environmentName: 'production',
+        environment: mockEnvironments.production!,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const draggable = wrapper.findComponent({ name: 'Draggable' })
-    expect(draggable.exists()).toBe(true)
+    /**
+     * The edit button allows users to modify environment details.
+     * We find it using findAllComponents to locate the ScalarIconButton with the edit icon.
+     */
+    const iconButtons = wrapper.findAllComponents({ name: 'ScalarIconButton' })
+    const editButton = iconButtons.find((btn) => btn.props('label')?.includes('Edit'))
+    await editButton?.trigger('click')
+
+    /**
+     * The edit event is emitted to the parent component so it can
+     * open the edit modal with the correct environment data.
+     */
+    expect(wrapper.emitted('edit')).toBeTruthy()
+    expect(wrapper.emitted('edit')).toHaveLength(1)
   })
 
-  it('displays the environment name', () => {
+  it('emits delete event when delete button is clicked', async () => {
     const wrapper = mount(Environment, {
       props: {
-        name: 'Development',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
+        environmentName: 'development',
+        environment: mockEnvironments.development!,
+        eventBus: mockEventBus,
+        collectionType: 'workspace',
       },
     })
 
-    expect(wrapper.text()).toContain('Development')
-  })
+    /**
+     * The delete button allows users to remove an environment.
+     * We find it using findAllComponents to locate the ScalarIconButton with the delete icon.
+     */
+    const iconButtons = wrapper.findAllComponents({ name: 'ScalarIconButton' })
+    const deleteButton = iconButtons.find((btn) => btn.props('label')?.includes('Delete'))
+    await deleteButton?.trigger('click')
 
-  it('displays the environment color indicator', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        color: '#FF0000',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const colorSpan = wrapper.find('span.h-2\\.5.w-2\\.5.rounded-full')
-    expect(colorSpan.exists()).toBe(true)
-  })
-
-  it('uses default white color when no color is provided', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const colorSpan = wrapper.find('span.h-2\\.5.w-2\\.5.rounded-full')
-    const style = colorSpan.attributes('style')
-    /** Vue converts hex to RGB, just check background-color exists */
-    expect(style).toContain('background-color')
-  })
-
-  it('renders EnvironmentVariablesTable', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    expect(table.exists()).toBe(true)
-  })
-
-  it('passes variables to EnvironmentVariablesTable', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    expect(table.props('data')).toEqual(mockVariables)
-  })
-
-  it('shows edit color button when not readonly', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        isReadonly: false,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const buttons = wrapper.findAllComponents({ name: 'ScalarButton' })
-    /** Should have color button, name button, and delete button */
-    expect(buttons.length).toBeGreaterThanOrEqual(3)
-  })
-
-  it('hides edit buttons when readonly', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        isReadonly: true,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    /** In readonly mode, name should be displayed as plain span */
-    const nameSpan = wrapper.find('span.px-1.py-0\\.5.text-sm')
-    expect(nameSpan.exists()).toBe(true)
-    expect(nameSpan.text()).toBe('Production')
-  })
-
-  it('emits delete event when clicking delete button', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const deleteButton = wrapper.findAllComponents({ name: 'ScalarButton' })[2]
-    await deleteButton?.vm.$emit('click')
-
+    /**
+     * The delete event is emitted to the parent component so it can
+     * show a confirmation modal before actually deleting the environment.
+     */
     expect(wrapper.emitted('delete')).toBeTruthy()
+    expect(wrapper.emitted('delete')).toHaveLength(1)
   })
 
-  it('emits update:name event when clicking name button', async () => {
+  it('passes all required props correctly to EnvironmentVariablesTable', () => {
     const wrapper = mount(Environment, {
       props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
+        environmentName: 'production',
+        environment: mockEnvironments.production!,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const nameButton = wrapper.findAllComponents({ name: 'ScalarButton' })[1]
-    await nameButton?.vm.$emit('click')
+    const variablesTable = wrapper.findComponent(EnvironmentVariablesTable)
 
-    expect(wrapper.emitted('update:name')).toBeTruthy()
+    /**
+     * The EnvironmentVariablesTable needs all these props to function correctly.
+     * This ensures the table can display and edit environment variables properly.
+     */
+    expect(variablesTable.exists()).toBe(true)
+    expect(variablesTable.props('environmentName')).toBe('production')
+    expect(variablesTable.props('environment')).toEqual(mockEnvironments.production)
+    expect(variablesTable.props('collectionType')).toBe('document')
+    expect(variablesTable.props('eventBus')).toStrictEqual(mockEventBus)
   })
 
-  it('emits update:color event when clicking color button', async () => {
+  it('handles environments with no variables gracefully', () => {
     const wrapper = mount(Environment, {
       props: {
-        name: 'Production',
-        color: '#FF0000',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
+        environmentName: 'development',
+        environment: mockEnvironments.development!,
+        eventBus: mockEventBus,
+        collectionType: 'workspace',
       },
     })
 
-    const colorButton = wrapper.findAllComponents({ name: 'ScalarButton' })[0]
-    await colorButton?.vm.$emit('click')
+    /**
+     * Even when an environment has no variables, the component renders without errors
+     * and the EnvironmentVariablesTable is still rendered to allow adding new variables.
+     */
+    expect(wrapper.text()).toContain('development')
 
-    expect(wrapper.emitted('update:color')).toBeTruthy()
-  })
-
-  it('emits add:variable when EnvironmentVariablesTable emits addRow', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    await table.vm.$emit('addRow', { name: 'NEW_VAR', value: 'new-value' })
-
-    expect(wrapper.emitted('add:variable')).toBeTruthy()
-    expect(wrapper.emitted('add:variable')?.[0]).toEqual([{ name: 'NEW_VAR', value: 'new-value' }])
-  })
-
-  it('emits update:variable when EnvironmentVariablesTable emits updateRow', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    await table.vm.$emit('updateRow', 0, {
-      name: 'UPDATED_VAR',
-      value: 'updated-value',
-    })
-
-    expect(wrapper.emitted('update:variable')).toBeTruthy()
-    expect(wrapper.emitted('update:variable')?.[0]).toEqual([
-      {
-        id: 0,
-        value: { name: 'UPDATED_VAR', value: 'updated-value' },
-      },
-    ])
-  })
-
-  it('emits delete:variable when EnvironmentVariablesTable emits deleteRow', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    await table.vm.$emit('deleteRow', 1)
-
-    expect(wrapper.emitted('delete:variable')).toBeTruthy()
-    expect(wrapper.emitted('delete:variable')?.[0]).toEqual([{ id: 1 }])
-  })
-
-  it('emits reorder when Draggable emits onDragEnd', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const draggable = wrapper.findComponent({ name: 'Draggable' })
-    const draggingItem = { id: 'env-1' }
-    const hoveredItem = { id: 'env-2' }
-
-    await draggable.vm.$emit('onDragEnd', draggingItem, hoveredItem)
-
-    expect(wrapper.emitted('reorder')).toBeTruthy()
-    expect(wrapper.emitted('reorder')?.[0]).toEqual([draggingItem, hoveredItem])
-  })
-
-  it('renders delete icon in delete button', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const trashIcon = wrapper.findComponent({ name: 'ScalarIconTrash' })
-    expect(trashIcon.exists()).toBe(true)
-  })
-
-  it('handles empty variables array', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    expect(table.props('data')).toEqual([])
-  })
-
-  it('passes environment prop to EnvironmentVariablesTable', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    expect(table.props('environment')).toEqual(mockEnvironment)
-  })
-
-  it('passes envVariables prop to EnvironmentVariablesTable', () => {
-    const mockEnvVariables = [
-      { name: 'VAR_1', value: 'value-1' },
-      { name: 'VAR_2', value: 'value-2' },
-    ]
-
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: mockEnvVariables as any,
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-    expect(table.props('envVariables')).toEqual(mockEnvVariables)
-  })
-
-  it('does not show edit/delete buttons in readonly mode', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        isReadonly: true,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    /** In readonly mode, name and color should be in plain spans, not buttons */
-    const nameSpan = wrapper.find('span.px-1.py-0\\.5.text-sm')
-    expect(nameSpan.exists()).toBe(true)
-
-    /** The color div should not be inside a button */
-    const colorDiv = wrapper.find('div.flex.h-6.w-6.items-center.justify-center.p-1')
-    expect(colorDiv.exists()).toBe(true)
-  })
-
-  it('shows color indicator even in readonly mode', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        color: '#00FF00',
-        variables: [],
-        isReadonly: true,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const colorSpan = wrapper.find('span.h-2\\.5.w-2\\.5.rounded-full')
-    expect(colorSpan.exists()).toBe(true)
-    const style = colorSpan.attributes('style')
-    /** Vue converts hex to RGB, just check background-color exists */
-    expect(style).toContain('background-color')
-  })
-
-  it('shows name as plain text in readonly mode', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Staging',
-        variables: [],
-        isReadonly: true,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    expect(wrapper.text()).toContain('Staging')
-    /** Name should not be in a button when readonly */
-    const nameButtons = wrapper.findAll('button').filter((btn) => btn.text().includes('Staging'))
-    expect(nameButtons.length).toBe(0)
-  })
-
-  it('passes correct id to Draggable', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const draggable = wrapper.findComponent({ name: 'Draggable' })
-    expect(draggable.props('id')).toBe('Production')
-  })
-
-  it('sets Draggable as both draggable and droppable', () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const draggable = wrapper.findComponent({ name: 'Draggable' })
-    expect(draggable.props('isDraggable')).toBe(true)
-    expect(draggable.props('isDroppable')).toBe(true)
-  })
-
-  it('handles multiple variable operations', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-
-    /** Add a variable */
-    await table.vm.$emit('addRow', { name: 'VAR_3', value: 'value-3' })
-
-    /** Update a variable */
-    await table.vm.$emit('updateRow', 0, { name: 'VAR_1_UPDATED' })
-
-    /** Delete a variable */
-    await table.vm.$emit('deleteRow', 1)
-
-    expect(wrapper.emitted('add:variable')).toBeTruthy()
-    expect(wrapper.emitted('update:variable')).toBeTruthy()
-    expect(wrapper.emitted('delete:variable')).toBeTruthy()
-  })
-
-  it('handles long environment names', () => {
-    const longName = 'Very Long Environment Name That Should Be Displayed'
-    const wrapper = mount(Environment, {
-      props: {
-        name: longName,
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    expect(wrapper.text()).toContain(longName)
-  })
-
-  it('handles special characters in environment name', () => {
-    const specialName = 'Production-API_v2.0'
-    const wrapper = mount(Environment, {
-      props: {
-        name: specialName,
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    expect(wrapper.text()).toContain(specialName)
-  })
-
-  it('emits events with correct payload structure for variable operations', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-
-    /** Test add:variable payload */
-    await table.vm.$emit('addRow', { name: 'TEST', value: 'test-value' })
-    expect(wrapper.emitted('add:variable')?.[0]).toEqual([{ name: 'TEST', value: 'test-value' }])
-
-    /** Test update:variable payload */
-    await table.vm.$emit('updateRow', 5, {
-      name: 'UPDATED',
-      value: 'updated-value',
-    })
-    expect(wrapper.emitted('update:variable')?.[0]).toEqual([
-      {
-        id: 5,
-        value: { name: 'UPDATED', value: 'updated-value' },
-      },
-    ])
-
-    /** Test delete:variable payload */
-    await table.vm.$emit('deleteRow', 10)
-    expect(wrapper.emitted('delete:variable')?.[0]).toEqual([{ id: 10 }])
-  })
-
-  it('handles partial variable data in add operation', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-
-    /** Add with only name */
-    await table.vm.$emit('addRow', { name: 'PARTIAL_VAR' })
-    expect(wrapper.emitted('add:variable')?.[0]).toEqual([{ name: 'PARTIAL_VAR', value: undefined }])
-  })
-
-  it('handles partial variable data in update operation', async () => {
-    const wrapper = mount(Environment, {
-      props: {
-        name: 'Production',
-        variables: mockVariables,
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const table = wrapper.findComponent({ name: 'EnvironmentVariablesTable' })
-
-    /** Update with only name */
-    await table.vm.$emit('updateRow', 0, { name: 'ONLY_NAME' })
-    expect(wrapper.emitted('update:variable')?.[0]).toEqual([
-      {
-        id: 0,
-        value: { name: 'ONLY_NAME', value: undefined },
-      },
-    ])
+    const variablesTable = wrapper.findComponent(EnvironmentVariablesTable)
+    expect(variablesTable.exists()).toBe(true)
+    expect(variablesTable.props('environment').variables).toEqual([])
   })
 })

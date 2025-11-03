@@ -1,70 +1,19 @@
 <script setup lang="ts">
-import type { Environment as EntitiesEnvironment } from '@scalar/oas-utils/entities/environment'
+import { computed } from 'vue'
 
-import type { EnvVariable } from '@/store'
-import {
-  EnvironmentsList,
-  type Environment,
-  type EnvironmentVariable,
-} from '@/v2/features/environments'
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import { EnvironmentsList } from '@/v2/features/environments'
 
-defineProps<{
-  /** Current selected document name or when null it means workspace level environments */
-  documentName: string | null
+const { document, eventBus, collectionType, workspaceStore } =
+  defineProps<CollectionProps>()
 
-  /** List of all available environments for the selected document */
-  environments: Environment[]
-
-  /** TODO: remove when we migrate to the new store */
-  environment: EntitiesEnvironment
-  envVariables: EnvVariable[]
-}>()
-
-const emit = defineEmits<{
-  // Environment events
-  (
-    e: 'environment:reorder',
-    payload: {
-      draggingItem: { id: string }
-      hoveredItem: { id: string }
-    },
-  ): void
-  (e: 'environment:add', payload: { environment: Environment }): void
-  (
-    e: 'environment:update',
-    payload: { environmentName: string; environment: Partial<Environment> },
-  ): void
-  (e: 'environment:delete', payload: { environmentName: string }): void
-
-  /** Environment variable events */
-  (
-    e: 'environment:add:variable',
-    payload: {
-      environmentName: string
-      environmentVariable: Partial<EnvironmentVariable>
-    },
-  ): void
-  (
-    e: 'environment:update:variable',
-    payload: {
-      /** Row number */
-      id: number
-      /** Environment name */
-      environmentName: string
-      /** Payload */
-      environmentVariable: Partial<EnvironmentVariable>
-    },
-  ): void
-  (
-    e: 'environment:delete:variable',
-    payload: {
-      /** Environment name */
-      environmentName: string
-      /** Row number */
-      id: number
-    },
-  ): void
-}>()
+/** Document or workspace environments */
+const environments = computed(
+  () =>
+    (collectionType === 'document'
+      ? document['x-scalar-environments']
+      : workspaceStore.workspace['x-scalar-environments']) ?? {},
+)
 </script>
 
 <template>
@@ -86,23 +35,10 @@ const emit = defineEmits<{
         </p>
       </div>
     </div>
+
     <EnvironmentsList
-      :documentName="documentName"
-      :envVariables="envVariables"
-      :environment="environment"
-      :environments="environments"
-      @environment:add="(payload) => emit('environment:add', payload)"
-      @environment:add:variable="
-        (payload) => emit('environment:add:variable', payload)
-      "
-      @environment:delete="(payload) => emit('environment:delete', payload)"
-      @environment:delete:variable="
-        (payload) => emit('environment:delete:variable', payload)
-      "
-      @environment:reorder="(payload) => emit('environment:reorder', payload)"
-      @environment:update="(payload) => emit('environment:update', payload)"
-      @environment:update:variable="
-        (payload) => emit('environment:update:variable', payload)
-      " />
+      :collectionType
+      :environments
+      :eventBus />
   </div>
 </template>

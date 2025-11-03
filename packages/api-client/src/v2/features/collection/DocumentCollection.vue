@@ -7,7 +7,9 @@
  *   - Edit the document title
  *   - Navigate among Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
  */
-export default {}
+export default {
+  name: 'DocumentCollection',
+}
 </script>
 
 <script setup lang="ts">
@@ -22,7 +24,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'
 
-const { document, layout, eventBus } = defineProps<RouteProps>()
+const { document, layout, eventBus, environment } = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
 const title = computed(() => document?.info?.title || 'Untitled Document')
@@ -46,7 +48,7 @@ const icon = computed(
           :modelValue="icon"
           placement="bottom-start"
           @update:modelValue="
-            (icon) => eventBus.emit('update:document-icon', icon)
+            (icon) => eventBus.emit('document:update:icon', icon)
           ">
           <ScalarButton
             class="hover:bg-b-2 aspect-square h-7 w-7 cursor-pointer rounded border border-transparent p-0 hover:border-inherit"
@@ -65,7 +67,7 @@ const icon = computed(
           inputId="documentName"
           :modelValue="title"
           @update:modelValue="
-            (title) => eventBus.emit('update:document-info', { title })
+            (title) => eventBus.emit('document:update:info', { title })
           " />
       </div>
     </div>
@@ -74,11 +76,19 @@ const icon = computed(
     <Tabs type="document" />
 
     <!-- Router views -->
-    <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
-      <RouterView
-        :eventBus="eventBus"
-        :layout="layout"
-        type="document" />
+    <div class="px-1.5 pt-8">
+      <RouterView v-slot="{ Component }">
+        <keep-alive>
+          <component
+            :is="Component"
+            collectionType="document"
+            :document
+            :environment
+            :eventBus
+            :layout
+            :workspaceStore />
+        </keep-alive>
+      </RouterView>
     </div>
   </div>
 
