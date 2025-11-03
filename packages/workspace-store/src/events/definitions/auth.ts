@@ -1,3 +1,4 @@
+import type { AuthMeta, SecuritySchemeUpdate } from '@/mutators/auth'
 import type { SecurityRequirementObject, SecuritySchemeObject } from '@/schemas/v3.1/strict/openapi-document'
 
 export type UpdateSecuritySchemeEvent =
@@ -46,16 +47,27 @@ export type AuthEvents = {
     names: string[]
   }
   'update:security-scheme': {
-    payload: UpdateSecuritySchemeEvent
+    /** The data to update the security scheme with */
+    data: SecuritySchemeUpdate
+    /** The name of the security scheme to update */
+    name: string
   }
   'update:selected-scopes': {
+    /** The id of the security scheme to update the scopes for */
     id: string[]
+    /** The name of the security scheme to update the scopes for */
     name: string
+    /** The scopes to update the selected scopes with */
     scopes: string[]
+    /** Meta information for the auth update */
+    meta: AuthMeta
   }
   /** Currently selected auth index from the selected schemas list */
   'update:active-auth-index': {
+    /** The index to update the active auth index to */
     index: number
+    /** Meta information for the auth update */
+    meta: AuthMeta
   }
   /**
    * Select the security schemes
@@ -64,6 +76,8 @@ export type AuthEvents = {
     /** The security schemes to select */
     updated: SecurityRequirementObject[]
     /** The security schemes to create */
-    create: SecuritySchemeObject[]
+    create: { name: string; scheme: SecuritySchemeObject }[]
+    /** Meta information for the auth update */
+    meta: AuthMeta
   }
 }

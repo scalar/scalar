@@ -1,11 +1,10 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 import { SecurityRequirementObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
 /**
- * A scalar secret token
- *
- * We should not export this when exporting the document
+ * Selected security schemes and the currently selected tab
  */
 export const XScalarSelectedSecuritySchema = Type.Object({
   'x-scalar-selected-security': Type.Optional(
@@ -16,4 +15,9 @@ export const XScalarSelectedSecuritySchema = Type.Object({
   ),
 })
 
-export type XScalarSelectedSecurity = Static<typeof XScalarSelectedSecuritySchema>
+export type XScalarSelectedSecurity = {
+  'x-scalar-selected-security'?: {
+    'x-selected-index': number
+    'x-schemes': SecurityRequirementObject[]
+  }
+}

@@ -11,6 +11,7 @@ const entries = [
   './src/events/index.ts',
   './src/navigation/index.ts',
   './src/persistence/index.ts',
+  './src/mutators/index.ts',
 ]
 
 await build({

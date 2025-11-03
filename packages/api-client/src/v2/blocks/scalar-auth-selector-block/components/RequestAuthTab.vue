@@ -30,7 +30,7 @@ const {
   layout: 'client' | 'reference'
   selectedSecuritySchema: NonNullable<
     OpenApiDocument['x-scalar-selected-security']
-  >[number]
+  >['x-schemes'][number]
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
   server: ServerObject | undefined
 }>()
@@ -43,6 +43,7 @@ const emits = defineEmits<{
   ): void
 }>()
 
+// TODO: make the reactivity work for the selected scopes
 const security = computed(() =>
   Object.entries(selectedSecuritySchemas).map(([name, scopes]) => ({
     scheme: getResolvedRef(securitySchemes[name]),
@@ -243,7 +244,6 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :flows="scheme.flows"
           proxyUrl=""
-          :scheme="scheme"
           :selectedScopes="scopes"
           :server="server"
           :type="key"

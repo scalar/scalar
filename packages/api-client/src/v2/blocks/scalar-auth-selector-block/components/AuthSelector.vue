@@ -13,6 +13,7 @@ import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type {
   OpenApiDocument,
   SecurityRequirementObject,
@@ -43,6 +44,7 @@ const {
   selectedSecurity,
   securitySchemes,
   eventBus,
+  meta,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
@@ -53,6 +55,7 @@ const {
   server: ServerObject | undefined
   title: string
   eventBus: WorkspaceEventBus
+  meta: AuthMeta
 }>()
 
 const { layout: clientLayout } = useLayout()
@@ -122,7 +125,8 @@ const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() => {
         return undefined
       }
 
-      return formatScheme({ name, type: scheme.type, value: { [name]: [] } })
+      // Preserve the actual selected scopes for this scheme instead of resetting to []
+      return formatScheme({ name, type: scheme.type, value: s })
     })
     .filter(isDefined)
 })
@@ -158,8 +162,18 @@ const openAuthCombobox = (event: Event) => {
 
 const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
   eventBus.emit('update:selected-security-schemes', {
-    updated: selected.map((s) => s.value),
-    create: selected.map((it) => it.payload).filter(isDefined),
+    // Only include updated schemes
+    updated: selected
+      .filter((it) => it.payload === undefined)
+      .map((s) => s.value),
+    // Only include created schemes
+    create: selected
+      .filter((it) => it.payload !== undefined)
+      .map((it) => ({
+        name: it.label,
+        scheme: it.payload!,
+      })),
+    meta,
   })
 }
 
@@ -265,6 +279,7 @@ defineExpose({
       :securitySchemes="securitySchemes"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
+      :meta="meta"
       :activeAuthIndex="selectedSecurity?.['x-selected-index'] ?? 0"
       :eventBus="eventBus" />
     <DeleteRequestAuthModal

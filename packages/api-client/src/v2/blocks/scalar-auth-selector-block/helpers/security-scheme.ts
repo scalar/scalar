@@ -108,7 +108,7 @@ export const getSecuritySchemeOptions = (
     options.push({
       label: 'Add new authentication',
       options: Object.entries(authOptions).map(([key, value]) => ({
-        id: key,
+        id: `@unique/${key}`,
         label: value.label,
         value: { [key]: [] },
         payload: value.payload,

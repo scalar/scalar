@@ -1,6 +1,12 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
+import {
+  updateSecurityScheme,
+  updateSelectedAuthTab,
+  updateSelectedScopes,
+  updateSelectedSecuritySchemes,
+} from '@scalar/workspace-store/mutators'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { PartialDeep } from 'type-fest'
@@ -36,49 +42,36 @@ export const useWorkspaceClientEvents = (
   // eventBus.on('update:security-scheme', ({ payload }) => {
 
   // })
-  eventBus.on('update:selected-scopes', log)
-  eventBus.on('update:selected-security-schemes', ({ create, updated }) => {
-    if (!document.value) {
-      return
-    }
-
-    if (!document.value['x-scalar-selected-security']) {
-      document.value['x-scalar-selected-security'] = {
-        'x-selected-index': -1,
-        'x-schemes': [],
-      }
-    }
-
-    const selectedIndex = document.value['x-scalar-selected-security']['x-selected-index']
-
-    document.value['x-scalar-selected-security']['x-schemes'] = updated
-
-    // Adjust selected index if needed
-    if (updated.length > 0 && selectedIndex < 0) {
-      document.value['x-scalar-selected-security']['x-selected-index'] = 0
-    }
-
-    // if the selected index is out of bounds, reset it to the last item
-    if (selectedIndex >= updated.length) {
-      document.value['x-scalar-selected-security']['x-selected-index'] = updated.length - 1
-    }
-
-    // TODO: handle the 'create' auth scheme case
-    console.log('TODO: creating auth scheme: ', create)
+  eventBus.on('update:selected-scopes', ({ id, name, scopes, meta }) => {
+    updateSelectedScopes({
+      document: document.value,
+      id,
+      name,
+      scopes,
+      meta,
+    })
   })
-  eventBus.on('update:active-auth-index', ({ index }) => {
-    if (!document.value) {
-      return
-    }
-
-    if (!document.value['x-scalar-selected-security']) {
-      document.value['x-scalar-selected-security'] = {
-        'x-selected-index': 0,
-        'x-schemes': [],
-      }
-    }
-
-    document.value['x-scalar-selected-security']['x-selected-index'] = index
+  eventBus.on('update:selected-security-schemes', ({ create, updated, meta }) => {
+    updateSelectedSecuritySchemes({
+      document: document.value,
+      selectedSecuritySchemes: updated,
+      create,
+      meta,
+    })
+  })
+  eventBus.on('update:security-scheme', ({ data, name }) => {
+    updateSecurityScheme({
+      document: document.value,
+      data,
+      name,
+    })
+  })
+  eventBus.on('update:active-auth-index', ({ index, meta }) => {
+    updateSelectedAuthTab({
+      document: document.value,
+      index,
+      meta,
+    })
   })
 
   //------------------------------------------------------------------------------------

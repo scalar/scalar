@@ -88,6 +88,11 @@
       "import": "./dist/navigation/index.js",
       "types": "./dist/navigation/index.d.ts",
       "default": "./dist/navigation/index.js"
+    },
+    "./mutators": {
+      "import": "./dist/mutators/index.js",
+      "types": "./dist/mutators/index.d.ts",
+      "default": "./dist/mutators/index.js"
     }
   },
   "files": [

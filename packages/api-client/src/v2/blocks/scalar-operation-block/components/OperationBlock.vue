@@ -5,6 +5,7 @@ import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { canMethodHaveBody, REGEX } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -31,6 +32,7 @@ const {
   exampleKey,
   security,
   selectedContentType,
+  authMeta = { type: 'document' },
 } = defineProps<{
   /** Operation method */
   method: HttpMethod
@@ -38,6 +40,8 @@ const {
   path: string
   /** Operation object */
   operation: OperationObject
+  /** Meta information for the auth update */
+  authMeta?: AuthMeta
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Currently selected content type for the current operation example */
@@ -218,6 +222,7 @@ const labelRequestNameId = useId()
       :selectedSecurity="selectedSecurity"
       :server="server"
       :title="'Authorization'"
+      :meta="authMeta"
       :eventBus="eventBus" />
     <OperationParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
@@ -227,14 +232,7 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :parameters="sections.path ?? []"
       title="Variables"
-      @add="
-        ({ key, value }) =>
-          eventBus.emit('operation:add:parameter', {
-            type: 'path',
-            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
-            meta,
-          })
-      "
+      :show-add-row-placeholder="false"
       @delete="
         ({ index }) =>
           eventBus.emit('operation:delete:parameter', {
@@ -267,6 +265,7 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :parameters="sections.cookie ?? []"
       title="Cookies"
+      :show-add-row-placeholder="true"
       @add="
         ({ key, value }) =>
           eventBus.emit('operation:add:parameter', {

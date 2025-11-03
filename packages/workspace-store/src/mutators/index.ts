@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noBarrelFile: Mutators entry point */
 import type { WorkspaceStore } from '@/client'
 import { cookieMutators } from '@/mutators/cookie'
 import { environmentMutators } from '@/mutators/environment'
@@ -92,3 +93,12 @@ export function generateClientMutators(store: WorkspaceStore) {
     doc: (name: string) => documentMutators(name),
   }
 }
+
+export {
+  type AuthMeta,
+  type SecuritySchemeUpdate,
+  updateSecurityScheme,
+  updateSelectedAuthTab,
+  updateSelectedScopes,
+  updateSelectedSecuritySchemes,
+} from './auth'

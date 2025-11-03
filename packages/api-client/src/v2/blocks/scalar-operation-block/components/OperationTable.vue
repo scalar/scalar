@@ -10,21 +10,28 @@ import OperationTableRow, {
   type TableRow,
 } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
 
-const { data, isReadOnly, hasCheckboxDisabled, showUploadButton } =
-  defineProps<{
-    data: TableRow[]
-    isReadOnly?: boolean
-    /** Hide the enabled column */
-    hasCheckboxDisabled?: boolean
+const {
+  data,
+  isReadOnly,
+  hasCheckboxDisabled,
+  showUploadButton,
+  showAddRowPlaceholder = true,
+} = defineProps<{
+  data: TableRow[]
+  isReadOnly?: boolean
+  /** Hide the enabled column */
+  hasCheckboxDisabled?: boolean
 
-    invalidParams?: Set<string>
-    label?: string
-    showUploadButton?: boolean
+  invalidParams?: Set<string>
+  label?: string
+  showUploadButton?: boolean
 
-    /** TODO: remove once we migrate */
-    environment: Environment
-    envVariables: EnvVariable[]
-  }>()
+  showAddRowPlaceholder?: boolean
+
+  /** TODO: remove once we migrate */
+  environment: Environment
+  envVariables: EnvVariable[]
+}>()
 
 /**
  * Make this component more generic that can be used also for the operation body
@@ -61,6 +68,10 @@ const columns = ['36px', '', '', 'auto']
 
 /** Add the last empty row (for ui purposes only) */
 const displayData = computed(() => {
+  if (!showAddRowPlaceholder) {
+    return data
+  }
+
   const last = data.at(-1)
 
   if (!last || last.name !== '' || last.value !== '') {

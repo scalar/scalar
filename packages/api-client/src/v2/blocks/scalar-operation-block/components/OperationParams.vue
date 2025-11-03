@@ -18,6 +18,7 @@ const {
   envVariables,
   title,
   globalRoute,
+  showAddRowPlaceholder = true,
 } = defineProps<{
   parameters: ParameterObject[]
   exampleKey: string
@@ -25,6 +26,7 @@ const {
   label?: string
   invalidParams?: Set<string>
   globalRoute?: string
+  showAddRowPlaceholder?: boolean
   /** TODO: remove as soon as we migrate to everything to the new store */
   environment: Environment
   envVariables: EnvVariable[]
@@ -93,6 +95,7 @@ const showTooltip = computed(() => parameters.length > 1)
       :globalRoute="globalRoute"
       :invalidParams="invalidParams"
       :label="label"
+      :showAddRowPlaceholder="showAddRowPlaceholder"
       @addRow="(payload) => emits('add', payload)"
       @deleteRow="(index) => emits('delete', { index })"
       @updateRow="(index, payload) => emits('update', { index, payload })" />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

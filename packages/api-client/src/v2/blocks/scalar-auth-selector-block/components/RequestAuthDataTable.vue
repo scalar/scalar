@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type {
   ComponentsObject,
   ServerObject,
@@ -21,6 +22,7 @@ const {
   server,
   eventBus,
   activeAuthIndex,
+  meta,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
@@ -30,6 +32,7 @@ const {
   securitySchemes: ComponentsObject['securitySchemes']
   server: ServerObject | undefined
   eventBus: WorkspaceEventBus
+  meta: AuthMeta
 }>()
 
 /** Return currently selected schemes including complex auth */
@@ -51,13 +54,15 @@ defineExpose({
       data-testid="auth-tabs">
       <div
         v-for="(option, index) in selectedSchemeOptions"
-        :key="Object.keys(option).join(' & ')"
+        :key="option.id"
         class="relative z-1 -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
           class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
           type="button"
-          @click="() => eventBus.emit('update:active-auth-index', { index })">
+          @click="
+            () => eventBus.emit('update:active-auth-index', { index, meta })
+          ">
           <span class="relative z-10 font-medium whitespace-nowrap">{{
             option.label
           }}</span>
@@ -82,11 +87,15 @@ defineExpose({
         :selectedSecuritySchema="activeScheme.value"
         :server="server"
         @update:securityScheme="
-          (payload) => eventBus.emit('update:security-scheme', { payload })
+          (payload) =>
+            eventBus.emit('update:security-scheme', {
+              data: payload,
+              name: activeScheme?.id ?? '',
+            })
         "
         @update:selectedScopes="
           ({ id, name, scopes }) =>
-            eventBus.emit('update:selected-scopes', { id, name, scopes })
+            eventBus.emit('update:selected-scopes', { id, name, scopes, meta })
         " />
     </DataTable>
 
