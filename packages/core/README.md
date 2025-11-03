@@ -20,7 +20,7 @@ npm install @scalar/core
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 
 const html = getHtmlDocument({
-  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
 ```
 

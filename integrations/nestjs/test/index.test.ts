@@ -87,13 +87,13 @@ describe('apiReference middleware (express)', () => {
     app.use(
       '/reference',
       apiReference({
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       }),
     )
 
     const res = await request(app.getHttpServer()).get('/reference')
 
-    expect(res.text).toContain('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json')
+    expect(res.text).toContain('https://registry.scalar.com/@scalar/apis/galaxy?format=json')
   })
 
   it('handles content as function', async () => {

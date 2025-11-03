@@ -33,7 +33,7 @@ class ScalarPropertiesTest {
         @DisplayName("should have correct default URL")
         void shouldHaveCorrectDefaultUrl() {
             assertThat(properties.getUrl())
-                    .isEqualTo("https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json");
+                    .isEqualTo("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
         }
 
         @Test

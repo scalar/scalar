@@ -40,7 +40,7 @@ class ScalarActuatorEndpointTest {
         @DisplayName("should return HTML with default configuration")
         void shouldReturnHtmlWithDefaultConfiguration() throws Exception {
             // Given
-            when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json");
+            when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);

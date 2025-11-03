@@ -17,12 +17,12 @@ export const sources = [
   {
     title: 'Scalar Galaxy Registry',
     slug: 'scalar-galaxy-registry',
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   },
   {
     title: 'Scalar Galaxy (Classic Layout)',
     slug: 'scalar-galaxy-classic',
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
     layout: 'classic',
   },
   {

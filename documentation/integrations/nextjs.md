@@ -75,7 +75,7 @@ export default function References() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       }}
     />
   )
@@ -152,7 +152,7 @@ npm add @scalar/nextjs-api-reference
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
-  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
 }
 
 export const GET = ApiReference(config)
@@ -179,7 +179,7 @@ export default function References() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
       }}
     />
   )
