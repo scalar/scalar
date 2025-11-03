@@ -1,5 +1,16 @@
 # @scalar/openapi-upgrader
 
+## 0.1.4
+
+### Patch Changes
+
+- [#7215](https://github.com/scalar/scalar/pull/7215) [`11a6e64`](https://github.com/scalar/scalar/commit/11a6e6405d4f30f001a16d6afda4d2b759c0ed09) Thanks [@luke-hagar-sp](https://github.com/luke-hagar-sp)! - fix: don't upgrade "example" if it's just a key
+
+- [#7092](https://github.com/scalar/scalar/pull/7092) [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb) Thanks [@baywet](https://github.com/baywet)! - feat - upgrader - adds support for migrating XML nodes to 3.2.0
+
+- Updated dependencies [[`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce)]:
+  - @scalar/openapi-types@0.5.1
+
 ## 0.1.3
 
 ### Patch Changes

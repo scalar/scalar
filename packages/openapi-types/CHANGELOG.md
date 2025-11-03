@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.5.1
+
+### Patch Changes
+
+- [#7116](https://github.com/scalar/scalar/pull/7116) [`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce) Thanks [@baywet](https://github.com/baywet)! - docs adds a mention that OpenAPI 3.2.0 is now supported
+
 ## 0.5.0
 
 ### Minor Changes

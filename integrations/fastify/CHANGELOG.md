@@ -1,5 +1,24 @@
 # @scalar/fastify-api-reference
 
+## 1.39.0
+
+### Patch Changes
+
+- [#7148](https://github.com/scalar/scalar/pull/7148) [`155bb60`](https://github.com/scalar/scalar/commit/155bb60c2e6f45ec185efa1f7898f5a1fce5778b) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(fastify-api-reference): remove uneeded async in plugin function
+
+- [#7127](https://github.com/scalar/scalar/pull/7127) [`68aec7d`](https://github.com/scalar/scalar/commit/68aec7d4ba85826181fa42a86a8c6b99da732c81) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(fastify-api-reference): account from plugin prefix in redirect without trailing slash
+
+- [#7222](https://github.com/scalar/scalar/pull/7222) [`2902396`](https://github.com/scalar/scalar/commit/290239693e6ab8ace83bc9ce24b65dccf2419e17) Thanks [@inyourtime](https://github.com/inyourtime)! - fix(fastify): correct plugin callback signature
+
+- [#7151](https://github.com/scalar/scalar/pull/7151) [`aa217db`](https://github.com/scalar/scalar/commit/aa217db09c6449c987c70e3f31ad76e61deaceb3) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(fastify-api-reference): use `currentUrl.pathname` instead of deprecated `request.routerPath`
+
+- [#7225](https://github.com/scalar/scalar/pull/7225) [`9530d16`](https://github.com/scalar/scalar/commit/9530d16986bbcb30b892618979c62997b015389c) Thanks [@inyourtime](https://github.com/inyourtime)! - fix(fastify): register Scalar UI route when only sources option is provided
+
+- Updated dependencies [[`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce), [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`c84b7c5`](https://github.com/scalar/scalar/commit/c84b7c5e81be83dacbdfcbf9cb1e558dfdc3faa1), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`a821986`](https://github.com/scalar/scalar/commit/a821986332141e69d26885b2d2b32eb0c49f416c), [`e23229d`](https://github.com/scalar/scalar/commit/e23229dfbd9613b5047b28b57901f2fc5a6e33e6)]:
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/core@0.3.21
+
 ## 1.38.1
 
 ### Patch Changes

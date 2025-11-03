@@ -1,5 +1,32 @@
 # @scalar/openapi-parser
 
+## 0.23.0
+
+### Minor Changes
+
+- [#7121](https://github.com/scalar/scalar/pull/7121) [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(oas-utils): make `dereference` synchronous
+
+- [#7092](https://github.com/scalar/scalar/pull/7092) [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb) Thanks [@baywet](https://github.com/baywet)! - feat - parser - adds support for OpenAPI 3.2.0
+
+### Patch Changes
+
+- [#7116](https://github.com/scalar/scalar/pull/7116) [`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce) Thanks [@baywet](https://github.com/baywet)! - docs adds a mention that OpenAPI 3.2.0 is now supported
+
+- [#7092](https://github.com/scalar/scalar/pull/7092) [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb) Thanks [@baywet](https://github.com/baywet)! - feat: update OpenAPI 3.0 and 3.1 JSON schemas for validation
+
+- [#7182](https://github.com/scalar/scalar/pull/7182) [`c84b7c5`](https://github.com/scalar/scalar/commit/c84b7c5e81be83dacbdfcbf9cb1e558dfdc3faa1) Thanks [@baywet](https://github.com/baywet)! - [fix] adds missing dereference options export in parser
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- [#7196](https://github.com/scalar/scalar/pull/7196) [`a821986`](https://github.com/scalar/scalar/commit/a821986332141e69d26885b2d2b32eb0c49f416c) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(openapi-parser): remove internal unneeded async logic without changing the public API
+
+- [#7149](https://github.com/scalar/scalar/pull/7149) [`e23229d`](https://github.com/scalar/scalar/commit/e23229dfbd9613b5047b28b57901f2fc5a6e33e6) Thanks [@baywet](https://github.com/baywet)! - [docs] updates readme to bundle method and adds migration from load guidance
+
+- Updated dependencies [[`11a6e64`](https://github.com/scalar/scalar/commit/11a6e6405d4f30f001a16d6afda4d2b759c0ed09), [`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`6ca835e`](https://github.com/scalar/scalar/commit/6ca835e5afd3e8c603e073e7c83f2cdd961a0f69), [`43bc5e8`](https://github.com/scalar/scalar/commit/43bc5e8b90dc0edf7176d0ddfc64bf3212494458)]:
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/openapi-types@0.5.1
+  - @scalar/json-magic@0.7.0
+
 ## 0.22.3
 
 ### Patch Changes
