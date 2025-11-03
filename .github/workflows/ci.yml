@@ -1302,20 +1302,19 @@ jobs:
             java_webjar_package:
               - integrations/java/webjar/package.json
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference'
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
+          name: scalar-js
+          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: '**/webjar/pom.xml'
           server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
@@ -1323,13 +1322,16 @@ jobs:
           gpg-passphrase: GPG_PASSPHRASE
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Set version in pom.xml (using the version from package.json)
-        run: pnpm --filter @scalar/webjar update:version
+        working-directory: integrations/java/webjar
+        run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Build Java WebJar
-        run: pnpm --filter @scalar/webjar build
+        working-directory: integrations/java/webjar
+        run: mvn clean package
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Release Java WebJar
-        run: pnpm --filter @scalar/webjar release
+        working-directory: integrations/java/webjar
+        run: mvn deploy
         env:
           # Create an account on Sonatype and add the credentials to the repository secrets.
           # Generate User Token: https://central.sonatype.com/account
