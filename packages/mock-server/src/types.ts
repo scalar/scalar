@@ -14,13 +14,13 @@ export type MockServerOptions = {
    *
    * @deprecated Use `document` instead
    */
-  document: string | Record<string, any>
+  specification?: string | Record<string, any>
 
   /**
    * The OpenAPI document to use for mocking.
    * Can be a string (URL or file path) or an object.
    */
-  document: string | Record<string, any>
+  document?: string | Record<string, any>
 
   /**
    * Callback function to be called before each request is processed.
