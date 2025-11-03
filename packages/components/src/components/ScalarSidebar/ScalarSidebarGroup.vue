@@ -2,10 +2,13 @@
 /**
  * Scalar Sidebar Group component
  *
- * A collapsible ScalarSidebarItem that can contain subitems
+ * A collapsible ScalarSidebarItem that can contain subitems.
+ *
+ * Classes applied to the component are passed to the inner list element.
+ * Other attributes (like click event) are passed to the toggle button.
  *
  * @example
- * <ScalarSidebarGroup v-model="open">
+ * <ScalarSidebarGroup>
  *   <!-- Group toggle text -->
  *   <template #items>
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
@@ -13,57 +16,50 @@
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
  *   </template>
  * </ScalarSidebarGroup>
+ *
+ *
+ * By default the component has it's own internal open state, but this can be
+ * controlled by passing the `controlled` prop and using binding the :open prop.
+ *
  */
 export default {}
 </script>
 <script setup lang="ts">
-import type { ScalarSidebarItemProps } from '@/components/ScalarSidebar/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
-import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
+import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
+import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'ul' } = defineProps<
-  ScalarSidebarItemProps & { modelValue: boolean }
->()
+const { is = 'ul', controlled } = defineProps<ScalarSidebarGroupProps>()
 
-const emit = defineEmits<{
-  'update:modelValue': [boolean]
-}>()
+const model = defineModel<boolean>('open', { default: false })
 
-defineSlots<{
-  /** The text content of the toggle */
-  default?(props: { open: boolean }): unknown
-  /** Override the entire toggle button */
-  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
-  /** The list of sidebar subitems */
-  items?(props: { open: boolean }): unknown
-  /** Icon for the sidebar group */
-  icon?(props: { open: boolean }): unknown
-}>()
+defineSlots<ScalarSidebarGroupSlots>()
 
 const { level } = useSidebarGroups({ increment: true })
 
 defineOptions({ inheritAttrs: false })
-const { cx } = useBindCx()
+const { stylingAttrsCx, otherAttrs } = useBindCx()
 </script>
 <template>
-  <li class="group/item contents">
+  <li class="group/item flex flex-col gap-px">
     <slot
       :level="level"
       name="button"
-      :open="!!modelValue">
+      :open="model">
       <ScalarSidebarButton
         is="button"
         :active
-        :aria-expanded="modelValue"
+        :aria-expanded="model"
         class="group/group-button"
         :disabled
         :indent="level"
         :selected
-        @click="() => emit('update:modelValue', !modelValue)">
+        v-bind="otherAttrs"
+        @click="!controlled && (model = !model)">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"
@@ -72,22 +68,29 @@ const { cx } = useBindCx()
         <template #icon>
           <slot
             name="icon"
-            :open="modelValue">
+            :open="model">
             <ScalarSidebarGroupToggle
               class="text-c-3"
-              :open="modelValue" />
+              :open="model" />
           </slot>
         </template>
-        <slot :open="!!modelValue" />
+        <template
+          v-if="$slots.aside"
+          #aside>
+          <slot
+            name="aside"
+            :open="model" />
+        </template>
+        <slot :open="model" />
       </ScalarSidebarButton>
     </slot>
     <component
       :is="is"
-      v-if="modelValue"
-      v-bind="cx('group/items flex flex-col gap-px')">
+      v-if="model"
+      v-bind="stylingAttrsCx('group/items flex flex-col gap-px')">
       <slot
         name="items"
-        :open="!!modelValue" />
+        :open="model" />
     </component>
   </li>
 </template>

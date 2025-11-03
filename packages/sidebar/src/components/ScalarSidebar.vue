@@ -2,7 +2,9 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 
-import SidebarItem, { type Item } from './SidebarItem.vue'
+import type { Item } from '@/types'
+
+import SidebarItem from './SidebarItem.vue'
 
 const { layout, items } = defineProps<{
   /** Layout type */
@@ -22,11 +24,16 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  'entry-decorator'?(props: { item: Item }): unknown
-  footer?(): unknown
-  header?(): unknown
+  /** Overrides the main items list */
   default?(): unknown
-  firstItem?(): unknown
+  /** Adds an optional decorator for each item like an edit menu */
+  decorator?(props: { item: Item }): unknown
+  /** Places content at the top of the sidebar outside of the items list */
+  header?(): unknown
+  /** Places content at the bottom of the sidebar outside of the items list */
+  footer?(): unknown
+  /** Places content before the first item in the items list */
+  before?(): unknown
 }>()
 
 /**
@@ -46,7 +53,7 @@ const handleDragEnd = (
     <slot>
       <ScalarSidebarItems class="custom-scroll pt-0">
         <!-- First item -->
-        <slot name="firstItem" />
+        <slot name="before" />
 
         <SidebarItem
           v-for="item in items"
@@ -58,9 +65,9 @@ const handleDragEnd = (
           :options="options"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emit('selectItem', id)">
-          <template #aside="props">
+          <template #decorator="props">
             <slot
-              name="entry-decorator"
+              name="decorator"
               v-bind="props" />
           </template>
         </SidebarItem>

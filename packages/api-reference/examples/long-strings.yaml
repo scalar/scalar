@@ -1,0 +1,613 @@
+openapi: 3.1.1
+info:
+  title: This Is A Really Long API Title That Needs To Wrap Across Multiple Lines In The UI And Should Test Various Layout Scenarios
+  description: |
+    This is a comprehensive test document specifically designed to stress test UI rendering of really long strings in every possible location where they might appear in an OpenAPI specification. This description contains extensive markdown content including headings, tables, lists, code blocks, and other structural elements that might overflow or cause layout issues.
+
+    ## Really Long Heading Level Two That Might Wrap To Multiple Lines
+
+    This paragraph contains a really long sentence that needs to wrap across multiple lines to test how the UI handles text wrapping and overflow scenarios in various containers and responsive layouts.
+
+    ### Even Longer Heading Level Three That Definitely Needs Wrapping
+
+    Another paragraph with extensive text content that should wrap naturally across container boundaries.
+
+    #### Extremely Long Heading Level Four That Tests Maximum Width Constraints
+
+    More content here to test various scenarios.
+
+    ### Markdown Tables With Long Content
+
+    | Really Long Column Header Name That Wraps | Another Very Long Column Header | Third Column With Extremely Long Header Text |
+    | --- | --- | --- |
+    | Really long cell content that needs to wrap across multiple lines to test table rendering | More long content here | Even more extremely long content in this cell |
+    | Short | Medium length content | Another really long piece of content that should wrap properly |
+    | This is an extremely long table cell that contains multiple sentences and should wrap across many lines to properly test the UI rendering capabilities. | Another long cell | Final long cell |
+
+    ### Code Blocks
+
+    ```json
+    {
+      "reallyLongPropertyNameThatNeedsWrapping": "This is a really long string value that might cause issues",
+      "anotherExtremelyLongPropertyName": {
+        "nestedReallyLongPropertyName": "Nested content that wraps",
+        "yetAnotherSuperLongPropertyName": ["array", "of", "values"]
+      }
+    }
+    ```
+
+    ```typescript
+    interface ReallyLongInterfaceNameThatTestsCamelCase {
+      reallyLongPropertyName: string;
+      anotherExtremelyLongPropertyName: number;
+      yetAnotherSuperLongPropertyName: boolean;
+    }
+
+    interface ReallyLongInterfaceNameThatTestsPascalCase {
+      ReallyLongPropertyName: string;
+      AnotherExtremelyLongPropertyName: number;
+      YetAnotherSuperLongPropertyName: boolean;
+    }
+    ```
+
+    ### Blockquotes
+
+    > This is a really long blockquote that contains multiple sentences and should wrap properly across multiple lines to test how the UI renders blockquote elements with extensive text content.
+
+    ### Lists
+
+    - Really long list item that contains extensive text content and should wrap across multiple lines properly
+    - Another really long list item with more content to test list rendering
+    - Third item with extremely long content that definitely needs wrapping
+    - Final item with super long content
+
+    1. Numbered list item with really long content that should wrap
+    2. Another numbered item with extensive text
+    3. Third numbered item with even more content
+
+    ### HTML Details Tag
+
+    <details>
+      <summary>Really Long Summary Text That Needs To Wrap Across Multiple Lines In The UI</summary>
+
+      This is detailed content inside the details tag that contains really long sentences and should wrap properly. The content here is specifically designed to test how the UI handles collapsible sections with extensive text.
+
+      More paragraphs and content to fill out the details section properly.
+    </details>
+
+    ### Markdown Alerts
+
+    > [!warning]
+    > This is a really long warning message that contains extensive text content and should wrap across multiple lines to properly test how alert boxes render in the UI.
+
+    > [!note]
+    > Another really long note message with lots of content that needs wrapping.
+
+    > [!tip]
+    > Extremely long tip message that should wrap properly.
+
+    ### Links
+
+    [Really Long Link Text That Needs To Wrap](https://example.com/really/long/path/that/might/also/be/very/long)
+
+    ### Emphasis
+
+    This paragraph contains **really long bold text that might wrap** and *really long italic text that also wraps* and ~~really long strikethrough text~~.
+
+  version: 1.0.0
+  contact:
+    name: Really Extremely Long Contact Name That Definitely Needs To Wrap Across Multiple Lines In The UI
+    url: https://example.com/really/extremely/long/contact/url/path/that/definitely/will/wrap/multiple/lines
+    email: really-extremely-long-email-address-that-might-wrap@example.com
+  license:
+    name: Really Extremely Long License Name That Definitely Needs Wrapping Across Multiple Lines
+    url: https://example.com/really/extremely/long/license/url/path/that/wraps
+externalDocs:
+  description: Really long external documentation description that should wrap across multiple lines
+  url: https://example.com/really/extremely/long/external/documentation/path/that/definitely/will/wrap/multiple/lines/and/test/overflow
+servers:
+  - url: https://api.example.com/really/extremely/long/server/path/that/definitely/will/wrap/multiple/lines/in/the/UI
+    description: Really long server description that contains extensive text and should wrap properly across multiple lines in the UI
+  - url: '{protocol}://{hostname}/really/extremely/long/{path}/variable/path/that/wraps'
+    description: Another really long server description with variable path that tests various scenarios
+    variables:
+      protocol:
+        enum:
+          - https
+          - http
+        default: https
+        description: Really long protocol variable description
+      hostname:
+        default: api.example.com
+        description: Really long hostname variable description that wraps
+      path:
+        default: ''
+        description: Really long path variable description
+security:
+  - bearerAuth: []
+  - basicAuth: []
+  - apiKeyQuery: []
+  - apiKeyHeader: []
+  - apiKeyCookie: []
+  - oAuth2: []
+  - openIdConnect: []
+tags:
+  - name: Really Extremely Long Tag Name That Definitely Tests Wrapping Across Multiple Lines
+    description: |
+      Really long tag description that contains extensive markdown content including:
+
+      - Multiple list items
+      - More content here
+      - Even more content
+
+      And paragraphs with **bold** and *italic* text that should wrap properly.
+  - name: Another Extremely Super Long Tag Name That Needs Wrapping For UI Testing
+    description: Another really long tag description with lots of content to test wrapping
+  - name: Third Super Extremely Long Tag Name For Comprehensive Testing Purposes
+    description: |
+      Third tag description with markdown:
+
+      ## Heading
+
+      Content here.
+  - name: Authentication And Authorization Management System With Long Name
+    description: Really long authentication tag description
+paths:
+  '/really/extremely/long/path/that/definitely/needs/wrapping/{reallyExtremelyLongPathParameterThatTestsCamelCase}':
+    get:
+      tags:
+        - Really Extremely Long Tag Name That Definitely Tests Wrapping Across Multiple Lines
+      summary: Really extremely long operation summary that definitely needs to wrap across multiple lines in the UI
+      description: |
+        This is a really long operation description that contains extensive markdown content including:
+
+        ## Really Long Heading
+
+        Paragraph with lots of content.
+
+        ### Subheading
+
+        More content here.
+
+        | Long Column | Another Column |
+        | --- | --- |
+        | Long content | More content |
+
+        - List item with really long content
+        - Another item
+      operationId: getReallyExtremelyLongOperationThatTestsCamelCaseNamingConvention
+      security:
+        - {}
+      parameters:
+        - $ref: '#/components/parameters/reallyExtremelyLongPathParameterThatTestsCamelCase'
+        - $ref: '#/components/parameters/reallyExtremelyLongQueryParameterThatTestsWrapping'
+        - $ref: '#/components/parameters/anotherExtremelySuperLongQueryParameterForTesting'
+      responses:
+        '200':
+          description: Really long response description that should wrap properly
+          headers:
+            X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping:
+              $ref: '#/components/headers/X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping'
+            X-Another-Extremely-Super-Long-Header-Name-That-Wraps:
+              $ref: '#/components/headers/X-Another-Extremely-Super-Long-Header-Name-That-Wraps'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
+        '400':
+          $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
+  '/another/really/extremely/long/path/{really_extremely_long_snake_case_parameter}/with/more/extremely/long/path/segments':
+    post:
+      tags:
+        - Another Extremely Super Long Tag Name That Needs Wrapping For UI Testing
+      summary: Another really extremely long operation summary for POST request that needs wrapping
+      description: |
+        Really long POST operation description with markdown:
+
+        > Blockquote with long content
+
+        ```json
+        {
+          "reallyLongProperty": "value"
+        }
+        ```
+      operationId: postAnotherReallyExtremelyLongOperationThatTestsCamelCase
+      requestBody:
+        description: Really long request body description that should wrap
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reallyExtremelySuperLongSchemaNameThatComprehensivelyTestsCamelCaseNamingConventionAndUIWrapping'
+            examples:
+              reallyExtremelyLongExampleNameThatTestsWrapping:
+                value:
+                  reallyExtremelyLongPropertyNameThatTestsCamelCase: 'Really long string value'
+                  anotherExtremelySuperLongPropertyNameForTesting: 123
+      responses:
+        '201':
+          description: Really long created response description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reallyExtremelyLongSchemaNameThatTestsCamelCaseNamingConvention'
+  '/very/extremely/super/long/path/segment/{reallyExtremelyLongCamelCaseParameter}/{ReallyExtremelyLongPascalCaseParameter}/{really_extremely_long_snake_case_parameter}':
+    put:
+      tags:
+        - Third Super Extremely Long Tag Name For Comprehensive Testing Purposes
+      summary: Extremely super long PUT operation summary text that definitely needs wrapping
+      description: Very long PUT operation description
+      operationId: putVeryExtremelySuperLongOperationThatTestsNaming
+      parameters:
+        - $ref: '#/components/parameters/reallyExtremelyLongCamelCasePathParameter'
+        - $ref: '#/components/parameters/ReallyExtremelyLongPascalCasePathParameter'
+        - $ref: '#/components/parameters/really_extremely_long_snake_case_path_parameter'
+      requestBody:
+        description: Long request body description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplexReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingAndUIWrapping'
+      responses:
+        '200':
+          description: Long success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplexReallyExtremelyLongSchemaNameThatTestsPascalCase'
+webhooks:
+  reallyExtremelyLongWebhookNameThatTestsCamelCaseNamingConvention:
+    post:
+      tags:
+        - Really Extremely Long Tag Name That Definitely Tests Wrapping Across Multiple Lines
+      summary: Really extremely long webhook summary that definitely needs wrapping across multiple lines
+      description: Really long webhook description with extensive content
+      requestBody:
+        description: Long webhook request body description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reallyExtremelySuperLongSchemaNameThatComprehensivelyTestsCamelCaseNamingConventionAndUIWrapping'
+      responses:
+        '200':
+          description: Long webhook response description
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Really long bearer authentication description that contains extensive text about JWT token authentication and how it should be used in API requests. This description should wrap properly across multiple lines.
+    basicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Really long basic authentication description with lots of content that needs wrapping across multiple lines to test the UI rendering capabilities.
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: really-extremely-long-api-key-query-parameter-name-that-definitely-needs-wrapping
+      description: |
+        Really long API key query parameter description that should wrap properly across multiple lines in the security schemes section.
+    apiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Really-Extremely-Long-API-Key-Header-Name-That-Definitely-Needs-Wrapping-In-UI
+      description: |
+        Extremely long API key header description with lots of content that needs proper wrapping and formatting.
+    apiKeyCookie:
+      type: apiKey
+      in: cookie
+      name: really_extremely_long_cookie_name_that_tests_snake_case_and_wraps
+      description: Really long cookie-based API key description
+    oAuth2:
+      type: oauth2
+      description: |
+        Really long OAuth 2.0 authentication description with extensive details about authorization flows and scopes.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/really/extremely/long/oauth/authorize/path/that/wraps
+          tokenUrl: https://auth.example.com/really/extremely/long/oauth/token/path/that/wraps
+          refreshUrl: https://auth.example.com/really/extremely/long/oauth/refresh/path/that/wraps
+          scopes:
+            read:really-extremely-long-scope-name-that-definitely-needs-wrapping: Really long scope description that needs wrapping
+            write:another-extremely-super-long-scope-name-for-testing-purposes: Another really long scope description
+            admin:super-extremely-long-admin-scope-name-that-tests-wrapping: Extremely long admin scope description
+        clientCredentials:
+          tokenUrl: https://auth.example.com/really/extremely/long/oauth/token/path/that/wraps
+          scopes:
+            read:really-extremely-long-scope-name-that-definitely-needs-wrapping: Really long scope description
+            write:another-extremely-super-long-scope-name-for-testing-purposes: Another long description
+        implicit:
+          authorizationUrl: https://auth.example.com/really/extremely/long/oauth/authorize/path/that/wraps
+          scopes:
+            read:really-extremely-long-scope-name-that-definitely-needs-wrapping: Really long scope description
+        password:
+          tokenUrl: https://auth.example.com/really/extremely/long/oauth/token/path/that/wraps
+          scopes:
+            read:really-extremely-long-scope-name-that-definitely-needs-wrapping: Really long scope description
+    openIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://auth.example.com/really/extremely/long/.well-known/openid-configuration/path/that/wraps
+      description: |
+        Really long OpenID Connect authentication description with extensive details about the authentication flow and configuration requirements.
+  parameters:
+    reallyExtremelyLongPathParameterThatTestsCamelCase:
+      name: reallyExtremelyLongPathParameterThatTestsCamelCase
+      in: path
+      required: true
+      description: |
+        Really long path parameter description that contains extensive text and should wrap properly across multiple lines to test parameter rendering in the UI.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+        example: 'really-extremely-long-example-value-that-definitely-will-wrap'
+    reallyExtremelyLongQueryParameterThatTestsWrapping:
+      name: reallyExtremelyLongQueryParameterThatTestsWrapping
+      in: query
+      required: false
+      description: Really long query parameter description that should wrap
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1000
+        example: 100
+    anotherExtremelySuperLongQueryParameterForTesting:
+      name: anotherExtremelySuperLongQueryParameterForTesting
+      in: query
+      required: false
+      description: Another extremely long query parameter description
+      schema:
+        type: string
+        enum:
+          - really-extremely-long-enum-value-one-that-wraps
+          - another-really-extremely-long-enum-value-two-that-wraps
+          - third-extremely-super-long-enum-value-three-that-definitely-wraps
+    reallyExtremelyLongCamelCasePathParameter:
+      name: reallyExtremelyLongCamelCasePathParameter
+      in: path
+      required: true
+      description: Really long camelCase parameter description
+      schema:
+        type: string
+    ReallyExtremelyLongPascalCasePathParameter:
+      name: ReallyExtremelyLongPascalCasePathParameter
+      in: path
+      required: true
+      description: Really long PascalCase parameter description
+      schema:
+        type: integer
+    really_extremely_long_snake_case_path_parameter:
+      name: really_extremely_long_snake_case_path_parameter
+      in: path
+      required: true
+      description: Really long snake_case parameter description
+      schema:
+        type: boolean
+  headers:
+    X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping:
+      description: |
+        Really long header description that contains extensive text content and should wrap properly across multiple lines to test header rendering capabilities in the UI.
+      schema:
+        type: string
+        example: 'really-extremely-long-header-value-that-definitely-will-also-wrap'
+    X-Another-Extremely-Super-Long-Header-Name-That-Wraps:
+      description: Another really long header description
+      schema:
+        type: integer
+        example: 123456789
+  responses:
+    ReallyExtremelyLongBadRequestResponseThatTestsWrapping:
+      description: |
+        Really long bad request response description with extensive content that should wrap properly. This description contains multiple sentences and paragraphs to test response rendering.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReallyExtremelySuperLongErrorResponseSchemaThatComprehensivelyTestsWrappingAndOverflowAcrossMultipleLines'
+  schemas:
+    reallyExtremelySuperLongSchemaNameThatComprehensivelyTestsCamelCaseNamingConventionAndUIWrapping:
+      type: object
+      description: |
+        Really long schema description for camelCase named schema that contains extensive text content and should wrap properly across multiple lines to test schema rendering capabilities.
+      required:
+        - reallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsCamelCaseNamingAndWrapping
+        - anotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines
+      properties:
+        reallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsCamelCaseNamingAndWrapping:
+          type: string
+          description: |
+            Really long property description that contains extensive text content and should wrap properly. This property uses camelCase naming convention.
+          example: 'really-extremely-super-long-string-value-example-that-definitely-wraps-multiple-lines'
+          minLength: 1
+          maxLength: 500
+        anotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines:
+          type: integer
+          description: Another really long property description with lots of content
+          example: 123456789
+          minimum: 0
+          maximum: 999999999
+        yetAnotherExtremelySuperLongPropertyNameThatTestsWrappingAndOverflowAcrossMultipleLines:
+          type: boolean
+          description: Yet another really long property description
+          example: true
+        reallyExtremelySuperLongNestedObjectPropertyThatComprehensivelyTestsCamelCaseNaming:
+          type: object
+          description: Really long nested object property description
+          properties:
+            nestedReallyExtremelySuperLongPropertyNameThatDefinitelyWrapsAcrossMultipleLines:
+              type: string
+              description: Really long nested property description
+            anotherNestedExtremelySuperLongPropertyThatComprehensivelyTestsWrappingForTesting:
+              type: number
+              description: Another long nested property description
+        reallyExtremelySuperLongArrayPropertyThatTestsWrappingAndOverflowAcrossMultipleLines:
+          type: array
+          description: Really long array property description
+          items:
+            type: string
+            example: 'really-extremely-super-long-array-item-value-that-definitely-wraps-multiple-lines'
+    ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping:
+      type: object
+      description: |
+        Really long schema description for PascalCase named schema with extensive content that should wrap properly.
+      required:
+        - ReallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsPascalCaseNamingAndWrapping
+        - AnotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines
+      properties:
+        ReallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsPascalCaseNamingAndWrapping:
+          type: string
+          description: Really long PascalCase property description
+          example: 'ReallyExtremelySuperLongPascalCase-string-value-that-definitely-wraps-multiple-lines'
+        AnotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines:
+          type: integer
+          description: Another really long PascalCase property description
+          example: 987654321
+        YetAnotherExtremelySuperLongPropertyNameThatTestsWrappingAndOverflowAcrossMultipleLines:
+          type: boolean
+          description: Yet another long PascalCase property description
+        ReallyExtremelySuperLongNestedObjectPropertyThatComprehensivelyTestsPascalCaseNaming:
+          type: object
+          description: Really long nested PascalCase object property
+          properties:
+            NestedReallyExtremelySuperLongPropertyNameThatDefinitelyWrapsAcrossMultipleLines:
+              type: string
+              description: Long nested PascalCase property
+            AnotherNestedExtremelySuperLongPropertyThatComprehensivelyTestsWrappingForTesting:
+              type: number
+              description: Another long nested property
+    really_extremely_super_long_schema_name_that_comprehensively_tests_snake_case_naming_convention_and_ui_wrapping:
+      type: object
+      description: |
+        Really long schema description for snake_case named schema with extensive content.
+      required:
+        - really_extremely_super_long_required_property_name_that_comprehensively_tests_snake_case_naming_and_wrapping
+        - another_extremely_super_long_required_property_name_that_definitely_tests_wrapping_across_multiple_lines
+      properties:
+        really_extremely_super_long_required_property_name_that_comprehensively_tests_snake_case_naming_and_wrapping:
+          type: string
+          description: Really long snake_case property description
+          example: 'really_extremely_super_long_snake_case_string_value_that_definitely_wraps_multiple_lines'
+        another_extremely_super_long_required_property_name_that_definitely_tests_wrapping_across_multiple_lines:
+          type: integer
+          description: Another really long snake_case property description
+          example: 456789012
+        yet_another_extremely_super_long_property_name_that_tests_wrapping_and_overflow_across_multiple_lines:
+          type: boolean
+          description: Yet another long snake_case property description
+        really_extremely_super_long_nested_object_property_that_comprehensively_tests_snake_case_naming:
+          type: object
+          description: Really long nested snake_case object property
+          properties:
+            nested_really_extremely_super_long_property_name_that_definitely_wraps_across_multiple_lines:
+              type: string
+              description: Long nested snake_case property
+            another_nested_extremely_super_long_property_that_comprehensively_tests_wrapping_for_testing:
+              type: number
+              description: Another long nested property
+    ComplexReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingAndUIWrapping:
+      type: object
+      description: |
+        Really long complex schema description with nested objects, arrays, and various data types to comprehensively test UI rendering.
+      properties:
+        reallyExtremelySuperLongStringPropertyThatComprehensivelyTestsCamelCaseNamingAndWrapping:
+          type: string
+          description: Really long string property description
+          enum:
+            - really-extremely-super-long-enum-value-one-that-definitely-wraps-across-multiple-lines
+            - another-really-extremely-super-long-enum-value-two-that-comprehensively-tests-wrapping
+            - third-extremely-super-long-enum-value-three-that-definitely-wraps-multiple-lines-in-ui
+            - fourth-extremely-super-long-enum-value-four-that-wraps-multiple-lines-and-tests-overflow
+        reallyExtremelySuperLongNumberPropertyThatComprehensivelyTestsWrappingAcrossMultipleLines:
+          type: number
+          description: Really long number property description
+          format: float
+          minimum: 0.0
+          maximum: 1000000.0
+        reallyExtremelySuperLongIntegerPropertyThatComprehensivelyTestsCamelCaseNamingAndWrapping:
+          type: integer
+          description: Really long integer property description
+          format: int64
+        reallyExtremelySuperLongBooleanPropertyThatComprehensivelyTestsWrappingAndOverflow:
+          type: boolean
+          description: Really long boolean property description
+        reallyExtremelySuperLongArrayOfStringsPropertyThatComprehensivelyTestsWrappingAcrossMultipleLines:
+          type: array
+          description: Really long array of strings property description
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+        reallyExtremelySuperLongArrayOfObjectsPropertyThatComprehensivelyTestsCamelCaseNamingAndWrapping:
+          type: array
+          description: Really long array of objects property description
+          items:
+            type: object
+            properties:
+              nestedReallyExtremelySuperLongPropertyOneThatComprehensivelyTestsWrappingAcrossMultipleLines:
+                type: string
+                description: Really long nested property one description
+              nestedReallyExtremelySuperLongPropertyTwoThatComprehensivelyTestsWrappingAcrossMultipleLines:
+                type: integer
+                description: Really long nested property two description
+        reallyExtremelySuperLongObjectPropertyThatComprehensivelyTestsCamelCaseNamingAndUIWrapping:
+          type: object
+          description: Really long object property description
+          additionalProperties: true
+          properties:
+            deeplyNestedReallyExtremelySuperLongPropertyNameThatDefinitelyWrapsAcrossMultipleLines:
+              type: object
+              description: Really long deeply nested object description
+              properties:
+                evenDeeperReallyExtremelySuperLongPropertyNameThatComprehensivelyTestsWrappingAndOverflow:
+                  type: string
+                  description: Really long even deeper property description
+                  example: 'extremely-super-long-nested-value-example-that-definitely-wraps-multiple-lines'
+    ReallyExtremelySuperLongErrorResponseSchemaThatComprehensivelyTestsWrappingAndOverflowAcrossMultipleLines:
+      type: object
+      description: |
+        Really long error response schema description with extensive content about error handling and response structure.
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Really long error code property description
+          example: 'REALLY_EXTREMELY_SUPER_LONG_ERROR_CODE_THAT_DEFINITELY_WILL_WRAP_MULTIPLE_LINES_AND_TEST_OVERFLOW'
+        message:
+          type: string
+          description: Really long error message property description
+          example: 'This is a really extremely super long error message that contains extensive text and should wrap properly across multiple lines in the UI'
+        details:
+          type: object
+          description: Really long error details object description
+          additionalProperties: true
+          properties:
+            field:
+              type: string
+              description: Really long field property description
+            reason:
+              type: string
+              description: Really long reason property description
+    MixedExtremelySuperLongNamingConventionSchemaThatComprehensivelyTestsAllCasesAndUIWrapping:
+      type: object
+      description: |
+        Schema that mixes camelCase, PascalCase, and snake_case naming conventions to comprehensively test all scenarios.
+      properties:
+        reallyExtremelySuperLongCamelCasePropertyThatComprehensivelyTestsWrappingAndOverflowAcrossMultipleLines:
+          type: string
+          description: Really long camelCase property description
+        ReallyExtremelySuperLongPascalCasePropertyThatComprehensivelyTestsWrappingAndOverflowAcrossMultipleLines:
+          type: string
+          description: Really long PascalCase property description
+        really_extremely_super_long_snake_case_property_that_comprehensively_tests_wrapping_and_overflow_across_multiple_lines:
+          type: string
+          description: Really long snake_case property description
+        reallyExtremelySuperLongMixedCamelCase_WithExtremelySuperLongSnakeThatTestsWrapping:
+          type: string
+          description: Really long mixed naming property description
+        ReallyExtremelySuperLongMixedPascalCase_with_extremely_super_long_snake_that_tests_wrapping:
+          type: string
+          description: Another really long mixed naming property description
