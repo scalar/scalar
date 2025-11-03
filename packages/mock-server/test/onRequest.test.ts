@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '../src/create-mock-server'
 import type { MockServerOptions } from '../src/types'
 
 describe('onRequest', () => {

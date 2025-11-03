@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from './createMockServer'
+import { createMockServer } from './create-mock-server'
 
 describe('createMockServer', () => {
-  it('GET /foobar -> example JSON', async () => {
+  it('supports deprecated specification key', async () => {
     const specification = {
       openapi: '3.1.0',
       info: {
@@ -40,8 +40,45 @@ describe('createMockServer', () => {
     })
   })
 
+  it('GET /foobar -> example JSON', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
   it('GET /foobar -> omits writeOnly properties in responses', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -83,7 +120,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -99,7 +136,7 @@ describe('createMockServer', () => {
   })
 
   it('GET /foobar -> return HTML if accepted', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -128,7 +165,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar', {
       headers: {
@@ -141,7 +178,7 @@ describe('createMockServer', () => {
   })
 
   it('GET /foobar -> fall back to JSON', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -170,7 +207,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -181,7 +218,7 @@ describe('createMockServer', () => {
   })
 
   it('GET /foobar -> XML', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -207,7 +244,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -216,7 +253,7 @@ describe('createMockServer', () => {
   })
 
   it('uses http verbs only to register routes', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -246,7 +283,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -257,7 +294,7 @@ describe('createMockServer', () => {
   })
 
   it('POST /foobar -> example JSON', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -283,7 +320,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar', {
       method: 'POST',
@@ -296,7 +333,7 @@ describe('createMockServer', () => {
   })
 
   it('POST /foobar -> return 201', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -322,7 +359,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar', {
       method: 'POST',
@@ -335,7 +372,7 @@ describe('createMockServer', () => {
   })
 
   it('POST /foobar/{id} -> example JSON', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -361,7 +398,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar/123')
 
@@ -372,7 +409,7 @@ describe('createMockServer', () => {
   })
 
   it('POST /foobar/{id} -> uses dynamic ID', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -405,7 +442,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar/123')
 
@@ -416,7 +453,7 @@ describe('createMockServer', () => {
   })
 
   it('GET /foobar -> example from schema', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -448,7 +485,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -459,7 +496,7 @@ describe('createMockServer', () => {
   })
 
   it('GET /foobar/{id} -> example from schema', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -491,7 +528,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar/123')
 
@@ -502,7 +539,7 @@ describe('createMockServer', () => {
   })
 
   it('has CORS headers', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -528,7 +565,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     // Options request
     let response = await server.request('/foobar', {
@@ -564,7 +601,7 @@ describe('createMockServer', () => {
   })
 
   it('adds headers', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -591,7 +628,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 
@@ -600,7 +637,7 @@ describe('createMockServer', () => {
   })
 
   it('handles redirect headers', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -627,7 +664,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/redirect')
 

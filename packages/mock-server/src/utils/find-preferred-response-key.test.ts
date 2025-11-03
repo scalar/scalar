@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { findPreferredResponseKey } from './findPreferredResponseKey'
+import { findPreferredResponseKey } from './find-preferred-response-key'
 
 describe('findPreferredResponseKey', () => {
   it('returns default over 200', () => {

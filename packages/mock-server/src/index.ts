@@ -1,1 +1,1 @@
-export { createMockServer } from './createMockServer'
+export { createMockServer } from './create-mock-server'

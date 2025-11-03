@@ -1,3 +1,4 @@
+import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { Context } from 'hono'
@@ -5,8 +6,7 @@ import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import type { MockServerOptions } from '@/types'
-import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey'
-import { json2xml } from '@scalar/helpers/file/json2xml'
+import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 
 /**
  * Mock any response
