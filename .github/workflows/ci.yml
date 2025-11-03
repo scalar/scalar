@@ -833,6 +833,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -863,10 +865,11 @@ jobs:
             10.x
             9.x
             8.x
+          cache: true
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - name: Build solution
         working-directory: integrations/dotnet
@@ -884,6 +887,8 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -941,11 +946,12 @@ jobs:
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
+          cache: true
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: integrations/dotnet/aspnetcore
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Pack packages
@@ -967,6 +973,8 @@ jobs:
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -1059,11 +1067,12 @@ jobs:
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
+          cache: true
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Pack Scalar.Aspire NuGet package

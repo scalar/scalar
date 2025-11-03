@@ -34,6 +34,7 @@
       "!**/.svelte-kit",
       "!**/obj/**",
       "!**/bin/**",
+      "!**/packages.lock.json",
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
       "!**/packages/openapi-parser/tests/openapi3-examples/**/*.{yml,yaml,json}",
       "!integrations/**/scalar.js",
