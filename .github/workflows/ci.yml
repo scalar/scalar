@@ -214,8 +214,6 @@ jobs:
         timeout-minutes: 1
       - name: Run tests
         run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
-        env:
-          CI: 1
 
   test-integrations:
     needs: [build]
@@ -244,10 +242,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
       - name: Run tests
-        run: CI=1 pnpm vitest integrations/* --silent
+        run: pnpm vitest integrations/* --silent
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
-        run: CI=1 pnpm --filter @scalar/nuxt test:e2e
+        run: pnpm --filter @scalar/nuxt test:e2e
 
   test-proxy-server:
     needs: [build]
@@ -293,7 +291,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
@@ -355,7 +353,6 @@ jobs:
       - name: Run e2e tests (scalar-app)
         run: pnpm --filter scalar-app test:e2e
         env:
-          CI: 1
           DEBUG: pw:browser*
           DISPLAY: ':99'
       - if: failure()
@@ -400,7 +397,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -456,7 +453,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -1282,7 +1279,7 @@ jobs:
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
-          node-version: '22'
+          node-version: 22
           packages: '@scalar/api-reference'
       - name: Copy JavaScript asset from @scalar/api-reference
         run: pnpm --filter @scalar/webjar copy:standalone
@@ -1321,7 +1318,7 @@ jobs:
         name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
-          node-version: '22'
+          node-version: 22
           packages: '@scalar/api-reference'
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference
@@ -1383,7 +1380,7 @@ jobs:
 
   required-ci-ok:
     name: Required CI OK
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
     if: always()
