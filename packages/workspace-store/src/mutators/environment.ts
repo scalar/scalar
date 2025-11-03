@@ -46,6 +46,11 @@ export const upsertEnvironment = (
   // If we are renaming the environment, we need to delete the old one
   if (oldEnvironmentName && oldEnvironmentName !== environmentName) {
     delete collection['x-scalar-environments'][oldEnvironmentName]
+
+    // If the old environment was active, we need to set the new environment as active
+    if (workspace['x-scalar-active-environment'] === oldEnvironmentName) {
+      workspace['x-scalar-active-environment'] = environmentName
+    }
   }
 
   // Set the newly created workspace environment as active

@@ -126,6 +126,8 @@ describe('environment', () => {
       expect(workspace['x-scalar-environments'].development).toBeDefined()
       expect(workspace['x-scalar-environments'].development?.variables).toHaveLength(1)
     }
+    // Active environment should be updated to the new name when renaming an active environment
+    expect(workspace['x-scalar-active-environment']).toBe('development')
   })
 
   it('adds a new variable to an environment', () => {
