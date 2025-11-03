@@ -845,10 +845,11 @@ jobs:
             9.x
             8.x
           cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
-        run: dotnet restore --locked-mode
+        run: dotnet restore
 
       - name: Build solution
         working-directory: integrations/dotnet
@@ -926,11 +927,12 @@ jobs:
         with:
           dotnet-version: 10.x
           cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: integrations/dotnet/aspnetcore
-        run: dotnet restore --locked-mode
+        run: dotnet restore
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Pack packages
@@ -1048,11 +1050,12 @@ jobs:
           dotnet-version: |
             9.x
           cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet restore --locked-mode
+        run: dotnet restore
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Pack Scalar.Aspire NuGet package
