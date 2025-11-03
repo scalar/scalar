@@ -1,5 +1,8 @@
+import { setTimeout } from 'node:timers/promises'
+
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
+
 import { Scalar, apiReference } from './scalar'
 
 type Bindings = {
@@ -236,12 +239,8 @@ describe('apiReference', () => {
 
     const config = { content: { info: { title: 'Test API' } } }
 
-    const getTheme = async (): Promise<'deepSpace' | 'laserwave'> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve('deepSpace')
-        }, 100)
-      })
+    const getTheme = (): Promise<'deepSpace' | 'laserwave'> => {
+      return setTimeout(100, 'deepSpace')
     }
 
     app.get(

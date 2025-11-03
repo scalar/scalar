@@ -1,4 +1,3 @@
-import { useWorkspace } from '@/store'
 import {
   collectionSchema,
   operationSchema,
@@ -6,12 +5,12 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import type { ClientId, TargetId } from '@scalar/snippetz'
-
-import { mount } from '@vue/test-utils'
-import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { useActiveEntities } from '@/store/active-entities'
+import type { ClientId, TargetId } from '@scalar/snippetz'
+import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { useWorkspace } from '@/store'
 
 import RequestCodeExample from './RequestCodeExample.vue'
 
@@ -77,28 +76,18 @@ const mockWorkspace = workspaceSchema.parse({
 // Mock the workspace mutators
 const mockWorkspaceMutators = {
   edit: vi.fn(),
-}
-
-vi.mock('@/store/active-entities', () => ({
-  useActiveEntities: vi.fn(),
-}))
-const mockUseActiveEntities = useActiveEntities as Mock
-const mockActiveEntities = {
-  setActiveRequest: vi.fn(),
-  setActiveExample: vi.fn(),
-}
+} as Partial<ReturnType<typeof useWorkspace>['requestExampleMutators']>
 
 describe('RequestCodeExample.vue', () => {
   beforeEach(() => {
-    ;(useWorkspace as Mock).mockReturnValue({
+    vi.mocked(useWorkspace).mockReturnValue({
       securitySchemes: {},
       workspaceMutators: mockWorkspaceMutators,
-    })
-    mockUseActiveEntities.mockReturnValue(mockActiveEntities)
-  })
+    } as unknown as ReturnType<typeof useWorkspace>)
 
-  afterEach(() => {
-    vi.clearAllMocks()
+    return () => {
+      vi.clearAllMocks()
+    }
   })
 
   const props = {
@@ -111,7 +100,7 @@ describe('RequestCodeExample.vue', () => {
     environment: [],
   }
 
-  it('renders correctly with default props', async () => {
+  it('renders correctly with default props', () => {
     const wrapper = mount(RequestCodeExample, {
       props,
     })
@@ -136,7 +125,7 @@ describe('RequestCodeExample.vue', () => {
     wrapper.unmount()
   })
 
-  it('filters security schemes correctly', async () => {
+  it('filters security schemes correctly', () => {
     const scheme = securitySchemeSchema.parse({
       uid: 'authUid',
       type: 'apiKey',
@@ -150,10 +139,10 @@ describe('RequestCodeExample.vue', () => {
 
     mockOperation.security = [{ [scheme.nameKey]: [] }]
     mockOperation.selectedSecuritySchemeUids = [scheme.uid]
-    ;(useWorkspace as Mock).mockReturnValue({
+    vi.mocked(useWorkspace).mockReturnValue({
       securitySchemes,
       workspaceMutators: mockWorkspaceMutators,
-    })
+    } as unknown as ReturnType<typeof useWorkspace>)
 
     const wrapper = mount(RequestCodeExample, {
       props,
@@ -165,7 +154,7 @@ describe('RequestCodeExample.vue', () => {
     wrapper.unmount()
   })
 
-  it('includes optional selected security schemes', async () => {
+  it('includes optional selected security schemes', () => {
     const requiredScheme = securitySchemeSchema.parse({
       uid: 'requiredUid',
       type: 'apiKey',
@@ -189,10 +178,10 @@ describe('RequestCodeExample.vue', () => {
     mockOperation.security = [{ [requiredScheme.nameKey]: [] }]
     // Both are selected
     mockOperation.selectedSecuritySchemeUids = [requiredScheme.uid, optionalScheme.uid]
-    ;(useWorkspace as Mock).mockReturnValue({
+    vi.mocked(useWorkspace).mockReturnValue({
       securitySchemes,
       workspaceMutators: mockWorkspaceMutators,
-    })
+    } as unknown as ReturnType<typeof useWorkspace>)
 
     const wrapper = mount(RequestCodeExample, {
       props,

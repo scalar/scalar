@@ -17,7 +17,7 @@ onBeforeUnmount(() => {
 })
 
 // Handle the paste event
-async function handlePaste(event: ClipboardEvent) {
+function handlePaste(event: ClipboardEvent) {
   // Ignore paste events in input, textarea, or contenteditable elements
   const target = event.target as HTMLElement
 

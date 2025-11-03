@@ -281,7 +281,7 @@ describe('oauth2', () => {
     })
 
     // Test relative redirect URIs
-    it('should handle relative redirect URIs', async () => {
+    it('should handle relative redirect URIs', () => {
       const _flow = {
         ...flow,
         'x-scalar-redirect-uri': '/callback',

@@ -31,6 +31,7 @@
       "!**/*/storybook-static/**/*",
       "!**/httpsnippet-lite/**",
       "!**/.next/**",
+      "!**/.svelte-kit",
       "!**/obj/**",
       "!**/bin/**",
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
@@ -187,6 +188,7 @@
         "noExportsInTest": "warn",
         "noWith": "warn",
         "noVar": "warn",
+        "useAwait": "error",
         "useGuardForIn": "warn"
       },
       "performance": {

@@ -195,7 +195,7 @@ beforeEach(() => {
 })
 
 describe('operation rendering', () => {
-  it('renders a single operation correctly', async () => {
+  it('renders a single operation correctly', () => {
     const operation = createMockOperation()
     const entries: TraversedEntry[] = [operation]
 

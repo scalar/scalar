@@ -95,7 +95,7 @@ const selectedContentTypeModel = computed<{ id: string; label: string }>({
 
 function handleFileUpload(callback: (file: File | undefined) => void) {
   const { open } = useFileDialog({
-    onChange: async (files) => {
+    onChange: (files) => {
       const file = files?.[0]
       if (file) {
         callback(file)

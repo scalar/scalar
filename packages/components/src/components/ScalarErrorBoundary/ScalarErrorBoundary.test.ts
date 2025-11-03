@@ -5,7 +5,7 @@ import { h, nextTick } from 'vue'
 import ScalarErrorBoundary from './ScalarErrorBoundary.vue'
 
 describe('ScalarErrorBoundary', () => {
-  it('renders properly', async () => {
+  it('renders properly', () => {
     const wrapper = mount(ScalarErrorBoundary, {
       props: {},
     })

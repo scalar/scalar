@@ -1,12 +1,13 @@
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import { createStoreEvents } from '@/store/events'
-import { mockUseLayout } from '@/vitest.setup'
+import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
+import { createStoreEvents } from '@/store/events'
+import { mockUseLayout } from '@/vitest.setup'
+
 import RequestRoot from './RequestRoot.vue'
 
 // Mock vue-router
@@ -99,7 +100,7 @@ describe('RequestRoot', () => {
     expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(true)
   })
 
-  it('applies correct classes for modal layout', async () => {
+  it('applies correct classes for modal layout', () => {
     vi.mocked(mockUseLayout).mockReturnValue({ layout: 'modal' })
     const wrapper = createWrapper()
     const sidebarToggle = wrapper.find('.scalar-sidebar-toggle')

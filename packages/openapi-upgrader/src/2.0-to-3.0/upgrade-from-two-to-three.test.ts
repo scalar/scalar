@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
 describe('upgradeFromTwoToThree', () => {
-  it('changes the version to from 3.0.0 to 3.1.0', async () => {
+  it('changes the version to from 3.0.0 to 3.1.0', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       info: {
@@ -18,7 +18,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.swagger).toBeUndefined()
   })
 
-  it('upgrades URLs to new server syntax', async () => {
+  it('upgrades URLs to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       basePath: '/v1',
@@ -37,7 +37,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
-  it('upgrades basePath to new server syntax', async () => {
+  it('upgrades basePath to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       basePath: '/v2',
@@ -54,7 +54,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
-  it('upgrades host to new server syntax', async () => {
+  it('upgrades host to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       host: 'api.example.com',
@@ -71,7 +71,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
-  it('moves definitions to components', async () => {
+  it('moves definitions to components', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       definitions: {
@@ -102,7 +102,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.definitions).toBeUndefined()
   })
 
-  it('rewrites $refs to definitions', async () => {
+  it('rewrites $refs to definitions', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
@@ -132,7 +132,7 @@ describe('upgradeFromTwoToThree', () => {
     )
   })
 
-  it('transforms responses', async () => {
+  it('transforms responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
@@ -190,7 +190,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
-  it('uses global produces for responses', async () => {
+  it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
@@ -248,7 +248,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
-  it('transforms requestBody', async () => {
+  it('transforms requestBody', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
 
@@ -300,7 +300,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
-  it('uses global consumes for requestBody', async () => {
+  it('uses global consumes for requestBody', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
@@ -352,7 +352,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
-  it('migrates formData', async () => {
+  it('migrates formData', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
@@ -873,7 +873,7 @@ describe('upgradeFromTwoToThree', () => {
     ])
   })
 
-  it('upgrades parameters defined globally and path wide - without body and formData', async () => {
+  it('upgrades parameters defined globally and path wide - without body and formData', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
@@ -926,7 +926,7 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('upgrades parameters defined globally and path wide - body and formData', async () => {
+  it('upgrades parameters defined globally and path wide - body and formData', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
@@ -1015,7 +1015,7 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('upgrades parameters defined globally and correctly update all the references - body', async () => {
+  it('upgrades parameters defined globally and correctly update all the references - body', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
@@ -1110,7 +1110,7 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('upgrades parameters defined globally and correctly update all the references - parameters', async () => {
+  it('upgrades parameters defined globally and correctly update all the references - parameters', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       'swagger': '2.0',
       'info': { 'version': '1.0.0', 'title': 'Minimal API' },

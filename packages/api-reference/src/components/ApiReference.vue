@@ -688,7 +688,7 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = async (id: string) => {
+const handleSelectItem = (id: string) => {
   const item = sidebarState.getEntryById(id)
 
   if (

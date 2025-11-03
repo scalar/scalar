@@ -1,39 +1,37 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrls } from './fetch-urls'
 
-global.fetch = vi.fn()
+const globalFetchSpy = vi.spyOn(global, 'fetch')
+afterEach(() => {
+  globalFetchSpy.mockReset()
+})
 
-describe('fetchUrls', async () => {
-  beforeEach(() => {
-    // @ts-expect-error
-    global.fetch.mockReset()
-  })
-
-  it('returns true for an url', async () => {
+describe('fetchUrls', () => {
+  it('returns true for an url', () => {
     expect(fetchUrls().check('http://example.com/specification/openapi.yaml')).toBe(true)
   })
 
-  it('returns false for a filename', async () => {
+  it('returns false for a filename', () => {
     expect(fetchUrls().check('openapi.yaml')).toBe(false)
   })
 
-  it('returns false for a path', async () => {
+  it('returns false for a path', () => {
     expect(fetchUrls().check('specification/openapi.yaml')).toBe(false)
   })
 
-  it('returns false for an object', async () => {
+  it('returns false for an object', () => {
     expect(fetchUrls().check({})).toBe(false)
   })
 
-  it('returns false for undefinded', async () => {
+  it('returns false for undefined', () => {
     expect(fetchUrls().check()).toBe(false)
   })
 
   it('fetches the URL', async () => {
     // @ts-expect-error
-    fetch.mockImplementation(async (url: string) => ({
-      text: async () => {
+    globalFetchSpy.mockImplementation(async (url: string) => ({
+      text: () => {
         if (url === 'http://example.com/specification/openapi.yaml') {
           return 'OK'
         }
@@ -47,8 +45,8 @@ describe('fetchUrls', async () => {
 
   it('rewrites the URL', async () => {
     // @ts-expect-error
-    fetch.mockImplementation(async (url: string) => ({
-      text: async () => {
+    globalFetchSpy.mockImplementation(async (url: string) => ({
+      text: () => {
         if (url === 'http://foobar.com/specification/openapi.yaml') {
           return 'OK'
         }
