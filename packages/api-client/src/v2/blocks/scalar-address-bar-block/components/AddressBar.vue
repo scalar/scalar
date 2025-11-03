@@ -51,9 +51,21 @@ const {
   envVariables: EnvVariable[]
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
+  (
+    e: 'update:path',
+    payload: {
+      value: string
+    },
+  ): void
+  (
+    e: 'update:method',
+    payload: {
+      value: HttpMethodType
+    },
+  ): void
 }>()
 
 const id = useId()
@@ -104,11 +116,9 @@ events.focusAddressBar.on(() => {
           :method="method"
           teleport
           @change="
-            (payload) =>
-              eventBus.emit('operation:update:method', {
-                method: payload,
-                meta: { method, path },
-              })
+            (payload) => {
+              emit('update:method', { value: payload })
+            }
           " />
       </div>
 
@@ -149,13 +159,9 @@ events.focusAddressBar.on(() => {
           :placeholder="server ? '' : 'Enter a URL or cURL command'"
           server
           @curl="(payload) => eventBus.emit('import:curl', { value: payload })"
-          @submit="emits('execute')"
+          @submit="emit('execute')"
           @update:modelValue="
-            (payload) =>
-              eventBus.emit('operation:update:path', {
-                path: payload,
-                meta: { method, path },
-              })
+            (payload) => emit('update:path', { value: payload })
           " />
         <div class="fade-right" />
       </div>
@@ -167,7 +173,7 @@ events.focusAddressBar.on(() => {
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         :disabled="percentage < 100"
-        @click="emits('execute')">
+        @click="emit('execute')">
         <span
           aria-hidden="true"
           class="inline-flex items-center gap-1">

@@ -36,6 +36,56 @@ export type Meta = {
   }
 }
 
+export const updateOperationMethod = ({
+  document,
+  meta,
+  payload: { method },
+}: {
+  document: WorkspaceDocument | null
+  payload: { method: HttpMethod }
+  meta: {
+    method: HttpMethod
+    path: string
+  }
+}) => {
+  if (!document) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+
+  if (!operation) {
+    return
+  }
+
+  operation['x-scalar-method'] = method
+}
+
+export const updateOperationPath = ({
+  document,
+  meta,
+  payload: { path },
+}: {
+  document: WorkspaceDocument | null
+  payload: { path: string }
+  meta: {
+    method: HttpMethod
+    path: string
+  }
+}) => {
+  if (!document) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+
+  if (!operation) {
+    return
+  }
+
+  operation['x-scalar-path'] = path
+}
+
 export const addOperationParameter = ({
   document,
   meta,

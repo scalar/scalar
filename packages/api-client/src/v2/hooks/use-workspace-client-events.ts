@@ -8,7 +8,9 @@ import {
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   updateOperationDescription,
+  updateOperationMethod,
   updateOperationParameter,
+  updateOperationPath,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
@@ -88,6 +90,22 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('operation:update:method', ({ method, meta }) => {
+    updateOperationMethod({
+      document: document.value,
+      meta,
+      payload: { method },
+    })
+  })
+
+  eventBus.on('operation:update:path', ({ meta, path }) => {
+    updateOperationPath({
+      document: document.value,
+      meta,
+      payload: { path },
+    })
+  })
+
   eventBus.on('operation:update:description', ({ description, meta }) => {
     updateOperationDescription({
       document: document.value,

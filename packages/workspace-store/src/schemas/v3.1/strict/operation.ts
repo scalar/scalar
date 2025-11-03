@@ -5,6 +5,10 @@ import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
+import {
+  type XScalarOperationIdentifiers,
+  XScalarOperationIdentifiersSchema,
+} from '@/schemas/extensions/operation/x-scalar-operation-identifiers'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
 import {
   type XScalarSelectedSecurity,
@@ -62,6 +66,7 @@ export const OperationObjectSchemaDefinition = compose(
   XScalarIgnoreSchema,
   XCodeSamplesSchema,
   XScalarStabilitySchema,
+  XScalarOperationIdentifiersSchema,
 )
 
 export type OperationObject = {
@@ -94,4 +99,5 @@ export type OperationObject = {
   XScalarIgnore &
   XCodeSamples &
   XScalarStability &
-  XScalarSelectedSecurity
+  XScalarSelectedSecurity &
+  XScalarOperationIdentifiers

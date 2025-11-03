@@ -6,6 +6,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { computed } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -19,7 +20,7 @@ import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './Header.vue'
 
-defineProps<{
+const props = defineProps<{
   eventBus: WorkspaceEventBus
 
   /** Application version */
@@ -87,6 +88,11 @@ defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
 }>()
+
+const method = computed(
+  () => (props.operation['x-scalar-method'] as HttpMethodType) ?? props.method,
+)
+const path = computed(() => props.operation['x-scalar-path'] ?? props.path)
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -114,6 +120,26 @@ defineProps<{
           () =>
             eventBus.emit('operation:send:request', {
               meta: { path, method, exampleKey },
+            })
+        "
+        @update:method="
+          (payload) =>
+            eventBus.emit('operation:update:method', {
+              meta: {
+                method: props.method,
+                path: props.path,
+              },
+              method: payload.value,
+            })
+        "
+        @update:path="
+          (payload) =>
+            eventBus.emit('operation:update:path', {
+              meta: {
+                method: props.method,
+                path: payload.value,
+              },
+              path: payload.value,
             })
         " />
     </div>

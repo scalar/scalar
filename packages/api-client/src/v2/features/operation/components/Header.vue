@@ -58,6 +58,18 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'execute'): void
+  (
+    e: 'update:path',
+    payload: {
+      value: string
+    },
+  ): void
+  (
+    e: 'update:method',
+    payload: {
+      value: HttpMethod
+    },
+  ): void
 }>()
 </script>
 
@@ -77,6 +89,8 @@ const emit = defineEmits<{
         :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
+      @update:method="(payload) => emit('update:method', payload)"
+      @update:path="(payload) => emit('update:path', payload)"
       :envVariables="envVariables"
       :environment="environment"
       :events="events"
