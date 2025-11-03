@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.0-rc.2.25502.107, )",
+        "resolved": "10.0.0-rc.2.25502.107",
+        "contentHash": "31DsUbLGwks+cdV++WjVY17hq0Dx21KA/F5MQRhBHSgpxFsdEXIJLIe3+2nzH9ZlDtAYR5qhQV5Abm+CIdvdzw=="
+      },
+      "NetEscapades.EnumGenerators": {
+        "type": "Direct",
+        "requested": "[1.0.0-beta15, )",
+        "resolved": "1.0.0-beta15",
+        "contentHash": "l9+JBdzrEoG3r/9+Et14wH51m4Aa/Q/41uO5NTFQzjqzPDsPetculRj59ZywgmECTM8NE8T5zIot6S0qzdxPgQ=="
+      }
+    },
+    "net8.0": {
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[8.0.21, )",
+        "resolved": "8.0.21",
+        "contentHash": "s8H5PZQs50OcNkaB6Si54+v3GWM7vzs6vxFRMlD3aXsbM+aPCtod62gmK0BYWou9diGzmo56j8cIf/PziijDqQ=="
+      },
+      "NetEscapades.EnumGenerators": {
+        "type": "Direct",
+        "requested": "[1.0.0-beta15, )",
+        "resolved": "1.0.0-beta15",
+        "contentHash": "l9+JBdzrEoG3r/9+Et14wH51m4Aa/Q/41uO5NTFQzjqzPDsPetculRj59ZywgmECTM8NE8T5zIot6S0qzdxPgQ=="
+      }
+    },
+    "net9.0": {
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[9.0.10, )",
+        "resolved": "9.0.10",
+        "contentHash": "sseaSJcBxKEpkc59hnB00b3NmJdGvJLfj74HK+nucHxERxbZSUREuWKjC9ywc+HdzJvJyiP2eiyEOROaGSfcPw=="
+      },
+      "NetEscapades.EnumGenerators": {
+        "type": "Direct",
+        "requested": "[1.0.0-beta15, )",
+        "resolved": "1.0.0-beta15",
+        "contentHash": "l9+JBdzrEoG3r/9+Et14wH51m4Aa/Q/41uO5NTFQzjqzPDsPetculRj59ZywgmECTM8NE8T5zIot6S0qzdxPgQ=="
+      }
+    }
+  }
+}
