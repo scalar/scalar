@@ -26,6 +26,7 @@ useIntersection(element, () =>
     <ScalarMarkdown
       :transform="transformHeading"
       transformType="heading"
-      :value="content" />
+      :value="content"
+      withImages />
   </div>
 </template>
