@@ -18,7 +18,7 @@
     "@types/node": "catalog:*",
     "eslint": "^9.15.0",
     "eslint-plugin-vue": "^9.31.0",
-    "knip": "5.66.2",
+    "knip": "5.66.4",
     "lefthook": "^1.9.2",
     "nodemon": "^3.1.9",
     "prettier": "3.6.2",
