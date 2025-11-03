@@ -152,7 +152,7 @@ describe('CodeInput', () => {
   })
 
   /** Event emissions */
-  it('emits update:modelValue when value changes', async () => {
+  it('emits update:modelValue when value changes', () => {
     const wrapper = mount(CodeInput, {
       props: {
         modelValue: 'initial',
@@ -168,7 +168,7 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['updated value'])
   })
 
-  it('does not emit update:modelValue when value is unchanged', async () => {
+  it('does not emit update:modelValue when value is unchanged', () => {
     const wrapper = mount(CodeInput, {
       props: {
         modelValue: 'same value',
