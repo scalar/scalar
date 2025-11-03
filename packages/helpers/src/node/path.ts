@@ -23,6 +23,12 @@
 // must be no slashes, empty elements, or device names (c:\) in the array
 // (so also no leading and trailing slashes - it does not distinguish
 // relative and absolute paths)
+
+// !! WARNING !!
+// The original implementation included ponyfills for `filters` and `substr`.
+// These have been removed in favor of native implementations supported by the current platforms.
+// See: https://github.com/scalar/scalar/pull/7235#discussion_r2484230212
+
 function normalizeArray(parts: Array<string>, allowAboveRoot: boolean): Array<string> {
   // if the path tries to go above the root, `up` ends up > 0
   let up = 0
@@ -80,7 +86,7 @@ export function resolve(...parameters: Array<string>) {
 
   // Normalize the path
   resolvedPath = normalizeArray(
-    filter(resolvedPath.split('/'), (p) => !!p),
+    resolvedPath.split('/').filter((p) => !!p),
     !resolvedAbsolute,
   ).join('/')
 
@@ -91,11 +97,11 @@ export function resolve(...parameters: Array<string>) {
 // posix version
 export function normalize(inputPath: string): string {
   const isPathAbsolute = isAbsolute(inputPath),
-    trailingSlash = substr(inputPath, -1) === '/'
+    trailingSlash = inputPath.slice(-1) === '/'
 
   // Normalize the path
   let path = normalizeArray(
-    filter(inputPath.split('/'), (p) => !!p),
+    inputPath.split('/').filter((p) => !!p),
     !isPathAbsolute,
   ).join('/')
 
@@ -117,20 +123,22 @@ export function isAbsolute(path: string): boolean {
 // posix version
 export function join(...paths: string[]) {
   return normalize(
-    filter(paths, (p, _index) => {
-      if (typeof p !== 'string') {
-        throw new TypeError('Arguments to path.join must be strings')
-      }
-      return p
-    }).join('/'),
+    paths
+      .filter((p) => {
+        if (typeof p !== 'string') {
+          throw new TypeError('Arguments to path.join must be strings')
+        }
+        return p
+      })
+      .join('/'),
   )
 }
 
 // path.relative(from, to)
 // posix version
 export function relative(from: string, to: string) {
-  const fromResolved = resolve(from).substr(1)
-  const toResolved = resolve(to).substr(1)
+  const fromResolved = resolve(from).substring(1)
+  const toResolved = resolve(to).substring(1)
 
   function trim(arr: Array<string>): Array<string> {
     let start = 0
@@ -190,7 +198,7 @@ export function dirname(path: string): string {
 
   if (dir) {
     // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1)
+    dir = dir.slice(0, -1)
   }
 
   return (root as string) + dir
@@ -199,8 +207,8 @@ export function dirname(path: string): string {
 export function basename(path: string, ext?: string): string {
   let f = splitPath(path)![2] as string
   // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length)
+  if (ext && f.slice(-ext.length) === ext) {
+    f = f.slice(0, -ext.length)
   }
   return f
 }
@@ -221,27 +229,3 @@ export default {
   normalize,
   resolve,
 }
-
-function filter<T>(xs: Array<T>, f: Parameters<Array<T>['filter']>[0]): Array<T> {
-  if (xs.filter) {
-    return xs.filter(f)
-  }
-  const res = []
-  for (let i = 0; i < xs.length; i++) {
-    if (f(xs[i] as T, i, xs)) {
-      res.push(xs[i])
-    }
-  }
-  return res as Array<T>
-}
-
-// String.prototype.substr - negative index don't work in IE8
-const substr: (str: string, start: number, len?: number) => string =
-  'ab'.substr(-1) === 'b'
-    ? (str, start, len) => str.substr(start, len)
-    : (str, start, len) => {
-        if (start < 0) {
-          start = str.length + start
-        }
-        return str.substr(start, len)
-      }
