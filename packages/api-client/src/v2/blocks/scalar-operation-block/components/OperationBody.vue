@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
 import { computed } from 'vue'
@@ -16,44 +17,44 @@ import OperationTable from '@/v2/blocks/scalar-operation-block/components/Operat
 import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
 import { getExampleFromBody } from '@/v2/blocks/scalar-operation-block/helpers/get-request-body-example'
 
-const {
-  selectedContentType,
-  requestBody,
-  exampleKey,
-  environment,
-  envVariables,
-  title,
-} = defineProps<{
-  /** Request body */
-  requestBody?: RequestBodyObject
-  /** Currently selected content type for the current operation */
-  selectedContentType: keyof typeof contentTypes | (string & {})
-  /** Currently selected example key for the current operation */
-  exampleKey: string
-  /** Display title */
-  title: string
+const { requestBody, exampleKey, environment, envVariables, title } =
+  defineProps<{
+    /** Request body */
+    requestBody?: RequestBodyObject
+    /** Currently selected example key for the current operation */
+    exampleKey: string
+    /** Display title */
+    title: string
 
-  /** TODO: remove when we do the migration */
-  environment: Environment
-  envVariables: EnvVariable[]
-}>()
+    /** TODO: remove when we do the migration */
+    environment: Environment
+    envVariables: EnvVariable[]
+  }>()
 
 const emits = defineEmits<{
   (e: 'update:contentType', payload: { value: string }): void
   /** We use this event to update raw values */
-  (e: 'update:value', payload: { value?: string | File }): void
+  (
+    e: 'update:value',
+    payload: { value?: string | File; contentType: string },
+  ): void
   /** We use this event to update  */
   (
     e: 'add:formRow',
-    payload: Partial<{ key: string; value?: string | File }>,
+    payload: {
+      data: Partial<{ key: string; value?: string | File }>
+      contentType: string
+    },
   ): void
   (
     e: 'update:formRow',
     payload: {
       index: number
-      payload: Partial<{ key: string; value?: string | File }>
+      data: Partial<{ key: string; value: string | File | null }>
+      contentType: string
     },
   ): void
+  (e: 'delete:fromRow', payload: { index: number; contentType: string }): void
 }>()
 
 // Map a content type to a language for the code editor
@@ -75,6 +76,14 @@ const contentTypes = {
   'none': 'None',
 } as const
 
+const selectedContentType = computed(() => {
+  return (
+    requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
+    Object.keys(requestBody?.content ?? {})[0] ??
+    'other'
+  )
+})
+
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
   Object.entries(contentTypes) as Entries<typeof contentTypes>
@@ -85,7 +94,9 @@ const contentTypeOptions = (
 
 const selectedContentTypeModel = computed<{ id: string; label: string }>({
   get: () => {
-    const found = contentTypeOptions.find((it) => it.id === selectedContentType)
+    const found = contentTypeOptions.find(
+      (it) => it.id === selectedContentType.value,
+    )
     return found ?? contentTypeOptions.at(-1)!
   },
   set: (v) => {
@@ -110,7 +121,7 @@ function handleFileUpload(callback: (file: File | undefined) => void) {
 const example = computed(
   () =>
     requestBody &&
-    getExampleFromBody(requestBody, selectedContentType, exampleKey),
+    getExampleFromBody(requestBody, selectedContentType.value, exampleKey),
 )
 
 const bodyValue = computed(() => {
@@ -125,6 +136,14 @@ const bodyValue = computed(() => {
   }
 
   return JSON.stringify(value, null, 2)
+})
+
+const tableRows = computed(() => {
+  if (!example.value) {
+    return []
+  }
+
+  return Array.isArray(example.value.value) ? example.value.value : []
 })
 </script>
 <template>
@@ -161,16 +180,24 @@ const bodyValue = computed(() => {
           v-else-if="selectedContentType === 'application/octet-stream'">
           <div
             class="flex items-center justify-center overflow-hidden border-t p-1.5">
-            <template v-if="getFileName(example?.value) !== undefined">
+            <template
+              v-if="
+                getFileName(unpackProxyObject(example?.value)) !== undefined
+              ">
               <span
                 class="text-c-2 w-full max-w-full overflow-hidden rounded border px-1.5 py-1 text-xs whitespace-nowrap">
-                {{ getFileName(example?.value) }}
+                {{ getFileName(unpackProxyObject(example?.value)) }}
               </span>
               <ScalarButton
                 class="bg-b-2 hover:bg-b-3 text-c-2 ml-1 border-0 shadow-none"
                 size="sm"
                 variant="outlined"
-                @click="emits('update:value', { value: undefined })">
+                @click="
+                  emits('update:value', {
+                    value: undefined,
+                    contentType: selectedContentType,
+                  })
+                ">
                 Delete
               </ScalarButton>
             </template>
@@ -182,7 +209,10 @@ const bodyValue = computed(() => {
                 @click="
                   () =>
                     handleFileUpload((file) =>
-                      emits('update:value', { value: file }),
+                      emits('update:value', {
+                        value: file,
+                        contentType: selectedContentType,
+                      }),
                     )
                 ">
                 <span>Upload File</span>
@@ -197,27 +227,56 @@ const bodyValue = computed(() => {
         </template>
         <template v-else-if="selectedContentType === 'multipart/form-data'">
           <OperationTable
-            :data="
-              Object.entries(
-                typeof example?.value === 'object' ? (example.value ?? {}) : {},
-              ).map(([key, value]) => ({
-                name: key,
-                value: value as any,
-              }))
-            "
+            :data="tableRows"
             :envVariables="envVariables"
             :environment="environment"
             showUploadButton
+            @addRow="
+              (payload) =>
+                emits('add:formRow', {
+                  data: payload,
+                  contentType: selectedContentType,
+                })
+            "
+            @updateRow="
+              (index, payload) =>
+                emits('update:formRow', {
+                  index,
+                  data: payload,
+                  contentType: selectedContentType,
+                })
+            "
             @uploadFile="
               (index) =>
                 handleFileUpload((file) => {
                   if (index !== undefined) {
                     return emits('update:formRow', {
                       index,
-                      payload: { value: file ?? undefined },
+                      data: { value: file ?? undefined },
+                      contentType: selectedContentType,
                     })
                   }
-                  emits('add:formRow', { value: file ?? undefined })
+                  emits('add:formRow', {
+                    data: { value: file ?? undefined },
+                    contentType: selectedContentType,
+                  })
+                })
+            "
+            @removeFile="
+              (index) =>
+                emits('update:formRow', {
+                  contentType: selectedContentType,
+                  index,
+                  data: {
+                    value: null,
+                  },
+                })
+            "
+            @deleteRow="
+              (index) =>
+                emits('delete:fromRow', {
+                  contentType: selectedContentType,
+                  index,
                 })
             " />
         </template>
@@ -226,13 +285,28 @@ const bodyValue = computed(() => {
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <OperationTable
-            :data="
-              Object.entries(
-                typeof example?.value === 'object' ? example.value : {},
-              ).map(([key, value]) => ({
-                name: key,
-                value: String(value),
-              }))
+            :data="tableRows"
+            @addRow="
+              (payload) =>
+                emits('add:formRow', {
+                  data: payload,
+                  contentType: selectedContentType,
+                })
+            "
+            @updateRow="
+              (index, payload) =>
+                emits('update:formRow', {
+                  index,
+                  data: payload,
+                  contentType: selectedContentType,
+                })
+            "
+            @deleteRow="
+              (index) =>
+                emits('delete:fromRow', {
+                  contentType: selectedContentType,
+                  index,
+                })
             "
             :envVariables="envVariables"
             :environment="environment" />
@@ -251,7 +325,13 @@ const bodyValue = computed(() => {
             lineNumbers
             lint
             :modelValue="bodyValue"
-            @update:modelValue="(value) => emits('update:value', { value })" />
+            @update:modelValue="
+              (value) =>
+                emits('update:value', {
+                  value,
+                  contentType: selectedContentType,
+                })
+            " />
         </template>
       </DataTableRow>
     </DataTable>

@@ -2,6 +2,7 @@
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -13,6 +14,7 @@ import {
 } from '@/components/DataTable'
 import type { EnvVariable } from '@/store'
 import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
+import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
 
 const {
@@ -74,14 +76,16 @@ const isFileInstance = (input: unknown): input is File => {
 
 const valueModel = computed({
   get: () => {
-    if (data.value instanceof File) {
-      return data.value.name
+    const rawValue = unpackProxyObject(data.value as any)
+
+    if (rawValue instanceof File) {
+      return getFileName(unpackProxyObject(data.value as any)) ?? ''
     }
 
     if (data.value === null) {
       return ''
     }
-    return data.value
+    return rawValue
   },
   set: (val: string | File | null) => {
     if (typeof val === 'string') {
@@ -179,10 +183,10 @@ const valueModel = computed({
     <DataTableCell
       v-if="showUploadButton"
       class="group/upload flex items-center justify-center whitespace-nowrap">
-      <template v-if="isFileInstance(data.value)">
+      <template v-if="isFileInstance(unpackProxyObject(data.value as any))">
         <div
           class="text-c-2 filemask flex w-full max-w-[100%] items-center justify-center overflow-hidden p-1">
-          <span>{{ data.value.name }}</span>
+          <span>{{ getFileName(unpackProxyObject(data.value as any)) }}</span>
         </div>
         <button
           class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"

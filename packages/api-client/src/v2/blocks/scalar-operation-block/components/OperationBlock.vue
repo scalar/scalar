@@ -31,7 +31,6 @@ const {
   path,
   exampleKey,
   security,
-  selectedContentType,
   authMeta = { type: 'document' },
 } = defineProps<{
   /** Operation method */
@@ -44,8 +43,6 @@ const {
   authMeta?: AuthMeta
   /** Currently selected example key for the current operation */
   exampleKey: string
-  /** Currently selected content type for the current operation example */
-  selectedContentType?: string
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Currently selected security for the current operation */
@@ -71,31 +68,6 @@ const meta = computed(() => ({
   path,
   exampleKey,
 }))
-
-/**
- * All events that are emitted by the operation block
- *
- * We prefix all the underlying events by the scope
- * - scope:action:name
- */
-const emits = defineEmits<{
-  /** Request Body events */
-  (e: 'requestBody:update:contentType', payload: { value: string }): void
-  /** We use this event to update raw values */
-  (e: 'requestBody:update:value', payload: { value?: string | File }): void
-  /** We use this event to update  */
-  (
-    e: 'requestBody:add:formRow',
-    payload: Partial<{ key: string; value?: string | File }>,
-  ): void
-  (
-    e: 'requestBody:update:formRow',
-    payload: {
-      index: number
-      payload: Partial<{ key: string; value?: string | File }>
-    },
-  ): void
-}>()
 
 const sections = computed(() =>
   groupBy(operation.parameters?.map((it) => getResolvedRef(it)) ?? [], 'in'),
@@ -385,16 +357,53 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :requestBody="getResolvedRef(operation.requestBody)"
-      :selectedContentType="selectedContentType ?? 'other'"
       title="Request Body"
-      @add:formRow="(payload) => emits('requestBody:add:formRow', payload)"
+      @add:formRow="
+        (payload) =>
+          eventBus.emit('operation:add:requestBody:formRow', {
+            contentType: payload.contentType,
+            meta,
+            payload: {
+              key: payload.data.key,
+              value: payload.data.value,
+            },
+          })
+      "
       @update:contentType="
-        (payload) => emits('requestBody:update:contentType', payload)
+        (payload) =>
+          eventBus.emit('operation:update:requestBody:contentType', {
+            contentType: payload.value,
+            meta,
+          })
       "
       @update:formRow="
-        (payload) => emits('requestBody:update:formRow', payload)
+        (payload) =>
+          eventBus.emit('operation:update:requestBody:formRow', {
+            contentType: payload.contentType,
+            meta,
+            index: payload.index,
+            payload: {
+              key: payload.data.key,
+              value: payload.data.value,
+            },
+          })
       "
-      @update:value="(payload) => emits('requestBody:update:value', payload)" />
+      @delete:fromRow="
+        (payload) =>
+          eventBus.emit('operation:delete:requestBody:formRow', {
+            contentType: payload.contentType,
+            index: payload.index,
+            meta,
+          })
+      "
+      @update:value="
+        (payload) =>
+          eventBus.emit('operation:update:requestBody:value', {
+            contentType: payload.contentType,
+            value: payload.value,
+            meta,
+          })
+      " />
 
     <!-- Inject request section plugin components -->
     <ScalarErrorBoundary

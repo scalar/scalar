@@ -2,11 +2,16 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   addOperationParameter,
+  addOperationRequestBodyFormRow,
   deleteAllOperationParameters,
   deleteOperationParameter,
+  deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   updateOperationDescription,
   updateOperationParameter,
+  updateOperationRequestBodyContentType,
+  updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormRow,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedScopes,
@@ -121,6 +126,51 @@ export const useWorkspaceClientEvents = (
       document: document.value,
       meta,
       type,
+    })
+  })
+
+  // operation body related event handlers
+  eventBus.on('operation:update:requestBody:contentType', ({ contentType, meta }) => {
+    updateOperationRequestBodyContentType({
+      document: document.value,
+      meta,
+      payload: { contentType },
+    })
+  })
+
+  eventBus.on('operation:update:requestBody:value', ({ value, contentType, meta }) => {
+    updateOperationRequestBodyExample({
+      document: document.value,
+      meta,
+      payload: { value, contentType },
+    })
+  })
+
+  eventBus.on('operation:add:requestBody:formRow', ({ payload, contentType, meta }) => {
+    addOperationRequestBodyFormRow({
+      document: document.value,
+      meta,
+      payload,
+      contentType,
+    })
+  })
+
+  eventBus.on('operation:update:requestBody:formRow', ({ index, payload, contentType, meta }) => {
+    updateOperationRequestBodyFormRow({
+      document: document.value,
+      meta,
+      index,
+      payload,
+      contentType,
+    })
+  })
+
+  eventBus.on('operation:delete:requestBody:formRow', ({ index, contentType, meta }) => {
+    deleteOperationRequestBodyFormRow({
+      document: document.value,
+      meta,
+      index,
+      contentType,
     })
   })
 }

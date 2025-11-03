@@ -64,7 +64,12 @@ const uploadFile = (index?: number) => {
   emits('uploadFile', index)
 }
 
-const columns = ['36px', '', '', 'auto']
+const columns = computed(() => {
+  if (showUploadButton) {
+    return ['36px', '', '', 'auto']
+  }
+  return ['36px', '', '']
+})
 
 /** Add the last empty row (for ui purposes only) */
 const displayData = computed(() => {

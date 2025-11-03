@@ -64,4 +64,29 @@ export type OperationEvents = {
       isEnabled: boolean
     }>
   } & Meta
+
+  'operation:update:requestBody:contentType': {
+    contentType: string
+  } & Meta
+
+  'operation:update:requestBody:value': {
+    value: string | File | undefined
+    contentType: string
+  } & Meta
+
+  'operation:add:requestBody:formRow': {
+    payload: Partial<{ key: string; value: string | File }>
+    contentType: string
+  } & Meta
+
+  'operation:update:requestBody:formRow': {
+    index: number
+    payload: Partial<{ key: string; value?: string | File | null }>
+    contentType: string
+  } & Meta
+
+  'operation:delete:requestBody:formRow': {
+    index: number
+    contentType: string
+  } & Meta
 }

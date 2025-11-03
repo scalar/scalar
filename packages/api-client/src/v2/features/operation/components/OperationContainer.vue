@@ -87,25 +87,6 @@ defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
 }>()
-
-const emit = defineEmits<{
-  /** Request Body events */
-  (e: 'requestBody:update:contentType', payload: { value: string }): void
-  /** We use this event to update raw values */
-  (e: 'requestBody:update:value', payload: { value?: string | File }): void
-  /** We use this event to update  */
-  (
-    e: 'requestBody:add:formRow',
-    payload: Partial<{ key: string; value?: string | File }>,
-  ): void
-  (
-    e: 'requestBody:update:formRow',
-    payload: {
-      index: number
-      payload: Partial<{ key: string; value?: string | File }>
-    },
-  ): void
-}>()
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -151,18 +132,6 @@ const emit = defineEmits<{
           :securitySchemes="securitySchemes"
           :selectedContentType="selectedContentType"
           :selectedSecurity="selectedSecurity"
-          @requestBody:add:formRow="
-            (payload) => emit('requestBody:add:formRow', payload)
-          "
-          @requestBody:update:contentType="
-            (payload) => emit('requestBody:update:contentType', payload)
-          "
-          @requestBody:update:formRow="
-            (payload) => emit('requestBody:update:formRow', payload)
-          "
-          @requestBody:update:value="
-            (payload) => emit('requestBody:update:value', payload)
-          "
           :plugins="plugins" />
         <ResponseBlock
           :appVersion="appVersion"

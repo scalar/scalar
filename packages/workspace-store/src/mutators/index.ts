@@ -106,8 +106,13 @@ export {
 export {
   type Meta,
   addOperationParameter,
+  addOperationRequestBodyFormRow,
   deleteAllOperationParameters,
   deleteOperationParameter,
+  deleteOperationRequestBodyFormRow,
   updateOperationDescription,
   updateOperationParameter,
+  updateOperationRequestBodyContentType,
+  updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormRow,
 } from './operation'
