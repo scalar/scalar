@@ -1,5 +1,20 @@
 # @scalar/types
 
+## 0.4.0
+
+### Minor Changes
+
+- [#7129](https://github.com/scalar/scalar/pull/7129) [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+
+### Patch Changes
+
+- [#7086](https://github.com/scalar/scalar/pull/7086) [`eb022f2`](https://github.com/scalar/scalar/commit/eb022f2c8f93c84a04c0093fefe8a1e05d6ec80d) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: new `content.end` slot for the plugin API
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- Updated dependencies [[`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce)]:
+  - @scalar/openapi-types@0.5.1
+
 ## 0.3.2
 
 ### Patch Changes

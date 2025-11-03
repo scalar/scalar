@@ -1,5 +1,13 @@
 # @scalar/scripts
 
+## 0.0.44
+
+### Patch Changes
+
+- Updated dependencies [[`348f8f6`](https://github.com/scalar/scalar/commit/348f8f6292ef41844fda1fdd3089a55d97adbc0e), [`c22fc4e`](https://github.com/scalar/scalar/commit/c22fc4e5acb49d648014a6100c724a5b33c59cde), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5), [`81b0a7a`](https://github.com/scalar/scalar/commit/81b0a7a4245619f03161eae639dc5834b77432b6), [`8a5a6a0`](https://github.com/scalar/scalar/commit/8a5a6a052cc05b0902b05052c80cc429ebc5a730), [`704fa30`](https://github.com/scalar/scalar/commit/704fa302b2cdbb17b19ca2d742537ca163d58c1c), [`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765), [`a26ced6`](https://github.com/scalar/scalar/commit/a26ced6f2897074f0c102d5ccbff55c6fd520e12), [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a), [`592533f`](https://github.com/scalar/scalar/commit/592533faf60b6a5ba27909a4ca0847ca9f04a96d), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`c72a2c5`](https://github.com/scalar/scalar/commit/c72a2c59eb80e1f5e216c687229ff90bea88f554), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0)]:
+  - @scalar/components@0.16.0
+  - @scalar/oas-utils@0.6.0
+
 ## 0.0.43
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.240
+
+### Patch Changes
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- Updated dependencies [[`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765), [`729ad06`](https://github.com/scalar/scalar/commit/729ad06027c91abcc39866f39319f053d286b995), [`348f8f6`](https://github.com/scalar/scalar/commit/348f8f6292ef41844fda1fdd3089a55d97adbc0e), [`c22fc4e`](https://github.com/scalar/scalar/commit/c22fc4e5acb49d648014a6100c724a5b33c59cde), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`d34f31e`](https://github.com/scalar/scalar/commit/d34f31ee9e3ff360869c52f383b14431af520201), [`c162bb6`](https://github.com/scalar/scalar/commit/c162bb64b86e698427c1fce36f6d8a2b789e094a), [`6ca835e`](https://github.com/scalar/scalar/commit/6ca835e5afd3e8c603e073e7c83f2cdd961a0f69), [`7cda4c5`](https://github.com/scalar/scalar/commit/7cda4c5ecf237e17193391e223f9503c9f37f574), [`8a5a6a0`](https://github.com/scalar/scalar/commit/8a5a6a052cc05b0902b05052c80cc429ebc5a730), [`704fa30`](https://github.com/scalar/scalar/commit/704fa302b2cdbb17b19ca2d742537ca163d58c1c), [`573c5a6`](https://github.com/scalar/scalar/commit/573c5a6c5d71ecfda262532aa32dad382f9f71e4), [`a26ced6`](https://github.com/scalar/scalar/commit/a26ced6f2897074f0c102d5ccbff55c6fd520e12), [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a), [`0865e66`](https://github.com/scalar/scalar/commit/0865e662092f8521bf69b69d82486ec0cc6030dd), [`592533f`](https://github.com/scalar/scalar/commit/592533faf60b6a5ba27909a4ca0847ca9f04a96d), [`7c1e09e`](https://github.com/scalar/scalar/commit/7c1e09e86ce128adeefd209284a2ba49917adf2c), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`c72a2c5`](https://github.com/scalar/scalar/commit/c72a2c59eb80e1f5e216c687229ff90bea88f554), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0), [`f612140`](https://github.com/scalar/scalar/commit/f612140491d4e5088757ea5a3fef65ccd2785f08), [`d386ae2`](https://github.com/scalar/scalar/commit/d386ae2a7c9288c8e5c4750ab57920ab955cae06)]:
+  - @scalar/api-client@2.9.0
+  - @scalar/components@0.16.0
+  - @scalar/themes@0.13.23
+  - @scalar/import@0.4.32
+
 ## 0.1.239
 
 ### Patch Changes

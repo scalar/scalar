@@ -1,5 +1,18 @@
 # @scalar/json-magic
 
+## 0.7.0
+
+### Minor Changes
+
+- [#7185](https://github.com/scalar/scalar/pull/7185) [`6ca835e`](https://github.com/scalar/scalar/commit/6ca835e5afd3e8c603e073e7c83f2cdd961a0f69) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: add support for watch mode
+
+### Patch Changes
+
+- [#7213](https://github.com/scalar/scalar/pull/7213) [`43bc5e8`](https://github.com/scalar/scalar/commit/43bc5e8b90dc0edf7176d0ddfc64bf3212494458) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: proxy performance issue because of multiple proxies
+
+- Updated dependencies [[`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a)]:
+  - @scalar/helpers@0.0.13
+
 ## 0.6.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.8
+
+### Patch Changes
+
+- [#7180](https://github.com/scalar/scalar/pull/7180) [`a796162`](https://github.com/scalar/scalar/commit/a79616220d5deb0117c2d6d191b465b36ba6ccd0) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Add addtional export entry points for api-referenc. Patch types on build-tooling
+
 ## 0.2.7
 
 ### Patch Changes

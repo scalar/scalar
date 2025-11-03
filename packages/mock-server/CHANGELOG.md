@@ -1,5 +1,21 @@
 # @scalar/mock-server
 
+## 0.6.0
+
+### Minor Changes
+
+- [#7121](https://github.com/scalar/scalar/pull/7121) [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(oas-utils): make `dereference` synchronous
+
+### Patch Changes
+
+- [#7193](https://github.com/scalar/scalar/pull/7193) [`c277671`](https://github.com/scalar/scalar/commit/c277671e8357adccf1065f90c2194d9a0bd18452) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(mock-server): restore `async` on `createMockServer`
+
+- Updated dependencies [[`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`81b0a7a`](https://github.com/scalar/scalar/commit/81b0a7a4245619f03161eae639dc5834b77432b6), [`c84b7c5`](https://github.com/scalar/scalar/commit/c84b7c5e81be83dacbdfcbf9cb1e558dfdc3faa1), [`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`a821986`](https://github.com/scalar/scalar/commit/a821986332141e69d26885b2d2b32eb0c49f416c), [`e23229d`](https://github.com/scalar/scalar/commit/e23229dfbd9613b5047b28b57901f2fc5a6e33e6)]:
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+
 ## 0.5.40
 
 ### Patch Changes
