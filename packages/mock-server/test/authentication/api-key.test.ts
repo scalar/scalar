@@ -12,7 +12,7 @@ describe('API Key Authentication', () => {
       '/api-key-test': {
         get: {
           security: [{ apiKey: [] }],
-          responses: { '200': { description: 'OK' } },
+          responses: { '200': { description: 'OK', content: { 'application/json': { example: { foo: 'bar' } } } } },
         },
       },
     }
@@ -23,8 +23,9 @@ describe('API Key Authentication', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toBe('text/plain;charset=UTF-8')
-    expect(await response.json()).toEqual(expect.any(Object))
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
   })
 
   it('fails without API key in header', async () => {

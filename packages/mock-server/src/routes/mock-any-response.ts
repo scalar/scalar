@@ -31,7 +31,11 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
     return c.json({ error: 'No response defined for this operation.' })
   }
 
-  const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
+  // Status code
+  const statusCode = Number.parseInt(
+    preferredResponseKey === 'default' ? '200' : (preferredResponseKey ?? '200'),
+    10,
+  ) as StatusCode
 
   // Headers
   const headers = preferredResponse?.headers ?? {}
@@ -41,6 +45,20 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
       c.header(header, value)
     }
   })
+
+  // For 204 No Content responses, we should not set Content-Type and should return null body
+  if (statusCode === 204) {
+    c.status(statusCode)
+    return c.body(null)
+  }
+
+  const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
+
+  // If no content types are defined, return the status with no body
+  if (supportedContentTypes.length === 0) {
+    c.status(statusCode)
+    return c.body(null)
+  }
 
   // Content-Type
   const acceptedContentType = accepts(c, {
@@ -65,12 +83,6 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
           mode: 'read',
         })
       : null
-
-  // Status code
-  const statusCode = Number.parseInt(
-    preferredResponseKey === 'default' ? '200' : (preferredResponseKey ?? '200'),
-    10,
-  ) as StatusCode
 
   c.status(statusCode)
 

@@ -538,6 +538,38 @@ describe('createMockServer', () => {
     })
   })
 
+  it('DELETE /foobar -> return 204', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          delete: {
+            responses: {
+              '204': {
+                description: 'OK',
+                content: {
+                  'application/json': {},
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar', {
+      method: 'DELETE',
+    })
+
+    expect(response.status).toBe(204)
+  })
+
   it('has CORS headers', async () => {
     const document = {
       openapi: '3.1.0',
