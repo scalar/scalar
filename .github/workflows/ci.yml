@@ -1321,6 +1321,12 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: integrations/java/webjar
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Set version in pom.xml (using the version from package.json)
         working-directory: integrations/java/webjar
         run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
