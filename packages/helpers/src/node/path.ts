@@ -217,7 +217,7 @@ export function extname(path: string): string {
   return splitPath(path)![3] as string
 }
 
-export default {
+export const path = {
   extname,
   basename,
   dirname,

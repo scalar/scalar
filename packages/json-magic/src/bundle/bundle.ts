@@ -1,4 +1,4 @@
-import path from '@scalar/helpers/node/path'
+import { path } from '@scalar/helpers/node/path'
 
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
