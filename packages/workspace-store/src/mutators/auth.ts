@@ -291,3 +291,59 @@ export const updateSelectedScopes = ({
 
   scheme[name] = scopes
 }
+
+export const deleteSecurityScheme = ({ document, names }: { document: WorkspaceDocument | null; names: string[] }) => {
+  if (!document) {
+    return
+  }
+
+  const target = getResolvedRef(document.components?.securitySchemes)
+
+  if (!target) {
+    return
+  }
+
+  names.forEach((name) => {
+    delete target[name]
+  })
+
+  const selectedSchemes = document['x-scalar-selected-security']?.['x-schemes']
+
+  if (!selectedSchemes) {
+    return
+  }
+
+  const filterSecuritySchemes = (schemes: SecurityRequirementObject[]) => {
+    return schemes.filter((scheme) => !names.some((name) => Object.keys(scheme).includes(name)))
+  }
+
+  // Filter document level
+  if (document['x-scalar-selected-security']) {
+    document['x-scalar-selected-security']['x-schemes'] = filterSecuritySchemes(
+      document['x-scalar-selected-security']['x-schemes'],
+    )
+  }
+
+  if (document['security']) {
+    document['security'] = filterSecuritySchemes(document['security'])
+  }
+
+  // traverse through the paths and filter the security schemes
+  Object.values(document.paths ?? {}).forEach((path) => {
+    Object.values(path).forEach((operation) => {
+      if (typeof operation !== 'object') {
+        return
+      }
+
+      if ('security' in operation && operation['security']) {
+        operation['security'] = filterSecuritySchemes(operation['security'])
+      }
+
+      if ('x-scalar-selected-security' in operation && operation['x-scalar-selected-security']) {
+        operation['x-scalar-selected-security']['x-schemes'] = filterSecuritySchemes(
+          operation['x-scalar-selected-security']['x-schemes'],
+        )
+      }
+    })
+  })
+}

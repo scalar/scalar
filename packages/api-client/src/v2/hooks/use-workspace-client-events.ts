@@ -2,6 +2,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
+  deleteSecurityScheme,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedScopes,
@@ -11,8 +12,6 @@ import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/inf
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { PartialDeep } from 'type-fest'
 import type { ComputedRef } from 'vue'
-
-const log = (...args: any[]) => console.log(...args)
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -38,10 +37,13 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('delete:security-scheme', log)
-  // eventBus.on('update:security-scheme', ({ payload }) => {
+  eventBus.on('delete:security-scheme', ({ names }) => {
+    deleteSecurityScheme({
+      document: document.value,
+      names,
+    })
+  })
 
-  // })
   eventBus.on('update:selected-scopes', ({ id, name, scopes, meta }) => {
     updateSelectedScopes({
       document: document.value,
