@@ -190,6 +190,9 @@ if (typeof window !== 'undefined') {
     (c) => c.config.pathRouting?.basePath,
   )
 
+  // When there are multiple documents, we should not use activeSlug as prefix
+  // because we want to extract the document slug directly from the URL
+  // In single-document mode, we use activeSlug to prefix since the slug isn't in the URL
   const initialId = getIdFromUrl(
     url,
     basePaths.find(
@@ -197,9 +200,15 @@ if (typeof window !== 'undefined') {
     ),
     isMultiDocument.value ? undefined : activeSlug.value,
   )
-  const documentSlug = initialId.split('/')[0]
 
-  if (documentSlug && configList.value[documentSlug]) {
+  // Extract the document slug from the initialId
+  // Split by '/' and take the first segment, which should be the document slug
+  const documentSlug = initialId.split('/').filter(Boolean)[0]
+
+  // Check if the extracted slug exists in configList
+  // This handles all slugs including short ones like 'ru', 'en', etc.
+  // We need to check if the slug exists as a key in configList
+  if (documentSlug && documentSlug in configList.value) {
     activeSlug.value = documentSlug
   }
 }
