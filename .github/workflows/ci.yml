@@ -33,11 +33,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
       - if: matrix.node-version == 22
-        name: Upload standalone.js artifact
+        name: Copy and rename standalone.js to scalar.js
+        run: |
+          mkdir -p temp-artifacts
+          cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
+      - if: matrix.node-version == 22
+        name: Upload scalar.js artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: standalone-js
-          path: packages/api-reference/dist/browser/standalone.js
+          name: scalar-js
+          path: temp-artifacts/scalar.js
           retention-days: 3
 
   docker:
@@ -66,16 +71,11 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/docker/assets
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/docker/assets
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
@@ -818,15 +818,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Download standalone.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: temp-assets
-
-      - name: Rename standalone.js to scalar.js
-        working-directory: temp-assets
-        run: mv standalone.js scalar.js
 
       - name: Copy scalar.js to aspnetcore and aspire
         run: |
@@ -905,16 +901,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Rename standalone.js to scalar.js # Lets get rid of this
-        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
@@ -992,16 +983,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
-
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
@@ -1155,15 +1141,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Download standalone.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/rust/ui
-
-      - name: Rename standalone.js to scalar.js
-        working-directory: integrations/rust/ui
-        run: mv standalone.js scalar.js
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
@@ -1228,16 +1210,11 @@ jobs:
               - integrations/rust/package.json
 
       - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/rust/ui
-
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/rust/ui
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
         name: Setup Rust
