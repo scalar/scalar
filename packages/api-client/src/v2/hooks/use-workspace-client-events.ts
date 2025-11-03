@@ -1,8 +1,12 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
+  addOperationParameter,
+  deleteAllOperationParameters,
+  deleteOperationParameter,
   deleteSecurityScheme,
+  updateOperationDescription,
+  updateOperationParameter,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedScopes,
@@ -80,111 +84,43 @@ export const useWorkspaceClientEvents = (
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('operation:update:description', ({ description, meta }) => {
-    const operation = getResolvedRef(document.value?.paths?.[meta.path]?.[meta.method])
-
-    // Don't proceed if operation doesn't exist
-    if (!operation) {
-      return
-    }
-
-    operation.summary = description
+    updateOperationDescription({
+      document: document.value,
+      meta,
+      payload: { description },
+    })
   })
 
   eventBus.on('operation:add:parameter', ({ type, meta, payload }) => {
-    const operation = getResolvedRef(document.value?.paths?.[meta.path]?.[meta.method])
-
-    // Don't proceed if operation doesn't exist
-    if (!operation) {
-      return
-    }
-
-    // Initialize parameters array if it doesn't exist
-    if (!operation.parameters) {
-      operation.parameters = []
-    }
-
-    // Add the new parameter
-    operation.parameters.push({
-      name: payload.key,
-      in: type,
-      required: type === 'path' ? true : false,
-      examples: {
-        [meta.exampleKey]: {
-          value: payload.value,
-          'x-disabled': !payload.isEnabled,
-        },
-      },
+    addOperationParameter({
+      document: document.value,
+      meta,
+      payload,
+      type,
     })
   })
   eventBus.on('operation:update:parameter', ({ meta, payload, index, type }) => {
-    const operation = getResolvedRef(document.value?.paths?.[meta.path]?.[meta.method])
-
-    // Don't proceed if operation doesn't exist
-    if (!operation) {
-      return
-    }
-
-    // Get all resolved parameters of the specified type
-    // The passed index corresponds to this filtered list
-    const resolvedParameters =
-      operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-    const parameter = resolvedParameters[index]
-
-    // Don't proceed if parameter doesn't exist
-    if (!parameter) {
-      return
-    }
-
-    parameter.name = payload.key ?? parameter.name ?? ''
-
-    // TODO: handle content-type parameters
-    if ('examples' in parameter) {
-      if (!parameter.examples) {
-        parameter.examples = {}
-      }
-
-      const example = getResolvedRef(parameter.examples[meta.exampleKey])
-
-      if (!example) {
-        return
-      }
-
-      example.value = payload.value ?? example?.value ?? ''
-      example['x-disabled'] = payload.isEnabled === undefined ? example['x-disabled'] : !payload.isEnabled
-    }
+    updateOperationParameter({
+      document: document.value,
+      meta,
+      payload,
+      index,
+      type,
+    })
   })
   eventBus.on('operation:delete:parameter', ({ index, meta, type }) => {
-    const operation = getResolvedRef(document.value?.paths?.[meta.path]?.[meta.method])
-
-    // Don't proceed if operation doesn't exist
-    if (!operation) {
-      return
-    }
-
-    // Translate the index from the filtered list to the actual parameters array
-    const resolvedParameters =
-      operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-    const parameter = resolvedParameters[index]
-
-    // Don't proceed if parameter doesn't exist
-    if (!parameter) {
-      return
-    }
-
-    const actualIndex = operation.parameters?.findIndex((it) => getResolvedRef(it) === parameter) as number
-
-    // Remove the parameter from the operation
-    operation.parameters?.splice(actualIndex, 1)
+    deleteOperationParameter({
+      document: document.value,
+      meta,
+      index,
+      type,
+    })
   })
   eventBus.on('operation:delete-all:parameters', ({ meta, type }) => {
-    const operation = getResolvedRef(document.value?.paths?.[meta.path]?.[meta.method])
-
-    // Don't proceed if operation doesn't exist
-    if (!operation) {
-      return
-    }
-
-    // Filter out parameters of the specified type
-    operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== type) ?? []
+    deleteAllOperationParameters({
+      document: document.value,
+      meta,
+      type,
+    })
   })
 }

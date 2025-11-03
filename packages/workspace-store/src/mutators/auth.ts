@@ -335,13 +335,15 @@ export const deleteSecurityScheme = ({ document, names }: { document: WorkspaceD
         return
       }
 
-      if ('security' in operation && operation['security']) {
-        operation['security'] = filterSecuritySchemes(operation['security'])
+      const resolvedOperation = getResolvedRef(operation)
+
+      if ('security' in resolvedOperation && resolvedOperation['security']) {
+        resolvedOperation['security'] = filterSecuritySchemes(resolvedOperation['security'])
       }
 
-      if ('x-scalar-selected-security' in operation && operation['x-scalar-selected-security']) {
-        operation['x-scalar-selected-security']['x-schemes'] = filterSecuritySchemes(
-          operation['x-scalar-selected-security']['x-schemes'],
+      if ('x-scalar-selected-security' in resolvedOperation && resolvedOperation['x-scalar-selected-security']) {
+        resolvedOperation['x-scalar-selected-security']['x-schemes'] = filterSecuritySchemes(
+          resolvedOperation['x-scalar-selected-security']['x-schemes'],
         )
       }
     })

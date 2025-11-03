@@ -103,3 +103,11 @@ export {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from './auth'
+export {
+  type Meta,
+  addOperationParameter,
+  deleteAllOperationParameters,
+  deleteOperationParameter,
+  updateOperationDescription,
+  updateOperationParameter,
+} from './operation'
