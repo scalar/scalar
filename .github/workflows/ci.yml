@@ -190,13 +190,17 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
-  test-packages-shard-1:
+  test-packages:
+    name: Test packages (shard ${{ matrix.shard-index }}/${{ matrix.shard-total }})
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22]
+        shard-index: [1, 2]
+        shard-total: [2]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -206,33 +210,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
       - name: Start test servers
-        run: pnpm script run test-servers &
+        run: pnpm script run test-servers & pnpm script wait -p 5051 5052
+        timeout-minutes: 1
       - name: Run tests
-        run: |
-          pnpm script wait -p 5051 5052 &&
-          CI=1 pnpm vitest packages/* --silent --shard=1/2
-
-  test-packages-shard-2:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build packages
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
-      - name: Start test servers
-        run: pnpm script run test-servers &
-      - name: Run tests
-        run: |
-          pnpm script wait -p 5051 5052 &&
-          CI=1 pnpm vitest packages/* --silent --shard=2/2
+        run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+        env:
+          CI: 1
 
   test-integrations:
     needs: [build]
@@ -525,15 +508,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages-shard-1,
-        test-packages-shard-2,
-        test-integrations,
-      ]
+    needs: [build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [22]
@@ -587,7 +562,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages-shard-1, test-packages-shard-2]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [22]
@@ -702,7 +677,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages-shard-1, test-packages-shard-2]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [22]
@@ -896,8 +871,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         dotnet-build-test,
       ]
@@ -980,8 +954,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1124,8 +1097,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         fastapi-build-test,
       ]
@@ -1232,15 +1204,7 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [
-        build,
-        format,
-        types,
-        test-packages-shard-1,
-        test-packages-shard-2,
-        test-integrations,
-        rust-build-test,
-      ]
+      [build, format, types, test-packages, test-integrations, rust-build-test]
 
     steps:
       - name: Checkout repository
@@ -1424,13 +1388,14 @@ jobs:
     permissions: {}
     if: always()
     needs:
-      - build
-      - format
-      - test-packages-shard-1
-      - test-packages-shard-2
-      - test-integrations
-      - test-proxy-server
-      - types
+      [
+        build,
+        format,
+        test-packages,
+        test-integrations,
+        test-proxy-server,
+        types,
+      ]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
