@@ -17,4 +17,9 @@
     <Content Include="../../../xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- NetEscapades.EnumGenerators uses DescriptionAttribute to generate the enum values -->
+    <EnumGenerator_EnumMetadataSource>DescriptionAttribute</EnumGenerator_EnumMetadataSource>
+  </PropertyGroup>
+
 </Project>
