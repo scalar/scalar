@@ -364,7 +364,7 @@ describe('SchemaProperty', () => {
         props: {
           variant: 'additionalProperties',
           name: 'propertyName*',
-          // @ts-ignore
+          // @ts-expect-error
           schema: {
             type: 'anything',
           },

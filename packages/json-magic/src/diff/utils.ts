@@ -28,9 +28,7 @@ export const isKeyCollisions = (a: unknown, b: unknown) => {
     const keys = new Set([...Object.keys(a), ...Object.keys(b)])
 
     for (const key of keys) {
-      // @ts-ignore
       if (a[key] !== undefined && b[key] !== undefined) {
-        // @ts-ignore
         if (isKeyCollisions(a[key], b[key])) {
           return true
         }
