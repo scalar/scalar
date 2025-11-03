@@ -3,7 +3,7 @@ import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 /**
- * Handles authentication for incoming requests based on the OpenAPI specification.
+ * Handles authentication for incoming requests based on the OpenAPI document.
  */
 export function handleAuthentication(schema?: OpenAPI.Document, operation?: OpenAPI.Operation) {
   return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {

@@ -27,7 +27,7 @@ export async function createApp(): Promise<Hono> {
   const document = await loadDocument()
 
   return createMockServer({
-    specification: document,
+    document: document,
     onRequest: (opts) => {
       console.log(`${opts.context.req.method} ${opts.context.req.url}`)
     },

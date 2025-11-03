@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { createMockServer } from './create-mock-server'
 
 describe('createMockServer', () => {
-  it('supports deprecated specification key', async () => {
-    const specification = {
+  it('supports deprecated document key', async () => {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -30,7 +30,7 @@ describe('createMockServer', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
 
     const response = await server.request('/foobar')
 

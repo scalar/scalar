@@ -5,10 +5,10 @@ import { createOpenApiDefinition } from '../../src/utils/create-openapi-definiti
 
 describe('Bearer Token Authentication', () => {
   it('succeeds with valid bearer token', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       bearerAuth: { type: 'http', scheme: 'bearer' },
     })
-    specification.paths = {
+    document.paths = {
       '/bearer-test': {
         get: {
           security: [{ bearerAuth: [] }],
@@ -17,7 +17,7 @@ describe('Bearer Token Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/bearer-test', {
       headers: { Authorization: 'Bearer test-token' },
     })
@@ -27,11 +27,11 @@ describe('Bearer Token Authentication', () => {
   })
 
   it('fails without bearer token', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       bearerAuth: { type: 'http', scheme: 'bearer' },
     })
 
-    specification.paths = {
+    document.paths = {
       '/bearer-test': {
         get: {
           security: [{ bearerAuth: [] }],
@@ -40,7 +40,7 @@ describe('Bearer Token Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/bearer-test')
 
     expect(response.status).toBe(401)

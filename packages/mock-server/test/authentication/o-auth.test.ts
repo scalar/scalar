@@ -5,7 +5,7 @@ import { createOpenApiDefinition } from '../../src/utils/create-openapi-definiti
 
 describe('OAuth 2.0 Authentication', () => {
   describe('Authorization Code Flow', () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -17,7 +17,7 @@ describe('OAuth 2.0 Authentication', () => {
         },
       },
     })
-    specification.paths = {
+    document.paths = {
       '/oauth-test': {
         get: {
           security: [{ oauth2: ['read'] }],
@@ -27,7 +27,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -36,7 +36,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -44,7 +44,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Implicit Flow', () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -55,7 +55,7 @@ describe('OAuth 2.0 Authentication', () => {
         },
       },
     })
-    specification.paths = {
+    document.paths = {
       '/oauth-test': {
         get: {
           security: [{ oauth2: ['read'] }],
@@ -65,7 +65,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -74,7 +74,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -82,7 +82,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Client Credentials Flow', () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -93,7 +93,7 @@ describe('OAuth 2.0 Authentication', () => {
         },
       },
     })
-    specification.paths = {
+    document.paths = {
       '/oauth-test': {
         get: {
           security: [{ oauth2: ['read'] }],
@@ -103,7 +103,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
       })
@@ -112,7 +112,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)
@@ -120,7 +120,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Password Flow', () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -132,7 +132,7 @@ describe('OAuth 2.0 Authentication', () => {
       },
     })
 
-    specification.paths = {
+    document.paths = {
       '/oauth-test': {
         get: {
           security: [{ oauth2: ['read'] }],
@@ -142,7 +142,7 @@ describe('OAuth 2.0 Authentication', () => {
     }
 
     it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
 
       const response = await server.request('/oauth-test', {
         headers: { Authorization: 'Bearer valid-token' },
@@ -152,7 +152,7 @@ describe('OAuth 2.0 Authentication', () => {
     })
 
     it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
+      const server = await createMockServer({ document })
       const response = await server.request('/oauth-test')
 
       expect(response.status).toBe(401)

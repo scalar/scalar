@@ -523,6 +523,18 @@
               ]
             }
           ]
+        },
+        {
+          "name": "Scalar-Mock Server",
+          "type": "folder",
+          "icon": "phosphor/regular/jar",
+          "children": [
+            {
+              "name": "Getting Started",
+              "path": "documentation/guides/mock-server/getting-started.md",
+              "type": "page"
+            }
+          ]
         }
       ]
     }

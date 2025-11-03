@@ -21,7 +21,7 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = dereference(options?.document ?? options?.specification ?? {})
+  const { schema } = dereference(options?.document ?? options?.document ?? {})
 
   // CORS headers
   app.use(cors())
@@ -55,10 +55,10 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.specification, 'json'))
+  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.document, 'json'))
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.specification, 'yaml'))
+  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.document, 'yaml'))
 
   /**
    * No async code, but returning a Promise to allow future async logic to be implemented

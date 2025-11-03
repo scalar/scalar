@@ -14,7 +14,7 @@ export type MockServerOptions = {
    *
    * @deprecated Use `document` instead
    */
-  specification: string | Record<string, any>
+  document: string | Record<string, any>
 
   /**
    * The OpenAPI document to use for mocking.

@@ -5,10 +5,10 @@ import { createOpenApiDefinition } from '../../src/utils/create-openapi-definiti
 
 describe('API Key Authentication', () => {
   it('succeeds with API key in header', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
-    specification.paths = {
+    document.paths = {
       '/api-key-test': {
         get: {
           security: [{ apiKey: [] }],
@@ -17,7 +17,7 @@ describe('API Key Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/api-key-test', {
       headers: { 'X-API-Key': 'test-api-key' },
     })
@@ -28,10 +28,10 @@ describe('API Key Authentication', () => {
   })
 
   it('fails without API key in header', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
-    specification.paths = {
+    document.paths = {
       '/api-key-test': {
         get: {
           security: [{ apiKey: [] }],
@@ -40,7 +40,7 @@ describe('API Key Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/api-key-test')
 
     expect(response.status).toBe(401)
