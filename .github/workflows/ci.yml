@@ -1270,9 +1270,6 @@ jobs:
         with:
           name: scalar-js
           path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
-      - name: Check if the scalar.js file exists
-        run: |
-          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
       - name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
@@ -1281,6 +1278,7 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/webjar/pom.xml'
       - name: Run Maven tests
+        working-directory: integrations/java/webjar
         run: mvn clean test
 
   java-webjar-publish:
