@@ -608,6 +608,9 @@ onBeforeMount(() =>
  * to allow mapping to the legacy client store
  */
 const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
+defineExpose({
+  dereferenced,
+})
 
 const modal = useTemplateRef<HTMLElement>('modal')
 

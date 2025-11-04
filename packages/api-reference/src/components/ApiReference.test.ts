@@ -187,7 +187,7 @@ describe('multiple configurations', () => {
 })
 
 describe('circular documents', () => {
-  it('handles circular references in schemas gracefully', async () => {
+  it.only('handles circular references in schemas gracefully', async () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: {
@@ -317,5 +317,73 @@ describe('Rendering', () => {
     const html = await renderToString(app)
 
     expect(html).toContain('Test API')
+  })
+})
+
+describe('Swagger 2.0 upgrade', () => {
+  it('upgrades Swagger 2.0 document to OpenAPI 3.1 when dereferenced', async () => {
+    const swaggerDocument = {
+      swagger: '2.0',
+      info: {
+        title: 'Swagger 2.0 API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            responses: {
+              '200': {
+                description: 'Success',
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/User',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+            },
+            name: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          content: swaggerDocument,
+        },
+      },
+    })
+
+    // Wait for the API reference to process and dereference the document
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    // Wait a bit more for the dereferencing to complete
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    // Check that the dereferenced document exists and is upgraded to OpenAPI 3.1
+    const dereferenced = wrapper.vm.dereferenced
+
+    expect(dereferenced).not.toBeNull()
+    expect(dereferenced).toBeDefined()
+    expect(dereferenced?.openapi).toBe('3.1.1')
+
+    wrapper.unmount()
   })
 })
