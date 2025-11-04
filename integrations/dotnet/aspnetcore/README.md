@@ -12,9 +12,13 @@ The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful A
 
 For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/docs/README.md).
 
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/CHANGELOG.md) for a list of changes.
+
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

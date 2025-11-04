@@ -1,5 +1,6 @@
 {
   "name": "@scalar/aspnetcore",
+  "description": "The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful API References based on OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -22,6 +23,21 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest"
+  },
+  "readme": {
+    "title": "Scalar API Reference for .NET ASP.NET Core",
+    "badges": [
+      {
+        "type": "nuget-version",
+        "package": "Scalar.AspNetCore"
+      },
+      {
+        "type": "nuget-downloads",
+        "package": "Scalar.AspNetCore"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/integration",
+    "extraContent": "For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/docs/README.md)."
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
