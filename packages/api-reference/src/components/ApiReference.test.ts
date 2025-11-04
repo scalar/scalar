@@ -187,7 +187,7 @@ describe('multiple configurations', () => {
 })
 
 describe('circular documents', () => {
-  it.only('handles circular references in schemas gracefully', async () => {
+  it('handles circular references in schemas gracefully', async () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: {

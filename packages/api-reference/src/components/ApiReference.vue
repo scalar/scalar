@@ -491,13 +491,12 @@ const changeSelectedDocument = async (
 
   // Map the document to the client store for now
   const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-  const { schema } = dereference(raw)
+  const { schema } = dereference(upgrade(raw).specification)
   if (!schema) {
     dereferenced.value = null
     return
   }
-  const { specification } = upgrade(schema)
-  dereferenced.value = specification
+  dereferenced.value = schema as OpenAPIV3_1.Document
 }
 
 /**
