@@ -89,10 +89,10 @@ const props = defineProps<{
   envVariables: EnvVariable[]
 }>()
 
-const method = computed(
+const draftMethod = computed(
   () => (props.operation['x-scalar-method'] as HttpMethodType) ?? props.method,
 )
-const path = computed(() => props.operation['x-scalar-path'] ?? props.path)
+const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -104,8 +104,8 @@ const path = computed(() => props.operation['x-scalar-path'] ?? props.path)
         :events="events"
         :history="history"
         :layout="layout"
-        :method="method"
-        :path="path"
+        :method="draftMethod"
+        :path="draftPath"
         :percentage="requestLoadingPercentage"
         :server="server"
         :servers="servers"
@@ -126,8 +126,8 @@ const path = computed(() => props.operation['x-scalar-path'] ?? props.path)
           (payload) =>
             eventBus.emit('operation:update:method', {
               meta: {
-                method: props.method,
-                path: props.path,
+                method,
+                path,
               },
               method: payload.value,
             })
@@ -136,8 +136,8 @@ const path = computed(() => props.operation['x-scalar-path'] ?? props.path)
           (payload) =>
             eventBus.emit('operation:update:path', {
               meta: {
-                method: props.method,
-                path: payload.value,
+                method,
+                path,
               },
               path: payload.value,
             })

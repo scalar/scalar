@@ -84,6 +84,21 @@ export const updateOperationPath = ({
   }
 
   operation['x-scalar-path'] = path
+
+  // Extract the path variables from the path
+  const pathVariables = Array.from(path.matchAll(/{([^\/}]+)}/g), (m) => m[1])
+
+  // now we need to update the operation path variables
+  const pathVariablesWithoutPathParameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== 'path')
+
+  operation.parameters = [
+    ...(pathVariablesWithoutPathParameters ?? []),
+    ...pathVariables.map((it) => ({
+      name: it ?? '',
+      in: 'path' as const,
+      required: true,
+    })),
+  ]
 }
 
 export const addOperationParameter = ({
