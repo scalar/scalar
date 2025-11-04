@@ -49,13 +49,13 @@ export type AuthMeta =
  */
 export const updateSelectedSecuritySchemes = ({
   document,
-  selectedSecuritySchemes,
-  create,
+  selectedRequirements,
+  newSchemes,
   meta,
 }: {
   document: WorkspaceDocument | null
-  selectedSecuritySchemes: SecurityRequirementObject[]
-  create: { name: string; scheme: SecuritySchemeObject }[]
+  selectedRequirements: SecurityRequirementObject[]
+  newSchemes: { name: string; scheme: SecuritySchemeObject }[]
   meta: AuthMeta
 }) => {
   if (!document) {
@@ -72,7 +72,7 @@ export const updateSelectedSecuritySchemes = ({
   }
 
   // Create any new security schemes required, ensuring unique names for the components
-  const newSchemes = create
+  const createdSchemes = newSchemes
     .map((scheme) => {
       const name = generateUniqueValue({
         defaultValue: scheme.name,
@@ -104,7 +104,7 @@ export const updateSelectedSecuritySchemes = ({
 
   const target = getTarget()
 
-  const newSelectedSecuritySchemes = [...selectedSecuritySchemes, ...newSchemes]
+  const newSelectedSecuritySchemes = [...selectedRequirements, ...createdSchemes]
 
   // If the target (document/operation) doesn't exist, do nothing
   if (!target) {

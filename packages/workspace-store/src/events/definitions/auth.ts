@@ -1,57 +1,53 @@
 import type { AuthMeta, SecuritySchemeUpdate } from '@/mutators/auth'
 import type { SecurityRequirementObject, SecuritySchemeObject } from '@/schemas/v3.1/strict/openapi-document'
 
-export type UpdateSecuritySchemeEvent =
-  | {
-      type: 'http'
-      payload: Partial<{
-        token: string
-        username: string
-        password: string
-      }>
-    }
-  | {
-      type: 'apiKey'
-      payload: Partial<{
-        name: string
-        value: string
-      }>
-    }
-  | {
-      type: 'oauth2'
-      flow: 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode'
-      payload: Partial<{
-        authUrl: string
-        tokenUrl: string
-        token: string
-        redirectUrl: string
-        clientId: string
-        clientSecret: string
-        usePkce: 'no' | 'SHA-256' | 'plain'
-        username: string
-        password: string
-      }>
-    }
-
 /** Event definitions for auth */
 export type AuthEvents = {
   /**
-   * Delete a security scheme
+   * Update the selected security schemes for a document or specific operation.
+   * Triggers when the user picks or adds new auth schemes in the UI.
+   * - `selectedRequirements` is the current array of selected security requirement objects.
+   * - `newSchemes` lists new security schemes (with names and definitions) to be created and added.
+   * - `meta` describes the target (whole document or a specific operation).
    */
-  'delete:security-scheme': {
-    /**
-     * Names of the security scheme to delete
-     *
-     * Is an array to support complex auth
-     */
-    names: string[]
+  'update:selected-security-schemes': {
+    /** Security requirement objects representing the full updated selection */
+    selectedRequirements: SecurityRequirementObject[]
+    /** New security scheme definitions to add (name & scheme definition) */
+    newSchemes: { name: string; scheme: SecuritySchemeObject }[]
+    /** Meta describing update scope (document or operation) */
+    meta: AuthMeta
   }
+
+  /**
+   * Update the currently active authentication tab index for the selected security schemes.
+   * Fires when the user changes which authentication method is actively edited in the UI (e.g., switches between multiple selected auth schemes).
+   * - `index` is the new active tab index to set.
+   * - `meta` describes the update scope (document or specific operation).
+   */
+  'update:active-auth-index': {
+    /** The index of the auth tab to set as active */
+    index: number
+    /** Meta information for the auth update */
+    meta: AuthMeta
+  }
+
+  /**
+   * Update a security scheme in the OpenAPI document's components object.
+   * Use this event to update secret information or configuration for UI-auth flows,
+   * such as username, password, tokens for HTTP/ApiKey/OAuth2 schemes.
+   */
   'update:security-scheme': {
     /** The data to update the security scheme with */
     data: SecuritySchemeUpdate
     /** The name of the security scheme to update */
     name: string
   }
+
+  /**
+   * Update the selected scopes for a given security scheme.
+   * Triggers when the user selects/deselects scopes for an OAuth2 (or other scopes-supporting) scheme in the UI.
+   */
   'update:selected-scopes': {
     /** The id of the security scheme to update the scopes for */
     id: string[]
@@ -62,22 +58,19 @@ export type AuthEvents = {
     /** Meta information for the auth update */
     meta: AuthMeta
   }
-  /** Currently selected auth index from the selected schemas list */
-  'update:active-auth-index': {
-    /** The index to update the active auth index to */
-    index: number
-    /** Meta information for the auth update */
-    meta: AuthMeta
-  }
+
   /**
-   * Select the security schemes
+   * Delete one or more security schemes from the OpenAPI document.
+   *
+   * When triggered, removes the specified security scheme(s) from components.securitySchemes,
+   * and also cleans up all associated document-level and operation-level references,
+   * including selected security (x-scalar-selected-security) everywhere those schemes appear.
+   *
+   * - `names`: Array of security scheme names to delete. Array is used to support deleting multiple
+   *   schemes at once, including multi-scheme (composite/complex) authentication scenarios.
    */
-  'update:selected-security-schemes': {
-    /** The security schemes to select */
-    updated: SecurityRequirementObject[]
-    /** The security schemes to create */
-    create: { name: string; scheme: SecuritySchemeObject }[]
-    /** Meta information for the auth update */
-    meta: AuthMeta
+  'delete:security-scheme': {
+    /** Names of the security schemes to delete */
+    names: string[]
   }
 }

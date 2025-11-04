@@ -7,13 +7,13 @@ import {
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
-  updateOperationDescription,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
+  updateOperationSummary,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedScopes,
@@ -106,11 +106,11 @@ export const useWorkspaceClientEvents = (
     })
   })
 
-  eventBus.on('operation:update:description', ({ description, meta }) => {
-    updateOperationDescription({
+  eventBus.on('operation:update:description', ({ summary, meta }) => {
+    updateOperationSummary({
       document: document.value,
       meta,
-      payload: { description },
+      payload: { summary },
     })
   })
 

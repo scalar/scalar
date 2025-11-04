@@ -27,8 +27,8 @@ describe('updateSelectedSecuritySchemes', () => {
 
     updateSelectedSecuritySchemes({
       document,
-      selectedSecuritySchemes: selected,
-      create: [],
+      selectedRequirements: selected,
+      newSchemes: [],
       meta: { type: 'document' },
     })
 
@@ -52,8 +52,8 @@ describe('updateSelectedSecuritySchemes', () => {
 
     updateSelectedSecuritySchemes({
       document,
-      selectedSecuritySchemes: [],
-      create: createItems,
+      selectedRequirements: [],
+      newSchemes: createItems,
       meta: { type: 'document' },
     })
 
@@ -83,8 +83,8 @@ describe('updateSelectedSecuritySchemes', () => {
 
     updateSelectedSecuritySchemes({
       document,
-      selectedSecuritySchemes: [{ s1: [] }, { s2: [] }],
-      create: [],
+      selectedRequirements: [{ s1: [] }, { s2: [] }],
+      newSchemes: [],
       meta: { type: 'document' },
     })
 
@@ -104,8 +104,8 @@ describe('updateSelectedSecuritySchemes', () => {
 
     updateSelectedSecuritySchemes({
       document,
-      selectedSecuritySchemes: nextSelected,
-      create: [],
+      selectedRequirements: nextSelected,
+      newSchemes: [],
       meta: { type: 'document' },
     })
 
@@ -118,8 +118,8 @@ describe('updateSelectedSecuritySchemes', () => {
 
     updateSelectedSecuritySchemes({
       document,
-      selectedSecuritySchemes: [{ bearerAuth: [] }],
-      create: [
+      selectedRequirements: [{ bearerAuth: [] }],
+      newSchemes: [
         {
           name: 'BearerAuth',
           scheme: {

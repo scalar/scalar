@@ -117,5 +117,5 @@ export {
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
-  updateOperationSummary as updateOperationDescription,
+  updateOperationSummary,
 } from './operation'
