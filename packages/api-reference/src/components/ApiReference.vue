@@ -9,7 +9,8 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
-import { dereference } from '@scalar/openapi-parser'
+import { dereference, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -490,7 +491,13 @@ const changeSelectedDocument = async (
 
   // Map the document to the client store for now
   const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-  dereferenced.value = dereference(raw).schema
+  const { schema } = dereference(raw)
+  if (!schema) {
+    dereferenced.value = null
+    return
+  }
+  const { specification } = upgrade(schema)
+  dereferenced.value = specification
 }
 
 /**
@@ -600,7 +607,7 @@ onBeforeMount(() =>
  * We keep a copy of the workspace store document in dereferenced format
  * to allow mapping to the legacy client store
  */
-const dereferenced = ref<ReturnType<typeof dereference>['schema'] | null>(null)
+const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
 
 const modal = useTemplateRef<HTMLElement>('modal')
 
