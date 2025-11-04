@@ -1,7 +1,8 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { exec } from 'node:child_process'
 import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import as from 'ansis'
 
 /** Returns the monorepo root directory path */
@@ -13,7 +14,7 @@ export function getWorkspaceRoot() {
   return path.resolve(`${__dirname}/../../..`)
 }
 
-export async function runCommand(command: string, logFilename?: string) {
+export function runCommand(command: string, logFilename?: string): Promise<unknown> {
   const output = logFilename ? fs.createWriteStream(logFilename) : null
 
   return new Promise((resolve, reject) => {

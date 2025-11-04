@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -15,18 +14,6 @@ describe('EnvironmentColors', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('renders all 8 predefined color options', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const colorElements = wrapper.findAll("[data-testid='color-option']")
-    /** 8 color options (excludes the custom color label button) */
-    expect(colorElements.length).toBe(8)
-  })
-
   it('shows checkmark on the active color', () => {
     const wrapper = mount(EnvironmentColors, {
       props: {
@@ -40,303 +27,146 @@ describe('EnvironmentColors', () => {
     expect(checkmarks.length).toBeGreaterThan(0)
   })
 
-  it('emits select event when clicking a color option', async () => {
+  it('toggles from collapsed to expanded selector view', async () => {
+    const wrapper = mount(EnvironmentColors, {
+      props: {
+        activeColor: '#EF0006',
+      },
+    })
+
+    /** Initially shows collapsed view (single dot) */
+    const collapsedView = wrapper.find('.flex.h-4.w-4.cursor-pointer')
+    expect(collapsedView.exists()).toBe(true)
+
+    /** Click to expand */
+    await collapsedView.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    /** Expanded view should now show color selector */
+    const expandedView = wrapper.find('.color-selector')
+    expect(expandedView.exists()).toBe(true)
+
+    /** Should have 8 color options + divider + custom button */
+    const children = wrapper.findAll('.color-selector > *')
+    expect(children.length).toBeGreaterThan(8)
+  })
+
+  it('closes selector when selecting a preset color', async () => {
     const wrapper = mount(EnvironmentColors, {
       props: {
         activeColor: '#FFFFFF',
       },
     })
 
-    const colorOptions = wrapper.findAll("[data-testid='color-option']")
-    await colorOptions[1]?.trigger('click')
+    /** Open selector */
+    const collapsedView = wrapper.find('.flex.h-4.w-4.cursor-pointer')
+    await collapsedView.trigger('click')
+    await wrapper.vm.$nextTick()
 
+    /** Verify selector is open */
+    let expandedView = wrapper.find('.color-selector')
+    expect(expandedView.exists()).toBe(true)
+
+    /** Select the second color option */
+    const colorOptions = wrapper.findAll('.color-selector > div')
+    await colorOptions[1]?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    /** Should emit select event */
     expect(wrapper.emitted('select')).toBeTruthy()
     expect(wrapper.emitted('select')?.[0]).toEqual(['#EF0006'])
+
+    /** Selector should close after selection */
+    expandedView = wrapper.find('.color-selector')
+    expect(expandedView.exists()).toBe(false)
   })
 
-  it('shows custom color input when clicking custom color button', async () => {
+  it('hides selector when opening custom color input', async () => {
     const wrapper = mount(EnvironmentColors, {
       props: {
         activeColor: '#FFFFFF',
       },
     })
 
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-
+    /** Open selector first */
+    const collapsedView = wrapper.find('.flex.h-4.w-4.cursor-pointer')
+    await collapsedView.trigger('click')
     await wrapper.vm.$nextTick()
 
+    /** Verify selector is visible */
+    const expandedView = wrapper.find('.color-selector')
+    expect(expandedView.exists()).toBe(true)
+
+    /** Click custom color button (last button in selector) */
+    const buttons = wrapper.findAll('.color-selector button')
+    const customColorButton = buttons[buttons.length - 1]
+    await customColorButton?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    /** Custom input should be visible */
     const input = wrapper.find('input[type="text"]')
     expect(input.exists()).toBe(true)
+
+    /** Selector with color options should be hidden */
+    const colorDivs = wrapper.findAll('.color-selector > div')
+    expect(colorDivs.length).toBe(0)
   })
 
-  it('automatically adds "#" prefix to custom color value', async () => {
+  it('does not emit select event when custom color input is empty', async () => {
     const wrapper = mount(EnvironmentColors, {
       props: {
         activeColor: '#FFFFFF',
       },
     })
 
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
+    /** Open selector then custom color input */
+    const collapsedView = wrapper.find('.flex.h-4.w-4.cursor-pointer')
+    await collapsedView.trigger('click')
     await wrapper.vm.$nextTick()
 
-    const input = wrapper.find('input[type="text"]')
-    await input.setValue('FF0000')
-
-    expect((input.element as any).value).toBe('#FF0000')
-  })
-
-  it('does not add extra "#" when already present', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
+    const buttons = wrapper.findAll('.color-selector button')
+    const customColorButton = buttons[buttons.length - 1]
+    await customColorButton?.trigger('click')
     await wrapper.vm.$nextTick()
 
-    const input = wrapper.find('input[type="text"]')
-    await input.setValue('#00FF00')
-
-    expect((input.element as any).value).toBe('#00FF00')
-  })
-
-  it('emits select event when typing custom color', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const input = wrapper.find('input[type="text"]')
-    await input.setValue('123456')
-
-    expect(wrapper.emitted('select')).toBeTruthy()
-    /** The last emission should be the custom color with '#' prefix */
-    const emissions = wrapper.emitted('select') as string[][]
-    expect(emissions[emissions.length - 1]?.[0]).toBe('#123456')
-  })
-
-  it('hides custom input when clicking checkmark button', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    /** Show custom input */
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    let input = wrapper.find('input[type="text"]')
-    expect(input.exists()).toBe(true)
-
-    /** Hide custom input */
-    const checkmarkButton = wrapper.find('button[type="button"]')
-    await checkmarkButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    input = wrapper.find('input[type="text"]')
-    expect(input.exists()).toBe(false)
-  })
-
-  it('renders custom color button', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    /** The custom color button should exist */
-    expect(customColorButton.exists()).toBe(true)
-  })
-
-  it('uses solid background when custom color is set', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const input = wrapper.find('input[type="text"]')
-    await input.setValue('ABC123')
-    await wrapper.vm.$nextTick()
-
-    const colorPreview = wrapper.findAll('span')[1]
-    const style = colorPreview?.attributes('style')
-
-    expect(style).toContain('background')
-    /** Vue converts hex colors to RGB, so we just check for background property */
-    expect(style).toBeTruthy()
-  })
-
-  it('uses solid background when activeColor is not in standard options', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#123456',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    const style = customColorButton.attributes('style')
-
-    expect(style).toContain('background')
-    /** Vue converts hex to RGB, so we just verify background property exists */
-    expect(style).toBeTruthy()
-  })
-
-  it('shows checkmark on custom color when active', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#ABCDEF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    const icon = customColorButton.findComponent({ name: 'ScalarIcon' })
-
-    expect(icon.exists()).toBe(true)
-    expect(icon.props('icon')).toBe('Checkmark')
-  })
-
-  it('uses correct placeholder in custom color input', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#AABBCC',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const input = wrapper.find('input[type="text"]')
-    expect(input.attributes('placeholder')).toBe('#AABBCC')
-  })
-
-  it('uses default placeholder when no activeColor', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const input = wrapper.find('input[type="text"]')
-    expect(input.attributes('placeholder')).toBe('#000000')
-  })
-
-  it('does not show checkmark on predefined colors when custom color is active', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    /** The component tracks customColor internally, but we can test the template behavior */
-    const colorOptions = wrapper.findAll("[data-testid='color-option']")
-    colorOptions.forEach((option) => {
-      const icon = option.findComponent({ name: 'ScalarIcon' })
-      /** Only the white color (#FFFFFF) should have checkmark initially */
-      if (option.attributes('style')?.includes('#FFFFFF')) {
-        expect(icon.exists()).toBe(true)
-      }
-    })
-  })
-
-  it('handles empty activeColor gracefully', () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '',
-      },
-    })
-
-    expect(wrapper.exists()).toBe(true)
-    const colorOptions = wrapper.findAll("[data-testid='color-option']")
-    expect(colorOptions.length).toBe(8)
-  })
-
-  it('emits multiple color selections correctly', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const colorOptions = wrapper.findAll("[data-testid='color-option']")
-
-    /** Select first color */
-    await colorOptions[0]?.trigger('click')
-    /** Select second color */
-    await colorOptions[1]?.trigger('click')
-    /** Select third color */
-    await colorOptions[2]?.trigger('click')
-
-    expect(wrapper.emitted('select')).toHaveLength(3)
-    expect(wrapper.emitted('select')?.[0]).toEqual(['#FFFFFF'])
-    expect(wrapper.emitted('select')?.[1]).toEqual(['#EF0006'])
-    expect(wrapper.emitted('select')?.[2]).toEqual(['#EDBE20'])
-  })
-
-  it('toggles custom input visibility on multiple clicks', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const customColorButton = wrapper.find('label')
-
-    /** Show */
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-    let input = wrapper.find('input[type="text"]')
-    expect(input.exists()).toBe(true)
-
-    /** Hide */
-    const checkmarkButton = wrapper.find('button[type="button"]')
-    await checkmarkButton.trigger('click')
-    await wrapper.vm.$nextTick()
-    input = wrapper.find('input[type="text"]')
-    expect(input.exists()).toBe(false)
-
-    /** Show again */
-    await customColorButton.trigger('click')
-    await wrapper.vm.$nextTick()
-    input = wrapper.find('input[type="text"]')
-    expect(input.exists()).toBe(true)
-  })
-
-  it('handles rapid color changes', async () => {
-    const wrapper = mount(EnvironmentColors, {
-      props: {
-        activeColor: '#FFFFFF',
-      },
-    })
-
-    const colorOptions = wrapper.findAll('div > div > div')
-
-    /** Rapidly select multiple colors */
-    for (let i = 0; i < 5; i++) {
-      await colorOptions[i]?.trigger('click')
+    /** Clear any previous emissions */
+    const selectEvents = wrapper.emitted('select')
+    if (selectEvents) {
+      selectEvents.splice(0, selectEvents.length)
     }
 
-    expect(wrapper.emitted('select')).toHaveLength(5)
+    /** Try to input empty value */
+    const input = wrapper.find('input[type="text"]')
+    await input.setValue('')
+    await wrapper.vm.$nextTick()
+
+    /** Should not emit select event for empty input */
+    expect(wrapper.emitted('select')).toBeFalsy()
+  })
+
+  it('focuses custom color input when opened', async () => {
+    const wrapper = mount(EnvironmentColors, {
+      props: {
+        activeColor: '#FFFFFF',
+      },
+      attachTo: document.body,
+    })
+
+    /** Open selector then custom input */
+    const collapsedView = wrapper.find('.flex.h-4.w-4.cursor-pointer')
+    await collapsedView.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const buttons = wrapper.findAll('.color-selector button')
+    const customColorButton = buttons[buttons.length - 1]
+    await customColorButton?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    /** Input should exist and be focused */
+    const input = wrapper.find('input[type="text"]')
+    expect(input.exists()).toBe(true)
+    expect(input.element).toBe(document.activeElement)
+
+    wrapper.unmount()
   })
 })

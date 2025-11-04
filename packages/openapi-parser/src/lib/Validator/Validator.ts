@@ -1,3 +1,4 @@
+import type { ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
@@ -11,23 +12,18 @@ import { transformErrors } from '@/utils/transform-errors'
 /**
  * Configure available JSON Schema versions
  */
-export const jsonSchemaVersions = {
+const jsonSchemaVersions = {
   'http://json-schema.org/draft-04/schema#': Ajv04,
   'https://json-schema.org/draft/2020-12/schema': Ajv2020,
 }
 
 export class Validator {
-  public version: '2.0' | '3.0' | '3.1' | '3.2'
+  public version: OpenApiVersion
 
   public static supportedVersions = OpenApiVersions
 
   // Object with function *or* object { errors: string }
-  protected ajvValidators: Record<
-    string,
-    ((specification: AnyObject) => boolean) & {
-      errors: string
-    }
-  > = {}
+  protected ajvValidators: Record<string, ValidateFunction> = {}
 
   protected errors: string
 
@@ -40,7 +36,7 @@ export class Validator {
   /**
    * Checks whether a specification is valid and all references can be resolved.
    */
-  async validate(filesystem: Filesystem, options?: ThrowOnErrorOption): Promise<ValidateResult> {
+  validate(filesystem: Filesystem, options?: ThrowOnErrorOption): ValidateResult {
     const entrypoint = filesystem.find((file) => file.isEntrypoint)
     const specification = entrypoint?.specification
 
@@ -86,14 +82,14 @@ export class Validator {
       }
 
       // Get the correct OpenAPI validator
-      const validateSchema = await this.getAjvValidator(version)
+      const validateSchema = this.getAjvValidator(version)
       const schemaResult = validateSchema(specification)
 
       // Error handling
       if (validateSchema.errors) {
         if (validateSchema.errors.length > 0) {
           if (options?.throwOnError) {
-            throw new Error(validateSchema.errors[0])
+            throw new Error(validateSchema.errors[0].message)
           }
 
           return {
@@ -108,7 +104,7 @@ export class Validator {
 
       return {
         valid: schemaResult && resolvedReferences.valid,
-        errors: [...(schemaResult.errors ?? []), ...resolvedReferences.errors],
+        errors: [...resolvedReferences.errors],
         schema: resolvedReferences.schema,
       }
     } catch (error) {
@@ -127,7 +123,7 @@ export class Validator {
   /**
    * Ajv JSON schema validator
    */
-  async getAjvValidator(version: OpenApiVersion) {
+  getAjvValidator(version: OpenApiVersion): ValidateFunction {
     // Schema loaded already
     if (this.ajvValidators[version]) {
       return this.ajvValidators[version]
@@ -137,7 +133,7 @@ export class Validator {
     const schema = OpenApiSpecifications[version]
 
     // Load JSON Schema
-    const AjvClass = jsonSchemaVersions[schema.$schema]
+    const AjvClass = jsonSchemaVersions[schema.$schema as keyof typeof jsonSchemaVersions]
 
     // Get the correct Ajv validator
     const ajv = new AjvClass({

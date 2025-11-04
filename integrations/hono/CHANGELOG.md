@@ -1,5 +1,14 @@
 # @scalar/hono-api-reference
 
+## 0.9.23
+
+### Patch Changes
+
+- [#7170](https://github.com/scalar/scalar/pull/7170) [`5d2a740`](https://github.com/scalar/scalar/commit/5d2a74098cc51acb4bdc88758f35bf5d2ac3839f) Thanks [@renovate](https://github.com/apps/renovate)! - Bump dependency to patch GHSA-q7jf-gf43-6x6p
+
+- Updated dependencies []:
+  - @scalar/core@0.3.21
+
 ## 0.9.22
 
 ### Patch Changes

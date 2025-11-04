@@ -22,6 +22,7 @@
       "!**/node_modules/**",
       "!**/dist/**",
       "!**/playwright-report/**",
+      "!**/playwright-results.json",
       "!**/pnpm-lock.yaml",
       "!**/.pnpm-store/**",
       "!**/.docusaurus/**",
@@ -30,6 +31,7 @@
       "!**/*/storybook-static/**/*",
       "!**/httpsnippet-lite/**",
       "!**/.next/**",
+      "!**/.svelte-kit",
       "!**/obj/**",
       "!**/bin/**",
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
@@ -174,6 +176,7 @@
         "noRedeclare": "warn",
         "noShadowRestrictedNames": "warn",
         "noSparseArray": "warn",
+        "noTsIgnore": "error",
         "noUnsafeDeclarationMerging": "warn",
         "noUnsafeNegation": "warn",
         "useGetterReturn": "warn",
@@ -185,6 +188,7 @@
         "noExportsInTest": "warn",
         "noWith": "warn",
         "noVar": "warn",
+        "useAwait": "error",
         "useGuardForIn": "warn"
       },
       "performance": {

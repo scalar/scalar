@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import ScalarLoading, { useLoadingState } from './ScalarLoading.vue'
 
 describe('ScalarLoading', () => {
-  it('renders properly', async () => {
+  it('renders properly', () => {
     const loadingState = useLoadingState()
     loadingState.startLoading()
 

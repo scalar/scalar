@@ -52,7 +52,6 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   if (filteredSchemas.length === 1) {
     const mergedSchema = { ...rootProperties, ...filteredSchemas[0] }
     if (shouldBeNullable) {
-      // @ts-ignore
       mergedSchema.nullable = true
     }
     return mergedSchema
@@ -78,7 +77,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as SchemaObject
     if (shouldBeNullable) {
-      // @ts-ignore We use nullable
+      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result
@@ -88,7 +87,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   if (filteredSchemas.length !== schemas.length) {
     const result: SchemaObject = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
-      // @ts-ignore We use nullable
+      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result

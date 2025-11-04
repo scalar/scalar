@@ -1,6 +1,5 @@
-// @vitest-environment jsdom
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
@@ -10,10 +9,10 @@ describe('ResponseBodyStreaming', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-  })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
+    return () => {
+      vi.restoreAllMocks()
+    }
   })
 
   const createMockReader = (chunks: string[], shouldError = false): ReadableStreamDefaultReader<Uint8Array> => {
@@ -21,7 +20,7 @@ describe('ResponseBodyStreaming', () => {
     const encoder = new TextEncoder()
 
     return {
-      read: vi.fn(async () => {
+      read: vi.fn(() => {
         if (shouldError && index === 1) {
           throw new Error('Stream read error')
         }
@@ -29,15 +28,15 @@ describe('ResponseBodyStreaming', () => {
         if (index < chunks.length) {
           const value = encoder.encode(chunks[index])
           index++
-          return { done: false, value }
+          return Promise.resolve({ done: false as const, value })
         }
 
-        return { done: true, value: undefined }
+        return Promise.resolve({ done: true as const, value: undefined })
       }),
       cancel: vi.fn(),
       releaseLock: vi.fn(),
       closed: Promise.resolve(undefined),
-    } as unknown as ReadableStreamDefaultReader<Uint8Array>
+    }
   }
 
   describe('rendering', () => {
@@ -155,16 +154,15 @@ describe('ResponseBodyStreaming', () => {
     it('shows loading indicator while streaming', async () => {
       // Create a reader that never completes
       mockReader = {
-        read: vi.fn(
-          () =>
-            new Promise(() => {
-              // Never resolves to keep loading state
-            }),
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to keep loading state
+          }),
         ),
         cancel: vi.fn(),
         releaseLock: vi.fn(),
         closed: Promise.resolve(undefined),
-      } as unknown as ReadableStreamDefaultReader<Uint8Array>
+      }
 
       const wrapper = mount(ResponseBodyStreaming, {
         props: { reader: mockReader },
@@ -301,16 +299,15 @@ describe('ResponseBodyStreaming', () => {
 
     it('stops loading on unmount', async () => {
       mockReader = {
-        read: vi.fn(
-          () =>
-            new Promise(() => {
-              // Never resolves to test unmount behavior
-            }),
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to test unmount behavior
+          }),
         ),
         cancel: vi.fn(),
         releaseLock: vi.fn(),
         closed: Promise.resolve(undefined),
-      } as unknown as ReadableStreamDefaultReader<Uint8Array>
+      }
 
       const wrapper = mount(ResponseBodyStreaming, {
         props: { reader: mockReader },
@@ -352,16 +349,15 @@ describe('ResponseBodyStreaming', () => {
 
     it('does not display content before stream starts', async () => {
       mockReader = {
-        read: vi.fn(
-          () =>
-            new Promise(() => {
-              // Never resolves to test initial state
-            }),
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to test initial state
+          }),
         ),
         cancel: vi.fn(),
         releaseLock: vi.fn(),
         closed: Promise.resolve(undefined),
-      } as unknown as ReadableStreamDefaultReader<Uint8Array>
+      }
 
       const wrapper = mount(ResponseBodyStreaming, {
         props: { reader: mockReader },
@@ -547,18 +543,18 @@ describe('ResponseBodyStreaming', () => {
       const chunks = [chunk1, chunk2, chunk3]
 
       mockReader = {
-        read: vi.fn(async () => {
+        read: vi.fn(() => {
           if (index < chunks.length) {
-            const value = chunks[index]
+            const value = chunks[index]!
             index++
-            return { done: false, value }
+            return Promise.resolve({ done: false as const, value })
           }
-          return { done: true, value: undefined }
+          return Promise.resolve({ done: true as const, value: undefined })
         }),
         cancel: vi.fn(),
         releaseLock: vi.fn(),
         closed: Promise.resolve(undefined),
-      } as unknown as ReadableStreamDefaultReader<Uint8Array>
+      }
 
       const wrapper = mount(ResponseBodyStreaming, {
         props: { reader: mockReader },

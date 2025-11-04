@@ -1,5 +1,42 @@
 # @scalar/components
 
+## 0.16.0
+
+### Minor Changes
+
+- [#7199](https://github.com/scalar/scalar/pull/7199) [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat: update vue to 3.5.21
+
+### Patch Changes
+
+- [#7154](https://github.com/scalar/scalar/pull/7154) [`348f8f6`](https://github.com/scalar/scalar/commit/348f8f6292ef41844fda1fdd3089a55d97adbc0e) Thanks [@bgrcs](https://github.com/bgrcs)! - export sidebar components
+
+- [#7159](https://github.com/scalar/scalar/pull/7159) [`c22fc4e`](https://github.com/scalar/scalar/commit/c22fc4e5acb49d648014a6100c724a5b33c59cde) Thanks [@amritk](https://github.com/amritk)! - feat: added new layouts for client v2
+
+- [#7129](https://github.com/scalar/scalar/pull/7129) [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Simplify ApiReferences state management and migrate to new shared sidebar component. Eliminates the useSidebar and useNav hooks in favour of event bubbling and centralized state management in ApiReference.vue
+
+- [#7162](https://github.com/scalar/scalar/pull/7162) [`8a5a6a0`](https://github.com/scalar/scalar/commit/8a5a6a052cc05b0902b05052c80cc429ebc5a730) Thanks [@hwkr](https://github.com/hwkr)! - test(api-reference): add visual regression testing
+
+- [#7227](https://github.com/scalar/scalar/pull/7227) [`704fa30`](https://github.com/scalar/scalar/commit/704fa302b2cdbb17b19ca2d742537ca163d58c1c) Thanks [@hwkr](https://github.com/hwkr)! - feat(sidebar): cleanup structure and improve text wrapping
+
+- [#7209](https://github.com/scalar/scalar/pull/7209) [`a26ced6`](https://github.com/scalar/scalar/commit/a26ced6f2897074f0c102d5ccbff55c6fd520e12) Thanks [@hwkr](https://github.com/hwkr)! - fix(sidebar): word break sidebar entries with no spaces
+
+- [#7144](https://github.com/scalar/scalar/pull/7144) [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a) Thanks [@hwkr](https://github.com/hwkr)! - feat(useBindCx): add support for style attr
+
+- [#7152](https://github.com/scalar/scalar/pull/7152) [`592533f`](https://github.com/scalar/scalar/commit/592533faf60b6a5ba27909a4ca0847ca9f04a96d) Thanks [@hwkr](https://github.com/hwkr)! - refactor(sidebar): remove some divs from sidebar elements
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- [#7183](https://github.com/scalar/scalar/pull/7183) [`c72a2c5`](https://github.com/scalar/scalar/commit/c72a2c59eb80e1f5e216c687229ff90bea88f554) Thanks [@hwkr](https://github.com/hwkr)! - test(components): fixture team picker snapshots
+
+- Updated dependencies [[`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5), [`81b0a7a`](https://github.com/scalar/scalar/commit/81b0a7a4245619f03161eae639dc5834b77432b6), [`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765), [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0)]:
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+  - @scalar/icons@0.5.0
+  - @scalar/themes@0.13.23
+  - @scalar/code-highlight@0.2.0
+
 ## 0.15.1
 
 ### Patch Changes

@@ -62,15 +62,15 @@ const router = useRouter()
 const { activeWorkspace } = useActiveEntities()
 const { toast } = useToasts()
 
-async function handleImportCollection(
+function handleImportCollection(
   source: string | null | undefined,
 ): Promise<boolean> {
   if (!source) {
-    return false
+    return Promise.resolve(false)
   }
 
   return new Promise<boolean>((resolve) => {
-    importCollection({
+    void importCollection({
       store,
       workspace: activeWorkspace.value,
       source,

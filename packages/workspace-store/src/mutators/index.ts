@@ -1,7 +1,6 @@
 /** biome-ignore-all lint/performance/noBarrelFile: Mutators entry point */
 import type { WorkspaceStore } from '@/client'
 import { cookieMutators } from '@/mutators/cookie'
-import { environmentMutators } from '@/mutators/environment'
 import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
@@ -9,6 +8,8 @@ import { serverMutators } from '@/mutators/server'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
+ *
+ * @deprecated use the individual mutators instead, this will be removed after we move fully to the new store
  *
  * @param store - The workspace store containing all documents and workspace-level data
  * @returns An object with mutators for the workspace, the active document, and any named document
@@ -42,7 +43,6 @@ export function generateClientMutators(store: WorkspaceStore) {
     return {
       requestMutators: requestMutators(document),
       securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
-      environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(document?.servers),
     }
@@ -67,7 +67,6 @@ export function generateClientMutators(store: WorkspaceStore) {
     }
 
     return {
-      environmentMutators: environmentMutators(store.workspace),
       cookieMutators: cookieMutators(store.workspace),
       serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
       securitySchemeMutators: securitySchemeMutators(store.workspace['x-scalar-client-config-security-schemes']),
@@ -103,6 +102,10 @@ export {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from './auth'
+export {
+  upsertEnvironment,
+  upsertEnvironmentVariable,
+} from './environment'
 export {
   type OperationExampleMeta,
   type OperationMeta,

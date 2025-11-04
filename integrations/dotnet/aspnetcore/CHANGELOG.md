@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.10.0
+
+### Minor Changes
+
+- [#7096](https://github.com/scalar/scalar/pull/7096) [`f754dc1`](https://github.com/scalar/scalar/commit/f754dc1bff8dcbe04748dd103d1ed9763a977503) Thanks [@xC0dex](https://github.com/xC0dex)! - feat: use shared .NET code
+
+### Patch Changes
+
+- Updated dependencies [[`3ecf139`](https://github.com/scalar/scalar/commit/3ecf139d1a8e7a4dd49d471fa5f74c572442ae35), [`eb022f2`](https://github.com/scalar/scalar/commit/eb022f2c8f93c84a04c0093fefe8a1e05d6ec80d), [`6f60b8d`](https://github.com/scalar/scalar/commit/6f60b8dd1cf17185ea56b1f3bcbe811acc14010b), [`23a5628`](https://github.com/scalar/scalar/commit/23a5628e73d43739e3786703c0fe539c19697733), [`6aa06b0`](https://github.com/scalar/scalar/commit/6aa06b0f843ae3d8e6771e3c02ac11ee0043a4b1), [`f754dc1`](https://github.com/scalar/scalar/commit/f754dc1bff8dcbe04748dd103d1ed9763a977503), [`a796162`](https://github.com/scalar/scalar/commit/a79616220d5deb0117c2d6d191b465b36ba6ccd0), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`d9e911a`](https://github.com/scalar/scalar/commit/d9e911aad3a7fe25cc173bfc7865d990f30880c6), [`81b0a7a`](https://github.com/scalar/scalar/commit/81b0a7a4245619f03161eae639dc5834b77432b6), [`8a5a6a0`](https://github.com/scalar/scalar/commit/8a5a6a052cc05b0902b05052c80cc429ebc5a730), [`33edbf2`](https://github.com/scalar/scalar/commit/33edbf2a2648eb72ae49e36dfd289d4d57dc18e0), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0)]:
+  - @scalar/api-reference@1.39.0
+  - @scalar/dotnet-shared@0.1.0
+
 ## 2.9.0
 
 ### Minor Changes

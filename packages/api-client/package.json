@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.8.1",
+  "version": "2.9.0",
   "engines": {
     "node": ">=20"
   },
@@ -278,11 +278,12 @@
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "catalog:*",
+    "fastify": "catalog:*",
     "jsdom": "^22.1.0",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-svg-loader": "^5.1.0",
+    "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
 }

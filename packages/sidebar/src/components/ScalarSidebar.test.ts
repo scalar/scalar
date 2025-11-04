@@ -3,9 +3,11 @@ import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { Item } from '@/types'
+
 import { createSidebarState } from '../helpers/create-sidebar-state'
 import ScalarSidebarComponent from './ScalarSidebar.vue'
-import SidebarItem, { type Item } from './SidebarItem.vue'
+import SidebarItem from './SidebarItem.vue'
 
 describe('ScalarSidebar', () => {
   describe('filtering items by layout', () => {
@@ -399,7 +401,7 @@ describe('ScalarSidebar', () => {
   })
 
   describe('drag and drop', () => {
-    it('emits reorder event when onDragEnd is triggered', async () => {
+    it('emits reorder event when onDragEnd is triggered', () => {
       const items: Item[] = [
         {
           id: '1',
@@ -433,7 +435,7 @@ describe('ScalarSidebar', () => {
       expect(wrapper.emitted('reorder')?.[0]).toEqual([draggingItem, hoveredItem])
     })
 
-    it('passes drag event data correctly to parent', async () => {
+    it('passes drag event data correctly to parent', () => {
       const items: Item[] = [
         {
           id: 'item-a',
@@ -518,7 +520,7 @@ describe('ScalarSidebar', () => {
       expect(wrapper.text()).toContain('Footer Content')
     })
 
-    it('renders entry-decorator slot and passes it through to SidebarItem', () => {
+    it('renders decorator slot and passes it through to SidebarItem', () => {
       const items: Item[] = [
         {
           id: '1',
@@ -540,12 +542,13 @@ describe('ScalarSidebar', () => {
           isExpanded: state.isExpanded,
         },
         slots: {
-          'entry-decorator': '<div class="test-entry-decorator">Entry Decorator</div>',
+          decorator: '<div class="test-decorator">{{ params.item.title }} Decorator</div>',
         },
       })
 
-      expect(wrapper.find('.test-entry-decorator').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Entry Decorator')
+      const decorator = wrapper.find('.test-decorator')
+      expect(decorator.exists()).toBe(true)
+      expect(decorator.text()).toContain('Test Item')
     })
 
     it('renders default slot when provided', () => {
@@ -679,7 +682,7 @@ describe('ScalarSidebar', () => {
       expect(sidebarItems.length).toBe(1)
     })
 
-    it.skip('handles rapid successive clicks', async () => {
+    it.skip('handles rapid successive clicks', () => {
       const items: Item[] = [
         {
           id: '1',

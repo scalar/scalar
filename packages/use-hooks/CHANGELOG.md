@@ -1,5 +1,20 @@
 # @scalar/use-hooks
 
+## 0.3.0
+
+### Minor Changes
+
+- [#7199](https://github.com/scalar/scalar/pull/7199) [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat: update vue to 3.5.21
+
+### Patch Changes
+
+- [#7144](https://github.com/scalar/scalar/pull/7144) [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a) Thanks [@hwkr](https://github.com/hwkr)! - feat(useBindCx): add support for style attr
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- Updated dependencies [[`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0)]:
+  - @scalar/use-toasts@0.9.0
+
 ## 0.2.5
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/snippetz
 
+## 0.5.2
+
+### Patch Changes
+
+- [#6984](https://github.com/scalar/scalar/pull/6984) [`da7ab2f`](https://github.com/scalar/scalar/commit/da7ab2fb2e422b9cec2de5faba58ea83dd774808) Thanks [@xC0dex](https://github.com/xC0dex)! - feat: custom httpclient generator for C#
+
+- Updated dependencies [[`eb022f2`](https://github.com/scalar/scalar/commit/eb022f2c8f93c84a04c0093fefe8a1e05d6ec80d), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461)]:
+  - @scalar/types@0.4.0
+
 ## 0.5.1
 
 ### Patch Changes

@@ -9,16 +9,17 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.5.1",
+  "version": "0.5.2",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",
     "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
+    "generate:java-enums": "vite-node scripts/generate-java-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "postbuild": "pnpm generate:dotnet-enums",
+    "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -239,7 +240,7 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@scalar/types": "workspace:*",
-    "js-base64": "^3.7.8",
+    "js-base64": "catalog:*",
     "stringify-object": "^5.0.0"
   },
   "devDependencies": {

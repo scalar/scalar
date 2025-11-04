@@ -1,49 +1,50 @@
-// @vitest-environment jsdom
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+
+import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Overview from './Overview.vue'
 
-// Mock ResizeObserver
-window.ResizeObserver =
-  window.ResizeObserver ||
-  vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
-
 describe('Overview', () => {
-  const baseEnvironment = {
-    uid: 'env-1',
-    name: 'Default',
-    color: '#FFFFFF',
-    value: '',
-    isDefault: true,
-  }
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  const baseEnvVariables = [
-    { key: 'API_URL', value: 'https://api.example.com' },
-    { key: 'API_KEY', value: 'test-key-123' },
-  ]
+  const baseEnvironment = coerceValue(xScalarEnvironmentSchema, {
+    color: '#FFFFFF',
+    variables: [
+      { name: 'API_URL', value: 'https://api.example.com' },
+      { name: 'API_KEY', value: 'test-key-123' },
+    ],
+  })
 
   const mountWithProps = (
     custom: Partial<{
       description: string
-      environment: any
-      envVariables: any[]
     }> = {},
   ) => {
     const description = 'description' in custom ? custom.description : 'Test description'
-    const environment = custom.environment ?? baseEnvironment
-    const envVariables = custom.envVariables ?? baseEnvVariables
+
+    const document = coerceValue(OpenAPIDocumentSchema, {
+      info: {
+        title: 'Test API',
+        description,
+      },
+    })
 
     return mount(Overview, {
       props: {
-        description: description ?? 'default description',
-        environment,
-        envVariables,
+        document,
+        eventBus: mockEventBus,
+        layout: 'desktop',
+        environment: baseEnvironment,
+        collectionType: 'document' as const,
+        workspaceStore: createWorkspaceStore(),
       },
     })
   }
@@ -59,13 +60,6 @@ describe('Overview', () => {
       const wrapper = mountWithProps()
 
       expect(wrapper.text()).toContain('Description')
-    })
-
-    it('renders in preview mode by default', () => {
-      const wrapper = mountWithProps()
-
-      const editButton = wrapper.find('[type="button"]')
-      expect(editButton.text()).toContain('Edit')
     })
 
     it('renders the description content in preview mode', () => {
@@ -161,53 +155,31 @@ describe('Overview', () => {
       expect(codeInput.props('modelValue')).toBe(description)
     })
 
-    it('passes environment to CodeInput', async () => {
-      const customEnvironment = {
-        uid: 'custom-env',
-        name: 'Custom',
-        color: '#FF0000',
-        value: 'custom',
-        isDefault: false,
-      }
-      const wrapper = mountWithProps({ environment: customEnvironment })
+    it('passes undefined as environment to CodeInput', async () => {
+      const wrapper = mountWithProps()
 
       const editButton = wrapper.find('button')
       await editButton.trigger('click')
       await nextTick()
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      expect(codeInput.props('environment')).toEqual(customEnvironment)
+      expect(codeInput.props('environment')).toBeUndefined()
     })
 
-    it('passes envVariables to CodeInput', async () => {
-      const customEnvVariables = [
-        { key: 'BASE_URL', value: 'https://test.com' },
-        { key: 'TOKEN', value: 'token-xyz' },
-      ]
-      const wrapper = mountWithProps({ envVariables: customEnvVariables })
+    it('passes layout to CodeInput', async () => {
+      const wrapper = mountWithProps()
 
       const editButton = wrapper.find('button')
       await editButton.trigger('click')
       await nextTick()
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      expect(codeInput.props('envVariables')).toEqual(customEnvVariables)
-    })
-
-    it('passes empty envVariables array to CodeInput', async () => {
-      const wrapper = mountWithProps({ envVariables: [] })
-
-      const editButton = wrapper.find('button')
-      await editButton.trigger('click')
-      await nextTick()
-
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      expect(codeInput.props('envVariables')).toEqual([])
+      expect(codeInput.props('layout')).toBe('desktop')
     })
   })
 
   describe('event emission', () => {
-    it('emits overview:update:description when CodeInput value changes', async () => {
+    it('emits document:update:info on eventBus when CodeInput value changes', async () => {
       const wrapper = mountWithProps()
 
       const editButton = wrapper.find('button')
@@ -219,30 +191,7 @@ describe('Overview', () => {
       await codeInput.vm.$emit('update:modelValue', newDescription)
       await nextTick()
 
-      expect(wrapper.emitted('overview:update:description')).toBeTruthy()
-      expect(wrapper.emitted('overview:update:description')?.[0]).toEqual([newDescription])
-    })
-
-    it('emits multiple update events when description changes multiple times', async () => {
-      const wrapper = mountWithProps()
-
-      const editButton = wrapper.find('button')
-      await editButton.trigger('click')
-      await nextTick()
-
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-
-      await codeInput.vm.$emit('update:modelValue', 'First update')
-      await nextTick()
-      await codeInput.vm.$emit('update:modelValue', 'Second update')
-      await nextTick()
-      await codeInput.vm.$emit('update:modelValue', 'Third update')
-      await nextTick()
-
-      expect(wrapper.emitted('overview:update:description')).toHaveLength(3)
-      expect(wrapper.emitted('overview:update:description')?.[0]).toEqual(['First update'])
-      expect(wrapper.emitted('overview:update:description')?.[1]).toEqual(['Second update'])
-      expect(wrapper.emitted('overview:update:description')?.[2]).toEqual(['Third update'])
+      expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:info', { description: newDescription })
     })
 
     it('emits event with empty string', async () => {
@@ -256,8 +205,7 @@ describe('Overview', () => {
       await codeInput.vm.$emit('update:modelValue', '')
       await nextTick()
 
-      expect(wrapper.emitted('overview:update:description')).toBeTruthy()
-      expect(wrapper.emitted('overview:update:description')?.[0]).toEqual([''])
+      expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:info', { description: '' })
     })
   })
 
@@ -267,14 +215,6 @@ describe('Overview', () => {
 
       const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
       expect(markdown.props('withImages')).toBe(true)
-    })
-
-    it('renders different description content', () => {
-      const customDescription = '## Custom Title\n\nCustom content here.'
-      const wrapper = mountWithProps({ description: customDescription })
-
-      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('value')).toBe(customDescription)
     })
 
     it('switches to edit mode on markdown double click', async () => {
@@ -304,60 +244,6 @@ describe('Overview', () => {
 
       const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
       expect(markdown.props('value')).toBe(specialDescription)
-    })
-
-    it('handles switching modes multiple times', async () => {
-      const wrapper = mountWithProps()
-
-      // Switch to edit
-      const editButton = wrapper.find('button')
-      await editButton.trigger('click')
-      await nextTick()
-      expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(true)
-
-      // Switch to preview
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('blur')
-      await nextTick()
-      expect(wrapper.findComponent({ name: 'ScalarMarkdown' }).exists()).toBe(true)
-
-      // Switch to edit again
-      const editButtonAgain = wrapper.find('button')
-      await editButtonAgain.trigger('click')
-      await nextTick()
-      expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(true)
-
-      // Switch to preview again
-      const codeInputAgain = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInputAgain.vm.$emit('blur')
-      await nextTick()
-      expect(wrapper.findComponent({ name: 'ScalarMarkdown' }).exists()).toBe(true)
-    })
-
-    it('preserves description when switching between modes', async () => {
-      const description = 'Original description'
-      const wrapper = mountWithProps({ description })
-
-      // Verify preview mode shows description
-      let markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('value')).toBe(description)
-
-      // Switch to edit mode
-      const editButton = wrapper.find('button')
-      await editButton.trigger('click')
-      await nextTick()
-
-      // Verify edit mode has description
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      expect(codeInput.props('modelValue')).toBe(description)
-
-      // Switch back to preview
-      await codeInput.vm.$emit('blur')
-      await nextTick()
-
-      // Verify preview mode still shows description
-      markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('value')).toBe(description)
     })
 
     it('handles markdown with line breaks', () => {

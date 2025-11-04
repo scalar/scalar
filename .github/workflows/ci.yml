@@ -144,10 +144,12 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391 # v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+          # prettier and biome versions are pinned in package.json
+          cache-dependency-path: 'package.json'
       # Install only root dependencies
       - name: Install dev dependencies
         run: pnpm install --filter .
@@ -190,13 +192,17 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
-  test-packages-shard-1:
+  test-packages:
+    name: Test packages (shard ${{ matrix.shard-index }}/${{ matrix.shard-total }})
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22]
+        shard-index: [1, 2]
+        shard-total: [2]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -206,37 +212,27 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
       - name: Start test servers
-        run: pnpm script run test-servers &
+        run: pnpm script run test-servers & pnpm script wait -p 5051 5052
+        timeout-minutes: 1
       - name: Run tests
-        run: |
-          pnpm script wait -p 5051 5052 &&
-          CI=1 pnpm vitest packages/* --silent --shard=1/2
-
-  test-packages-shard-2:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build packages
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
-      - name: Start test servers
-        run: pnpm script run test-servers &
-      - name: Run tests
-        run: |
-          pnpm script wait -p 5051 5052 &&
-          CI=1 pnpm vitest packages/* --silent --shard=2/2
+        run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+        env:
+          CI: 1
 
   test-integrations:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.56.0
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    env:
+      HOME: '/root'
     timeout-minutes: 10
     strategy:
       matrix:
@@ -251,6 +247,9 @@ jobs:
           packages: './integrations/**'
       - name: Run tests
         run: CI=1 pnpm vitest integrations/* --silent
+        # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
+      - name: Run e2e tests
+        run: CI=1 pnpm --filter @scalar/nuxt test:e2e
 
   test-proxy-server:
     needs: [build]
@@ -266,114 +265,6 @@ jobs:
           cache: false
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
-
-  java-webjar-test:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    permissions:
-      contents: read
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: '22'
-          packages: '@scalar/api-reference'
-      - name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
-      - name: Check if the JS file exists
-        run: |
-          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
-      - name: Setup Java
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Run Maven tests
-        run: pnpm --filter @scalar/webjar test
-
-  java-webjar-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    needs: [build, java-webjar-test]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    concurrency:
-      group: java-webjar-publish
-      cancel-in-progress: false
-    permissions:
-      contents: read
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Check for new Webjar version
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            java_webjar_package:
-              - integrations/java/webjar/package.json
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: '22'
-          packages: '@scalar/api-reference'
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Setup Java
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          server-id: 'central'
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Set version in pom.xml (using the version from package.json)
-        run: pnpm --filter @scalar/webjar update:version
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Build Java WebJar
-        run: pnpm --filter @scalar/webjar build
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Release Java WebJar
-        run: pnpm --filter @scalar/webjar release
-        env:
-          # Create an account on Sonatype and add the credentials to the repository secrets.
-          # Generate User Token: https://central.sonatype.com/account
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          GPG_KEYNAME: ${{ secrets.GPG_KEY_ID }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
-  stats:
-    # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: '@scalar/api-reference'
-      - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   test-e2e-api-reference:
     needs: [build]
@@ -430,39 +321,6 @@ jobs:
             > [!IMPORTANT]
             > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e:update` in `packages/api-reference` and commit the changes.
 
-  test-galaxy-scalar-com:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    container:
-      image: scalarapi/playwright-runner:1.56.0
-      options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
-    env:
-      HOME: '/root'
-    permissions:
-      contents: read
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build packages
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
-      - name: Start @scalar/mock-server playground (galaxy.scalar.com)
-        run: pnpm --filter @scalar/mock-server dev:local &
-      - name: Run e2e tests (galaxy.scalar.com)
-        run: CI=1 pnpm test:e2e:galaxy-scalar-com
-
   test-e2e-scalar-app:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -489,12 +347,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
-      - name: Build scalar-app
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: './projects/scalar-app'
+          packages: 'scalar-app...'
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
@@ -502,8 +355,10 @@ jobs:
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
       - name: Run e2e tests (scalar-app)
-        run: CI=1 DEBUG=pw:browser* pnpm test:e2e:electron
+        run: pnpm --filter scalar-app test:e2e
         env:
+          CI: 1
+          DEBUG: pw:browser*
           DISPLAY: ':99'
       - if: failure()
         name: Show stack traces and debug info
@@ -639,81 +494,8 @@ jobs:
             >
             > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
-  test-cdn-local:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    container:
-      image: scalarapi/playwright-runner:1.56.0
-      options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
-    env:
-      HOME: '/root'
-    permissions:
-      contents: read
-      pull-requests: write
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: '@scalar/api-reference...'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Start HTML server
-        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
-      - name: Run e2e tests (local)
-        run: CI=1 pnpm test:e2e:local
-
-  test-nuxt-integration:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    container:
-      image: scalarapi/playwright-runner:1.56.0
-      options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
-    permissions:
-      contents: read
-      pull-requests: write
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: './{packages,integrations}/**'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Start nuxt server
-        run: pnpm --filter nuxt dev --host &
-      - name: Run e2e tests
-        run: CI=1 pnpm -r --parallel test:e2e:nuxt
+  # ---------------------------------------------------------------------------------------------------------
+  # Publish and deploy packages
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
@@ -728,15 +510,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages-shard-1,
-        test-packages-shard-2,
-        test-integrations,
-      ]
+    needs: [build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [22]
@@ -790,7 +564,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages-shard-1, test-packages-shard-2]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [22]
@@ -905,7 +679,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, test-packages-shard-1, test-packages-shard-2]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [22]
@@ -1036,6 +810,9 @@ jobs:
             https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
           comment-tag: 'storybook-preview'
 
+  # ---------------------------------------------------------------------------------------------------------
+  # Integration builds, tests, and publishes
+
   dotnet-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -1096,8 +873,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1180,8 +956,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         dotnet-build-test,
       ]
@@ -1267,8 +1042,7 @@ jobs:
         name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
-          dotnet-version: |
-            9.x
+          dotnet-version: 10.x
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
@@ -1324,8 +1098,7 @@ jobs:
         build,
         format,
         types,
-        test-packages-shard-1,
-        test-packages-shard-2,
+        test-packages,
         test-integrations,
         fastapi-build-test,
       ]
@@ -1432,15 +1205,7 @@ jobs:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [
-        build,
-        format,
-        types,
-        test-packages-shard-1,
-        test-packages-shard-2,
-        test-integrations,
-        rust-build-test,
-      ]
+      [build, format, types, test-packages, test-integrations, rust-build-test]
 
     steps:
       - name: Checkout repository
@@ -1506,6 +1271,117 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
+  java-webjar-test:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: '22'
+          packages: '@scalar/api-reference'
+      - name: Copy JavaScript asset from @scalar/api-reference
+        run: pnpm --filter @scalar/webjar copy:standalone
+      - name: Check if the JS file exists
+        run: |
+          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
+      - name: Setup Java
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Run Maven tests
+        run: pnpm --filter @scalar/webjar test
+
+  java-webjar-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    needs: [build, java-webjar-test]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    concurrency:
+      group: java-webjar-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Check for new Webjar version
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            java_webjar_package:
+              - integrations/java/webjar/package.json
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: '22'
+          packages: '@scalar/api-reference'
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        run: pnpm --filter @scalar/webjar copy:standalone
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Setup Java
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          server-id: 'central'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Set version in pom.xml (using the version from package.json)
+        run: pnpm --filter @scalar/webjar update:version
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build Java WebJar
+        run: pnpm --filter @scalar/webjar build
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Release Java WebJar
+        run: pnpm --filter @scalar/webjar release
+        env:
+          # Create an account on Sonatype and add the credentials to the repository secrets.
+          # Generate User Token: https://central.sonatype.com/account
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  # ---------------------------------------------------------------------------------------------------------
+  # Other jobs
+
+  stats:
+    # Skip for forks and bot PRs
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: '@scalar/api-reference'
+      - name: Send bundle stats and build information to RelativeCI
+        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        with:
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+
   required-ci-ok:
     name: Required CI OK
     runs-on: ubuntu-latest
@@ -1513,13 +1389,14 @@ jobs:
     permissions: {}
     if: always()
     needs:
-      - build
-      - format
-      - test-packages-shard-1
-      - test-packages-shard-2
-      - test-integrations
-      - test-proxy-server
-      - types
+      [
+        build,
+        format,
+        test-packages,
+        test-integrations,
+        test-proxy-server,
+        types,
+      ]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1

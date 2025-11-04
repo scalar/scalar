@@ -10,6 +10,8 @@ Images display visual content with support for light/dark mode variants, clickab
 
 The primary image source URL. This is the image that will be displayed in light mode or as the fallback.
 
+You may use relative paths if `assetsDir` is set in your `scalar.config.json`
+
 ### activeSrc
 
 `string` _optional_
@@ -265,3 +267,47 @@ Defaults to `actual`.
 
 </scalar-tab>
 </scalar-tabs>
+
+### Relative Path Link
+
+<scalar-tabs>
+<scalar-tab title="Custom HTML">
+
+<scalar-image
+  src="/hero_1500x500.jpeg"
+  alt="Hero section background"
+  size="full"
+  caption="Relative Path to Full-width hero image">
+</scalar-image>
+
+```html
+<scalar-image
+  src="/hero_1500x500.jpeg"
+  alt="Hero section background"
+  size="full"
+  caption="Relative path Full-width hero image">
+</scalar-image>
+```
+</scalar-tab>
+
+<scalar-tab title="Directive">
+
+::scalar-image{ src="/hero_1500x500.jpeg" alt="Hero section background" size="full" caption="Full-width hero image" }
+
+```markdown
+::scalar-image{ src="/hero_1500x500.jpeg" alt="Hero section background" size="full" caption="Full-width hero image" }
+```
+
+</scalar-tab>
+</scalar-tabs>
+
+<scalar-callout type="info"> The path is relative based on the configured  `assetsDir`. </scalar-callout>
+
+```json
+// scalar.config.json
+{
+  "assetsDir": "documentation/assets"
+}
+```
+
+

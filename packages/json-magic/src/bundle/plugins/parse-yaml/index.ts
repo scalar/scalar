@@ -1,6 +1,6 @@
 import YAML from 'yaml'
 
-import type { LoaderPlugin, ResolveResult } from '@/bundle'
+import type { LoaderPlugin } from '@/bundle'
 import { isYaml } from '@/helpers/is-yaml'
 
 /**
@@ -17,16 +17,17 @@ export function parseYaml(): LoaderPlugin {
   return {
     type: 'loader',
     validate: isYaml,
-    exec: async (value): Promise<ResolveResult> => {
+    exec: (value) => {
       try {
-        return {
+        return Promise.resolve({
           ok: true,
           data: YAML.parse(value, { merge: true, maxAliasCount: 10000 }),
-        }
+          raw: value,
+        })
       } catch {
-        return {
+        return Promise.resolve({
           ok: false,
-        }
+        })
       }
     },
   }

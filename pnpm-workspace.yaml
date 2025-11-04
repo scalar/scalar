@@ -35,14 +35,14 @@ catalogs:
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0
-    '@types/picomatch': 3.0.1
+    '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.1.6
     '@types/react': ^19.1.8
     '@types/semver': 7.5.8
     '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-react': 5.0.4
     '@vitejs/plugin-vue': 6.0.1
-    '@vue/test-utils': ^2.4.1
+    '@vue/test-utils': 2.4.6
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     ansis: 4.1.0
@@ -61,7 +61,6 @@ catalogs:
     next: ^15.4.7
     picomatch: 4.0.2
     postcss: ^8.4.38
-    prettier: 3.5.3
     react-dom: ^19.1.0
     react: ^19.1.0
     rollup: 4.45.1
@@ -76,7 +75,7 @@ catalogs:
     vite: 7.1.11
     vitest: 3.2.4
     vue-tsc: ^2.2.0
-    vue: ^3.5.17
+    vue: ^3.5.21
     vue-router: 4.6.2
     yaml: 2.8.0
     zod: 4.1.11

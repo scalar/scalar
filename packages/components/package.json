@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.15.1",
+  "version": "0.16.0",
   "engines": {
     "node": ">=20"
   },
@@ -85,7 +85,7 @@
     "@types/jsdom": "^21.1.3",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "catalog:*",
     "jsdom": "^22.1.0",
     "plugins": "^0.4.2",
     "storybook": "^8.0.8",

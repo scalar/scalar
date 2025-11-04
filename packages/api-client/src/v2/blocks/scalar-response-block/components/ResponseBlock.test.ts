@@ -1,5 +1,3 @@
-// @vitest-environment jsdom
-
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -73,7 +71,7 @@ describe('ResponseBlock', () => {
       expect(emptyComponent.props('layout')).toBe('desktop')
     })
 
-    it('emits addRequest when ResponseEmpty emits it', async () => {
+    it('emits addRequest when ResponseEmpty emits it', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
       })
@@ -84,7 +82,7 @@ describe('ResponseBlock', () => {
       expect(wrapper.emitted('addRequest')).toBeTruthy()
     })
 
-    it('emits sendRequest when ResponseEmpty emits it', async () => {
+    it('emits sendRequest when ResponseEmpty emits it', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
       })
@@ -95,7 +93,7 @@ describe('ResponseBlock', () => {
       expect(wrapper.emitted('sendRequest')).toBeTruthy()
     })
 
-    it('emits openCommandPalette when ResponseEmpty emits it', async () => {
+    it('emits openCommandPalette when ResponseEmpty emits it', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
       })

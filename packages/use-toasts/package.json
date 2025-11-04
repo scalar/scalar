@@ -17,7 +17,7 @@
     "vue",
     "vue3"
   ],
-  "version": "0.8.0",
+  "version": "0.9.0",
   "engines": {
     "node": ">=20"
   },
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "catalog:*"

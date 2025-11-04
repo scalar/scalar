@@ -235,6 +235,12 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 
 The `isDefault` parameter allows you to specify which document should be selected by default when the API Reference loads. If no document is marked as default, the first document in the list will be used.
 
+You can also specify a document name directly in the URL path (e.g., `/scalar/v1`). However, this will override the document names specified in the `AddDocument` or `AddDocuments` methods.
+
+:::scalar-callout{ type=info }
+**Note on case sensitivity**: Scalar forwards document names to the OpenAPI generator exactly as they appear in the URL path or as they are defined, preserving the case. The behavior depends on whether your OpenAPI generator treats document names as case-sensitive. To avoid issues, use consistent casing for document names (e.g., lowercase `"v1"`).
+:::
+
 ### Authentication
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.

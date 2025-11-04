@@ -259,7 +259,7 @@
     },
     {
       "description": "Integrations - Fastify",
-      "matchFileNames": ["integrations/fastify/**", "examples/fastify/**"],
+      "matchFileNames": ["integrations/fastify/**"],
       "additionalBranchPrefix": "fastify"
     },
     {
@@ -391,6 +391,13 @@
       "description": "Disable major updates for Microsoft.AspNetCore packages",
       "matchPackageNames": ["Microsoft.AspNetCore**"],
       "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+
+    {
+      "description": "Keep Spring Boot dependencies as low as possible for best compatibility",
+      "matchFileNames": ["integrations/java/**"],
+      "matchPackageNames": ["org.springframework.boot:*"],
       "enabled": false
     }
   ]

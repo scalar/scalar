@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.2.5",
+  "version": "0.3.0",
   "engines": {
     "node": ">=20"
   },
@@ -67,8 +67,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
-    "vite": "catalog:*",
-    "zod-to-ts": "^1.2.0"
+    "@vue/test-utils": "catalog:*",
+    "vite": "catalog:*"
   }
 }

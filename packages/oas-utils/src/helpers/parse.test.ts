@@ -24,15 +24,15 @@ describe('Handles yaml and json parsing', () => {
 })
 
 describe('isJsonString', () => {
-  it('keeps a path as is', async () => {
+  it('keeps a path as is', () => {
     expect(isJsonString('foobar')).toBe(false)
   })
 
-  it('removes slash', async () => {
+  it('removes slash', () => {
     expect(isJsonString('{ "foo": "bar" }')).toBe(true)
   })
 
-  it('trims whitespace', async () => {
+  it('trims whitespace', () => {
     expect(isJsonString({ foo: 'bar' })).toBe(false)
   })
 })

@@ -112,7 +112,7 @@ describe('AuthSelector.vue', () => {
     selectedSecuritySchemeUids.value = []
   })
 
-  it('renders the basics', async () => {
+  it('renders the basics', () => {
     const wrapper = mount(AuthSelector, {
       props: createBaseProps(),
     })
@@ -150,7 +150,7 @@ describe('AuthSelector.vue', () => {
     })
   })
 
-  it('shows optional status when security is optional', async () => {
+  it('shows optional status when security is optional', () => {
     const props = createBaseProps()
     props.operation.security = [{}]
 
@@ -161,7 +161,7 @@ describe('AuthSelector.vue', () => {
     expect(wrapper.text()).toContain('Optional')
   })
 
-  it('displays multiple when multiple schemes are selected', async () => {
+  it('displays multiple when multiple schemes are selected', () => {
     const props = createBaseProps()
     selectedSecuritySchemeUids.value = ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids']
 

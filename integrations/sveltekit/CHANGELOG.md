@@ -1,5 +1,14 @@
 # @scalar/sveltekit
 
+## 0.1.27
+
+### Patch Changes
+
+- [#7119](https://github.com/scalar/scalar/pull/7119) [`88a2eb6`](https://github.com/scalar/scalar/commit/88a2eb6a1c33cde2815a01b26612f39c89a1d5e7) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(sveltekit): make `ScalarApiReference` return a synchronous route handler
+
+- Updated dependencies []:
+  - @scalar/core@0.3.21
+
 ## 0.1.26
 
 ### Patch Changes

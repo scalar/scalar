@@ -1,5 +1,6 @@
+import { generateHash } from '@scalar/helpers/crypto/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
-import { bundle } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
@@ -104,15 +105,17 @@ export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
+function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
     return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
   }
 
-  return {
-    ok: true as const,
+  return Promise.resolve({
+    ok: true,
     data: workspaceDocument.document,
-  }
+    // string version of the raw document for hashing purposes
+    raw: JSON.stringify(workspaceDocument.document),
+  })
 }
 
 /**
@@ -385,22 +388,25 @@ export type WorkspaceStore = {
    * If automatic resolution isn't possible due to conflicts, returns a conflict list for the caller to resolve.
    * If `resolvedConflicts` are provided (e.g., after user intervention), applies them to complete the rebase.
    *
-   * @param input - An object specifying which document to rebase, the new origin document, fetch/config info, and overrides.
-   * @param resolvedConflicts - (Optional) Conflict resolutions to apply if rebase hits merge conflicts.
-   * @returns If there are unresolved conflicts and no resolution is provided, resolves to the list of conflicts; otherwise resolves to void.
+   * @param input Object specifying which document to rebase
+   * @returns If there are unresolved conflicts, resolves to an object containing the list of conflicts and a method to apply user-resolved conflicts; otherwise resolves to void.
    *
    * @example
-   * // Example: Rebase a document and handle merge conflicts
-   * const conflicts = await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch })
-   * if (conflicts && conflicts.length > 0) {
-   *   // User resolves conflicts here...
-   *   await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch }, userResolvedConflicts)
+   * // Rebase a document and handle conflicts interactively
+   * const result = await store.rebaseDocument({ name: 'api', fetch: customFetch });
+   * if (result && result.ok) {
+   *   // Present conflicts to the user and collect resolutions...
+   *   await result.applyChanges(userResolvedConflicts);
    * }
    */
-  rebaseDocument: (
-    input: WorkspaceDocumentInput,
-    resolvedConflicts?: Difference<unknown>[],
-  ) => Promise<void | ReturnType<typeof merge>['conflicts']>
+  rebaseDocument: (input: WorkspaceDocumentInput) => Promise<
+    | { ok: false; type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'; message: string }
+    | {
+        ok: true
+        conflicts: ReturnType<typeof merge>['conflicts']
+        applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+      }
+  >
 }
 
 /**
@@ -482,7 +488,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 type: 'documents',
                 documentName,
                 value: unpackProxyObject(
-                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                  workspace.documents[documentName] ?? {
+                    openapi: '3.1.0',
+                    info: { title: '', version: '' },
+                    'x-scalar-original-document-hash': '',
+                  },
                 ),
               } satisfies WorkspaceStateChangeEvent
 
@@ -498,7 +508,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 type: 'documents',
                 documentName,
                 value: unpackProxyObject(
-                  workspace.documents[documentName] ?? { openapi: '3.1.0', info: { title: '', version: '' } },
+                  workspace.documents[documentName] ?? {
+                    openapi: '3.1.0',
+                    info: { title: '', version: '' },
+                    'x-scalar-original-document-hash': '',
+                  },
                 ),
               } satisfies WorkspaceStateChangeEvent
 
@@ -527,118 +541,100 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
    * allowing for change tracking.
    */
-  const { originalDocuments, intermediateDocuments, overrides, documentMeta, documentConfigs } =
-    createDetectChangesProxy(
-      {
-        /**
-         * Holds the original, unmodified documents as they were initially loaded into the workspace.
-         * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
-         * This map preserves the pristine structure of each document, using deep clones to ensure that
-         * subsequent mutations in the workspace do not affect the originals.
-         * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
-         */
-        originalDocuments: {} as Record<string, UnknownObject>,
-        /**
-         * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
-         *
-         * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
-         * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
-         *
-         * Use this map to stage local changes that are ready to be propagated back to the remote registry.
-         * This separation allows us to distinguish between:
-         *   - The last known remote version (`originalDocuments`)
-         *   - The latest locally saved version (`intermediateDocuments`)
-         *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
-         */
-        intermediateDocuments: {} as Record<string, UnknownObject>,
-        /**
-         * A map of document configurations keyed by document name.
-         * This stores the configuration options for each document in the workspace,
-         * allowing for document-specific settings like navigation options, appearance,
-         * and other reference configuration.
-         */
-        documentConfigs: {} as Record<string, Config>,
-        /**
-         * Stores per-document overrides for OpenAPI documents.
-         * This object is used to override specific fields of a document
-         * when you cannot (or should not) modify the source document directly.
-         * For example, this enables UI-driven or temporary changes to be applied
-         * on top of the original document, without mutating the source.
-         * The key is the document name, and the value is a deep partial
-         * OpenAPI document representing the overridden fields.
-         */
-        overrides: {} as InMemoryWorkspace['overrides'],
-        /**
-         * Holds additional metadata for each document in the workspace.
-         *
-         * This metadata should be persisted together with the document itself.
-         * It can include information such as user preferences, UI state, or other
-         * per-document attributes that are not part of the OpenAPI document structure.
-         */
-        documentMeta: {} as InMemoryWorkspace['documentMeta'],
-      },
-      {
-        hooks: {
-          onAfterChange(path) {
-            const type = path[0]
+  const { originalDocuments, intermediateDocuments, overrides, documentConfigs } = createDetectChangesProxy(
+    {
+      /**
+       * Holds the original, unmodified documents as they were initially loaded into the workspace.
+       * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
+       * This map preserves the pristine structure of each document, using deep clones to ensure that
+       * subsequent mutations in the workspace do not affect the originals.
+       * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
+       */
+      originalDocuments: {} as Record<string, UnknownObject>,
+      /**
+       * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
+       *
+       * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
+       * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
+       *
+       * Use this map to stage local changes that are ready to be propagated back to the remote registry.
+       * This separation allows us to distinguish between:
+       *   - The last known remote version (`originalDocuments`)
+       *   - The latest locally saved version (`intermediateDocuments`)
+       *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
+       */
+      intermediateDocuments: {} as Record<string, UnknownObject>,
+      /**
+       * A map of document configurations keyed by document name.
+       * This stores the configuration options for each document in the workspace,
+       * allowing for document-specific settings like navigation options, appearance,
+       * and other reference configuration.
+       */
+      documentConfigs: {} as Record<string, Config>,
+      /**
+       * Stores per-document overrides for OpenAPI documents.
+       * This object is used to override specific fields of a document
+       * when you cannot (or should not) modify the source document directly.
+       * For example, this enables UI-driven or temporary changes to be applied
+       * on top of the original document, without mutating the source.
+       * The key is the document name, and the value is a deep partial
+       * OpenAPI document representing the overridden fields.
+       */
+      overrides: {} as InMemoryWorkspace['overrides'],
+    },
+    {
+      hooks: {
+        onAfterChange(path) {
+          const type = path[0]
 
-            if (!type) {
-              return
-            }
+          if (!type) {
+            return
+          }
 
-            if (path.length < 2) {
-              return
-            }
+          if (path.length < 2) {
+            return
+          }
 
-            const documentName = path[1] as string
-            if (type === 'originalDocuments') {
-              const event = {
-                type,
-                documentName: documentName,
-                value: unpackProxyObject(originalDocuments[documentName] ?? {}),
-              } satisfies WorkspaceStateChangeEvent
-              fireWorkspaceChange(event)
-            }
+          const documentName = path[1] as string
+          if (type === 'originalDocuments') {
+            const event = {
+              type,
+              documentName: documentName,
+              value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+            } satisfies WorkspaceStateChangeEvent
+            fireWorkspaceChange(event)
+          }
 
-            if (type === 'intermediateDocuments') {
-              const event = {
-                type,
-                documentName: documentName,
-                value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
-              } satisfies WorkspaceStateChangeEvent
-              fireWorkspaceChange(event)
-            }
+          if (type === 'intermediateDocuments') {
+            const event = {
+              type,
+              documentName: documentName,
+              value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+            } satisfies WorkspaceStateChangeEvent
+            fireWorkspaceChange(event)
+          }
 
-            if (type === 'documentConfigs') {
-              const event = {
-                type,
-                documentName: documentName,
-                value: unpackProxyObject(documentConfigs[documentName] ?? {}),
-              } satisfies WorkspaceStateChangeEvent
-              fireWorkspaceChange(event)
-            }
+          if (type === 'documentConfigs') {
+            const event = {
+              type,
+              documentName: documentName,
+              value: unpackProxyObject(documentConfigs[documentName] ?? {}),
+            } satisfies WorkspaceStateChangeEvent
+            fireWorkspaceChange(event)
+          }
 
-            if (type === 'overrides') {
-              const event = {
-                type,
-                documentName: documentName,
-                value: unpackProxyObject(overrides[documentName] ?? {}),
-              } satisfies WorkspaceStateChangeEvent
-              fireWorkspaceChange(event)
-            }
-
-            if (type === 'documentMeta') {
-              const event = {
-                type,
-                documentName: documentName,
-                value: unpackProxyObject(documentMeta[documentName] ?? {}),
-              } satisfies WorkspaceStateChangeEvent
-              fireWorkspaceChange(event)
-            }
-          },
+          if (type === 'overrides') {
+            const event = {
+              type,
+              documentName: documentName,
+              value: unpackProxyObject(overrides[documentName] ?? {}),
+            } satisfies WorkspaceStateChangeEvent
+            fireWorkspaceChange(event)
+          }
         },
       },
-    )
+    },
+  )
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -713,7 +709,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
+  async function addInMemoryDocument(
+    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
+  ) {
     const { name, meta } = input
     const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
 
@@ -734,8 +732,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
         overrides[name] = input.overrides ?? {}
-        // Store the document metadata for this document, setting the origin if provided
-        documentMeta[name] = { documentSource: input.documentSource }
         // Store extra document configurations that can not be persisted
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
@@ -743,9 +739,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
-    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
-
-    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    const strictDocument: UnknownObject = createMagicProxy(
+      {
+        ...inputDocument,
+        ...meta,
+        'x-original-oas-version': originalDocuments[name]?.openapi ?? originalDocuments[name]?.swagger,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      },
+      { showInternal: true },
+    )
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -764,7 +767,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               refsEverywhere(),
             ],
             urlMap: true,
-            origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
+            origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),
       )
 
@@ -834,6 +837,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             title: `Document '${name}' could not be loaded`,
             version: 'unknown',
           },
+          'x-scalar-original-document-hash': 'not-a-hash',
         }
 
         return
@@ -849,6 +853,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             title: `Document '${name}' could not be loaded`,
             version: 'unknown',
           },
+          'x-scalar-original-document-hash': 'not-a-hash',
         }
 
         return
@@ -858,6 +863,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...input,
         document: resolve.data,
         documentSource: getDocumentSource(input),
+        documentHash: await generateHash(resolve.raw),
       })
     })
   }
@@ -880,7 +886,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return workspace
     },
     update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
-      // @ts-ignore
+      // @ts-expect-error
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         throw new Error('Invalid key: cannot modify prototype')
       }
@@ -911,6 +917,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         name: documentName,
         document: input,
         // Preserve the current metadata
+        documentSource: currentDocument['x-scalar-original-source-url'],
+        documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
           'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
           'x-scalar-active-server': currentDocument['x-scalar-active-server'],
@@ -918,7 +926,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         initialize: false,
       })
     },
-    resolve: async (path: string[]) => {
+    resolve: (path) => {
       const activeDocument = workspace.activeDocument
 
       const target = getValueByPath(activeDocument, path)
@@ -927,7 +935,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         console.error(
           `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
         )
-        return
+        return Promise.resolve()
       }
 
       // Bundle the target document with the active document as root, resolving any external references
@@ -958,6 +966,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await addInMemoryDocument({
         name: documentName,
         document: intermediate,
+        documentSource: workspaceDocument['x-scalar-original-source-url'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'],
         initialize: false,
       })
     },
@@ -982,8 +992,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments,
         intermediateDocuments,
         overrides,
-        documentMeta,
-      }
+      } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
       const result = coerceValue(InMemoryWorkspaceSchema, input)
@@ -1006,7 +1015,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
-      safeAssign(documentMeta, result.documentMeta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
@@ -1021,20 +1029,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: async (input, resolvedConflicts) => {
+    rebaseDocument: async (input: WorkspaceDocumentInput) => {
       const { name } = input
-
-      // ---- Resolve input document
-      const resolve = await measureAsync(
-        'loadDocument',
-        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
-      )
-
-      if (!resolve.ok || !isObject(resolve.data)) {
-        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
-      }
-
-      const newDocumentOrigin = resolve.data
 
       // ---- Get the current documents
       const originalDocument = originalDocuments[name]
@@ -1046,71 +1042,106 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
-        return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
+        return {
+          ok: false,
+          type: 'CORRUPTED_STATE' as const,
+          message: `Cannot rebase document '${name}': missing original, intermediate, or active document state`,
+        }
       }
 
-      const documentSource = getDocumentSource(input)
+      // ---- Resolve input document
+      const resolve = await measureAsync(
+        'loadDocument',
+        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      )
+
+      if (!resolve.ok || !isObject(resolve.data)) {
+        return {
+          ok: false,
+          type: 'FETCH_FAILED' as const,
+          message: `Failed to fetch document '${name}': request was not successful or returned invalid data`,
+        }
+      }
+
+      // Compare document hashes to see if the document has changed
+      // When the hashes match, we can skip the rebase process
+      const newHash = await generateHash(resolve.raw)
+      if (activeDocument['x-scalar-original-document-hash'] === newHash) {
+        return {
+          ok: false,
+          type: 'NO_CHANGES_DETECTED' as const,
+          message: `No changes detected for document '${name}': document hash matches the active document`,
+        }
+      }
+
+      const newDocumentOrigin = resolve.data
 
       // ---- Override the configurations and metadata
       documentConfigs[name] = input.config ?? {}
       overrides[name] = input.overrides ?? {}
-      documentMeta[name] = { documentSource }
       extraDocumentConfigurations[name] = { fetch: input.fetch }
 
       // ---- Get the new intermediate document
       const changelogAA = diff(originalDocument, newDocumentOrigin)
 
       // When there are no changes, we can return early since we don't need to do anything
+      // This is not supposed to happen due to the hash check above, but just in case
       if (changelogAA.length === 0) {
-        return
+        return {
+          ok: false,
+          type: 'NO_CHANGES_DETECTED' as const,
+          message: `No changes detected for document '${name}' after fetching the latest version.`,
+        }
       }
 
       const changelogAB = diff(originalDocument, intermediateDocument)
 
       const changesA = merge(changelogAA, changelogAB)
 
-      if (resolvedConflicts === undefined) {
-        // If there are conflicts, return the list of conflicts for user resolution
-        return changesA.conflicts
-      }
+      return {
+        ok: true,
+        conflicts: changesA.conflicts,
+        applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
+          const changesetA = changesA.diffs.concat(resolvedConflicts)
 
-      const changesetA = changesA.diffs.concat(resolvedConflicts)
+          // Apply the changes to the original document to get the new intermediate
+          const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
+          intermediateDocuments[name] = newIntermediateDocument
 
-      // Apply the changes to the original document to get the new intermediate
-      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
-      intermediateDocuments[name] = newIntermediateDocument
+          // Update the original document
+          originalDocuments[name] = newDocumentOrigin
 
-      // Update the original document
-      originalDocuments[name] = newDocumentOrigin
+          // ---- Get the new active document
+          const changelogBA = diff(intermediateDocument, newIntermediateDocument)
+          const changelogBB = diff(intermediateDocument, activeDocument)
 
-      // ---- Get the new active document
-      const changelogBA = diff(intermediateDocument, newIntermediateDocument)
-      const changelogBB = diff(intermediateDocument, activeDocument)
+          const changesB = merge(changelogBA, changelogBB)
 
-      const changesB = merge(changelogBA, changelogBB)
+          // Auto-conflict resolution: pick only the changes from the first changeset
+          // TODO: In the future, implement smarter conflict resolution if needed
+          const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-      // Auto-conflict resolution: pick only the changes from the first changeset
-      // TODO: In the future, implement smarter conflict resolution if needed
-      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
+          const newActiveDocument = coerceValue(
+            OpenAPIDocumentSchemaStrict,
+            apply(deepClone(newIntermediateDocument), changesetB),
+          )
 
-      const newActiveDocument = coerceValue(
-        OpenAPIDocumentSchemaStrict,
-        apply(deepClone(newIntermediateDocument), changesetB),
-      )
-
-      // add the new active document to the workspace but don't re-initialize
-      await addInMemoryDocument({
-        ...input,
-        document: {
-          ...newActiveDocument,
-          // force regeneration of navigation
-          // when we are rebasing, we want to ensure that the navigation is always up to date
-          [extensions.document.navigation]: undefined,
+          // add the new active document to the workspace but don't re-initialize
+          await addInMemoryDocument({
+            ...input,
+            document: {
+              ...newActiveDocument,
+              // force regeneration of navigation
+              // when we are rebasing, we want to ensure that the navigation is always up to date
+              [extensions.document.navigation]: undefined,
+            },
+            documentSource: getDocumentSource(input),
+            // Update the original document hash
+            documentHash: await generateHash(resolve.raw),
+            initialize: false,
+          })
         },
-        documentSource,
-        initialize: false,
-      })
-      return
+      }
     },
   }
 }

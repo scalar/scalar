@@ -434,6 +434,31 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
+	t.Run("Does not forward any cookies by default", func(t *testing.T) {
+		// Create a test server that checks for the Cookie header
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			// Check that Cookie header is empty
+			if cookie := r.Header.Get("Cookie"); cookie != "" {
+				t.Errorf("Expected Cookie header to be empty, got '%s'", cookie)
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with a cookie header
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("Cookie", "sensitive_session_id=abc123")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
 	t.Run("Forwards X-Scalar-Cookie as Cookie header", func(t *testing.T) {
 		// Create a test server that checks for the Cookie header
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {

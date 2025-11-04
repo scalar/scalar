@@ -8,25 +8,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { deepClone } from '@/helpers/general'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 
-function deferred<T>() {
-  let resolve!: (value: T | PromiseLike<T>) => void
-  let reject!: (reason?: any) => void
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res
-    reject = rej
-  })
-  return { promise, resolve, reject }
-}
-
 describe('plugins', () => {
   describe('loadingStatus', () => {
     it('sets the loading status to the correct value during ref resolution', async () => {
-      const onResolveStart = vi.fn()
-      const onResolveError = vi.fn()
-      const onResolveSuccess = vi.fn()
+      const createDeferred = <T>() => {
+        let resolve!: (value: T) => void
+        const promise = new Promise<T>((res) => (resolve = res))
+        return { promise, resolve }
+      }
 
-      const resolveStarted = deferred<null>()
-      const resolveSucceeded = deferred<null>()
+      const started = createDeferred<void>()
+      const succeeded = createDeferred<void>()
+
+      const onResolveStart = vi.fn(() => started.resolve())
+      const onResolveSuccess = vi.fn(() => succeeded.resolve())
+      const onResolveError = vi.fn()
 
       const input = {
         a: {
@@ -42,41 +38,37 @@ describe('plugins', () => {
           {
             type: 'loader',
             validate: (value: string) => value === 'some-ref',
-            exec: async () => {
-              return {
+            exec: () =>
+              Promise.resolve({
                 ok: true,
                 data: { resolved: true },
-              }
-            },
+                raw: JSON.stringify({ message: 'Resolved document' }),
+              }),
           },
           {
             type: 'lifecycle',
-            onResolveStart: (...args) => {
-              onResolveStart(args)
-              resolveStarted.resolve(null)
-            },
+            onResolveStart,
             onResolveError,
-            onResolveSuccess: (...args) => {
-              onResolveSuccess(args)
-              resolveSucceeded.resolve(null)
-            },
+            onResolveSuccess,
           },
           loadingStatus(),
         ],
         treeShake: false,
       })
 
-      await resolveStarted.promise
+      await started.promise
 
       // Verify that the loading status was set during resolution
       expect(onResolveStart).toHaveBeenCalled()
       expect(input.c['$status']).toBe('loading')
 
-      await resolveSucceeded.promise
+      await succeeded.promise
 
       // Verify that the loading status was set during resolution
       expect(onResolveSuccess).toHaveBeenCalled()
       expect(input.c['$status']).toBeUndefined() // Should be removed after successful resolution
+
+      expect(onResolveError).not.toHaveBeenCalled()
     })
 
     it('sets error status when ref resolution fails', async () => {
@@ -86,32 +78,29 @@ describe('plugins', () => {
         },
       } as any
 
-      const resolveErrored = deferred<null>()
+      const onResolveError = vi.fn()
 
       void bundle(input, {
         plugins: [
           {
             type: 'loader',
             validate: (value: string) => value === 'invalid-ref',
-            exec: async () => {
-              return {
+            exec: () =>
+              Promise.resolve({
                 ok: false,
                 error: 'Failed to resolve reference',
-              }
-            },
+              }),
           },
           {
             type: 'lifecycle',
-            onResolveError: () => {
-              resolveErrored.resolve(null)
-            },
+            onResolveError,
           },
           loadingStatus(),
         ],
         treeShake: false,
       })
 
-      await resolveErrored.promise
+      await vi.waitFor(() => expect(onResolveError).toHaveBeenCalled())
 
       // Verify that the error status was set
       expect(input.c.$status).toBe('error')
@@ -237,7 +226,7 @@ describe('plugins', () => {
     })
   })
 
-  describe('restoreOriginalRefs', async () => {
+  describe('restoreOriginalRefs', () => {
     let server: FastifyInstance
     const port = 9088
     const url = `http://localhost:${port}`

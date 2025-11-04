@@ -65,7 +65,7 @@ export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
 
-export type ResolveResult = { ok: true; data: unknown } | { ok: false }
+export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: false }
 
 /**
  * Resolves a string by finding and executing the appropriate plugin.
@@ -80,16 +80,16 @@ export type ResolveResult = { ok: true; data: unknown } | { ok: false }
  * // No matching plugin returns { ok: false }
  * await resolveContents('#/components/schemas/User', [urlPlugin, filePlugin])
  */
-async function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<ResolveResult> {
+function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<ResolveResult> {
   const plugin = plugins.find((p) => p.validate(value))
 
   if (plugin) {
     return plugin.exec(value)
   }
 
-  return {
+  return Promise.resolve({
     ok: false,
-  }
+  })
 }
 
 /**

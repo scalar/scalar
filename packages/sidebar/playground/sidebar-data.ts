@@ -210,4 +210,40 @@ export const galaxySidebar = [
       },
     ],
   },
+
+  {
+    id: 'tag/long-string-test',
+    title: 'Long string that needs to wrap to multiple lines',
+    name: 'Long String Tests',
+    description: '',
+    children: [
+      {
+        id: 'tag/long-string-test/post/1',
+        title: 'Long string that needs to wrap to multiple lines',
+        path: '/long/path/that/needs/to/be/handled/properly/in/the/sidebar',
+        method: 'post',
+        ref: '#/...',
+        type: 'operation',
+      },
+      {
+        id: 'tag/long-string-test/post/auth/token',
+        title: '/long/uri/that/also/needs/to/be/handled/properly/in/the/sidebar',
+        path: '/long/uri/that/also/needs/to/be/handled/properly/in/the/sidebar',
+        method: 'post',
+        ref: '#/...',
+        type: 'operation',
+      },
+      {
+        id: 'model/long-string-test/user',
+        title: 'LongPascalCaseStringThatNeedsToWrapToMultipleLines',
+        name: 'LongPascalCaseStringThatNeedsToWrapToMultipleLines',
+        ref: '#/...',
+        type: 'model',
+      },
+    ],
+    isGroup: false,
+    isWebhooks: false,
+    type: 'tag',
+    xKeys: {},
+  },
 ] satisfies TraversedEntry[]

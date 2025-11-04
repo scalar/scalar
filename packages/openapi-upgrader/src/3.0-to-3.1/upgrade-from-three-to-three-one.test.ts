@@ -24,7 +24,7 @@ describe('isSchemaPath', () => {
 
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {
-    it(`doesn't modify Swagger 2.0 files`, async () => {
+    it(`doesn't modify Swagger 2.0 files`, () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         swagger: '2.0',
         info: {
@@ -37,7 +37,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.swagger).toBe('2.0')
     })
 
-    it('changes the version to from 3.0.0 to 3.1.1', async () => {
+    it('changes the version to from 3.0.0 to 3.1.1', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -50,7 +50,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.openapi).toBe('3.1.1')
     })
 
-    it('changes the version to 3.0.3 to 3.1.1', async () => {
+    it('changes the version to 3.0.3 to 3.1.1', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.3',
         info: {
@@ -65,7 +65,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('nullable types', () => {
-    it('migrates nullable types', async () => {
+    it('migrates nullable types', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -98,7 +98,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates nullable types with properties', async () => {
+    it('migrates nullable types with properties', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -142,7 +142,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {
-    it('migrate exclusiveMinimum and exclusiveMaximum', async () => {
+    it('migrate exclusiveMinimum and exclusiveMaximum', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -182,7 +182,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('migrates example to examples', () => {
-    it('uses arrays in schemas', async () => {
+    it('uses arrays in schemas', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -216,7 +216,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('uses example objects everywhere else', async () => {
+    it('uses example objects everywhere else', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -314,10 +314,180 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
     })
+
+    it('preserves existing examples map without double nesting', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/test': {
+            post: {
+              responses: {
+                '201': {
+                  description: 'Created machine account subtype.',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        required: ['technicalName', 'displayName', 'description'],
+                        properties: {
+                          id: {
+                            type: 'string',
+                            format: 'uuid',
+                            description: 'Unique identifier for the subtype.',
+                          },
+                          technicalName: {
+                            type: 'string',
+                            description: 'Technical name of the subtype.',
+                          },
+                        },
+                      },
+                      examples: {
+                        example: {
+                          value: {
+                            id: '43bdd144-4b17-4fce-a744-17c7fd3e717b',
+                            technicalName: 'foo',
+                            displayName: 'Mr Foo',
+                            description: 'fighters',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      // The examples map should be preserved as-is, not double-nested
+      const content = result.paths?.['/test']?.post?.responses?.['201']?.content['application/json']
+      expect(content.examples).toEqual({
+        example: {
+          value: {
+            id: '43bdd144-4b17-4fce-a744-17c7fd3e717b',
+            technicalName: 'foo',
+            displayName: 'Mr Foo',
+            description: 'fighters',
+          },
+        },
+      })
+
+      // Should NOT have double nesting like examples.examples or value.value
+      expect(content.examples).not.toHaveProperty('examples')
+    })
+
+    it('converts example to examples outside of examples map while preserving examples map', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/test': {
+            get: {
+              parameters: [
+                {
+                  name: 'id',
+                  in: 'query',
+                  example: 'test-123',
+                },
+              ],
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                      },
+                      examples: {
+                        success: {
+                          value: {
+                            status: 'ok',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      // Parameter example should be converted to examples
+      expect(result.paths?.['/test']?.get?.parameters?.[0]).toEqual({
+        name: 'id',
+        in: 'query',
+        examples: {
+          default: {
+            value: 'test-123',
+          },
+        },
+      })
+
+      // Response examples map should be preserved as-is
+      const content = result.paths?.['/test']?.get?.responses?.['200']?.content['application/json']
+      expect(content.examples).toEqual({
+        success: {
+          value: {
+            status: 'ok',
+          },
+        },
+      })
+    })
+
+    it('converts example to examples for schema properties named "examples"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                examples: {
+                  type: 'object',
+                  description: 'A property named examples',
+                  example: { foo: 'bar' },
+                },
+                name: {
+                  type: 'string',
+                  example: 'John',
+                },
+              },
+            },
+          },
+        },
+      })
+
+      // The 'examples' property should have its 'example' converted to 'examples' array
+      expect(result.components?.schemas?.MySchema?.properties?.examples).toEqual({
+        type: 'object',
+        description: 'A property named examples',
+        examples: [{ foo: 'bar' }],
+      })
+
+      // The 'name' property should also have its 'example' converted
+      expect(result.components?.schemas?.MySchema?.properties?.name).toEqual({
+        type: 'string',
+        examples: ['John'],
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {
-    it('removes schema for binary file uploads', async () => {
+    it('removes schema for binary file uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -345,7 +515,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toEqual({})
     })
 
-    it('migrates base64 format to contentEncoding for image uploads', async () => {
+    it('migrates base64 format to contentEncoding for image uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -378,7 +548,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates binary format for multipart file uploads', async () => {
+    it('migrates binary format for multipart file uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -430,7 +600,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  it('migrates byte format', async () => {
+  it('migrates byte format', () => {
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.0',
       info: {
@@ -465,7 +635,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe.skip('declaring $schema', () => {
-    it('adds a $schema', async () => {
+    it('adds a $schema', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -480,7 +650,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('binary format handling with oneOf', () => {
-    it('correctly handles format: binary in oneOf schemas', async () => {
+    it('correctly handles format: binary in oneOf schemas', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -537,7 +707,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('webhooks', () => {
-    it('correctly upgrades x-webhooks to webhooks', async () => {
+    it('correctly upgrades x-webhooks to webhooks', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {

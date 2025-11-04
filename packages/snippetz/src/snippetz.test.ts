@@ -2,18 +2,20 @@ import { describe, expect, it } from 'vitest'
 
 import { snippetz } from './snippetz'
 
-describe('snippetz', async () => {
-  it('returns code for undici', async () => {
+describe('snippetz', () => {
+  it('returns code for undici', () => {
     const snippet = snippetz().print('node', 'undici', {
       url: 'https://example.com',
     })
 
-    expect(snippet).toBe(`import { request } from 'undici'
+    expect(snippet).toMatchInlineSnapshot(`
+      "import { request } from 'undici'
 
-const { statusCode, body } = await request('https://example.com')`)
+      const { statusCode, body } = await request('https://example.com')"
+    `)
   })
 
-  it('loads some clients by default', async () => {
+  it('loads some clients by default', () => {
     expect(snippetz().clients()).toEqual(
       expect.arrayContaining([
         {
@@ -50,8 +52,8 @@ const { statusCode, body } = await request('https://example.com')`)
   })
 })
 
-describe('plugins', async () => {
-  it('returns true if it has the plugin', async () => {
+describe('plugins', () => {
+  it('returns true if it has the plugin', () => {
     const result = snippetz().plugins()
 
     expect(result).toEqual(
@@ -73,14 +75,14 @@ describe('plugins', async () => {
   })
 })
 
-describe('hasPlugin', async () => {
-  it('returns true if it has the plugin', async () => {
+describe('hasPlugin', () => {
+  it('returns true if it has the plugin', () => {
     const result = snippetz().hasPlugin('node', 'undici')
 
     expect(result).toBe(true)
   })
 
-  it("returns false if it doesn't know the plugin", async () => {
+  it("returns false if it doesn't know the plugin", () => {
     const result = snippetz().hasPlugin('node', 'fantasy')
 
     expect(result).toBe(false)

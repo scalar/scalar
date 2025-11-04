@@ -1,4 +1,4 @@
-import type { LoaderPlugin, ResolveResult } from '@/bundle'
+import type { LoaderPlugin } from '@/bundle'
 import { isJsonObject } from '@/helpers/is-json-object'
 
 /**
@@ -15,16 +15,17 @@ export function parseJson(): LoaderPlugin {
   return {
     type: 'loader',
     validate: isJsonObject,
-    exec: async (value): Promise<ResolveResult> => {
+    exec: (value) => {
       try {
-        return {
+        return Promise.resolve({
           ok: true,
           data: JSON.parse(value),
-        }
+          raw: value,
+        })
       } catch {
-        return {
+        return Promise.resolve({
           ok: false,
-        }
+        })
       }
     },
   }

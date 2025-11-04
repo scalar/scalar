@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -134,7 +133,7 @@ describe('CookiesTable', () => {
     expect(rows.length).toBe(3)
   })
 
-  it('emits updateRow event when updating an existing cookie name', async () => {
+  it('emits updateRow event when updating an existing cookie name', () => {
     const wrapper = mount(CookiesTable, {
       props: {
         data: [

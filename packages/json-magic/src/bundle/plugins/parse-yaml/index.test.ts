@@ -1,5 +1,6 @@
-import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import { describe, expect, it } from 'vitest'
+
+import { parseYaml } from '@/bundle/plugins/parse-yaml'
 
 describe('parse-yaml', () => {
   it.each([
@@ -19,6 +20,7 @@ describe('parse-yaml', () => {
     expect(await parseYaml().exec('{ "message": "Hello World" }')).toEqual({
       ok: true,
       data: { message: 'Hello World' },
+      'raw': '{ "message": "Hello World" }',
     })
   })
 })

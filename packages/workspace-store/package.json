@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.17.1",
+  "version": "0.18.0",
   "engines": {
     "node": ">=18"
   },
@@ -69,6 +69,11 @@
       "types": "./dist/helpers/*.d.ts",
       "default": "./dist/helpers/*.js"
     },
+    "./mutators": {
+      "import": "./dist/mutators/index.js",
+      "types": "./dist/mutators/index.d.ts",
+      "default": "./dist/mutators/index.js"
+    },
     "./schemas/extensions/operation": {
       "import": "./dist/schemas/extensions/operation/index.js",
       "types": "./dist/schemas/extensions/operation/index.d.ts",
@@ -88,11 +93,6 @@
       "import": "./dist/navigation/index.js",
       "types": "./dist/navigation/index.d.ts",
       "default": "./dist/navigation/index.js"
-    },
-    "./mutators": {
-      "import": "./dist/mutators/index.js",
-      "types": "./dist/mutators/index.d.ts",
-      "default": "./dist/mutators/index.js"
     }
   },
   "files": [
@@ -116,9 +116,9 @@
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
+    "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "fake-indexeddb": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

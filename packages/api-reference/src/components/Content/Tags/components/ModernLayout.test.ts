@@ -102,7 +102,7 @@ describe('TagSection rendering', () => {
 })
 
 describe('ShowMoreButton rendering', () => {
-  it('renders ShowMoreButton when tag is collapsed and moreThanOneTag is true', async () => {
+  it('renders ShowMoreButton when tag is collapsed and moreThanOneTag is true', () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -115,7 +115,7 @@ describe('ShowMoreButton rendering', () => {
     expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(true)
   })
 
-  it('does not render ShowMoreButton when tag is not collapsed', async () => {
+  it('does not render ShowMoreButton when tag is not collapsed', () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -127,7 +127,7 @@ describe('ShowMoreButton rendering', () => {
     expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
   })
 
-  it('does not render ShowMoreButton when moreThanOneTag is false', async () => {
+  it('does not render ShowMoreButton when moreThanOneTag is false', () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -141,7 +141,7 @@ describe('ShowMoreButton rendering', () => {
 })
 
 describe('slot content rendering', () => {
-  it('renders slot content when ShowMoreButton is not shown', async () => {
+  it('renders slot content when ShowMoreButton is not shown', () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,

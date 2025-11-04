@@ -14,7 +14,7 @@
     "helpers",
     "js"
   ],
-  "version": "0.0.12",
+  "version": "0.0.13",
   "engines": {
     "node": ">=20"
   },
@@ -79,6 +79,11 @@
       "import": "./dist/url/*.js",
       "types": "./dist/url/*.d.ts",
       "default": "./dist/url/*.js"
+    },
+    "./crypto/*": {
+      "import": "./dist/crypto/*.js",
+      "types": "./dist/crypto/*.d.ts",
+      "default": "./dist/crypto/*.js"
     }
   },
   "files": [

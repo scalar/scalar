@@ -1,5 +1,63 @@
 # @scalar/api-client
 
+## 2.9.0
+
+### Minor Changes
+
+- [#6997](https://github.com/scalar/scalar/pull/6997) [`d34f31e`](https://github.com/scalar/scalar/commit/d34f31ee9e3ff360869c52f383b14431af520201) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: implement global cookies feature
+
+- [#7185](https://github.com/scalar/scalar/pull/7185) [`6ca835e`](https://github.com/scalar/scalar/commit/6ca835e5afd3e8c603e073e7c83f2cdd961a0f69) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: add support for watch mode
+
+- [#7068](https://github.com/scalar/scalar/pull/7068) [`7cda4c5`](https://github.com/scalar/scalar/commit/7cda4c5ecf237e17193391e223f9503c9f37f574) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: settings feature
+
+- [#7140](https://github.com/scalar/scalar/pull/7140) [`573c5a6`](https://github.com/scalar/scalar/commit/573c5a6c5d71ecfda262532aa32dad382f9f71e4) Thanks [@DemonHa](https://github.com/DemonHa)! - feat(api-client): request feature
+
+- [#7173](https://github.com/scalar/scalar/pull/7173) [`7c1e09e`](https://github.com/scalar/scalar/commit/7c1e09e86ce128adeefd209284a2ba49917adf2c) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: new plugin interface for v2
+
+- [#7199](https://github.com/scalar/scalar/pull/7199) [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat: update vue to 3.5.21
+
+- [#7120](https://github.com/scalar/scalar/pull/7120) [`f612140`](https://github.com/scalar/scalar/commit/f612140491d4e5088757ea5a3fef65ccd2785f08) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: document page feature
+
+### Patch Changes
+
+- [#7133](https://github.com/scalar/scalar/pull/7133) [`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(api-client): use request content type "other" when api supports `text/*` content types
+
+- [#7111](https://github.com/scalar/scalar/pull/7111) [`729ad06`](https://github.com/scalar/scalar/commit/729ad06027c91abcc39866f39319f053d286b995) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(api-client): remove `async` from `convertPostmanToOpenApi`
+
+- [#7159](https://github.com/scalar/scalar/pull/7159) [`c22fc4e`](https://github.com/scalar/scalar/commit/c22fc4e5acb49d648014a6100c724a5b33c59cde) Thanks [@amritk](https://github.com/amritk)! - feat: added new layouts for client v2
+
+- [#7186](https://github.com/scalar/scalar/pull/7186) [`c162bb6`](https://github.com/scalar/scalar/commit/c162bb64b86e698427c1fce36f6d8a2b789e094a) Thanks [@amritk](https://github.com/amritk)! - feat: hooking up event bus to the store
+
+- [#7227](https://github.com/scalar/scalar/pull/7227) [`704fa30`](https://github.com/scalar/scalar/commit/704fa302b2cdbb17b19ca2d742537ca163d58c1c) Thanks [@hwkr](https://github.com/hwkr)! - feat(sidebar): cleanup structure and improve text wrapping
+
+- [#7191](https://github.com/scalar/scalar/pull/7191) [`0865e66`](https://github.com/scalar/scalar/commit/0865e662092f8521bf69b69d82486ec0cc6030dd) Thanks [@amritk](https://github.com/amritk)! - fix: remove old custom event emitting
+
+- [#7094](https://github.com/scalar/scalar/pull/7094) [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Migrate to workspace store as primary source of truth.
+
+- [#7146](https://github.com/scalar/scalar/pull/7146) [`d386ae2`](https://github.com/scalar/scalar/commit/d386ae2a7c9288c8e5c4750ab57920ab955cae06) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: block requests with empty path parameters
+
+- Updated dependencies [[`eb022f2`](https://github.com/scalar/scalar/commit/eb022f2c8f93c84a04c0093fefe8a1e05d6ec80d), [`913607c`](https://github.com/scalar/scalar/commit/913607c7d67236f08f5369408f304440c6c42b22), [`348f8f6`](https://github.com/scalar/scalar/commit/348f8f6292ef41844fda1fdd3089a55d97adbc0e), [`17817ad`](https://github.com/scalar/scalar/commit/17817addbca916c8d625a03335ae58be3a1c4e4b), [`c22fc4e`](https://github.com/scalar/scalar/commit/c22fc4e5acb49d648014a6100c724a5b33c59cde), [`2239843`](https://github.com/scalar/scalar/commit/2239843150ed16d1ca35b0b1f8e90cd3e35be7ce), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`9661e81`](https://github.com/scalar/scalar/commit/9661e81907d1a9b74ba30f270f2d6c8e49834cd5), [`c162bb6`](https://github.com/scalar/scalar/commit/c162bb64b86e698427c1fce36f6d8a2b789e094a), [`b64265b`](https://github.com/scalar/scalar/commit/b64265b3e8b447a4d1c6dafaca8135ef69545d98), [`6ca835e`](https://github.com/scalar/scalar/commit/6ca835e5afd3e8c603e073e7c83f2cdd961a0f69), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`6aa06b0`](https://github.com/scalar/scalar/commit/6aa06b0f843ae3d8e6771e3c02ac11ee0043a4b1), [`81b0a7a`](https://github.com/scalar/scalar/commit/81b0a7a4245619f03161eae639dc5834b77432b6), [`8a5a6a0`](https://github.com/scalar/scalar/commit/8a5a6a052cc05b0902b05052c80cc429ebc5a730), [`6ec8c29`](https://github.com/scalar/scalar/commit/6ec8c299d912111b029e8058979d00968b70691a), [`704fa30`](https://github.com/scalar/scalar/commit/704fa302b2cdbb17b19ca2d742537ca163d58c1c), [`c84b7c5`](https://github.com/scalar/scalar/commit/c84b7c5e81be83dacbdfcbf9cb1e558dfdc3faa1), [`0319b8a`](https://github.com/scalar/scalar/commit/0319b8a8652a50667776b2e9fd27c3e15b34f765), [`da7ab2f`](https://github.com/scalar/scalar/commit/da7ab2fb2e422b9cec2de5faba58ea83dd774808), [`a26ced6`](https://github.com/scalar/scalar/commit/a26ced6f2897074f0c102d5ccbff55c6fd520e12), [`134ff5f`](https://github.com/scalar/scalar/commit/134ff5f32aa6842696bf146c7e0817b1662905eb), [`33edbf2`](https://github.com/scalar/scalar/commit/33edbf2a2648eb72ae49e36dfd289d4d57dc18e0), [`6a090a2`](https://github.com/scalar/scalar/commit/6a090a2e07ef961c56041c85ee9786180437593a), [`4fe1643`](https://github.com/scalar/scalar/commit/4fe1643be51f76a8ebdfd75f5675337b8d43418e), [`5db92db`](https://github.com/scalar/scalar/commit/5db92db78e5b11bb052307bc10c1be4eb7a3f164), [`592533f`](https://github.com/scalar/scalar/commit/592533faf60b6a5ba27909a4ca0847ca9f04a96d), [`75ad74c`](https://github.com/scalar/scalar/commit/75ad74c0eee10103b966ce4707e4823d819456a8), [`eba18d0`](https://github.com/scalar/scalar/commit/eba18d06267a163a8f91396a66f817100ee59461), [`a821986`](https://github.com/scalar/scalar/commit/a821986332141e69d26885b2d2b32eb0c49f416c), [`c72a2c5`](https://github.com/scalar/scalar/commit/c72a2c59eb80e1f5e216c687229ff90bea88f554), [`0d9c945`](https://github.com/scalar/scalar/commit/0d9c945a696ea8b826d86f7b48ec6de4d85e64f0), [`43bc5e8`](https://github.com/scalar/scalar/commit/43bc5e8b90dc0edf7176d0ddfc64bf3212494458), [`e23229d`](https://github.com/scalar/scalar/commit/e23229dfbd9613b5047b28b57901f2fc5a6e33e6)]:
+  - @scalar/types@0.4.0
+  - @scalar/workspace-store@0.18.0
+  - @scalar/components@0.16.0
+  - @scalar/sidebar@0.2.0
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/helpers@0.0.13
+  - @scalar/oas-utils@0.6.0
+  - @scalar/json-magic@0.7.0
+  - @scalar/snippetz@0.5.2
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+  - @scalar/themes@0.13.23
+  - @scalar/use-codemirror@0.12.44
+  - @scalar/analytics-client@1.0.0
+  - @scalar/import@0.4.32
+  - @scalar/object-utils@1.2.9
+  - @scalar/postman-to-openapi@0.3.41
+
 ## 2.8.1
 
 ### Patch Changes

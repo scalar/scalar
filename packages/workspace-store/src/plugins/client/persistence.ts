@@ -47,13 +47,6 @@ export const persistencePlugin = async ({
           )
         }
 
-        // Debounce per document meta and workspace
-        if (event.type === 'documentMeta') {
-          return execute(['documentMeta', workspaceId, event.documentName], () =>
-            persistence.documentMeta.setItem(workspaceId, event.documentName, event.value),
-          )
-        }
-
         // Debounce per intermediate document and workspace
         if (event.type === 'intermediateDocuments') {
           return execute(['intermediateDocuments', workspaceId, event.documentName], () =>

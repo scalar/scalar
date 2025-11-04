@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.2.45",
+  "version": "0.3.0",
   "engines": {
     "node": ">=20"
   },
@@ -78,7 +78,7 @@
     "@scalar/galaxy": "workspace:*",
     "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"

@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -40,12 +39,11 @@ describe('Tabs', () => {
     return { wrapper, router }
   }
 
-  it('renders 4 tabs for workspace type', async () => {
-    const { wrapper } = await mountWithRouter('workspace', 'workspace.overview')
+  it('renders 3 tabs for workspace type', async () => {
+    const { wrapper } = await mountWithRouter('workspace', 'workspace.environment')
 
     const links = wrapper.findAll('a')
-    expect(links).toHaveLength(4)
-    expect(wrapper.text()).toContain('Overview')
+    expect(links).toHaveLength(3)
     expect(wrapper.text()).toContain('Environment')
     expect(wrapper.text()).toContain('Cookies')
     expect(wrapper.text()).toContain('Settings')
@@ -62,15 +60,14 @@ describe('Tabs', () => {
   })
 
   it('generates correct route links for workspace tabs', async () => {
-    const { wrapper } = await mountWithRouter('workspace', 'workspace.overview')
+    const { wrapper } = await mountWithRouter('workspace', 'workspace.environment')
 
     const links = wrapper.findAll('a')
     const hrefs = links.map((link) => link.attributes('href'))
 
-    expect(hrefs[0]).toContain('overview')
-    expect(hrefs[1]).toContain('environment')
-    expect(hrefs[2]).toContain('cookies')
-    expect(hrefs[3]).toContain('settings')
+    expect(hrefs[0]).toContain('environment')
+    expect(hrefs[1]).toContain('cookies')
+    expect(hrefs[2]).toContain('settings')
   })
 
   it('generates correct route links for document tabs', async () => {
@@ -91,8 +88,8 @@ describe('Tabs', () => {
     const { wrapper } = await mountWithRouter('workspace', 'workspace.environment')
 
     const links = wrapper.findAll('a')
-    const activeTab = links[1]?.find('span')
-    const inactiveTab = links[0]?.find('span')
+    const activeTab = links[0]?.find('span')
+    const inactiveTab = links[1]?.find('span')
 
     expect(activeTab?.classes()).toContain('text-c-1')
     expect(inactiveTab?.classes()).toContain('text-c-2')
