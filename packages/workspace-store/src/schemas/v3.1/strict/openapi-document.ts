@@ -79,7 +79,6 @@ const OpenApiExtensionsSchema = compose(
       'x-scalar-watch-mode': Type.Boolean(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
-    XScalarSelectedSecuritySchema,
   ),
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
@@ -95,7 +94,6 @@ export type OpenAPIExtensions = Partial<{
   'x-scalar-client-config-icon': string
   'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
-  'x-scalar-selected-security': SecurityRequirementObject[]
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
   'x-scalar-watch-mode': boolean
