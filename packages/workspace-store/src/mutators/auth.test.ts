@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
   deleteSecurityScheme,
   updateSecurityScheme,
@@ -9,7 +10,7 @@ import {
 } from '@/mutators/auth'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
+import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
   return {
@@ -217,17 +218,15 @@ describe('updateSecurityScheme', () => {
                 authorizationUrl: '',
                 tokenUrl: '',
                 scopes: {},
-                // The implementation only updates fields that already exist on the flow
-                token: '',
-                redirectUrl: '',
-                clientId: '',
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-redirect-uri': '',
+                'x-scalar-secret-client-id': '',
                 'x-scalar-secret-client-secret': '',
-                usePkce: 'no',
-                username: '',
-                password: '',
+                'x-usePkce': 'no',
+                refreshUrl: '',
               },
             },
-          } as unknown as SecuritySchemeObject,
+          },
         },
       },
     })
@@ -246,22 +245,20 @@ describe('updateSecurityScheme', () => {
           clientId: 'cid',
           clientSecret: 'csecret',
           usePkce: 'SHA-256',
-          username: 'user',
-          password: 'pass',
         },
       },
     })
 
-    const flow = (document.components!.securitySchemes!.OAuth as any).flows.authorizationCode
+    assert(document.components?.securitySchemes?.OAuth)
+    const flow = getResolvedRef(document.components?.securitySchemes?.OAuth as OAuth2Object)?.flows.authorizationCode
+    assert(flow)
     expect(flow.authorizationUrl).toBe('https://auth')
     expect(flow.tokenUrl).toBe('https://token')
-    expect(flow.token).toBe('tok')
-    expect(flow.redirectUrl).toBe('https://cb')
+    expect(flow['x-scalar-secret-token']).toBe('tok')
+    expect(flow['x-scalar-secret-redirect-uri']).toBe('https://cb')
     expect(flow['x-scalar-secret-client-id']).toBe('cid')
     expect(flow['x-scalar-secret-client-secret']).toBe('csecret')
-    expect(flow.usePkce).toBe('SHA-256')
-    expect(flow.username).toBe('user')
-    expect(flow.password).toBe('pass')
+    expect(flow['x-usePkce']).toBe('SHA-256')
   })
 
   it('is a no-op when document is null or scheme missing', () => {

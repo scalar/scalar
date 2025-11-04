@@ -253,26 +253,26 @@ export const updateSecurityScheme = ({
     if (data.payload.tokenUrl && 'tokenUrl' in flow) {
       flow.tokenUrl = data.payload.tokenUrl
     }
-    if (data.payload.token && 'token' in flow) {
-      flow.token = data.payload.token
+    if (data.payload.token && 'x-scalar-secret-token' in flow) {
+      flow['x-scalar-secret-token'] = data.payload.token
     }
-    if (data.payload.redirectUrl && 'redirectUrl' in flow) {
-      flow.redirectUrl = data.payload.redirectUrl
+    if (data.payload.redirectUrl && 'x-scalar-secret-redirect-uri' in flow) {
+      flow['x-scalar-secret-redirect-uri'] = data.payload.redirectUrl
     }
-    if (data.payload.clientId && 'clientId' in flow) {
+    if (data.payload.clientId && 'x-scalar-secret-client-id' in flow) {
       flow['x-scalar-secret-client-id'] = data.payload.clientId
     }
     if (data.payload.clientSecret && 'x-scalar-secret-client-secret' in flow) {
       flow['x-scalar-secret-client-secret'] = data.payload.clientSecret
     }
-    if (data.payload.usePkce && 'usePkce' in flow) {
-      flow.usePkce = data.payload.usePkce
+    if (data.payload.usePkce && 'x-usePkce' in flow) {
+      flow['x-usePkce'] = data.payload.usePkce
     }
-    if (data.payload.username && 'username' in flow) {
-      flow.username = data.payload.username
+    if (data.payload.username && 'x-scalar-secret-username' in flow) {
+      flow['x-scalar-secret-username'] = data.payload.username
     }
-    if (data.payload.password && 'password' in flow) {
-      flow.password = data.payload.password
+    if (data.payload.password && 'x-scalar-secret-password' in flow) {
+      flow['x-scalar-secret-password'] = data.payload.password
     }
   }
 

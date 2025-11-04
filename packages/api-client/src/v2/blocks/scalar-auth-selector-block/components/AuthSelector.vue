@@ -163,11 +163,11 @@ const openAuthCombobox = (event: Event) => {
 const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
   eventBus.emit('update:selected-security-schemes', {
     // Only include updated schemes
-    updated: selected
+    selectedRequirements: selected
       .filter((it) => it.payload === undefined)
       .map((s) => s.value),
     // Only include created schemes
-    create: selected
+    newSchemes: selected
       .filter((it) => it.payload !== undefined)
       .map((it) => ({
         name: it.label,
