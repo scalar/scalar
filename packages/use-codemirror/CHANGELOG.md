@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.12.45
+
+### Patch Changes
+
+- [#7226](https://github.com/scalar/scalar/pull/7226) [`bffef40`](https://github.com/scalar/scalar/commit/bffef4092e40d12052f8538267af71bc99b7172f) Thanks [@amritk](https://github.com/amritk)! - feat: added overview page for client v2
+
+- Updated dependencies []:
+  - @scalar/components@0.16.1
+
 ## 0.12.44
 
 ### Patch Changes

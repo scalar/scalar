@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.9.1
+
+### Patch Changes
+
+- Updated dependencies [[`bffef40`](https://github.com/scalar/scalar/commit/bffef4092e40d12052f8538267af71bc99b7172f)]:
+  - @scalar/workspace-store@0.18.1
+  - @scalar/use-codemirror@0.12.45
+  - @scalar/oas-utils@0.6.1
+  - @scalar/sidebar@0.2.1
+  - @scalar/components@0.16.1
+  - @scalar/postman-to-openapi@0.3.42
+
 ## 2.9.0
 
 ### Minor Changes
