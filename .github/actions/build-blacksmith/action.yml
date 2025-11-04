@@ -23,7 +23,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
     - name: Persist turbo cache
-      uses: useblacksmith/stickydisk@bc0c024fcc3b738a9ad43776e261cbc53fab37af # v1
+      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
       with:
         key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
