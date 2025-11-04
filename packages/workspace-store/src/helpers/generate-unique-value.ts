@@ -1,10 +1,25 @@
 /**
- * Generate a unique value
+ * Generates a unique value based on a given default value and a validation function.
  *
- * We first try to see if we can use the default value by first running a transformation function on it
- * If we can not generate a unique value using that we try to incrementally apply a random salt at the end
+ * The process works as follows:
+ * 1. Optionally transform (e.g., slugify) the default value using a transformation function.
+ * 2. Check if this value is unique by executing the provided validation function.
+ * 3. If not unique, repeatedly append an incrementing integer (e.g., "my-name 1", "my-name 2", ...) and re-check uniqueness,
+ *    up to a maximum number of attempts (maxRetries).
+ * 4. Returns the first unique value found or undefined if a unique value cannot be generated within the maximum retries.
  *
- * Try to slugify the value and check it against the validation function to see if the value is unique
+ * Example:
+ * ```ts
+ * // Existing names in use
+ * const existing = new Set(['foo', 'foo 1', 'foo 2']);
+ * const uniqueName = generateUniqueValue({
+ *   defaultValue: 'foo',
+ *   validation: (value) => !existing.has(value),
+ *   // transformation is optional, e.g. (val) => val.toLowerCase().replace(/[^\w]+/g, '-'),
+ *   maxRetries: 10,
+ * });
+ * // uniqueName === 'foo 3'
+ * ```
  */
 export function generateUniqueValue({
   defaultValue,
@@ -16,36 +31,48 @@ export function generateUniqueValue({
 }: {
   /**
    * Value which will be used to derive a new unique value.
-   * */
+   */
   defaultValue: string
   /** Validate if the new generated value is unique */
   validation: (value: string) => Promise<boolean> | boolean
   /** Transform the default value to get a new value which will match the schema of the value we need to derive */
   transformation?: (value: string) => string
+  /** The maximum number of retry attempts to generate a unique value. */
   maxRetries: number
 }) {
-  const slugified = transformation?.(defaultValue) ?? defaultValue
+  const transformed = transformation?.(defaultValue) ?? defaultValue
 
-  if (validation(slugified)) {
-    return slugified
+  if (validation(transformed)) {
+    return transformed
   }
 
   return incrementValue({
-    value: [slugified, 1],
+    value: [transformed, 1],
     validation,
     maxRetries,
   })
 }
 
 /**
- * Attempt to increment the value by adding a random salt to the end
- * and checking if it is available.
+ * Attempts to generate a unique value by appending and incrementing a counter to a base string.
  *
- * If the value is not available, we try again.
+ * On each attempt, appends the next incrementing integer (e.g. "foo 1", "foo 2", etc.) to the original value,
+ * and checks with the validation function whether the candidate value is unique.
  *
- * If the value is available, we return it.
+ * Continues until a unique value is found, or the maximum number of attempts is reached.
  *
- * If we can not generate a unique value more than the threshold we simply throw an error
+ * Returns the first unique value found, or undefined if a unique value cannot be generated within maxRetries.
+ *
+ * Example:
+ * ```ts
+ * const existing = new Set(['bar', 'bar 1']);
+ * const result = incrementValue({
+ *   value: ['bar', 1],
+ *   validation: (val) => !existing.has(val),
+ *   maxRetries: 5,
+ * });
+ * // result === "bar 2"
+ * ```
  */
 function incrementValue({
   value,
@@ -53,7 +80,7 @@ function incrementValue({
   maxRetries,
   attempts = 0,
 }: {
-  value: [string, number] // [value, attempts]
+  value: [string, number] // [base value, next increment]
   validation: (value: string) => Promise<boolean> | boolean
   maxRetries: number
   attempts?: number
