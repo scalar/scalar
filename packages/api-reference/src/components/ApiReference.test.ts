@@ -387,3 +387,105 @@ describe('Swagger 2.0 upgrade', () => {
     wrapper.unmount()
   })
 })
+
+describe('proxy configuration', () => {
+  it('uses the proxy to load the document when proxyUrl is configured', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {},
+        }),
+      json: async () => ({
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {},
+      }),
+    })
+
+    vi.stubGlobal('fetch', mockFetch)
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          sources: [
+            {
+              url: 'https://api.example.com/v1/openapi.yaml',
+              slug: 'my-api',
+              default: true,
+            },
+          ],
+          proxyUrl: 'https://custom-proxy.example.com',
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+
+    // Verify that fetch was called with the proxied URL
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://custom-proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fv1%2Fopenapi.yaml',
+      expect.any(Object),
+    )
+
+    wrapper.unmount()
+  })
+
+  it('does not use the proxy when custom fetch is provided', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {},
+        }),
+      json: async () => ({
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {},
+      }),
+    })
+
+    vi.stubGlobal('fetch', mockFetch)
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          sources: [
+            {
+              url: 'https://api.example.com/v1/openapi.yaml',
+              slug: 'my-api',
+              default: true,
+            },
+          ],
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+
+    // Verify that fetch was called without the proxied URL
+    expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/v1/openapi.yaml', expect.any(Object))
+
+    wrapper.unmount()
+  })
+})
