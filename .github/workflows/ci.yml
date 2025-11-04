@@ -1040,8 +1040,7 @@ jobs:
         name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
-          dotnet-version: |
-            9.x
+          dotnet-version: 10.x
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
