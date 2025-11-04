@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -58,7 +59,10 @@ describe('Authentication', () => {
   ) => {
     const useDocumentSecurity = custom.useDocumentSecurity ?? true
     const security = custom.security ?? baseSecurity
-    const selectedSecurity = custom.selectedSecurity ?? baseSecurity
+    const selectedSecurity = custom.selectedSecurity ?? {
+      'x-selected-index': 0,
+      'x-schemes': baseSecurity,
+    }
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
     const server = 'server' in custom ? custom.server : baseServer
     const environment = custom.environment ?? baseEnvironment
@@ -73,6 +77,7 @@ describe('Authentication', () => {
         server,
         environment,
         envVariables,
+        eventBus: createWorkspaceEventBus(),
       },
     })
   }
@@ -163,7 +168,10 @@ describe('Authentication', () => {
       expect(props.layout).toBe('client')
       expect(props.security).toEqual(baseSecurity)
       expect(props.securitySchemes).toEqual(baseSecuritySchemes)
-      expect(props.selectedSecurity).toEqual(baseSecurity)
+      expect(props.selectedSecurity).toEqual({
+        'x-selected-index': 0,
+        'x-schemes': baseSecurity,
+      })
       expect(props.server).toEqual(baseServer)
       expect(props.title).toBe('Authentication')
     })
@@ -193,104 +201,6 @@ describe('Authentication', () => {
 
       const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
       expect(authSelector.props('envVariables')).toEqual([])
-    })
-  })
-
-  describe('AuthSelector event forwarding', () => {
-    it('forwards deleteOperationAuth event from AuthSelector', async () => {
-      const wrapper = mountWithProps()
-
-      const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
-      const names = ['BearerAuth', 'ApiKeyAuth']
-
-      await authSelector.vm.$emit('deleteOperationAuth', names)
-
-      expect(wrapper.emitted('deleteOperationAuth')).toBeTruthy()
-      expect(wrapper.emitted('deleteOperationAuth')?.[0]).toEqual([names])
-    })
-
-    it('forwards update:securityScheme event from AuthSelector', async () => {
-      const wrapper = mountWithProps()
-
-      const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
-      const payload = {
-        scheme: 'BearerAuth',
-        value: 'test-token-123',
-      }
-
-      await authSelector.vm.$emit('update:securityScheme', payload)
-
-      expect(wrapper.emitted('update:securityScheme')).toBeTruthy()
-      expect(wrapper.emitted('update:securityScheme')?.[0]).toEqual([payload])
-    })
-
-    it('forwards update:selectedScopes event from AuthSelector', async () => {
-      const wrapper = mountWithProps()
-
-      const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
-      const payload = {
-        id: ['oauth2-auth'],
-        name: 'OAuth2Auth',
-        scopes: ['read', 'write'],
-      }
-
-      await authSelector.vm.$emit('update:selectedScopes', payload)
-
-      expect(wrapper.emitted('update:selectedScopes')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedScopes')?.[0]).toEqual([payload])
-    })
-
-    it('forwards update:selectedSecurity event from AuthSelector', async () => {
-      const wrapper = mountWithProps()
-
-      const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
-      const payload = {
-        value: [{ BearerAuth: [] }],
-        create: [baseSecuritySchemes.BearerAuth],
-      }
-
-      await authSelector.vm.$emit('update:selectedSecurity', payload)
-
-      expect(wrapper.emitted('update:selectedSecurity')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedSecurity')?.[0]).toEqual([payload])
-    })
-  })
-
-  describe('multiple event emissions', () => {
-    it('emits multiple toggle events in sequence', async () => {
-      const wrapper = mountWithProps({ useDocumentSecurity: false })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-
-      await toggle.vm.$emit('update:modelValue', true)
-      await nextTick()
-      await toggle.vm.$emit('update:modelValue', false)
-      await nextTick()
-      await toggle.vm.$emit('update:modelValue', true)
-      await nextTick()
-
-      expect(wrapper.emitted('update:useDocumentSecurity')).toHaveLength(3)
-      expect(wrapper.emitted('update:useDocumentSecurity')?.[0]).toEqual([true])
-      expect(wrapper.emitted('update:useDocumentSecurity')?.[1]).toEqual([false])
-      expect(wrapper.emitted('update:useDocumentSecurity')?.[2]).toEqual([true])
-    })
-
-    it('handles multiple AuthSelector events independently', async () => {
-      const wrapper = mountWithProps()
-
-      const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
-
-      await authSelector.vm.$emit('deleteOperationAuth', ['Auth1'])
-      await authSelector.vm.$emit('update:securityScheme', { scheme: 'test' })
-      await authSelector.vm.$emit('update:selectedScopes', {
-        id: ['1'],
-        name: 'test',
-        scopes: [],
-      })
-
-      expect(wrapper.emitted('deleteOperationAuth')).toBeTruthy()
-      expect(wrapper.emitted('update:securityScheme')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedScopes')).toBeTruthy()
     })
   })
 
@@ -337,12 +247,18 @@ describe('Authentication', () => {
     it('handles mismatched security and selectedSecurity', () => {
       const wrapper = mountWithProps({
         security: [{ BearerAuth: [] }],
-        selectedSecurity: [{ ApiKeyAuth: [] }],
+        selectedSecurity: {
+          'x-selected-index': 0,
+          'x-schemes': [{ ApiKeyAuth: [] }],
+        },
       })
 
       const authSelector = wrapper.findComponent({ name: 'AuthSelector' })
       expect(authSelector.props('security')).toEqual([{ BearerAuth: [] }])
-      expect(authSelector.props('selectedSecurity')).toEqual([{ ApiKeyAuth: [] }])
+      expect(authSelector.props('selectedSecurity')).toEqual({
+        'x-selected-index': 0,
+        'x-schemes': [{ ApiKeyAuth: [] }],
+      })
     })
   })
 })
