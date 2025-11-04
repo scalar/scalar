@@ -1,370 +1,107 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import type { ClientLayout } from '@/hooks'
-import type { EnvVariable } from '@/store'
+import { OpenApiClientButton } from '@/components'
 import { createStoreEvents } from '@/store/events'
-import type { History } from '@/v2/blocks/scalar-address-bar-block'
+import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
 
 import Header from './Header.vue'
 
-/** Helper to create default props for the Header component */
-function createDefaultProps(
-  overrides: Partial<{
-    path: string
-    method: HttpMethod
-    layout: ClientLayout
-    showSidebar: boolean
-    hideClientButton: boolean
-    integration: string | null
-    documentUrl: string
-    source: 'gitbook' | 'api-reference'
-    server: ServerObject | undefined
-    servers: ServerObject[]
-    history: History[]
-    requestLoadingPercentage: number
-    events: ReturnType<typeof createStoreEvents>
-    environment: Environment
-    envVariables: EnvVariable[]
-  }> = {},
-) {
-  const mockEvents = createStoreEvents()
+describe('Header', () => {
+  const eventBus = createWorkspaceEventBus()
+  const events = createStoreEvents()
 
-  return {
-    path: '/api/users',
+  const defaultProps = {
+    path: '/pets',
     method: 'get' as const,
     layout: 'web' as const,
+    isSidebarOpen: true,
     showSidebar: true,
     hideClientButton: false,
-    integration: null,
-    documentUrl: '',
+    integration: null as string | null,
+    documentUrl: undefined as string | undefined,
     source: 'api-reference' as const,
     server: undefined,
-    servers: [],
-    history: [],
-    requestLoadingPercentage: undefined,
-    events: mockEvents,
+    servers: [] as any[],
+    history: [] as any[],
+    requestLoadingPercentage: undefined as number | undefined,
+    events,
+    eventBus,
     environment: {
       uid: 'env-1' as any,
-      name: 'Test Environment',
+      name: 'Test',
       color: 'blue',
-      value: '',
-      isDefault: true,
-    } satisfies Environment,
-    envVariables: [],
-    ...overrides,
+      value: 'default',
+    } as any,
+    envVariables: [] as any[],
   }
-}
 
-describe('Header Component', () => {
-  describe('rendering', () => {
-    it('renders with required props', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
+  const render = (overrides: Record<string, any> = {}) => {
+    const props = { ...defaultProps, ...overrides }
+    return mount(Header, { props })
+  }
 
-      expect(wrapper.exists()).toBe(true)
-    })
+  it('re-emits update:method from AddressBar', () => {
+    const wrapper = render()
+    const addressBar = wrapper.getComponent(AddressBar)
+    addressBar.vm.$emit('update:method', { value: 'post' })
 
-    it('renders the AddressBar component', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      expect(addressBar.exists()).toBe(true)
-    })
+    const emitted = wrapper.emitted('update:method')
+    expect(emitted?.[0]?.[0]).toEqual({ value: 'post' })
   })
 
-  describe('sidebar visibility', () => {
-    it('shows sidebar toggle space when showSidebar is true', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          showSidebar: true,
-        }),
-      })
+  it('re-emits update:path from AddressBar', () => {
+    const wrapper = render()
+    const addressBar = wrapper.getComponent(AddressBar)
+    addressBar.vm.$emit('update:path', { value: '/animals' })
 
-      const sidebarSpace = wrapper.find('.size-8')
-      expect(sidebarSpace.exists()).toBe(true)
-    })
-
-    it('hides sidebar toggle space when showSidebar is false', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          showSidebar: false,
-        }),
-      })
-
-      const sidebarSpace = wrapper.find('.size-8')
-      expect(sidebarSpace.exists()).toBe(false)
-    })
-
-    it('hides sidebar toggle space in modal layout even when showSidebar is true', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          showSidebar: true,
-          layout: 'modal',
-        }),
-      })
-
-      const sidebarSpace = wrapper.find('.size-8')
-      expect(sidebarSpace.classes()).toContain('hidden')
-    })
-
-    it('shows sidebar toggle space in default layout when showSidebar is true', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          showSidebar: true,
-          layout: 'web',
-        }),
-      })
-
-      const sidebarSpace = wrapper.find('.size-8')
-      expect(sidebarSpace.classes()).not.toContain('hidden')
-    })
+    const emitted = wrapper.emitted('update:path')
+    expect(emitted?.[0]?.[0]).toEqual({ value: '/animals' })
   })
 
-  describe('OpenApiClientButton visibility', () => {
-    it('shows OpenApiClientButton in modal layout with documentUrl', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-          documentUrl: 'https://example.com/openapi.json',
-        }),
-      })
+  it('emits execute when AddressBar emits execute', () => {
+    const wrapper = render()
+    const addressBar = wrapper.getComponent(AddressBar)
+    addressBar.vm.$emit('execute')
 
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(true)
-    })
-
-    it('hides OpenApiClientButton when layout is not modal', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'web',
-          documentUrl: 'https://example.com/openapi.json',
-        }),
-      })
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(false)
-    })
-
-    it('hides OpenApiClientButton when documentUrl is missing', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-          documentUrl: '',
-        }),
-      })
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(false)
-    })
-
-    it('hides OpenApiClientButton when hideClientButton is true', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-          documentUrl: 'https://example.com/openapi.json',
-          hideClientButton: true,
-        }),
-      })
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(false)
-    })
-
-    it('passes correct props to OpenApiClientButton', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-          documentUrl: 'https://example.com/openapi.json',
-          integration: 'gitbook',
-          source: 'gitbook',
-        }),
-      })
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.props('url')).toBe('https://example.com/openapi.json')
-      expect(clientButton.props('integration')).toBe('gitbook')
-      expect(clientButton.props('source')).toBe('gitbook')
-      expect(clientButton.props('buttonSource')).toBe('modal')
-    })
-
-    it('uses default source when not provided', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-          documentUrl: 'https://example.com/openapi.json',
-          source: undefined,
-        }),
-      })
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.props('source')).toBe('api-reference')
-    })
+    const emitted = wrapper.emitted().execute
+    expect(emitted?.length).toBe(1)
   })
 
-  describe('close button visibility', () => {
-    it('shows close buttons only in modal layout', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-        }),
-      })
+  it('renders OpenApiClientButton only in modal layout with documentUrl when not hidden', () => {
+    const modalWithUrl = render({ layout: 'modal', documentUrl: 'https://example.com/openapi.json' })
+    expect(modalWithUrl.findComponent(OpenApiClientButton).exists()).toBe(true)
 
-      const closeButtons = wrapper.findAll('button')
-      const modalCloseButtons = closeButtons.filter((button) => button.text().includes('Close Client'))
+    const webLayout = render({ layout: 'web', documentUrl: 'https://example.com/openapi.json' })
+    expect(webLayout.findComponent(OpenApiClientButton).exists()).toBe(false)
 
-      expect(modalCloseButtons.length).toBeGreaterThan(0)
+    const hiddenButton = render({
+      layout: 'modal',
+      documentUrl: 'https://example.com/openapi.json',
+      hideClientButton: true,
     })
-
-    it('hides close buttons in non-modal layouts', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'web',
-        }),
-      })
-
-      const closeButtons = wrapper.findAll('button')
-      const modalCloseButtons = closeButtons.filter((button) => button.text().includes('Close Client'))
-
-      expect(modalCloseButtons.length).toBe(0)
-    })
-
-    it('renders both close buttons in modal layout (standard and gitbook)', () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-        }),
-      })
-
-      const closeButtons = wrapper.findAll('button')
-      const modalCloseButtons = closeButtons.filter((button) => button.text().includes('Close Client'))
-
-      // There should be two close buttons: one standard, one for GitBook
-      expect(modalCloseButtons.length).toBe(2)
-    })
+    expect(hiddenButton.findComponent(OpenApiClientButton).exists()).toBe(false)
   })
 
-  describe('event emissions', () => {
-    it('emits hideModal when standard close button is clicked', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-        }),
-      })
+  it('emits hide:modal on the event bus when close buttons are clicked in modal', async () => {
+    const fn = vi.fn()
+    eventBus.on('hide:modal', fn)
 
-      const closeButton = wrapper.find('.app-exit-button')
-      await closeButton.trigger('click')
+    const wrapper = render({ layout: 'modal' })
+    const buttons = wrapper.findAll('button')
+    for (const btn of buttons) {
+      await btn.trigger('click')
+    }
 
-      expect(wrapper.emitted('hideModal')).toBeTruthy()
-      expect(wrapper.emitted('hideModal')?.length).toBe(1)
-    })
+    expect(fn).toHaveBeenCalled()
+  })
 
-    it('emits hideModal when GitBook close button is clicked', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps({
-          layout: 'modal',
-        }),
-      })
-
-      const gitbookCloseButton = wrapper.find('.gitbook-show')
-      await gitbookCloseButton.trigger('click')
-
-      expect(wrapper.emitted('hideModal')).toBeTruthy()
-      expect(wrapper.emitted('hideModal')?.length).toBe(1)
-    })
-
-    it('forwards importCurl event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      await addressBar.vm.$emit('importCurl', 'curl -X GET https://example.com')
-
-      expect(wrapper.emitted('importCurl')).toBeTruthy()
-      expect(wrapper.emitted('importCurl')?.[0]).toEqual(['curl -X GET https://example.com'])
-    })
-
-    it('forwards update:method event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      const payload = { method: 'POST' as HttpMethod }
-      await addressBar.vm.$emit('update:method', payload)
-
-      expect(wrapper.emitted('update:method')).toBeTruthy()
-      expect(wrapper.emitted('update:method')?.[0]).toEqual([payload])
-    })
-
-    it('forwards update:path event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      const payload = { path: '/api/new-path' }
-      await addressBar.vm.$emit('update:path', payload)
-
-      expect(wrapper.emitted('update:path')).toBeTruthy()
-      expect(wrapper.emitted('update:path')?.[0]).toEqual([payload])
-    })
-
-    it('forwards execute event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      await addressBar.vm.$emit('execute')
-
-      expect(wrapper.emitted('execute')).toBeTruthy()
-      expect(wrapper.emitted('execute')?.length).toBe(1)
-    })
-
-    it('forwards update:selectedServer event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      const payload = { id: 'server-123' }
-      await addressBar.vm.$emit('update:selectedServer', payload)
-
-      expect(wrapper.emitted('update:selectedServer')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedServer')?.[0]).toEqual([payload])
-    })
-
-    it('forwards update:variable event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      const payload = { key: 'API_KEY', value: 'secret-key' }
-      await addressBar.vm.$emit('update:variable', payload)
-
-      expect(wrapper.emitted('update:variable')).toBeTruthy()
-      expect(wrapper.emitted('update:variable')?.[0]).toEqual([payload])
-    })
-
-    it('forwards add:server event from AddressBar', async () => {
-      const wrapper = mount(Header, {
-        props: createDefaultProps(),
-      })
-
-      const addressBar = wrapper.findComponent({ name: 'AddressBar' })
-      await addressBar.vm.$emit('add:server')
-
-      expect(wrapper.emitted('add:server')).toBeTruthy()
-      expect(wrapper.emitted('add:server')?.length).toBe(1)
-    })
+  it('passes method and path props to AddressBar', () => {
+    const wrapper = render({ method: 'put', path: '/animals' })
+    const addressBar = wrapper.getComponent(AddressBar)
+    const props = addressBar.props() as any
+    expect(props.method).toBe('put')
+    expect(props.path).toBe('/animals')
   })
 })

@@ -147,7 +147,10 @@ describe('Operation', () => {
     const oc = wrapper.getComponent({ name: 'OperationContainer' })
     const props = oc.props() as any
     expect(props.security).toEqual([{ bearerAuth: [] }, {}])
-    expect(props.selectedSecurity).toEqual({ bearerAuth: true })
+    expect(props.selectedSecurity).toEqual({
+      'x-selected-index': 0,
+      'x-schemes': [{ bearerAuth: [] }],
+    })
     expect(props.authMeta).toEqual({ type: 'document' })
   })
 })

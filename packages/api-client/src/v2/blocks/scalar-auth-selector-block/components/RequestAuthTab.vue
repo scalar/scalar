@@ -43,7 +43,6 @@ const emits = defineEmits<{
   ): void
 }>()
 
-// TODO: make the reactivity work for the selected scopes
 const security = computed(() =>
   Object.entries(selectedSecuritySchemas).map(([name, scopes]) => ({
     scheme: getResolvedRef(securitySchemes[name]),

@@ -1,12 +1,13 @@
+import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import AuthSelector from './AuthSelector.vue'
 
 describe('AuthSelector', () => {
   const baseEnvironment = {
-    uid: 'env-1',
+    uid: 'env-1' as any,
     name: 'Default',
     color: '#FFFFFF',
     value: '',
@@ -45,6 +46,7 @@ describe('AuthSelector', () => {
 
   const mountWithProps = (
     custom: Partial<{
+      eventBus: WorkspaceEventBus
       environment: any
       envVariables: any[]
       layout: 'client' | 'reference'
@@ -59,7 +61,7 @@ describe('AuthSelector', () => {
     const envVariables = custom.envVariables ?? []
     const layout = custom.layout ?? 'client'
     const security = custom.security ?? [{ BearerAuth: [] }]
-    const selectedSecurity = custom.selectedSecurity ?? [{ BearerAuth: [] }]
+    const selectedSecurity = custom.selectedSecurity ?? { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] }
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
     const server = custom.server ?? baseServer
     const title = custom.title ?? 'Authentication'
@@ -74,6 +76,11 @@ describe('AuthSelector', () => {
         securitySchemes,
         server,
         title,
+        eventBus: createWorkspaceEventBus(),
+        meta: {
+          type: 'document',
+        },
+        ...custom,
       },
     })
   }
@@ -168,7 +175,7 @@ describe('AuthSelector', () => {
   describe('selected scheme options computation', () => {
     it('computes selected scheme options from selectedSecurity', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -182,7 +189,7 @@ describe('AuthSelector', () => {
 
     it('handles multiple selected schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -192,7 +199,7 @@ describe('AuthSelector', () => {
 
     it('handles complex auth schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [], ApiKeyAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [], ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -203,7 +210,7 @@ describe('AuthSelector', () => {
 
     it('returns empty array when no selected security', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
       })
 
       const vm = wrapper.vm
@@ -212,7 +219,7 @@ describe('AuthSelector', () => {
 
     it('filters out undefined schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }, { NonExistentAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { NonExistentAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -246,7 +253,12 @@ describe('AuthSelector', () => {
 
   describe('combobox interactions', () => {
     it('updates selected auth when combobox selection changes', async () => {
-      const wrapper = mountWithProps()
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('update:selected-security-schemes', fn)
+      const wrapper = mountWithProps({
+        eventBus,
+      })
 
       const combobox = wrapper.findComponent({ name: 'ScalarComboboxMultiselect' })
       const newSelection = [
@@ -260,46 +272,17 @@ describe('AuthSelector', () => {
       await combobox.vm?.$emit('update:modelValue', newSelection)
       await nextTick()
 
-      expect(wrapper.emitted('update:selectedSecurity')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedSecurity')?.[0]).toEqual([
-        {
-          value: [{ BearerAuth: [] }],
-          create: [baseSecuritySchemes.BearerAuth],
-        },
-      ])
-    })
-  })
-
-  describe('event emissions', () => {
-    it('emits update:securityScheme event from RequestAuthDataTable', async () => {
-      const wrapper = mountWithProps()
-
-      const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
-      const eventData = {
-        scheme: 'BearerAuth',
-        value: 'test-token',
-      }
-
-      await dataTable.vm?.$emit('update:securityScheme', eventData)
-
-      expect(wrapper.emitted('update:securityScheme')).toBeTruthy()
-      expect(wrapper.emitted('update:securityScheme')?.[0]).toEqual([eventData])
-    })
-
-    it('emits update:selectedScopes event from RequestAuthDataTable', async () => {
-      const wrapper = mountWithProps()
-
-      const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
-      const eventData = {
-        id: ['oauth2'],
-        name: 'OAuth2',
-        scopes: ['read', 'write'],
-      }
-
-      await dataTable.vm?.$emit('update:selectedScopes', eventData)
-
-      expect(wrapper.emitted('update:selectedScopes')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedScopes')?.[0]).toEqual([eventData])
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        selectedRequirements: [],
+        newSchemes: [
+          {
+            name: 'Bearer Auth',
+            scheme: baseSecuritySchemes.BearerAuth,
+          },
+        ],
+        meta: { type: 'document' },
+      })
     })
   })
 
@@ -309,7 +292,7 @@ describe('AuthSelector', () => {
       const wrapper = mountWithProps({
         envVariables,
         layout: 'reference',
-        selectedSecurity: [{ BearerAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
       })
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
@@ -325,7 +308,7 @@ describe('AuthSelector', () => {
 
     it('passes selectedSchemeOptions to RequestAuthDataTable', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
       })
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
@@ -339,7 +322,7 @@ describe('AuthSelector', () => {
   describe('combobox button display', () => {
     it('shows single auth type when one scheme selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -349,7 +332,7 @@ describe('AuthSelector', () => {
 
     it('shows "Multiple" when multiple schemes selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -359,7 +342,7 @@ describe('AuthSelector', () => {
 
     it('shows "Auth Type" when no schemes selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: [],
+        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
       })
 
       const button = wrapper.findComponent({ name: 'ScalarButton' })
