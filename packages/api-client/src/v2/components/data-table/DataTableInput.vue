@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconEye, ScalarIconEyeSlash } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed, ref } from 'vue'
 
-import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
+import CodeInput from '@/v2/components/code-input/CodeInput.vue'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -25,8 +24,7 @@ const props = withDefaults(
     enum?: string[]
     min?: number
     max?: number
-    environment: Environment
-    envVariables: EnvVariable[]
+    environment: XScalarEnvironment
     description?: string | undefined
     lineWrapping?: boolean
   }>(),
@@ -119,7 +117,6 @@ const handleLabelClick = () => {
           :description="description"
           disableCloseBrackets
           disableTabIndent
-          :envVariables="envVariables"
           :environment="environment"
           :lineWrapping="Boolean(lineWrapping)"
           :max="max"

@@ -6,72 +6,124 @@ import {
   useModal,
 } from '@scalar/components'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import type { EnvVariable } from '@/store'
-import type { createStoreEvents } from '@/store/events'
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
 import Form from './Form.vue'
 
-const { events } = defineProps<{
-  /** List of server objects */
-  servers: ServerObject[]
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
-
-  // ------- To be removed -------
-  environment: Environment
-  envVariables: EnvVariable[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'server:delete', payload: { serverUrl: string }): void
-  (
-    e: 'server:update:variable',
-    payload: { serverUrl: string; name: string; value: string },
-  ): void
-}>()
+const { document, eventBus } = defineProps<CollectionProps>()
 
 const deleteModal = useModal()
+const selectedServerUrl = ref<string | null>(null)
 
-/** Currently selected server for deletion */
-const selectedServer = ref<string | null>(null)
+/** Grab the document servers */
+const servers = computed(() => document?.servers ?? [])
 
+// Form field configuration
+const FORM_OPTIONS = [
+  {
+    label: 'URL',
+    key: 'url',
+    placeholder: 'https://void.scalar.com',
+  },
+  {
+    label: 'Description',
+    key: 'description',
+    placeholder: 'Production',
+  },
+]
+
+/** Opens the delete confirmation modal for a server */
 const openDeleteModal = (serverUrl: string) => {
-  selectedServer.value = serverUrl
+  selectedServerUrl.value = serverUrl
   deleteModal.show()
 }
 
-const handleAddServer = () => {
-  events.commandPalette.emit({ commandName: 'Add Server' })
+/** Closes the delete modal and resets the selected server */
+const closeDeleteModal = () => {
+  deleteModal.hide()
+  selectedServerUrl.value = null
 }
+
+/** Handles server deletion */
+const handleDeleteServer = () => {
+  if (!selectedServerUrl.value) {
+    return
+  }
+
+  // TODO: Implement proper server deletion event handling
+  // The event handler needs to be added to use-workspace-client-events.ts
+  ;(eventBus.emit as any)('server:delete', { url: selectedServerUrl.value })
+  closeDeleteModal()
+}
+
+/**
+ * Handles server property updates
+ * Note: This updates the selected server - may need to select server first
+ */
+const handleServerUpdate = (key: string, value: string) => {
+  // TODO: Implement proper server update event handling
+  // May need to select the server first or update by URL
+  ;(eventBus.emit as any)('server:update:selected-properties', {
+    key: key as keyof ServerObject,
+    value,
+  })
+}
+
+/**
+ * Handles server variable updates
+ */
+const handleVariableUpdate = (name: string, value: string) => {
+  // TODO: Implement proper server variable update event handling
+  ;(eventBus.emit as any)('server:update:variables', {
+    key: name,
+    value,
+  })
+}
+
+/**
+ * Handles adding a new server
+ */
+const handleAddServer = () => {
+  // TODO: Implement server addition via command palette or direct event
+  ;(eventBus.emit as any)('server:add', {
+    server: {
+      url: 'https://api.example.com',
+    },
+  })
+}
+
+/**
+ * Gets the display name for a server
+ */
+const getServerDisplayName = (server: ServerObject, index: number): string =>
+  server.description || `Server ${index + 1}`
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
-    <!-- Tab Header -->
-    <div class="flex items-start justify-between gap-2">
-      <div class="flex flex-col gap-2">
-        <div class="flex h-8 items-center">
-          <h3 class="font-bold">Servers</h3>
-        </div>
-        <p class="text-sm">
-          Add different base URLs for your API. You can use
-          <code class="font-code text-c-2">{variables}</code> for dynamic parts.
-        </p>
-      </div>
+    <!-- Header Section -->
+    <div class="flex flex-col gap-2">
+      <h3 class="font-bold">Servers</h3>
+      <p class="text-sm">
+        Add different base URLs for your API. You can use
+        <code class="font-code text-c-2">{variables}</code> for dynamic parts.
+      </p>
     </div>
-    <!-- Server List Cards -->
-    <div
-      v-for="(server, index) in servers"
-      :key="server.url">
-      <div class="rounded-lg border">
+
+    <!-- Server List -->
+    <div class="flex flex-col gap-4">
+      <div
+        v-for="(server, index) in servers"
+        :key="server.url"
+        class="rounded-lg border">
+        <!-- Server Header -->
         <div
-          class="bg-b-2 flex items-start justify-between rounded-t-lg py-1 pr-1 pl-3 text-sm">
+          class="bg-b-2 flex items-center justify-between rounded-t-lg px-3 py-1 text-sm">
           <ScalarMarkdown
             v-if="server.description"
             class="self-center"
@@ -79,7 +131,7 @@ const handleAddServer = () => {
           <span
             v-else
             class="self-center">
-            Server {{ index + 1 }}
+            {{ getServerDisplayName(server, index) }}
           </span>
           <ScalarButton
             class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
@@ -88,47 +140,24 @@ const handleAddServer = () => {
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
         </div>
+
         <!-- Server Form -->
         <div
-          class="divide-0. flex w-full flex-col divide-y rounded-b-lg text-sm">
+          class="divide-0 flex w-full flex-col divide-y rounded-b-lg text-sm">
           <Form
             :data="server"
-            :envVariables="envVariables"
             :environment="environment"
-            :onUpdate="
-              (name, value) =>
-                emit('server:update:variable', {
-                  serverUrl: server.url,
-                  name,
-                  value,
-                })
-            "
-            :options="[
-              {
-                label: 'URL',
-                key: 'url',
-                placeholder: 'https://void.scalar.com',
-              },
-              {
-                label: 'Description',
-                key: 'description',
-                placeholder: 'Production',
-              },
-            ]" />
+            :onUpdate="handleServerUpdate"
+            :options="FORM_OPTIONS" />
           <ServerVariablesForm
             v-if="server.variables"
             :variables="server.variables"
-            @update:variable="
-              (name, value) =>
-                emit('server:update:variable', {
-                  serverUrl: server.url,
-                  name,
-                  value,
-                })
-            " />
+            @update:variable="handleVariableUpdate" />
         </div>
       </div>
     </div>
+
+    <!-- Add Server Button -->
     <div
       class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
       <ScalarButton
@@ -141,15 +170,17 @@ const handleAddServer = () => {
       </ScalarButton>
     </div>
   </div>
+
+  <!-- Delete Confirmation Modal -->
   <ScalarModal
-    v-if="selectedServer"
-    :size="'xxs'"
+    v-if="selectedServerUrl"
+    size="xxs"
     :state="deleteModal"
-    :title="`Delete ${selectedServer ?? 'Server'}`">
+    :title="`Delete ${selectedServerUrl}`">
     <DeleteSidebarListElement
-      :variableName="'Server'"
-      :warningMessage="'Are you sure you want to delete this server? This action cannot be undone.'"
-      @close="deleteModal.hide()"
-      @delete="emit('server:delete', { serverUrl: selectedServer })" />
+      variableName="Server"
+      warningMessage="Are you sure you want to delete this server? This action cannot be undone."
+      @close="closeDeleteModal"
+      @delete="handleDeleteServer" />
   </ScalarModal>
 </template>

@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { type EnvVariable } from '@/store'
+import DataTable from '@/v2/components/data-table/DataTable.vue'
+import DataTableInput from '@/v2/components/data-table/DataTableInput.vue'
+import DataTableRow from '@/v2/components/data-table/DataTableRow.vue'
 
 defineProps<{
   title?: string
@@ -24,9 +23,7 @@ defineProps<{
     value: NonNullable<PathValue<Cookie, P>>,
   ) => void
 
-  // ------- To be removed -------
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
 }>()
 
 const id = useId()
@@ -48,12 +45,10 @@ const id = useId()
         :columns="['']">
         <DataTableRow
           v-for="(option, index) in options"
-          :key="index"
-          :class="{ 'border-t': index === 0 }">
+          :key="index">
           <DataTableInput
             :id="id"
             class="pr-9"
-            :envVariables="envVariables"
             :environment="environment"
             lineWrapping
             :modelValue="data[option.key] ?? ''"

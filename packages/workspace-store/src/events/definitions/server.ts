@@ -4,28 +4,28 @@ export type ServerEvents<T extends keyof ServerObject = keyof ServerObject> = {
   /**
    * Add a new server to the document
    */
-  'add:server': {
+  'server:add': {
     /** The new server payload to add */
     server: ServerObject
   }
   /**
    * Delete a server from the document
    */
-  'delete:server': {
+  'server:delete': {
     /** The URL of the server to delete */
     url: string
   }
   /**
    * Update the selected server via URL
    */
-  'update:selected-server': {
+  'server:update:selected': {
     /** The new selected server URL */
     url: string
   }
   /**
    * Update the selected server variable for the document
    */
-  'update:selected-server-variables': {
+  'server:update:variables': {
     /** The key of the variable to update */
     key: string
     /** The new value of the variable */
@@ -34,17 +34,21 @@ export type ServerEvents<T extends keyof ServerObject = keyof ServerObject> = {
   /**
    * Update the selected server properties for the document
    */
-  'update:selected-server-properties': {
+  'server:update:selected-properties': {
     /** The key of the property to update */
     key: T
     /** The new value of the property */
     value: ServerObject[T]
   }
   /**
-   * Replace all servers in the document
+   * Update the servers array on the document
    */
-  'update:all-servers': {
-    /** The new servers to replace the current servers with */
-    servers: ServerObject[]
-  }
+  // 'servers:update:document-servers': {
+  //   /** The URL of the server to update */
+  //   serverUrl: string
+  //   /** The name of the property to update */
+  //   name: string
+  //   /** The new value of the property */
+  //   value: string
+  // }
 }
