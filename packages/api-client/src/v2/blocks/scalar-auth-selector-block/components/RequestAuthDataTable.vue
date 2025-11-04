@@ -84,7 +84,7 @@ defineExpose({
         :environment="environment"
         :layout="layout"
         :securitySchemes="securitySchemes ?? {}"
-        :selectedSecuritySchema="activeScheme.value"
+        :selectedSecuritySchemas="activeScheme.value"
         :server="server"
         @update:securityScheme="
           (payload) =>

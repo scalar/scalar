@@ -21,14 +21,14 @@ const {
   environment,
   envVariables,
   layout,
-  selectedSecuritySchema: selectedSecuritySchemas,
+  selectedSecuritySchemas,
   securitySchemes,
   server,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
-  selectedSecuritySchema: NonNullable<
+  selectedSecuritySchemas: NonNullable<
     OpenApiDocument['x-scalar-selected-security']
   >['x-schemes'][number]
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
@@ -257,7 +257,7 @@ const dataTableInputProps = {
           "
           @update:selectedScopes="
             emits('update:selectedScopes', {
-              id: Object.keys(selectedSecuritySchema),
+              id: Object.keys(selectedSecuritySchemas),
               name,
               ...$event,
             })
