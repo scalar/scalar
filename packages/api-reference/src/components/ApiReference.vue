@@ -453,13 +453,7 @@ const changeSelectedDocument = async (
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
     const proxy: UrlDoc['fetch'] = (input, init) =>
-      fetch(
-        redirectToProxy(
-          config.proxyUrl ?? 'https://proxy.scalar.com',
-          input.toString(),
-        ),
-        init,
-      )
+      fetch(redirectToProxy(config.proxyUrl, input.toString()), init)
 
     await workspaceStore.addDocument(
       normalized.source.url
@@ -522,10 +516,7 @@ watch(
       if (updated.source.url && updated.source.url !== previous?.source.url) {
         const proxy: UrlDoc['fetch'] = (input, init) =>
           fetch(
-            redirectToProxy(
-              updated.config.proxyUrl ?? 'https://proxy.scalar.com',
-              input.toString(),
-            ),
+            redirectToProxy(updated.config.proxyUrl, input.toString()),
             init,
           )
 
@@ -664,10 +655,7 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
       return
     }
     const result = await fetch(
-      redirectToProxy(
-        mergedConfig.value.proxyUrl ?? 'https://proxy.scalar.com',
-        url,
-      ),
+      redirectToProxy(mergedConfig.value.proxyUrl, url),
     ).then((r) => r.text())
 
     downloadDocument(result, activeSlug.value ?? 'openapi')
