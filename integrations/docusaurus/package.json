@@ -1,6 +1,6 @@
 {
   "name": "@scalar/docusaurus",
-  "description": "Docusaurus integration for api references",
+  "description": "Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -57,5 +57,20 @@
   "peerDependencies": {
     "@docusaurus/utils": "^3.7.0",
     "react": "^18.0.0 || ^19.0.0"
+  },
+  "readme": {
+    "title": "Scalar API Reference Plugin for Docusaurus",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus"
   }
 }

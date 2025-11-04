@@ -10,6 +10,10 @@ This .NET package `Scalar.Aspire` provides an easy way to create a unified API r
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspire)
 
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspire/CHANGELOG.md) for a list of changes.
+
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

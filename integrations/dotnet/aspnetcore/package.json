@@ -37,7 +37,10 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/integration",
-    "extraContent": "For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/docs/README.md)."
+    "extraContent": {
+      "headline": "Extended Examples",
+      "content": "For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/docs/README.md)."
+    }
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",

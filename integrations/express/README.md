@@ -1,15 +1,19 @@
 # Scalar Express API Reference Plugin
 
-[![Version](https://img.shields.io/npm/v/@scalar/express-api-reference)](https://www.npmjs.com/package/@scalar/express-api-reference)
-[![Downloads](https://img.shields.io/npm/dm/@scalar/express-api-reference)](https://www.npmjs.com/package/@scalar/express-api-reference)
-[![License](https://img.shields.io/npm/l/%40scalar%2Fexpress-api-reference)](https://www.npmjs.com/package/@scalar/express-api-reference)
+[![Version](https://img.shields.io/npm/v/%40scalar%2Fexpress-api-reference)](https://www.npmjs.com/package/%40scalar%2Fexpress-api-reference)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar%2Fexpress-api-reference)](https://www.npmjs.com/package/%40scalar%2Fexpress-api-reference)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fexpress-api-reference)](https://www.npmjs.com/package/%40scalar%2Fexpress-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Express.
+Express middleware to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.
 
 ## Documentation
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/express)
+
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/express/CHANGELOG.md) for a list of changes.
 
 ## Community
 

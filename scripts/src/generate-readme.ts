@@ -6,18 +6,35 @@ import as from 'ansis'
 
 import { getWorkspaceRoot } from '@/helpers'
 
-type BadgeType = 'npm-version' | 'npm-downloads' | 'npm-license' | 'nuget-version' | 'nuget-downloads'
+type BadgeType =
+  | 'npm-version'
+  | 'npm-downloads'
+  | 'npm-license'
+  | 'nuget-version'
+  | 'nuget-downloads'
+  | 'pypi-version'
+  | 'pypi-downloads'
+  | 'pypi-license'
+  | 'docker-pulls'
+  | 'crate-version'
+  | 'crate-downloads'
+  | 'crate-license'
 
 interface BadgeConfig {
   type: BadgeType
   package?: string
 }
 
+interface ExtraContent {
+  headline?: string
+  content: string
+}
+
 interface ReadmeMetadata {
   title: string
   badges: BadgeConfig[]
   documentation: string
-  extraContent?: string
+  extraContent?: ExtraContent
 }
 
 interface PackageJson {
@@ -146,7 +163,15 @@ async function generateReadmeForPackage(root: string, directory: string, package
 [Read the documentation here](${metadata.documentation})`
 
   // Generate extra content if provided
-  const extraContent = metadata.extraContent ? `\n${metadata.extraContent}\n` : ''
+  let extraContent = ''
+  if (metadata.extraContent) {
+    const { headline, content } = metadata.extraContent
+    if (headline) {
+      extraContent = `\n### ${headline}\n\n${content}\n`
+    } else {
+      extraContent = `\n${content}\n`
+    }
+  }
 
   // Generate changelog link
   let changelogSection = ''
@@ -169,7 +194,7 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>`
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).`
 
   // Combine all sections
-  const readmeContent = `# ${title}
+  let readmeContent = `# ${title}
 
 ${badges.join('\n')}
 
@@ -181,6 +206,9 @@ ${communitySection}
 
 ${licenseSection}
 `
+
+  // Filter out image markdown (![...](...))
+  readmeContent = readmeContent.replace(/^!\[.*?\]\(.*?\)$/gm, '').replace(/\n{3,}/g, '\n\n')
 
   // Write README.md
   await fs.writeFile(readmePath, readmeContent)
@@ -246,6 +274,48 @@ function generateBadge(badge: BadgeConfig, packageName: string): string {
         throw new Error('nuget-downloads badge requires package property')
       }
       return `[![Downloads](https://img.shields.io/nuget/dt/${badge.package})](https://www.nuget.org/packages/${badge.package})`
+
+    case 'pypi-version':
+      if (!badge.package) {
+        throw new Error('pypi-version badge requires package property')
+      }
+      return `[![Version](https://img.shields.io/pypi/v/${badge.package})](https://pypi.org/project/${badge.package}/)`
+
+    case 'pypi-downloads':
+      if (!badge.package) {
+        throw new Error('pypi-downloads badge requires package property')
+      }
+      return `[![Downloads](https://img.shields.io/pypi/dm/${badge.package})](https://pypi.org/project/${badge.package}/)`
+
+    case 'pypi-license':
+      if (!badge.package) {
+        throw new Error('pypi-license badge requires package property')
+      }
+      return `[![License](https://img.shields.io/pypi/l/${badge.package})](https://pypi.org/project/${badge.package}/)`
+
+    case 'docker-pulls':
+      if (!badge.package) {
+        throw new Error('docker-pulls badge requires package property')
+      }
+      return `[![Docker Pulls](https://img.shields.io/docker/pulls/${badge.package})](https://hub.docker.com/r/${badge.package})`
+
+    case 'crate-version':
+      if (!badge.package) {
+        throw new Error('crate-version badge requires package property')
+      }
+      return `[![Version](https://img.shields.io/crates/v/${badge.package})](https://crates.io/crates/${badge.package})`
+
+    case 'crate-downloads':
+      if (!badge.package) {
+        throw new Error('crate-downloads badge requires package property')
+      }
+      return `[![Downloads](https://img.shields.io/crates/d/${badge.package})](https://crates.io/crates/${badge.package})`
+
+    case 'crate-license':
+      if (!badge.package) {
+        throw new Error('crate-license badge requires package property')
+      }
+      return `[![License](https://img.shields.io/crates/l/${badge.package})](https://crates.io/crates/${badge.package})`
 
     default: {
       // TypeScript exhaustiveness check

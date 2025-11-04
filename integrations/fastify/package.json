@@ -1,6 +1,6 @@
 {
   "name": "@scalar/fastify-api-reference",
-  "description": "a fastify plugin to render an API reference from an OpenAPI file",
+  "description": "A Fastify plugin to render beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -67,5 +67,20 @@
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
+  },
+  "readme": {
+    "title": "Scalar for Fastify",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/fastify"
   }
 }

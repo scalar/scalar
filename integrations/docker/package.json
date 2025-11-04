@@ -1,5 +1,6 @@
 {
   "name": "@scalarapi/docker-api-reference",
+  "description": "Docker image to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in containerized environments.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -28,5 +29,15 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
+  },
+  "readme": {
+    "title": "Scalar Docker API Reference Integration",
+    "badges": [
+      {
+        "type": "docker-pulls",
+        "package": "scalarapi/api-reference"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docker"
   }
 }

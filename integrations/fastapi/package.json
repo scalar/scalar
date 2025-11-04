@@ -1,6 +1,6 @@
 {
   "name": "scalar-fastapi",
-  "description": "Scalar FastAPI integration",
+  "description": "FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI specifications.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -20,5 +20,23 @@
     "test": "command -v python >/dev/null 2>&1 && python run_tests.py || echo '⚠️ python is not available, skipping the tests.'"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "readme": {
+    "title": "Scalar FastAPI API Reference Plugin",
+    "badges": [
+      {
+        "type": "pypi-version",
+        "package": "scalar-fastapi"
+      },
+      {
+        "type": "pypi-downloads",
+        "package": "scalar-fastapi"
+      },
+      {
+        "type": "pypi-license",
+        "package": "scalar-fastapi"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/fastapi"
+  }
 }

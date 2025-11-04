@@ -1,17 +1,19 @@
 # Scalar API Reference Module for Nuxt
 
-[![Version](https://img.shields.io/npm/v/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
-[![Downloads](https://img.shields.io/npm/dm/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
-[![License](https://img.shields.io/npm/l/%40scalar%2Fnuxt)](https://www.npmjs.com/package/@scalar/nuxt)
+[![Version](https://img.shields.io/npm/v/%40scalar%2Fnuxt)](https://www.npmjs.com/package/%40scalar%2Fnuxt)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar%2Fnuxt)](https://www.npmjs.com/package/%40scalar%2Fnuxt)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fnuxt)](https://www.npmjs.com/package/%40scalar%2Fnuxt)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with Nuxt.
-
-[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6176314/178f4e4c-afdf-4c6a-bc72-128ea1786350)](https://docs.scalar.com/swagger-editor)
+Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swagger specifications.
 
 ## Documentation
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/nuxt)
+
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/nuxt/CHANGELOG.md) for a list of changes.
 
 ## Community
 

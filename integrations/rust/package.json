@@ -1,6 +1,6 @@
 {
   "name": "scalar_api_reference",
-  "description": "A Rust crate for embedding Scalar API documentation in web applications",
+  "description": "Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in Rust web applications.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -86,5 +86,23 @@
     ]
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "readme": {
+    "title": "Scalar API Reference Crate",
+    "badges": [
+      {
+        "type": "crate-version",
+        "package": "scalar_api_reference"
+      },
+      {
+        "type": "crate-downloads",
+        "package": "scalar_api_reference"
+      },
+      {
+        "type": "crate-license",
+        "package": "scalar_api_reference"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/rust"
+  }
 }
