@@ -16,11 +16,11 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
+    "dev": "vite ./playground -c ./vite.config.ts",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "dev": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
