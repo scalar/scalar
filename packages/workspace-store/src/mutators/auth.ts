@@ -72,8 +72,6 @@ export const updateSelectedSecuritySchemes = ({
 
   const newSelectedSecuritySchemes = [...selectedSecuritySchemes, ...newSchemes]
 
-  console.log({ newSelectedSecuritySchemes, newSchemes })
-
   // If the target is not found, return
   if (!target) {
     return

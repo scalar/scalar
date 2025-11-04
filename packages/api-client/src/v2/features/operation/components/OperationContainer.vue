@@ -3,6 +3,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -73,6 +74,8 @@ const props = defineProps<{
   /** Currently selected content type for the current operation example */
   selectedContentType?: string
 
+  /** Meta information for the auth update */
+  authMeta?: AuthMeta
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Currently selected security for the current operation */
@@ -153,6 +156,7 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
           :method="method"
           :operation="operation"
           :path="path"
+          :authMeta="authMeta"
           :security="security"
           :eventBus="eventBus"
           :securitySchemes="securitySchemes"

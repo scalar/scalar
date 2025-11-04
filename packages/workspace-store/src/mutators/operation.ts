@@ -511,7 +511,6 @@ export const deleteOperationRequestBodyFormRow = ({
     return
   }
 
-  console.log('deleteOperationRequestBodyFormRow', { index, contentType, meta })
   example.value.splice(index, 1)
 
   if (example.value.length === 0) {
