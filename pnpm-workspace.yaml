@@ -61,7 +61,6 @@ catalogs:
     next: ^15.4.7
     picomatch: 4.0.2
     postcss: ^8.4.38
-    prettier: 3.6.2
     react-dom: ^19.1.0
     react: ^19.1.0
     rollup: 4.45.1

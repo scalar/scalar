@@ -148,6 +148,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+          cache-dependency-path: 'package.json'
       # Install only root dependencies
       - name: Install dev dependencies
         run: pnpm install --filter .

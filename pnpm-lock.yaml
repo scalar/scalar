@@ -123,9 +123,6 @@ catalogs:
     postcss:
       specifier: ^8.4.38
       version: 8.5.6
-    prettier:
-      specifier: 3.6.2
-      version: 3.6.2
     react:
       specifier: ^19.1.0
       version: 19.1.0
@@ -234,7 +231,7 @@ importers:
         specifier: ^3.1.9
         version: 3.1.9
       prettier:
-        specifier: catalog:*
+        specifier: 3.6.2
         version: 3.6.2
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
@@ -2872,9 +2869,6 @@ importers:
       picomatch:
         specifier: catalog:*
         version: 4.0.2
-      prettier:
-        specifier: catalog:*
-        version: 3.6.2
       semver:
         specifier: catalog:*
         version: 7.7.2
