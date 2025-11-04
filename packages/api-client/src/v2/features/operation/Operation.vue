@@ -62,15 +62,15 @@ const selectedSecurity = computed(() => {
 const authMeta = computed<AuthMeta>(() => {
   if (isOperationAuth.value) {
     return {
-      type: 'operation' as const,
-      path,
-      method,
-    }
+      type: 'operation',
+      path: path ?? '',
+      method: method ?? 'get',
+    } as const
   }
 
   return {
-    type: 'document' as const,
-  }
+    type: 'document',
+  } as const
 })
 
 const APP_VERSION = PACKAGE_VERSION

@@ -156,8 +156,10 @@ export type OperationEvents = {
    * Triggers when the user selects a new content type for the request body in the UI.
    */
   'operation:update:requestBody:contentType': {
-    /** The new content type for the request body */
-    contentType: string
+    payload: {
+      /** The new content type for the request body */
+      contentType: string
+    }
     /** Identifies the target operation and example variant for the updated content type */
     meta: OperationExampleMeta
   }
@@ -167,8 +169,10 @@ export type OperationEvents = {
    * Triggers when the user updates the example value for a specific request body content type.
    */
   'operation:update:requestBody:value': {
-    /** The new value for the request body example */
-    value: string | File | undefined
+    payload: {
+      /** The new value for the request body example */
+      value: string | File | undefined
+    }
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated request body value */

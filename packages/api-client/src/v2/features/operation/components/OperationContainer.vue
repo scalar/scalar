@@ -132,7 +132,9 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
                 method,
                 path,
               },
-              method: payload.value,
+              payload: {
+                method: payload.value,
+              },
             })
         "
         @update:path="
@@ -142,7 +144,9 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
                 method,
                 path,
               },
-              path: payload.value,
+              payload: {
+                path: payload.value,
+              },
             })
         " />
     </div>

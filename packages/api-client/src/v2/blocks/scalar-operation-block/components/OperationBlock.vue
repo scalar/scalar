@@ -167,9 +167,11 @@ const labelRequestNameId = useId()
           :value="operation.summary"
           @input="
             (event) =>
-              eventBus.emit('operation:update:description', {
-                description: (event.target as HTMLInputElement).value,
+              eventBus.emit('operation:update:summary', {
                 meta,
+                payload: {
+                  summary: (event.target as HTMLInputElement).value,
+                },
               })
           " />
         <span
@@ -372,7 +374,9 @@ const labelRequestNameId = useId()
       @update:contentType="
         (payload) =>
           eventBus.emit('operation:update:requestBody:contentType', {
-            contentType: payload.value,
+            payload: {
+              contentType: payload.value,
+            },
             meta,
           })
       "
@@ -400,7 +404,9 @@ const labelRequestNameId = useId()
         (payload) =>
           eventBus.emit('operation:update:requestBody:value', {
             contentType: payload.contentType,
-            value: payload.value,
+            payload: {
+              value: payload.value,
+            },
             meta,
           })
       " />

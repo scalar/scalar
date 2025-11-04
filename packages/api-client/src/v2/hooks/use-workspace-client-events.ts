@@ -64,11 +64,11 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
-  eventBus.on('update:selected-security-schemes', ({ create, updated, meta }) => {
+  eventBus.on('update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
     updateSelectedSecuritySchemes({
       document: document.value,
-      selectedSecuritySchemes: updated,
-      create,
+      newSchemes,
+      selectedRequirements,
       meta,
     })
   })
@@ -90,27 +90,27 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('operation:update:method', ({ method, meta }) => {
+  eventBus.on('operation:update:method', ({ payload, meta }) => {
     updateOperationMethod({
       document: document.value,
       meta,
-      payload: { method },
+      payload,
     })
   })
 
-  eventBus.on('operation:update:path', ({ meta, path }) => {
+  eventBus.on('operation:update:path', ({ meta, payload }) => {
     updateOperationPath({
       document: document.value,
       meta,
-      payload: { path },
+      payload,
     })
   })
 
-  eventBus.on('operation:update:description', ({ summary, meta }) => {
+  eventBus.on('operation:update:summary', ({ payload, meta }) => {
     updateOperationSummary({
       document: document.value,
       meta,
-      payload: { summary },
+      payload,
     })
   })
 
@@ -148,19 +148,20 @@ export const useWorkspaceClientEvents = (
   })
 
   // operation body related event handlers
-  eventBus.on('operation:update:requestBody:contentType', ({ contentType, meta }) => {
+  eventBus.on('operation:update:requestBody:contentType', ({ payload, meta }) => {
     updateOperationRequestBodyContentType({
       document: document.value,
       meta,
-      payload: { contentType },
+      payload,
     })
   })
 
-  eventBus.on('operation:update:requestBody:value', ({ value, contentType, meta }) => {
+  eventBus.on('operation:update:requestBody:value', ({ contentType, payload, meta }) => {
     updateOperationRequestBodyExample({
       document: document.value,
       meta,
-      payload: { value, contentType },
+      payload,
+      contentType,
     })
   })
 
