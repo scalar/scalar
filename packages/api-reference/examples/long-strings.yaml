@@ -194,7 +194,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
         '400':
+          $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
+        'FakeCodeThatsAlsoReallyLongAndNeedsToWrapToMultipleLines':
           $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
   '/another/really/extremely/long/path/{really_extremely_long_snake_case_parameter}/with/more/extremely/long/path/segments':
     post:
