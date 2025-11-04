@@ -104,17 +104,18 @@ export {
   updateSelectedSecuritySchemes,
 } from './auth'
 export {
-  type Meta,
+  type OperationExampleMeta,
+  type OperationMeta,
   addOperationParameter,
   addOperationRequestBodyFormRow,
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
-  updateOperationDescription,
-  updateOperationMethod,
+  updateOperationMethodDraft as updateOperationMethod,
   updateOperationParameter,
-  updateOperationPath,
+  updateOperationPathDraft as updateOperationPath,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
+  updateOperationSummary as updateOperationDescription,
 } from './operation'

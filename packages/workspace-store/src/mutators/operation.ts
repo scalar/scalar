@@ -3,17 +3,62 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 
-export const updateOperationDescription = ({
+/**
+ * Describes the minimal identity for an operation in the workspace document.
+ * It is used by mutators to find the target operation under `paths`.
+ *
+ * Example:
+ * ```ts
+ * const meta: OperationMeta = { method: 'get', path: '/users/{id}' }
+ * ```
+ */
+export type OperationMeta = {
+  method: HttpMethod
+  path: string
+}
+
+/**
+ * Extends {@link OperationMeta} with an `exampleKey` to address a specific
+ * example variant (e.g. per environment or scenario) for request/parameters.
+ *
+ * Example:
+ * ```ts
+ * const meta: OperationExampleMeta = {
+ *   method: 'post',
+ *   path: '/upload',
+ *   exampleKey: 'default',
+ * }
+ * ```
+ */
+export type OperationExampleMeta = OperationMeta & {
+  exampleKey: string
+}
+
+/** ------------------------------------------------------------------------------------------------
+ * Operation Draft Mutators
+ * ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Updates the `summary` of an operation.
+ * Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationSummary({
+ *   document,
+ *   meta: { method: 'get', path: '/users/{id}' },
+ *   payload: { summary: 'Get a single user' },
+ * })
+ * ```
+ */
+export const updateOperationSummary = ({
   document,
   meta,
-  payload: { description },
+  payload: { summary },
 }: {
   document: WorkspaceDocument | null
-  payload: { description: string }
-  meta: {
-    method: HttpMethod
-    path: string
-  }
+  payload: { summary: string }
+  meta: OperationMeta
 }) => {
   if (!document) {
     return
@@ -25,28 +70,32 @@ export const updateOperationDescription = ({
     return
   }
 
-  operation.description = description
+  operation.summary = summary
 }
 
-export type Meta = {
-  meta: {
-    method: HttpMethod
-    path: string
-    exampleKey: string
-  }
-}
-
-export const updateOperationMethod = ({
+/**
+ * Stores the chosen HTTP method under `x-scalar-method` on the operation.
+ * This does not move the operation to a different method slot under `paths`;
+ * it records the desired method as an extension for downstream consumers.
+ * Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationMethodDraft({
+ *   document,
+ *   meta: { method: 'get', path: '/users' },
+ *   payload: { method: 'post' },
+ * })
+ * ```
+ */
+export const updateOperationMethodDraft = ({
   document,
   meta,
   payload: { method },
 }: {
   document: WorkspaceDocument | null
   payload: { method: HttpMethod }
-  meta: {
-    method: HttpMethod
-    path: string
-  }
+  meta: OperationMeta
 }) => {
   if (!document) {
     return
@@ -61,17 +110,30 @@ export const updateOperationMethod = ({
   operation['x-scalar-method'] = method
 }
 
-export const updateOperationPath = ({
+/**
+ * Records a normalized path for the operation under `x-scalar-path`, and
+ * synchronizes path parameters in `operation.parameters` with the placeholders
+ * present in the provided `path` (e.g. `/users/{id}`). Existing non-path
+ * parameters are preserved.
+ * Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationPathDraft({
+ *   document,
+ *   meta: { method: 'get', path: '/users/{id}' },
+ *   payload: { path: '/users/{id}' },
+ * })
+ * ```
+ */
+export const updateOperationPathDraft = ({
   document,
   meta,
   payload: { path },
 }: {
   document: WorkspaceDocument | null
   payload: { path: string }
-  meta: {
-    method: HttpMethod
-    path: string
-  }
+  meta: OperationMeta
 }) => {
   if (!document) {
     return
@@ -101,6 +163,25 @@ export const updateOperationPath = ({
   ]
 }
 
+/** ------------------------------------------------------------------------------------------------
+ * Operation Parameters Mutators
+ * ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Adds a parameter to the operation with an example value tracked by `exampleKey`.
+ * For `path` parameters `required` is set to true automatically.
+ * Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * addOperationParameter({
+ *   document,
+ *   type: 'query',
+ *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
+ *   payload: { key: 'q', value: 'john', isEnabled: true },
+ * })
+ * ```
+ */
 export const addOperationParameter = ({
   document,
   meta,
@@ -114,7 +195,8 @@ export const addOperationParameter = ({
     value: string
     isEnabled: boolean
   }
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -145,12 +227,29 @@ export const addOperationParameter = ({
   })
 }
 
+/**
+ * Updates an existing parameter of a given `type` by its index within that
+ * type subset (e.g. the N-th query parameter). Supports updating name, value,
+ * and enabled state for the targeted example.
+ * Safely no-ops if the document, operation, or parameter does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationParameter({
+ *   document,
+ *   type: 'query',
+ *   index: 0,
+ *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
+ *   payload: { value: 'alice', isEnabled: true },
+ * })
+ * ```
+ */
 export const updateOperationParameter = ({
   document,
   meta,
+  type,
   payload,
   index,
-  type,
 }: {
   document: WorkspaceDocument | null
   type: 'header' | 'path' | 'query' | 'cookie'
@@ -160,7 +259,8 @@ export const updateOperationParameter = ({
     value: string
     isEnabled: boolean
   }>
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -201,6 +301,21 @@ export const updateOperationParameter = ({
   }
 }
 
+/**
+ * Removes a parameter from the operation by resolving its position within
+ * the filtered list of parameters of the specified `type`.
+ * Safely no-ops if the document, operation, or parameter does not exist.
+ *
+ * Example:
+ * ```ts
+ * deleteOperationParameter({
+ *   document,
+ *   type: 'header',
+ *   index: 1,
+ *   meta: { method: 'get', path: '/users', exampleKey: 'default' },
+ * })
+ * ```
+ */
 export const deleteOperationParameter = ({
   document,
   meta,
@@ -210,7 +325,8 @@ export const deleteOperationParameter = ({
   document: WorkspaceDocument | null
   type: 'header' | 'path' | 'query' | 'cookie'
   index: number
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -237,6 +353,19 @@ export const deleteOperationParameter = ({
   operation.parameters?.splice(actualIndex, 1)
 }
 
+/**
+ * Deletes all parameters of a given `type` from the operation.
+ * Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * deleteAllOperationParameters({
+ *   document,
+ *   type: 'cookie',
+ *   meta: { method: 'get', path: '/users' },
+ * })
+ * ```
+ */
 export const deleteAllOperationParameters = ({
   document,
   meta,
@@ -244,7 +373,8 @@ export const deleteAllOperationParameters = ({
 }: {
   document: WorkspaceDocument | null
   type: 'header' | 'path' | 'query' | 'cookie'
-} & Meta) => {
+  meta: OperationMeta
+}) => {
   if (!document) {
     return
   }
@@ -260,6 +390,24 @@ export const deleteAllOperationParameters = ({
   operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== type) ?? []
 }
 
+/** ------------------------------------------------------------------------------------------------
+ * Operation Request Body Mutators
+ * ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Sets the selected request-body content type for the current `exampleKey`.
+ * This stores the selection under `x-scalar-selected-content-type` on the
+ * resolved requestBody. Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationRequestBodyContentType({
+ *   document,
+ *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+ *   payload: { contentType: 'multipart/form-data' },
+ * })
+ * ```
+ */
 export const updateOperationRequestBodyContentType = ({
   document,
   meta,
@@ -269,7 +417,8 @@ export const updateOperationRequestBodyContentType = ({
   payload: {
     contentType: string
   }
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -297,17 +446,34 @@ export const updateOperationRequestBodyContentType = ({
   requestBody!['x-scalar-selected-content-type'][meta.exampleKey] = payload.contentType
 }
 
+/**
+ * Creates or updates a concrete example value for a specific request-body
+ * `contentType` and `exampleKey`. Safely no-ops if the document or operation
+ * does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationRequestBodyExample({
+ *   document,
+ *   contentType: 'application/json',
+ *   meta: { method: 'post', path: '/users', exampleKey: 'default' },
+ *   payload: { value: JSON.stringify({ name: 'Ada' }) },
+ * })
+ * ```
+ */
 export const updateOperationRequestBodyExample = ({
   document,
   meta,
   payload,
+  contentType,
 }: {
   document: WorkspaceDocument | null
+  contentType: string
   payload: {
     value: string | File | undefined
-    contentType: string
   }
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -328,14 +494,14 @@ export const updateOperationRequestBodyExample = ({
     requestBody = getResolvedRef(operation.requestBody)
   }
 
-  if (!requestBody!.content[payload.contentType]) {
-    requestBody!.content[payload.contentType] = {
+  if (!requestBody!.content[contentType]) {
+    requestBody!.content[contentType] = {
       examples: {},
     }
   }
 
   // Ensure examples object exists and get a resolved reference
-  const mediaType = requestBody!.content[payload.contentType]!
+  const mediaType = requestBody!.content[contentType]!
   mediaType.examples ??= {}
   const examples = getResolvedRef(mediaType.examples)!
 
@@ -351,6 +517,21 @@ export const updateOperationRequestBodyExample = ({
   example.value = payload.value
 }
 
+/**
+ * Appends a form-data row to the request-body example identified by
+ * `contentType` and `exampleKey`. Initializes the example as an array when
+ * needed. Safely no-ops if the document or operation does not exist.
+ *
+ * Example:
+ * ```ts
+ * addOperationRequestBodyFormRow({
+ *   document,
+ *   contentType: 'multipart/form-data',
+ *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+ *   payload: { key: 'file', value: new File(['x'], 'a.txt') },
+ * })
+ * ```
+ */
 export const addOperationRequestBodyFormRow = ({
   document,
   meta,
@@ -360,7 +541,8 @@ export const addOperationRequestBodyFormRow = ({
   document: WorkspaceDocument | null
   payload: Partial<{ key: string; value?: string | File }>
   contentType: string
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -414,6 +596,22 @@ export const addOperationRequestBodyFormRow = ({
   })
 }
 
+/**
+ * Updates a form-data row at a given `index` for the specified example and
+ * `contentType`. Setting `payload.value` to `null` clears the value (sets to
+ * `undefined`). Safely no-ops if the document, operation, or example does not exist.
+ *
+ * Example:
+ * ```ts
+ * updateOperationRequestBodyFormRow({
+ *   document,
+ *   index: 0,
+ *   contentType: 'multipart/form-data',
+ *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+ *   payload: { key: 'description', value: 'Profile picture' },
+ * })
+ * ```
+ */
 export const updateOperationRequestBodyFormRow = ({
   document,
   meta,
@@ -425,7 +623,8 @@ export const updateOperationRequestBodyFormRow = ({
   index: number
   payload: Partial<{ key: string; value: string | File | null }>
   contentType: string
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
@@ -468,6 +667,21 @@ export const updateOperationRequestBodyFormRow = ({
   }
 }
 
+/**
+ * Deletes a form-data row at a given `index` from the example for the given
+ * `contentType`. If the example becomes empty, the example entry is removed.
+ * Safely no-ops if the document, operation, example, or row does not exist.
+ *
+ * Example:
+ * ```ts
+ * deleteOperationRequestBodyFormRow({
+ *   document,
+ *   index: 0,
+ *   contentType: 'multipart/form-data',
+ *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+ * })
+ * ```
+ */
 export const deleteOperationRequestBodyFormRow = ({
   document,
   meta,
@@ -477,7 +691,8 @@ export const deleteOperationRequestBodyFormRow = ({
   document: WorkspaceDocument | null
   index: number
   contentType: string
-} & Meta) => {
+  meta: OperationExampleMeta
+}) => {
   if (!document) {
     return
   }
