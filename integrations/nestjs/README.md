@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar API Reference Plugin for NestJS
 
 [![Version](https://img.shields.io/npm/v/%40scalar%2Fnestjs-api-reference)](https://www.npmjs.com/package/%40scalar%2Fnestjs-api-reference)

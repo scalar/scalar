@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar API Reference Crate
 
 [![Version](https://img.shields.io/crates/v/scalar_api_reference)](https://crates.io/crates/scalar_api_reference)

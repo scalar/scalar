@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar for SvelteKit
 
 [![Version](https://img.shields.io/npm/v/%40scalar%2Fsveltekit)](https://www.npmjs.com/package/%40scalar%2Fsveltekit)

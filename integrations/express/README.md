@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar Express API Reference Plugin
 
 [![Version](https://img.shields.io/npm/v/%40scalar%2Fexpress-api-reference)](https://www.npmjs.com/package/%40scalar%2Fexpress-api-reference)

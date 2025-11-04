@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar API Reference for .NET ASP.NET Core
 
 [![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore)](https://www.nuget.org/packages/Scalar.AspNetCore)

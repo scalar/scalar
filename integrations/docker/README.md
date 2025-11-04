@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar Docker API Reference Integration
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/scalarapi/api-reference)](https://hub.docker.com/r/scalarapi/api-reference)

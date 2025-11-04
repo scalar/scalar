@@ -194,7 +194,9 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>`
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).`
 
   // Combine all sections
-  let readmeContent = `# ${title}
+  let readmeContent = `<!-- This file is auto-generated. Do not edit manually. -->
+
+# ${title}
 
 ${badges.join('\n')}
 

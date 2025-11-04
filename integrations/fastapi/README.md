@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar FastAPI API Reference Plugin
 
 [![Version](https://img.shields.io/pypi/v/scalar-fastapi)](https://pypi.org/project/scalar-fastapi/)

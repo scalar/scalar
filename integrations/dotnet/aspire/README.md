@@ -1,3 +1,5 @@
+<!-- This file is auto-generated. Do not edit manually. -->
+
 # Scalar API Reference for .NET Aspire
 
 [![Version](https://img.shields.io/nuget/v/Scalar.Aspire)](https://www.nuget.org/packages/Scalar.Aspire)
