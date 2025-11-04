@@ -23,6 +23,7 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     ...initial,
+    'x-scalar-original-document-hash': '123',
   }
 }
 

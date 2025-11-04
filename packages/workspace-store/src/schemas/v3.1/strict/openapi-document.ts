@@ -74,7 +74,6 @@ const OpenApiExtensionsSchema = compose(
       'x-scalar-client-config-icon': Type.String(),
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
-      'x-scalar-selected-security': Type.Array(SecurityRequirementObjectRef),
       'x-scalar-original-source-url': Type.String(),
       'x-scalar-watch-mode': Type.Boolean(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
