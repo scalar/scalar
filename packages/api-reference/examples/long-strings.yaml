@@ -364,7 +364,8 @@ components:
         enum:
           - really-extremely-long-enum-value-one-that-wraps
           - another-really-extremely-long-enum-value-two-that-wraps
-          - third-extremely-super-long-enum-value-three-that-definitely-wraps
+          - thirdExtremelySuperLongEnumValueThreeThatDefinitelyWraps
+          - yet_another_extremely_long_enum_value_four_that_also_wraps
     reallyExtremelyLongCamelCasePathParameter:
       name: reallyExtremelyLongCamelCasePathParameter
       in: path
