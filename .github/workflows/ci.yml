@@ -148,6 +148,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+          # prettier and biome versions are pinned in package.json
           cache-dependency-path: 'package.json'
       # Install only root dependencies
       - name: Install dev dependencies
