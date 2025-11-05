@@ -1,8 +1,10 @@
-import type { ClientLayout } from '@/hooks/useLayout'
-import { WORKSPACE_SYMBOL } from '@/store/store'
-import { mockUseLayout } from '@/vitest.setup'
+import { mockUseLayout } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+
+import type { ClientLayout } from '@/hooks/useLayout'
+import { WORKSPACE_SYMBOL } from '@/store/store'
+
 import RequestSection from './RequestSection.vue'
 
 describe('RequestSection', () => {

@@ -4,8 +4,9 @@
     "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"],
-      "@v2/*": ["./src/v2/*"]
+      "@v2/*": ["./src/v2/*"],
+      "@test/*": ["./test/*"]
     }
   },
-  "include": ["src", "playground"]
+  "include": ["src", "playground", "test"]
 }

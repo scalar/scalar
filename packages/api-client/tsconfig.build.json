@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["playground"],
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
