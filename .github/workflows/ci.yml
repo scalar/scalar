@@ -854,6 +854,12 @@ jobs:
         working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
+      - name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
@@ -861,8 +867,6 @@ jobs:
             10.x
             9.x
             8.x
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
@@ -934,12 +938,17 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
@@ -1051,12 +1060,17 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
