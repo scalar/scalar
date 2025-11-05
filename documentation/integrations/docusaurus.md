@@ -96,7 +96,7 @@ plugins: [
           },
         ],
       },
-    }
+    } as ScalarOptions,
   ],
 ],
 ```
