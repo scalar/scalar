@@ -31,8 +31,13 @@ const generateCodeVerifier = (): string => {
  * Creates a code challenge from the code verifier
  */
 export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
-  // Ensure we have crypto.subtle if we want to use SHA-256
-  if (encoding === 'plain' || typeof crypto?.subtle?.digest !== 'function') {
+  if (encoding === 'plain') {
+    return verifier
+  }
+
+  // If crypto.subtle.digest is not a function, we cannot use SHA-256
+  if (typeof crypto?.subtle?.digest !== 'function') {
+    console.warn('SHA-256 is only supported when using https, using a plain text code challenge instead.')
     return verifier
   }
 
