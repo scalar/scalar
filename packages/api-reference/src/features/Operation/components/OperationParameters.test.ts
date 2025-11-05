@@ -30,7 +30,7 @@ describe('OperationParameters', () => {
       })
 
       expect(wrapper.text()).toContain('Path Parameters')
-      expect(wrapper.text()).toContain('userId')
+      expect(wrapper.text()).toContain('user​Id')
       expect(wrapper.text()).toContain('required')
     })
   })
