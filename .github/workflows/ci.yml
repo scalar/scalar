@@ -862,7 +862,9 @@ jobs:
             9.x
             8.x
           cache: true
-          cache-dependency-path: '**/*.csproj'
+          cache-dependency-path: |
+            'integrations/dotnet/**/*.csproj'
+            'integrations/dotnet/**/Directory.Packages.props'
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
@@ -939,7 +941,9 @@ jobs:
         with:
           dotnet-version: 10.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: |
+            'integrations/dotnet/**/*.csproj'
+            'integrations/dotnet/**/Directory.Packages.props'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
@@ -1056,7 +1060,9 @@ jobs:
         with:
           dotnet-version: 10.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: |
+            'integrations/dotnet/**/*.csproj'
+            'integrations/dotnet/**/Directory.Packages.props'
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
