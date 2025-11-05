@@ -58,7 +58,6 @@
     "types:check:raw": "pnpm run -r --parallel types:check",
     "types:build": "turbo types:build",
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
-    "readme:generate": "pnpm --filter @scalar-internal/build-scripts exec vite-node src/generate-readme.ts",
     "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
   "exports": {

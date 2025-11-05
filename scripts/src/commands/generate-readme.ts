@@ -3,6 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import as from 'ansis'
+import { Command } from 'commander'
 
 import { getWorkspaceRoot } from '@/helpers'
 
@@ -46,7 +47,13 @@ interface PackageJson {
   readme?: ReadmeMetadata
 }
 
-async function generateReadme() {
+export const generateReadme = new Command('generate-readme')
+  .description('Generate README.md files for packages with readme metadata')
+  .action(async () => {
+    await generateReadmeFiles()
+  })
+
+async function generateReadmeFiles() {
   const root = getWorkspaceRoot()
   const integrationsDir = path.join(root, 'integrations')
   const packagesDir = path.join(root, 'packages')
@@ -334,5 +341,3 @@ function getChangelogUrl(root: string, directory: string): string {
   const pathComponent = normalizedPath ? `${normalizedPath}/` : ''
   return `https://github.com/scalar/scalar/blob/main/${pathComponent}CHANGELOG.md`
 }
-
-generateReadme()
