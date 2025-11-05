@@ -858,7 +858,7 @@ jobs:
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
-          path: ${{ github.workspace }}/.nuget/packages
+          path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
@@ -938,11 +938,11 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Persist NuGet packages cache
-        uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          key: ${{ github.repository }}-dotnet-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
-          path: ${{ github.workspace }}/.nuget/packages
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
@@ -1060,11 +1060,11 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Persist NuGet packages cache
-        uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          key: ${{ github.repository }}-dotnet-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
-          path: ${{ github.workspace }}/.nuget/packages
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup .NET
