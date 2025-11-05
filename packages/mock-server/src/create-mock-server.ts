@@ -55,10 +55,10 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.document, 'json'))
+  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.document ?? options?.specification, 'json'))
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.document, 'yaml'))
+  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.document ?? options?.specification, 'yaml'))
 
   /**
    * No async code, but returning a Promise to allow future async logic to be implemented
