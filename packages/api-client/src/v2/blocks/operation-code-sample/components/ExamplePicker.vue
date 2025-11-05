@@ -35,7 +35,8 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
     v-model="selectedExample"
     class="w-fit min-w-32"
     :options="exampleOptions"
-    placement="bottom-start">
+    placement="bottom-start"
+    teleport>
     <ScalarButton
       class="text-c-2 hover:text-c-1 flex h-full w-fit min-w-0 gap-1.5 px-1.5 py-0.75 text-base font-normal"
       data-testid="example-picker"
