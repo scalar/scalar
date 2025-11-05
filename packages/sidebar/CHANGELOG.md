@@ -1,5 +1,14 @@
 # @scalar/sidebar
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d), [`d6154a2`](https://github.com/scalar/scalar/commit/d6154a24d97fc28977def486f99b2eeee52d268c), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66)]:
+  - @scalar/workspace-store@0.19.0
+  - @scalar/helpers@0.1.0
+  - @scalar/components@0.16.2
+
 ## 0.2.1
 
 ### Patch Changes
