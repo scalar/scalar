@@ -7,9 +7,9 @@
 
 # Scalar for SvelteKit
 
-[![Version](https://img.shields.io/npm/v/%40scalar%2Fsveltekit)](https://www.npmjs.com/package/%40scalar%2Fsveltekit)
-[![Downloads](https://img.shields.io/npm/dm/%40scalar%2Fsveltekit)](https://www.npmjs.com/package/%40scalar%2Fsveltekit)
-[![License](https://img.shields.io/npm/l/%40scalar%2Fsveltekit)](https://www.npmjs.com/package/%40scalar%2Fsveltekit)
+[![Version](https://img.shields.io/npm/v/@scalar/sveltekit)](https://www.npmjs.com/package/@scalar/sveltekit)
+[![Downloads](https://img.shields.io/npm/dm/@scalar/sveltekit)](https://www.npmjs.com/package/@scalar/sveltekit)
+[![License](https://img.shields.io/npm/l/@scalar/sveltekit)](https://www.npmjs.com/package/@scalar/sveltekit)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 SvelteKit server handler to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.

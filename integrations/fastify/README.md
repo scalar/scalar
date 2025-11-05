@@ -7,9 +7,9 @@
 
 # Scalar for Fastify
 
-[![Version](https://img.shields.io/npm/v/%40scalar%2Ffastify-api-reference)](https://www.npmjs.com/package/%40scalar%2Ffastify-api-reference)
-[![Downloads](https://img.shields.io/npm/dm/%40scalar%2Ffastify-api-reference)](https://www.npmjs.com/package/%40scalar%2Ffastify-api-reference)
-[![License](https://img.shields.io/npm/l/%40scalar%2Ffastify-api-reference)](https://www.npmjs.com/package/%40scalar%2Ffastify-api-reference)
+[![Version](https://img.shields.io/npm/v/@scalar/fastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
+[![Downloads](https://img.shields.io/npm/dm/@scalar/fastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
+[![License](https://img.shields.io/npm/l/@scalar/fastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 A Fastify plugin to render beautiful, interactive API documentation from OpenAPI/Swagger specifications.

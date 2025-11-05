@@ -7,9 +7,9 @@
 
 # Scalar API Reference Plugin for Docusaurus
 
-[![Version](https://img.shields.io/npm/v/%40scalar%2Fdocusaurus)](https://www.npmjs.com/package/%40scalar%2Fdocusaurus)
-[![Downloads](https://img.shields.io/npm/dm/%40scalar%2Fdocusaurus)](https://www.npmjs.com/package/%40scalar%2Fdocusaurus)
-[![License](https://img.shields.io/npm/l/%40scalar%2Fdocusaurus)](https://www.npmjs.com/package/%40scalar%2Fdocusaurus)
+[![Version](https://img.shields.io/npm/v/@scalar/docusaurus)](https://www.npmjs.com/package/@scalar/docusaurus)
+[![Downloads](https://img.shields.io/npm/dm/@scalar/docusaurus)](https://www.npmjs.com/package/@scalar/docusaurus)
+[![License](https://img.shields.io/npm/l/@scalar/docusaurus)](https://www.npmjs.com/package/@scalar/docusaurus)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger specifications.

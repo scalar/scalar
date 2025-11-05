@@ -265,17 +265,15 @@ async function findPackageJsonFiles(dir: string): Promise<string[]> {
 }
 
 function generateBadge(badge: BadgeConfig, packageName: string): string {
-  const encodedPackageName = encodeURIComponent(packageName)
-
   switch (badge.type) {
     case 'npm-version':
-      return `[![Version](https://img.shields.io/npm/v/${encodedPackageName})](https://www.npmjs.com/package/${encodedPackageName})`
+      return `[![Version](https://img.shields.io/npm/v/${packageName})](https://www.npmjs.com/package/${packageName})`
 
     case 'npm-downloads':
-      return `[![Downloads](https://img.shields.io/npm/dm/${encodedPackageName})](https://www.npmjs.com/package/${encodedPackageName})`
+      return `[![Downloads](https://img.shields.io/npm/dm/${packageName})](https://www.npmjs.com/package/${packageName})`
 
     case 'npm-license':
-      return `[![License](https://img.shields.io/npm/l/${encodedPackageName})](https://www.npmjs.com/package/${encodedPackageName})`
+      return `[![License](https://img.shields.io/npm/l/${packageName})](https://www.npmjs.com/package/${packageName})`
 
     case 'nuget-version':
       if (!badge.package) {
