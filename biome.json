@@ -186,7 +186,7 @@
         "noThenProperty": "warn",
         "useIsArray": "warn",
         "noExplicitAny": "off",
-        "noExportsInTest": "warn",
+        "noExportsInTest": "error",
         "noWith": "warn",
         "noVar": "warn",
         "useAwait": "error",

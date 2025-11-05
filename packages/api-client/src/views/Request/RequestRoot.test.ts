@@ -1,4 +1,5 @@
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
+import { mockUseLayout } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
@@ -6,7 +7,6 @@ import { ref } from 'vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { createStoreEvents } from '@/store/events'
-import { mockUseLayout } from '@/vitest.setup'
 
 import RequestRoot from './RequestRoot.vue'
 

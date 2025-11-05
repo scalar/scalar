@@ -1,0 +1,26 @@
+{
+  "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": "//",
+  "overrides": [
+    {
+      "includes": ["src/**", "!src/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@test/helpers", "**/test/**"],
+                    "message": "Do not import test helpers inside source files"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

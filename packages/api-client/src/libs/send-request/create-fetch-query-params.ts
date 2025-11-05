@@ -1,5 +1,6 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
 import type { RequestExample, RequestPayload } from '@scalar/oas-utils/entities/spec'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /**
  * Populate the query parameters from the example parameters. This is an incomplete implementation that currently
