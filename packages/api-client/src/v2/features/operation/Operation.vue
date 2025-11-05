@@ -104,8 +104,7 @@ const environment = {
       :server="undefined"
       :servers="[]"
       :events="createStoreEvents()"
-      :totalPerformedRequests="0"
-      :selectedContentType="'application/json'" />
+      :totalPerformedRequests="0" />
   </template>
   <div
     v-else

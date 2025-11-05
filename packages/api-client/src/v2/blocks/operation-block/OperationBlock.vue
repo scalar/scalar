@@ -84,8 +84,6 @@ const props = defineProps<{
   operation: OperationObject
   /** Currently selected example key for the current operation */
   exampleKey: string
-  /** Currently selected content type for the current operation example */
-  selectedContentType?: string
 
   /** Meta information for the auth update */
   authMeta?: AuthMeta
@@ -177,7 +175,6 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
           :security="security"
           :eventBus="eventBus"
           :securitySchemes="securitySchemes"
-          :selectedContentType="selectedContentType"
           :selectedSecurity="selectedSecurity"
           :plugins="plugins" />
         <ResponseBlock
