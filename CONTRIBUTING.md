@@ -50,6 +50,26 @@ Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-serve
 pnpm script run test-servers
 ```
 
+## Auto-Generated Files
+
+Some files in this repository are auto-generated and should not be edited manually. Manual changes to these files will be lost when they are regenerated.
+
+### README.md Files
+
+README.md files for integrations are automatically generated from metadata in `package.json`. To regenerate them:
+
+```bash
+pnpm script generate-readme
+```
+
+For more information, see the [scripts README](./scripts/README.md).
+
+### Java & .NET Enums
+
+The `ScalarTarget` and `ScalarClient` enums for Java and .NET integrations are generated automatically from the TypeScript clients configuration.
+
+For more information, see the [snippetz scripts README](./packages/snippetz/scripts/README.md).
+
 ## PRs
 
 Don't worry, we'll help you to get your PR in. But here is how you can help us:
