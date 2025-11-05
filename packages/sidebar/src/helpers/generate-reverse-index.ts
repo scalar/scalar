@@ -25,12 +25,16 @@ export const generateReverseIndex = <
 >(
   items: T[] = [],
   nestedKey: Key = 'children' as Key,
+  filter?: (node: T) => boolean,
+  getId: (node: T) => string = (node) => node.id,
 ) => {
   // Create a mapping from id to node (with parent reference)
   const mapping = new Map<string, T & { parent?: T }>()
 
   const dfs = (node: T & { parent?: T }) => {
-    mapping.set(node.id, node)
+    if (!filter || filter(node)) {
+      mapping.set(getId(node), node)
+    }
 
     if (nestedKey in node && Array.isArray(node[nestedKey])) {
       // Recursively traverse children and add the current node as their parent

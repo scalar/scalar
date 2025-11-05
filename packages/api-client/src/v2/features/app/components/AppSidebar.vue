@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
 import { ScalarIconGlobe } from '@scalar/icons'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { SidebarState } from '@scalar/sidebar'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { capitalize, computed } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
@@ -10,14 +11,15 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { Sidebar } from '@/v2/components/sidebar'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { documents, layout } = defineProps<{
+const { sidebarState, layout } = defineProps<{
   layout: ClientLayout
-  documents: Record<string, WorkspaceDocument>
+  sidebarState: SidebarState<TraversedEntry>
 }>()
 
 const emit = defineEmits<{
   (e: 'open:commandPalette', action?: 'import'): void
   (e: 'click:workspace'): void
+  (e: 'selectItem', id: string): void
 }>()
 
 /** Propagate up the workspace model to the parent */
@@ -51,8 +53,9 @@ const showGettingStarted = computed(() => true)
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     v-model:workspace="workspaceModel"
-    :documents="documents"
-    :layout="layout">
+    :sidebarState="sidebarState"
+    :layout="layout"
+    @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
       <ScalarSidebarItem

@@ -1,3 +1,6 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
 import { generateReverseIndex } from './generate-reverse-index'
@@ -68,7 +71,7 @@ type SidebarStateOptions = Partial<{
  * await sidebarState.setExpanded('child2', true)
  * ```
  */
-export const createSidebarState = <T extends { id: string }>(
+export const createSidebarState = <T extends TraversedEntry>(
   items: MaybeRefOrGetter<T[]>,
   options?: SidebarStateOptions,
 ) => {
@@ -184,6 +187,57 @@ export const createSidebarState = <T extends { id: string }>(
 
   const getEntryById = (id: string) => index.value.get(id)
 
+  const getParent = <Type extends T['type']>(
+    type: Type,
+    node?: T & { parent?: T },
+  ): (T & { type: Type }) | undefined => {
+    if (!node) {
+      return undefined
+    }
+
+    if (node.type === type) {
+      return node as T & { type: Type }
+    }
+
+    return getParent(type, node.parent)
+  }
+
+  const generateLocationId = (node: T & { parent?: T }) => {
+    const document = getParent('document', node)
+    const operation = getParent('operation', node)
+
+    return JSON.stringify(
+      [document?.name, operation?.path, operation?.method, node.type === 'example' ? node.name : undefined].filter(
+        isDefined,
+      ),
+    )
+  }
+
+  const locationIndex = computed(() =>
+    generateReverseIndex(
+      toValue(items),
+      options?.key ?? 'children',
+      (node) => node.type === 'document' || node.type === 'operation' || node.type === 'example',
+      generateLocationId,
+    ),
+  )
+
+  console.log('Generated location index:', locationIndex.value)
+
+  const getEntryByLocation = (location: {
+    documentName: string
+    path?: string
+    method?: HttpMethod
+    example?: string
+  }) => {
+    return (
+      locationIndex.value.get(
+        JSON.stringify([location.documentName, location.path, location.method, location.example].filter(isDefined)),
+      ) ??
+      locationIndex.value.get(JSON.stringify([location.documentName, location.path, location.method].filter(isDefined)))
+    )
+  }
+
   return {
     items: computed(() => toValue(items)),
     index,
@@ -194,7 +248,9 @@ export const createSidebarState = <T extends { id: string }>(
     isExpanded,
     isSelected,
     getEntryById,
+    getEntryByLocation,
+    getParent,
   }
 }
 
-export type SidebarState<Item extends { id: string }> = ReturnType<typeof createSidebarState<Item>>
+export type SidebarState<Item extends TraversedEntry> = ReturnType<typeof createSidebarState<Item>>

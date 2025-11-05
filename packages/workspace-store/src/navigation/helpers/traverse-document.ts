@@ -109,7 +109,8 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
   return {
     id: documentId,
     type: 'document',
-    title: documentName,
+    title: document.info.title,
+    name: documentName,
     children: entries,
   } satisfies TraversedDocument
 }

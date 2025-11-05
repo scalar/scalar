@@ -59,13 +59,9 @@ const filterItems = (items: Item[]) => {
     return items
   }
 
-  // For client layout, filter to only show webhooks and operations
+  // For client layout, filter to only show and operations, examples, and tags
   return items.filter(
-    (c) =>
-      c.type === 'webhook' ||
-      c.type === 'operation' ||
-      c.type === 'example' ||
-      c.type === 'tag',
+    (c) => c.type === 'operation' || c.type === 'example' || c.type === 'tag',
   )
 }
 
