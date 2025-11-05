@@ -2,7 +2,7 @@ import FastifyBasicAuth, { type FastifyBasicAuthOptions } from '@fastify/basic-a
 import fastifySwagger from '@fastify/swagger'
 import type { OpenAPI } from '@scalar/openapi-types'
 import Fastify, { type FastifyPluginAsync } from 'fastify'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import YAML from 'yaml'
 
 import fastifyApiReference from './index'
@@ -488,11 +488,18 @@ describe('fastifyApiReference', () => {
       logger: false,
     })
 
+    const warnSpy = vi.spyOn(fastify.log, 'warn')
+
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {},
     })
 
+    expect(warnSpy).toHaveBeenCalledExactlyOnceWith(
+      expect.stringContaining(
+        "[@scalar/fastify-api-reference] You didn't provide a `content`, `url`, `sources` or @fastify/swagger could not be found.",
+      ),
+    )
     expect(fastify.hasPlugin('@scalar/fastify-api-reference')).toBeTruthy()
   })
 

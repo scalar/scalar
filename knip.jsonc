@@ -1,0 +1,93 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreWorkspaces": [
+    // Allows a progressive adoption
+    "examples/**",
+    "packages/analytics-client/**",
+    "packages/api-client/**",
+    "packages/api-client-react/**",
+    "packages/api-reference/**",
+    "packages/api-reference-react/**",
+    "packages/build-tooling/**",
+    "packages/code-highlight/**",
+    "packages/components/**",
+    "packages/core/**",
+    "packages/draggable/**",
+    "packages/galaxy/**",
+    "packages/helpers/**",
+    "packages/icons/**",
+    "packages/import/**",
+    "packages/json-magic/**",
+    "packages/nextjs-openapi/**",
+    "packages/oas-utils/**",
+    "packages/object-utils/**",
+    "packages/openapi-parser/**",
+    "packages/openapi-to-markdown/**",
+    "packages/openapi-types/**",
+    "packages/openapi-upgrader/**",
+    "packages/postman-to-openapi/**",
+    "packages/pre-post-request-scripts/**",
+    "packages/react-renderer/**",
+    "packages/sidebar/**",
+    "packages/snippetz/**",
+    "packages/themes/**",
+    "packages/ts-to-openapi/**",
+    "packages/types/**",
+    "packages/use-codemirror/**",
+    "packages/use-hooks/**",
+    "packages/use-toasts/**",
+    "packages/void-server/**",
+    "packages/workspace-store/**",
+    "projects/**",
+    "integrations/docker/**",
+    "integrations/dotnet/**",
+    "integrations/express/**",
+    "integrations/fastapi/**",
+    "integrations/hono/**",
+    "integrations/java/**",
+    "integrations/nestjs/**",
+    "integrations/nextjs/**",
+    "integrations/nuxt/**",
+    "integrations/rust/**",
+    "integrations/sveltekit/**"
+  ],
+  "ignoreFiles": [
+    "**/esbuild.ts",
+
+    // Referenced in scalar.config.json
+    "documentation/assets/landing.js"
+  ],
+
+  "ignoreDependencies": [
+    // Used by `ci.yml` `npm-publish` job
+    "@changesets/cli",
+
+    // Required on root to have proper format with prettier
+    "tailwindcss",
+
+    // The following values needs to be re-checked once more packages are included
+    "rollup",
+    "tsc-alias",
+    "tsconfig-paths",
+    "vue-tsc"
+  ],
+  "ignoreBinaries": ["netlify"],
+  "workspaces": {
+    "integrations/docusaurus": {
+      "ignoreFiles": [
+        // Loaded dynamically by index.ts
+        "src/ScalarDocusaurus.tsx"
+      ],
+      "ignoreDependencies": [
+        // used as polyfill by webpack
+        "path"
+      ]
+    },
+    "integrations/fastify": {
+      "ignoreDependencies": [
+        // build step copy standalone file from this package
+        "@scalar/api-reference"
+      ]
+    }
+  }
+}

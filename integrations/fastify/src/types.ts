@@ -1,6 +1,5 @@
-import type { onRequestHookHandler, preHandlerHookHandler } from 'fastify'
-
 import type { HtmlRenderingConfiguration } from '@scalar/core/libs/html-rendering'
+import type { onRequestHookHandler, preHandlerHookHandler } from 'fastify'
 
 /**
  * The configuration for the Scalar API Reference for Fastify

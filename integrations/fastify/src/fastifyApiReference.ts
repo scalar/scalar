@@ -48,11 +48,6 @@ const getJavaScriptUrl = (routePrefix?: string) =>
   `${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(/\/\//g, '/')
 
 /**
- * The custom theme for Fastify
- */
-export const customTheme = ''
-
-/**
  * The default configuration for Fastify
  */
 const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
@@ -231,14 +226,11 @@ const fastifyApiReference = fp<
 
         // Respond with the HTML document
         return reply.header('Content-Type', 'text/html; charset=utf-8').send(
-          getHtmlDocument(
-            {
-              // We're using the bundled JS here by default, but the user can pass a CDN URL.
-              cdn: RELATIVE_JAVASCRIPT_PATH,
-              ...configuration,
-            },
-            customTheme,
-          ),
+          getHtmlDocument({
+            // We're using the bundled JS here by default, but the user can pass a CDN URL.
+            cdn: RELATIVE_JAVASCRIPT_PATH,
+            ...configuration,
+          }),
         )
       },
     })

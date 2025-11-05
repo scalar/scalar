@@ -12,11 +12,8 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "stdout-update": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "ansis": "catalog:*",
     "commander": "catalog:*",
-    "nanoid": "catalog:*",
     "picomatch": "catalog:*",
     "semver": "catalog:*",
     "yaml": "catalog:*",
