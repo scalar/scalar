@@ -863,8 +863,8 @@ jobs:
             8.x
           cache: true
           cache-dependency-path: |
-            'integrations/dotnet/**/*.csproj'
-            'integrations/dotnet/**/Directory.Packages.props'
+            '**/*.csproj'
+            '**/Directory.Packages.props'
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
