@@ -34,7 +34,7 @@ plugins: [
 
 ### Multiple API descriptions
 
-Is it possible to show multiple API descriptions? Yes, it is! :) If you use this configuration each API deifinition will get its own header in the documentation.
+Is it possible to show multiple API descriptions? Yes, it is! :) If you use this configuration each API definition will get its own header in the documentation.
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
