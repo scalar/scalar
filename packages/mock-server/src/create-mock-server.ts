@@ -17,11 +17,11 @@ import { respondWithOpenApiDocument } from './routes/respond-with-openapi-docume
 /**
  * Create a mock server instance
  */
-export function createMockServer(options: MockServerOptions): Promise<Hono> {
+export function createMockServer(configuration: MockServerOptions): Promise<Hono> {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = dereference(options?.document ?? options?.specification ?? {})
+  const { schema } = dereference(configuration?.document ?? configuration?.specification ?? {})
 
   // CORS headers
   app.use(cors())
@@ -50,15 +50,19 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
       }
 
       // Actual route
-      app[method](route, (c) => mockAnyResponse(c, operation, options))
+      app[method](route, (c) => mockAnyResponse(c, operation, configuration))
     })
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.document ?? options?.specification, 'json'))
+  app.get('/openapi.json', (c) =>
+    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'json'),
+  )
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.document ?? options?.specification, 'yaml'))
+  app.get('/openapi.yaml', (c) =>
+    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'yaml'),
+  )
 
   /**
    * No async code, but returning a Promise to allow future async logic to be implemented
