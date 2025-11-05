@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -11,13 +12,13 @@ export type RouteProps = {
   document: WorkspaceDocument | null
   eventBus: WorkspaceEventBus
   layout: ClientLayout
+  path?: string
+  method?: HttpMethod
+  exampleName?: string
   environment: XScalarEnvironment
   workspaceStore: WorkspaceStore
   // workspaceSlug: string
   // documentSlug?: string
-  // pathEncoded?: string
-  // method?: string
-  // exampleName?: string
 }
 
 /** When in the collections pages */
@@ -51,7 +52,7 @@ export const ROUTES = [
           {
             name: 'example',
             path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: () => import('@/v2/components/TempReplaceMe.vue'),
+            component: () => import('@/v2/features/operation/Operation.vue'),
           },
           // Document Page
           {

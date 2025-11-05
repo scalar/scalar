@@ -1,6 +1,7 @@
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, markRaw } from 'vue'
 
 import type { ClientLayout } from '@/hooks'
@@ -9,13 +10,6 @@ import { createStoreEvents } from '@/store/events'
 import ResponseBlock from './ResponseBlock.vue'
 import ResponseEmpty from './ResponseEmpty.vue'
 import ResponseMetaInformation from './ResponseMetaInformation.vue'
-
-// Mock the plugin manager
-vi.mock('@/plugins', () => ({
-  usePluginManager: vi.fn(() => ({
-    getViewComponents: vi.fn(() => []),
-  })),
-}))
 
 const events = createStoreEvents()
 
@@ -40,11 +34,8 @@ describe('ResponseBlock', () => {
     totalPerformedRequests: 0,
     appVersion: '1.0.0',
     events: events,
+    eventBus: createWorkspaceEventBus(),
   }
-
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
 
   describe('empty state', () => {
     it('renders ResponseEmpty when no response provided', () => {
@@ -72,14 +63,21 @@ describe('ResponseBlock', () => {
     })
 
     it('emits addRequest when ResponseEmpty emits it', () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('open:command-palette', fn)
       const wrapper = mount(ResponseBlock, {
-        props: defaultProps,
+        props: {
+          ...defaultProps,
+          eventBus,
+        },
       })
 
       const emptyComponent = wrapper.findComponent(ResponseEmpty)
       emptyComponent.vm.$emit('addRequest')
 
-      expect(wrapper.emitted('addRequest')).toBeTruthy()
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith('addOperation')
     })
 
     it('emits sendRequest when ResponseEmpty emits it', () => {
@@ -94,14 +92,20 @@ describe('ResponseBlock', () => {
     })
 
     it('emits openCommandPalette when ResponseEmpty emits it', () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('open:command-palette', fn)
       const wrapper = mount(ResponseBlock, {
-        props: defaultProps,
+        props: {
+          ...defaultProps,
+          eventBus,
+        },
       })
 
       const emptyComponent = wrapper.findComponent(ResponseEmpty)
       emptyComponent.vm.$emit('openCommandPalette')
 
-      expect(wrapper.emitted('openCommandPalette')).toBeTruthy()
+      expect(fn).toHaveBeenCalledTimes(1)
     })
   })
 

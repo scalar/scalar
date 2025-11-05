@@ -1,5 +1,6 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createStoreEvents } from '@/store/events'
 
@@ -14,16 +15,25 @@ describe('AddressBar', () => {
       method: 'get' as const,
       server: overrides?.server,
       servers: overrides?.servers ?? [],
-      environment: {},
+      environment: {
+        uid: 'env-1' as any,
+        name: 'Test',
+        color: 'blue',
+        value: 'default',
+      },
       envVariables: [],
       history: [],
       layout: overrides?.layout ?? 'web',
       percentage: overrides?.percentage ?? 100,
       events: bus,
+      eventBus: createWorkspaceEventBus(),
     }
 
     return mount(AddressBar, {
-      props: props as any,
+      props: {
+        ...props,
+        ...overrides,
+      },
       global: {
         stubs: {
           // Keep button semantics for focus/click and disabled state
@@ -75,7 +85,7 @@ describe('AddressBar', () => {
     const trigger = wrapper.find('[data-test="http-method"]')
     await trigger.trigger('click')
     const emitted = wrapper.emitted('update:method')
-    expect(emitted?.[0]).toEqual([{ method: 'post' }])
+    expect(emitted?.[0]).toEqual([{ value: 'post' }])
   })
 
   it('emits update:path when CodeInput updates modelValue', async () => {
@@ -83,14 +93,21 @@ describe('AddressBar', () => {
     const input = wrapper.find('[data-test="code-input"]')
     await input.setValue('/dogs')
     const emitted = wrapper.emitted('update:path')
-    expect(emitted?.[0]).toEqual([{ path: '/dogs' }])
+    expect(emitted?.[0]).toEqual([{ value: '/dogs' }])
   })
 
   it('emits importCurl when CodeInput emits curl', async () => {
-    const wrapper = makeWrapper()
+    const eventBus = createWorkspaceEventBus()
+    const wrapper = makeWrapper({
+      eventBus,
+    })
+    const fn = vi.fn()
+    eventBus.on('import:curl', fn)
     const codeInput = wrapper.findComponent({ name: 'CodeInput' })
     await codeInput.vm.$emit('curl', 'curl https://example.com')
-    expect(wrapper.emitted('importCurl')?.[0]).toEqual(['curl https://example.com'])
+
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({ value: 'curl https://example.com' })
   })
 
   it('emits execute on CodeInput submit and Send button click', async () => {

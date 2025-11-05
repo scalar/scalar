@@ -61,4 +61,11 @@ export type UIEvents = {
     /** The id of the nav item to copy the anchor url for */
     id: string
   }
+
+  /** On modal mode hide the modal */
+  'hide:modal': undefined
+
+  'import:curl': {
+    value: string
+  }
 }

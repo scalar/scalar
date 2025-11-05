@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type {
   ComponentsObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 
 import { DataTable } from '@/components/DataTable'
 import type { EnvVariable } from '@/store'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 
 import RequestAuthTab from './RequestAuthTab.vue'
@@ -19,39 +20,25 @@ const {
   layout = 'client',
   selectedSchemeOptions = [],
   server,
+  eventBus,
+  activeAuthIndex,
+  meta,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   selectedSchemeOptions: SecuritySchemeOption[]
+  activeAuthIndex: number
   securitySchemes: ComponentsObject['securitySchemes']
   server: ServerObject | undefined
+  eventBus: WorkspaceEventBus
+  meta: AuthMeta
 }>()
-
-const emits = defineEmits<{
-  (e: 'update:securityScheme', payload: UpdateSecuritySchemeEvent): void
-  (
-    e: 'update:selectedScopes',
-    payload: { id: string[]; name: string; scopes: string[] },
-  ): void
-}>()
-
-/** Add new ref for active tab */
-const activeAuthIndex = ref(0)
 
 /** Return currently selected schemes including complex auth */
 const activeScheme = computed(() => {
-  return selectedSchemeOptions[activeAuthIndex.value]
+  return selectedSchemeOptions[activeAuthIndex]
 })
-
-watch(
-  () => selectedSchemeOptions,
-  (newOptions) => {
-    if (!newOptions || !newOptions[activeAuthIndex.value]) {
-      activeAuthIndex.value = Math.max(0, activeAuthIndex.value - 1)
-    }
-  },
-)
 
 defineExpose({
   activeAuthIndex,
@@ -67,13 +54,15 @@ defineExpose({
       data-testid="auth-tabs">
       <div
         v-for="(option, index) in selectedSchemeOptions"
-        :key="Object.keys(option).join(' & ')"
+        :key="option.id"
         class="relative z-1 -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
           class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
           type="button"
-          @click="activeAuthIndex = index">
+          @click="
+            () => eventBus.emit('auth:update:active-index', { index, meta })
+          ">
           <span class="relative z-10 font-medium whitespace-nowrap">{{
             option.label
           }}</span>
@@ -95,10 +84,24 @@ defineExpose({
         :environment="environment"
         :layout="layout"
         :securitySchemes="securitySchemes ?? {}"
-        :selectedSecuritySchema="activeScheme.value"
+        :selectedSecuritySchemas="activeScheme.value"
         :server="server"
-        @update:securityScheme="emits('update:securityScheme', $event)"
-        @update:selectedScopes="emits('update:selectedScopes', $event)" />
+        @update:securityScheme="
+          (payload) =>
+            eventBus.emit('auth:update:security-scheme', {
+              data: payload,
+              name: activeScheme?.id ?? '',
+            })
+        "
+        @update:selectedScopes="
+          ({ id, name, scopes }) =>
+            eventBus.emit('auth:update:selected-scopes', {
+              id,
+              name,
+              scopes,
+              meta,
+            })
+        " />
     </DataTable>
 
     <div

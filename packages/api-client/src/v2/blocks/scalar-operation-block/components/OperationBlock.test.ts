@@ -1,5 +1,6 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
@@ -15,7 +16,7 @@ const defaultProps = {
   },
   exampleKey: 'example-1',
   securitySchemes: {},
-  selectedSecurity: [],
+  selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
   security: [],
 
   layout: 'web' as const,
@@ -28,12 +29,16 @@ const defaultProps = {
     color: 'some-color',
   },
   envVariables: [],
+  eventBus: createWorkspaceEventBus(),
 }
 
 describe('OperationBlock', () => {
   it('renders request name input and emits on change for non-modal layout', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('operation:update:summary', fn)
     const wrapper = mount(OperationBlock, {
-      props: { ...defaultProps },
+      props: { ...defaultProps, eventBus },
       global: {
         stubs: {
           RouterLink: true,
@@ -48,9 +53,11 @@ describe('OperationBlock', () => {
 
     await input.setValue('New Name')
 
-    const emitted = wrapper.emitted('operation:update:requestName')
-    expect(emitted).toBeTruthy()
-    expect(emitted?.[0]?.[0]).toEqual({ name: 'New Name' })
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      payload: { summary: 'New Name' },
+      meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
   })
 
   it('renders summary text instead of input in modal layout', () => {
@@ -172,39 +179,14 @@ describe('OperationBlock', () => {
     expect(bodyGet.isVisible()).toBe(true)
   })
 
-  it('re-emits auth events', () => {
-    const wrapper = mount(OperationBlock, {
-      props: { ...defaultProps },
-      global: {
-        stubs: {
-          RouterLink: true,
-        },
-      },
-    })
-
-    const auth = wrapper.findComponent(AuthSelector)
-    expect(auth.exists()).toBe(true)
-
-    const deletePayload = ['a', 'b']
-    auth.vm.$emit('deleteOperationAuth', deletePayload)
-    expect(wrapper.emitted('auth:delete')?.[0]?.[0]).toEqual(deletePayload)
-
-    const securitySchemePayload = { name: 'apiKey', type: 'apiKey' }
-    auth.vm.$emit('update:securityScheme', securitySchemePayload)
-    expect(wrapper.emitted('auth:update:securityScheme')?.[0]?.[0]).toEqual(securitySchemePayload)
-
-    const scopesPayload = { id: ['id'], name: 'oauth2', scopes: ['read'] }
-    auth.vm.$emit('update:selectedScopes', scopesPayload)
-    expect(wrapper.emitted('auth:update:selectedScopes')?.[0]?.[0]).toEqual(scopesPayload)
-
-    const selectedSecurityPayload = { value: ['apiKey'], create: [] }
-    auth.vm.$emit('update:selectedSecurity', selectedSecurityPayload)
-    expect(wrapper.emitted('auth:update:selectedSecurity')?.[0]?.[0]).toEqual(selectedSecurityPayload)
-  })
-
   it('re-emits parameter add, update, and delete events with mapped types', () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('operation:add:parameter', fn)
+    eventBus.on('operation:update:parameter', fn)
+    eventBus.on('operation:delete:parameter', fn)
     const wrapper = mount(OperationBlock, {
-      props: { ...defaultProps },
+      props: { ...defaultProps, eventBus },
       global: {
         stubs: {
           RouterLink: true,
@@ -226,23 +208,46 @@ describe('OperationBlock', () => {
       const title = (p.props() as any).title as string
       const expectedType = titleToType[title]
 
-      p.vm.$emit('add', { key: 'k', value: 'v' })
-      const lastAdd = wrapper.emitted('parameters:add')?.at(-1)?.[0]
-      expect(lastAdd).toEqual({ type: expectedType, payload: { key: 'k', value: 'v' } })
+      // Path (Variables) does not support adding new rows
+      if (expectedType !== 'path') {
+        p.vm.$emit('add', { key: 'k', value: 'v' })
+
+        expect(fn).toHaveBeenCalledTimes(1)
+        expect(fn).toHaveBeenCalledWith({
+          type: expectedType,
+          payload: { key: 'k', value: 'v', isEnabled: true },
+          meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
+        })
+        fn.mockReset()
+      }
 
       p.vm.$emit('update', { index: 1, payload: { key: 'x', value: 'y', isEnabled: true } })
-      const lastUpdate = wrapper.emitted('parameters:update')?.at(-1)?.[0]
-      expect(lastUpdate).toEqual({ type: expectedType, index: 1, payload: { key: 'x', value: 'y', isEnabled: true } })
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        type: expectedType,
+        index: 1,
+        payload: { key: 'x', value: 'y', isEnabled: true },
+        meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
+      })
+      fn.mockReset()
 
       p.vm.$emit('delete', { index: 2 })
-      const lastDelete = wrapper.emitted('parameters:delete')?.at(-1)?.[0]
-      expect(lastDelete).toEqual({ type: expectedType, index: 2 })
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        type: expectedType,
+        index: 2,
+        meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
+      })
+      fn.mockReset()
     }
   })
 
   it('re-emits parameter deleteAll for Cookies with mapped type', () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('operation:delete-all:parameters', fn)
     const wrapper = mount(OperationBlock, {
-      props: { ...defaultProps },
+      props: { ...defaultProps, eventBus },
       global: {
         stubs: {
           RouterLink: true,
@@ -255,12 +260,22 @@ describe('OperationBlock', () => {
       .find((p) => (p.props() as any).title === 'Cookies')
     expect(cookies).toBeTruthy()
     cookies!.vm.$emit('deleteAll')
-    expect(wrapper.emitted('parameters:deleteAll')?.[0]?.[0]).toEqual({ type: 'cookie' })
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      type: 'cookie',
+      meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
   })
 
   it('re-emits request body events', () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('operation:update:requestBody:contentType', fn)
+    eventBus.on('operation:update:requestBody:value', fn)
+    eventBus.on('operation:add:requestBody:formRow', fn)
+    eventBus.on('operation:update:requestBody:formRow', fn)
     const wrapper = mount(OperationBlock, {
-      props: { ...defaultProps, method: 'post' },
+      props: { ...defaultProps, method: 'post', eventBus },
       global: {
         stubs: {
           RouterLink: true,
@@ -273,19 +288,43 @@ describe('OperationBlock', () => {
 
     const contentTypePayload = { value: 'application/json' }
     body.vm.$emit('update:contentType', contentTypePayload)
-    expect(wrapper.emitted('requestBody:update:contentType')?.[0]?.[0]).toEqual(contentTypePayload)
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      payload: { contentType: 'application/json' },
+      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
+    fn.mockReset()
 
-    const valuePayload = { value: 'hello' }
+    const valuePayload = { value: 'hello', contentType: 'application/json' }
     body.vm.$emit('update:value', valuePayload)
-    expect(wrapper.emitted('requestBody:update:value')?.[0]?.[0]).toEqual(valuePayload)
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      payload: { value: 'hello' },
+      contentType: 'application/json',
+      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
+    fn.mockReset()
 
-    const addFormRowPayload = { key: 'a', value: 'b' }
+    const addFormRowPayload = { data: { key: 'a', value: 'b' }, contentType: 'application/json' }
     body.vm.$emit('add:formRow', addFormRowPayload)
-    expect(wrapper.emitted('requestBody:add:formRow')?.[0]?.[0]).toEqual(addFormRowPayload)
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      payload: { key: 'a', value: 'b' },
+      contentType: 'application/json',
+      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
+    fn.mockReset()
 
-    const updateFormRowPayload = { index: 1, payload: { key: 'x', value: 'y' } }
+    const updateFormRowPayload = { index: 1, data: { key: 'x', value: 'y' }, contentType: 'application/json' }
     body.vm.$emit('update:formRow', updateFormRowPayload)
-    expect(wrapper.emitted('requestBody:update:formRow')?.[0]?.[0]).toEqual(updateFormRowPayload)
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      index: 1,
+      payload: { key: 'x', value: 'y' },
+      contentType: 'application/json',
+      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
+    fn.mockReset()
   })
 
   it('renders plugin component when provided', () => {

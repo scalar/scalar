@@ -6,6 +6,10 @@ import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import {
+  type XScalarSelectedSecurity,
+  XScalarSelectedSecuritySchema,
+} from '@/schemas/extensions/security/x-scalar-selected-security'
 import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
@@ -70,7 +74,6 @@ const OpenApiExtensionsSchema = compose(
       'x-scalar-client-config-icon': Type.String(),
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
-      'x-scalar-selected-security': Type.Array(SecurityRequirementObjectRef),
       'x-scalar-original-source-url': Type.String(),
       'x-scalar-watch-mode': Type.Boolean(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
@@ -78,6 +81,7 @@ const OpenApiExtensionsSchema = compose(
   ),
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
+  XScalarSelectedSecuritySchema,
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
@@ -89,7 +93,6 @@ export type OpenAPIExtensions = Partial<{
   'x-scalar-client-config-icon': string
   'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
-  'x-scalar-selected-security': SecurityRequirementObject[]
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
   'x-scalar-watch-mode': boolean
@@ -98,7 +101,8 @@ export type OpenAPIExtensions = Partial<{
   /** Original input document hash */
   'x-scalar-original-document-hash': string
 } & XTagGroups &
-  XScalarEnvironments
+  XScalarEnvironments &
+  XScalarSelectedSecurity
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

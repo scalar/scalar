@@ -21,16 +21,16 @@ const {
   environment,
   envVariables,
   layout,
-  selectedSecuritySchema: selectedSecuritySchemas,
+  selectedSecuritySchemas,
   securitySchemes,
   server,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
-  selectedSecuritySchema: NonNullable<
+  selectedSecuritySchemas: NonNullable<
     OpenApiDocument['x-scalar-selected-security']
-  >[number]
+  >['x-schemes'][number]
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
   server: ServerObject | undefined
 }>()
@@ -243,7 +243,6 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :flows="scheme.flows"
           proxyUrl=""
-          :scheme="scheme"
           :selectedScopes="scopes"
           :server="server"
           :type="key"
@@ -257,7 +256,7 @@ const dataTableInputProps = {
           "
           @update:selectedScopes="
             emits('update:selectedScopes', {
-              id: Object.keys(selectedSecuritySchema),
+              id: Object.keys(selectedSecuritySchemas),
               name,
               ...$event,
             })

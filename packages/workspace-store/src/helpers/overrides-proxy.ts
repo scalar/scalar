@@ -132,7 +132,11 @@ export const isOverridesProxyObject = (obj: unknown): boolean => {
  * @returns The original unproxied target object or the input object
  */
 export function unpackOverridesProxy<T>(input: T): T {
-  if ((input as T & { [isOverridesProxy]: boolean | undefined })[isOverridesProxy]) {
+  if (
+    typeof input === 'object' &&
+    input !== null &&
+    (input as T & { [isOverridesProxy]: boolean | undefined })[isOverridesProxy]
+  ) {
     return (input as T & { [getOverridesTarget]: T })[getOverridesTarget]
   }
 

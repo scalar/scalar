@@ -5,7 +5,15 @@ import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
+import {
+  type XScalarOperationIdentifiers,
+  XScalarOperationIdentifiersSchema,
+} from '@/schemas/extensions/operation/x-scalar-operation-identifiers'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
+import {
+  type XScalarSelectedSecurity,
+  XScalarSelectedSecuritySchema,
+} from '@/schemas/extensions/security/x-scalar-selected-security'
 
 import type { CallbackObject } from './callback'
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -24,16 +32,6 @@ import type { RequestBodyObject } from './request-body'
 import type { ResponsesObject } from './responses'
 import type { SecurityRequirementObject } from './security-requirement'
 import type { ServerObject } from './server'
-
-const OperationExtensionsSchema = Type.Partial(
-  Type.Object({
-    'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-  }),
-)
-
-type OperationExtensions = {
-  'x-scalar-selected-security'?: SecurityRequirementObject[]
-}
 
 export const OperationObjectSchemaDefinition = compose(
   Type.Object({
@@ -62,12 +60,13 @@ export const OperationObjectSchemaDefinition = compose(
     /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
     callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([CallbackObjectRef, reference(CallbackObjectRef)]))),
   }),
-  OperationExtensionsSchema,
+  XScalarSelectedSecuritySchema,
   XBadgesSchema,
   XInternalSchema,
   XScalarIgnoreSchema,
   XCodeSamplesSchema,
   XScalarStabilitySchema,
+  XScalarOperationIdentifiersSchema,
 )
 
 export type OperationObject = {
@@ -95,9 +94,10 @@ export type OperationObject = {
   servers?: ServerObject[]
   /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
   callbacks?: Record<string, ReferenceType<CallbackObject>>
-} & OperationExtensions &
-  XBadges &
+} & XBadges &
   XInternal &
   XScalarIgnore &
   XCodeSamples &
-  XScalarStability
+  XScalarStability &
+  XScalarSelectedSecurity &
+  XScalarOperationIdentifiers
