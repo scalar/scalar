@@ -35,6 +35,12 @@ export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256
     return verifier
   }
 
+  // If crypto.subtle.digest is not a function, we cannot use SHA-256
+  if (typeof crypto?.subtle?.digest !== 'function') {
+    console.warn('SHA-256 is only supported when using https, using a plain text code challenge instead.')
+    return verifier
+  }
+
   // ASCII encoding is just taking the lower 8 bits of each character
   const encoder = new TextEncoder()
   const data = encoder.encode(verifier)

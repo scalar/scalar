@@ -1296,10 +1296,10 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'a': {
-          '$ref': '#/x-ext/3664f29',
+          '$ref': '#/x-ext/8706c8f',
         },
         'x-ext': {
-          '3664f29': {
+          '8706c8f': {
             'message': 'some resolved external reference',
           },
         },
@@ -1324,8 +1324,8 @@ describe('bundle', () => {
       })
 
       expect(result).toEqual({
-        a: { '$ref': '#/x-ext/e53b62c' },
-        'x-ext': { e53b62c: { message: 'some resolved external reference' } },
+        a: { '$ref': '#/x-ext/6b07652' },
+        'x-ext': { '6b07652': { message: 'some resolved external reference' } },
       })
     })
 
@@ -1543,12 +1543,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/69a42cc',
+              '$ref': '#/x-ext/1c26e20',
             },
           },
         },
         'x-ext': {
-          '69a42cc': {
+          '1c26e20': {
             'message': 'resolved value',
           },
         },
@@ -1599,12 +1599,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/25c8e1f',
+              '$ref': '#/x-ext/19ac1c5',
             },
           },
         },
         'x-ext': {
-          '25c8e1f': {
+          '19ac1c5': {
             'message': 'resolved value',
           },
         },
@@ -1665,12 +1665,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/943da6f',
+              '$ref': '#/x-ext/8f7df4f',
             },
           },
         },
         'x-ext': {
-          '943da6f': {
+          '8f7df4f': {
             'message': 'resolved value',
           },
         },
@@ -1744,16 +1744,16 @@ describe('bundle', () => {
             '$ref': '#my-anchor',
           },
           'g': {
-            '$ref': '#/x-ext/89dce6a',
+            '$ref': '#/x-ext/0a9e8c9',
           },
         },
         'x-ext': {
-          '89dce6a': {
+          '0a9e8c9': {
             'message': 'resolved value',
           },
         },
         'x-ext-urls': {
-          '89dce6a': 'http://example.com',
+          '0a9e8c9': 'http://example.com',
         },
       })
     })
@@ -2439,9 +2439,9 @@ describe('bundle', () => {
       expect(exec).toHaveBeenLastCalledWith('hello')
 
       expect(result).toEqual({
-        $ref: '#/x-ext/aaf4c61',
+        $ref: '#/x-ext/26c7827',
         'x-ext': {
-          'aaf4c61': {
+          '26c7827': {
             message: 'Resolved document',
           },
         },
@@ -2638,13 +2638,13 @@ describe('bundle', () => {
 
       expect(onResolveStart).toHaveBeenCalledTimes(2)
       expect(onResolveStart).nthCalledWith(1, { $ref: 'some-value' })
-      expect(onResolveStart).nthCalledWith(2, { $ref: '#/x-ext/4e7a208' })
+      expect(onResolveStart).nthCalledWith(2, { $ref: '#/x-ext/2a57507' })
 
       expect(onResolveError).toHaveBeenCalledTimes(1)
       expect(onResolveError).lastCalledWith({ $ref: 'some-value' })
 
       expect(onResolveSuccess).toHaveBeenCalledTimes(1)
-      expect(onResolveSuccess).lastCalledWith({ $ref: '#/x-ext/4e7a208' })
+      expect(onResolveSuccess).lastCalledWith({ $ref: '#/x-ext/2a57507' })
     })
 
     it('correctly provides the parent node in different levels', async () => {

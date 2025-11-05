@@ -370,20 +370,17 @@ describe('Swagger 2.0 upgrade', () => {
     })
 
     // Wait for the API reference to process and dereference the document
-    await flushPromises()
-    await wrapper.vm.$nextTick()
+    await vi.waitFor(
+      async () => {
+        await flushPromises()
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.dereferenced).toBeDefined()
+      },
+      { timeout: 5000 },
+    )
 
-    // Wait a bit more for the dereferencing to complete
-    await flushPromises()
-    await wrapper.vm.$nextTick()
-
-    // Check that the dereferenced document exists and is upgraded to OpenAPI 3.1
     const dereferenced = wrapper.vm.dereferenced
-
-    expect(dereferenced).not.toBeNull()
-    expect(dereferenced).toBeDefined()
     expect(dereferenced?.openapi).toBe('3.1.1')
-
     wrapper.unmount()
   })
 })

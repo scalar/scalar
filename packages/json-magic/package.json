@@ -56,10 +56,16 @@
       "import": "./dist/helpers/escape-json-pointer.js",
       "types": "./dist/helpers/escape-json-pointer.ts",
       "default": "./dist/helpers/escape-json-pointer.js"
+    },
+    "./helpers/generate-hash": {
+      "import": "./dist/helpers/generate-hash.js",
+      "types": "./dist/helpers/generate-hash.ts",
+      "default": "./dist/helpers/generate-hash.js"
     }
   },
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "xxhash-wasm": "^1.1.0",
     "yaml": "catalog:*"
   },
   "devDependencies": {
