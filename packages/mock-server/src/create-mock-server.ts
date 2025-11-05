@@ -21,7 +21,7 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = dereference(options?.document ?? options?.document ?? {})
+  const { schema } = dereference(options?.document ?? options?.specification ?? {})
 
   // CORS headers
   app.use(cors())
