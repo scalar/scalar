@@ -1,8 +1,8 @@
-import { generateHash } from '@scalar/helpers/crypto/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
+import { generateHash } from '@scalar/json-magic/helpers/generate-hash'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
@@ -863,7 +863,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...input,
         document: resolve.data,
         documentSource: getDocumentSource(input),
-        documentHash: await generateHash(resolve.raw),
+        documentHash: generateHash(resolve.raw),
       })
     })
   }
@@ -1065,7 +1065,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
-      const newHash = await generateHash(resolve.raw)
+      const newHash = generateHash(resolve.raw)
       if (activeDocument['x-scalar-original-document-hash'] === newHash) {
         return {
           ok: false,
@@ -1137,7 +1137,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             },
             documentSource: getDocumentSource(input),
             // Update the original document hash
-            documentHash: await generateHash(resolve.raw),
+            documentHash: generateHash(resolve.raw),
             initialize: false,
           })
         },

@@ -31,13 +31,15 @@ const generateCodeVerifier = (): string => {
  * Creates a code challenge from the code verifier
  */
 export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
-  if (encoding === 'plain') {
+  // Ensure we have crypto.subtle if we want to use SHA-256
+  if (encoding === 'plain' || typeof crypto?.subtle?.digest !== 'function') {
     return verifier
   }
 
   // ASCII encoding is just taking the lower 8 bits of each character
   const encoder = new TextEncoder()
   const data = encoder.encode(verifier)
+  // biome-ignore lint/plugin: OAuth PKCE requires crypto.subtle for SHA-256 code challenge in secure HTTPS contexts
   const digest = await crypto.subtle.digest('SHA-256', data)
 
   // Base64URL encode the bytes

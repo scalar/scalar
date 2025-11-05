@@ -31,7 +31,8 @@ const generateCodeVerifier = (): string => {
  * Creates a code challenge from the code verifier
  */
 export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
-  if (encoding === 'plain') {
+  // Ensure we have crypto.subtle if we want to use SHA-256
+  if (encoding === 'plain' || typeof crypto?.subtle?.digest !== 'function') {
     return verifier
   }
 
