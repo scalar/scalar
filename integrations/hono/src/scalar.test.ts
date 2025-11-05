@@ -105,7 +105,7 @@ describe('apiReference', () => {
     app.get(
       '/',
       Scalar({
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       }),
     )
 
@@ -113,7 +113,7 @@ describe('apiReference', () => {
     const text = await response.text()
 
     // Check the URL is present
-    expect(text).toContain('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json')
+    expect(text).toContain('https://registry.scalar.com/@scalar/apis/galaxy?format=json')
   })
 
   it('applies custom theme CSS without theme specified', async () => {

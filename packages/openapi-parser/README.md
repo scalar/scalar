@@ -213,7 +213,7 @@ import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
 const data = await bundle(
-  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+  'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
   {
     plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
   },
@@ -232,7 +232,7 @@ import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
 const result = await bundle(
-  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+  'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
   {
     plugins: [
       fetchUrls({
@@ -258,7 +258,7 @@ If you were previously using the `load()` method and want to migrate to the late
 // Load a file and all referenced files
 -const { filesystem } = await load(
 +const result = await bundle(
-  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+  'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
   {
     plugins: [
       fetchUrls({

@@ -5,7 +5,7 @@ use serde_json::json;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config_json = json!({
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json",
         "theme": "kepler",
     });
 

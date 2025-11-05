@@ -56,14 +56,14 @@ describe('apiReference', () => {
 
     app.use(
       apiReference({
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       }),
     )
 
     const response = await request(app).get('/')
 
     // Check the URL is present
-    expect(response.text).toContain('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json')
+    expect(response.text).toContain('https://registry.scalar.com/@scalar/apis/galaxy?format=json')
   })
 
   it('includes _integration: "express" in configuration', async () => {

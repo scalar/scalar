@@ -61,7 +61,7 @@ const config: Config = {
         route: '/json-url-cdn',
         cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11',
         configuration: {
-          url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+          url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
         },
       } as ScalarOptions,
     ],
@@ -72,7 +72,7 @@ const config: Config = {
         label: 'yaml-url',
         route: '/yaml-url',
         configuration: {
-          url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+          url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
         },
       } as ScalarOptions,
     ],

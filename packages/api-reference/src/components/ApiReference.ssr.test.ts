@@ -15,12 +15,12 @@ const EXAMPLE_API_DEFINITIONS = [
   },
   {
     title: 'Scalar Galaxy',
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
     name: 'scalar-galaxy-1.json',
   },
   {
     title: 'Scalar Galaxy',
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
     name: 'scalar-galaxy-2.yaml',
   },
   {

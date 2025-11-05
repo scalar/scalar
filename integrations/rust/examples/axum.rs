@@ -5,7 +5,7 @@ use serde_json::json;
 #[tokio::main]
 async fn main() {
     let config = json!({
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json",
         "theme": "purple",
     });
 

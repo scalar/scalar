@@ -8,7 +8,7 @@ Build custom plugins to extend the functionality of your API reference.
 import { MyCustomPlugin } from './my-custom-plugin.ts'
 
 const configuration = {
-  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   plugins: [
     MyCustomPlugin(),
   ],

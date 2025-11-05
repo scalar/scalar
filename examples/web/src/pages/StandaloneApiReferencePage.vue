@@ -7,17 +7,17 @@ const configuration: AnyApiReferenceConfiguration = {
     {
       title: 'Scalar Galaxy',
       slug: 'scalar-galaxy',
-      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
     },
     {
       title: 'Scalar Galaxy (Classic Layout)',
-      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       // @ts-expect-error TODO: types are wrong here
       layout: 'classic',
     },
     {
       title: 'Scalar Galaxy (Path Routing)',
-      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       pathRouting: { basePath: '/path-routing' },
     },
     {

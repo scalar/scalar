@@ -32,7 +32,7 @@ afterEach(() => {
 
 describe('fetchDocument', () => {
   it('fetches specifications (without a proxy)', async () => {
-    const spec = await fetchDocument('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml')
+    const spec = await fetchDocument('https://registry.scalar.com/@scalar/apis/galaxy?format=yaml')
 
     expect(typeof spec).toEqual('string')
     expect(spec.length).toBeGreaterThan(100)
@@ -40,7 +40,7 @@ describe('fetchDocument', () => {
 
   it('fetches specifications (through proxy.scalar.com)', async () => {
     const spec = await fetchDocument(
-      'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+      'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
       'https://proxy.scalar.com',
     )
 
@@ -50,7 +50,7 @@ describe('fetchDocument', () => {
 
   it(`fetches specifications (through 127.0.0.1:${PROXY_PORT})`, async () => {
     const spec = await fetchDocument(
-      'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+      'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
       `http://127.0.0.1:${PROXY_PORT}`,
     )
 

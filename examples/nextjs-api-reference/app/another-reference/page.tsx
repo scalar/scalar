@@ -6,7 +6,7 @@ export default function ApiReferencePage() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
         withDefaultFonts: false,
         hideModels: true,
         tagsSorter: 'alpha',

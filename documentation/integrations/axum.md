@@ -27,7 +27,7 @@ async fn main() {
     let configuration = json!({
         // URL to your OpenAPI document
         // Learn more about the configuration: https://guides.scalar.com/scalar/scalar-api-references/configuration
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json",
     });
 
     let app = Router::new()
