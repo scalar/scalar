@@ -1,6 +1,6 @@
 {
   "name": "@scalar/express-api-reference",
-  "description": "Express middleware to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
+  "description": "Express middleware to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

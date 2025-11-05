@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swagger specifications.
+Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 

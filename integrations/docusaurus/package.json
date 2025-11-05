@@ -1,6 +1,6 @@
 {
   "name": "@scalar/docusaurus",
-  "description": "Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
+  "description": "Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

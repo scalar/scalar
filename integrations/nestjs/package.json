@@ -1,6 +1,6 @@
 {
   "name": "@scalar/nestjs-api-reference",
-  "description": "NestJS module to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
+  "description": "NestJS module to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

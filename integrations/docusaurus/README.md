@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/docusaurus)](https://www.npmjs.com/package/@scalar/docusaurus)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger specifications.
+Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 

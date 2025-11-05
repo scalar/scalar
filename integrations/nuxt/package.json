@@ -1,6 +1,6 @@
 {
   "name": "@scalar/nuxt",
-  "description": "Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
+  "description": "Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

@@ -1,6 +1,6 @@
 {
   "name": "@scalar/nextjs-api-reference",
-  "description": "Next.js API route handler to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.",
+  "description": "Next.js API route handler to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

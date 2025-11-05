@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/nestjs-api-reference)](https://www.npmjs.com/package/@scalar/nestjs-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-NestJS module to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.
+NestJS module to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 

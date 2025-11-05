@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/pypi/l/scalar-fastapi)](https://pypi.org/project/scalar-fastapi/)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI specifications.
+FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 

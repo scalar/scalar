@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/nextjs-api-reference)](https://www.npmjs.com/package/@scalar/nextjs-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Next.js API route handler to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.
+Next.js API route handler to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 

@@ -1,6 +1,6 @@
 {
   "name": "scalar-fastapi",
-  "description": "FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI specifications.",
+  "description": "FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

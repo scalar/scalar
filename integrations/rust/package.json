@@ -1,6 +1,6 @@
 {
   "name": "scalar_api_reference",
-  "description": "Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in Rust web applications.",
+  "description": "Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagger documents in Rust web applications.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

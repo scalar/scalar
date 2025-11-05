@@ -1,6 +1,6 @@
 {
   "name": "@scalarapi/docker-api-reference",
-  "description": "Docker image to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in containerized environments.",
+  "description": "Docker image to serve beautiful, interactive API documentation from OpenAPI/Swagger documents in containerized environments.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

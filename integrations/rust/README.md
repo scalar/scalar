@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/crates/l/scalar_api_reference)](https://crates.io/crates/scalar_api_reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in Rust web applications.
+Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagger documents in Rust web applications.
 
 ## Documentation
 

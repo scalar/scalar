@@ -10,7 +10,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/scalarapi/api-reference)](https://hub.docker.com/r/scalarapi/api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Docker image to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications in containerized environments.
+Docker image to serve beautiful, interactive API documentation from OpenAPI/Swagger documents in containerized environments.
 
 ## Documentation
 

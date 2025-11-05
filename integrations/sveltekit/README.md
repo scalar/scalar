@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/sveltekit)](https://www.npmjs.com/package/@scalar/sveltekit)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-SvelteKit server handler to serve beautiful, interactive API documentation from OpenAPI/Swagger specifications.
+SvelteKit server handler to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
 ## Documentation
 
