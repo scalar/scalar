@@ -133,7 +133,7 @@ describe('RequestAuthDataTable', () => {
 
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('update:active-auth-index', fn)
+      eventBus.on('auth:update:active-index', fn)
 
       const wrapper = mountWithProps({ selectedSchemeOptions, eventBus })
 
@@ -237,7 +237,7 @@ describe('RequestAuthDataTable', () => {
     it('emits update:securityScheme event', async () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('update:security-scheme', fn)
+      eventBus.on('auth:update:security-scheme', fn)
       const wrapper = mountWithProps({ eventBus })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
@@ -262,7 +262,7 @@ describe('RequestAuthDataTable', () => {
     it('emits update:selectedScopes event', async () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('update:selected-scopes', fn)
+      eventBus.on('auth:update:selected-scopes', fn)
       const wrapper = mountWithProps({ eventBus })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })

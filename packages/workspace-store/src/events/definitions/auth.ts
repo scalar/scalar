@@ -10,7 +10,7 @@ export type AuthEvents = {
    * - `newSchemes` lists new security schemes (with names and definitions) to be created and added.
    * - `meta` describes the target (whole document or a specific operation).
    */
-  'update:selected-security-schemes': {
+  'auth:update:selected-security-schemes': {
     /** Security requirement objects representing the full updated selection */
     selectedRequirements: SecurityRequirementObject[]
     /** New security scheme definitions to add (name & scheme definition) */
@@ -25,7 +25,7 @@ export type AuthEvents = {
    * - `index` is the new active tab index to set.
    * - `meta` describes the update scope (document or specific operation).
    */
-  'update:active-auth-index': {
+  'auth:update:active-index': {
     /** The index of the auth tab to set as active */
     index: number
     /** Meta information for the auth update */
@@ -37,7 +37,7 @@ export type AuthEvents = {
    * Use this event to update secret information or configuration for UI-auth flows,
    * such as username, password, tokens for HTTP/ApiKey/OAuth2 schemes.
    */
-  'update:security-scheme': {
+  'auth:update:security-scheme': {
     /** The data to update the security scheme with */
     data: SecuritySchemeUpdate
     /** The name of the security scheme to update */
@@ -48,7 +48,7 @@ export type AuthEvents = {
    * Update the selected scopes for a given security scheme.
    * Triggers when the user selects/deselects scopes for an OAuth2 (or other scopes-supporting) scheme in the UI.
    */
-  'update:selected-scopes': {
+  'auth:update:selected-scopes': {
     /** The id of the security scheme to update the scopes for */
     id: string[]
     /** The name of the security scheme to update the scopes for */
@@ -69,7 +69,7 @@ export type AuthEvents = {
    * - `names`: Array of security scheme names to delete. Array is used to support deleting multiple
    *   schemes at once, including multi-scheme (composite/complex) authentication scenarios.
    */
-  'delete:security-scheme': {
+  'auth:delete:security-scheme': {
     /** Names of the security schemes to delete */
     names: string[]
   }

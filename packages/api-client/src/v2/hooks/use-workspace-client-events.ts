@@ -76,14 +76,14 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('delete:security-scheme', ({ names }) => {
+  eventBus.on('auth:delete:security-scheme', ({ names }) => {
     deleteSecurityScheme({
       document: document.value,
       names,
     })
   })
 
-  eventBus.on('update:selected-scopes', ({ id, name, scopes, meta }) => {
+  eventBus.on('auth:update:selected-scopes', ({ id, name, scopes, meta }) => {
     updateSelectedScopes({
       document: document.value,
       id,
@@ -92,7 +92,7 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
-  eventBus.on('update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
+  eventBus.on('auth:update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
     updateSelectedSecuritySchemes({
       document: document.value,
       newSchemes,
@@ -100,14 +100,14 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
-  eventBus.on('update:security-scheme', ({ data, name }) => {
+  eventBus.on('auth:update:security-scheme', ({ data, name }) => {
     updateSecurityScheme({
       document: document.value,
       data,
       name,
     })
   })
-  eventBus.on('update:active-auth-index', ({ index, meta }) => {
+  eventBus.on('auth:update:active-index', ({ index, meta }) => {
     updateSelectedAuthTab({
       document: document.value,
       index,

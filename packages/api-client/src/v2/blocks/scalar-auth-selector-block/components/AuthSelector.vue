@@ -161,7 +161,7 @@ const openAuthCombobox = (event: Event) => {
 }
 
 const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
-  eventBus.emit('update:selected-security-schemes', {
+  eventBus.emit('auth:update:selected-security-schemes', {
     // Only include updated schemes
     selectedRequirements: selected
       .filter((it) => it.payload === undefined)
@@ -182,7 +182,7 @@ const deleteScheme = () => {
     return
   }
 
-  eventBus.emit('delete:security-scheme', {
+  eventBus.emit('auth:delete:security-scheme', {
     names: Object.keys(selectedScheme.value.payload),
   })
 

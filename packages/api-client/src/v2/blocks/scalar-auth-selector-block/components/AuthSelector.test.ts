@@ -255,7 +255,7 @@ describe('AuthSelector', () => {
     it('updates selected auth when combobox selection changes', async () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('update:selected-security-schemes', fn)
+      eventBus.on('auth:update:selected-security-schemes', fn)
       const wrapper = mountWithProps({
         eventBus,
       })

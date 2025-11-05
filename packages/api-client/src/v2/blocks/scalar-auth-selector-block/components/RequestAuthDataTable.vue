@@ -61,7 +61,7 @@ defineExpose({
           class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
           type="button"
           @click="
-            () => eventBus.emit('update:active-auth-index', { index, meta })
+            () => eventBus.emit('auth:update:active-index', { index, meta })
           ">
           <span class="relative z-10 font-medium whitespace-nowrap">{{
             option.label
@@ -88,14 +88,19 @@ defineExpose({
         :server="server"
         @update:securityScheme="
           (payload) =>
-            eventBus.emit('update:security-scheme', {
+            eventBus.emit('auth:update:security-scheme', {
               data: payload,
               name: activeScheme?.id ?? '',
             })
         "
         @update:selectedScopes="
           ({ id, name, scopes }) =>
-            eventBus.emit('update:selected-scopes', { id, name, scopes, meta })
+            eventBus.emit('auth:update:selected-scopes', {
+              id,
+              name,
+              scopes,
+              meta,
+            })
         " />
     </DataTable>
 

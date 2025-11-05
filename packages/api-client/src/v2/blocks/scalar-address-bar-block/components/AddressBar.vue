@@ -115,11 +115,7 @@ events.focusAddressBar.on(() => {
           isSquare
           :method="method"
           teleport
-          @change="
-            (payload) => {
-              emit('update:method', { value: payload })
-            }
-          " />
+          @change="(payload) => emit('update:method', { value: payload })" />
       </div>
 
       <div

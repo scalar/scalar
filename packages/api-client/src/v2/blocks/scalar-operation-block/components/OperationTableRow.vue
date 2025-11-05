@@ -76,13 +76,13 @@ const isFileInstance = (input: unknown): input is File => {
 
 const valueModel = computed({
   get: () => {
-    const rawValue = unpackProxyObject(data.value as any)
+    const rawValue = unpackProxyObject(data.value)
 
     if (rawValue instanceof File) {
       return getFileName(unpackProxyObject(data.value as any)) ?? ''
     }
 
-    if (data.value === null) {
+    if (rawValue === null) {
       return ''
     }
     return rawValue

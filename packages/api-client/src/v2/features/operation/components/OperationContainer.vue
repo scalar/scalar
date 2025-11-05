@@ -1,4 +1,17 @@
 <script setup lang="ts">
+/**
+ * OperationContainer
+ *
+ * Orchestrates the operation view by wiring together the Header, OperationBlock,
+ * and ResponseBlock. Forwards user interactions to the workspace event bus and
+ * passes through configuration such as auth, servers, plugins, and environment.
+ * This component keeps the Operation page lean by centralizing event emission
+ * and prop wiring between the blocks.
+ *
+ * Notable behavior:
+ * - Uses operation['x-scalar-method'] and operation['x-scalar-path'] to provide
+ *   draft overrides for the UI when present.
+ */
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
