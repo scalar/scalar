@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { getPathFromUrl } from './getOpenAuthTokenUrls'
+import { getPathFromUrl } from './get-open-auth-token-urls'
 
 /**
  * Log authentication instructions for different security schemes

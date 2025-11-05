@@ -4,30 +4,30 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import type { HttpMethod, MockServerOptions } from '@/types'
-import { getOperations } from '@/utils/getOperations'
-import { handleAuthentication } from '@/utils/handleAuthentication'
-import { honoRouteFromPath } from '@/utils/honoRouteFromPath'
-import { isAuthenticationRequired } from '@/utils/isAuthenticationRequired'
-import { logAuthenticationInstructions } from '@/utils/logAuthenticationInstructions'
-import { setupAuthenticationRoutes } from '@/utils/setupAuthenticationRoutes'
+import { getOperations } from '@/utils/get-operation'
+import { handleAuthentication } from '@/utils/handle-authentication'
+import { honoRouteFromPath } from '@/utils/hono-route-from-path'
+import { isAuthenticationRequired } from '@/utils/is-authentication-required'
+import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
+import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 
-import { mockAnyResponse } from './routes/mockAnyResponse'
-import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
+import { mockAnyResponse } from './routes/mock-any-response'
+import { respondWithOpenApiDocument } from './routes/respond-with-openapi-document'
 
 /**
  * Create a mock server instance
  */
-export function createMockServer(options: MockServerOptions): Promise<Hono> {
+export function createMockServer(configuration: MockServerOptions): Promise<Hono> {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = dereference(options?.specification ?? {})
+  const { schema } = dereference(configuration?.document ?? configuration?.specification ?? {})
 
   // CORS headers
   app.use(cors())
 
   /** Authentication methods defined in the OpenAPI document */
-  setupAuthenticationRoutes(app, schema)
+  setUpAuthenticationRoutes(app, schema)
 
   logAuthenticationInstructions(
     schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
@@ -50,15 +50,19 @@ export function createMockServer(options: MockServerOptions): Promise<Hono> {
       }
 
       // Actual route
-      app[method](route, (c) => mockAnyResponse(c, operation, options))
+      app[method](route, (c) => mockAnyResponse(c, operation, configuration))
     })
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.specification, 'json'))
+  app.get('/openapi.json', (c) =>
+    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'json'),
+  )
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.specification, 'yaml'))
+  app.get('/openapi.yaml', (c) =>
+    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'yaml'),
+  )
 
   /**
    * No async code, but returning a Promise to allow future async logic to be implemented

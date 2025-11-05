@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import galaxy from '../../galaxy/src/documents/3.1.yaml?raw'
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '../src/create-mock-server'
 
 describe('createMockServer', () => {
   it('GET /planets -> example JSON', async () => {
     const server = await createMockServer({
-      specification: galaxy,
+      document: galaxy,
     })
 
     const response = await server.request('/planets')

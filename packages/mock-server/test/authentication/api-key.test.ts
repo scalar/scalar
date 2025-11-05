@@ -1,37 +1,38 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from '../../src/createMockServer'
-import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
+import { createMockServer } from '../../src'
+import { createOpenApiDefinition } from '../../src/utils/create-openapi-definition'
 
 describe('API Key Authentication', () => {
   it('succeeds with API key in header', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
-    specification.paths = {
+    document.paths = {
       '/api-key-test': {
         get: {
           security: [{ apiKey: [] }],
-          responses: { '200': { description: 'OK' } },
+          responses: { '200': { description: 'OK', content: { 'application/json': { example: { foo: 'bar' } } } } },
         },
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/api-key-test', {
       headers: { 'X-API-Key': 'test-api-key' },
     })
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toBe('text/plain;charset=UTF-8')
-    expect(await response.json()).toEqual(expect.any(Object))
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
   })
 
   it('fails without API key in header', async () => {
-    const specification = createOpenApiDefinition({
+    const document = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
-    specification.paths = {
+    document.paths = {
       '/api-key-test': {
         get: {
           security: [{ apiKey: [] }],
@@ -40,7 +41,7 @@ describe('API Key Authentication', () => {
       },
     }
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ document })
     const response = await server.request('/api-key-test')
 
     expect(response.status).toBe(401)

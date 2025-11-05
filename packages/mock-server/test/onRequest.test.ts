@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '../src/create-mock-server'
 import type { MockServerOptions } from '../src/types'
 
 describe('onRequest', () => {
   it('call custom onRequest hook', async () => {
-    const specification = {
+    const document = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -23,7 +23,7 @@ describe('onRequest', () => {
     const onRequestSpy = vi.fn<NonNullable<MockServerOptions['onRequest']>>()
 
     const server = await createMockServer({
-      specification,
+      document,
       onRequest: onRequestSpy,
     })
 

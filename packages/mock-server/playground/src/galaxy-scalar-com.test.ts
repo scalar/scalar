@@ -73,7 +73,7 @@ describe('galaxy-scalar-com', () => {
       const app = await createApp()
 
       expect(createMockServer).toHaveBeenCalledWith({
-        specification: mockDocument,
+        document: mockDocument,
         onRequest: expect.any(Function),
       })
       expect(app).toBe(mockApp)
