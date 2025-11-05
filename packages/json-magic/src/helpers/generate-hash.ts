@@ -1,6 +1,18 @@
 import xxhash from 'xxhash-wasm'
 
-const { h64ToString } = await xxhash()
+let hasherInstance: Awaited<ReturnType<typeof xxhash>> | null = null
+
+/**
+ * Initialize the xxhash hasher instance lazily
+ *
+ * This is just a workaround because we cannot use top level await in a UMD module (standalone references)
+ */
+const getHasher = async () => {
+  if (!hasherInstance) {
+    hasherInstance = await xxhash()
+  }
+  return hasherInstance
+}
 
 /**
  * Generate a hash from a string using the xxhash algorithm
@@ -9,6 +21,9 @@ const { h64ToString } = await xxhash()
  * So this is just a wrapper around the xxhash-wasm library instead.
  *
  * @param input - The string to hash
- * @returns The hash of the input string
+ * @returns A Promise that resolves to the hash of the input string
  */
-export const generateHash = (input: string): string => h64ToString(input)
+export const generateHash = async (input: string): Promise<string> => {
+  const { h64ToString } = await getHasher()
+  return h64ToString(input)
+}

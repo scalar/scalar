@@ -10,14 +10,14 @@ import { generateHash } from '@/helpers/generate-hash'
  * If the hash would be all numbers, it ensures at least one letter is included.
  *
  * @param value - The string to hash
- * @returns A 7-character hexadecimal hash with at least one letter
+ * @returns A Promise that resolves to a 7-character hexadecimal hash with at least one letter
  * @example
  * // Returns "2ae91d7"
- * getHash("https://example.com/schema.json")
+ * await getHash("https://example.com/schema.json")
  */
-export function getHash(value: string): string {
+export async function getHash(value: string): Promise<string> {
   // Hash the data using xxhash
-  const hashHex = generateHash(value)
+  const hashHex = await generateHash(value)
 
   // Return first 7 characters of the hash, ensuring at least one letter
   const hash = hashHex.substring(0, 7)

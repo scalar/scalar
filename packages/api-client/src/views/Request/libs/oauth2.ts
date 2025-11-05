@@ -39,7 +39,6 @@ export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256
   // ASCII encoding is just taking the lower 8 bits of each character
   const encoder = new TextEncoder()
   const data = encoder.encode(verifier)
-  // biome-ignore lint/plugin: OAuth PKCE requires crypto.subtle for SHA-256 code challenge in secure HTTPS contexts
   const digest = await crypto.subtle.digest('SHA-256', data)
 
   // Base64URL encode the bytes
