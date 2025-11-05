@@ -2,10 +2,9 @@
 export { addPackageFileExports, findEntryPoints } from './helpers'
 
 import { createRollupConfig } from './rollup'
-import { ViteWatchWorkspace, alias, autoCSSInject, createViteBuildOptions } from './vite'
+import { ViteWatchWorkspace, alias, createViteBuildOptions } from './vite'
 
 export {
-  autoCSSInject,
   /** @deprecated import from '@scalar/build-tooling/vite' */
   alias,
   /** @deprecated import from '@scalar/build-tooling/vite' */
