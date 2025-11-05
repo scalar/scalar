@@ -19,7 +19,6 @@
     "packages/import/**",
     "packages/json-magic/**",
     "packages/nextjs-openapi/**",
-    "packages/object-utils/**",
     "packages/openapi-parser/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
@@ -83,6 +82,9 @@
         "src/spec-getters/index.ts",
         "src/transforms/index.ts"
       ]
+    },
+    "packages/object-utils": {
+      "entry": ["src/*/index.ts"]
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts", "src/schemas/extensions/index.ts", "src/schemas/3.1/*/index.ts"]

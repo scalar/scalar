@@ -2123,9 +2123,6 @@ importers:
       ts-deepmerge:
         specifier: ^7.0.1
         version: 7.0.1
-      type-fest:
-        specifier: catalog:*
-        version: 5.0.0
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

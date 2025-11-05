@@ -26,14 +26,7 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
     "./arrays": {
       "import": "./dist/arrays/index.js",
       "types": "./dist/arrays/index.d.ts",
@@ -78,8 +71,7 @@
     "@scalar/helpers": "workspace:*",
     "flatted": "catalog:*",
     "just-clone": "^6.2.0",
-    "ts-deepmerge": "^7.0.1",
-    "type-fest": "catalog:*"
+    "ts-deepmerge": "^7.0.1"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
