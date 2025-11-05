@@ -1,7 +1,7 @@
 import fs from 'node:fs'
+import { dirname, join } from 'node:path'
 
 import { ERRORS } from '@/configuration'
-import { dirname, join } from '@/polyfills/path'
 import { isJson } from '@/utils/is-json'
 import { isYaml } from '@/utils/is-yaml'
 import type { LoadPlugin } from '@/utils/load/load'

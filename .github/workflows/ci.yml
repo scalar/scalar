@@ -33,11 +33,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
       - if: matrix.node-version == 22
-        name: Upload standalone.js artifact
+        name: Copy and rename standalone.js to scalar.js
+        run: |
+          mkdir -p temp-artifacts
+          cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
+      - if: matrix.node-version == 22
+        name: Upload scalar.js artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: standalone-js
-          path: packages/api-reference/dist/browser/standalone.js
+          name: scalar-js
+          path: temp-artifacts/scalar.js
           retention-days: 3
 
   docker:
@@ -66,16 +71,11 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/docker/assets
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/docker/assets
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
@@ -235,8 +235,6 @@ jobs:
         timeout-minutes: 1
       - name: Run tests
         run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
-        env:
-          CI: 1
 
   test-integrations:
     needs: [build]
@@ -265,10 +263,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
       - name: Run tests
-        run: CI=1 pnpm vitest integrations/* --silent
+        run: pnpm vitest integrations/* --silent
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
-        run: CI=1 pnpm --filter @scalar/nuxt test:e2e
+        run: pnpm --filter @scalar/nuxt test:e2e
 
   test-proxy-server:
     needs: [build]
@@ -314,7 +312,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
@@ -376,7 +374,6 @@ jobs:
       - name: Run e2e tests (scalar-app)
         run: pnpm --filter scalar-app test:e2e
         env:
-          CI: 1
           DEBUG: pw:browser*
           DISPLAY: ':99'
       - if: failure()
@@ -421,7 +418,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -477,7 +474,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -836,19 +833,17 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Download standalone.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: temp-assets
-
-      - name: Rename standalone.js to scalar.js
-        working-directory: temp-assets
-        run: mv standalone.js scalar.js
 
       - name: Copy scalar.js to aspnetcore and aspire
         run: |
@@ -858,6 +853,12 @@ jobs:
       - name: Compress static assets (aspnetcore)
         working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
+
+      - name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
@@ -887,6 +888,8 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -923,21 +926,23 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Rename standalone.js to scalar.js # Lets get rid of this
-        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
@@ -970,6 +975,8 @@ jobs:
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -1006,16 +1013,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
-
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
@@ -1056,6 +1058,13 @@ jobs:
         run: |
           sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
           cat src/Scalar.Aspire/Constants.cs
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Cache NuGet packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup .NET
@@ -1166,15 +1175,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Download standalone.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/rust/ui
-
-      - name: Rename standalone.js to scalar.js
-        working-directory: integrations/rust/ui
-        run: mv standalone.js scalar.js
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
@@ -1239,16 +1244,11 @@ jobs:
               - integrations/rust/package.json
 
       - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Download standalone.js artifact
+        name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          name: standalone-js
+          name: scalar-js
           path: integrations/rust/ui
-
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Rename standalone.js to scalar.js
-        working-directory: integrations/rust/ui
-        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
         name: Setup Rust
@@ -1299,23 +1299,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: '22'
-          packages: '@scalar/api-reference'
-      - name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
-      - name: Check if the JS file exists
-        run: |
-          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
+          name: scalar-js
+          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: '**/webjar/pom.xml'
       - name: Run Maven tests
-        run: pnpm --filter @scalar/webjar test
+        working-directory: integrations/java/webjar
+        run: mvn clean test
 
   java-webjar-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
@@ -1338,34 +1336,44 @@ jobs:
             java_webjar_package:
               - integrations/java/webjar/package.json
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: '22'
-          packages: '@scalar/api-reference'
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        run: pnpm --filter @scalar/webjar copy:standalone
+          name: scalar-js
+          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: '**/webjar/pom.xml'
           server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
+
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: integrations/java/webjar
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Set version in pom.xml (using the version from package.json)
-        run: pnpm --filter @scalar/webjar update:version
+        working-directory: integrations/java/webjar
+        run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Build Java WebJar
-        run: pnpm --filter @scalar/webjar build
+        working-directory: integrations/java/webjar
+        run: mvn clean package
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Release Java WebJar
-        run: pnpm --filter @scalar/webjar release
+        working-directory: integrations/java/webjar
+        run: mvn deploy
         env:
           # Create an account on Sonatype and add the credentials to the repository secrets.
           # Generate User Token: https://central.sonatype.com/account
@@ -1403,7 +1411,7 @@ jobs:
 
   required-ci-ok:
     name: Required CI OK
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
     if: always()
