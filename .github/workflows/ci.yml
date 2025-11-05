@@ -862,7 +862,7 @@ jobs:
             9.x
             8.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: '**/*.csproj'
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
