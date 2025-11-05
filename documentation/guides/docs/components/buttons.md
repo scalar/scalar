@@ -76,10 +76,10 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 
 <scalar-tab title="Directive">
 
-::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"} 
+::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"}
 
 ```markdown
-::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"} 
+::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"}
 ```
 </scalar-tab>
 </scalar-tabs>
@@ -91,26 +91,26 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
-  icon-dark="https://scalar.com/logo-dark.svg">
+  icon="https://cdn.scalar.com/images/logo-light.svg"
+  icon-dark="https://cdn.scalar.com/images/logo-dark.svg">
 </scalar-button>
 
 ```html
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
-  icon-dark="https://scalar.com/logo-dark.svg">
+  icon="https://cdn.scalar.com/images/logo-light.svg"
+  icon-dark="https://cdn.scalar.com/images/logo-dark.svg">
 </scalar-button>
 ```
 </scalar-tab>
 
 <scalar-tab title="Directive">
 
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4" icon-dark="https://scalar.com/logo-dark.svg"}
+::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://cdn.scalar.com/images/logo-light.svg" icon-dark="https://cdn.scalar.com/images/logo-dark.svg"}
 
 ```markdown
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://avatars.githubusercontent.com/u/301879?s=200&v=4" icon-dark="https://scalar.com/logo-dark.svg"}
+::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://cdn.scalar.com/images/logo-light.svg" icon-dark="https://cdn.scalar.com/images/logo-dark.svg"}
 ```
 </scalar-tab>
 </scalar-tabs>
