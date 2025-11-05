@@ -1,4 +1,4 @@
-import { alias } from '@scalar/build-tooling'
+import { alias } from '@scalar/build-tooling/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({

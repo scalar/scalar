@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
-import { ViteWatchWorkspace, alias, createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
+import { findEntryPoints } from '@scalar/build-tooling'
+import { ViteWatchWorkspace, alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'

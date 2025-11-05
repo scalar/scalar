@@ -1,4 +1,4 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
+import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import react from '@vitejs/plugin-react'
 import { preserveDirective } from 'rollup-preserve-directives'
 import { defineConfig } from 'vite'

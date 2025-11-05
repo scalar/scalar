@@ -8,7 +8,6 @@
     "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/build-tooling/**",
     "packages/code-highlight/**",
     "packages/components/**",
     "packages/core/**",
@@ -74,6 +73,9 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/build-tooling": {
+      "entry": ["src/index.ts", "src/{esbuild,rollup,vite}/index.ts"]
+    },
     "packages/oas-utils": {
       "entry": [
         "src/entities/*/index.ts",

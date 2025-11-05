@@ -1,4 +1,4 @@
-import { alias, createViteBuildOptions } from '@scalar/build-tooling'
+import { alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'

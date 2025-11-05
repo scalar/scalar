@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 import type { Plugin } from 'rollup'
 import type { BuildEnvironmentOptions, LibraryOptions } from 'vite'
@@ -171,3 +172,11 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
       }
     },
   })
+
+/** Standard path aliases for Vite */
+export function alias(url: string) {
+  return {
+    '@test': fileURLToPath(new URL('./test', url)),
+    '@': fileURLToPath(new URL('./src', url)),
+  }
+}
