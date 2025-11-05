@@ -50,6 +50,7 @@ const interactingWithDropdown = ref(false)
 const codeInput = ref<InstanceType<typeof CodeInput> | null>(null)
 
 const handleBlur = () => {
+  console.trace('handleBlur')
   if (!interactingWithDropdown.value) {
     emit('inputBlur')
   }

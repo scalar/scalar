@@ -4,10 +4,12 @@ import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
+  addServer,
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
+  deleteServer,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
@@ -19,6 +21,7 @@ import {
   updateSelectedAuthTab,
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
+  updateServer,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -92,6 +95,7 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
+
   eventBus.on('auth:update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
     updateSelectedSecuritySchemes({
       document: document.value,
@@ -100,6 +104,7 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
+
   eventBus.on('auth:update:security-scheme', ({ data, name }) => {
     updateSecurityScheme({
       document: document.value,
@@ -107,6 +112,7 @@ export const useWorkspaceClientEvents = (
       name,
     })
   })
+
   eventBus.on('auth:update:active-index', ({ index, meta }) => {
     updateSelectedAuthTab({
       document: document.value,
@@ -114,6 +120,13 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
+
+  //------------------------------------------------------------------------------------
+  // Server Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('server:add:server', () => addServer(document.value))
+  eventBus.on('server:update:server', (payload) => updateServer(document.value, payload))
+  eventBus.on('server:delete:server', (payload) => deleteServer(document.value, payload))
 
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers

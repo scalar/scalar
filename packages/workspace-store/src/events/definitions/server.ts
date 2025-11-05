@@ -1,19 +1,25 @@
 import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
-export type ServerEvents<T extends keyof ServerObject = keyof ServerObject> = {
+export type ServerEvents = {
   /**
-   * Add a new server to the document
+   * Add a new blank server to the document
    */
-  'server:add': {
-    /** The new server payload to add */
-    server: ServerObject
+  'server:add:server': undefined
+  /**
+   * Update the entire server object
+   */
+  'server:update:server': {
+    /** The index of the server to update */
+    index: number
+    /** The new server payload to update */
+    server: Partial<ServerObject>
   }
   /**
    * Delete a server from the document
    */
-  'server:delete': {
-    /** The URL of the server to delete */
-    url: string
+  'server:delete:server': {
+    /** The index of the server to delete */
+    index: number
   }
   /**
    * Update the selected server via URL
@@ -30,15 +36,6 @@ export type ServerEvents<T extends keyof ServerObject = keyof ServerObject> = {
     key: string
     /** The new value of the variable */
     value: string
-  }
-  /**
-   * Update the selected server properties for the document
-   */
-  'server:update:selected-properties': {
-    /** The key of the property to update */
-    key: T
-    /** The new value of the property */
-    value: ServerObject[T]
   }
   /**
    * Update the servers array on the document

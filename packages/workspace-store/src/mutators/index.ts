@@ -4,7 +4,6 @@ import { cookieMutators } from '@/mutators/cookie'
 import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
-import { serverMutators } from '@/mutators/server'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
@@ -44,7 +43,6 @@ export function generateClientMutators(store: WorkspaceStore) {
       requestMutators: requestMutators(document),
       securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
       cookieMutators: cookieMutators(document),
-      serverMutators: serverMutators(document?.servers),
     }
   }
 
@@ -68,7 +66,6 @@ export function generateClientMutators(store: WorkspaceStore) {
 
     return {
       cookieMutators: cookieMutators(store.workspace),
-      serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
       securitySchemeMutators: securitySchemeMutators(store.workspace['x-scalar-client-config-security-schemes']),
     }
   }
@@ -122,3 +119,8 @@ export {
   updateOperationRequestBodyFormRow,
   updateOperationSummary,
 } from './operation'
+export {
+  addServer,
+  deleteServer,
+  updateServer,
+} from './server'

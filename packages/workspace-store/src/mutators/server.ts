@@ -1,42 +1,66 @@
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ServerEvents } from '@/events/definitions/server'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**
- * Provides mutator functions for managing an array of OpenAPI ServerObject entries.
+ * Adds a new ServerObject to the document.
  *
- * @param target - The array of ServerObject to mutate. If not provided, mutators will be no-ops.
- * @returns An object with addServer and deleteServer methods.
+ * @param document - The document to upsert the server to
+ * @param name - The name of the server to add.
+ * @returns the new server object or undefined if the document is not found
  */
-export const serverMutators = (target?: ServerObject[]) => {
-  /**
-   * Adds a new ServerObject to the target array.
-   * @param server - The ServerObject to add.
-   * @returns true if the server was added, false if target is undefined.
-   */
-  const addServer = (server: ServerObject): boolean => {
-    if (!target) {
-      return false
-    }
-    target.push(server)
-    return true
+export const addServer = (document: WorkspaceDocument | null): ServerObject | undefined => {
+  if (!document) {
+    return undefined
   }
 
-  /**
-   * Deletes a ServerObject at the specified index from the target array.
-   * @param index - The index of the server to delete.
-   * @returns true if the server was deleted, false if target is undefined.
-   */
-  const deleteServer = (url: string): boolean => {
-    if (!target) {
-      return false
-    }
-    const newTarget = [...target.filter((it) => it.url !== url)]
-    target.splice(0, target.length)
-    target.push(...newTarget)
-    return true
+  const parsed = coerceValue(ServerObjectSchema, {})
+
+  // Initialize the servers array if it doesn't exist
+  if (!document.servers) {
+    document.servers = []
   }
 
-  return {
-    addServer,
-    deleteServer,
-  }
+  document.servers.push(parsed)
+  return parsed
 }
+
+/**
+ * Updates a ServerObject in the document
+ *
+ * @param document - The document to upsert the server to
+ * @param index - The index of the server to update
+ * @param server - The new server payload to be replaced at the index
+ * @returns the new server object or undefined if the document is not found
+ */
+export const updateServer = (
+  document: WorkspaceDocument | null,
+  { index, server }: ServerEvents['server:update:server'],
+): ServerObject | undefined => {
+  if (!document) {
+    return undefined
+  }
+
+  const parsed = coerceValue(ServerObjectSchema, server)
+
+  // Initialize the servers array if it doesn't exist
+  if (!document.servers) {
+    document.servers = [parsed]
+  }
+  // Update the server at the index
+  else {
+    document.servers[index] = parsed
+  }
+
+  return parsed
+}
+
+/**
+ * Deletes a ServerObject at the specified index from the target array.
+ *
+ * @param document - The document to delete the server from
+ * @param index - The index of the server to delete.
+ */
+export const deleteServer = (document: WorkspaceDocument | null, { index }: ServerEvents['server:delete:server']) =>
+  document?.servers?.splice(index, 1)
