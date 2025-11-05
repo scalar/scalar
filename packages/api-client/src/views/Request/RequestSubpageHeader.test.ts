@@ -1,12 +1,13 @@
-import { useWorkspace } from '@/store'
-import { createStoreEvents } from '@/store/events'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { collectionSchema, operationSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { mockUseLayout } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mockUseLayout } from '@/vitest.setup'
+import { useWorkspace } from '@/store'
+import { createStoreEvents } from '@/store/events'
+
 import RequestSubpageHeader from './RequestSubpageHeader.vue'
 
 // Mock vue-router

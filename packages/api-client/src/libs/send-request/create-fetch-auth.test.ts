@@ -1,9 +1,9 @@
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { requestExampleSchema, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
+import { VOID_URL, createRequestPayload } from '@test/helpers'
 import { describe, expect, it } from 'vitest'
 
 import { createRequestOperation } from './create-request-operation'
-import { VOID_URL, createRequestPayload } from './create-request-operation.test'
 
 describe('authentication', () => {
   it('adds apiKey auth in header', async () => {

@@ -1,11 +1,14 @@
-import { useWorkspace } from '@/store/store'
-import { mockUseLayout } from '@/vitest.setup'
 import { PopoverPanel } from '@headlessui/vue'
 import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { mockUseLayout } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { useWorkspace } from '@/store/store'
+
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
+
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
   useWorkspace: vi.fn(),

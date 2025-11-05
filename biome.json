@@ -185,7 +185,7 @@
         "noThenProperty": "warn",
         "useIsArray": "warn",
         "noExplicitAny": "off",
-        "noExportsInTest": "warn",
+        "noExportsInTest": "error",
         "noWith": "warn",
         "noVar": "warn",
         "useAwait": "error",
@@ -228,17 +228,29 @@
       }
     },
     {
-      "includes": ["**/tsconfig.*.json", "**/tsconfig.json"],
-      "json": {
-        "parser": {
-          "allowComments": true
-        }
-      }
-    },
-    {
       "includes": ["**/*.tsx"],
       "javascript": {
         "jsxRuntime": "reactClassic"
+      }
+    },
+    {
+      "includes": ["packages/*/src/**", "!packages/*/src/**/*.{test,e2e}.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@test/*", "**/test/**"],
+                    "message": "Do not import test helpers inside source files"
+                  }
+                ]
+              }
+            }
+          }
+        }
       }
     },
     {

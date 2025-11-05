@@ -1,8 +1,9 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { encode } from 'js-base64'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /**
  * Generates the headers, cookies and query params for selected security schemes
