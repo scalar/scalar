@@ -22,4 +22,10 @@
     <EnumGenerator_EnumMetadataSource>DescriptionAttribute</EnumGenerator_EnumMetadataSource>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- When running in CI, we want to restore packages with a lock file for caching purposes -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>$(ContinuousIntegrationBuild)</RestoreLockedMode>
+  </PropertyGroup>
+
 </Project>
