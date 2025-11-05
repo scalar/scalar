@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * OperationContainer
+ * OperationBlock
  *
  * Orchestrates the operation view by wiring together the Header, OperationBlock,
  * and ResponseBlock. Forwards user interactions to the workspace event bus and
@@ -32,7 +32,7 @@ import { OperationBlock } from '@/v2/blocks/scalar-operation-block'
 import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
 import type { ClientPlugin } from '@/v2/plugins'
 
-import Header from './Header.vue'
+import Header from './components/Header.vue'
 
 const props = defineProps<{
   eventBus: WorkspaceEventBus

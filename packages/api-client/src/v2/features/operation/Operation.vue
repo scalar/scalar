@@ -16,8 +16,8 @@ import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed } from 'vue'
 
 import { createStoreEvents } from '@/store/events'
+import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import OperationContainer from '@/v2/features/operation/components/OperationContainer.vue'
 
 const { document, layout, eventBus, path, method, exampleName } =
   defineProps<RouteProps>()
@@ -85,7 +85,7 @@ const environment = {
 
 <template>
   <template v-if="path && method && exampleName && operation">
-    <OperationContainer
+    <OperationBlock
       :path="path"
       :method="method"
       :appVersion="APP_VERSION"

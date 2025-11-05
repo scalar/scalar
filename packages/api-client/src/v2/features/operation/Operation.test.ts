@@ -50,7 +50,7 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('Select an operation to view details')
   })
 
-  it('renders OperationContainer when path, method, exampleName and operation exist', () => {
+  it('renders OperationBlock when path, method, exampleName and operation exist', () => {
     const document = {
       ...defaultDocument,
       components: { securitySchemes: {} },
@@ -66,11 +66,11 @@ describe('Operation', () => {
 
     const wrapper = render({ document })
 
-    const oc = wrapper.findComponent({ name: 'OperationContainer' })
+    const oc = wrapper.findComponent({ name: 'OperationBlock' })
     expect(oc.exists()).toBe(true)
   })
 
-  it('passes operation security to OperationContainer when defined on operation', () => {
+  it('passes operation security to OperationBlock when defined on operation', () => {
     const document = {
       ...defaultDocument,
       components: { securitySchemes: {} },
@@ -91,7 +91,7 @@ describe('Operation', () => {
 
     const wrapper = render({ document })
 
-    const oc = wrapper.getComponent({ name: 'OperationContainer' })
+    const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
     expect(props.security).toEqual([{ apiKeyAuth: [] }])
     expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
@@ -117,7 +117,7 @@ describe('Operation', () => {
 
     const wrapper = render({ document })
 
-    const oc = wrapper.getComponent({ name: 'OperationContainer' })
+    const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props()
     expect(props.security).toEqual([{ bearerAuth: [] }])
     expect(props.authMeta).toEqual({ type: 'document' })
@@ -144,7 +144,7 @@ describe('Operation', () => {
 
     const wrapper = render({ document })
 
-    const oc = wrapper.getComponent({ name: 'OperationContainer' })
+    const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
     expect(props.security).toEqual([{ bearerAuth: [] }, {}])
     expect(props.selectedSecurity).toEqual({

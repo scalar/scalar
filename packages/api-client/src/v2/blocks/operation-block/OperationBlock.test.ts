@@ -5,8 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { createStoreEvents } from '@/store/events'
 import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
 
-import Header from './Header.vue'
-import OperationContainer from './OperationContainer.vue'
+import Header from './components/Header.vue'
+import OperationBlock from './OperationBlock.vue'
 
 describe('OperationContainer', () => {
   const eventBus = createWorkspaceEventBus()
@@ -46,7 +46,7 @@ describe('OperationContainer', () => {
 
   const render = (overrides: Record<string, any> = {}) => {
     const props = { ...defaultProps, ...overrides }
-    return mount(OperationContainer, { props })
+    return mount(OperationBlock, { props })
   }
 
   it('passes draft method and path overrides to Header from operation', () => {
