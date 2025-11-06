@@ -1,0 +1,24 @@
+---
+import { getHtmlDocument, type HtmlRenderingConfiguration } from '@scalar/core/libs/html-rendering'
+
+export interface Props {
+  configuration: Partial<HtmlRenderingConfiguration>
+}
+
+/**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
+  // TODO :Add the integration name to the configuration once the first release went out to allow the value
+  // _integration: 'astro',
+}
+
+const { configuration } = Astro.props
+
+const html = getHtmlDocument({
+  ...DEFAULT_CONFIGURATION,
+  ...configuration,
+})
+---
+
+<div set:html={html}></div>
