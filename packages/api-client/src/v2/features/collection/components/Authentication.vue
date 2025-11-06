@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ScalarToggle } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   OpenApiDocument,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { EnvVariable } from '@/store'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 
 defineProps<{
   /** Should use document security */
@@ -18,11 +17,13 @@ defineProps<{
   /** Security requirements for the document */
   security: OpenApiDocument['security']
   /** Currently selected security requirements */
-  selectedSecurity: OpenApiDocument['security']
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Security schemes available in the document */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Currently selected server */
   server: ServerObject | undefined
+
+  eventBus: WorkspaceEventBus
 
   /** TODO: remove when we migrate */
   environment: Environment
@@ -31,21 +32,6 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:useDocumentSecurity', value: boolean): void
-
-  // ------- Auth Selector events -------
-  (e: 'deleteOperationAuth', names: string[]): void
-  (e: 'update:securityScheme', payload: UpdateSecuritySchemeEvent): void
-  (
-    e: 'update:selectedScopes',
-    payload: { id: string[]; name: string; scopes: string[] },
-  ): void
-  (
-    e: 'update:selectedSecurity',
-    payload: {
-      value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
-      create: SecuritySchemeObject[]
-    },
-  ): void
 }>()
 </script>
 
@@ -76,16 +62,8 @@ const emit = defineEmits<{
       :selectedSecurity="selectedSecurity"
       :server="server"
       title="Authentication"
-      @deleteOperationAuth="(names) => emit('deleteOperationAuth', names)"
-      @update:securityScheme="
-        (payload) => emit('update:securityScheme', payload)
-      "
-      @update:selectedScopes="
-        (payload) => emit('update:selectedScopes', payload)
-      "
-      @update:selectedSecurity="
-        (payload) => emit('update:selectedSecurity', payload)
-      " />
+      :eventBus="eventBus"
+      :meta="{ type: 'document' }" />
   </div>
 </template>
 <style scoped>

@@ -1,12 +1,14 @@
+import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { mount } from '@vue/test-utils'
-import { assert, describe, expect, it } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 describe('RequestAuthDataTable', () => {
   const baseEnvironment = {
-    uid: 'env-1',
+    uid: 'env-1' as any,
     name: 'Default',
     color: '#FFFFFF',
     value: '',
@@ -38,6 +40,9 @@ describe('RequestAuthDataTable', () => {
       environment: any
       envVariables: any[]
       server: any
+      activeAuthIndex: number
+      eventBus: WorkspaceEventBus
+      meta: AuthMeta
     }> = {},
   ) => {
     const selectedSchemeOptions = custom.selectedSchemeOptions ?? [
@@ -53,6 +58,9 @@ describe('RequestAuthDataTable', () => {
     const environment = custom.environment ?? baseEnvironment
     const envVariables = custom.envVariables ?? []
     const server = custom.server ?? baseServer
+    const activeAuthIndex = custom.activeAuthIndex ?? 0
+    const eventBus = custom.eventBus ?? createWorkspaceEventBus()
+    const meta = custom.meta ?? { type: 'document' }
 
     return mount(RequestAuthDataTable, {
       props: {
@@ -62,6 +70,9 @@ describe('RequestAuthDataTable', () => {
         environment,
         envVariables,
         server,
+        activeAuthIndex,
+        eventBus,
+        meta,
       },
     })
   }
@@ -120,7 +131,11 @@ describe('RequestAuthDataTable', () => {
         },
       ]
 
-      const wrapper = mountWithProps({ selectedSchemeOptions })
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:active-index', fn)
+
+      const wrapper = mountWithProps({ selectedSchemeOptions, eventBus })
 
       const tabs = wrapper.find('[data-testid="auth-tabs"]')
       expect(tabs.exists()).toBe(true)
@@ -131,17 +146,16 @@ describe('RequestAuthDataTable', () => {
       assert(buttons[0])
       assert(buttons[1])
 
-      expect(buttons[0].text()).toBe('Bearer Auth')
-
-      expect(wrapper.vm.activeAuthIndex).toBe(0)
-
       // Click second tab
+      expect(buttons[1].text()).toBe('API Key Auth')
       await buttons[1].trigger('click')
       await nextTick()
 
-      expect(buttons[1].text()).toBe('API Key Auth')
-
-      expect(wrapper.vm.activeAuthIndex).toBe(1)
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        index: 1,
+        meta: { type: 'document' },
+      })
     })
 
     it('shows active tab indicator', async () => {
@@ -195,59 +209,9 @@ describe('RequestAuthDataTable', () => {
 
       expect(vm.activeScheme).toEqual(selectedSchemeOptions[0])
     })
-
-    it('updates active scheme when tab changes', async () => {
-      const selectedSchemeOptions = [
-        {
-          id: 'bearer-auth',
-          label: 'Bearer Auth',
-          value: { BearerAuth: [] },
-        },
-        {
-          id: 'api-key-auth',
-          label: 'API Key Auth',
-          value: { ApiKeyAuth: [] },
-        },
-      ]
-
-      const wrapper = mountWithProps({ selectedSchemeOptions })
-      const vm = wrapper.vm
-
-      // Initially first scheme should be active
-      expect(vm.activeScheme).toEqual(selectedSchemeOptions[0])
-
-      // Change active index
-      vm.activeAuthIndex = 1
-      await nextTick()
-
-      expect(vm.activeScheme).toEqual(selectedSchemeOptions[1])
-    })
   })
 
   describe('scheme options watching', () => {
-    it('adjusts active index when schemes change', async () => {
-      const wrapper = mountWithProps({
-        selectedSchemeOptions: [
-          { label: 'Bearer Auth', value: { BearerAuth: [] } },
-          { label: 'API Key Auth', value: { ApiKeyAuth: [] } },
-        ],
-      })
-
-      const vm = wrapper.vm
-
-      // Set active index to 1
-      vm.activeAuthIndex = 1
-      await nextTick()
-
-      // Update props to remove the second scheme
-      await wrapper.setProps({
-        selectedSchemeOptions: [{ id: 'bearer-auth', label: 'Bearer Auth', value: { BearerAuth: [] } }],
-      })
-
-      // Active index should adjust to 0
-      expect(vm.activeAuthIndex).toBe(0)
-    })
-
     it('handles empty schemes array', async () => {
       const wrapper = mountWithProps({
         selectedSchemeOptions: [{ label: 'Bearer Auth', value: { BearerAuth: [] } }],
@@ -271,7 +235,10 @@ describe('RequestAuthDataTable', () => {
 
   describe('event emissions', () => {
     it('emits update:securityScheme event', async () => {
-      const wrapper = mountWithProps()
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:security-scheme', fn)
+      const wrapper = mountWithProps({ eventBus })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
       expect(requestAuthTab.exists()).toBe(true)
@@ -282,11 +249,21 @@ describe('RequestAuthDataTable', () => {
         value: 'test-token',
       })
 
-      expect(wrapper.emitted('update:securityScheme')).toBeTruthy()
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        data: {
+          scheme: 'BearerAuth',
+          value: 'test-token',
+        },
+        name: 'bearer-auth',
+      })
     })
 
     it('emits update:selectedScopes event', async () => {
-      const wrapper = mountWithProps()
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-scopes', fn)
+      const wrapper = mountWithProps({ eventBus })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
       expect(requestAuthTab.exists()).toBe(true)
@@ -298,7 +275,13 @@ describe('RequestAuthDataTable', () => {
         scopes: ['read', 'write'],
       })
 
-      expect(wrapper.emitted('update:selectedScopes')).toBeTruthy()
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        id: ['oauth2'],
+        name: 'OAuth2',
+        scopes: ['read', 'write'],
+        meta: { type: 'document' },
+      })
     })
   })
 
@@ -336,7 +319,7 @@ describe('RequestAuthDataTable', () => {
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
       const props = requestAuthTab.props()
 
-      expect(props.selectedSecuritySchema).toEqual(selectedSchemeOptions[0]?.value)
+      expect(props.selectedSecuritySchemas).toEqual(selectedSchemeOptions[0]?.value)
     })
   })
 

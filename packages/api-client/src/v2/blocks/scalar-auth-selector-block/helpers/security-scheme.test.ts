@@ -279,15 +279,15 @@ describe('security-scheme', () => {
       const addNewOptions = groups[2]!.options
 
       // Should include predefined auth options
-      expect(addNewOptions.some((opt) => opt.id === 'apiKeyCookie')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'apiKeyHeader')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'apiKeyQuery')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'httpBasic')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'httpBearer')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'oauth2Implicit')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'oauth2Password')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'oauth2ClientCredentials')).toBe(true)
-      expect(addNewOptions.some((opt) => opt.id === 'oauth2AuthorizationFlow')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/apiKeyCookie')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/apiKeyHeader')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/apiKeyQuery')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/httpBasic')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/httpBearer')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/oauth2Implicit')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/oauth2Password')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/oauth2ClientCredentials')).toBe(true)
+      expect(addNewOptions.some((opt) => opt.id === '@unique/oauth2AuthorizationFlow')).toBe(true)
 
       // All should be non-deletable
       expect(addNewOptions.every((opt) => opt.isDeletable === false)).toBe(true)

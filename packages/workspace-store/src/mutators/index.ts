@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/performance/noBarrelFile: this will probably get deleted later */
+/** biome-ignore-all lint/performance/noBarrelFile: Mutators entry point */
 import type { WorkspaceStore } from '@/client'
 import { cookieMutators } from '@/mutators/cookie'
 import { getDocument } from '@/mutators/helpers'
@@ -94,6 +94,31 @@ export function generateClientMutators(store: WorkspaceStore) {
 }
 
 export {
+  type AuthMeta,
+  type SecuritySchemeUpdate,
+  deleteSecurityScheme,
+  updateSecurityScheme,
+  updateSelectedAuthTab,
+  updateSelectedScopes,
+  updateSelectedSecuritySchemes,
+} from './auth'
+export {
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from './environment'
+export {
+  type OperationExampleMeta,
+  type OperationMeta,
+  addOperationParameter,
+  addOperationRequestBodyFormRow,
+  deleteAllOperationParameters,
+  deleteOperationParameter,
+  deleteOperationRequestBodyFormRow,
+  updateOperationMethodDraft as updateOperationMethod,
+  updateOperationParameter,
+  updateOperationPathDraft as updateOperationPath,
+  updateOperationRequestBodyContentType,
+  updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormRow,
+  updateOperationSummary,
+} from './operation'

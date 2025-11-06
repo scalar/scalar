@@ -8,7 +8,7 @@ import RequestAuthTab from '@/v2/blocks/scalar-auth-selector-block/components/Re
 
 describe('RequestAuthTab', () => {
   const baseEnvironment = {
-    uid: 'env-1',
+    uid: 'env-1' as any,
     name: 'Default',
     color: '#FFFFFF',
     value: '',
@@ -22,7 +22,7 @@ describe('RequestAuthTab', () => {
 
   const mountWithProps = (
     custom: Partial<{
-      selectedSecuritySchema: any
+      selectedSecuritySchemas: any
       securitySchemes: any
       layout: 'client' | 'reference'
       environment: any
@@ -30,7 +30,7 @@ describe('RequestAuthTab', () => {
       server: any
     }> = {},
   ) => {
-    const selectedSecuritySchema = custom.selectedSecuritySchema ?? {
+    const selectedSecuritySchemas = custom.selectedSecuritySchemas ?? {
       'BearerAuth': [],
     }
 
@@ -49,7 +49,7 @@ describe('RequestAuthTab', () => {
         environment: custom.environment ?? baseEnvironment,
         envVariables: custom.envVariables ?? [],
         layout: custom.layout ?? 'client',
-        selectedSecuritySchema,
+        selectedSecuritySchemas,
         securitySchemes,
         server: custom.server ?? baseServer,
       },
@@ -126,7 +126,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-password': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'BasicAuth': [],
         },
       })
@@ -155,7 +155,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-password': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'BasicAuth': [],
         },
       })
@@ -184,7 +184,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-password': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'BasicAuth': [],
         },
       })
@@ -216,7 +216,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-token': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'ApiKeyAuth': [],
         },
       })
@@ -244,7 +244,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-token': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'ApiKeyAuth': [],
         },
       })
@@ -273,7 +273,7 @@ describe('RequestAuthTab', () => {
             'x-scalar-secret-token': '',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'ApiKeyAuth': [],
         },
       })
@@ -309,7 +309,7 @@ describe('RequestAuthTab', () => {
             description: 'OAuth2 authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'OAuth2': [],
         },
       })
@@ -332,7 +332,7 @@ describe('RequestAuthTab', () => {
             },
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'OAuth2': [],
         },
       })
@@ -365,7 +365,7 @@ describe('RequestAuthTab', () => {
             },
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'OAuth2': [],
         },
       })
@@ -395,7 +395,7 @@ describe('RequestAuthTab', () => {
             description: 'OpenID Connect authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'OpenIDConnect': [],
         },
       })
@@ -414,7 +414,7 @@ describe('RequestAuthTab', () => {
             description: 'Bearer token authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'BearerAuth': [],
         },
       })
@@ -432,7 +432,7 @@ describe('RequestAuthTab', () => {
             description: 'API Key authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'ApiKeyAuth': [],
         },
       })
@@ -455,7 +455,7 @@ describe('RequestAuthTab', () => {
             description: 'OAuth2 authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'OAuth2': [],
         },
       })
@@ -480,7 +480,7 @@ describe('RequestAuthTab', () => {
             description: 'API Key authentication',
           },
         },
-        selectedSecuritySchema: {
+        selectedSecuritySchemas: {
           'BearerAuth': [],
           'ApiKeyAuth': [],
         },

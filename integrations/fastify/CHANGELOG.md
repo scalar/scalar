@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.39.2
+
+### Patch Changes
+
+- [#7233](https://github.com/scalar/scalar/pull/7233) [`d7f9845`](https://github.com/scalar/scalar/commit/d7f98454b54b92a497ea9e2addaa4fa42b25d452) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(fastify): remove empty customTheme
+
+- Updated dependencies [[`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66), [`2377b76`](https://github.com/scalar/scalar/commit/2377b76d050f8de70037b17a32d0dd1181d3311d)]:
+  - @scalar/openapi-parser@0.23.1
+  - @scalar/core@0.3.22
+
 ## 1.39.1
 
 ## 1.39.0

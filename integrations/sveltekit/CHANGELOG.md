@@ -1,5 +1,12 @@
 # @scalar/sveltekit
 
+## 0.1.28
+
+### Patch Changes
+
+- Updated dependencies [[`2377b76`](https://github.com/scalar/scalar/commit/2377b76d050f8de70037b17a32d0dd1181d3311d)]:
+  - @scalar/core@0.3.22
+
 ## 0.1.27
 
 ### Patch Changes
