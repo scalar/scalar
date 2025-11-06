@@ -41,5 +41,20 @@
   },
   "peerDependencies": {
     "astro": "^4.0.0 || ^5.0.0"
+  },
+  "readme": {
+    "title": "Scalar API Reference for Astro",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/astro"
   }
 }
