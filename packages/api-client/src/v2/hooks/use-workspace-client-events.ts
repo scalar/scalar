@@ -22,6 +22,7 @@ import {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
   updateServer,
+  updateServerVariables,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -127,6 +128,7 @@ export const useWorkspaceClientEvents = (
   eventBus.on('server:add:server', () => addServer(document.value))
   eventBus.on('server:update:server', (payload) => updateServer(document.value, payload))
   eventBus.on('server:delete:server', (payload) => deleteServer(document.value, payload))
+  eventBus.on('server:update:variables', (payload) => updateServerVariables(document.value, payload))
 
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers

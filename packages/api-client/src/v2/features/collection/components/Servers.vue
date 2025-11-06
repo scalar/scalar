@@ -68,20 +68,18 @@ const handleDeleteServer = () => {
 const handleServerUpdate = (index: number, key: string, value: string) =>
   eventBus.emit('server:update:server', {
     index,
-    server: { ...document?.servers?.[index], [key]: value },
+    server: { [key]: value },
   })
 
 /**
  * Handles server variable updates
  */
-const handleVariableUpdate = (index: number, name: string, value: string) => {
-  console.trace('handleVariableUpdate', index, name, value)
-  // TODO: Implement proper server variable update event handling
-  // ;(eventBus.emit as any)('server:update:variables', {
-  //   key: name,
-  //   value,
-  // })
-}
+const handleVariableUpdate = (index: number, name: string, value: string) =>
+  eventBus.emit('server:update:variables', {
+    index,
+    key: name,
+    value,
+  })
 
 /** Handles adding a new server */
 const handleAddServer = () => eventBus.emit('server:add:server')

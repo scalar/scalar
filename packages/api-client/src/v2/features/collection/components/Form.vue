@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 
@@ -18,11 +16,7 @@ defineProps<{
     placeholder: string
   }[]
   data: Record<string, any>
-  onUpdate: <P extends Path<Cookie>>(
-    key: P,
-    value: NonNullable<PathValue<Cookie, P>>,
-  ) => void
-
+  onUpdate: (key: string, value: string) => void
   environment: XScalarEnvironment
 }>()
 
@@ -53,7 +47,7 @@ const id = useId()
             lineWrapping
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
-            @update:modelValue="onUpdate(option.key as Path<Cookie>, $event)">
+            @update:modelValue="onUpdate(option.key, $event)">
             <template #default>
               <label :for="id">
                 {{ option.label }}

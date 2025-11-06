@@ -123,4 +123,5 @@ export {
   addServer,
   deleteServer,
   updateServer,
+  updateServerVariables,
 } from './server'

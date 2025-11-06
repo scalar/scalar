@@ -49,12 +49,7 @@ const mask = ref(true)
 const interactingWithDropdown = ref(false)
 const codeInput = ref<InstanceType<typeof CodeInput> | null>(null)
 
-const handleBlur = () => {
-  console.trace('handleBlur')
-  if (!interactingWithDropdown.value) {
-    emit('inputBlur')
-  }
-}
+const handleBlur = () => !interactingWithDropdown.value && emit('inputBlur')
 
 const inputType = computed(() =>
   props.type === 'password' ? 'text' : (props.type ?? 'text'),
