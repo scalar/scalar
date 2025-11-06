@@ -594,7 +594,7 @@ Whether to show the "Test Request" button.
 
 #### hiddenClients
 
-**Type:** `array | true`
+**Type:** `array | true | object`
 
 We're generating code examples for a long list of popular HTTP clients. You can control which are shown by passing an array of clients, to hide the given clients.
 
@@ -634,6 +634,25 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 ```js
 {
   hiddenClients: true
+}
+```
+
+---
+
+You can also provide an `object` where each **key** corresponds to a language,
+and each **value** specifies the visibility behavior for the clients of that language.
+
+* `true` — hides all clients for the specified language
+* `false` — shows all clients for the specified language
+* `['client1', 'client2']` — hides only the listed clients for the specified language
+
+```ts
+{
+  hiddenClients: {
+    c: false,
+    js: true,
+    shell: ['httpie'], // show all except `httpie`
+  },
 }
 ```
 
