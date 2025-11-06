@@ -50,33 +50,6 @@ export const useSidebarState = ({
     return createSidebarState(entries)
   })
 
-  /** Keep the router and the sidebar state in sync */
-  watch(
-    [workspaceSlug, documentSlug, path, method, exampleName],
-    ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
-      if (!newDocument) {
-        // Reset selection if no document is selected
-        sidebarState.value.setSelected(null)
-        return
-      }
-
-      const entry = getEntryByLocation({
-        document: newDocument as string,
-        path: newPath as string,
-        method: newMethod as HttpMethod,
-        example: newExample as string,
-      })
-
-      if (entry) {
-        sidebarState.value.setSelected(entry.id)
-        sidebarState.value.setExpanded(entry.id, true)
-      }
-    },
-    {
-      immediate: true,
-    },
-  )
-
   /**
    * Traverses up the tree to find and return the closest parent node (including self) of a specified type.
    *
@@ -258,6 +231,33 @@ export const useSidebarState = ({
     state.setExpanded(id, !state.isExpanded(id))
     return
   }
+
+  /** Keep the router and the sidebar state in sync */
+  watch(
+    [workspaceSlug, documentSlug, path, method, exampleName],
+    ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
+      if (!newDocument) {
+        // Reset selection if no document is selected
+        sidebarState.value.setSelected(null)
+        return
+      }
+
+      const entry = getEntryByLocation({
+        document: newDocument as string,
+        path: newPath as string,
+        method: newMethod as HttpMethod,
+        example: newExample as string,
+      })
+
+      if (entry) {
+        sidebarState.value.setSelected(entry.id)
+        sidebarState.value.setExpanded(entry.id, true)
+      }
+    },
+    {
+      immediate: true,
+    },
+  )
 
   return {
     handleSelectItem,

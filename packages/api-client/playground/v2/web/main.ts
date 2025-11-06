@@ -29,6 +29,18 @@ await workspaceStore.addDocument({
 })
 
 await workspaceStore.addDocument({
+  name: 'swagger-petstore-3-0',
+  url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.yaml',
+  config: {
+    'x-scalar-reference-config': {
+      settings: {
+        proxyUrl: 'https://proxy.scalar.com',
+      },
+    },
+  },
+})
+
+await workspaceStore.addDocument({
   name: 'drafts',
   document: {
     openapi: '3.2.0',
