@@ -200,11 +200,6 @@ const environment = computed<XScalarEnvironment>(() => {
 </template>
 
 <style>
-.scalar-app {
-  width: 100dvw;
-  height: 100dvh;
-  overflow: hidden;
-}
 #scalar-client {
   display: flex;
   flex-direction: column;
