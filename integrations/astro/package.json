@@ -33,8 +33,7 @@
     "index.ts"
   ],
   "dependencies": {
-    "@scalar/core": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/core": "workspace:*"
   },
   "devDependencies": {
     "astro": "^4.0.0 || ^5.0.0"

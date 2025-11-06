@@ -7,6 +7,7 @@
     "dev": "astro dev"
   },
   "dependencies": {
-    "astro": "^5.15.3"
+    "astro": "^5.15.3",
+    "@scalar/astro": "workspace:*"
   }
 }
