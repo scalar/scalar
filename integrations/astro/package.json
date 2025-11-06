@@ -37,7 +37,6 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/astro": "workspace:*",
     "astro": "^4.0.0 || ^5.0.0"
   },
   "peerDependencies": {
