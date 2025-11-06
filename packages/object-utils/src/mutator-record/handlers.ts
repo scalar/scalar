@@ -1,11 +1,14 @@
+import { debounce } from '@scalar/helpers/general/debounce'
+import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import { stringify } from 'flatted'
+
 import { Mutation } from '../mutator-record/mutations'
 import type { Path, PathValue } from '../nested'
-import { stringify } from 'flatted'
-import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import { debounce } from './debounce'
 import { LS_CONFIG } from './local-storage'
 
 const MAX_MUTATION_RECORDS = 500
+
+const { execute } = debounce({ delay: LS_CONFIG.DEBOUNCE_MS, maxWait: LS_CONFIG.MAX_WAIT_MS })
 
 /** Generate mutation handlers for a given record of objects  */
 export function mutationFactory<T extends Record<string, any>>(
@@ -26,9 +29,7 @@ export function mutationFactory<T extends Record<string, any>>(
 
   /** Triggers on any changes so we can save to localStorage */
   const onChange = localStorageKey
-    ? debounce(() => safeLocalStorage().setItem(localStorageKey, stringify(entityMap)), LS_CONFIG.DEBOUNCE_MS, {
-        maxWait: LS_CONFIG.MAX_WAIT_MS,
-      })
+    ? () => execute(localStorageKey, () => safeLocalStorage().setItem(localStorageKey, stringify(entityMap)))
     : () => null
 
   return {

@@ -1,4 +1,5 @@
-import { debounce } from '@/helpers/debounce'
+import { debounce } from '@scalar/helpers/general/debounce'
+
 import { createWorkspaceStorePersistence } from '@/persistence'
 import type { WorkspacePlugin } from '@/workspace-plugin'
 
@@ -11,7 +12,7 @@ import type { WorkspacePlugin } from '@/workspace-plugin'
  */
 export const persistencePlugin = async ({
   workspaceId,
-  debounceDelay,
+  debounceDelay = 500,
 }: {
   workspaceId: string
   debounceDelay?: number
@@ -19,7 +20,7 @@ export const persistencePlugin = async ({
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
-  const { execute } = debounce({ delay: debounceDelay ?? 500 })
+  const { execute } = debounce({ delay: debounceDelay, maxWait: 1000 })
 
   return {
     hooks: {
@@ -30,40 +31,40 @@ export const persistencePlugin = async ({
       onWorkspaceStateChanges(event) {
         // If the event is for workspace meta data, debounce by workspaceId
         if (event.type === 'meta') {
-          return execute(['meta', workspaceId], () => persistence.meta.setItem(workspaceId, event.value))
+          return execute(`meta-${workspaceId}`, () => persistence.meta.setItem(workspaceId, event.value))
         }
 
         // Debounce per document config and workspace
         if (event.type === 'documentConfigs') {
-          return execute(['documentConfigs', workspaceId, event.documentName], () =>
+          return execute(`documentConfigs-${workspaceId}-${event.documentName}`, () =>
             persistence.documentConfigs.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
         // Debounce per document content and workspace
         if (event.type === 'documents') {
-          return execute(['documents', workspaceId, event.documentName], () =>
+          return execute(`documents-${workspaceId}-${event.documentName}`, () =>
             persistence.documents.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
         // Debounce per intermediate document and workspace
         if (event.type === 'intermediateDocuments') {
-          return execute(['intermediateDocuments', workspaceId, event.documentName], () =>
+          return execute(`intermediateDocuments-${workspaceId}-${event.documentName}`, () =>
             persistence.intermediateDocuments.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
         // Debounce per original document and workspace
         if (event.type === 'originalDocuments') {
-          return execute(['originalDocuments', workspaceId, event.documentName], () =>
+          return execute(`originalDocuments-${workspaceId}-${event.documentName}`, () =>
             persistence.originalDocuments.setItem(workspaceId, event.documentName, event.value),
           )
         }
 
         // Debounce per document override and workspace
         if (event.type === 'overrides') {
-          return execute(['overrides', workspaceId, event.documentName], () =>
+          return execute(`overrides-${workspaceId}-${event.documentName}`, () =>
             persistence.overrides.setItem(workspaceId, event.documentName, event.value),
           )
         }
