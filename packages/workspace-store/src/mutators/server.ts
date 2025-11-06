@@ -28,44 +28,122 @@ export const addServer = (document: WorkspaceDocument | null): ServerObject | un
 }
 
 /**
- * Updates a ServerObject in the document
+ * Creates a map of variable names to their character positions in a URL.
+ * Used to detect renamed variables by position matching.
+ */
+const getVariablePositions = (url: string, variables: readonly string[]): Record<string, number> => {
+  const positions: Record<string, number> = {}
+
+  for (const varName of variables) {
+    const position = url.indexOf(`{${varName}}`)
+    if (position !== -1) {
+      positions[varName] = position
+    }
+  }
+
+  return positions
+}
+
+type VariableConfig = {
+  description?: string
+  default?: string
+  enum?: string[]
+}
+
+/**
+ * Syncs server variables when the URL changes.
  *
- * @param document - The document to upsert the server to
+ * Preserves variable configurations by:
+ * 1. Keeping variables with matching names
+ * 2. Renaming variables at the same position
+ * 3. Creating new variables with empty defaults
+ */
+const syncVariablesForUrlChange = (
+  newUrl: string,
+  oldUrl: string,
+  existingVariables: Record<string, VariableConfig>,
+): Record<string, VariableConfig> => {
+  // Filter out undefined values from findVariables results
+  const oldVariables = findVariables(oldUrl, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+  const newVariables = findVariables(newUrl, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+
+  const oldPositions = getVariablePositions(oldUrl, oldVariables)
+  const newPositions = getVariablePositions(newUrl, newVariables)
+
+  const usedOldVariables = new Set<string>()
+  const syncedVariables: Record<string, VariableConfig> = {}
+
+  for (const newVar of newVariables) {
+    // Case 1: Variable with same name exists - preserve its config
+    if (existingVariables[newVar]) {
+      syncedVariables[newVar] = existingVariables[newVar]
+      usedOldVariables.add(newVar)
+      continue
+    }
+
+    // Case 2: Check for variable at same position (likely a rename)
+    const newVarPosition = newPositions[newVar]
+    const oldVarAtPosition = oldVariables.find(
+      (oldVar) => oldPositions[oldVar] === newVarPosition && !usedOldVariables.has(oldVar),
+    )
+
+    if (oldVarAtPosition && existingVariables[oldVarAtPosition]) {
+      // Rename: transfer the old variable's config to the new name
+      syncedVariables[newVar] = existingVariables[oldVarAtPosition]
+      usedOldVariables.add(oldVarAtPosition)
+      continue
+    }
+
+    // Case 3: New variable - create with empty default
+    syncedVariables[newVar] = { default: '' }
+  }
+
+  return syncedVariables
+}
+
+/**
+ * Updates a ServerObject in the document.
+ * When the URL changes, intelligently syncs variables by preserving configurations
+ * for renamed variables (detected by position) and existing variables.
+ *
+ * @param document - The document containing the server to update
  * @param index - The index of the server to update
- * @param server - The new server payload to be replaced at the index
- * @returns the new server object or undefined if the document is not found
+ * @param server - The partial server object with fields to update
+ * @returns the updated server object or undefined if the server is not found
  */
 export const updateServer = (
   document: WorkspaceDocument | null,
   { index, server }: ServerEvents['server:update:server'],
 ): ServerObject | undefined => {
   const oldServer = document?.servers?.[index]
-  const oldUrl = oldServer?.url
 
   if (!oldServer) {
-    console.error('Server not found', index)
+    console.error('Server not found at index:', index)
     return undefined
   }
 
-  const parsed = coerceValue(ServerObjectSchema, { ...oldServer, ...server })
+  const oldUrl = oldServer.url
+  const updatedServer = coerceValue(ServerObjectSchema, { ...oldServer, ...server })
 
-  // Initialize the servers array if it doesn't exist
+  // Sync variables if the URL changed
+  const hasUrlChanged = oldUrl && oldUrl !== updatedServer.url
+  if (hasUrlChanged) {
+    const existingVariables = updatedServer.variables ?? {}
+    updatedServer.variables = syncVariablesForUrlChange(updatedServer.url, oldUrl, existingVariables)
+  }
+
+  // Ensure servers array exists and update the server at the specified index
   if (!document.servers) {
-    document.servers = [parsed]
-  }
-  // Update the server at the index
-  else {
-    document.servers[index] = parsed
+    document.servers = [updatedServer]
+  } else {
+    document.servers[index] = updatedServer
   }
 
-  // Sync the variables of the URL has changed
-  if (oldUrl !== parsed.url) {
-    /** Find all single curly brace variables in the url */
-    const variables = findVariables(parsed.url, { includePath: true, includeEnv: false })
-    console.info('variables', variables)
-  }
-
-  return parsed
+  return updatedServer
 }
 
 /**

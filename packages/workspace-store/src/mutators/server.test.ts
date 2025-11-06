@@ -70,7 +70,7 @@ describe('updateServer', () => {
     expect(document.servers?.[1]).toEqual({ url: 'https://dev.example.com', description: 'Development API' })
   })
 
-  it('detects variables when URL changes and contains path variables', () => {
+  it('adds a path variable when URL changes and contains path variables', () => {
     const document = createDocument({
       servers: [
         {
@@ -85,16 +85,138 @@ describe('updateServer', () => {
       ],
     })
 
-    const result = updateServer(document, {
+    updateServer(document, {
       index: 0,
       server: {
         url: 'https://{environment}.example.com/{version}',
       },
     })
 
-    expect(result).toBeDefined()
-    expect(result?.url).toBe('https://{environment}.example.com/{version}')
-    expect(result?.variables).toEqual({ environment: { default: 'api' }, version: { default: 'v1' } })
+    expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com/{version}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      environment: {
+        default: 'api',
+        enum: ['api', 'dev', 'staging'],
+      },
+      version: {
+        default: '',
+      },
+    })
+  })
+
+  it('deletes a path variable when URL changes and no longer contains that one', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.example.com',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev', 'staging'],
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://staging.example.com/',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://staging.example.com/')
+    expect(document.servers?.[0]?.variables).toEqual({})
+  })
+
+  it('renames a path variable when URL changes and contains a different variable', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.{domain}.com/{path}',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev', 'staging'],
+            },
+            domain: {
+              default: 'example',
+              enum: ['example', 'dev-example', 'staging-example'],
+            },
+            path: {
+              default: '',
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://{environment}.{address}.com/{path}',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://{environment}.{address}.com/{path}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      environment: {
+        default: 'api',
+        enum: ['api', 'dev', 'staging'],
+      },
+      address: {
+        default: 'example',
+        enum: ['example', 'dev-example', 'staging-example'],
+      },
+      path: {
+        default: '',
+      },
+    })
+  })
+
+  it('creates and deletes path variables when URL changes and contains a different variable at a different position', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.{domain}.com/{path}',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev', 'staging'],
+            },
+            domain: {
+              default: 'example',
+              enum: ['example', 'dev-example', 'staging-example'],
+            },
+            path: {
+              default: '',
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://{environment}.example.{tld}/{path}',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://{environment}.example.{tld}/{path}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      environment: {
+        default: 'api',
+        enum: ['api', 'dev', 'staging'],
+      },
+      tld: {
+        default: '',
+      },
+      path: {
+        default: '',
+      },
+    })
   })
 
   it('does not detect variables when URL has not changed', () => {
@@ -301,5 +423,175 @@ describe('updateServerVariables', () => {
     })
 
     expect(result).toBeUndefined()
+  })
+})
+
+describe('syncVariablesForUrlChange', () => {
+  it('handles URLs with no variables in either old or new URL', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://api.example.com',
+          variables: {},
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://api-v2.example.com',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
+    expect(document.servers?.[0]?.variables).toEqual({})
+  })
+
+  it('adds multiple new variables when old URL had no variables', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://api.example.com',
+          variables: {},
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://{environment}.example.com:{port}/{version}',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com:{port}/{version}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      environment: {
+        default: '',
+      },
+      port: {
+        default: '',
+      },
+      version: {
+        default: '',
+      },
+    })
+  })
+
+  it('removes multiple variables when new URL has no variables', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.example.com:{port}/{version}',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev', 'staging'],
+            },
+            port: {
+              default: '443',
+              enum: ['443', '8080'],
+            },
+            version: {
+              default: 'v1',
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://api.example.com',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://api.example.com')
+    expect(document.servers?.[0]?.variables).toEqual({})
+  })
+
+  it('preserves variables when they are reordered in the URL', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.example.com/{version}',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev'],
+            },
+            version: {
+              default: 'v1',
+              enum: ['v1', 'v2'],
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://{version}.example.com/{environment}',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://{version}.example.com/{environment}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      version: {
+        default: 'v1',
+        enum: ['v1', 'v2'],
+      },
+      environment: {
+        default: 'api',
+        enum: ['api', 'dev'],
+      },
+    })
+  })
+
+  it('handles mix of preserved and new variables with complex configs', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.example.com/{version}',
+          variables: {
+            environment: {
+              default: 'production',
+              enum: ['production', 'staging', 'development'],
+              description: 'The deployment environment',
+            },
+            version: {
+              default: 'v2',
+              enum: ['v1', 'v2', 'v3'],
+            },
+          },
+        },
+      ],
+    })
+
+    updateServer(document, {
+      index: 0,
+      server: {
+        url: 'https://{environment}.example.com/{version}/{region}',
+      },
+    })
+
+    expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com/{version}/{region}')
+    expect(document.servers?.[0]?.variables).toEqual({
+      environment: {
+        default: 'production',
+        enum: ['production', 'staging', 'development'],
+        description: 'The deployment environment',
+      },
+      version: {
+        default: 'v2',
+        enum: ['v1', 'v2', 'v3'],
+      },
+      region: {
+        default: '',
+      },
+    })
   })
 })
