@@ -31,16 +31,21 @@ export const debounce = (options: DebounceOptions = {}) => {
   const { delay = 328, maxWait } = options
   const timeouts = new Map<string, ReturnType<typeof setTimeout>>()
   const maxWaitTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+  const latestFunctions = new Map<string, () => unknown | Promise<unknown>>()
 
   const cleanup = (): void => {
     timeouts.forEach(clearTimeout)
     maxWaitTimeouts.forEach(clearTimeout)
     timeouts.clear()
     maxWaitTimeouts.clear()
+    latestFunctions.clear()
   }
 
   /** Executes the function and cleans up all associated timeouts */
-  const executeAndCleanup = (key: string, fn: () => unknown | Promise<unknown>): void => {
+  const executeAndCleanup = (key: string): void => {
+    // Get the latest function for this key
+    const fn = latestFunctions.get(key)
+
     // Clear both timeout types
     const timeout = timeouts.get(key)
     if (timeout !== undefined) {
@@ -54,15 +59,23 @@ export const debounce = (options: DebounceOptions = {}) => {
       maxWaitTimeouts.delete(key)
     }
 
-    // Execute the function
-    try {
-      fn()
-    } catch {
-      // Errors are silently caught to prevent the debounce mechanism from breaking
+    // Clear the latest function reference
+    latestFunctions.delete(key)
+
+    // Execute the function if it exists
+    if (fn !== undefined) {
+      try {
+        fn()
+      } catch {
+        // Errors are silently caught to prevent the debounce mechanism from breaking
+      }
     }
   }
 
   const execute = (key: string, fn: () => unknown | Promise<unknown>): void => {
+    // Store the latest function for this key
+    latestFunctions.set(key, fn)
+
     // Clear existing debounce timeout
     const existingTimeout = timeouts.get(key)
     if (existingTimeout !== undefined) {
@@ -72,14 +85,14 @@ export const debounce = (options: DebounceOptions = {}) => {
     // Set debounce timeout
     timeouts.set(
       key,
-      setTimeout(() => executeAndCleanup(key, fn), delay),
+      setTimeout(() => executeAndCleanup(key), delay),
     )
 
     // Set maxWait timeout only if configured and this is a new sequence
     if (maxWait !== undefined && !maxWaitTimeouts.has(key)) {
       maxWaitTimeouts.set(
         key,
-        setTimeout(() => executeAndCleanup(key, fn), maxWait),
+        setTimeout(() => executeAndCleanup(key), maxWait),
       )
     }
   }

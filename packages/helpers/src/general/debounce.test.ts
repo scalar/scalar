@@ -466,4 +466,30 @@ describe('debounce', () => {
     // key2 should have executed via normal debounce (at ~200ms after its last call)
     expect(fn2).toHaveBeenCalledTimes(1)
   })
+
+  it('executes the latest function when maxWait triggers, not the first one', () => {
+    const { execute } = debounce({ delay: 100, maxWait: 200 })
+    const fn1 = vi.fn()
+    const fn2 = vi.fn()
+    const fn3 = vi.fn()
+
+    // First call with fn1
+    execute('test', fn1)
+
+    // After 50ms, call with fn2
+    vi.advanceTimersByTime(50)
+    execute('test', fn2)
+
+    // After another 50ms, call with fn3
+    vi.advanceTimersByTime(50)
+    execute('test', fn3)
+
+    // After another 100ms (200ms total), maxWait should trigger
+    // It should execute fn3 (the latest function), not fn1 (the first function)
+    vi.advanceTimersByTime(100)
+
+    expect(fn1).not.toHaveBeenCalled()
+    expect(fn2).not.toHaveBeenCalled()
+    expect(fn3).toHaveBeenCalledTimes(1)
+  })
 })
