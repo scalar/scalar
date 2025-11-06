@@ -257,22 +257,22 @@ const environment = computed<XScalarEnvironment>(() => {
         v-show="isSidebarOpen"
         v-model:isSidebarOpen="isSidebarOpen"
         v-model:workspace="workspaceModel"
-        :sidebarState="sidebarState"
         :isWorkspaceOpen="Boolean(workspaceSlug && !documentSlug)"
+        :layout
+        :sidebarState="sidebarState"
+        :sidebarWidth="
+          workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
+        "
         @click:workspace="
           router.push({
             name: 'workspace.cookies',
             params: { workspaceSlug },
           })
         "
-        :layout
-        :sidebarWidth="
-          workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
-        "
+        @selectItem="handleSelectItem"
         @update:sidebarWidth="
           (width) => workspaceStore.update('x-scalar-sidebar-width', width)
-        "
-        @selectItem="handleSelectItem" />
+        " />
 
       <!-- Popup command palette to add resources from anywhere -->
       <!-- <TheCommandPalette /> -->
@@ -280,20 +280,15 @@ const environment = computed<XScalarEnvironment>(() => {
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
       <div class="bg-b-1 flex flex-1 flex-col">
-        <RouterView v-slot="{ Component }">
-          <keep-alive>
-            <component
-              :is="Component"
-              :document
-              :environment
-              :eventBus
-              :layout
-              :workspaceStore
-              :path="path"
-              :method="method"
-              :exampleName="exampleName" />
-          </keep-alive>
-        </RouterView>
+        <RouterView
+          :document
+          :environment
+          :eventBus
+          :exampleName="exampleName"
+          :layout
+          :method="method"
+          :path="path"
+          :workspaceStore />
       </div>
     </main>
   </ScalarTeleportRoot>
