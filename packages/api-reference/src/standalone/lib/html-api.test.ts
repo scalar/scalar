@@ -1,3 +1,5 @@
+import { setTimeout } from 'node:timers/promises'
+
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -142,7 +144,9 @@ describe('createApiReference', () => {
     app.updateConfiguration(newConfig)
     expect(app).toBeDefined()
 
+    // Wait for the update to propagate
     await flushPromises()
+    await setTimeout(1000)
     // Assert the configuration was updated
     expect(app.getConfiguration()).toMatchObject(newConfig)
     expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
@@ -171,7 +175,7 @@ describe('createApiReference', () => {
 
     // Assert the configuration was updated
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await setTimeout(1000)
 
     expect(document.getElementById('updated-api/tag/test/get/test')).not.toBeNull()
     expect(document.getElementById('updated-api/tag/test/get/test')?.innerHTML).toContain('New Operation')
@@ -195,7 +199,7 @@ describe('createApiReference', () => {
 
     await flushPromises()
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await setTimeout(1000)
     expect(document.getElementById('updated-api/tag/test/post/test')).not.toBeNull()
     expect(document.getElementById('updated-api/tag/test/post/test')?.innerHTML).toContain('Even newer operation')
 
