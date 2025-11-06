@@ -129,6 +129,7 @@ And there's an ever-growing list of plugins and integrations:
 - [.NET ASP.NET Core](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/integration)
 - [.NET Aspire](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspire)
 - [AdonisJS](https://guides.scalar.com/scalar/scalar-api-references/integrations/adonisjs)
+- [Astro](https://guides.scalar.com/scalar/scalar-api-references/integrations/astro)
 - [Django Ninja](https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja)
 - [Django](https://guides.scalar.com/scalar/scalar-api-references/integrations/django)
 - [Docker](https://guides.scalar.com/scalar/scalar-api-references/integrations/docker)
