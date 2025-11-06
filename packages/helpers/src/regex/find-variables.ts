@@ -10,14 +10,11 @@ import { REGEX } from './regex-helpers'
 export const findVariables = (
   value: string,
   { includePath = true, includeEnv = true }: { includePath?: boolean; includeEnv?: boolean } = {},
-) => {
-  const variables = []
-
-  if (includePath) {
-    variables.push(...[...value.matchAll(REGEX.PATH)])
-  }
-  if (includeEnv) {
-    variables.push(...[...value.matchAll(REGEX.VARIABLES)])
-  }
-  return variables.map((match) => match[1]?.trim())
-}
+): string[] =>
+  [includePath && REGEX.PATH, includeEnv && REGEX.VARIABLES].flatMap((regex) =>
+    regex
+      ? [...value.matchAll(regex)]
+          .map((match) => match[1]?.trim())
+          .filter((variable): variable is string => variable !== undefined)
+      : [],
+  )

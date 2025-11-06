@@ -219,6 +219,76 @@ describe('generateClientMutators', () => {
     })
   })
 
+  describe('serverMutators', () => {
+    it('should handle servers on the workspace level', () => {
+      const store = createWorkspaceStore()
+      const mutators = generateClientMutators(store)
+
+      expect(
+        mutators.workspace().serverMutators.addServer({
+          url: 'https://api.example.com',
+          description: 'Production server',
+        }),
+      ).toBe(true)
+
+      expect(store.workspace['x-scalar-client-config-servers']).toEqual([
+        {
+          url: 'https://api.example.com',
+          description: 'Production server',
+        },
+      ])
+
+      expect(mutators.workspace().serverMutators.deleteServer('https://api.example.com')).toBe(true)
+      expect(store.workspace['x-scalar-client-config-servers']).toEqual([])
+    })
+
+    it('should handle servers on the document level', async () => {
+      const store = createWorkspaceStore()
+      const mutators = generateClientMutators(store)
+
+      // Create an empty document
+      await store.addDocument({ name: 'test-doc', document: {} })
+      await store.addDocument({ name: 'doc-2', document: {} })
+
+      expect(
+        mutators.doc('test-doc').serverMutators.addServer({
+          url: 'https://api.test-doc.example.com',
+          description: 'Test Document server',
+        }),
+      ).toBe(true)
+
+      expect(store.workspace.documents['test-doc']?.servers).toEqual([
+        {
+          url: 'https://api.test-doc.example.com',
+          description: 'Test Document server',
+        },
+      ])
+
+      expect(mutators.doc('test-doc').serverMutators.deleteServer('https://api.test-doc.example.com')).toBe(true)
+
+      expect(store.workspace.documents['test-doc']?.servers).toEqual([])
+
+      expect(store.workspace.documents['doc-2']?.servers).toBeUndefined()
+
+      // Set the active document to 'doc-2'
+      store.workspace['x-scalar-active-document'] = 'doc-2'
+
+      expect(
+        mutators.active().serverMutators.addServer({
+          url: 'https://api.doc-2.example.com',
+          description: 'Doc 2 server',
+        }),
+      ).toBe(true)
+
+      expect(store.workspace.documents['doc-2']?.servers).toEqual([
+        {
+          url: 'https://api.doc-2.example.com',
+          description: 'Doc 2 server',
+        },
+      ])
+    })
+  })
+
   describe('requestMutators', () => {
     it('should move request to a new path and method', async () => {
       const store = createWorkspaceStore()
