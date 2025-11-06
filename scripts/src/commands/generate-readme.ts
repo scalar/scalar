@@ -22,7 +22,7 @@ const DEFAULT_IMAGE_ALT_TEXT = 'Image'
 
 const GENERATE_COMMAND = 'pnpm --filter @scalar-internal/build-scripts start generate-readme'
 
-const COMMUNITY_SECTION_TEXT = "We are API nerds. You too? Let's chat on Discord:"
+const COMMUNITY_SECTION_TEXT = 'We are API nerds. You too? Let’s chat on Discord:'
 
 // Types
 type BadgeType =
