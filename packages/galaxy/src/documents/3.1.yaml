@@ -963,8 +963,9 @@ components:
           examples:
             - '1610-01-07T00:00:00Z'
         image:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           examples:
             - https://cdn.scalar.com/photos/mars.jpg
         satellites:

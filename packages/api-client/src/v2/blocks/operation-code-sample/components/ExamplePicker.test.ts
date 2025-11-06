@@ -171,14 +171,20 @@ describe('ExamplePicker', () => {
         examples: problematicExamples,
         modelValue: '',
       },
+      attachTo: document.body,
     })
 
-    await wrapper.find('button[aria-expanded=false]').trigger('click')
+    const button = wrapper.find('button[aria-haspopup=listbox]')
+    await button.trigger('click')
 
-    const items = wrapper.findAll('li')
+    expect(button.attributes('aria-controls')).toBeDefined()
 
-    expect(items.length).toBe(2)
-    expect(items[0]?.text()).toBe('null-example')
-    expect(items[1]?.text()).toBe('undefined-example')
+    // We have to grab the listbox off the body since it's teleported
+    const listbox = document.getElementById(button.attributes('aria-controls')!)
+    const items = listbox?.querySelectorAll('li')
+
+    expect(items!.length).toBe(2)
+    expect(items![0]?.textContent).toBe('null-example')
+    expect(items![1]?.textContent).toBe('undefined-example')
   })
 })
