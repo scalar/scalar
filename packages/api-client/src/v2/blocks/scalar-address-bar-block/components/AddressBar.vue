@@ -129,12 +129,10 @@ events.focusAddressBar.on(() => {
           :target="id"
           @addServer="eventBus.emit('open:command-palette', 'addServer')"
           @update:selectedServer="
-            (payload) =>
-              eventBus.emit('update:selected-server', { url: payload.id })
+            (payload) => eventBus.emit('server:update:selected', payload)
           "
           @update:variable="
-            ({ key, value }) =>
-              eventBus.emit('update:selected-server-variables', { key, value })
+            (payload) => eventBus.emit('server:update:variables', payload)
           " />
 
         <div class="fade-left" />

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { WorkspaceDocument } from '@/schemas'
 
-import { addServer, deleteServer, updateServer, updateServerVariables } from './server'
+import { addServer, deleteServer, updateSelectedServer, updateServer, updateServerVariables } from './server'
 
 /**
  * Helper to create a minimal WorkspaceDocument for testing.
@@ -592,6 +592,281 @@ describe('syncVariablesForUrlChange', () => {
       region: {
         default: '',
       },
+    })
+  })
+})
+
+describe('updateSelectedServer', () => {
+  it('updates the selected server by index', () => {
+    const document = createDocument({
+      servers: [
+        { url: 'https://api.example.com' },
+        { url: 'https://dev.example.com' },
+        { url: 'https://staging.example.com' },
+      ],
+    })
+
+    const result = updateSelectedServer(document, { index: 1 })
+
+    expect(result).toBe('https://dev.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://dev.example.com')
+  })
+
+  it('updates the selected server to the first server', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+      'x-scalar-selected-server': 'https://dev.example.com',
+    })
+
+    const result = updateSelectedServer(document, { index: 0 })
+
+    expect(result).toBe('https://api.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+  })
+
+  it('returns undefined when server at index does not exist', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }],
+    })
+
+    const result = updateSelectedServer(document, { index: 5 })
+
+    expect(result).toBeUndefined()
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('returns undefined when document has no servers', () => {
+    const document = createDocument({
+      servers: [],
+    })
+
+    const result = updateSelectedServer(document, { index: 0 })
+
+    expect(result).toBeUndefined()
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('returns undefined when document is null', () => {
+    const result = updateSelectedServer(null, { index: 0 })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('handles selecting a server with variables', () => {
+    const document = createDocument({
+      servers: [
+        {
+          url: 'https://{environment}.example.com',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'dev', 'staging'],
+            },
+          },
+        },
+      ],
+    })
+
+    const result = updateSelectedServer(document, { index: 0 })
+
+    expect(result).toBe('https://{environment}.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://{environment}.example.com')
+  })
+})
+
+describe('x-scalar-selected-server tracking', () => {
+  describe('when updating server URL', () => {
+    it('updates x-scalar-selected-server when the selected server URL changes', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      updateServer(document, {
+        index: 0,
+        server: { url: 'https://api-v2.example.com' },
+      })
+
+      expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
+      expect(document['x-scalar-selected-server']).toBe('https://api-v2.example.com')
+    })
+
+    it('does not update x-scalar-selected-server when a non-selected server URL changes', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      updateServer(document, {
+        index: 1,
+        server: { url: 'https://dev-v2.example.com' },
+      })
+
+      expect(document.servers?.[1]?.url).toBe('https://dev-v2.example.com')
+      expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+    })
+
+    it('does not update x-scalar-selected-server when URL does not change', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      updateServer(document, {
+        index: 0,
+        server: { description: 'Updated description' },
+      })
+
+      expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+    })
+
+    it('updates x-scalar-selected-server when selected server URL changes with variables', () => {
+      const document = createDocument({
+        servers: [
+          {
+            url: 'https://{environment}.example.com',
+            variables: {
+              environment: {
+                default: 'api',
+                enum: ['api', 'dev'],
+              },
+            },
+          },
+        ],
+        'x-scalar-selected-server': 'https://{environment}.example.com',
+      })
+
+      updateServer(document, {
+        index: 0,
+        server: { url: 'https://{env}.example.com/{version}' },
+      })
+
+      expect(document.servers?.[0]?.url).toBe('https://{env}.example.com/{version}')
+      expect(document['x-scalar-selected-server']).toBe('https://{env}.example.com/{version}')
+    })
+
+    it('does not crash when x-scalar-selected-server is undefined', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }],
+      })
+
+      updateServer(document, {
+        index: 0,
+        server: { url: 'https://api-v2.example.com' },
+      })
+
+      expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
+      expect(document['x-scalar-selected-server']).toBeUndefined()
+    })
+  })
+
+  describe('when deleting server', () => {
+    it('sets x-scalar-selected-server to first remaining server when selected server is deleted', () => {
+      const document = createDocument({
+        servers: [
+          { url: 'https://api.example.com' },
+          { url: 'https://dev.example.com' },
+          { url: 'https://staging.example.com' },
+        ],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      deleteServer(document, { index: 0 })
+
+      expect(document.servers).toHaveLength(2)
+      expect(document['x-scalar-selected-server']).toBe('https://dev.example.com')
+    })
+
+    it('sets x-scalar-selected-server to undefined when last server is deleted', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      deleteServer(document, { index: 0 })
+
+      expect(document.servers).toHaveLength(0)
+      expect(document['x-scalar-selected-server']).toBeUndefined()
+    })
+
+    it('does not update x-scalar-selected-server when a non-selected server is deleted', () => {
+      const document = createDocument({
+        servers: [
+          { url: 'https://api.example.com' },
+          { url: 'https://dev.example.com' },
+          { url: 'https://staging.example.com' },
+        ],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      deleteServer(document, { index: 1 })
+
+      expect(document.servers).toHaveLength(2)
+      expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+    })
+
+    it('sets x-scalar-selected-server correctly when middle server is selected and deleted', () => {
+      const document = createDocument({
+        servers: [
+          { url: 'https://api.example.com' },
+          { url: 'https://dev.example.com' },
+          { url: 'https://staging.example.com' },
+        ],
+        'x-scalar-selected-server': 'https://dev.example.com',
+      })
+
+      deleteServer(document, { index: 1 })
+
+      expect(document.servers).toHaveLength(2)
+      expect(document.servers?.[0]?.url).toBe('https://api.example.com')
+      expect(document.servers?.[1]?.url).toBe('https://staging.example.com')
+      expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+    })
+
+    it('does not crash when x-scalar-selected-server is undefined', () => {
+      const document = createDocument({
+        servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+      })
+
+      deleteServer(document, { index: 0 })
+
+      expect(document.servers).toHaveLength(1)
+      expect(document['x-scalar-selected-server']).toBeUndefined()
+    })
+
+    it('handles deleting server with variables', () => {
+      const document = createDocument({
+        servers: [
+          {
+            url: 'https://{environment}.example.com',
+            variables: {
+              environment: {
+                default: 'api',
+                enum: ['api', 'dev'],
+              },
+            },
+          },
+          { url: 'https://backup.example.com' },
+        ],
+        'x-scalar-selected-server': 'https://{environment}.example.com',
+      })
+
+      deleteServer(document, { index: 0 })
+
+      expect(document.servers).toHaveLength(1)
+      expect(document['x-scalar-selected-server']).toBe('https://backup.example.com')
+    })
+
+    it('sets x-scalar-selected-server to undefined when deleting from an empty document', () => {
+      const document = createDocument({
+        servers: [],
+        'x-scalar-selected-server': 'https://api.example.com',
+      })
+
+      deleteServer(document, { index: 0 })
+
+      expect(document.servers).toHaveLength(0)
+      expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
     })
   })
 })

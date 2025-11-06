@@ -134,6 +134,11 @@ export const updateServer = (
   if (hasUrlChanged) {
     const existingVariables = updatedServer.variables ?? {}
     updatedServer.variables = syncVariablesForUrlChange(updatedServer.url, oldUrl, existingVariables)
+
+    // If the selected server is the one being updated, set the selected server to the new server
+    if (document['x-scalar-selected-server'] === oldUrl) {
+      document['x-scalar-selected-server'] = updatedServer.url
+    }
   }
 
   // Ensure servers array exists and update the server at the specified index
@@ -152,8 +157,19 @@ export const updateServer = (
  * @param document - The document to delete the server from
  * @param index - The index of the server to delete.
  */
-export const deleteServer = (document: WorkspaceDocument | null, { index }: ServerEvents['server:delete:server']) =>
-  document?.servers?.splice(index, 1)
+export const deleteServer = (document: WorkspaceDocument | null, { index }: ServerEvents['server:delete:server']) => {
+  if (!document?.servers) {
+    return
+  }
+
+  const url = document.servers[index]?.url
+  document.servers.splice(index, 1)
+
+  // If the selected server is the one being deleted, set the selected server to the first one after removal
+  if (document['x-scalar-selected-server'] === url) {
+    document['x-scalar-selected-server'] = document.servers[0]?.url ?? undefined
+  }
+}
 
 /**
  * Updates a server variable for the selected server
@@ -184,4 +200,26 @@ export const updateServerVariables = (
   }
 
   return variable
+}
+
+/**
+ * Updates the selected server for the document
+ *
+ * @param document - The document to update the selected server in
+ * @param index - The index of the server to update
+ * @returns the url of the selected server or undefined if the server is not found
+ */
+export const updateSelectedServer = (
+  document: WorkspaceDocument | null,
+  { index }: ServerEvents['server:update:selected'],
+): string | undefined => {
+  const url = document?.servers?.[index]?.url
+  if (!url) {
+    console.error('Server not found', index, document?.servers)
+    return
+  }
+
+  // Set it and return the url
+  document['x-scalar-selected-server'] = url
+  return document['x-scalar-selected-server']
 }

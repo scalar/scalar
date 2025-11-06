@@ -32,4 +32,11 @@ export type ServerEvents = {
     /** The new value of the variable */
     value: string
   }
+  /**
+   * Update the selected server for the document
+   */
+  'server:update:selected': {
+    /** The index of the server to update */
+    index: number
+  }
 }

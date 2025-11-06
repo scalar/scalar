@@ -21,6 +21,7 @@ import {
   updateSelectedAuthTab,
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
+  updateSelectedServer,
   updateServer,
   updateServerVariables,
   upsertEnvironment,
@@ -129,6 +130,7 @@ export const useWorkspaceClientEvents = (
   eventBus.on('server:update:server', (payload) => updateServer(document.value, payload))
   eventBus.on('server:delete:server', (payload) => deleteServer(document.value, payload))
   eventBus.on('server:update:variables', (payload) => updateServerVariables(document.value, payload))
+  eventBus.on('server:update:selected', (payload) => updateSelectedServer(document.value, payload))
 
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
