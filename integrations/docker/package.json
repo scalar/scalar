@@ -31,7 +31,7 @@
     "@scalar/build-tooling": "workspace:*"
   },
   "readme": {
-    "title": "Scalar Docker API Reference Integration",
+    "title": "Scalar API Reference for Docker",
     "badges": [
       {
         "type": "docker-pulls",

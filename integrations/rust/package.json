@@ -88,7 +88,7 @@
   "dependencies": {},
   "devDependencies": {},
   "readme": {
-    "title": "Scalar API Reference Crate",
+    "title": "Scalar API Reference Crate for Rust",
     "badges": [
       {
         "type": "crate-version",

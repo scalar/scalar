@@ -32,7 +32,7 @@
     "@scalar/build-tooling": "workspace:*"
   },
   "readme": {
-    "title": "Scalar API Reference for .NET Aspire",
+    "title": "Scalar API Reference for Aspire",
     "badges": [
       {
         "type": "nuget-version",

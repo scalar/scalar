@@ -65,7 +65,7 @@
     "react": "^19.0.0"
   },
   "readme": {
-    "title": "Scalar Next.js API Reference Handler",
+    "title": "Scalar API Reference Handler for Next.js",
     "badges": [
       {
         "type": "npm-version"

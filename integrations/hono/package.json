@@ -57,7 +57,7 @@
     "hono": "^4.10.3"
   },
   "readme": {
-    "title": "Scalar for Hono",
+    "title": "Scalar API Reference for Hono",
     "badges": [
       {
         "type": "npm-version"

@@ -25,7 +25,7 @@
     "test": "vitest"
   },
   "readme": {
-    "title": "Scalar API Reference for .NET ASP.NET Core",
+    "title": "Scalar API Reference for ASP.NET Core",
     "badges": [
       {
         "type": "nuget-version",

@@ -58,7 +58,7 @@
     "vitest": "catalog:*"
   },
   "readme": {
-    "title": "Scalar Express API Reference Plugin",
+    "title": "Scalar API Reference Plugin for Express",
     "badges": [
       {
         "type": "npm-version"

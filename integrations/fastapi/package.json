@@ -22,7 +22,7 @@
   "dependencies": {},
   "devDependencies": {},
   "readme": {
-    "title": "Scalar FastAPI API Reference Plugin",
+    "title": "Scalar API Reference Plugin for FastAPI",
     "badges": [
       {
         "type": "pypi-version",

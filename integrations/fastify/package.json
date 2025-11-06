@@ -69,7 +69,7 @@
     "yaml": "catalog:*"
   },
   "readme": {
-    "title": "Scalar for Fastify",
+    "title": "Scalar API Reference for Fastify",
     "badges": [
       {
         "type": "npm-version"

@@ -63,7 +63,7 @@
     "svelte": "^5.0.0"
   },
   "readme": {
-    "title": "Scalar for SvelteKit",
+    "title": "Scalar API Reference for SvelteKit",
     "badges": [
       {
         "type": "npm-version"
