@@ -237,6 +237,8 @@ jobs:
         timeout-minutes: 1
       - name: Run tests
         run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+    env:
+      NODE_OPTIONS: '--max_old_space_size=16384'
 
   test-integrations:
     needs: [build]
@@ -252,6 +254,7 @@ jobs:
         BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
+      NODE_OPTIONS: '--max_old_space_size=16384'
     timeout-minutes: 10
     strategy:
       matrix:
