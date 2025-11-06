@@ -8,8 +8,6 @@ import { LS_CONFIG } from './local-storage'
 
 const MAX_MUTATION_RECORDS = 500
 
-const { execute } = debounce({ delay: LS_CONFIG.DEBOUNCE_MS, maxWait: LS_CONFIG.MAX_WAIT_MS })
-
 /** Generate mutation handlers for a given record of objects  */
 export function mutationFactory<T extends Record<string, any>>(
   entityMap: Partial<Record<string, T>>,
@@ -17,6 +15,8 @@ export function mutationFactory<T extends Record<string, any>>(
   localStorageKey?: string | false,
   maxNumberRecords: number = MAX_MUTATION_RECORDS,
 ) {
+  const { execute } = debounce({ delay: LS_CONFIG.DEBOUNCE_MS, maxWait: LS_CONFIG.MAX_WAIT_MS })
+
   function getMutator(uid: T['uid']) {
     const mutator = mutationMap[uid]
 
