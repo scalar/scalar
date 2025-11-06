@@ -1,4 +1,3 @@
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
 import { generateReverseIndex } from './generate-reverse-index'
@@ -209,4 +208,4 @@ export const createSidebarState = <T extends { id: string }>(
   }
 }
 
-export type SidebarState<Item extends TraversedEntry> = ReturnType<typeof createSidebarState<Item>>
+export type SidebarState<Item extends { id: string }> = ReturnType<typeof createSidebarState<Item>>
