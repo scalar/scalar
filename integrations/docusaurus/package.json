@@ -71,6 +71,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus"
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus",
+    "image": "https://github.com/scalar/scalar/blob/main/integrations/docusaurus/docusaurus.png?raw=true"
   }
 }

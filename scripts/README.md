@@ -170,6 +170,7 @@ The generated README includes:
 - Title from metadata
 - Badges (npm, pypi, nuget, docker, crates.io) based on package type
 - Package description
+- Optional image (if provided)
 - Documentation link
 - Optional extra content
 - Changelog link (if CHANGELOG.md exists)
@@ -187,6 +188,7 @@ The generated README includes:
       { "type": "pypi-version", "package": "package-name" }
     ],
     "documentation": "https://docs.example.com",
+    "image": "https://example.com/image.png",
     "extraContent": {
       "headline": "Additional Info",
       "content": "Some extra content here"

@@ -170,7 +170,7 @@ async function generateReadmeForPackage(root: string, directory: string, package
   // Generate image if provided
   let imageSection = ''
   if (metadata.image) {
-    imageSection = `\n![Image](${metadata.image})\n`
+    imageSection = `\n\n![Image](${metadata.image})\n`
   }
 
   // Generate documentation section

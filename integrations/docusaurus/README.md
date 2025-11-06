@@ -14,6 +14,8 @@
 
 Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI/Swagger documents.
 
+![Image](https://github.com/scalar/scalar/blob/main/integrations/docusaurus/docusaurus.png?raw=true)
+
 ## Documentation
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus)
