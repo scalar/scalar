@@ -5,7 +5,7 @@ import { generateReverseIndex } from './generate-reverse-index'
 
 describe('generateReverseIndex', () => {
   it('returns empty map for empty navigation', () => {
-    const result = generateReverseIndex([])
+    const result = generateReverseIndex({ items: [] })
     expect(result.size).toBe(0)
   })
 
@@ -18,7 +18,7 @@ describe('generateReverseIndex', () => {
       path: '/a',
       ref: '',
     }
-    const result = generateReverseIndex([node])
+    const result = generateReverseIndex({ items: [node] })
     expect(result.size).toBe(1)
     expect(result.get('a')).toEqual(node)
   })
@@ -47,7 +47,7 @@ describe('generateReverseIndex', () => {
         },
       ],
     }
-    const result = generateReverseIndex([node])
+    const result = generateReverseIndex({ items: [node] })
     expect(result.size).toBe(4)
     expect(result.get('root')).toMatchObject(node)
     expect(result.get('child1')).toMatchObject(node.children?.[0] as any)
@@ -72,7 +72,7 @@ describe('generateReverseIndex', () => {
         children: [{ type: 'text', id: 'c', title: 'C' }],
       },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
     expect(result.size).toBe(3)
     expect(result.get('a')).toBe(nodes[0])
     expect(result.get('b')).toBe(nodes[1])
@@ -96,7 +96,7 @@ describe('generateReverseIndex', () => {
         ],
       },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
     const child1 = result.get('child1')
     const child2 = result.get('child2')
     const parent = result.get('parent')
@@ -110,7 +110,7 @@ describe('generateReverseIndex', () => {
       { id: 'root1', title: 'Root 1', type: 'text' },
       { id: 'root2', title: 'Root 2', type: 'text' },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.get('root1')?.parent).toBeUndefined()
     expect(result.get('root2')?.parent).toBeUndefined()
@@ -145,7 +145,7 @@ describe('generateReverseIndex', () => {
         ],
       },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.size).toBe(4)
     expect(result.get('level4')?.parent?.id).toBe('level3')
@@ -165,7 +165,7 @@ describe('generateReverseIndex', () => {
         children: [],
       },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.size).toBe(1)
     expect(result.get('parent')).toMatchObject({
@@ -186,7 +186,7 @@ describe('generateReverseIndex', () => {
         ref: '',
       },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.size).toBe(2)
     expect(result.get('leaf1')).toBe(nodes[0])
@@ -207,7 +207,7 @@ describe('generateReverseIndex', () => {
         ],
       },
     ]
-    const result = generateReverseIndex(nodes, 'items')
+    const result = generateReverseIndex({ items: nodes, nestedKey: 'items' })
 
     expect(result.size).toBe(4)
     expect(result.get('root')).toBeDefined()
@@ -221,7 +221,7 @@ describe('generateReverseIndex', () => {
       { id: 'duplicate', title: 'First', type: 'text' },
       { id: 'duplicate', title: 'Second', type: 'text' },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     // Map will contain the last occurrence
     expect(result.size).toBe(1)
@@ -283,7 +283,7 @@ describe('generateReverseIndex', () => {
       },
       { id: 'standalone', title: 'Standalone', type: 'text' },
     ]
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.size).toBe(7)
     expect(result.get('tag1')?.parent).toBeUndefined()
@@ -318,11 +318,116 @@ describe('generateReverseIndex', () => {
       })
     }
 
-    const result = generateReverseIndex(nodes)
+    const result = generateReverseIndex({ items: nodes })
 
     expect(result.size).toBe(110) // 10 parents + 100 children
     expect(result.get('parent-0')).toBeDefined()
     expect(result.get('node-0-0')?.parent?.id).toBe('parent-0')
     expect(result.get('node-9-9')?.parent?.id).toBe('parent-9')
+  })
+
+  it('applies filter to include only matching nodes', () => {
+    const nodes: TraversedEntry[] = [
+      {
+        id: 'tag-a',
+        title: 'Tag A',
+        type: 'tag',
+        isGroup: false,
+        name: '',
+        children: [
+          {
+            id: 'op-a1',
+            title: 'Operation A1',
+            type: 'operation',
+            method: 'get',
+            path: '/a1',
+            ref: '',
+          },
+          { id: 'text-a2', title: 'Text A2', type: 'text' },
+        ],
+      },
+      { id: 'text-root', title: 'Text Root', type: 'text' },
+    ]
+
+    const result = generateReverseIndex({
+      items: nodes,
+      filter: (n) => n.type === 'operation',
+    })
+
+    // Only the operation should be present
+    expect(Array.from(result.keys()).sort()).toEqual(['op-a1'])
+    expect(result.get('op-a1')?.title).toBe('Operation A1')
+  })
+
+  it('traverses children even when parent is filtered out', () => {
+    const nodes: TraversedEntry[] = [
+      {
+        id: 'parent-tag',
+        title: 'Parent Tag',
+        type: 'tag',
+        isGroup: false,
+        name: '',
+        children: [
+          {
+            id: 'op-child',
+            title: 'Op Child',
+            type: 'operation',
+            method: 'post',
+            path: '/child',
+            ref: '',
+          },
+        ],
+      },
+    ]
+
+    const result = generateReverseIndex({
+      items: nodes,
+      filter: (n) => n.type !== 'tag',
+    })
+
+    // Parent is excluded from the mapping, child is included
+    expect(result.get('parent-tag')).toBeUndefined()
+    const child = result.get('op-child')
+    expect(child).toBeDefined()
+    // Parent reference still exists on the child object, even if the parent is not indexed
+    expect(child?.parent?.id).toBe('parent-tag')
+    expect(child?.parent?.title).toBe('Parent Tag')
+  })
+
+  it('uses custom getId to index by a computed key', () => {
+    const nodes: TraversedEntry[] = [
+      { id: 'x', title: 'Alpha', type: 'text' },
+      {
+        id: 'y',
+        title: 'Bravo',
+        type: 'operation',
+        method: 'get',
+        path: '/b',
+        ref: '',
+      },
+    ]
+
+    const result = generateReverseIndex({
+      items: nodes,
+      getId: (n) => `${n.type}:${n.id}`,
+    })
+
+    expect(result.get('text:x')?.title).toBe('Alpha')
+    expect(result.get('operation:y')?.title).toBe('Bravo')
+  })
+
+  it('custom getId collisions overwrite previous entries', () => {
+    const nodes: TraversedEntry[] = [
+      { id: 'same', title: 'First', type: 'text' },
+      { id: 'same', title: 'Second', type: 'text' },
+    ]
+
+    const result = generateReverseIndex({
+      items: nodes,
+      getId: () => 'custom-key',
+    })
+
+    expect(result.size).toBe(1)
+    expect(result.get('custom-key')?.title).toBe('Second')
   })
 })

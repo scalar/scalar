@@ -18,15 +18,15 @@ type SidebarStateOptions = Partial<{
      */
     onAfterExpand: (id: string) => void
     /**
-     * Called before an item is selected.
-     * @param id - The ID of the item to select.
+     * Called just before a sidebar item selection changes.
+     * @param id - The ID of the item that is about to be selected, or null if deselecting.
      */
-    onBeforeSelect: (id: string) => void
+    onBeforeSelect: (id: string | null) => void
     /**
-     * Called after an item is selected.
-     * @param id - The ID of the item that was selected.
+     * Called immediately after a sidebar item has been selected.
+     * @param id - The ID of the item that was selected, or null if selection was cleared.
      */
-    onAfterSelect: (id: string) => void
+    onAfterSelect: (id: string | null) => void
   }>
 }>
 
@@ -73,7 +73,12 @@ export const createSidebarState = <T extends { id: string }>(
   options?: SidebarStateOptions,
 ) => {
   // Reverse index for quick lookup of items and their parents
-  const index = computed(() => generateReverseIndex(toValue(items), options?.key ?? 'children'))
+  const index = computed(() =>
+    generateReverseIndex({
+      items: toValue(items),
+      nestedKey: options?.key ?? 'children',
+    }),
+  )
   // Reactive record of selected item ids
   const selectedItems = ref<Record<string, boolean>>({})
   // Reactive record of expanded item ids
@@ -91,7 +96,7 @@ export const createSidebarState = <T extends { id: string }>(
    * // selectedItems.value will include 'grandchild1', 'child2', and 'root'
    * ```
    */
-  const setSelected = (id: string) => {
+  const setSelected = (id: string | null) => {
     /**
      * Recursively mark all parent items as selected.
      * @param node - The current node to mark as selected.
@@ -114,8 +119,12 @@ export const createSidebarState = <T extends { id: string }>(
     // Clear previous selection
     selectedItems.value = {}
 
-    // Mark the selected item and all its parents as selected
-    markSelected(index.value.get(id))
+    // If id is null, do not select anything
+    // We already cleared the selection above
+    if (id !== null) {
+      // Mark the selected item and all its parents as selected
+      markSelected(index.value.get(id))
+    }
 
     // Call onAfterSelect hook if provided
     if (options?.hooks?.onAfterSelect) {

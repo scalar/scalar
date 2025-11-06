@@ -33,6 +33,7 @@ import {
 import { Sidebar } from '@/v2/components/sidebar'
 import TempReplaceMe from '@/v2/components/TempReplaceMe.vue'
 import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
+import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 
 const { workspaceStore, activeEntities, modalState } = defineProps<ModalProps>()
 
@@ -44,6 +45,17 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     allowOutsideClick: true,
     fallbackFocus: `#${id}`,
   })
+
+// TODO: replace me
+// We probably will not use a router/sidebar for modal mode
+const { sidebarState } = useSidebarState({
+  workspaceStore,
+  workspaceSlug: 'default',
+  documentSlug: '',
+  exampleName: '',
+  method: 'get',
+  path: '',
+})
 
 /**
  * Close the modal on escape
@@ -106,7 +118,7 @@ const isSidebarOpen = ref(true)
             <Sidebar
               v-show="isSidebarOpen"
               v-model:isSidebarOpen="isSidebarOpen"
-              :documents="workspaceStore.workspace.documents"
+              :sidebarState="sidebarState"
               layout="modal"
               :sidebarWidth="
                 workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288

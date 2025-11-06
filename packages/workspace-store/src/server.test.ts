@@ -93,7 +93,8 @@ describe('create-server-store', () => {
         'x-scalar-navigation': {
           type: 'document',
           id: name,
-          title: name,
+          name: name,
+          title: 'Scalar Galaxy',
           children: [
             {
               'id': `${name}/tag/default/get/planets`,
@@ -190,7 +191,8 @@ describe('create-server-store', () => {
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-1',
-          title: 'doc-1',
+          name: 'doc-1',
+          title: 'Scalar Galaxy',
           children: [
             {
               'id': 'doc-1/tag/default/get/planets',
@@ -229,7 +231,8 @@ describe('create-server-store', () => {
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-3',
-          title: 'doc-3',
+          name: 'doc-3',
+          title: 'Scalar Galaxy',
           children: [
             {
               'id': 'doc-3/tag/default/get/planets',
@@ -310,7 +313,8 @@ describe('create-server-store', () => {
             'x-scalar-navigation': {
               type: 'document',
               id: 'doc-1',
-              title: 'doc-1',
+              name: 'doc-1',
+              title: 'Scalar Galaxy',
               children: [
                 {
                   'id': 'doc-1/tag/default/get/planets',
@@ -346,7 +350,8 @@ describe('create-server-store', () => {
             'x-scalar-navigation': {
               type: 'document',
               id: 'doc-2',
-              title: 'doc-2',
+              name: 'doc-2',
+              title: 'Scalar Galaxy',
               children: [
                 {
                   'id': 'doc-2/tag/default/get/planets',

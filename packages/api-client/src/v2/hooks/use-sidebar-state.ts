@@ -1,0 +1,263 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+/**
+ * useSidebarState - Custom hook to manage the sidebar state and navigation logic in the Scalar API client
+ *
+ * This composable manages the sidebar structure, synchronizes selection state
+ * with the current route, and provides a handler for selecting sidebar items.
+ *
+ * Example usage:
+ *
+ * const { handleSelectItem, sidebarState } = useSidebarState({
+ *   workspaceStore,
+ *   workspaceSlug,
+ *   documentSlug,
+ *   path,
+ *   method,
+ *   exampleName,
+ * })
+ */
+export const useSidebarState = ({
+  workspaceStore,
+  workspaceSlug,
+  documentSlug,
+  path,
+  method,
+  exampleName,
+}: {
+  workspaceStore: MaybeRefOrGetter<WorkspaceStore>
+  workspaceSlug: MaybeRefOrGetter<string>
+  documentSlug: MaybeRefOrGetter<string | undefined>
+  path: MaybeRefOrGetter<string | undefined>
+  method: MaybeRefOrGetter<HttpMethod | undefined>
+  exampleName: MaybeRefOrGetter<string | undefined>
+}) => {
+  const router = useRouter()
+
+  const entries = computed(() => {
+    return Object.values((toValue(workspaceStore) as WorkspaceStore).workspace.documents)
+      .map((doc) => doc['x-scalar-navigation'])
+      .filter(isDefined) as TraversedEntry[]
+  })
+
+  const state = createSidebarState(entries)
+
+  /**
+   * Traverses up the tree to find and return the closest parent node (including self) of a specified type.
+   *
+   * @template Type - The type of node to look for.
+   * @param type - The type to match in the parent chain.
+   * @param node - The node from which traversal begins.
+   * @returns The closest parent node of the specified type, or undefined if not found.
+   */
+  const getParent = <Type extends TraversedEntry['type']>(
+    type: Type,
+    node?: TraversedEntry & { parent?: TraversedEntry },
+  ): (TraversedEntry & { type: Type }) | undefined => {
+    if (!node) {
+      return undefined
+    }
+
+    if (node.type === type) {
+      return node as TraversedEntry & { type: Type }
+    }
+
+    return getParent(type, node.parent)
+  }
+
+  /**
+   * Generates a unique string ID for an API location, based on the document, path, method, and example.
+   * Filters out undefined values and serializes the composite array into a stable string.
+   *
+   * @param params - An object containing document, path, method, and optional example name.
+   * @returns A stringified array representing the unique location identifier.
+   *
+   * Example:
+   *   generateId({ document: 'mydoc', path: '/users', method: 'get', example: 'default' })
+   *   // => '["mydoc","/users","get","default"]'
+   */
+  const generateId = ({
+    document,
+    path,
+    method,
+    example,
+  }: {
+    document: string
+    path?: string
+    method?: HttpMethod
+    example?: string
+  }) => {
+    return JSON.stringify([document, path, method, example].filter(isDefined))
+  }
+
+  /**
+   * Computed index for fast lookup of sidebar nodes by their unique API location.
+   *
+   * - Only indexes nodes of type 'document', 'operation', or 'example'.
+   * - The lookup key is a serialized array of: [documentName, operationPath, operationMethod, exampleName?].
+   * - Supports precise resolution of sidebar entries given an API "location".
+   */
+  const locationIndex = computed(() =>
+    generateReverseIndex({
+      items: entries.value,
+      nestedKey: 'children',
+      filter: (node) => node.type === 'document' || node.type === 'operation' || node.type === 'example',
+      getId: (node) => {
+        const document = getParent('document', node)
+        const operation = getParent('operation', node)
+        return generateId({
+          document: document?.name ?? '',
+          path: operation?.path,
+          method: operation?.method,
+          example: node.type === 'example' ? node.name : undefined,
+        })
+      },
+    }),
+  )
+
+  /**
+   * Looks up a sidebar entry by its unique API location.
+   * - First tries to find an entry matching all provided properties (including example).
+   * - If not found, falls back to matching only the operation (ignores example field).
+   * This allows resolving either examples, operations, or documents as appropriate.
+   *
+   * @param location - Object specifying the document name, path, method, and optional example name.
+   * @returns The matching sidebar entry, or undefined if none found.
+   *
+   * Example:
+   *   const entry = getEntryByLocation({
+   *     document: 'pets',
+   *     path: '/pets',
+   *     method: 'get',
+   *     example: 'default',
+   *   })
+   */
+  const getEntryByLocation = (location: { document: string; path?: string; method?: HttpMethod; example?: string }) => {
+    // Try to find an entry with the most-specific location (including example)
+    const entryWithExample = locationIndex.value.get(generateId(location))
+
+    if (entryWithExample) {
+      return entryWithExample
+    }
+
+    // Fallback to the operation (ignoring example) if an example wasn't found or specified
+    return locationIndex.value.get(
+      generateId({
+        document: location.document,
+        path: location.path,
+        method: location.method,
+      }),
+    )
+  }
+
+  /**
+   * Handles item selection from the sidebar and routes navigation accordingly.
+   *
+   * Example:
+   *   handleSelectItem('id-of-entry')
+   */
+  const handleSelectItem = (id: string) => {
+    const entry = state.getEntryById(id)
+
+    if (!entry) {
+      console.warn(`Could not find sidebar entry with id ${id} to select`)
+      return
+    }
+
+    // Navigate to the document overview page
+    if (entry.type === 'document') {
+      state.setSelected(id)
+      state.setExpanded(id, !state.isExpanded(id))
+      return router.push({
+        name: 'document.overview',
+        params: { documentSlug: entry.name },
+      })
+    }
+
+    // Navigate to the example page
+    // TODO: temporary until we have the operation overview page
+    if (entry.type === 'operation') {
+      // If we are already in the operation, just toggle expansion
+      if (state.isSelected(id)) {
+        state.setExpanded(id, !state.isExpanded(id))
+        return
+      }
+
+      const firstExample = entry.children?.find((child) => child.type === 'example')
+
+      if (firstExample) {
+        state.setSelected(firstExample.id)
+        state.setExpanded(firstExample.id, true)
+      } else {
+        state.setSelected(id)
+      }
+
+      return router.push({
+        name: 'example',
+        params: {
+          documentSlug: getParent('document', entry)?.name,
+          pathEncoded: encodeURIComponent(entry.path),
+          method: entry.method,
+          exampleName: firstExample?.name ?? 'default',
+        },
+      })
+    }
+
+    // Navigate to the example page
+    if (entry.type === 'example') {
+      state.setSelected(id)
+      state.setExpanded(id, true)
+      const operation = getParent('operation', entry)
+      return router.push({
+        name: 'example',
+        params: {
+          documentSlug: getParent('document', entry)?.name,
+          pathEncoded: encodeURIComponent(operation?.path ?? ''),
+          method: operation?.method,
+          exampleName: entry.name,
+        },
+      })
+    }
+
+    state.setExpanded(id, !state.isExpanded(id))
+    return
+  }
+
+  /** Keep the router and the sidebar state in sync */
+  watch(
+    [workspaceSlug, documentSlug, path, method, exampleName],
+    ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
+      if (!newDocument) {
+        // Reset selection if no document is selected
+        state.setSelected(null)
+        return
+      }
+
+      const entry = getEntryByLocation({
+        document: newDocument as string,
+        path: newPath as string,
+        method: newMethod as HttpMethod,
+        example: newExample as string,
+      })
+
+      if (entry) {
+        state.setSelected(entry.id)
+        state.setExpanded(entry.id, true)
+      }
+    },
+    {
+      immediate: true,
+    },
+  )
+
+  return {
+    handleSelectItem,
+    sidebarState: state,
+  }
+}

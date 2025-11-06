@@ -244,6 +244,7 @@ describe('SidebarItem', () => {
       const item: Item = {
         id: '1',
         title: 'Some Document',
+        name: 'someDocument',
         type: 'document',
         children: [],
       }
@@ -286,6 +287,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'User API',
         type: 'document',
+        name: 'userAPI',
         children: [{ id: '2', title: 'Get User', type: 'operation', ref: 'ref-2', method: 'get', path: '/users' }],
       }
 
@@ -329,6 +331,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'Documents',
         type: 'document',
+        name: 'documents',
         children: [
           {
             id: '1',
@@ -381,10 +384,11 @@ describe('SidebarItem', () => {
       expect(childItems.length).toBeGreaterThanOrEqual(4)
     })
 
-    it('filters items in client layout to only show webhooks, operations, examples, and tags', () => {
+    it('filters items in client layout to only show operations, examples, and tags / no webhooks or models', () => {
       const item: Item = {
         id: '1',
         title: 'Parent',
+        name: 'parent',
         type: 'document',
         children: [
           { id: '2', title: 'Operation', type: 'operation', ref: 'ref-2', method: 'get', path: '/operation' },
@@ -405,10 +409,9 @@ describe('SidebarItem', () => {
       })
 
       const childItems = wrapper.findAllComponents(SidebarItem)
-      // Should have parent + operation + webhook + example + tag, but NOT model
+      // Should have parent + operation + example + tag, but NOT model
       const childIds = childItems.map((w) => w.props('item')?.id).filter(Boolean)
       expect(childIds).toContain('2') // operation
-      expect(childIds).toContain('3') // webhook
       expect(childIds).toContain('4') // example
       expect(childIds).toContain('6') // tag
       expect(childIds).not.toContain('5') // model should be filtered out
@@ -490,6 +493,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'User Document',
         type: 'document',
+        name: 'userDocument',
         children: [],
       }
 
@@ -657,6 +661,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'Expandable',
         type: 'document',
+        name: 'userAPI',
         children: [
           {
             id: '1',
@@ -687,6 +692,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'Expandable',
         type: 'document',
+        name: 'userAPI',
         children: [
           {
             id: '1',
@@ -717,6 +723,7 @@ describe('SidebarItem', () => {
         id: 'group-1',
         title: 'Expandable',
         type: 'document',
+        name: 'userAPI',
         children: [
           {
             id: '1',
@@ -825,6 +832,7 @@ describe('SidebarItem', () => {
         id: '1',
         title: 'Empty Parent',
         type: 'document',
+        name: 'emptyParent',
         children: [],
       }
 

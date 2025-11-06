@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconButton, ScalarSidebarSearchInput } from '@scalar/components'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import { createSidebarState, ScalarSidebar, type Item } from '@scalar/sidebar'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { computed, ref } from 'vue'
+import { ScalarSidebar, type SidebarState } from '@scalar/sidebar'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -11,11 +11,16 @@ import type { ClientLayout } from '@/v2/types/layout'
 import SidebarMenu from './SidebarMenu.vue'
 import SidebarToggle from './SidebarToggle.vue'
 
-const { documents, layout } = defineProps<{
+const { sidebarState, layout } = defineProps<{
   /** All documents to display sidebar items for */
-  documents: Record<string, WorkspaceDocument>
+  sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
   layout: ClientLayout
+}>()
+
+const emit = defineEmits<{
+  /** Emitted when an item is selected */
+  (e: 'selectItem', id: string): void
 }>()
 
 defineSlots<{
@@ -24,20 +29,6 @@ defineSlots<{
   /** Slot to add additional content to the footer */
   footer?(): unknown
 }>()
-
-/** Generate the sidebar state based on the current workspace */
-const sidebarState = computed(() => {
-  const documentEntries: Item[] = Object.entries(documents).map(
-    ([name, doc]) => ({
-      id: name,
-      type: 'document',
-      title: doc.info.title ?? name,
-      children: doc['x-scalar-navigation']?.children ?? [],
-    }),
-  )
-
-  return createSidebarState(documentEntries)
-})
 
 const log = (name: string, ...args: any[]) => {
   console.log('[LOG] event name: ', name)
@@ -69,12 +60,12 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     class="flex flex-col">
     <template #default>
       <ScalarSidebar
-        class="flex w-auto flex-1"
+        class="flex w-auto flex-1 pt-2"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
-        @selectItem="(id) => sidebarState.setExpanded(id, true)"
+        @selectItem="(id) => emit('selectItem', id)"
         @reorder="(...args) => log('reorder', ...args)">
         <template #search>
           <div

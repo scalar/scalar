@@ -28,6 +28,7 @@ export const TraversedDocumentSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
     type: Type.Literal('document'),
+    name: Type.String(),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
@@ -39,6 +40,9 @@ export const TraversedDocumentSchemaDefinition = compose(
  */
 export type TraversedDocument = BaseSchema & {
   type: 'document'
+  /** Document name */
+  name: string
+  /** Child entries under the document */
   children?: TraversedEntry[]
 }
 

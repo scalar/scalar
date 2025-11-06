@@ -72,6 +72,7 @@ describe('ScalarSidebar', () => {
           id: '1',
           title: 'Parent',
           type: 'document',
+          name: 'parent',
           children: [
             {
               id: '2',
@@ -119,6 +120,7 @@ describe('ScalarSidebar', () => {
           id: '1',
           title: 'Parent',
           type: 'document',
+          name: 'parent',
           children: [
             {
               id: '2',
@@ -174,6 +176,7 @@ describe('ScalarSidebar', () => {
           id: '1',
           title: 'Item 1',
           type: 'document',
+          name: 'item1',
           children: [
             {
               id: '2',
@@ -219,6 +222,7 @@ describe('ScalarSidebar', () => {
           id: '1',
           title: 'Item 1',
           type: 'document',
+          name: 'item1',
           children: [
             {
               id: '2',
@@ -234,6 +238,7 @@ describe('ScalarSidebar', () => {
           id: '3',
           title: 'Item 2',
           type: 'document',
+          name: 'item2',
           children: [
             {
               id: '4',
@@ -688,6 +693,7 @@ describe('ScalarSidebar', () => {
           id: '1',
           title: 'Test Item',
           type: 'document',
+          name: 'testDocument',
           children: [
             {
               id: '2',
