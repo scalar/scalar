@@ -17,20 +17,11 @@ Import and use the `ScalarComponent` in your Astro page or layout:
 import { ScalarComponent } from '@scalar/astro'
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>API Reference</title>
-  </head>
-  <body>
-    <ScalarComponent configuration={{
-      // How to configure Scalar:
-      // https://guides.scalar.com/scalar/scalar-api-references/configuration
-      url: '/openapi.json',
-    }} />
-  </body>
-</html>
+<ScalarComponent configuration={{
+  // How to configure Scalar:
+  // https://guides.scalar.com/scalar/scalar-api-references/configuration
+  url: '/openapi.json',
+}} />
 ```
 
 The Astro component takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration).
