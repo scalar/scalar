@@ -47,10 +47,7 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => workspaceStore
 }
 
-/**
- * Extracts a string parameter from the route.
- * Returns undefined if the parameter is missing or not a string.
- */
+/** Extracts a string parameter from the route */
 const getRouteParam = (paramName: string): string | undefined => {
   const param = route.params[paramName]
   return typeof param === 'string' ? param : undefined
