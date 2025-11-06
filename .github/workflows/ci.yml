@@ -1430,7 +1430,7 @@ jobs:
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
-        if: ${{ always() && github.repository_owner == 'scalar' && (contains(needs.*.result, 'failure') || (contains(needs.*.result, 'skipped')) || contains(needs.*.result, 'cancelled')) }}
+        if: ${{ always() && github.repository_owner == 'scalar' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
       - name: Warn users that jobs are skipped on forks
         if: ${{ always() && github.repository_owner != 'scalar' && (contains(needs.*.result, 'skipped')) }}
         run: echo "::warning::Some jobs were skipped on forks."
