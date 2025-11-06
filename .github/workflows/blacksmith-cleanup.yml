@@ -7,6 +7,7 @@ on:
     - cron: '0 5 * * *'
 jobs:
   cleanup-turbo-cache:
+    if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     strategy:
       matrix:

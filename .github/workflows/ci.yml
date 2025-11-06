@@ -18,6 +18,7 @@ jobs:
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
+    if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
@@ -134,6 +135,7 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
+    if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
@@ -514,7 +516,7 @@ jobs:
   # Publish and deploy packages
 
   npm-publish:
-    if: github.ref == 'refs/heads/main'
+    if: github.repository_owner == 'scalar' && github.ref == 'refs/heads/main'
     runs-on: beefcake
     timeout-minutes: 15
     # Avoid running this job in parallel:
