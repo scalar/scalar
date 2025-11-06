@@ -46,9 +46,7 @@ export const useSidebarState = ({
       .filter(isDefined) as TraversedEntry[]
   })
 
-  const sidebarState = computed(() => {
-    return createSidebarState(entries)
-  })
+  const state = createSidebarState(entries)
 
   /**
    * Traverses up the tree to find and return the closest parent node (including self) of a specified type.
@@ -165,7 +163,6 @@ export const useSidebarState = ({
    *   handleSelectItem('id-of-entry')
    */
   const handleSelectItem = (id: string) => {
-    const state = sidebarState.value
     const entry = state.getEntryById(id)
 
     if (!entry) {
@@ -238,7 +235,7 @@ export const useSidebarState = ({
     ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
-        sidebarState.value.setSelected(null)
+        state.setSelected(null)
         return
       }
 
@@ -250,8 +247,8 @@ export const useSidebarState = ({
       })
 
       if (entry) {
-        sidebarState.value.setSelected(entry.id)
-        sidebarState.value.setExpanded(entry.id, true)
+        state.setSelected(entry.id)
+        state.setExpanded(entry.id, true)
       }
     },
     {
@@ -261,6 +258,6 @@ export const useSidebarState = ({
 
   return {
     handleSelectItem,
-    sidebarState,
+    sidebarState: state,
   }
 }

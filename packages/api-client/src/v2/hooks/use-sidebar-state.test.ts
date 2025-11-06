@@ -11,7 +11,7 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('use-sidebar-state', () => {
-  const getDocuement = (overrides: Partial<OpenApiDocument>) => {
+  const getDocument = (overrides: Partial<OpenApiDocument>) => {
     return {
       openapi: '3.1.0',
       info: { title: 'Pets', version: '1.0.0' },
@@ -25,7 +25,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('synchronizes selection to example and expands on initial match', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -86,7 +86,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('navigates to document overview and expands when selecting a document', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
@@ -118,7 +118,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('navigates to example and selects first example when selecting an operation', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -182,7 +182,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('toggles expansion without navigation when selecting an already selected operation', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -216,7 +216,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('navigates to example and expands when selecting an example', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -258,7 +258,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('warns and does not navigate when selecting an unknown id', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
@@ -287,7 +287,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('clears selection when document slug becomes undefined', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -319,7 +319,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('falls back to selecting operation when example does not exist', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -346,7 +346,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('selects only the document when only document slug is provided', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
