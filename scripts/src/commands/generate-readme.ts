@@ -38,6 +38,7 @@ interface ReadmeMetadata {
   badges: BadgeConfig[]
   documentation: string
   extraContent?: ExtraContent
+  image?: string
 }
 
 interface PackageJson {
@@ -166,8 +167,14 @@ async function generateReadmeForPackage(root: string, directory: string, package
   // Generate description
   const description = packageJson.description || ''
 
+  // Generate image if provided
+  let imageSection = ''
+  if (metadata.image) {
+    imageSection = `\n![Image](${metadata.image})\n`
+  }
+
   // Generate documentation section
-  const documentationSection = `## Documentation
+  const documentationSection = `\n\n## Documentation
 
 [Read the documentation here](${metadata.documentation})`
 
@@ -214,17 +221,15 @@ The source code in this repository is licensed under [MIT](https://github.com/sc
 
 ${badges.join('\n')}
 
-${description}
-
-${documentationSection}
+${description}${imageSection}${documentationSection}
 ${extraContent}${changelogSection}
 ${communitySection}
 
 ${licenseSection}
 `
 
-  // Filter out image markdown (![...](...))
-  readmeContent = readmeContent.replace(/^!\[.*?\]\(.*?\)$/gm, '').replace(/\n{3,}/g, '\n\n')
+  // Normalize multiple consecutive newlines
+  readmeContent = readmeContent.replace(/\n{3,}/g, '\n\n')
 
   // Write README.md
   await fs.writeFile(readmePath, readmeContent)
