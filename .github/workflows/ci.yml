@@ -44,6 +44,8 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
+    env:
+      NODE_OPTIONS: '--max_old_space_size=32768'
 
   docker:
     name: Build and Tag Docker Image

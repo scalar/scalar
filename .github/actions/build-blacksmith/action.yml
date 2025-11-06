@@ -35,6 +35,4 @@ runs:
       run: pnpm install
     - name: Build specified packages
       shell: bash
-      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' build
-      env:
-        NODE_OPTIONS: '--max_old_space_size=8192'
+      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' --filter='!./integrations/{java,rust,dotnet,docker}/**' build
