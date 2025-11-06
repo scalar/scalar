@@ -1,447 +1,248 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import Servers from './Servers.vue'
 
 describe('Servers', () => {
-  const mockEvents = {
-    commandPalette: {
-      emit: vi.fn(),
-    },
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  const baseDocument = {
+    uid: 'doc-1',
+    servers: [
+      {
+        url: 'https://api.example.com',
+        description: 'Production Server',
+        variables: {
+          version: {
+            default: 'v1',
+            enum: ['v1', 'v2'],
+            description: 'API version',
+          },
+        },
+      },
+      {
+        url: 'https://staging.example.com',
+        description: 'Staging Server',
+        variables: {},
+      },
+    ],
   }
 
   const baseEnvironment = {
-    uid: 'env-1' as any,
+    uid: 'env-1',
     name: 'Default',
     color: '#FFFFFF',
     value: '',
     isDefault: true,
   }
 
-  const baseServers = [
-    {
-      url: 'https://api.example.com',
-      description: 'Production API',
-      variables: {
-        version: {
-          default: 'v1',
-          description: 'API Version',
-        },
-      },
-    },
-    {
-      url: 'https://dev.api.example.com',
-      description: 'Development API',
-      variables: {
-        version: {
-          default: 'v2',
-          description: 'API Version',
-        },
-      },
-    },
-  ]
-
   const mountWithProps = (
     custom: Partial<{
-      servers: any[]
-      events: any
+      document: any
+      environment: any
     }> = {},
   ) => {
-    const servers = custom.servers ?? baseServers
-    const events = custom.events ?? mockEvents
+    const document = custom.document ?? baseDocument
+    const environment = custom.environment ?? baseEnvironment
+    const eventBus = createWorkspaceEventBus()
 
-    return mount(Servers, {
-      props: {
-        servers,
-        events,
-        environment: baseEnvironment,
-        envVariables: [],
-      },
-    })
+    return {
+      wrapper: mount(Servers, {
+        props: {
+          document,
+          environment,
+          eventBus,
+          layout: 'web',
+          workspaceStore: createWorkspaceStore(),
+          collectionType: 'document',
+        },
+      }),
+      eventBus,
+    }
   }
 
-  describe('rendering', () => {
-    it('renders the component', () => {
-      const wrapper = mountWithProps()
+  it('emits server:add:server event when Add Server button is clicked', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      expect(wrapper.exists()).toBe(true)
-    })
+    const addButton = wrapper.findAll('button').find((b) => b.text().includes('Add Server'))
+    expect(addButton).toBeTruthy()
 
-    it('renders the title "Servers"', () => {
-      const wrapper = mountWithProps()
+    await addButton!.trigger('click')
 
-      expect(wrapper.text()).toContain('Servers')
-    })
+    expect(emitSpy).toHaveBeenCalledWith('server:add:server')
+  })
 
-    it('renders the description text', () => {
-      const wrapper = mountWithProps()
+  it('emits server:delete:server event with correct index when deleting a server', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      expect(wrapper.text()).toContain('Add different base URLs for your API')
-      expect(wrapper.text()).toContain('{variables}')
-    })
+    /**
+     * Find and click the trash icon button for the first server.
+     * The delete modal opens and we confirm deletion.
+     */
+    const firstDeleteButton = wrapper.find('[data-testid="delete-server-button"]')
+    await firstDeleteButton.trigger('click')
 
-    it('renders the Add Server button', () => {
-      const wrapper = mountWithProps()
+    const deleteConfirmButton = wrapper
+      .findComponent({ name: 'DeleteSidebarListElement' })
+      .find('[data-testid="sidebar-list-element-form-submit-button"]')
+    await deleteConfirmButton.trigger('click')
 
-      expect(wrapper.text()).toContain('Add Server')
-    })
+    expect(emitSpy).toHaveBeenCalledWith('server:delete:server', { index: 0 })
+  })
 
-    it('renders server cards for each server', () => {
-      const wrapper = mountWithProps()
+  it('emits server:update:server event when server URL or description is updated', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const serverCards = wrapper.findAll('.rounded-lg.border')
-      expect(serverCards.length).toBeGreaterThan(0)
+    /**
+     * Find the Form component and trigger its onUpdate callback.
+     * This simulates a user editing the URL field.
+     */
+    const formComponent = wrapper.findComponent({ name: 'Form' })
+    const onUpdate = formComponent.props('onUpdate')
+
+    onUpdate('url', 'https://new-api.example.com')
+    await nextTick()
+
+    /** Wait for the debounce to complete */
+    await vi.runAllTimersAsync()
+
+    expect(emitSpy).toHaveBeenCalledWith('server:update:server', {
+      index: 0,
+      server: { url: 'https://new-api.example.com' },
     })
   })
 
-  describe('server cards', () => {
-    it('renders server description when provided', () => {
-      const wrapper = mountWithProps()
+  it('emits server:update:variables event when server variables are updated', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      expect(wrapper.text()).toContain('Production API')
-      expect(wrapper.text()).toContain('Development API')
+    /**
+     * Find the ServerVariablesForm component and emit an update event.
+     * This simulates a user changing a server variable value.
+     */
+    const variablesForm = wrapper.findComponent({
+      name: 'ServerVariablesForm',
     })
+    await variablesForm.vm.$emit('update:variable', 'version', 'v2')
+    await nextTick()
 
-    it('renders fallback "Server X" when description is missing', () => {
-      const serversWithoutDescription = [
-        {
-          url: 'https://api.example.com',
-          variables: {},
-        },
-        {
-          url: 'https://dev.api.example.com',
-          variables: {},
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithoutDescription })
+    /** Wait for the debounce to complete */
+    await vi.runAllTimersAsync()
 
-      expect(wrapper.text()).toContain('Server 1')
-      expect(wrapper.text()).toContain('Server 2')
-    })
-
-    it('renders ScalarMarkdown for server description', () => {
-      const wrapper = mountWithProps()
-
-      const markdown = wrapper.findAllComponents({ name: 'ScalarMarkdown' })
-      expect(markdown.length).toBeGreaterThan(0)
-    })
-
-    it('renders delete button for each server', () => {
-      const wrapper = mountWithProps()
-
-      const deleteButtons = wrapper.findAllComponents({ name: 'ScalarIconTrash' })
-      expect(deleteButtons.length).toBe(2)
-    })
-
-    it('renders Form component for each server', () => {
-      const wrapper = mountWithProps()
-
-      const forms = wrapper.findAllComponents({ name: 'Form' })
-      expect(forms.length).toBe(2)
-    })
-
-    it('passes correct data to Form component', () => {
-      const wrapper = mountWithProps()
-
-      const forms = wrapper.findAllComponents({ name: 'Form' })
-      expect(forms[0]?.props('data')).toEqual(baseServers[0])
-      expect(forms[1]?.props('data')).toEqual(baseServers[1])
-    })
-
-    it('passes correct options to Form component', () => {
-      const wrapper = mountWithProps()
-
-      const form = wrapper.findComponent({ name: 'Form' })
-      const options = form.props('options')
-
-      expect(options).toHaveLength(2)
-      expect(options[0].label).toBe('URL')
-      expect(options[0].key).toBe('url')
-      expect(options[1].label).toBe('Description')
-      expect(options[1].key).toBe('description')
-    })
-
-    it('renders ServerVariablesForm when server has variables', () => {
-      const wrapper = mountWithProps()
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      expect(variablesForms.length).toBe(2)
-    })
-
-    it('does not render ServerVariablesForm when server has no variables', () => {
-      const serversWithoutVariables = [
-        {
-          url: 'https://api.example.com',
-          description: 'Production API',
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithoutVariables })
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      expect(variablesForms.length).toBe(0)
-    })
-
-    it('passes correct variables to ServerVariablesForm', () => {
-      const wrapper = mountWithProps()
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      expect(variablesForms[0]?.props('variables')).toEqual(baseServers[0]?.variables)
-      expect(variablesForms[1]?.props('variables')).toEqual(baseServers[1]?.variables)
+    expect(emitSpy).toHaveBeenCalledWith('server:update:variables', {
+      index: 0,
+      key: 'version',
+      value: 'v2',
     })
   })
 
-  describe('Add Server button', () => {
-    it('emits command palette event when Add Server button is clicked', async () => {
-      const mockEvents = {
-        commandPalette: {
-          emit: vi.fn(),
-        },
-      }
-      const wrapper = mountWithProps({ events: mockEvents })
-
-      const addButton = wrapper.findAll('button').find((btn) => btn.text().includes('Add Server'))
-      await addButton?.trigger('click')
-      await nextTick()
-
-      expect(mockEvents.commandPalette.emit).toHaveBeenCalledWith({ commandName: 'Add Server' })
+  it('handles empty servers list gracefully and shows Add Server button', () => {
+    const { wrapper } = mountWithProps({
+      document: {
+        uid: 'doc-empty',
+        servers: [],
+      },
     })
 
-    it('renders ScalarIconPlus in Add Server button', () => {
-      const wrapper = mountWithProps()
+    /**
+     * When there are no servers, the component still renders
+     * and shows the Add Server button.
+     */
+    expect(wrapper.exists()).toBe(true)
+    const addButton = wrapper.findAll('button').find((b) => b.text().includes('Add Server'))
+    expect(addButton).toBeTruthy()
 
-      const plusIcons = wrapper.findAllComponents({ name: 'ScalarIconPlus' })
-      expect(plusIcons.length).toBeGreaterThan(0)
-    })
+    const formComponents = wrapper.findAllComponents({ name: 'Form' })
+    expect(formComponents.length).toBe(0)
   })
 
-  describe('server:update:variable event from Form', () => {
-    it('emits server:update:variable when Form onUpdate is called', async () => {
-      const wrapper = mountWithProps()
+  it('debounces multiple rapid server updates to the same field and only emits the last value', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const form = wrapper.findComponent({ name: 'Form' })
-      const onUpdate = form.props('onUpdate')
+    /**
+     * Simulate a user rapidly typing in the URL field.
+     * Only the final value should be emitted after debounce completes.
+     */
+    const formComponent = wrapper.findComponent({ name: 'Form' })
+    const onUpdate = formComponent.props('onUpdate')
 
-      onUpdate('url', 'https://new-api.example.com')
-      await nextTick()
+    onUpdate('url', 'https://api1.example.com')
+    await nextTick()
+    onUpdate('url', 'https://api2.example.com')
+    await nextTick()
+    onUpdate('url', 'https://api3.example.com')
+    await nextTick()
 
-      expect(wrapper.emitted('server:update:variable')).toBeTruthy()
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'url',
-          value: 'https://new-api.example.com',
-        },
-      ])
-    })
+    /** Wait for the debounce to complete */
+    await vi.runAllTimersAsync()
 
-    it('emits server:update:variable with description update', async () => {
-      const wrapper = mountWithProps()
-
-      const form = wrapper.findComponent({ name: 'Form' })
-      const onUpdate = form.props('onUpdate')
-
-      onUpdate('description', 'Updated Description')
-      await nextTick()
-
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'description',
-          value: 'Updated Description',
-        },
-      ])
-    })
-
-    it('emits server:update:variable for different servers', async () => {
-      const wrapper = mountWithProps()
-
-      const forms = wrapper.findAllComponents({ name: 'Form' })
-      const onUpdate1 = forms[0]?.props('onUpdate')
-      const onUpdate2 = forms[1]?.props('onUpdate')
-
-      onUpdate1('url', 'https://server1.com')
-      await nextTick()
-      onUpdate2('url', 'https://server2.com')
-      await nextTick()
-
-      expect(wrapper.emitted('server:update:variable')).toHaveLength(2)
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'url',
-          value: 'https://server1.com',
-        },
-      ])
-      expect(wrapper.emitted('server:update:variable')?.[1]).toEqual([
-        {
-          serverUrl: baseServers[1]?.url,
-          name: 'url',
-          value: 'https://server2.com',
-        },
-      ])
-    })
+    /**
+     * Only one call should be made with the final value.
+     * The intermediate values should be debounced away.
+     */
+    const serverUpdateCalls = emitSpy.mock.calls.filter((call) => call[0] === 'server:update:server')
+    expect(serverUpdateCalls).toHaveLength(1)
+    expect(serverUpdateCalls[0]).toEqual([
+      'server:update:server',
+      {
+        index: 0,
+        server: { url: 'https://api3.example.com' },
+      },
+    ])
   })
 
-  describe('server:update:variable event from ServerVariablesForm', () => {
-    it('emits server:update:variable when ServerVariablesForm emits update:variable', async () => {
-      const wrapper = mountWithProps()
+  it('debounces updates to different fields independently when keyed by field name', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const variablesForm = wrapper.findComponent({ name: 'ServerVariablesForm' })
-      await variablesForm.vm.$emit('update:variable', 'version', 'v3')
-      await nextTick()
+    /**
+     * Update both URL and description fields.
+     * Since they have different cache keys (index-url vs index-description),
+     * both should be emitted independently.
+     */
+    const formComponent = wrapper.findComponent({ name: 'Form' })
+    const onUpdate = formComponent.props('onUpdate')
 
-      expect(wrapper.emitted('server:update:variable')).toBeTruthy()
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'version',
-          value: 'v3',
-        },
-      ])
-    })
+    onUpdate('url', 'https://new-url.example.com')
+    await nextTick()
+    onUpdate('description', 'New Description')
+    await nextTick()
 
-    it('emits server:update:variable for different variable names', async () => {
-      const wrapper = mountWithProps()
+    /** Wait for the debounce to complete */
+    await vi.runAllTimersAsync()
 
-      const variablesForm = wrapper.findComponent({ name: 'ServerVariablesForm' })
-      await variablesForm.vm.$emit('update:variable', 'apiKey', 'new-key')
-      await nextTick()
-
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'apiKey',
-          value: 'new-key',
-        },
-      ])
-    })
-
-    it('emits server:update:variable for different servers variables', async () => {
-      const wrapper = mountWithProps()
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      await variablesForms[0]?.vm.$emit('update:variable', 'version', 'v3')
-      await nextTick()
-      await variablesForms[1]?.vm.$emit('update:variable', 'version', 'v4')
-      await nextTick()
-
-      expect(wrapper.emitted('server:update:variable')).toHaveLength(2)
-      expect(wrapper.emitted('server:update:variable')?.[0]).toEqual([
-        {
-          serverUrl: baseServers[0]?.url,
-          name: 'version',
-          value: 'v3',
-        },
-      ])
-      expect(wrapper.emitted('server:update:variable')?.[1]).toEqual([
-        {
-          serverUrl: baseServers[1]?.url,
-          name: 'version',
-          value: 'v4',
-        },
-      ])
-    })
-  })
-
-  describe('edge cases', () => {
-    it('handles empty servers array', () => {
-      const wrapper = mountWithProps({ servers: [] })
-
-      expect(wrapper.exists()).toBe(true)
-      const serverCards = wrapper.findAll('.rounded-lg.border').filter((card) => {
-        const hasForm = card.findComponent({ name: 'Form' }).exists()
-        return hasForm
-      })
-      expect(serverCards.length).toBe(0)
-    })
-
-    it('handles single server', () => {
-      const singleServer = [baseServers[0]]
-      const wrapper = mountWithProps({ servers: singleServer })
-
-      const forms = wrapper.findAllComponents({ name: 'Form' })
-      expect(forms.length).toBe(1)
-    })
-
-    it('handles many servers', () => {
-      const manyServers = [
-        ...baseServers,
-        { url: 'https://staging.api.example.com', description: 'Staging', variables: {} },
-        { url: 'https://test.api.example.com', description: 'Test', variables: {} },
-      ]
-      const wrapper = mountWithProps({ servers: manyServers })
-
-      const forms = wrapper.findAllComponents({ name: 'Form' })
-      expect(forms.length).toBe(4)
-    })
-
-    it('handles server with empty description', () => {
-      const serversWithEmptyDesc = [
-        {
-          url: 'https://api.example.com',
-          description: '',
-          variables: {},
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithEmptyDesc })
-
-      expect(wrapper.text()).toContain('Server 1')
-    })
-
-    it('handles server without variables property', () => {
-      const serversWithoutVariablesProp = [
-        {
-          url: 'https://api.example.com',
-          description: 'Production API',
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithoutVariablesProp })
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      expect(variablesForms.length).toBe(0)
-    })
-
-    it('handles server with empty variables object', () => {
-      const serversWithEmptyVariables = [
-        {
-          url: 'https://api.example.com',
-          description: 'Production API',
-          variables: {},
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithEmptyVariables })
-
-      const variablesForms = wrapper.findAllComponents({ name: 'ServerVariablesForm' })
-      expect(variablesForms[0]?.props('variables')).toEqual({})
-    })
-
-    it('handles markdown in server description', () => {
-      const serversWithMarkdown = [
-        {
-          url: 'https://api.example.com',
-          description: '**Production** API with `versioning`',
-          variables: {},
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithMarkdown })
-
-      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('value')).toBe('**Production** API with `versioning`')
-    })
-
-    it('handles long server URLs', () => {
-      const serversWithLongUrl = [
-        {
-          url: 'https://very-long-subdomain.example.com/api/v1/production/endpoint',
-          description: 'Long URL Server',
-          variables: {},
-        },
-      ]
-      const wrapper = mountWithProps({ servers: serversWithLongUrl })
-
-      const form = wrapper.findComponent({ name: 'Form' })
-      expect(form.props('data').url).toBe('https://very-long-subdomain.example.com/api/v1/production/endpoint')
-    })
+    /**
+     * Both updates should be emitted because they have different cache keys.
+     */
+    const serverUpdateCalls = emitSpy.mock.calls.filter((call) => call[0] === 'server:update:server')
+    expect(serverUpdateCalls).toHaveLength(2)
+    expect(serverUpdateCalls[0]).toEqual([
+      'server:update:server',
+      {
+        index: 0,
+        server: { url: 'https://new-url.example.com' },
+      },
+    ])
+    expect(serverUpdateCalls[1]).toEqual([
+      'server:update:server',
+      {
+        index: 0,
+        server: { description: 'New Description' },
+      },
+    ])
   })
 })

@@ -7,6 +7,7 @@ import {
 } from '@scalar/components'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { useDebounceFn } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { ServerVariablesForm } from '@/components/Server'
@@ -42,6 +43,21 @@ const FORM_OPTIONS = [
   },
 ]
 
+/**
+ * Map to store debounced functions keyed by index and key
+ *
+ * we do this so we only debounce by server + key,
+ * meaning quickly changing the URL of a server will not overwrite the description change.
+ */
+const debouncedServerUpdates = new Map<
+  string,
+  ReturnType<typeof useDebounceFn>
+>()
+const debouncedVariableUpdates = new Map<
+  string,
+  ReturnType<typeof useDebounceFn>
+>()
+
 /** Opens the delete confirmation modal for a server */
 const openDeleteModal = (index: number) => {
   selectedServerIndex.value = index
@@ -64,22 +80,64 @@ const handleDeleteServer = () => {
   resetState()
 }
 
-/** Handles server property updates */
-const handleServerUpdate = (index: number, key: string, value: string) =>
-  eventBus.emit('server:update:server', {
-    index,
-    server: { [key]: value },
-  })
+/**
+ * Handles server property updates with debouncing.
+ * Each combination of index and key has its own debounced function.
+ */
+const handleServerUpdate = (
+  index: number,
+  key: string,
+  value: string,
+): void => {
+  const cacheKey = `${index}-${key}`
+
+  if (!debouncedServerUpdates.has(cacheKey)) {
+    debouncedServerUpdates.set(
+      cacheKey,
+      useDebounceFn((val: string) => {
+        eventBus.emit('server:update:server', {
+          index,
+          server: { [key]: val },
+        })
+      }, 300),
+    )
+  }
+
+  const debouncedFn = debouncedServerUpdates.get(cacheKey)
+  if (debouncedFn) {
+    debouncedFn(value)
+  }
+}
 
 /**
- * Handles server variable updates
+ * Handles server variable updates with debouncing.
+ * Each combination of index and variable name has its own debounced function.
  */
-const handleVariableUpdate = (index: number, name: string, value: string) =>
-  eventBus.emit('server:update:variables', {
-    index,
-    key: name,
-    value,
-  })
+const handleVariableUpdate = (
+  index: number,
+  name: string,
+  value: string,
+): void => {
+  const cacheKey = `${index}-${name}`
+
+  if (!debouncedVariableUpdates.has(cacheKey)) {
+    debouncedVariableUpdates.set(
+      cacheKey,
+      useDebounceFn((val: string) => {
+        eventBus.emit('server:update:variables', {
+          index,
+          key: name,
+          value: val,
+        })
+      }, 300),
+    )
+  }
+
+  const debouncedFn = debouncedVariableUpdates.get(cacheKey)
+  if (debouncedFn) {
+    debouncedFn(value)
+  }
+}
 
 /** Handles adding a new server */
 const handleAddServer = () => eventBus.emit('server:add:server')
@@ -122,6 +180,7 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
           </span>
           <ScalarButton
             class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
+            data-testid="delete-server-button"
             variant="ghost"
             @click="openDeleteModal(index)">
             <ScalarIconTrash class="size-3.5" />
