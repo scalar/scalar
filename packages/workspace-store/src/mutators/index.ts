@@ -4,6 +4,7 @@ import { cookieMutators } from '@/mutators/cookie'
 import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
