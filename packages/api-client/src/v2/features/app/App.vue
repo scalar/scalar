@@ -156,7 +156,8 @@ const environment = computed<XScalarEnvironment>(() => {
       v-else
       v-model="workspaceModel" />
 
-    <main class="flex flex-1 overflow-hidden">
+    <!-- min-h-0 is required here for scrolling, do not remove it -->
+    <main class="flex min-h-0 flex-1">
       <!-- App sidebar -->
       <AppSidebar
         v-show="isSidebarOpen"
@@ -184,7 +185,7 @@ const environment = computed<XScalarEnvironment>(() => {
 
       <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-      <div class="bg-b-1 flex flex-1 flex-col">
+      <div class="bg-b-1 flex-1">
         <RouterView
           :document
           :environment
