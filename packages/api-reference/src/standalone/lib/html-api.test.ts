@@ -1,3 +1,4 @@
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -38,8 +39,6 @@ beforeEach(() => {
 afterEach(() => {
   // vi.resetAllMocks()
 })
-
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
 
