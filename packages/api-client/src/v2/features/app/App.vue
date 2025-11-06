@@ -9,10 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarTeleportRoot } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { createSidebarState, type SidebarState } from '@scalar/sidebar'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -21,11 +18,11 @@ import {
   xScalarEnvironmentSchema,
   type XScalarEnvironment,
 } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
+import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -112,106 +109,14 @@ const exampleName = computed(() => {
 //-------------------------------------------------------------------------------------------------------
 // SIDEBAR STATE AND SELECTION HANDLING
 //-------------------------------------------------------------------------------------------------------
-/** Generate the sidebar state based on the current workspace */
-const sidebarState = computed(() => {
-  const entries = Object.values(workspaceStore.workspace.documents)
-    .map((doc) => doc['x-scalar-navigation'])
-    .filter(isDefined)
-  return createSidebarState(entries) as SidebarState<TraversedEntry>
+const { handleSelectItem, sidebarState } = useSidebarState({
+  workspaceStore,
+  workspaceSlug,
+  documentSlug,
+  path,
+  method,
+  exampleName,
 })
-
-/** Keep the router and the sidebar state in sync */
-watch(
-  [workspaceSlug, documentSlug, path, method, exampleName],
-  ([newWorkspace, newDocument, newPath, newMethod, newExample]) => {
-    const entry = sidebarState.value.getEntryByLocation({
-      documentName: newDocument as string,
-      path: newPath as string,
-      method: newMethod as HttpMethod,
-      example: newExample as string,
-    })
-
-    console.log({ newWorkspace })
-
-    if (entry) {
-      sidebarState.value.setSelected(entry.id)
-      sidebarState.value.setExpanded(entry.id, true)
-    }
-  },
-  {
-    immediate: true,
-  },
-)
-
-const handleSelectItem = (id: string) => {
-  const state = sidebarState.value
-  const entry = state.getEntryById(id)
-
-  if (!entry) {
-    console.warn(`Could not find sidebar entry with id ${id} to select`)
-    return
-  }
-
-  // Navigate to the document overview page
-  if (entry.type === 'document') {
-    state.setSelected(id)
-    state.setExpanded(id, !state.isExpanded(id))
-    return router.push({
-      name: 'document.overview',
-      params: { documentSlug: entry.name },
-    })
-  }
-
-  // Navigate to the example page
-  // TODO: temporary until we have the operation overview page
-  if (entry.type === 'operation') {
-    // If we are already in the operation, just toggle expansion
-    if (state.isSelected(id)) {
-      state.setExpanded(id, !state.isExpanded(id))
-      return
-    }
-
-    const firstExample = entry.children?.find(
-      (child) => child.type === 'example',
-    )
-
-    if (firstExample) {
-      state.setSelected(firstExample.id)
-      state.setExpanded(firstExample.id, true)
-    } else {
-      state.setSelected(id)
-    }
-
-    return router.push({
-      name: 'example',
-      params: {
-        documentSlug: state.getParent('document', entry)?.name,
-        pathEncoded: encodeURIComponent(entry.path),
-        method: entry.method,
-        exampleName: firstExample?.name ?? 'default',
-      },
-    })
-  }
-
-  // Navigate to the example page
-  if (entry.type === 'example') {
-    state.setSelected(id)
-    state.setExpanded(id, true)
-    const operation = state.getParent('operation', entry)
-    return router.push({
-      name: 'example',
-      params: {
-        documentSlug: state.getParent('document', entry)?.name,
-        pathEncoded: encodeURIComponent(operation?.path ?? ''),
-        method: operation?.method,
-        exampleName: entry.name,
-      },
-    })
-  }
-
-  state.setExpanded(id, !state.isExpanded(id))
-  return
-}
 
 /** Event handler */
 useWorkspaceClientEvents(eventBus, document, workspaceStore)

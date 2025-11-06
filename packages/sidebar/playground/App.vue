@@ -12,6 +12,7 @@ const reference = createSidebarState(galaxySidebar)
 const client = createSidebarState([
   {
     type: 'document',
+    name: 'root',
     id: 'root',
     title: 'Root',
     children: galaxySidebar,

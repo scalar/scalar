@@ -1,5 +1,3 @@
-import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
@@ -71,12 +69,17 @@ type SidebarStateOptions = Partial<{
  * await sidebarState.setExpanded('child2', true)
  * ```
  */
-export const createSidebarState = <T extends TraversedEntry>(
+export const createSidebarState = <T extends { id: string }>(
   items: MaybeRefOrGetter<T[]>,
   options?: SidebarStateOptions,
 ) => {
   // Reverse index for quick lookup of items and their parents
-  const index = computed(() => generateReverseIndex(toValue(items), options?.key ?? 'children'))
+  const index = computed(() =>
+    generateReverseIndex({
+      items: toValue(items),
+      nestedKey: options?.key ?? 'children',
+    }),
+  )
   // Reactive record of selected item ids
   const selectedItems = ref<Record<string, boolean>>({})
   // Reactive record of expanded item ids
@@ -94,7 +97,7 @@ export const createSidebarState = <T extends TraversedEntry>(
    * // selectedItems.value will include 'grandchild1', 'child2', and 'root'
    * ```
    */
-  const setSelected = (id: string) => {
+  const setSelected = (id: string | null) => {
     /**
      * Recursively mark all parent items as selected.
      * @param node - The current node to mark as selected.
@@ -109,13 +112,19 @@ export const createSidebarState = <T extends TraversedEntry>(
       }
     }
 
+    // Clear previous selection
+    selectedItems.value = {}
+
+    // If id is null, do not select anything
+    // We already cleared the selection above
+    if (id === null) {
+      return
+    }
+
     // Call onBeforeSelect hook if provided
     if (options?.hooks?.onBeforeSelect) {
       options.hooks.onBeforeSelect(id)
     }
-
-    // Clear previous selection
-    selectedItems.value = {}
 
     // Mark the selected item and all its parents as selected
     markSelected(index.value.get(id))
@@ -187,57 +196,6 @@ export const createSidebarState = <T extends TraversedEntry>(
 
   const getEntryById = (id: string) => index.value.get(id)
 
-  const getParent = <Type extends T['type']>(
-    type: Type,
-    node?: T & { parent?: T },
-  ): (T & { type: Type }) | undefined => {
-    if (!node) {
-      return undefined
-    }
-
-    if (node.type === type) {
-      return node as T & { type: Type }
-    }
-
-    return getParent(type, node.parent)
-  }
-
-  const generateLocationId = (node: T & { parent?: T }) => {
-    const document = getParent('document', node)
-    const operation = getParent('operation', node)
-
-    return JSON.stringify(
-      [document?.name, operation?.path, operation?.method, node.type === 'example' ? node.name : undefined].filter(
-        isDefined,
-      ),
-    )
-  }
-
-  const locationIndex = computed(() =>
-    generateReverseIndex(
-      toValue(items),
-      options?.key ?? 'children',
-      (node) => node.type === 'document' || node.type === 'operation' || node.type === 'example',
-      generateLocationId,
-    ),
-  )
-
-  console.log('Generated location index:', locationIndex.value)
-
-  const getEntryByLocation = (location: {
-    documentName: string
-    path?: string
-    method?: HttpMethod
-    example?: string
-  }) => {
-    return (
-      locationIndex.value.get(
-        JSON.stringify([location.documentName, location.path, location.method, location.example].filter(isDefined)),
-      ) ??
-      locationIndex.value.get(JSON.stringify([location.documentName, location.path, location.method].filter(isDefined)))
-    )
-  }
-
   return {
     items: computed(() => toValue(items)),
     index,
@@ -248,8 +206,6 @@ export const createSidebarState = <T extends TraversedEntry>(
     isExpanded,
     isSelected,
     getEntryById,
-    getEntryByLocation,
-    getParent,
   }
 }
 
