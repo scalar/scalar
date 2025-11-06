@@ -324,6 +324,12 @@
                   "type": "page"
                 },
                 {
+                  "name": "Astro",
+                  "slug": "astro",
+                  "path": "documentation/integrations/astro.md",
+                  "type": "page"
+                },
+                {
                   "name": "Django",
                   "slug": "django",
                   "path": "documentation/integrations/django.md",
