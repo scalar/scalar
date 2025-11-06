@@ -251,7 +251,7 @@ const environment = computed<XScalarEnvironment>(() => {
       v-else
       v-model="workspaceModel" />
 
-    <main class="flex flex-1">
+    <main class="flex flex-1 overflow-hidden">
       <!-- App sidebar -->
       <AppSidebar
         v-show="isSidebarOpen"
@@ -265,7 +265,7 @@ const environment = computed<XScalarEnvironment>(() => {
         "
         @click:workspace="
           router.push({
-            name: 'workspace.cookies',
+            name: 'workspace',
             params: { workspaceSlug },
           })
         "
@@ -295,10 +295,17 @@ const environment = computed<XScalarEnvironment>(() => {
 </template>
 
 <style>
+.scalar-app {
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+}
 #scalar-client {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
+  width: 100dvw;
+  position: relative;
   background-color: var(--scalar-background-2);
 }
 .dark-mode #scalar-client {

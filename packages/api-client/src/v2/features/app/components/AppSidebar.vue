@@ -46,7 +46,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 })
 
 /** Calculate if we should show the getting started section */
-const showGettingStarted = computed(() => true)
+const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
 </script>
 
 <template>
