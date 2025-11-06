@@ -34,7 +34,7 @@ plugins: [
 
 ### Multiple API descriptions
 
-Is it possible to show multiple API descriptions? Yes, it is! :)
+Is it possible to show multiple API descriptions? Yes, it is! :) If you use this configuration each API definition will get its own header in the documentation.
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
@@ -65,6 +65,36 @@ plugins: [
       showNavLink: true, // optional, default is true
       configuration: {
         url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+      },
+    } as ScalarOptions,
+  ],
+],
+```
+
+Is it possible to show multiple API definitions under one header? Yes it is :) If you use this configuration, then all API definitions will show up in one page and you can switch between them.
+
+```ts
+import type { ScalarOptions } from '@scalar/docusaurus'
+plugins: [
+  [
+    '@scalar/docusaurus',
+    {
+      id: 'api-reference',
+      label: 'API Reference',
+      route: '/api-reference',
+      showNavLink: true, // optional, default is true
+      configuration: {
+        sources: [
+          {
+            // This title will appear in the top left corner of your new API reference page.
+            title: 'Scalar Galaxy API',
+            url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+          },
+          {
+            title: 'Petstore',
+            url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          },
+        ],
       },
     } as ScalarOptions,
   ],
