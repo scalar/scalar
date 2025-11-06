@@ -161,7 +161,6 @@ const valueModel = computed({
         :modelValue="valueModel"
         placeholder="Value"
         :type="typeValue"
-        @selectVariable="(v: string) => emits('updateRow', { value: v })"
         @update:modelValue="(v: string) => emits('updateRow', { value: v })">
         <template #icon>
           <ScalarButton
