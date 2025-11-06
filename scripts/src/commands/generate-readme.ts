@@ -33,12 +33,17 @@ interface ExtraContent {
   content: string
 }
 
+interface ImageConfig {
+  url: string
+  altText?: string
+}
+
 interface ReadmeMetadata {
   title: string
   badges: BadgeConfig[]
   documentation: string
   extraContent?: ExtraContent
-  image?: string
+  image?: ImageConfig
 }
 
 interface PackageJson {
@@ -170,7 +175,8 @@ async function generateReadmeForPackage(root: string, directory: string, package
   // Generate image if provided
   let imageSection = ''
   if (metadata.image) {
-    imageSection = `\n\n![Image](${metadata.image})\n`
+    const altText = metadata.image.altText || 'Image'
+    imageSection = `\n\n![${altText}](${metadata.image.url})\n`
   }
 
   // Generate documentation section

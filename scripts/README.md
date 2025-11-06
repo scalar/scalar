@@ -188,7 +188,10 @@ The generated README includes:
       { "type": "pypi-version", "package": "package-name" }
     ],
     "documentation": "https://docs.example.com",
-    "image": "https://example.com/image.png",
+    "image": {
+      "url": "https://example.com/image.png",
+      "altText": "Screenshot of the package"
+    },
     "extraContent": {
       "headline": "Additional Info",
       "content": "Some extra content here"
