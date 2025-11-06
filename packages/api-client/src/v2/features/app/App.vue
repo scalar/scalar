@@ -68,15 +68,19 @@ const eventBus = createWorkspaceEventBus()
 const route = useRoute()
 const router = useRouter()
 
+const workspaceSlug = computed(
+  () => (route.params.workspaceSlug as string | undefined) ?? 'default',
+)
+
 const documentSlug = computed(
-  () =>
-    (route.params.documentSlug as string | undefined) ??
-    Object.keys(workspaceStore.workspace.documents)[0],
+  () => route.params.documentSlug as string | undefined,
 )
 
 /** Grab the document from the slug */
-const document = computed(
-  () => workspaceStore.workspace.documents[documentSlug.value ?? ''] ?? null,
+const document = computed(() =>
+  documentSlug.value
+    ? (workspaceStore.workspace.documents[documentSlug.value] ?? null)
+    : null,
 )
 
 const path = computed(() => {
@@ -118,8 +122,8 @@ const sidebarState = computed(() => {
 
 /** Keep the router and the sidebar state in sync */
 watch(
-  [documentSlug, path, method, exampleName],
-  ([newDocument, newPath, newMethod, newExample]) => {
+  [workspaceSlug, documentSlug, path, method, exampleName],
+  ([newWorkspace, newDocument, newPath, newMethod, newExample]) => {
     const entry = sidebarState.value.getEntryByLocation({
       documentName: newDocument as string,
       path: newPath as string,
@@ -127,7 +131,7 @@ watch(
       example: newExample as string,
     })
 
-    console.log({ newDocument, newPath, newMethod, newExample, entry })
+    console.log({ newWorkspace })
 
     if (entry) {
       sidebarState.value.setSelected(entry.id)
@@ -254,6 +258,13 @@ const environment = computed<XScalarEnvironment>(() => {
         v-model:isSidebarOpen="isSidebarOpen"
         v-model:workspace="workspaceModel"
         :sidebarState="sidebarState"
+        :isWorkspaceOpen="Boolean(workspaceSlug && !documentSlug)"
+        @click:workspace="
+          router.push({
+            name: 'workspace.cookies',
+            params: { workspaceSlug },
+          })
+        "
         :layout
         :sidebarWidth="
           workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288

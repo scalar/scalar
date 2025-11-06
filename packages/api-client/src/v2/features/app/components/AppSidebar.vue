@@ -14,6 +14,7 @@ import type { ClientLayout } from '@/v2/types/layout'
 const { sidebarState, layout } = defineProps<{
   layout: ClientLayout
   sidebarState: SidebarState<TraversedEntry>
+  isWorkspaceOpen?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -61,6 +62,7 @@ const showGettingStarted = computed(() => true)
       <ScalarSidebarItem
         is="button"
         :icon="ScalarIconGlobe"
+        :active="isWorkspaceOpen"
         @click="emit('click:workspace')">
         {{ workspaceLabel }}
       </ScalarSidebarItem>
