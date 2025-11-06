@@ -60,6 +60,9 @@ describe('App', () => {
       useRoute: () => ({
         params: { documentSlug: 'doc1' },
       }),
+      useRouter: () => ({
+        push: vi.fn(),
+      }),
     }))
 
     // Mock workspace client events
