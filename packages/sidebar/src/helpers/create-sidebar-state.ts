@@ -18,15 +18,15 @@ type SidebarStateOptions = Partial<{
      */
     onAfterExpand: (id: string) => void
     /**
-     * Called before an item is selected.
-     * @param id - The ID of the item to select.
+     * Called just before a sidebar item selection changes.
+     * @param id - The ID of the item that is about to be selected, or null if deselecting.
      */
-    onBeforeSelect: (id: string) => void
+    onBeforeSelect: (id: string | null) => void
     /**
-     * Called after an item is selected.
-     * @param id - The ID of the item that was selected.
+     * Called immediately after a sidebar item has been selected.
+     * @param id - The ID of the item that was selected, or null if selection was cleared.
      */
-    onAfterSelect: (id: string) => void
+    onAfterSelect: (id: string | null) => void
   }>
 }>
 
@@ -111,22 +111,20 @@ export const createSidebarState = <T extends { id: string }>(
       }
     }
 
-    // Clear previous selection
-    selectedItems.value = {}
-
-    // If id is null, do not select anything
-    // We already cleared the selection above
-    if (id === null) {
-      return
-    }
-
     // Call onBeforeSelect hook if provided
     if (options?.hooks?.onBeforeSelect) {
       options.hooks.onBeforeSelect(id)
     }
 
-    // Mark the selected item and all its parents as selected
-    markSelected(index.value.get(id))
+    // Clear previous selection
+    selectedItems.value = {}
+
+    // If id is null, do not select anything
+    // We already cleared the selection above
+    if (id !== null) {
+      // Mark the selected item and all its parents as selected
+      markSelected(index.value.get(id))
+    }
 
     // Call onAfterSelect hook if provided
     if (options?.hooks?.onAfterSelect) {

@@ -11,7 +11,7 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('use-sidebar-state', () => {
-  const getDocuement = (overrides: Partial<OpenApiDocument>) => {
+  const getDocument = (overrides: Partial<OpenApiDocument>) => {
     return {
       openapi: '3.1.0',
       info: { title: 'Pets', version: '1.0.0' },
@@ -25,7 +25,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('synchronizes selection to example and expands on initial match', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -75,18 +75,18 @@ describe('use-sidebar-state', () => {
       exampleName,
     })
 
-    expect(Object.keys(sidebarState.value.selectedItems.value)).toEqual([
+    expect(Object.keys(sidebarState.selectedItems.value)).toEqual([
       'pets/tag/pets/get/pets/example/default',
       'pets/tag/pets/get/pets',
       'pets/tag/pets',
       'pets',
     ])
 
-    expect(sidebarState.value.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
+    expect(sidebarState.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
   })
 
   it('navigates to document overview and expands when selecting a document', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
@@ -105,20 +105,20 @@ describe('use-sidebar-state', () => {
       exampleName,
     })
 
-    expect(sidebarState.value.isSelected('pets')).toBe(false)
-    expect(sidebarState.value.isExpanded('pets')).toBe(false)
+    expect(sidebarState.isSelected('pets')).toBe(false)
+    expect(sidebarState.isExpanded('pets')).toBe(false)
 
     // Document id equals the document name in our navigation
     handleSelectItem('pets')
 
-    expect(sidebarState.value.isSelected('pets')).toBe(true)
-    expect(sidebarState.value.isExpanded('pets')).toBe(true)
+    expect(sidebarState.isSelected('pets')).toBe(true)
+    expect(sidebarState.isExpanded('pets')).toBe(true)
     expect(push).toHaveBeenCalledTimes(1)
     expect(push).toHaveBeenCalledWith({ name: 'document.overview', params: { documentSlug: 'pets' } })
   })
 
   it('navigates to example and selects first example when selecting an operation', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -154,7 +154,7 @@ describe('use-sidebar-state', () => {
     })
 
     // Find an operation id from the index
-    const allEntries = Array.from(sidebarState.value.index.value.values()) as Array<{
+    const allEntries = Array.from(sidebarState.index.value.values()) as Array<{
       id: string
       type: string
       path?: string
@@ -167,8 +167,8 @@ describe('use-sidebar-state', () => {
     handleSelectItem(operationId)
 
     // The first example should be selected and expanded
-    expect(sidebarState.value.isSelected('pets/tag/pets/get/pets/example/default')).toBe(true)
-    expect(sidebarState.value.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
+    expect(sidebarState.isSelected('pets/tag/pets/get/pets/example/default')).toBe(true)
+    expect(sidebarState.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
     expect(push).toHaveBeenCalledTimes(1)
     expect(push).toHaveBeenCalledWith({
       name: 'example',
@@ -182,7 +182,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('toggles expansion without navigation when selecting an already selected operation', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -204,19 +204,19 @@ describe('use-sidebar-state', () => {
     })
 
     // Operation should be selected and expanded by the watcher
-    const allEntries = Array.from(sidebarState.value.index.value.values()) as Array<{ id: string; type: string }>
+    const allEntries = Array.from(sidebarState.index.value.values()) as Array<{ id: string; type: string }>
     const operation = allEntries.find((e) => e.type === 'operation')!
-    expect(sidebarState.value.isSelected(operation.id)).toBe(true)
-    expect(sidebarState.value.isExpanded(operation.id)).toBe(true)
+    expect(sidebarState.isSelected(operation.id)).toBe(true)
+    expect(sidebarState.isExpanded(operation.id)).toBe(true)
 
     // Selecting the same operation toggles expansion only and does not navigate
     handleSelectItem(operation.id)
-    expect(sidebarState.value.isExpanded(operation.id)).toBe(false)
+    expect(sidebarState.isExpanded(operation.id)).toBe(false)
     expect(push).not.toHaveBeenCalled()
   })
 
   it('navigates to example and expands when selecting an example', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: {
         '/pets': {
           get: {
@@ -246,19 +246,19 @@ describe('use-sidebar-state', () => {
     })
 
     // Find example id
-    const allEntries = Array.from(sidebarState.value.index.value.values()) as Array<{ id: string; type: string }>
+    const allEntries = Array.from(sidebarState.index.value.values()) as Array<{ id: string; type: string }>
     const example = allEntries.find((e) => e.type === 'example')!
 
     handleSelectItem(example.id)
 
-    expect(sidebarState.value.isSelected(example.id)).toBe(true)
-    expect(sidebarState.value.isExpanded(example.id)).toBe(true)
+    expect(sidebarState.isSelected(example.id)).toBe(true)
+    expect(sidebarState.isExpanded(example.id)).toBe(true)
     expect(push).toHaveBeenCalledTimes(1)
     expect(push.mock.calls[0]?.[0]).toMatchObject({ name: 'example' })
   })
 
   it('warns and does not navigate when selecting an unknown id', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
@@ -287,7 +287,7 @@ describe('use-sidebar-state', () => {
   })
 
   it('clears selection when document slug becomes undefined', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -309,17 +309,17 @@ describe('use-sidebar-state', () => {
     })
 
     // Precondition: something is selected
-    expect(Object.keys(sidebarState.value.selectedItems.value).length).toBeGreaterThan(0)
+    expect(Object.keys(sidebarState.selectedItems.value).length).toBeGreaterThan(0)
 
     // Clear the document slug
     documentSlug.value = undefined
     await nextTick()
 
-    expect(sidebarState.value.selectedItems.value).toEqual({})
+    expect(sidebarState.selectedItems.value).toEqual({})
   })
 
   it('falls back to selecting operation when example does not exist', async () => {
-    const document = getDocuement({
+    const document = getDocument({
       paths: { '/pets': { get: { tags: ['pets'], responses: { 200: { description: 'ok' } } } } },
     })
     const store = createWorkspaceStore()
@@ -340,13 +340,13 @@ describe('use-sidebar-state', () => {
       exampleName,
     })
 
-    const allEntries = Array.from(sidebarState.value.index.value.values()) as Array<{ id: string; type: string }>
+    const allEntries = Array.from(sidebarState.index.value.values()) as Array<{ id: string; type: string }>
     const operation = allEntries.find((e) => e.type === 'operation')!
-    expect(sidebarState.value.isSelected(operation.id)).toBe(true)
+    expect(sidebarState.isSelected(operation.id)).toBe(true)
   })
 
   it('selects only the document when only document slug is provided', async () => {
-    const document = getDocuement({ paths: {} })
+    const document = getDocument({ paths: {} })
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
@@ -365,9 +365,9 @@ describe('use-sidebar-state', () => {
       exampleName,
     })
 
-    expect(sidebarState.value.isSelected('pets')).toBe(true)
+    expect(sidebarState.isSelected('pets')).toBe(true)
     // No example or operation ids should be selected
-    const selectedIds = Object.keys(sidebarState.value.selectedItems.value)
+    const selectedIds = Object.keys(sidebarState.selectedItems.value)
     expect(selectedIds).toEqual(['pets'])
   })
 })
