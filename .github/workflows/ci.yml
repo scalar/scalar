@@ -82,87 +82,6 @@ jobs:
           echo "rust_changed=${{ steps.changed-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_changed=${{ steps.changed-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
 
-  docker:
-    if: needs.check-integration-changes.outputs.docker_changed == 'true'
-    name: Build and Tag Docker Image
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    needs: [build, check-integration-changes]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
-      - name: Check whether the Docker package.json was modified (for publishing)
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            api_reference_docker_version:
-              - integrations/docker/package.json
-
-      - name: Get version from package.json
-        id: package-version
-        working-directory: integrations/docker
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - name: Download scalar.js artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
-        with:
-          name: scalar-js
-          path: integrations/docker/assets
-
-      - name: Compress static assets
-        working-directory: integrations/docker/assets
-        run: gzip --keep --verbose --force scalar.js
-
-      - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
-        with:
-          platforms: |
-            linux/amd64
-            linux/arm64
-
-      - name: Build Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-        with:
-          context: integrations/docker
-          file: integrations/docker/Dockerfile
-          load: true
-          tags: scalarapi/api-reference:latest
-
-      - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Log in to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
-        with:
-          # Username of your Docker account
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          # https://app.docker.com/settings/personal-access-tokens
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-        with:
-          context: integrations/docker
-          file: integrations/docker/Dockerfile
-          push: true
-          platforms: |
-            linux/amd64
-            linux/arm64
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
-
   format:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -859,6 +778,86 @@ jobs:
 
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
+
+  docker-build-test:
+    if: needs.check-integration-changes.outputs.docker_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build, check-integration-changes]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Check whether the Docker package.json was modified (for publishing)
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            api_reference_docker_version:
+              - integrations/docker/package.json
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/docker
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: scalar-js
+          path: integrations/docker/assets
+
+      - name: Compress static assets
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force scalar.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Build Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          load: true
+          tags: scalarapi/api-reference:latest
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        with:
+          scan-type: 'image'
+          image-ref: 'scalarapi/api-reference:latest'
+          format: 'table'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+        name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          # Username of your Docker account
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # https://app.docker.com/settings/personal-access-tokens
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+        name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   dotnet-build-test:
     if: needs.check-integration-changes.outputs.dotnet_changed == 'true'
