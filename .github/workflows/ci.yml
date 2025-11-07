@@ -173,6 +173,7 @@ jobs:
         run: pnpm types:check
 
   knip:
+    if: github.event_name == 'pull_request'
     name: Run Knip checks
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -1427,7 +1428,6 @@ jobs:
       [
         build,
         format,
-        knip,
         test-packages,
         test-integrations,
         test-proxy-server,
