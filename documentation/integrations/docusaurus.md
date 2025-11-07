@@ -38,7 +38,7 @@ Is it possible to show multiple API references? Yes, it is! :)
 
 You can either display each API reference in its own page, or display multiple API references on a single page. 
 
-**Create a page for each API reference:**
+#### Create a page for each API reference
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
@@ -75,7 +75,7 @@ plugins: [
 ],
 ```
 
-**Create a page that contains multiple API references**
+#### Create a page that contains multiple API references
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
