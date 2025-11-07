@@ -196,9 +196,9 @@ export const createRequestOperation = ({
         try {
           await pluginManager.executeHook('onBeforeRequest', { request: proxiedRequest })
         } catch (e) {
-          console.error(e)
+          const _e = new Error(ERRORS.ON_BEFORE_REQUEST_FAILED, { cause: e })
           status?.emit('abort')
-          return [normalizeError(ERRORS.ON_BEFORE_REQUEST_FAILED), null]
+          return [normalizeError(_e), null]
         }
       }
 
