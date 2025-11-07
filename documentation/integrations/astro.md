@@ -90,32 +90,3 @@ import { ScalarComponent } from '@scalar/astro'
   proxyUrl: 'https://proxy.scalar.com',
 }} />
 ```
-
-### Markdown for LLMs
-
-If you want to create a Markdown version of the API reference (for LLMs), install `@scalar/openapi-to-markdown`:
-
-```bash
-npm install @scalar/openapi-to-markdown
-```
-
-And add an additional route for it:
-
-```astro
----
-// src/pages/llms.txt.astro
-import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
-
-// Load your OpenAPI document
-const response = await fetch('https://api.example.com/openapi.json')
-const document = await response.text()
-
-// Generate Markdown from your OpenAPI document
-const markdown = await createMarkdownFromOpenApi(document)
----
-
-{markdown}
-```
-
-> **Note:** The `/llms.txt` route follows the [llmstxt.org](https://llmstxt.org/) proposal to standardize using an `/llms.txt` file for LLM-readable API documentation.
-
