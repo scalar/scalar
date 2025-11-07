@@ -45,7 +45,7 @@ jobs:
           path: temp-artifacts/scalar.js
           retention-days: 3
 
-  check-integration-changes:
+  check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     outputs:
@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Check whether integration files were modified
-        id: changed-files
+        id: changed-integration-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
         with:
           files_yaml: |
@@ -80,6 +80,12 @@ jobs:
               - integrations/rust/**
             docker_integration:
               - integrations/docker/**
+
+      - name: Check whether packages files were modified
+        id: changed-packages-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
             icons_changed:
               - packages/icons/**
               - packages/components/src/components/ScalarIcon/**
@@ -105,11 +111,11 @@ jobs:
       - name: Set job outputs
         id: set-outputs
         run: |
-          echo "dotnet_changed=${{ steps.changed-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
-          echo "java_changed=${{ steps.changed-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
-          echo "fastapi_changed=${{ steps.changed-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
-          echo "rust_changed=${{ steps.changed-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
-          echo "docker_changed=${{ steps.changed-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "dotnet_changed=${{ steps.changed-integration-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "java_changed=${{ steps.changed-integration-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "fastapi_changed=${{ steps.changed-integration-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "rust_changed=${{ steps.changed-integration-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "aspire_package_changed=${{ steps.changed-package-files.outputs.aspire_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
@@ -144,10 +150,10 @@ jobs:
         run: pnpm format:check
 
   lint-icons:
-    if: needs.check-integration-changes.outputs.icons_changed == 'true'
+    if: needs.check-changes.outputs.icons_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 15
-    needs: [build, check-integration-changes]
+    needs: [build, check-changes]
     strategy:
       matrix:
         node-version: [22]
@@ -841,10 +847,10 @@ jobs:
   # Integration builds, tests, and publishes
 
   docker-build-test:
-    if: needs.check-integration-changes.outputs.docker_changed == 'true'
+    if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, check-integration-changes]
+    needs: [build, check-changes]
     permissions:
       contents: read
     steps:
@@ -891,7 +897,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.docker_package_changed == 'true'
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
         name: Log in to DockerHub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
@@ -900,7 +906,7 @@ jobs:
           # https://app.docker.com/settings/personal-access-tokens
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.docker_package_changed == 'true'
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
         name: Build and Push Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
@@ -915,10 +921,10 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   dotnet-build-test:
-    if: needs.check-integration-changes.outputs.dotnet_changed == 'true'
+    if: needs.check-changes.outputs.dotnet_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, check-integration-changes]
+    needs: [build, check-changes]
     permissions:
       contents: read
     steps:
@@ -967,7 +973,7 @@ jobs:
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.aspnetcore_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspnetcore_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don't want to run `nuget push` (publishing to NuGet) in parallel.
@@ -982,7 +988,7 @@ jobs:
         test-packages,
         test-integrations,
         dotnet-build-test,
-        check-integration-changes,
+        check-changes,
       ]
     permissions:
       contents: read
@@ -1039,7 +1045,7 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.aspire_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspire_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1053,7 +1059,7 @@ jobs:
         test-packages,
         test-integrations,
         dotnet-build-test,
-        check-integration-changes,
+        check-changes,
       ]
     permissions:
       contents: read
@@ -1138,10 +1144,10 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
-    if: needs.check-integration-changes.outputs.fastapi_changed == 'true'
+    if: needs.check-changes.outputs.fastapi_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, check-integration-changes]
+    needs: [build, check-changes]
     permissions:
       contents: read
     steps:
@@ -1168,7 +1174,7 @@ jobs:
         run: python run_tests.py
 
   fastapi-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.fastapi_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.fastapi_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1182,7 +1188,7 @@ jobs:
         test-packages,
         test-integrations,
         fastapi-build-test,
-        check-integration-changes,
+        check-changes,
       ]
     permissions:
       contents: read
@@ -1211,10 +1217,10 @@ jobs:
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   rust-build-test:
-    if: needs.check-integration-changes.outputs.rust_changed == 'true'
+    if: needs.check-changes.outputs.rust_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, check-integration-changes]
+    needs: [build, check-changes]
     permissions:
       contents: read
     steps:
@@ -1268,7 +1274,7 @@ jobs:
           cargo build --example warp --features warp
 
   rust-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.rust_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.rust_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1282,7 +1288,7 @@ jobs:
         test-packages,
         test-integrations,
         rust-build-test,
-        check-integration-changes,
+        check-changes,
       ]
     permissions:
       contents: read
@@ -1332,8 +1338,8 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   java-webjar-build-test:
-    if: needs.check-integration-changes.outputs.java_changed == 'true'
-    needs: [build, check-integration-changes]
+    if: needs.check-changes.outputs.java_changed == 'true'
+    needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
@@ -1358,7 +1364,7 @@ jobs:
         run: mvn clean test
 
   java-webjar-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-integration-changes.outputs.java_webjar_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_webjar_package_changed == 'true'
     needs:
       [
         build,
@@ -1367,7 +1373,7 @@ jobs:
         test-packages,
         test-integrations,
         java-webjar-build-test,
-        check-integration-changes,
+        check-changes,
       ]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
