@@ -65,11 +65,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
-        @selectItem="(id) => emit('selectItem', id)"
-        @reorder="(...args) => log('reorder', ...args)">
-        <template #search>
-          <div
-            class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">
+        @reorder="(...args) => log('reorder', ...args)"
+        @selectItem="(id) => emit('selectItem', id)">
+        <template #header>
+          <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
             <div class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
