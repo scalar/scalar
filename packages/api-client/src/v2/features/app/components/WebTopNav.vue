@@ -9,18 +9,30 @@ export default {}
 
 <script setup lang="ts">
 import { SidebarMenu } from '@/v2/components/sidebar'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
 import DownloadAppButton from './DownloadAppButton.vue'
 
-const workspaceModel = defineModel<string>({
-  required: true,
-  default: 'default',
-})
+defineProps<{
+  activeWorkspace: Workspace
+  workspaces: Workspace[]
+}>()
+
+const emit = defineEmits<{
+  /** Emitted when the user wants to create a new workspace */
+  (e: 'createWorkspace'): void
+  /** Emitted when the user selects a workspace */
+  (e: 'select:workspace', id?: string): void
+}>()
 </script>
 
 <template>
   <nav class="flex h-12 items-center justify-between border-b p-2">
-    <SidebarMenu v-model:workspace="workspaceModel" />
+    <SidebarMenu
+      :activeWorkspace="activeWorkspace"
+      :workspaces="workspaces"
+      @createWorkspace="emit('createWorkspace')"
+      @select:workspace="(id) => emit('select:workspace', id)" />
     <DownloadAppButton />
   </nav>
 </template>

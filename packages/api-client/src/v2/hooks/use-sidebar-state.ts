@@ -41,9 +41,17 @@ export const useSidebarState = ({
   const router = useRouter()
 
   const entries = computed(() => {
-    return Object.values((toValue(workspaceStore) as WorkspaceStore).workspace.documents)
+    const store = toValue(workspaceStore)
+    if (!store) {
+      return []
+    }
+
+    console.log(Object.values(store.workspace.documents)
+      .map((doc) => doc))
+
+    return Object.values(store.workspace.documents)
       .map((doc) => doc['x-scalar-navigation'])
-      .filter(isDefined) as TraversedEntry[]
+      .filter(isDefined)  as TraversedEntry[]
   })
 
   const state = createSidebarState(entries)

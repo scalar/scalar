@@ -35,7 +35,7 @@ const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
 }>()
 
-const { store } = useWorkspaceSelector()
+const { store, workspaces, activeWorkspace } = useWorkspaceSelector()
 
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
@@ -81,6 +81,7 @@ const documentSlug = computed(() => getRouteParam('documentSlug'))
  */
 const document = computed(() => {
   if (!documentSlug.value || store.value === null) return null
+  console.log('Fetching document:', documentSlug.value, store)
   return store.value.workspace.documents[documentSlug.value] ?? null
 })
 
@@ -214,7 +215,7 @@ const routerViewProps = computed(
 </script>
 
 <template>
-  <template v-if="store !== null">
+  <template v-if="store !== null && activeWorkspace !== null">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
       <!-- Desktop App Tabs -->
@@ -223,7 +224,8 @@ const routerViewProps = computed(
       <!-- Web App Top Nav -->
       <WebTopNav
         v-else
-        v-model="workspaceModel" />
+        :activeWorkspace="activeWorkspace"
+        :workspaces="workspaces" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">

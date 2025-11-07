@@ -2,7 +2,7 @@ import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-sto
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 
 import { workspaceSelector } from '@/v2/helpers/local-storage'
 
@@ -41,8 +41,7 @@ export const useWorkspaceSelector = () => {
   const localStorage = workspaceSelector()
   const persistencePromise = createWorkspaceStorePersistence()
 
-  // biome-ignore lint/nursery/noFloatingPromises: By design, we want to wait for the workspace to be loaded before returning
-  ;(async () => {
+  onBeforeMount(async () => {
     const lastWorkspaceId = localStorage.getWorkspaceId()
     const persistence = await persistencePromise
     // Try to load the last used workspace
@@ -93,16 +92,30 @@ export const useWorkspaceSelector = () => {
       document: defaultDocument,
     })
 
+    // TODO: remove this, just for testing right now
+    await client.addDocument({
+      name: 'stripe',
+      url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+    })
+
     // Save the default workspace
     activeWorkspace.value = { name: 'Default Workspace', id: DEFAULT_WORKSPACE_ID }
-    workspaces.value = [{ name: 'Default Workspace', id: DEFAULT_WORKSPACE_ID }]
+    workspaces.value = [
+      { name: 'Default Workspace', id: DEFAULT_WORKSPACE_ID },
+      { name: 'stripe', id: 'stripe' },
+    ]
     await persistence.workspace.setItem(DEFAULT_WORKSPACE_ID, {
       name: 'Default Workspace',
       workspace: client.exportWorkspace(),
     })
+
+    await persistence.workspace.setItem('stripe', {
+      name: 'Stripe Workspace',
+      workspace: client.exportWorkspace(),
+    })
     localStorage.setWorkspaceId(DEFAULT_WORKSPACE_ID)
     store.value = client
-  })()
+  })
 
   /**
    * Sets the current workspace by its ID.

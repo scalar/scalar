@@ -12,26 +12,26 @@ import { ScalarIconGear } from '@scalar/icons'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
-const emit = defineEmits<{
-  (e: 'createWorkspace'): void
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
+
+const { activeWorkspace, workspaces } = defineProps<{
+  activeWorkspace: Workspace
+  workspaces: Workspace[]
 }>()
 
-/** We will fill this in with our workspaces when we get them */
-const workspaceOptions = computed<ScalarListboxOption[]>(() => [
-  {
-    id: 'default',
-    label: 'Default Workspace',
-  },
-  {
-    id: 'fake',
-    label: 'Fake Workspace',
-  },
-])
+const emit = defineEmits<{
+  /** Emitted when the user wants to create a new workspace */
+  (e: 'createWorkspace'): void
+  /** Emitted when the user selects a workspace */
+  (e: 'select:workspace', id?: string): void
+}>()
 
-const workspaceModel = defineModel<string>('workspace', {
-  required: true,
-  default: 'default',
-})
+const workspaceOptions = computed<ScalarListboxOption[]>(() =>
+  workspaces.map((ws) => ({
+    label: ws.name,
+    id: ws.id,
+  })),
+)
 </script>
 <template>
   <!-- Desktop app menu -->
@@ -43,9 +43,10 @@ const workspaceModel = defineModel<string>('workspace', {
       <ScalarMenuSection>
         <template #title>Team</template>
         <ScalarMenuWorkspacePicker
-          v-model="workspaceModel"
+          :modelValue="activeWorkspace.id"
           :workspaceOptions="workspaceOptions"
-          @createWorkspace="emit('createWorkspace')" />
+          @createWorkspace="emit('createWorkspace')"
+          @update:modelValue="(value) => emit('select:workspace', value)" />
 
         <ScalarMenuLink
           :is="RouterLink"
