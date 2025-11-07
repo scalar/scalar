@@ -1,4 +1,4 @@
-# Scalar API Reference for Astro
+# Scalar API reference for Astro
 
 This component provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Astro.
 
@@ -17,46 +17,18 @@ Import and use the `ScalarComponent` in your Astro page or layout:
 import { ScalarComponent } from '@scalar/astro'
 ---
 
+
 <ScalarComponent configuration={{
   // How to configure Scalar:
   // https://guides.scalar.com/scalar/scalar-api-references/configuration
   url: '/openapi.json',
 }} />
+
 ```
 
-The Astro component takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+The Astro component takes [Scalar's universal configuration object](https://guides.scalar.com/scalar/scalar-api-references/configuration)
 
-### Themes
-
-You can use one of [our predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
-
-```astro
----
-import { ScalarComponent } from '@scalar/astro'
----
-
-<ScalarComponent configuration={{
-  url: '/openapi.json',
-  theme: 'purple',
-}} />
-```
-
-### Custom page title
-
-There's one additional option to set the page title:
-
-```astro
----
-import { ScalarComponent } from '@scalar/astro'
----
-
-<ScalarComponent configuration={{
-  url: '/openapi.json',
-  pageTitle: 'Awesome API',
-}} />
-```
-
-### Custom CDN
+#### Custom CDN
 
 You can use a custom CDN, default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
@@ -76,6 +48,38 @@ import { ScalarComponent } from '@scalar/astro'
 }} />
 ```
 
+### Custom page title
+
+There's one additional option to set the page title:
+
+```astro
+---
+import { ScalarComponent } from '@scalar/astro'
+---
+
+<ScalarComponent configuration={{
+  url: '/openapi.json',
+  pageTitle: 'Awesome API',
+}} />
+```
+
+### Themes
+
+You can use one of [our predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) or overwrite it with `none`.
+
+All themes come with a light and dark color schemes.
+
+```astro
+---
+import { ScalarComponent } from '@scalar/astro'
+---
+
+<ScalarComponent configuration={{
+  url: '/openapi.json',
+  theme: 'purple', // `alternate`, `default`, `moon`, `purple`, `solarized`
+}} />
+```
+
 ### Proxy URL
 
 If you need to proxy API requests (for CORS or other reasons), you can configure a proxy URL:
@@ -91,7 +95,7 @@ import { ScalarComponent } from '@scalar/astro'
 }} />
 ```
 
-### Markdown for LLMs
+## Markdown for LLMs
 
 If you want to create a Markdown version of the API reference (for LLMs), install `@scalar/openapi-to-markdown`:
 
@@ -103,7 +107,7 @@ And add an additional route for it:
 
 ```astro
 ---
-// src/pages/llms.txt.astro
+// src/pages/apis.llms.txt.astro
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 
 // Load your OpenAPI document
@@ -118,4 +122,3 @@ const markdown = await createMarkdownFromOpenApi(document)
 ```
 
 > **Note:** The `/llms.txt` route follows the [llmstxt.org](https://llmstxt.org/) proposal to standardize using an `/llms.txt` file for LLM-readable API documentation.
-
