@@ -1369,7 +1369,7 @@ jobs:
       contents: read
     timeout-minutes: 10
     steps:
-      - name: Checkout repository
+      - name: Checkout repository y
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Check for new Webjar version
         id: changed-files
