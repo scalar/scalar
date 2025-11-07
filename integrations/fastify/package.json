@@ -50,6 +50,21 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "readme": {
+    "title": "Scalar API Reference for Fastify",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/fastify"
+  },
   "dependencies": {
     "@scalar/core": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
@@ -67,20 +82,5 @@
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
-  },
-  "readme": {
-    "title": "Scalar API Reference for Fastify",
-    "badges": [
-      {
-        "type": "npm-version"
-      },
-      {
-        "type": "npm-downloads"
-      },
-      {
-        "type": "npm-license"
-      }
-    ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/fastify"
   }
 }

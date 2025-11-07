@@ -24,12 +24,6 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix"
   },
-  "dependencies": {
-    "@scalar/api-reference": "workspace:*"
-  },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
-  },
   "readme": {
     "title": "Scalar API Reference for Docker",
     "badges": [
@@ -39,5 +33,11 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docker"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*"
   }
 }

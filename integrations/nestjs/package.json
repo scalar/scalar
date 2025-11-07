@@ -48,6 +48,21 @@
     "dist"
   ],
   "module": "dist/index.js",
+  "readme": {
+    "title": "Scalar API Reference Plugin for NestJS",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/nestjs"
+  },
   "dependencies": {
     "@scalar/core": "workspace:*"
   },
@@ -66,20 +81,5 @@
     "tsup": "^8.3.5",
     "vite": "catalog:*",
     "vitest": "catalog:*"
-  },
-  "readme": {
-    "title": "Scalar API Reference Plugin for NestJS",
-    "badges": [
-      {
-        "type": "npm-version"
-      },
-      {
-        "type": "npm-downloads"
-      },
-      {
-        "type": "npm-license"
-      }
-    ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/nestjs"
   }
 }
