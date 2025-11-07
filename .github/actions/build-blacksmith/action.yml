@@ -18,11 +18,11 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
-    - name: Setup persistent turbo cache
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
-      with:
-        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
-        path: ${{ env.TURBO_CACHE_DIR }}
+    # - name: Setup persistent turbo cache
+    #   uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+    #   with:
+    #     key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
+    #     path: ${{ env.TURBO_CACHE_DIR }}
     - name: Install dependencies
       shell: bash
       run: pnpm install
