@@ -1,42 +1,29 @@
 <script setup lang="ts">
 import { ScalarToggle } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
-import type { EnvVariable } from '@/store'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-defineProps<{
-  /** Should use document security */
-  useDocumentSecurity: boolean
+const { document, eventBus, environment, layout } =
+  defineProps<CollectionProps>()
 
-  /** Security requirements for the document */
-  security: OpenApiDocument['security']
-  /** Currently selected security requirements */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
-  /** Security schemes available in the document */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** Currently selected server */
-  server: ServerObject | undefined
+/** If enabled we use/set the selected security schemes on the document level */
+const useDocumentSecurity = computed(
+  () => document?.['x-scalar-document-security'] ?? false,
+)
 
-  eventBus: WorkspaceEventBus
-
-  /** TODO: remove when we migrate */
-  environment: Environment
-  envVariables: EnvVariable[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:useDocumentSecurity', value: boolean): void
-}>()
+/** Grab the currently selected server for relative auth URIs */
+const server = computed(() =>
+  document?.servers?.find(
+    ({ url }) => url === document?.['x-scalar-selected-server'],
+  ),
+)
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
+    <!-- Header -->
     <div class="flex flex-col gap-2">
       <div class="flex h-8 items-center justify-between">
         <h3 class="font-bold">Authentication</h3>
@@ -44,26 +31,34 @@ const emit = defineEmits<{
           class="w-4"
           :modelValue="useDocumentSecurity"
           @update:modelValue="
-            (value) => emit('update:useDocumentSecurity', value)
+            () => eventBus.emit('document:toggle:document-security')
           " />
       </div>
       <p class="pr-6 text-sm">
-        Added authentication will apply to all requests under this collection.
-        You can override this by specifying another one in the request.
+        If enabled, all selected authentication will apply to all operations in
+        this document. You can override this by disabling the toggle and
+        authentication will then be applied at the operation level.
       </p>
     </div>
-    <AuthSelector
-      class="scalar-collection-auth"
-      :envVariables="envVariables"
-      :environment="environment"
-      layout="client"
-      :security="security"
-      :securitySchemes="securitySchemes"
-      :selectedSecurity="selectedSecurity"
-      :server="server"
-      title="Authentication"
-      :eventBus="eventBus"
-      :meta="{ type: 'document' }" />
+
+    <!-- Auth Selector -->
+    <div :class="!useDocumentSecurity && 'cursor-not-allowed'">
+      <AuthSelector
+        class="scalar-collection-auth !border-none"
+        :class="
+          !useDocumentSecurity &&
+          'pointer-events-none opacity-50 mix-blend-luminosity'
+        "
+        :environment
+        :eventBus="eventBus"
+        isStatic
+        :meta="{ type: 'document' }"
+        :security="document?.security ?? []"
+        :securitySchemes="document?.components?.securitySchemes ?? {}"
+        :selectedSecurity="document?.['x-scalar-selected-security']"
+        :server="server"
+        title="Authentication" />
+    </div>
   </div>
 </template>
 <style scoped>

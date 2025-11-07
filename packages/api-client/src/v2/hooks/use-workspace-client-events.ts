@@ -10,6 +10,7 @@ import {
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
+  toggleDocumentSecurity,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
@@ -51,11 +52,11 @@ export const useWorkspaceClientEvents = (
     'document:update:icon',
     (icon) => document.value && (document.value['x-scalar-client-config-icon'] = icon),
   )
-
   eventBus.on(
     'document:update:info',
     (info) => document.value && (document.value.info = mergeObjects(document.value.info, info)),
   )
+  eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers

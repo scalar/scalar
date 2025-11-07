@@ -1,173 +1,144 @@
 <script setup lang="ts">
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ComponentsObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { DataTable } from '@/components/DataTable'
-import type { EnvVariable } from '@/store'
+import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
+import { DataTable } from '@/v2/components/data-table'
 
 import RequestAuthTab from './RequestAuthTab.vue'
 
 const {
   environment,
-  envVariables,
-  layout = 'client',
-  selectedSchemeOptions = [],
+  isStatic,
+  selectedSchemeOptions,
+  activeAuthIndex,
+  securitySchemes,
   server,
   eventBus,
-  activeAuthIndex,
   meta,
 } = defineProps<{
-  environment: Environment
-  envVariables: EnvVariable[]
-  layout: 'client' | 'reference'
+  /** The current environment configuration */
+  environment: XScalarEnvironment
+  /** Controls border display for static (non-collapsible) layouts */
+  isStatic: boolean
+  /** Available authentication scheme options */
   selectedSchemeOptions: SecuritySchemeOption[]
+  /** Index of the currently active authentication tab */
   activeAuthIndex: number
+  /** OpenAPI security scheme definitions */
   securitySchemes: ComponentsObject['securitySchemes']
+  /** Current server configuration */
   server: ServerObject | undefined
+  /** Event bus for authentication updates */
   eventBus: WorkspaceEventBus
+  /** Metadata for authentication context */
   meta: AuthMeta
 }>()
 
-/** Return currently selected schemes including complex auth */
-const activeScheme = computed(() => {
-  return selectedSchemeOptions[activeAuthIndex]
-})
+/** Currently selected authentication scheme based on the active tab index */
+const activeScheme = computed<SecuritySchemeOption | undefined>(
+  () => selectedSchemeOptions[activeAuthIndex],
+)
 
+/**
+ * Whether to display multiple authentication tabs.
+ * Only shows tabs when there are 2 or more schemes available.
+ */
+const shouldShowTabs = computed<boolean>(() => selectedSchemeOptions.length > 1)
+
+/** Handles authentication tab selection */
+const handleTabChange = (index: number) =>
+  eventBus.emit('auth:update:active-index', {
+    index,
+    meta,
+  })
+
+/** Handles updates to the security scheme configuration */
+const handleSecuritySchemeUpdate = (payload: UpdateSecuritySchemeEvent) =>
+  eventBus.emit('auth:update:security-scheme', {
+    data: payload,
+    name: activeScheme.value?.id ?? '',
+  })
+
+/** Handles updates to OAuth scope selection */
+const handleScopesUpdate = (params: {
+  id: string[]
+  name: string
+  scopes: string[]
+}) =>
+  eventBus.emit('auth:update:selected-scopes', {
+    ...params,
+    meta: meta,
+  })
+
+/** Determines if a tab is currently active */
+const isTabActive = (index: number): boolean => activeAuthIndex === index
+
+/** Expose the active scheme for parent component access */
 defineExpose({
-  activeAuthIndex,
   activeScheme,
 })
 </script>
+
 <template>
   <form @submit.prevent>
+    <!-- Authentication Tabs -->
     <div
-      v-if="selectedSchemeOptions.length > 1"
+      v-if="shouldShowTabs"
       class="box-content flex flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3"
-      :class="layout === 'client' && 'border-x-0'"
+      :class="{ 'border-x-0': !isStatic }"
       data-testid="auth-tabs">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"
-        class="relative z-1 -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
-        :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
+        class="relative z-1 -mb-[var(--scalar-border-width)] flex h-8">
         <button
-          class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
+          class="floating-bg relative cursor-pointer border-b border-transparent py-1 text-sm font-medium transition-colors"
+          :class="isTabActive(index) ? 'text-c-1' : 'text-c-3'"
           type="button"
-          @click="
-            () => eventBus.emit('auth:update:active-index', { index, meta })
-          ">
-          <span class="relative z-10 font-medium whitespace-nowrap">{{
-            option.label
-          }}</span>
+          @click="handleTabChange(index)">
+          <span class="relative z-10 font-medium whitespace-nowrap">
+            {{ option.label }}
+          </span>
         </button>
+
+        <!-- Active Tab Indicator -->
         <div
-          v-if="activeAuthIndex === index"
+          v-if="isTabActive(index)"
           class="absolute inset-x-1 bottom-[var(--scalar-border-width)] left-1/2 z-1 h-px w-full -translate-x-1/2 bg-current" />
       </div>
     </div>
 
+    <!-- Active Authentication Scheme Content -->
     <DataTable
       v-if="activeScheme"
       class="flex-1"
-      :class="layout === 'reference' && 'bg-b-1 rounded-b-lg border border-t-0'"
+      :class="{ 'bg-b-1 rounded-b-lg border border-t-0': isStatic }"
       :columns="['']"
       presentational>
       <RequestAuthTab
-        :envVariables="envVariables"
         :environment="environment"
-        :layout="layout"
+        :isStatic="isStatic"
         :securitySchemes="securitySchemes ?? {}"
         :selectedSecuritySchemas="activeScheme.value"
         :server="server"
-        @update:securityScheme="
-          (payload) =>
-            eventBus.emit('auth:update:security-scheme', {
-              data: payload,
-              name: activeScheme?.id ?? '',
-            })
-        "
-        @update:selectedScopes="
-          ({ id, name, scopes }) =>
-            eventBus.emit('auth:update:selected-scopes', {
-              id,
-              name,
-              scopes,
-              meta,
-            })
-        " />
+        @update:securityScheme="handleSecuritySchemeUpdate"
+        @update:selectedScopes="handleScopesUpdate" />
     </DataTable>
 
+    <!-- Empty State -->
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm"
-      :class="
-        layout === 'reference' && 'min-h-[calc(4rem+0.5px)] rounded-b-lg border'
-      ">
+      class="bg-b-1 text-c-3 flex min-h-16 items-center justify-center border-t px-4 text-sm"
+      :class="{ 'min-h-[calc(4rem+0.5px)] rounded-b-lg border': isStatic }">
       No authentication selected
     </div>
   </form>
 </template>
-<style scoped>
-.auth-combobox-position {
-  margin-left: 120px;
-}
-.scroll-timeline-x {
-  overflow: auto;
-  scroll-timeline: --scroll-timeline x;
-  /* Firefox supports */
-  scroll-timeline: --scroll-timeline horizontal;
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.fade-left,
-.fade-right {
-  position: sticky;
-  content: '';
-  height: 100%;
-  animation-name: fadein;
-  animation-duration: 1ms;
-  animation-direction: reverse;
-  animation-timeline: --scroll-timeline;
-  min-height: 24px;
-  pointer-events: none;
-}
-.fade-left {
-  background: linear-gradient(
-    -90deg,
-    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 60%,
-    var(--scalar-background-1) 100%
-  );
-  min-width: 3px;
-  left: -1px;
-  animation-direction: normal;
-}
-.fade-right {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 60%,
-    var(--scalar-background-1) 100%
-  );
-  margin-left: -20px;
-  min-width: 24px;
-  right: -1px;
-  top: 0;
-}
-@keyframes fadein {
-  0% {
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-}
-</style>
