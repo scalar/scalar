@@ -21,14 +21,13 @@ import {
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
-import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
+import type { WorkspaceMeta } from './schemas/workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
 type WorkspaceDocumentMetaInput = {
   name: string
-  meta?: WorkspaceDocumentMeta
 }
 
 type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
@@ -278,7 +277,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * @param document - The OpenAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
-  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
+  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string }) => {
     const { name, ...documentMeta } = meta
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
@@ -329,7 +328,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name })
   }
 
   // Load and process all initial documents in parallel

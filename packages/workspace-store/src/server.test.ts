@@ -154,9 +154,6 @@ describe('create-server-store', () => {
           {
             name: 'doc-1',
             document: exampleDocument(),
-            meta: {
-              'x-scalar-active-auth': 'test',
-            },
           },
           {
             name: 'doc-2',
@@ -165,7 +162,7 @@ describe('create-server-store', () => {
         ],
       })
 
-      await store.addDocument({ name: 'doc-3', meta: { 'x-scalar-active-auth': 'test' }, document: exampleDocument() })
+      await store.addDocument({ name: 'doc-3', document: exampleDocument() })
       const workspace = store.getWorkspace()
 
       expect(workspace.documents['doc-1']).toEqual({
@@ -187,7 +184,6 @@ describe('create-server-store', () => {
             },
           },
         },
-        'x-scalar-active-auth': 'test',
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-1',
@@ -227,7 +223,6 @@ describe('create-server-store', () => {
             },
           },
         },
-        'x-scalar-active-auth': 'test',
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-3',
@@ -235,6 +230,7 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
+              children: undefined,
               'id': 'doc-3/tag/default/get/planets',
               isDeprecated: false,
               method: 'get',
@@ -261,10 +257,6 @@ describe('create-server-store', () => {
           {
             document: exampleDocument(),
             name: 'doc-1',
-            meta: {
-              'x-scalar-active-auth': 'test',
-              'x-scalar-active-server': 'test',
-            },
           },
         ],
         meta: {
@@ -278,10 +270,6 @@ describe('create-server-store', () => {
       await store.addDocument({
         document: exampleDocument(),
         name: 'doc-2',
-        meta: {
-          'x-scalar-active-auth': 'test',
-          'x-scalar-active-server': 'test',
-        },
       })
       await store.generateWorkspaceChunks()
 
@@ -293,8 +281,6 @@ describe('create-server-store', () => {
       expect(JSON.parse(sparseWorkspace)).toEqual({
         documents: {
           'doc-1': {
-            'x-scalar-active-auth': 'test',
-            'x-scalar-active-server': 'test',
             'openapi': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',
@@ -330,8 +316,6 @@ describe('create-server-store', () => {
             'x-scalar-original-document-hash': '',
           },
           'doc-2': {
-            'x-scalar-active-auth': 'test',
-            'x-scalar-active-server': 'test',
             'openapi': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',

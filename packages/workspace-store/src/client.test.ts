@@ -88,34 +88,6 @@ describe('create-workspace-store', () => {
     expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
-  it('correctly update document metadata', async () => {
-    const store = createWorkspaceStore()
-
-    await store.addDocument({
-      name: 'default',
-      document: {
-        openapi: '3.0.0',
-        info: { title: 'My API' },
-      },
-      meta: {
-        'x-scalar-active-auth': 'Bearer',
-        'x-scalar-active-server': 'server-1',
-      },
-    })
-
-    // Should update the active document
-    store.updateDocument('active', 'x-scalar-active-server', 'server-2')
-    store.updateDocument('active', 'x-scalar-active-auth', undefined)
-    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe(undefined)
-    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-2')
-
-    // Should update a specific document
-    store.updateDocument('default', 'x-scalar-active-server', 'server-3')
-    store.updateDocument('default', 'x-scalar-active-auth', 'Bearer')
-    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe('Bearer')
-    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-3')
-  })
-
   it('correctly get the correct document', async () => {
     const store = createWorkspaceStore({
       meta: {
@@ -129,10 +101,6 @@ describe('create-workspace-store', () => {
         openapi: '3.0.0',
         info: { title: 'My API' },
       },
-      meta: {
-        'x-scalar-active-auth': 'Bearer',
-        'x-scalar-active-server': 'server-1',
-      },
     })
 
     await store.addDocument({
@@ -140,10 +108,6 @@ describe('create-workspace-store', () => {
       document: {
         openapi: '3.0.0',
         info: { title: 'Second API' },
-      },
-      meta: {
-        'x-scalar-active-auth': 'Bearer',
-        'x-scalar-active-server': 'server-1',
       },
     })
 
@@ -160,8 +124,6 @@ describe('create-workspace-store', () => {
         version: '',
       },
       openapi: '3.1.1',
-      'x-scalar-active-auth': 'Bearer',
-      'x-scalar-active-server': 'server-1',
       'x-scalar-navigation': {
         'children': [],
         'id': 'default',
@@ -1853,9 +1815,6 @@ describe('create-workspace-store', () => {
             },
           },
         },
-        meta: {
-          'x-scalar-active-server': 'server-1',
-        },
       })
 
       await store.addDocument({
@@ -1877,7 +1836,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(JSON.stringify(store.exportWorkspace())).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-scalar-active-server":"server-1","x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-dark-mode":true,"x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-dark-mode":true,"x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
       )
     })
   })
@@ -1899,7 +1858,6 @@ describe('create-workspace-store', () => {
               title: 'My API',
               children: [],
             },
-            'x-scalar-active-server': 'server-1',
             'x-scalar-original-document-hash': '',
           },
           'pet-store': {
@@ -1973,7 +1931,6 @@ describe('create-workspace-store', () => {
           title: 'My API',
           children: [],
         },
-        'x-scalar-active-server': 'server-1',
         'x-scalar-original-document-hash': '',
       })
 
@@ -1991,7 +1948,6 @@ describe('create-workspace-store', () => {
             title: 'My API',
             children: [],
           },
-          'x-scalar-active-server': 'server-1',
           'x-scalar-original-document-hash': '',
         },
         'pet-store': {
