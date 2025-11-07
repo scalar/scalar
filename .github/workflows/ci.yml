@@ -125,7 +125,7 @@ jobs:
           echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
-          echo "icons_changed=${{ steps.changed-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     runs-on: blacksmith-2vcpu-ubuntu-2204
