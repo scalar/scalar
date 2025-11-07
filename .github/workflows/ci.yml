@@ -1324,7 +1324,7 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-  java-webjar-test:
+  java-webjar-build-test:
     if: needs.check-integration-changes.outputs.java_changed == 'true'
     needs: [build, check-integration-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -1352,7 +1352,15 @@ jobs:
 
   java-webjar-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    needs: [build, java-webjar-test]
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        java-webjar-build-test,
+      ]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
       group: java-webjar-publish
