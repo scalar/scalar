@@ -107,6 +107,7 @@ export const baseConfigurationSchema = z.object({
   _integration: z
     .enum([
       'adonisjs',
+      'astro',
       'docusaurus',
       'dotnet',
       'elysiajs',
