@@ -13,14 +13,17 @@ import type { WorkspacePlugin } from '@/workspace-plugin'
 export const persistencePlugin = async ({
   workspaceId,
   debounceDelay = 500,
+  /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
+  maxWait = 10000,
 }: {
   workspaceId: string
   debounceDelay?: number
+  maxWait?: number
 }): Promise<WorkspacePlugin> => {
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
-  const { execute } = debounce({ delay: debounceDelay, maxWait: 10000 })
+  const { execute } = debounce({ delay: debounceDelay, maxWait })
 
   return {
     hooks: {
