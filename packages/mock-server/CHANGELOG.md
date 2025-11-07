@@ -1,20 +1,5 @@
 # @scalar/mock-server
 
-## 0.7.0
-
-### Minor Changes
-
-- [#7247](https://github.com/scalar/scalar/pull/7247) [`a4f862c`](https://github.com/scalar/scalar/commit/a4f862c73ee509579c96ab86c703e8af74d8efcf) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: use `document`, not `specification` for the configuration
-
-### Patch Changes
-
-- [#7247](https://github.com/scalar/scalar/pull/7247) [`a4f862c`](https://github.com/scalar/scalar/commit/a4f862c73ee509579c96ab86c703e8af74d8efcf) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: fails on 204 No Content responses
-
-- Updated dependencies [[`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66), [`2377b76`](https://github.com/scalar/scalar/commit/2377b76d050f8de70037b17a32d0dd1181d3311d)]:
-  - @scalar/helpers@0.1.0
-  - @scalar/openapi-parser@0.23.1
-  - @scalar/oas-utils@0.6.2
-
 ## 0.6.1
 
 ### Patch Changes

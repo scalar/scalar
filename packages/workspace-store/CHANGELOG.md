@@ -1,19 +1,5 @@
 # @scalar/workspace-store
 
-## 0.19.0
-
-### Minor Changes
-
-- [#7251](https://github.com/scalar/scalar/pull/7251) [`d6154a2`](https://github.com/scalar/scalar/commit/d6154a24d97fc28977def486f99b2eeee52d268c) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: integrate operation page mutators
-
-### Patch Changes
-
-- [#7266](https://github.com/scalar/scalar/pull/7266) [`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d) Thanks [@amritk](https://github.com/amritk)! - fix: remove useage of crypto.subtle in all contexts
-
-- Updated dependencies [[`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66), [`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66)]:
-  - @scalar/json-magic@0.8.0
-  - @scalar/helpers@0.1.0
-
 ## 0.18.1
 
 ### Patch Changes

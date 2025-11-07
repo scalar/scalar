@@ -1,17 +1,5 @@
 # @scalar/oas-utils
 
-## 0.6.2
-
-### Patch Changes
-
-- [#7241](https://github.com/scalar/scalar/pull/7241) [`2377b76`](https://github.com/scalar/scalar/commit/2377b76d050f8de70037b17a32d0dd1181d3311d) Thanks [@hanspagel](https://github.com/hanspagel)! - chore: use "current" not "latest" scalar registry url
-
-- Updated dependencies [[`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66), [`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d), [`d6154a2`](https://github.com/scalar/scalar/commit/d6154a24d97fc28977def486f99b2eeee52d268c), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66)]:
-  - @scalar/json-magic@0.8.0
-  - @scalar/workspace-store@0.19.0
-  - @scalar/helpers@0.1.0
-  - @scalar/object-utils@1.2.10
-
 ## 0.6.1
 
 ### Patch Changes

@@ -16,7 +16,7 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.5.10",
+  "version": "0.5.9",
   "engines": {
     "node": ">=20"
   },

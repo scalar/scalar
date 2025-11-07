@@ -1,18 +1,5 @@
 # @scalar/json-magic
 
-## 0.8.0
-
-### Minor Changes
-
-- [#7235](https://github.com/scalar/scalar/pull/7235) [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(json-magic): use `@scalar/helpers/node/path` polyfill
-
-### Patch Changes
-
-- [#7266](https://github.com/scalar/scalar/pull/7266) [`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d) Thanks [@amritk](https://github.com/amritk)! - fix: remove useage of crypto.subtle in all contexts
-
-- Updated dependencies [[`fddf294`](https://github.com/scalar/scalar/commit/fddf294b00dd8c9eb5c713c338f2ec6e3f62523d), [`c1ecd0c`](https://github.com/scalar/scalar/commit/c1ecd0c6096f3fbe2e3d8ad3794ea718bb6bce66)]:
-  - @scalar/helpers@0.1.0
-
 ## 0.7.0
 
 ### Minor Changes
