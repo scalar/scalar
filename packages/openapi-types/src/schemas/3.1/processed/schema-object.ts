@@ -109,4 +109,5 @@ export const SchemaObjectSchema: z.ZodType<Record<string, any>> = z.object({
   xml: XmlObjectSchema.optional(),
 })
 
-export type SchemaObject = z.infer<typeof SchemaObjectSchema>
+// not used but kept for consistency
+// export type SchemaObject = z.infer<typeof SchemaObjectSchema>

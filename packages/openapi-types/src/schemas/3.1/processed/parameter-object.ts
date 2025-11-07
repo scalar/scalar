@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ExampleObjectSchema } from './example-object'
 import { MediaTypeObjectSchema } from './media-type-object'
 import { SchemaObjectSchema } from './schema-object'
