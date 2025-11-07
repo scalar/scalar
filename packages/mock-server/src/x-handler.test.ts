@@ -1,0 +1,606 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { createMockServer } from './create-mock-server'
+import { store } from './libs/store'
+
+describe('x-handler', () => {
+  beforeEach(() => {
+    // Clear store before each test to ensure clean state
+    store.clear()
+  })
+
+  it('handler with store.list() returns array', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          get: {
+            'x-handler': "return store.list('items');",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual([])
+  })
+
+  it('handler with store.create() creates and returns item', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data).toHaveProperty('id')
+    expect(data.name).toBe('Test Item')
+  })
+
+  it('handler with store.get() retrieves item', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+          get: {
+            'x-handler': "return store.get('items', req.params.id);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/items/{id}': {
+          get: {
+            'x-handler': "return store.get('items', req.params.id);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create an item
+    const createResponse = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    const created = await createResponse.json()
+    const itemId = created.id
+
+    // Get the item
+    const getResponse = await server.request(`/items/${itemId}`)
+
+    expect(getResponse.status).toBe(200)
+    const data = await getResponse.json()
+    expect(data.id).toBe(itemId)
+    expect(data.name).toBe('Test Item')
+  })
+
+  it('handler with store.update() updates item', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+        '/items/{id}': {
+          put: {
+            'x-handler': "return store.update('items', req.params.id, req.body);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create an item
+    const createResponse = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Original Name' }),
+    })
+
+    const created = await createResponse.json()
+    const itemId = created.id
+
+    // Update the item
+    const updateResponse = await server.request(`/items/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Updated Name' }),
+    })
+
+    expect(updateResponse.status).toBe(200)
+    const data = await updateResponse.json()
+    expect(data.id).toBe(itemId)
+    expect(data.name).toBe('Updated Name')
+  })
+
+  it('handler with store.delete() deletes item', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+          get: {
+            'x-handler': "return store.list('items');",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/items/{id}': {
+          delete: {
+            'x-handler': "return { deleted: store.delete('items', req.params.id) };",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create an item
+    const createResponse = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    const created = await createResponse.json()
+    const itemId = created.id
+
+    // Delete the item
+    const deleteResponse = await server.request(`/items/${itemId}`, {
+      method: 'DELETE',
+    })
+
+    expect(deleteResponse.status).toBe(200)
+    const deleteData = await deleteResponse.json()
+    expect(deleteData.deleted).toBe(true)
+
+    // Verify item is deleted
+    const listResponse = await server.request('/items')
+    const items = await listResponse.json()
+    expect(items).toHaveLength(0)
+  })
+
+  it('handler with faker generates data', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          post: {
+            'x-handler': `
+              const uuid = faker.string.uuid();
+              const name = faker.person.fullName();
+              return store.create('users', { id: uuid, name });
+            `,
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data).toHaveProperty('id')
+    expect(data).toHaveProperty('name')
+    expect(typeof data.id).toBe('string')
+    expect(typeof data.name).toBe('string')
+  })
+
+  it('handler with req.body accesses request body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': `
+              const uuid = faker.string.uuid();
+              return store.create('items', { id: uuid, ...req.body });
+            `,
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title: 'My Item', content: 'Item content' }),
+    })
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data).toHaveProperty('id')
+    expect(data.title).toBe('My Item')
+    expect(data.content).toBe('Item content')
+  })
+
+  it('handler with req.params accesses path parameters', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handler': "return { id: req.params.id, message: 'Found item' };",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items/123')
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.id).toBe('123')
+    expect(data.message).toBe('Found item')
+  })
+
+  it('handler with req.query accesses query parameters', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/search': {
+          get: {
+            'x-handler': 'return { query: req.query.q, limit: req.query.limit };',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/search?q=test&limit=10')
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.query).toBe('test')
+    expect(data.limit).toBe('10')
+  })
+
+  it('handler error returns 500 and logs to console', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/error': {
+          get: {
+            'x-handler': 'throw new Error("Test error");',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/error')
+
+    expect(response.status).toBe(500)
+    const data = await response.json()
+    expect(data).toHaveProperty('error')
+    expect(data).toHaveProperty('message')
+    expect(data.message).toContain('Test error')
+
+    expect(consoleErrorSpy).toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('handler return value replaces OpenAPI response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/custom': {
+          get: {
+            'x-handler': "return { custom: 'response', value: 42 };",
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      should: 'not appear',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/custom')
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.custom).toBe('response')
+    expect(data.value).toBe(42)
+    expect(data).not.toHaveProperty('should')
+  })
+
+  it('multiple operations can use different handlers', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/articles': {
+          get: {
+            'x-handler': "return store.list('articles');",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+          post: {
+            'x-handler': `
+              const uuid = faker.string.uuid();
+              return store.create('articles', { id: uuid, ...req.body });
+            `,
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create an article
+    const createResponse = await server.request('/articles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title: 'Article 1', content: 'Content 1' }),
+    })
+
+    expect(createResponse.status).toBe(200)
+    const created = await createResponse.json()
+
+    // List articles
+    const listResponse = await server.request('/articles')
+    expect(listResponse.status).toBe(200)
+    const articles = await listResponse.json()
+    expect(articles).toHaveLength(1)
+    expect(articles[0].id).toBe(created.id)
+  })
+
+  it('store persists data across requests', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+          get: {
+            'x-handler': "return store.list('items');",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create first item
+    const createResponse1 = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Item 1' }),
+    })
+
+    expect(createResponse1.status).toBe(200)
+
+    // Create second item
+    const createResponse2 = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Item 2' }),
+    })
+
+    expect(createResponse2.status).toBe(200)
+
+    // List items - should have both
+    const listResponse = await server.request('/items')
+    expect(listResponse.status).toBe(200)
+    const items = await listResponse.json()
+    expect(items).toHaveLength(2)
+    expect(items.map((item: any) => item.name)).toContain('Item 1')
+    expect(items.map((item: any) => item.name)).toContain('Item 2')
+  })
+})
