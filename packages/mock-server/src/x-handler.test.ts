@@ -69,7 +69,7 @@ describe('x-handler', () => {
       body: JSON.stringify({ name: 'Test Item' }),
     })
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(201)
     const data = await response.json()
     expect(data).toHaveProperty('id')
     expect(data.name).toBe('Test Item')
@@ -225,10 +225,10 @@ describe('x-handler', () => {
         },
         '/items/{id}': {
           delete: {
-            'x-handler': "return { deleted: store.delete('items', req.params.id) };",
+            'x-handler': "return store.delete('items', req.params.id);",
             responses: {
-              '200': {
-                description: 'OK',
+              '204': {
+                description: 'No Content',
               },
             },
           },
@@ -255,9 +255,9 @@ describe('x-handler', () => {
       method: 'DELETE',
     })
 
-    expect(deleteResponse.status).toBe(200)
-    const deleteData = await deleteResponse.json()
-    expect(deleteData.deleted).toBe(true)
+    expect(deleteResponse.status).toBe(204)
+    const deleteData = await deleteResponse.text()
+    expect(deleteData).toBe('')
 
     // Verify item is deleted
     const listResponse = await server.request('/items')
@@ -300,7 +300,7 @@ describe('x-handler', () => {
       body: JSON.stringify({}),
     })
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(201)
     const data = await response.json()
     expect(data).toHaveProperty('id')
     expect(data).toHaveProperty('name')
@@ -342,7 +342,7 @@ describe('x-handler', () => {
       body: JSON.stringify({ title: 'My Item', content: 'Item content' }),
     })
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(201)
     const data = await response.json()
     expect(data).toHaveProperty('id')
     expect(data.title).toBe('My Item')
@@ -531,7 +531,7 @@ describe('x-handler', () => {
       body: JSON.stringify({ title: 'Article 1', content: 'Content 1' }),
     })
 
-    expect(createResponse.status).toBe(200)
+    expect(createResponse.status).toBe(201)
     const created = await createResponse.json()
 
     // List articles
@@ -582,7 +582,7 @@ describe('x-handler', () => {
       body: JSON.stringify({ name: 'Item 1' }),
     })
 
-    expect(createResponse1.status).toBe(200)
+    expect(createResponse1.status).toBe(201)
 
     // Create second item
     const createResponse2 = await server.request('/items', {
@@ -593,7 +593,7 @@ describe('x-handler', () => {
       body: JSON.stringify({ name: 'Item 2' }),
     })
 
-    expect(createResponse2.status).toBe(200)
+    expect(createResponse2.status).toBe(201)
 
     // List items - should have both
     const listResponse = await server.request('/items')
@@ -602,5 +602,208 @@ describe('x-handler', () => {
     expect(items).toHaveLength(2)
     expect(items.map((item: any) => item.name)).toContain('Item 1')
     expect(items.map((item: any) => item.name)).toContain('Item 2')
+  })
+
+  it('handler with store.get() returns 404 when item not found', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handler': "return store.get('items', req.params.id);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+              '404': {
+                description: 'Not Found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to get non-existent item
+    const getResponse = await server.request('/items/non-existent-id')
+
+    expect(getResponse.status).toBe(404)
+    const data = await getResponse.json()
+    // When handler returns undefined, JSON response is null
+    expect(data).toBeNull()
+  })
+
+  it('handler with store.get() returns 404 when item is null', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handler': `
+              const item = store.get('items', req.params.id);
+              return item === null ? null : item;
+            `,
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+              '404': {
+                description: 'Not Found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to get non-existent item
+    const getResponse = await server.request('/items/non-existent-id')
+
+    expect(getResponse.status).toBe(404)
+  })
+
+  it('handler with store.update() returns 404 when item not found', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          put: {
+            'x-handler': "return store.update('items', req.params.id, req.body);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+              '404': {
+                description: 'Not Found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to update non-existent item
+    const updateResponse = await server.request('/items/non-existent-id', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Updated Name' }),
+    })
+
+    expect(updateResponse.status).toBe(404)
+    const data = await updateResponse.json()
+    expect(data).toBeNull()
+  })
+
+  it('handler with store.delete() returns 404 when item not found', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          delete: {
+            'x-handler': "return store.delete('items', req.params.id);",
+            responses: {
+              '204': {
+                description: 'No Content',
+              },
+              '404': {
+                description: 'Not Found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to delete non-existent item
+    const deleteResponse = await server.request('/items/non-existent-id', {
+      method: 'DELETE',
+    })
+
+    expect(deleteResponse.status).toBe(404)
+    const data = await deleteResponse.json()
+    expect(data).toBeNull()
+  })
+
+  it('handler with store.delete() returns 204 with no body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handler': "return store.create('items', req.body);",
+            responses: {
+              '201': {
+                description: 'Created',
+              },
+            },
+          },
+        },
+        '/items/{id}': {
+          delete: {
+            'x-handler': "return store.delete('items', req.params.id);",
+            responses: {
+              '204': {
+                description: 'No Content',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Create an item
+    const createResponse = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    const created = await createResponse.json()
+    const itemId = created.id
+
+    // Delete the item
+    const deleteResponse = await server.request(`/items/${itemId}`, {
+      method: 'DELETE',
+    })
+
+    expect(deleteResponse.status).toBe(204)
+    const contentType = deleteResponse.headers.get('Content-Type')
+    expect(contentType).toBeNull()
+    const body = await deleteResponse.text()
+    expect(body).toBe('')
   })
 })

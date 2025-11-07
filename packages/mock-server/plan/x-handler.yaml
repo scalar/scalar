@@ -3,12 +3,6 @@ info:
   title: Articles API
   version: 0.1.0
   description: Find, read, create, and manage articles.
-  contact:
-    name: Bruno Pedro
-    email: bpedro@brunopedro.com
-servers:
-  - url: http://localhost:5052
-    description: Local server
 tags:
   - name: Articles
     description: Operations related to articles
@@ -74,6 +68,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Article'
+    put:
+      summary: Update article
+      description: Update an existing article by its ID.
+      tags:
+        - Articles
+      operationId: updateArticle
+      x-handler: |
+        return store.update('articles', req.params.id, req.body)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewArticle'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+    delete:
+      summary: Delete article
+      description: Delete an article by its ID.
+      tags:
+        - Articles
+      operationId: deleteArticle
+      x-handler: |
+        return store.delete('articles', req.params.id)
+      responses:
+        '204':
+          description: No Content
 components:
   schemas:
     Article:

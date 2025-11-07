@@ -105,16 +105,14 @@ describe('store', () => {
     expect(updated.count).toBe(10)
   })
 
-  it('update throws error for non-existent item', () => {
-    expect(() => {
-      store.update('items', 'non-existent', { name: 'Updated' })
-    }).toThrow('Item with id "non-existent" not found in collection "items"')
+  it('update returns null for non-existent item', () => {
+    const result = store.update('items', 'non-existent', { name: 'Updated' })
+    expect(result).toBeNull()
   })
 
-  it('update throws error for non-existent collection', () => {
-    expect(() => {
-      store.update('items', '1', { name: 'Updated' })
-    }).toThrow('Item with id "1" not found in collection "items"')
+  it('update returns null for non-existent collection', () => {
+    const result = store.update('items', '1', { name: 'Updated' })
+    expect(result).toBeNull()
   })
 
   it('delete returns true for existing item', () => {
@@ -136,14 +134,14 @@ describe('store', () => {
     expect(items[0].id).toBe('2')
   })
 
-  it('delete returns false for non-existent item', () => {
+  it('delete returns null for non-existent item', () => {
     const result = store.delete('items', 'non-existent')
-    expect(result).toBe(false)
+    expect(result).toBeNull()
   })
 
-  it('delete returns false for non-existent collection', () => {
+  it('delete returns null for non-existent collection', () => {
     const result = store.delete('items', '1')
-    expect(result).toBe(false)
+    expect(result).toBeNull()
   })
 
   it('clear removes all collections when no collection specified', () => {
