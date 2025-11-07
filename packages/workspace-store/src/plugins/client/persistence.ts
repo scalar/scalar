@@ -20,7 +20,7 @@ export const persistencePlugin = async ({
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
-  const { execute } = debounce({ delay: debounceDelay, maxWait: 1000 })
+  const { execute } = debounce({ delay: debounceDelay, maxWait: 10000 })
 
   return {
     hooks: {
