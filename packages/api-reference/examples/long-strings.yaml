@@ -194,12 +194,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
         '400':
-          $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
-        'FakeCodeThatsAlsoReallyLongAndNeedsToWrapToMultipleLines':
           $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
   '/another/really/extremely/long/path/{really_extremely_long_snake_case_parameter}/with/more/extremely/long/path/segments':
     post:
@@ -217,6 +212,8 @@ paths:
         }
         ```
       operationId: postAnotherReallyExtremelyLongOperationThatTestsCamelCase
+      parameters:
+        - $ref: '#/components/parameters/really_extremely_long_snake_case_parameter'
       requestBody:
         description: Really long request body description that should wrap
         required: true
@@ -227,15 +224,15 @@ paths:
             examples:
               reallyExtremelyLongExampleNameThatTestsWrapping:
                 value:
-                  reallyExtremelyLongPropertyNameThatTestsCamelCase: 'Really long string value'
-                  anotherExtremelySuperLongPropertyNameForTesting: 123
+                  reallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsCamelCaseNamingAndWrapping: 'Really long string value'
+                  anotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines: 123
       responses:
         '201':
           description: Really long created response description
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/reallyExtremelyLongSchemaNameThatTestsCamelCaseNamingConvention'
+                $ref: '#/components/schemas/really_extremely_super_long_schema_name_that_comprehensively_tests_snake_case_naming_convention_and_ui_wrapping'
   '/very/extremely/super/long/path/segment/{reallyExtremelyLongCamelCaseParameter}/{ReallyExtremelyLongPascalCaseParameter}/{really_extremely_long_snake_case_parameter}':
     put:
       tags:
@@ -259,7 +256,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ComplexReallyExtremelyLongSchemaNameThatTestsPascalCase'
+                $ref: '#/components/schemas/MixedExtremelySuperLongNamingConventionSchemaThatComprehensivelyTestsAllCasesAndUIWrapping'
 webhooks:
   reallyExtremelyLongWebhookNameThatTestsCamelCaseNamingConvention:
     post:
@@ -369,29 +366,35 @@ components:
         enum:
           - really-extremely-long-enum-value-one-that-wraps
           - another-really-extremely-long-enum-value-two-that-wraps
-          - thirdExtremelySuperLongEnumValueThreeThatDefinitelyWraps
-          - yet_another_extremely_long_enum_value_four_that_also_wraps
+          - third-extremely-super-long-enum-value-three-that-definitely-wraps
     reallyExtremelyLongCamelCasePathParameter:
-      name: reallyExtremelyLongCamelCasePathParameter
+      name: reallyExtremelyLongCamelCaseParameter
       in: path
       required: true
       description: Really long camelCase parameter description
       schema:
         type: string
     ReallyExtremelyLongPascalCasePathParameter:
-      name: ReallyExtremelyLongPascalCasePathParameter
+      name: ReallyExtremelyLongPascalCaseParameter
       in: path
       required: true
       description: Really long PascalCase parameter description
       schema:
         type: integer
     really_extremely_long_snake_case_path_parameter:
-      name: really_extremely_long_snake_case_path_parameter
+      name: really_extremely_long_snake_case_parameter
       in: path
       required: true
       description: Really long snake_case parameter description
       schema:
         type: boolean
+    really_extremely_long_snake_case_parameter:
+      name: really_extremely_long_snake_case_parameter
+      in: path
+      required: true
+      description: Really long snake_case parameter description for the POST endpoint
+      schema:
+        type: string
   headers:
     X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping:
       description: |
