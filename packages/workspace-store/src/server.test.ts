@@ -230,7 +230,6 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
-              children: undefined,
               'id': 'doc-3/tag/default/get/planets',
               isDeprecated: false,
               method: 'get',
