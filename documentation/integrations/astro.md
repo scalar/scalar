@@ -43,7 +43,7 @@ import { ScalarComponent } from '@scalar/astro'
 
 ### Custom page title
 
-There's one additional option to set the page title:
+There's an additional option to set the page title:
 
 ```astro
 ---
