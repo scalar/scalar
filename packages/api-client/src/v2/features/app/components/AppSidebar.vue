@@ -9,18 +9,22 @@ import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { sidebarState, layout } = defineProps<{
   layout: ClientLayout
   sidebarState: SidebarState<TraversedEntry>
   isWorkspaceOpen?: boolean
+  activeWorkspace: Workspace
+  workspaces: Workspace[]
 }>()
 
 const emit = defineEmits<{
   (e: 'open:commandPalette', action?: 'import'): void
   (e: 'click:workspace'): void
   (e: 'selectItem', id: string): void
+  (e: 'select:workspace', id?: string): void
 }>()
 
 /** Propagate up the workspace model to the parent */
@@ -54,8 +58,11 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     v-model:workspace="workspaceModel"
+    :activeWorkspace="activeWorkspace"
     :layout="layout"
     :sidebarState="sidebarState"
+    :workspaces="workspaces"
+    @select:workspace="(id) => emit('select:workspace', id)"
     @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>

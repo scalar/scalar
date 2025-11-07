@@ -6,6 +6,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
@@ -16,11 +17,14 @@ const { sidebarState, layout } = defineProps<{
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
   layout: ClientLayout
+  activeWorkspace: Workspace
+  workspaces: Workspace[]
 }>()
 
 const emit = defineEmits<{
   /** Emitted when an item is selected */
   (e: 'selectItem', id: string): void
+  (e: 'select:workspace', id?: string): void
 }>()
 
 defineSlots<{
@@ -34,11 +38,6 @@ const log = (name: string, ...args: any[]) => {
   console.log('[LOG] event name: ', name)
   console.log('[LOG]', ...args)
 }
-
-/** Propagate up the workspace model to the parent */
-const workspaceModel = defineModel<string>('workspace', {
-  default: 'default',
-})
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -73,7 +72,9 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
                 v-if="layout === 'desktop'"
-                v-model:workspace="workspaceModel" />
+                :activeWorkspace="activeWorkspace"
+                :workspaces="workspaces"
+                @select:workspace="(id) => emit('select:workspace', id)" />
 
               <!-- Toggle the sidebar -->
               <SidebarToggle
