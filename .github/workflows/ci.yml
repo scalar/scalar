@@ -11,7 +11,6 @@ on:
   workflow_dispatch: null
 
 env:
-  NODE_OPTIONS: '--max_old_space_size=8192'
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
 jobs:
   # Initial build.
@@ -44,8 +43,6 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
-    env:
-      NODE_OPTIONS: '--max_old_space_size=32768'
 
   docker:
     name: Build and Tag Docker Image
@@ -237,8 +234,6 @@ jobs:
         timeout-minutes: 1
       - name: Run tests
         run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
-    env:
-      NODE_OPTIONS: '--max_old_space_size=16384'
 
   test-integrations:
     needs: [build]
@@ -254,7 +249,6 @@ jobs:
         BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
-      NODE_OPTIONS: '--max_old_space_size=16384'
     timeout-minutes: 10
     strategy:
       matrix:
