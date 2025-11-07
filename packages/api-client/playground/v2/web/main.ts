@@ -56,4 +56,4 @@ await workspaceStore.addDocument({
 const el = document.getElementById('scalar-client')
 
 /** This isn't in electron but basically fakes the desktop app in the web so its easier to work on */
-createApiClientApp(el, workspaceStore, { layout: 'web' })
+createApiClientApp(el, { layout: 'web' })

@@ -31,7 +31,7 @@ export const useSidebarState = ({
   method,
   exampleName,
 }: {
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore>
+  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
   workspaceSlug: MaybeRefOrGetter<string>
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>

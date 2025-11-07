@@ -981,17 +981,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           ...Object.fromEntries(
             Object.entries(workspace.documents).map(([name, doc]) => [
               name,
-              // Extract the raw document data for export, removing any Vue reactivity wrappers.
-              // When importing, the document can be wrapped again in a magic proxy.
-              toRaw(getRaw(unpackOverridesProxy(doc))),
+              // Get the raw document without any proxies
+              unpackProxyObject(doc),
             ]),
           ),
         },
-        meta: workspaceProps?.meta ?? {},
-        documentConfigs,
-        originalDocuments,
-        intermediateDocuments,
-        overrides,
+        meta: unpackProxyObject(workspaceProps?.meta) ?? {},
+        documentConfigs: unpackProxyObject(documentConfigs),
+        originalDocuments: unpackProxyObject(originalDocuments),
+        intermediateDocuments: unpackProxyObject(intermediateDocuments),
+        overrides: unpackProxyObject(overrides),
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
@@ -1015,6 +1014,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
+
+      console.log('Workspace loaded from serialized input.', workspace)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
