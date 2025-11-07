@@ -12,6 +12,7 @@ on:
 
 env:
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
   # Initial build.
   # We only build the packages and integrations as everything else depends on them
@@ -864,8 +865,6 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, check-integration-changes]
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -919,8 +918,6 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -1006,8 +1003,6 @@ jobs:
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
