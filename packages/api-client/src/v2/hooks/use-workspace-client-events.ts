@@ -52,10 +52,7 @@ export const useWorkspaceClientEvents = (
     'document:update:icon',
     (icon) => document.value && (document.value['x-scalar-client-config-icon'] = icon),
   )
-  eventBus.on(
-    'document:update:info',
-    (info) => document.value && (document.value.info = mergeObjects(document.value.info, info)),
-  )
+  eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
 
   //------------------------------------------------------------------------------------
@@ -82,47 +79,13 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('auth:delete:security-scheme', ({ names }) => {
-    deleteSecurityScheme({
-      document: document.value,
-      names,
-    })
-  })
-
-  eventBus.on('auth:update:selected-scopes', ({ id, name, scopes, meta }) => {
-    updateSelectedScopes({
-      document: document.value,
-      id,
-      name,
-      scopes,
-      meta,
-    })
-  })
-
-  eventBus.on('auth:update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
-    updateSelectedSecuritySchemes({
-      document: document.value,
-      newSchemes,
-      selectedRequirements,
-      meta,
-    })
-  })
-
-  eventBus.on('auth:update:security-scheme', ({ data, name }) => {
-    updateSecurityScheme({
-      document: document.value,
-      data,
-      name,
-    })
-  })
-
-  eventBus.on('auth:update:active-index', ({ index, meta }) => {
-    updateSelectedAuthTab({
-      document: document.value,
-      index,
-      meta,
-    })
-  })
+  eventBus.on('auth:delete:security-scheme', (payload) => deleteSecurityScheme(document.value, payload))
+  eventBus.on('auth:update:active-index', (payload) => updateSelectedAuthTab(document.value, payload))
+  eventBus.on('auth:update:security-scheme', (payload) => updateSecurityScheme(document.value, payload))
+  eventBus.on('auth:update:selected-scopes', (payload) => updateSelectedScopes(document.value, payload))
+  eventBus.on('auth:update:selected-security-schemes', (payload) =>
+    updateSelectedSecuritySchemes(document.value, payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers

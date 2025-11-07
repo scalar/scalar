@@ -136,7 +136,6 @@ export function generateClientMutators(store: WorkspaceStore) {
 
 export {
   type AuthMeta,
-  type SecuritySchemeUpdate,
   deleteSecurityScheme,
   updateSecurityScheme,
   updateSelectedAuthTab,
