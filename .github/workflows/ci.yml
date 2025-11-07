@@ -60,6 +60,7 @@ jobs:
       rust_package_changed: ${{ steps.set-outputs.outputs.rust_package_changed }}
       java_webjar_package_changed: ${{ steps.set-outputs.outputs.java_webjar_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
+      icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -79,6 +80,9 @@ jobs:
               - integrations/rust/**
             docker_integration:
               - integrations/docker/**
+            icons_changed:
+              - packages/icons/**
+              - packages/components/src/components/ScalarIcon/**
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -112,6 +116,7 @@ jobs:
           echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "icons_changed=${{ steps.changed-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -137,6 +142,30 @@ jobs:
         run: pnpm lint:check
       - name: Check formatting
         run: pnpm format:check
+
+  lint-icons:
+    if: needs.check-integration-changes.outputs.icons_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    needs: [build, check-integration-changes]
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint Component Library Icons
+        run: pnpm --filter components lint:icons
+      - name: Lint Icon Library Icons
+        run: pnpm --filter icons lint:icons
 
   build-examples:
     needs: [build]
