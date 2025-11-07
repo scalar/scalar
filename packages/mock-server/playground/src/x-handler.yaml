@@ -30,8 +30,10 @@ paths:
         - Articles
       operationId: createArticle
       x-handler: |
-        const uuid = faker.string.uuid()
-        return store.create('articles', { id: uuid, ...req.body })
+        return store.create('articles', {
+          id: faker.string.uuid(),
+          ...req.body
+        })
       requestBody:
         required: true
         content:
