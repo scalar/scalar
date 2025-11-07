@@ -120,6 +120,12 @@ components:
         id: 123e4567-e89b-12d3-a456-426614174000
         title: My first article
         content: This is the content of my first article.
+      x-seed: |
+        seed.count(5, () => ({
+          id: faker.string.uuid(),
+          title: faker.lorem.sentence(),
+          content: faker.lorem.paragraphs(4)
+        }))
     NewArticle:
       type: object
       required:
