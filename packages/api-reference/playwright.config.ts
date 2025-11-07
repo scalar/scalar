@@ -52,7 +52,8 @@ export default defineConfig({
     ? undefined
     : {
         name: 'Playwright',
-        command: 'docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.56.0',
+        command:
+          'docker run --name scalar-playwright --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.56.0 run-server --port 5001 --host 0.0.0.0',
         url: 'http://localhost:5001',
         timeout: 120 * 1000,
         reuseExistingServer: !CI,
