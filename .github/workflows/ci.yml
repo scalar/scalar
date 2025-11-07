@@ -50,6 +50,9 @@ jobs:
     outputs:
       dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
       java_changed: ${{ steps.set-outputs.outputs.java_changed }}
+      fastapi_changed: ${{ steps.set-outputs.outputs.fastapi_changed }}
+      rust_changed: ${{ steps.set-outputs.outputs.rust_changed }}
+      docker_changed: ${{ steps.set-outputs.outputs.docker_changed }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -63,60 +66,63 @@ jobs:
               - integrations/dotnet/**
             java_integration:
               - integrations/java/**
+            fastapi_integration:
+              - integrations/fastapi/**
+            rust_integration:
+              - integrations/rust/**
+            docker_integration:
+              - integrations/docker/**
 
       - name: Set job outputs
         id: set-outputs
         run: |
           echo "dotnet_changed=${{ steps.changed-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_changed=${{ steps.changed-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "fastapi_changed=${{ steps.changed-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "rust_changed=${{ steps.changed-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "docker_changed=${{ steps.changed-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
 
   docker:
+    if: needs.check-integration-changes.outputs.docker_changed == 'true'
     name: Build and Tag Docker Image
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-integration-changes]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Check whether the Dockerfile or any of its contents were modified
+      - name: Check whether the Docker package.json was modified (for publishing)
         id: changed-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
         with:
           files_yaml: |
-            api_reference_docker:
-              - integrations/docker/**
             api_reference_docker_version:
               - integrations/docker/package.json
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Get version from package.json
+      - name: Get version from package.json
         id: package-version
         working-directory: integrations/docker
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Download scalar.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
           path: integrations/docker/assets
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Compress static assets
+      - name: Compress static assets
         working-directory: integrations/docker/assets
         run: gzip --keep --verbose --force scalar.js
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Setup Docker Builder
+      - name: Setup Docker Builder
         uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
         with:
           platforms: |
             linux/amd64
             linux/arm64
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build Docker image
+      - name: Build Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
           context: integrations/docker
@@ -124,8 +130,7 @@ jobs:
           load: true
           tags: scalarapi/api-reference:latest
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Scan for vulnerabilities
+      - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         with:
           scan-type: 'image'
@@ -1115,9 +1120,10 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
+    if: needs.check-integration-changes.outputs.fastapi_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-integration-changes]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -1195,9 +1201,10 @@ jobs:
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   rust-build-test:
+    if: needs.check-integration-changes.outputs.rust_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-integration-changes]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
