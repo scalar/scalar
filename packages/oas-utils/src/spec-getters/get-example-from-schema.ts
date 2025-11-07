@@ -66,9 +66,12 @@ const guessFromFormat = (
   makeUpRandomData: boolean = false,
   fallback: string = '',
 ): string | File => {
+  /**
+   * TODO: Consider removing or rethinking based on UX issue #6817 reported
+   */
   // Handle binary format specially - return a File object
   if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
-    return new File([''], 'filename')
+    return fallback
   }
 
   // Return format-specific example if we have one and are making up data
