@@ -4,7 +4,7 @@
  */
 type StoreData = Record<string, Record<string, any>>
 
-class Store {
+export class Store {
   private data: StoreData = {}
 
   /**
@@ -41,10 +41,11 @@ class Store {
 
   /**
    * Update an existing item in a collection.
+   * Returns null if the item is not found.
    */
-  update(collection: string, id: string, data: any): any {
+  update(collection: string, id: string, data: any): any | null {
     if (!this.data[collection]?.[id]) {
-      throw new Error(`Item with id "${id}" not found in collection "${collection}"`)
+      return null
     }
 
     const updated = { ...this.data[collection][id], ...data, id }
@@ -55,10 +56,11 @@ class Store {
 
   /**
    * Delete an item from a collection.
+   * Returns null if the item is not found.
    */
-  delete(collection: string, id: string): boolean {
+  delete(collection: string, id: string): boolean | null {
     if (!this.data[collection]?.[id]) {
-      return false
+      return null
     }
 
     delete this.data[collection][id]

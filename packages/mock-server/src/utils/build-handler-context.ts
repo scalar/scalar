@@ -2,12 +2,13 @@ import { faker } from '@faker-js/faker'
 import type { Context } from 'hono'
 
 import { store } from '../libs/store'
+import { createStoreWrapper, type StoreOperationTracking } from './store-wrapper'
 
 /**
  * Context object provided to x-handler code.
  */
 export type HandlerContext = {
-  store: typeof store
+  store: ReturnType<typeof createStoreWrapper>['wrappedStore']
   faker: typeof faker
   req: {
     body: any
@@ -18,9 +19,17 @@ export type HandlerContext = {
 }
 
 /**
+ * Result of building handler context, including operation tracking.
+ */
+export type HandlerContextResult = {
+  context: HandlerContext
+  tracking: StoreOperationTracking
+}
+
+/**
  * Build the handler context from a Hono context.
  */
-export async function buildHandlerContext(c: Context): Promise<HandlerContext> {
+export async function buildHandlerContext(c: Context): Promise<HandlerContextResult> {
   let body: any = undefined
 
   try {
@@ -36,14 +45,19 @@ export async function buildHandlerContext(c: Context): Promise<HandlerContext> {
     // Ignore parsing errors, body remains undefined
   }
 
+  const { wrappedStore, tracking } = createStoreWrapper(store)
+
   return {
-    store,
-    faker,
-    req: {
-      body,
-      params: c.req.param(),
-      query: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
-      headers: Object.fromEntries(Object.entries(c.req.header()).map(([key, value]) => [key, value ?? ''])),
+    context: {
+      store: wrappedStore,
+      faker,
+      req: {
+        body,
+        params: c.req.param(),
+        query: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
+        headers: Object.fromEntries(Object.entries(c.req.header()).map(([key, value]) => [key, value ?? ''])),
+      },
     },
+    tracking,
   }
 }
