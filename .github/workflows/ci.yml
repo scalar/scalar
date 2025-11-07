@@ -44,6 +44,32 @@ jobs:
           path: temp-artifacts/scalar.js
           retention-days: 3
 
+  check-integration-changes:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    outputs:
+      dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
+      java_changed: ${{ steps.set-outputs.outputs.java_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Check whether integration files were modified
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            dotnet_integration:
+              - integrations/dotnet/**
+            java_integration:
+              - integrations/java/**
+
+      - name: Set job outputs
+        id: set-outputs
+        run: |
+          echo "dotnet_changed=${{ steps.changed-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "java_changed=${{ steps.changed-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
+
   docker:
     name: Build and Tag Docker Image
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -830,9 +856,10 @@ jobs:
   # Integration builds, tests, and publishes
 
   dotnet-build-test:
+    if: needs.check-integration-changes.outputs.dotnet_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-integration-changes]
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
@@ -1291,7 +1318,8 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   java-webjar-test:
-    needs: [build]
+    if: needs.check-integration-changes.outputs.java_changed == 'true'
+    needs: [build, check-integration-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
