@@ -85,6 +85,8 @@
       "warp"
     ]
   },
+  "dependencies": {},
+  "devDependencies": {},
   "readme": {
     "title": "Scalar API Reference Crate for Rust",
     "badges": [
@@ -102,7 +104,5 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/rust"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  }
 }

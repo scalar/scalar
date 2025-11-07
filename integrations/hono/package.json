@@ -41,6 +41,21 @@
     "dist"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "@scalar/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@hono/node-server": "catalog:*",
+    "@hono/zod-openapi": "^1.1.3",
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/openapi-to-markdown": "workspace:*",
+    "hono": "catalog:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
+  },
+  "peerDependencies": {
+    "hono": "^4.10.3"
+  },
   "readme": {
     "title": "Scalar API Reference for Hono",
     "badges": [
@@ -55,20 +70,5 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/hono"
-  },
-  "dependencies": {
-    "@scalar/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@hono/node-server": "catalog:*",
-    "@hono/zod-openapi": "^1.1.3",
-    "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-to-markdown": "workspace:*",
-    "hono": "^4.10.3",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
-  },
-  "peerDependencies": {
-    "hono": "^4.10.3"
   }
 }

@@ -43,6 +43,20 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "@scalar/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/express": "catalog:*",
+    "@types/supertest": "^2.0.12",
+    "@types/swagger-jsdoc": "^6.0.3",
+    "express": "catalog:*",
+    "supertest": "^6.3.3",
+    "swagger-jsdoc": "^6.2.8",
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
+  },
   "readme": {
     "title": "Scalar API Reference Plugin for Express",
     "badges": [
@@ -57,19 +71,5 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/express"
-  },
-  "dependencies": {
-    "@scalar/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "@types/express": "catalog:*",
-    "@types/supertest": "^2.0.12",
-    "@types/swagger-jsdoc": "^6.0.3",
-    "express": "catalog:*",
-    "supertest": "^6.3.3",
-    "swagger-jsdoc": "^6.2.8",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
   }
 }
