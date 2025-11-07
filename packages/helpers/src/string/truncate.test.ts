@@ -4,7 +4,7 @@ import { truncate } from './truncate'
 
 describe('truncate', () => {
   it('should truncate strings longer than maxLength', () => {
-    expect(truncate('Very long name that needs truncation')).toBe('Very long name th…')
+    expect(truncate('Very long name that needs truncation')).toBe('Very long name tha…')
     expect(truncate('This is a very long string', 10)).toBe('This is a …')
   })
 
@@ -14,8 +14,8 @@ describe('truncate', () => {
   })
 
   it('should use default maxLength of 18', () => {
-    expect(truncate('This is exactly 18!!')).toBe('This is exactly 18!!')
-    expect(truncate('This is longer than 18 chars')).toBe('This is longer th…')
+    expect(truncate('Exactly eighteen!!')).toBe('Exactly eighteen!!')
+    expect(truncate('This is longer than 18 chars')).toBe('This is longer tha…')
   })
 
   it('should handle empty strings', () => {
