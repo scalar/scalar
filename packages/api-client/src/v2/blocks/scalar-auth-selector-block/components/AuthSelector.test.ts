@@ -49,7 +49,7 @@ describe('AuthSelector', () => {
       eventBus: WorkspaceEventBus
       environment: any
       envVariables: any[]
-      layout: 'client' | 'reference'
+      isStatic: boolean
       security: any
       selectedSecurity: any
       securitySchemes: any
@@ -58,8 +58,7 @@ describe('AuthSelector', () => {
     }> = {},
   ) => {
     const environment = custom.environment ?? baseEnvironment
-    const envVariables = custom.envVariables ?? []
-    const layout = custom.layout ?? 'client'
+    const isStatic = custom.isStatic ?? true
     const security = custom.security ?? [{ BearerAuth: [] }]
     const selectedSecurity = custom.selectedSecurity ?? { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] }
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
@@ -69,8 +68,7 @@ describe('AuthSelector', () => {
     return mount(AuthSelector, {
       props: {
         environment,
-        envVariables,
-        layout,
+        isStatic,
         security,
         selectedSecurity,
         securitySchemes,
@@ -288,19 +286,16 @@ describe('AuthSelector', () => {
 
   describe('props passing', () => {
     it('passes all required props to RequestAuthDataTable', () => {
-      const envVariables = [{ key: 'API_KEY', value: 'test-key' }]
       const wrapper = mountWithProps({
-        envVariables,
-        layout: 'reference',
+        isStatic: true,
         selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
       })
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
       const props = dataTable.props()
 
-      expect(props.envVariables).toEqual(envVariables)
       expect(props.environment).toEqual(baseEnvironment)
-      expect(props.layout).toBe('reference')
+      expect(props.isStatic).toBe(true)
       expect(props.securitySchemes).toEqual(baseSecuritySchemes)
       expect(props.server).toEqual(baseServer)
       expect(props.selectedSchemeOptions).toBeDefined()

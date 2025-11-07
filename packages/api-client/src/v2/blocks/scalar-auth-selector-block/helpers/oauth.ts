@@ -60,7 +60,7 @@ export const authorizeOauth2 = async (
   type: keyof OAuthFlowsObject,
   selectedScopes: string[],
   /** We use the active server to set a base for relative redirect uris */
-  activeServer: ServerObject,
+  activeServer: ServerObject | undefined,
   /** If we want to use the proxy */
   proxyUrl?: string,
 ): Promise<ErrorResponse<string>> => {
@@ -119,7 +119,7 @@ export const authorizeOauth2 = async (
 
     // Handle relative redirect uris
     if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
-      const baseUrl = activeServer.url || window.location.origin + window.location.pathname
+      const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
       const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
 
       url.searchParams.set('redirect_uri', redirectUri)

@@ -11,15 +11,9 @@ import { computed } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
-
-type OAuth2UpdatePayload = Extract<
-  UpdateSecuritySchemeEvent,
-  { type: 'oauth2' }
->['payload']
 
 const { environment, flows, type, selectedScopes, server, proxyUrl } =
   defineProps<{
@@ -42,27 +36,16 @@ const { toast } = useToasts()
 /** The current OAuth flow based on the selected type */
 const flow = computed(() => flows[type]!)
 
-/**
- * Whether the user has already been authorized and has an access token.
- * When true, we show the token management UI instead of the authorization form.
- */
-const isAuthorized = computed(() => !!flow.value['x-scalar-secret-token'])
-
 /** Updates the security scheme with new values */
 const updateSecurityScheme = (payload: OAuth2UpdatePayload) =>
   emits('update:securityScheme', payload)
 
 /**
  * Authorizes the user using the specified OAuth flow.
- * Opens the appropriate OAuth dialog or performs the token exchange.
+ * Opens the appropriate OAuth dialog and/or performs the token exchange.
  */
 const handleAuthorize = async (): Promise<void> => {
   if (loadingState.isLoading) {
-    return
-  }
-
-  if (!server) {
-    toast('No server selected', 'error')
     return
   }
 
@@ -87,7 +70,7 @@ const handleAuthorize = async (): Promise<void> => {
 
 <template>
   <!-- Access Token Display: Shows when user is already authorized -->
-  <template v-if="isAuthorized">
+  <template v-if="Boolean(flow['x-scalar-secret-token'])">
     <DataTableRow>
       <RequestAuthDataTableInput
         class="border-r-transparent"
