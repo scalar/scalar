@@ -4,9 +4,9 @@ import { useResizeObserver } from '@vueuse/core'
 import { onMounted, ref, useId, useTemplateRef } from 'vue'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
-import type { ScalarMarkdownProps } from './types'
+import type { ScalarMarkdownSummaryProps } from './types'
 
-const { clamp = 1, ...props } = defineProps<ScalarMarkdownProps>()
+const { clamp = 1, ...props } = defineProps<ScalarMarkdownSummaryProps>()
 
 const id = useId()
 
@@ -44,18 +44,18 @@ defineOptions({ inheritAttrs: false })
       )
     ">
     <ScalarMarkdown
-      ref="scalar-markdown"
       v-bind="props"
       :id="id"
-      :class="{ 'markdown-summary truncate': !open }"
-      :clamp="open ? undefined : clamp" />
+      ref="scalar-markdown"
+      :clamp="open ? undefined : clamp"
+      :class="{ 'markdown-summary truncate': !open }" />
     <button
-      v-if="isTruncated || open"
+      v-if="!controlled && (isTruncated || open)"
+      :aria-controls="id"
+      :aria-expanded="open"
       class="whitespace-nowrap font-medium hover:underline"
       :class="{ 'self-end': open }"
       type="button"
-      :aria-controls="id"
-      :aria-expanded="open"
       @click="open = !open">
       <slot
         name="button"

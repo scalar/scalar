@@ -36,3 +36,14 @@ export type ScalarMarkdownProps = {
    */
   anchorPrefix?: string
 }
+
+export type ScalarMarkdownSummaryProps = ScalarMarkdownProps & {
+  /**
+   * Allows the summary's open and closed state to
+   * be controlled by the parent component and hides
+   * the "More" and "Less" buttons.
+   *
+   * @default false
+   */
+  controlled?: boolean
+}

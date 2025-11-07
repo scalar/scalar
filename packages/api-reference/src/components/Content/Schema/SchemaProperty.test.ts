@@ -356,7 +356,7 @@ describe('SchemaProperty', () => {
       // Check that the pattern property name is rendered with the special styling
       const patternName = wrapper.find('.property-name-pattern-properties')
       expect(patternName.exists()).toBe(true)
-      expect(patternName.text()).toBe('^foo-')
+      expect(patternName.text()).toBe('^foo​-')
     })
 
     it('displays additional properties with variant prop', () => {
@@ -375,7 +375,7 @@ describe('SchemaProperty', () => {
       // Check that the additional property name is rendered with the special styling
       const additionalName = wrapper.find('.property-name-additional-properties')
       expect(additionalName.exists()).toBe(true)
-      expect(additionalName.text()).toBe('propertyName*')
+      expect(additionalName.text()).toBe('property​Name*')
     })
 
     it('displays regular property names without variant styling', () => {
@@ -398,7 +398,7 @@ describe('SchemaProperty', () => {
       expect(additionalName.exists()).toBe(false)
 
       // The name should still be rendered in the slot
-      expect(wrapper.text()).toContain('regularProperty')
+      expect(wrapper.text()).toContain('regular​Property')
     })
   })
 

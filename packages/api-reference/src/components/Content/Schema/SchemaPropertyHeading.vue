@@ -376,6 +376,7 @@ const flattenedDefaultValue = computed(() => {
 }
 
 .property-name {
+  max-width: 100%;
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
