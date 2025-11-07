@@ -19,7 +19,7 @@ import { createStoreEvents } from '@/store/events'
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
-const { document, layout, eventBus, path, method, exampleName } =
+const { document, layout, eventBus, path, method, environment, exampleName } =
   defineProps<RouteProps>()
 
 const operation = computed(() =>
@@ -74,36 +74,28 @@ const authMeta = computed<AuthMeta>(() => {
 })
 
 const APP_VERSION = PACKAGE_VERSION
-
-const environment = {
-  uid: '' as any,
-  name: '',
-  color: '',
-  value: '',
-}
 </script>
 
 <template>
   <template v-if="path && method && exampleName && operation">
     <OperationBlock
-      :path="path"
-      :method="method"
       :appVersion="APP_VERSION"
+      :authMeta="authMeta"
       :environment="environment"
-      :envVariables="[]"
       :eventBus="eventBus"
+      :events="createStoreEvents()"
       :exampleKey="exampleName"
       :history="[]"
       :layout="layout"
-      :plugins="[]"
+      :method="method"
       :operation="operation"
-      :authMeta="authMeta"
+      :path="path"
+      :plugins="[]"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedSecurity="selectedSecurity"
       :server="undefined"
       :servers="[]"
-      :events="createStoreEvents()"
       :totalPerformedRequests="0" />
   </template>
   <div
