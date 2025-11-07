@@ -12,6 +12,7 @@ import { logAuthenticationInstructions } from '@/utils/log-authentication-instru
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 
 import { mockAnyResponse } from './routes/mock-any-response'
+import { mockHandlerResponse } from './routes/mock-handler-response'
 import { respondWithOpenApiDocument } from './routes/respond-with-openapi-document'
 
 /**
@@ -49,8 +50,15 @@ export function createMockServer(configuration: MockServerOptions): Promise<Hono
         app[method](route, handleAuthentication(schema, operation))
       }
 
-      // Actual route
-      app[method](route, (c) => mockAnyResponse(c, operation, configuration))
+      // Check if operation has x-handler extension
+      const hasHandler = operation?.['x-handler'] !== undefined
+
+      // Route to appropriate handler
+      if (hasHandler) {
+        app[method](route, (c) => mockHandlerResponse(c, operation, configuration))
+      } else {
+        app[method](route, (c) => mockAnyResponse(c, operation, configuration))
+      }
     })
   })
 

@@ -46,6 +46,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@faker-js/faker": "^9.0.0",
     "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

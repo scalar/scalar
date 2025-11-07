@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: Articles API
+  version: 0.1.0
+  description: Find, read, create, and manage articles.
+  contact:
+    name: Bruno Pedro
+    email: bpedro@brunopedro.com
+servers:
+  - url: http://localhost:5052
+    description: Local server
+tags:
+  - name: Articles
+    description: Operations related to articles
+paths:
+  /articles:
+    get:
+      summary: Get articles
+      description: Retrieve a list of articles.
+      tags:
+        - Articles
+      operationId: getArticles
+      x-handler: |
+        return store.list('articles')
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Articles'
+    post:
+      summary: Create article
+      description: Create a new article.
+      tags:
+        - Articles
+      operationId: createArticle
+      x-handler: |
+        const uuid = faker.string.uuid()
+        return store.create('articles', { id: uuid, ...req.body })
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewArticle'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+  /articles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Article identifier
+    get:
+      summary: Get article
+      description: Retrieve a specific article by its ID.
+      tags:
+        - Articles
+      operationId: getArticle
+      x-handler: |
+        return store.get('articles', req.params.id)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+components:
+  schemas:
+    Article:
+      type: object
+      required:
+        - id
+        - title
+        - content
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+      example:
+        id: 123e4567-e89b-12d3-a456-426614174000
+        title: My first article
+        content: This is the content of my first article.
+    NewArticle:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+      example:
+        title: My first article
+        content: This is the content of my first article.
+    Articles:
+      type: array
+      items:
+        $ref: '#/components/schemas/Article'
