@@ -2,7 +2,10 @@
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
+import type { OAuthFlow } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
   OAuthFlowsObject,
   ServerObject,
@@ -26,8 +29,14 @@ const { environment, flows, type, selectedScopes, server, proxyUrl } =
   }>()
 
 const emits = defineEmits<{
-  'update:selectedScopes': [payload: { scopes: string[] }]
-  'update:securityScheme': [payload: OAuth2UpdatePayload]
+  (
+    e: 'update:securityScheme',
+    payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
+  ): void
+  (
+    e: 'update:selectedScopes',
+    payload: Pick<ApiReferenceEvents['auth:update:selected-scopes'], 'scopes'>,
+  ): void
 }>()
 
 const loadingState = useLoadingState()
@@ -36,9 +45,12 @@ const { toast } = useToasts()
 /** The current OAuth flow based on the selected type */
 const flow = computed(() => flows[type]!)
 
-/** Updates the security scheme with new values */
-const updateSecurityScheme = (payload: OAuth2UpdatePayload) =>
-  emits('update:securityScheme', payload)
+/** Updates the flow  */
+const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
+  emits('update:securityScheme', {
+    type: 'oauth2',
+    [type]: payload,
+  })
 
 /**
  * Authorizes the user using the specified OAuth flow.
@@ -60,7 +72,7 @@ const handleAuthorize = async (): Promise<void> => {
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) {
-    updateSecurityScheme({ token: accessToken })
+    handleOauth2Update({ 'x-scalar-secret-token': accessToken })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -78,7 +90,9 @@ const handleAuthorize = async (): Promise<void> => {
         :modelValue="flow['x-scalar-secret-token']"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
-        @update:modelValue="(v) => updateSecurityScheme({ token: v })">
+        @update:modelValue="
+          (v) => handleOauth2Update({ 'x-scalar-secret-token': v })
+        ">
         Access Token
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -90,7 +104,7 @@ const handleAuthorize = async (): Promise<void> => {
           :loading="loadingState"
           size="sm"
           variant="outlined"
-          @click="() => updateSecurityScheme({ token: '' })">
+          @click="() => handleOauth2Update({ 'x-scalar-secret-token': '' })">
           Clear
         </ScalarButton>
       </div>
@@ -106,7 +120,7 @@ const handleAuthorize = async (): Promise<void> => {
         :environment
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
-        @update:modelValue="(v) => updateSecurityScheme({ authUrl: v })">
+        @update:modelValue="(v) => handleOauth2Update({ authorizationUrl: v })">
         Auth URL
       </RequestAuthDataTableInput>
 
@@ -115,7 +129,7 @@ const handleAuthorize = async (): Promise<void> => {
         :environment
         :modelValue="flow.tokenUrl"
         placeholder="https://galaxy.scalar.com/token"
-        @update:modelValue="(v) => updateSecurityScheme({ tokenUrl: v })">
+        @update:modelValue="(v) => handleOauth2Update({ tokenUrl: v })">
         Token URL
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -125,7 +139,9 @@ const handleAuthorize = async (): Promise<void> => {
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
-        @update:modelValue="(v) => updateSecurityScheme({ redirectUrl: v })">
+        @update:modelValue="
+          (v) => handleOauth2Update({ 'x-scalar-secret-redirect-uri': v })
+        ">
         Redirect URL
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -140,7 +156,9 @@ const handleAuthorize = async (): Promise<void> => {
           :environment
           :modelValue="flow['x-scalar-secret-username']"
           placeholder="janedoe"
-          @update:modelValue="(v) => updateSecurityScheme({ username: v })">
+          @update:modelValue="
+            (v) => handleOauth2Update({ 'x-scalar-secret-username': v })
+          ">
           Username
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -151,7 +169,9 @@ const handleAuthorize = async (): Promise<void> => {
           :modelValue="flow['x-scalar-secret-password']"
           placeholder="********"
           type="password"
-          @update:modelValue="(v) => updateSecurityScheme({ password: v })">
+          @update:modelValue="
+            (v) => handleOauth2Update({ 'x-scalar-secret-password': v })
+          ">
           Password
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -162,7 +182,9 @@ const handleAuthorize = async (): Promise<void> => {
         :environment
         :modelValue="flow['x-scalar-secret-client-id']"
         placeholder="12345"
-        @update:modelValue="(v) => updateSecurityScheme({ clientId: v })">
+        @update:modelValue="
+          (v) => handleOauth2Update({ 'x-scalar-secret-client-id': v })
+        ">
         Client ID
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -173,7 +195,9 @@ const handleAuthorize = async (): Promise<void> => {
         :modelValue="flow['x-scalar-secret-client-secret']"
         placeholder="XYZ123"
         type="password"
-        @update:modelValue="(v) => updateSecurityScheme({ clientSecret: v })">
+        @update:modelValue="
+          (v) => handleOauth2Update({ 'x-scalar-secret-client-secret': v })
+        ">
         Client Secret
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -186,8 +210,8 @@ const handleAuthorize = async (): Promise<void> => {
         readOnly
         @update:modelValue="
           (v) =>
-            updateSecurityScheme({
-              usePkce: v as (typeof pkceOptions)[number],
+            handleOauth2Update({
+              'x-usePkce': v as XusePkce['x-usePkce'],
             })
         ">
         Use PKCE

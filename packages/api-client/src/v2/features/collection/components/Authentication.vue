@@ -5,8 +5,7 @@ import { computed } from 'vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-const { document, eventBus, environment, layout } =
-  defineProps<CollectionProps>()
+const { document, eventBus, environment } = defineProps<CollectionProps>()
 
 /** If enabled we use/set the selected security schemes on the document level */
 const useDocumentSecurity = computed(

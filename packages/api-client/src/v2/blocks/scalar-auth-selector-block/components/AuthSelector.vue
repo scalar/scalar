@@ -35,7 +35,7 @@ const {
   environment,
   eventBus,
   isReadOnly = false,
-  isStatic,
+  isStatic = false,
   meta,
   security,
   securitySchemes,
@@ -48,7 +48,7 @@ const {
   /** Whether we can add or delete auth schemes */
   isReadOnly?: boolean
   /** Creates a static disclosure that cannot be collapsed */
-  isStatic: boolean
+  isStatic?: boolean
   meta: AuthMeta
   security: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
@@ -101,7 +101,7 @@ const availableSchemeOptions = computed(() =>
 
 /** Currently active auth schemes selected for this operation or collection */
 const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
-  const schemes = selectedSecurity?.['x-schemes']
+  const schemes = selectedSecurity?.selectedSchemes
   if (!schemes?.length) {
     return []
   }
@@ -282,7 +282,7 @@ defineExpose({
 
     <!-- Auth Table -->
     <RequestAuthDataTable
-      :activeAuthIndex="selectedSecurity?.['x-selected-index'] ?? 0"
+      :activeAuthIndex="selectedSecurity?.selectedIndex ?? 0"
       :environment
       :eventBus
       :isStatic

@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { ref, useId } from 'vue'
 
-import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
-import type { EnvVariable } from '@/store/active-entities'
 import type { createStoreEvents } from '@/store/events'
+import CodeInput from '@/v2/components/code-input/CodeInput.vue'
 import { ServerDropdown } from '@/v2/components/server'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
@@ -23,7 +22,6 @@ const {
   history,
   server,
   environment,
-  envVariables,
   percentage = 100,
   events,
 } = defineProps<{
@@ -45,10 +43,7 @@ const {
   events: ReturnType<typeof createStoreEvents>
 
   eventBus: WorkspaceEventBus
-
-  /** TODO: to be removed once we fully migrate to the new store */
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
 }>()
 
 const emit = defineEmits<{
@@ -146,7 +141,6 @@ events.focusAddressBar.on(() => {
           disableEnter
           disableTabIndent
           :emitOnBlur="false"
-          :envVariables="envVariables"
           :environment="environment"
           importCurl
           :modelValue="path"

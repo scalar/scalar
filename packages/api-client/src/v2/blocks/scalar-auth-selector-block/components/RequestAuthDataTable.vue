@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -8,7 +11,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
 
@@ -19,7 +21,7 @@ const {
   isStatic,
   selectedSchemeOptions,
   activeAuthIndex,
-  securitySchemes,
+  securitySchemes = {},
   server,
   eventBus,
   meta,
@@ -61,21 +63,21 @@ const handleTabChange = (index: number) =>
   })
 
 /** Handles updates to the security scheme configuration */
-const handleSecuritySchemeUpdate = (payload: UpdateSecuritySchemeEvent) =>
+const handleSecuritySchemeUpdate = (
+  payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
+) =>
   eventBus.emit('auth:update:security-scheme', {
-    data: payload,
+    payload,
     name: activeScheme.value?.id ?? '',
   })
 
 /** Handles updates to OAuth scope selection */
-const handleScopesUpdate = (params: {
-  id: string[]
-  name: string
-  scopes: string[]
-}) =>
+const handleScopesUpdate = (
+  params: Omit<ApiReferenceEvents['auth:update:selected-scopes'], 'meta'>,
+): void =>
   eventBus.emit('auth:update:selected-scopes', {
     ...params,
-    meta: meta,
+    meta,
   })
 
 /** Determines if a tab is currently active */
@@ -125,10 +127,10 @@ defineExpose({
       presentational>
       <RequestAuthTab
         :environment="environment"
-        :isStatic="isStatic"
-        :securitySchemes="securitySchemes ?? {}"
+        :isStatic
+        :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"
-        :server="server"
+        :server
         @update:securityScheme="handleSecuritySchemeUpdate"
         @update:selectedScopes="handleScopesUpdate" />
     </DataTable>

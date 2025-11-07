@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 import { OpenApiClientButton } from '@/components'
 import type { ClientLayout } from '@/hooks'
-import type { EnvVariable } from '@/store'
 import type { createStoreEvents } from '@/store/events'
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 
@@ -46,14 +45,12 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
    * The amount remaining to load from 100 -> 0
    */
   requestLoadingPercentage?: number
+
   /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
-
   eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
 
-  /** TODO: to be removed once we fully migrate to the new store */
-  environment: Environment
-  envVariables: EnvVariable[]
+  events: ReturnType<typeof createStoreEvents>
 }>()
 
 const emit = defineEmits<{
@@ -89,10 +86,8 @@ const emit = defineEmits<{
         :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
-      @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)"
-      :envVariables="envVariables"
       :environment="environment"
+      :eventBus="eventBus"
       :events="events"
       :history="history"
       :layout="layout"
@@ -101,8 +96,9 @@ const emit = defineEmits<{
       :percentage="requestLoadingPercentage"
       :server="server"
       :servers="servers"
-      :eventBus="eventBus"
-      @execute="emit('execute')" />
+      @execute="emit('execute')"
+      @update:method="(payload) => emit('update:method', payload)"
+      @update:path="(payload) => emit('update:path', payload)" />
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
       <!-- 
@@ -117,6 +113,7 @@ const emit = defineEmits<{
         :integration="integration ?? null"
         :source="source ?? 'api-reference'"
         :url="documentUrl" />
+
       <!-- 
           Close Button
 
@@ -133,6 +130,7 @@ const emit = defineEmits<{
           thickness="2" />
         <span class="sr-only">Close Client</span>
       </button>
+
       <!-- 
           Close Button for GitBook Integration
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ScalarMarkdownSummary } from '@scalar/components'
+import type { PathValue } from '@scalar/object-utils/nested'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -8,10 +10,13 @@ import type {
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  ApiKeyObject,
+  HttpObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import { capitalize, computed, ref } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
-import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -38,10 +43,13 @@ const {
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:securityScheme', payload: UpdateSecuritySchemeEvent): void
+  (
+    e: 'update:securityScheme',
+    payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
+  ): void
   (
     e: 'update:selectedScopes',
-    payload: { id: string[]; name: string; scopes: string[] },
+    payload: Omit<ApiReferenceEvents['auth:update:selected-scopes'], 'meta'>,
   ): void
 }>()
 
@@ -99,64 +107,27 @@ const isFlowActive = (flowKey: string, index: number): boolean =>
 /** Computes the container class for static display mode. */
 const getStaticBorderClass = (): string | false => isStatic && 'border-t'
 
-/**
- * Handles updates to HTTP authentication schemes (Bearer and Basic).
- */
-const handleHttpUpdate = (
-  field: 'token' | 'username' | 'password',
-  value: string,
-): void => {
-  const payloadMap = {
-    token: { token: value },
-    username: { username: value },
-    password: { password: value },
-  }
-
+/** Handles updates to HTTP authentication schemes (Bearer and Basic) */
+const handleHttpUpdate = <T extends keyof Omit<HttpObject, 'type'>>(
+  field: T,
+  value: PathValue<Omit<HttpObject, 'type'>, T>,
+): void =>
   emits('update:securityScheme', {
     type: 'http',
-    payload: payloadMap[field],
+    [field]: value,
   })
-}
 
-/**
- * Handles updates to API Key authentication schemes.
- */
-const handleApiKeyUpdate = (field: 'name' | 'value', value: string): void =>
+/** Handles updates to API Key authentication schemes */
+const handleApiKeyUpdate = <T extends keyof Omit<ApiKeyObject, 'type'>>(
+  field: T,
+  value: PathValue<Omit<ApiKeyObject, 'type'>, T>,
+): void =>
   emits('update:securityScheme', {
     type: 'apiKey',
-    payload: { [field]: value },
+    [field]: value,
   })
 
-/**
- * Handles updates to OAuth2 authentication schemes.
- */
-const handleOAuth2Update = (
-  flowKey: string,
-  payload: Partial<{
-    authUrl: string
-    tokenUrl: string
-    token: string
-    redirectUrl: string
-    clientId: string
-    clientSecret: string
-    usePkce: 'no' | 'SHA-256' | 'plain'
-    username: string
-    password: string
-  }>,
-) =>
-  emits('update:securityScheme', {
-    type: 'oauth2',
-    flow: flowKey as
-      | 'implicit'
-      | 'password'
-      | 'clientCredentials'
-      | 'authorizationCode',
-    payload,
-  })
-
-/**
- * Handles scope selection updates for OAuth2.
- */
+/** Handles scope selection updates for OAuth2 */
 const handleScopesUpdate = (
   name: string,
   event: { scopes: string[] },
@@ -218,7 +189,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="Token"
           type="password"
-          @update:modelValue="(v) => handleHttpUpdate('token', v)">
+          @update:modelValue="
+            (v) => handleHttpUpdate('x-scalar-secret-token', v)
+          ">
           Bearer Token
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -232,7 +205,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
             :modelValue="scheme['x-scalar-secret-username']"
             placeholder="janedoe"
             required
-            @update:modelValue="(v) => handleHttpUpdate('username', v)">
+            @update:modelValue="
+              (v) => handleHttpUpdate('x-scalar-secret-username', v)
+            ">
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
@@ -242,7 +217,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
             :modelValue="scheme['x-scalar-secret-password']"
             placeholder="********"
             type="password"
-            @update:modelValue="(v) => handleHttpUpdate('password', v)">
+            @update:modelValue="
+              (v) => handleHttpUpdate('x-scalar-secret-password', v)
+            ">
             Password
           </RequestAuthDataTableInput>
         </DataTableRow>
@@ -267,7 +244,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           type="password"
-          @update:modelValue="(v) => handleApiKeyUpdate('value', v)">
+          @update:modelValue="
+            (v) => handleApiKeyUpdate('x-scalar-secret-token', v)
+          ">
           Value
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -303,7 +282,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :selectedScopes="scopes"
           :server="server"
           :type="key"
-          @update:securityScheme="(payload) => handleOAuth2Update(key, payload)"
+          @update:securityScheme="
+            (payload) => emits('update:securityScheme', payload)
+          "
           @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
       </template>
     </template>

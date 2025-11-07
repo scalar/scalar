@@ -6,6 +6,7 @@ import { canMethodHaveBody, REGEX } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -58,9 +59,7 @@ const {
 
   eventBus: WorkspaceEventBus
 
-  /** TODO: remove when we migrate */
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
 }>()
 
 const meta = computed(() => ({
@@ -185,28 +184,29 @@ const labelRequestNameId = useId()
         :filterIds="filterIds"
         :filters="filters" />
     </template>
+
+    <!-- Auth Selector -->
     <AuthSelector
       v-show="isSectionVisible('Auth') && !isAuthHidden"
       :id="filterIds.Auth"
-      :envVariables="envVariables"
-      :environment="environment"
-      :layout="'client'"
-      :security="security"
-      :securitySchemes="securitySchemes"
-      :selectedSecurity="selectedSecurity"
-      :server="server"
-      :title="'Authorization'"
+      :environment
+      :eventBus
       :meta="authMeta"
-      :eventBus="eventBus" />
+      :security
+      :securitySchemes
+      :selectedSecurity
+      :server
+      title="Authorization" />
+
+    <!-- Variables -->
     <OperationParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
       :id="filterIds.Variables"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.path ?? []"
+      :showAddRowPlaceholder="false"
       title="Variables"
-      :show-add-row-placeholder="false"
       @delete="
         ({ index }) =>
           eventBus.emit('operation:delete:parameter', {
@@ -234,12 +234,11 @@ const labelRequestNameId = useId()
     <OperationParams
       v-show="isSectionVisible('Cookies')"
       :id="filterIds.Cookies"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.cookie ?? []"
+      :showAddRowPlaceholder="true"
       title="Cookies"
-      :show-add-row-placeholder="true"
       @add="
         ({ key, value }) =>
           eventBus.emit('operation:add:parameter', {
@@ -275,7 +274,6 @@ const labelRequestNameId = useId()
     <OperationParams
       v-show="isSectionVisible('Headers')"
       :id="filterIds.Headers"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.header ?? []"
@@ -315,7 +313,6 @@ const labelRequestNameId = useId()
     <OperationParams
       v-show="isSectionVisible('Query')"
       :id="filterIds.Query"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.query ?? []"
@@ -355,7 +352,6 @@ const labelRequestNameId = useId()
     <OperationBody
       v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
       :id="filterIds.Body"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :requestBody="getResolvedRef(operation.requestBody)"
@@ -369,6 +365,14 @@ const labelRequestNameId = useId()
               key: payload.data.key,
               value: payload.data.value,
             },
+          })
+      "
+      @delete:fromRow="
+        (payload) =>
+          eventBus.emit('operation:delete:requestBody:formRow', {
+            contentType: payload.contentType,
+            index: payload.index,
+            meta,
           })
       "
       @update:contentType="
@@ -392,14 +396,6 @@ const labelRequestNameId = useId()
             },
           })
       "
-      @delete:fromRow="
-        (payload) =>
-          eventBus.emit('operation:delete:requestBody:formRow', {
-            contentType: payload.contentType,
-            index: payload.index,
-            meta,
-          })
-      "
       @update:value="
         (payload) =>
           eventBus.emit('operation:update:requestBody:value', {
@@ -416,8 +412,8 @@ const labelRequestNameId = useId()
       v-for="(plugin, index) in plugins"
       :key="index">
       <component
-        v-if="plugin?.components?.request"
         :is="plugin.components.request"
+        v-if="plugin?.components?.request"
         :operation="operation"
         :selectedExample="exampleKey" />
     </ScalarErrorBoundary>
