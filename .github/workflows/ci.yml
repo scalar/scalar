@@ -18,7 +18,7 @@ jobs:
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
