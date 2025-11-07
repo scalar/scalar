@@ -48,6 +48,8 @@ jobs:
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
       java_changed: ${{ steps.set-outputs.outputs.java_changed }}
@@ -154,6 +156,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 15
     needs: [build, check-changes]
+    permissions:
+      contents: read
     strategy:
       matrix:
         node-version: [22]
