@@ -19,7 +19,7 @@ const { cx } = useBindCx()
       )
     ">
     <table
-      class="mb-0 grid min-h-8 auto-rows-auto border-t"
+      class="mb-0 grid min-h-8 auto-rows-auto"
       :class="{ 'w-max min-w-full': scroll }"
       :role="presentational ? 'presentation' : 'table'"
       :style="{

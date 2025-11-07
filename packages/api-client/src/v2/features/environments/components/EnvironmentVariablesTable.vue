@@ -182,7 +182,4 @@ const handleVariableDelete = (index: number): void =>
   padding: 0;
   text-overflow: ellipsis;
 }
-.data-table tr:nth-child(2) td {
-  border-top: none !important;
-}
 </style>

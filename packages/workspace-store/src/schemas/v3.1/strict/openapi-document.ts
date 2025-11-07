@@ -10,6 +10,10 @@ import {
   type XScalarSelectedSecurity,
   XScalarSelectedSecuritySchema,
 } from '@/schemas/extensions/security/x-scalar-selected-security'
+import {
+  type XScalarSelectedServer,
+  XScalarSelectedServerSchema,
+} from '@/schemas/extensions/server/x-scalar-selected-server'
 import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
@@ -82,6 +86,7 @@ const OpenApiExtensionsSchema = compose(
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
   XScalarSelectedSecuritySchema,
+  XScalarSelectedServerSchema,
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
@@ -102,7 +107,8 @@ export type OpenAPIExtensions = Partial<{
   'x-scalar-original-document-hash': string
 } & XTagGroups &
   XScalarEnvironments &
-  XScalarSelectedSecurity
+  XScalarSelectedSecurity &
+  XScalarSelectedServer
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

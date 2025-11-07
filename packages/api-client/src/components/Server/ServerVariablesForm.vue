@@ -41,14 +41,14 @@ const getVariable = (name: string) => {
       v-for="name in Object.keys(variables)"
       :key="name">
       <div
-        class="group/label flex w-full"
+        class="group/label flex h-8 w-full"
         :class="
           layout === 'reference' &&
           'items-center border-x border-b last:rounded-b-lg'
         ">
         <label
-          :for="`${id}-${name}`"
-          class="flex items-center py-1.5 pl-3 group-has-[input]/label:mr-0 after:content-[':']">
+          class="flex items-center py-2 pl-3 group-has-[input]/label:mr-0 after:content-[':']"
+          :for="`${id}-${name}`">
           {{ name }}
         </label>
         <template v-if="variables?.[name]?.enum?.length">

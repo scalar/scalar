@@ -16,8 +16,8 @@ const { server, serverOption } = defineProps<{
 const emit = defineEmits<{
   /** Update a server variable for the selected server */
   (e: 'update:variable', key: string, value: string): void
-  /** Update selected server by id => server url */
-  (e: 'update:selectedServer', payload: { id: string }): void
+  /** Update selected server */
+  (e: 'update:selectedServer'): void
 }>()
 
 const formId = useId()
@@ -44,7 +44,7 @@ const updateServerVariable = (key: string, value: string) => {
       class="flex min-h-8 cursor-pointer items-center gap-1.5 rounded px-1.5"
       :class="isSelectedServer ? 'text-c-1 bg-b-2' : 'hover:bg-b-2'"
       type="button"
-      @click="emit('update:selectedServer', { id: serverOption.id })">
+      @click="emit('update:selectedServer')">
       <ScalarListboxCheckbox :selected="isSelectedServer" />
       <span class="overflow-hidden text-ellipsis whitespace-nowrap">
         {{ serverOption.label }}

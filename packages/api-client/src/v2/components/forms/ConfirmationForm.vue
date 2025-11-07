@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 
-defineProps<{
-  danger?: boolean
+const { label = 'Save', variant = 'solid' } = defineProps<{
+  /** The label of the submit button */
   label?: string
+  /** Sets the style of the submit button */
+  variant?: 'danger' | 'solid'
 }>()
 
 const emit = defineEmits<{
@@ -16,7 +18,9 @@ const emit = defineEmits<{
     class="flex flex-col gap-4 text-base"
     @submit.prevent="emit('submit')">
     <slot />
+
     <div class="flex justify-between gap-10">
+      <!-- Cancel -->
       <ScalarButton
         class="flex h-8 cursor-pointer items-center gap-1.5 px-2.5 shadow-none focus:outline-none"
         type="button"
@@ -24,16 +28,18 @@ const emit = defineEmits<{
         @click="emit('cancel')">
         Cancel
       </ScalarButton>
+
+      <!-- Submit -->
       <ScalarButton
         class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
-        data-testid="sidebar-list-element-form-submit-button"
         type="submit"
-        :variant="danger ? 'danger' : 'solid'">
-        {{ label ?? 'Save' }}
+        :variant="variant">
+        {{ label }}
       </ScalarButton>
     </div>
   </form>
 </template>
+
 <style scoped>
 .scalar-modal-layout .scalar-button-danger {
   background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
