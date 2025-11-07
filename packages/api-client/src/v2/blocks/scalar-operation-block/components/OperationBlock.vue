@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import { canMethodHaveBody, REGEX } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
@@ -17,12 +17,27 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import type { EnvVariable } from '@/store'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
 import type { ClientPlugin } from '@/v2/plugins'
+
+const props = defineProps<{
+  method: HttpMethod
+  path: string
+  operation: OperationObject
+  authMeta?: AuthMeta
+  exampleKey: string
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  security: OpenApiDocument['security']
+  server?: ServerObject
+  layout: ClientLayout
+  plugins?: ClientPlugin[]
+  eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
+}>()
 
 const {
   operation,
@@ -32,35 +47,10 @@ const {
   path,
   exampleKey,
   security,
-  authMeta = { type: 'document' },
-} = defineProps<{
-  /** Operation method */
-  method: HttpMethod
-  /** Operation path */
-  path: string
-  /** Operation object */
-  operation: OperationObject
-  /** Meta information for the auth update */
-  authMeta?: AuthMeta
-  /** Currently selected example key for the current operation */
-  exampleKey: string
-  /** Document defined security schemes */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** Currently selected security for the current operation */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
-  /** Required security for the operation/document */
-  security: OpenApiDocument['security']
-  /** Currently selected server for the current operation/document/workspace */
-  server?: ServerObject
-  /** Client layout */
-  layout: ClientLayout
-  /** Registered app plugins */
-  plugins?: ClientPlugin[]
-
-  eventBus: WorkspaceEventBus
-
-  environment: XScalarEnvironment
-}>()
+  eventBus,
+  environment,
+} = props
+const authMeta = props.authMeta ?? { type: 'document' }
 
 const meta = computed(() => ({
   method,
@@ -82,11 +72,10 @@ const operationSections = [
 ] as const
 
 type Filter = 'All' | (typeof operationSections)[number]
+type ParameterType = 'path' | 'cookie' | 'header' | 'query'
 
-/** Currently selected filter for the operation block */
 const selectedFilter = ref<Filter>('All')
 
-/** A list of all available filters */
 const filters = computed<Filter[]>(() => {
   const allSections = new Set<Filter>(['All', ...operationSections])
 
@@ -103,7 +92,6 @@ const filters = computed<Filter[]>(() => {
   return [...allSections]
 })
 
-/** A list of section ids */
 const filterIds = computed(
   () =>
     Object.fromEntries(
@@ -120,10 +108,7 @@ watch(
   },
 )
 
-/**
- * When we are on the readonly mode and there is no
- * security schemes we can hide the auth selector
- */
+/** Hide auth selector in readonly mode when no security schemes are defined */
 const isAuthHidden = computed(
   () =>
     layout === 'modal' &&
@@ -131,21 +116,126 @@ const isAuthHidden = computed(
     !Object.keys(securitySchemes ?? {}).length,
 )
 
-/**
- * If the request has no summary, use the path or fallback
- */
-const handleRequestNamePlaceholder = () => {
-  return operation.summary
-    ? operation.summary
-    : path.replace(REGEX.PROTOCOL, '')
-      ? path.replace(REGEX.PROTOCOL, '')
-      : 'Request Name'
-}
+/** Get a sensible placeholder for the request name input */
+const requestNamePlaceholder = computed(() => {
+  if (operation.summary) {
+    return operation.summary
+  }
+  const cleanPath = path.replace(REGEX.PROTOCOL, '')
+  return cleanPath || 'Request Name'
+})
 
 /** Check if the section should be shown based on the selected filter */
-const isSectionVisible = (section: Filter) => {
+const isSectionVisible = (section: Filter): boolean => {
   return selectedFilter.value === 'All' || selectedFilter.value === section
 }
+
+/** Handle operation summary updates */
+const handleSummaryUpdate = (event: Event): void => {
+  const summary = (event.target as HTMLInputElement).value
+  eventBus.emit('operation:update:summary', {
+    meta: meta.value,
+    payload: { summary },
+  })
+}
+
+/** Create parameter event handlers for a given type */
+const createParameterHandlers = (type: ParameterType) => ({
+  onAdd: (payload: { key?: string; value?: string }) => {
+    eventBus.emit('operation:add:parameter', {
+      type,
+      payload: {
+        key: payload.key ?? '',
+        value: payload.value ?? '',
+        isEnabled: true,
+      },
+      meta: meta.value,
+    })
+  },
+  onDelete: (payload: { index: number }) => {
+    eventBus.emit('operation:delete:parameter', {
+      type,
+      index: payload.index,
+      meta: meta.value,
+    })
+  },
+  onDeleteAll: () => {
+    eventBus.emit('operation:delete-all:parameters', {
+      type,
+      meta: meta.value,
+    })
+  },
+  onUpdate: (payload: {
+    index: number
+    payload: Partial<{ key: string; value: string; isEnabled: boolean }>
+  }) => {
+    eventBus.emit('operation:update:parameter', {
+      type,
+      index: payload.index,
+      payload: payload.payload,
+      meta: meta.value,
+    })
+  },
+})
+
+/** Handle request body form row addition */
+const handleAddFormRow = (payload: {
+  data: Partial<{ key: string; value?: string | File }>
+  contentType: string
+}): void =>
+  eventBus.emit('operation:add:requestBody:formRow', {
+    contentType: payload.contentType,
+    meta: meta.value,
+    payload: {
+      key: payload.data.key ?? '',
+      value: payload.data.value ?? '',
+    },
+  })
+
+/** Handle request body form row deletion */
+const handleDeleteFormRow = (payload: {
+  contentType: string
+  index: number
+}): void =>
+  eventBus.emit('operation:delete:requestBody:formRow', {
+    contentType: payload.contentType,
+    index: payload.index,
+    meta: meta.value,
+  })
+
+/** Handle request body content type update */
+const handleUpdateContentType = (payload: { value: string }): void =>
+  eventBus.emit('operation:update:requestBody:contentType', {
+    payload: { contentType: payload.value },
+    meta: meta.value,
+  })
+
+/** Handle request body form row update */
+const handleUpdateFormRow = (payload: {
+  index: number
+  data: Partial<{ key: string; value: string | File | null }>
+  contentType: string
+}): void =>
+  eventBus.emit('operation:update:requestBody:formRow', {
+    contentType: payload.contentType,
+    meta: meta.value,
+    index: payload.index,
+    payload: {
+      key: payload.data.key ?? '',
+      value: payload.data.value ?? '',
+    },
+  })
+
+/** Handle request body value update */
+const handleUpdateBodyValue = (payload: {
+  value?: string | File
+  contentType: string
+}): void =>
+  eventBus.emit('operation:update:requestBody:value', {
+    contentType: payload.contentType,
+    payload: { value: payload.value ?? '' },
+    meta: meta.value,
+  })
 
 const labelRequestNameId = useId()
 </script>
@@ -162,17 +252,9 @@ const labelRequestNameId = useId()
           v-if="layout !== 'modal'"
           :id="labelRequestNameId"
           class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
-          :placeholder="handleRequestNamePlaceholder()"
+          :placeholder="requestNamePlaceholder"
           :value="operation.summary"
-          @input="
-            (event) =>
-              eventBus.emit('operation:update:summary', {
-                meta,
-                payload: {
-                  summary: (event.target as HTMLInputElement).value,
-                },
-              })
-          " />
+          @input="handleSummaryUpdate" />
         <span
           v-else
           class="text-c-1 flex h-8 items-center">
@@ -198,7 +280,7 @@ const labelRequestNameId = useId()
       :server
       title="Authorization" />
 
-    <!-- Variables -->
+    <!-- Variables (Path Parameters) -->
     <OperationParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
       :id="filterIds.Variables"
@@ -207,30 +289,11 @@ const labelRequestNameId = useId()
       :parameters="sections.path ?? []"
       :showAddRowPlaceholder="false"
       title="Variables"
-      @delete="
-        ({ index }) =>
-          eventBus.emit('operation:delete:parameter', {
-            type: 'path',
-            index,
-            meta,
-          })
-      "
-      @deleteAll="
-        () =>
-          eventBus.emit('operation:delete-all:parameters', {
-            type: 'path',
-            meta,
-          })
-      "
-      @update="
-        ({ index, payload }) =>
-          eventBus.emit('operation:update:parameter', {
-            type: 'path',
-            index,
-            payload,
-            meta,
-          })
-      " />
+      @delete="createParameterHandlers('path').onDelete"
+      @deleteAll="createParameterHandlers('path').onDeleteAll"
+      @update="createParameterHandlers('path').onUpdate" />
+
+    <!-- Cookies -->
     <OperationParams
       v-show="isSectionVisible('Cookies')"
       :id="filterIds.Cookies"
@@ -239,38 +302,12 @@ const labelRequestNameId = useId()
       :parameters="sections.cookie ?? []"
       :showAddRowPlaceholder="true"
       title="Cookies"
-      @add="
-        ({ key, value }) =>
-          eventBus.emit('operation:add:parameter', {
-            type: 'cookie',
-            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
-            meta,
-          })
-      "
-      @delete="
-        ({ index }) =>
-          eventBus.emit('operation:delete:parameter', {
-            type: 'cookie',
-            index,
-            meta,
-          })
-      "
-      @deleteAll="
-        () =>
-          eventBus.emit('operation:delete-all:parameters', {
-            type: 'cookie',
-            meta,
-          })
-      "
-      @update="
-        ({ index, payload }) =>
-          eventBus.emit('operation:update:parameter', {
-            type: 'cookie',
-            index,
-            payload,
-            meta,
-          })
-      " />
+      @add="createParameterHandlers('cookie').onAdd"
+      @delete="createParameterHandlers('cookie').onDelete"
+      @deleteAll="createParameterHandlers('cookie').onDeleteAll"
+      @update="createParameterHandlers('cookie').onUpdate" />
+
+    <!-- Headers -->
     <OperationParams
       v-show="isSectionVisible('Headers')"
       :id="filterIds.Headers"
@@ -278,38 +315,12 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :parameters="sections.header ?? []"
       title="Headers"
-      @add="
-        ({ key, value }) =>
-          eventBus.emit('operation:add:parameter', {
-            type: 'header',
-            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
-            meta,
-          })
-      "
-      @delete="
-        ({ index }) =>
-          eventBus.emit('operation:delete:parameter', {
-            type: 'header',
-            index,
-            meta,
-          })
-      "
-      @deleteAll="
-        () =>
-          eventBus.emit('operation:delete-all:parameters', {
-            type: 'header',
-            meta,
-          })
-      "
-      @update="
-        ({ index, payload }) =>
-          eventBus.emit('operation:update:parameter', {
-            type: 'header',
-            index,
-            payload,
-            meta,
-          })
-      " />
+      @add="createParameterHandlers('header').onAdd"
+      @delete="createParameterHandlers('header').onDelete"
+      @deleteAll="createParameterHandlers('header').onDeleteAll"
+      @update="createParameterHandlers('header').onUpdate" />
+
+    <!-- Query Parameters -->
     <OperationParams
       v-show="isSectionVisible('Query')"
       :id="filterIds.Query"
@@ -317,38 +328,12 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :parameters="sections.query ?? []"
       title="Query Parameters"
-      @add="
-        ({ key, value }) =>
-          eventBus.emit('operation:add:parameter', {
-            type: 'query',
-            payload: { key: key ?? '', value: value ?? '', isEnabled: true },
-            meta,
-          })
-      "
-      @delete="
-        ({ index }) =>
-          eventBus.emit('operation:delete:parameter', {
-            type: 'query',
-            index,
-            meta,
-          })
-      "
-      @deleteAll="
-        () =>
-          eventBus.emit('operation:delete-all:parameters', {
-            type: 'query',
-            meta,
-          })
-      "
-      @update="
-        ({ index, payload }) =>
-          eventBus.emit('operation:update:parameter', {
-            type: 'query',
-            index,
-            payload,
-            meta,
-          })
-      " />
+      @add="createParameterHandlers('query').onAdd"
+      @delete="createParameterHandlers('query').onDelete"
+      @deleteAll="createParameterHandlers('query').onDeleteAll"
+      @update="createParameterHandlers('query').onUpdate" />
+
+    <!-- Request Body -->
     <OperationBody
       v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
       :id="filterIds.Body"
@@ -356,56 +341,11 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :requestBody="getResolvedRef(operation.requestBody)"
       title="Request Body"
-      @add:formRow="
-        (payload) =>
-          eventBus.emit('operation:add:requestBody:formRow', {
-            contentType: payload.contentType,
-            meta,
-            payload: {
-              key: payload.data.key,
-              value: payload.data.value,
-            },
-          })
-      "
-      @delete:fromRow="
-        (payload) =>
-          eventBus.emit('operation:delete:requestBody:formRow', {
-            contentType: payload.contentType,
-            index: payload.index,
-            meta,
-          })
-      "
-      @update:contentType="
-        (payload) =>
-          eventBus.emit('operation:update:requestBody:contentType', {
-            payload: {
-              contentType: payload.value,
-            },
-            meta,
-          })
-      "
-      @update:formRow="
-        (payload) =>
-          eventBus.emit('operation:update:requestBody:formRow', {
-            contentType: payload.contentType,
-            meta,
-            index: payload.index,
-            payload: {
-              key: payload.data.key,
-              value: payload.data.value,
-            },
-          })
-      "
-      @update:value="
-        (payload) =>
-          eventBus.emit('operation:update:requestBody:value', {
-            contentType: payload.contentType,
-            payload: {
-              value: payload.value,
-            },
-            meta,
-          })
-      " />
+      @add:formRow="handleAddFormRow"
+      @delete:fromRow="handleDeleteFormRow"
+      @update:contentType="handleUpdateContentType"
+      @update:formRow="handleUpdateFormRow"
+      @update:value="handleUpdateBodyValue" />
 
     <!-- Inject request section plugin components -->
     <ScalarErrorBoundary

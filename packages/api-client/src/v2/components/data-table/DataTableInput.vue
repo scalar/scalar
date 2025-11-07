@@ -5,7 +5,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { computed, ref } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
-import CodeInput from '@/v2/components/code-input/CodeInput.vue'
+import { CodeInput } from '@/v2/components/code-input'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'

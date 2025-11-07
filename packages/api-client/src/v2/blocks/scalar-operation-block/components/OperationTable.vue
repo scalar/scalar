@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import type { EnvVariable } from '@/store/active-entities'
 import OperationTableRow, {
   type TableRow,
 } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+} from '@/v2/components/data-table'
 
 const {
   data,
@@ -16,21 +17,17 @@ const {
   hasCheckboxDisabled,
   showUploadButton,
   showAddRowPlaceholder = true,
+  environment,
 } = defineProps<{
   data: TableRow[]
   isReadOnly?: boolean
   /** Hide the enabled column */
   hasCheckboxDisabled?: boolean
-
   invalidParams?: Set<string>
   label?: string
   showUploadButton?: boolean
-
   showAddRowPlaceholder?: boolean
-
-  /** TODO: remove once we migrate */
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
 }>()
 
 /**
@@ -115,11 +112,11 @@ const updateOrAdd = ({
       <DataTableHeader>{{ label }} Key</DataTableHeader>
       <DataTableHeader>{{ label }} Value</DataTableHeader>
     </DataTableRow>
+
     <OperationTableRow
       v-for="(row, idx) in displayData"
       :key="idx"
       :data="row"
-      :envVariables="envVariables"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
       :invalidParams="invalidParams"

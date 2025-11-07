@@ -10,7 +10,7 @@ import { ref, useId } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
 import type { createStoreEvents } from '@/store/events'
-import CodeInput from '@/v2/components/code-input/CodeInput.vue'
+import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'

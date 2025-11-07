@@ -157,11 +157,11 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
             })
         " />
     </div>
+
     <ViewLayout>
       <ViewLayoutContent class="flex flex-1">
         <OperationBlock
           :authMeta="authMeta"
-          :envVariables="envVariables"
           :environment="environment"
           :eventBus="eventBus"
           :exampleKey="exampleKey"
@@ -173,6 +173,7 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
           :security="security"
           :securitySchemes="securitySchemes"
           :selectedSecurity="selectedSecurity" />
+
         <ResponseBlock
           :appVersion="appVersion"
           :eventBus="eventBus"

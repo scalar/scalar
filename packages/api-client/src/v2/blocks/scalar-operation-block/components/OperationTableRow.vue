@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { CodeInput } from '@/components/CodeInput'
+import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
+import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
+import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
+import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
   DataTableRow,
-} from '@/components/DataTable'
-import type { EnvVariable } from '@/store'
-import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
-import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
-import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
+} from '@/v2/components/data-table'
 
 const {
   data,
+  environment,
   hasCheckboxDisabled,
   invalidParams,
   isReadOnly,
@@ -29,9 +29,7 @@ const {
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
   label?: string
-  /** TODO: remove as soon as we migrate to the new store */
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
   showUploadButton?: boolean
 }>()
 
@@ -133,7 +131,6 @@ const valueModel = computed({
         :disabled="isReadOnly"
         disableEnter
         disableTabIndent
-        :envVariables="envVariables"
         :environment="environment"
         lineWrapping
         :modelValue="data.name"
@@ -142,6 +139,7 @@ const valueModel = computed({
         @selectVariable="(v: string) => emits('updateRow', { key: v })"
         @update:modelValue="(v: string) => emits('updateRow', { key: v })" />
     </DataTableCell>
+
     <!-- Value -->
     <DataTableCell>
       <CodeInput
@@ -153,7 +151,6 @@ const valueModel = computed({
         disableEnter
         disableTabIndent
         :enum="enumValue ?? []"
-        :envVariables="envVariables"
         :environment="environment"
         lineWrapping
         :max="maximumValue"
@@ -179,6 +176,7 @@ const valueModel = computed({
         </template>
       </CodeInput>
     </DataTableCell>
+
     <!-- File upload -->
     <DataTableCell
       v-if="showUploadButton"

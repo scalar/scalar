@@ -1,35 +1,33 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
 import { computed } from 'vue'
 
-import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
-import type { EnvVariable } from '@/store/active-entities'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
 import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
 import { getExampleFromBody } from '@/v2/blocks/scalar-operation-block/helpers/get-request-body-example'
+import { CodeInput } from '@/v2/components/code-input'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+} from '@/v2/components/data-table'
+import { ViewLayoutCollapse } from '@/v2/components/layout'
 
-const { requestBody, exampleKey, environment, envVariables, title } =
-  defineProps<{
-    /** Request body */
-    requestBody?: RequestBodyObject
-    /** Currently selected example key for the current operation */
-    exampleKey: string
-    /** Display title */
-    title: string
-
-    /** TODO: remove when we do the migration */
-    environment: Environment
-    envVariables: EnvVariable[]
-  }>()
+const { requestBody, exampleKey, environment, title } = defineProps<{
+  /** Request body */
+  requestBody?: RequestBodyObject
+  /** Currently selected example key for the current operation */
+  exampleKey: string
+  /** Display title */
+  title: string
+  /** Selected environment */
+  environment: XScalarEnvironment
+}>()
 
 const emits = defineEmits<{
   (e: 'update:contentType', payload: { value: string }): void
@@ -228,7 +226,6 @@ const tableRows = computed(() => {
         <template v-else-if="selectedContentType === 'multipart/form-data'">
           <OperationTable
             :data="tableRows"
-            :envVariables="envVariables"
             :environment="environment"
             showUploadButton
             @addRow="
@@ -236,6 +233,23 @@ const tableRows = computed(() => {
                 emits('add:formRow', {
                   data: payload,
                   contentType: selectedContentType,
+                })
+            "
+            @deleteRow="
+              (index) =>
+                emits('delete:fromRow', {
+                  contentType: selectedContentType,
+                  index,
+                })
+            "
+            @removeFile="
+              (index) =>
+                emits('update:formRow', {
+                  contentType: selectedContentType,
+                  index,
+                  data: {
+                    value: null,
+                  },
                 })
             "
             @updateRow="
@@ -261,23 +275,6 @@ const tableRows = computed(() => {
                     contentType: selectedContentType,
                   })
                 })
-            "
-            @removeFile="
-              (index) =>
-                emits('update:formRow', {
-                  contentType: selectedContentType,
-                  index,
-                  data: {
-                    value: null,
-                  },
-                })
-            "
-            @deleteRow="
-              (index) =>
-                emits('delete:fromRow', {
-                  contentType: selectedContentType,
-                  index,
-                })
             " />
         </template>
         <template
@@ -286,11 +283,19 @@ const tableRows = computed(() => {
           ">
           <OperationTable
             :data="tableRows"
+            :environment="environment"
             @addRow="
               (payload) =>
                 emits('add:formRow', {
                   data: payload,
                   contentType: selectedContentType,
+                })
+            "
+            @deleteRow="
+              (index) =>
+                emits('delete:fromRow', {
+                  contentType: selectedContentType,
+                  index,
                 })
             "
             @updateRow="
@@ -300,22 +305,12 @@ const tableRows = computed(() => {
                   data: payload,
                   contentType: selectedContentType,
                 })
-            "
-            @deleteRow="
-              (index) =>
-                emits('delete:fromRow', {
-                  contentType: selectedContentType,
-                  index,
-                })
-            "
-            :envVariables="envVariables"
-            :environment="environment" />
+            " />
         </template>
         <template v-else>
           <CodeInput
             class="border-t px-3"
             content=""
-            :envVariables="envVariables"
             :environment="environment"
             :language="
               contentTypeToLanguageMap[
