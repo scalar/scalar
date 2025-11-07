@@ -1,1 +1,2 @@
-export { type Environment, environmentSchema } from './environment'
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
+export { type Environment, type EnvironmentPayload, environmentSchema } from './environment'

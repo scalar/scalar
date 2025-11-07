@@ -88,9 +88,10 @@ export const oasExternalDocumentationSchema = z
   })
   .transform(omitUndefinedValues)
 
-export type ExternalDocumentation = z.infer<typeof oasExternalDocumentationSchema>
+// not used but kept for consistency
+// export type ExternalDocumentation = z.infer<typeof oasExternalDocumentationSchema>
 
-export const xScalarNestedSchema = z
+const xScalarNestedSchema = z
   .object({
     tagName: z.string(),
   })
@@ -104,7 +105,7 @@ export const xScalarNestedSchema = z
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#tag-object
  */
-export const oasTagSchema = z.object({
+const oasTagSchema = z.object({
   // TODO: Remove
   /**
    * @deprecated Needs to be remove as it is not a spec property

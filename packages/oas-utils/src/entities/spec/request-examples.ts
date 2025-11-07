@@ -72,7 +72,7 @@ export const parameterArrayToObject = (params: RequestExampleParameter[]) =>
 /** Request examples - formerly known as instances - are "children" of requests */
 export type RequestExampleParameter = z.infer<typeof requestExampleParametersSchema>
 
-export const xScalarFileValueSchema = z
+const xScalarFileValueSchema = z
   .object({
     url: z.string(),
     base64: z.string().optional(),
@@ -83,14 +83,15 @@ export const xScalarFileValueSchema = z
  * When files are required for an example we provide the options
  * to provide a public URL or a base64 encoded string
  */
-export type XScalarFileValue = z.infer<typeof xScalarFileValueSchema>
+// not used but kept for consistency
+// export type XScalarFileValue = z.infer<typeof xScalarFileValueSchema>
 
 /**
  * Schema for the OAS serialization of request example parameters
  *
  * File values can be optionally fetched on import OR inserted as a base64 encoded string
  */
-export const xScalarFormDataValue = z.union([
+const xScalarFormDataValue = z.union([
   z.object({
     type: z.literal('string'),
     value: z.string(),
@@ -101,7 +102,7 @@ export const xScalarFormDataValue = z.union([
   }),
 ])
 
-export type XScalarFormDataValue = z.infer<typeof xScalarFormDataValue>
+type XScalarFormDataValue = z.infer<typeof xScalarFormDataValue>
 
 // ---------------------------------------------------------------------------
 // Example Body
@@ -111,11 +112,11 @@ export type XScalarFormDataValue = z.infer<typeof xScalarFormDataValue>
  *
  * TODO: This list may not be comprehensive enough
  */
-export const exampleRequestBodyEncoding = ['json', 'text', 'html', 'javascript', 'xml', 'yaml', 'edn'] as const
+const exampleRequestBodyEncoding = ['json', 'text', 'html', 'javascript', 'xml', 'yaml', 'edn'] as const
 
-export type BodyEncoding = (typeof exampleRequestBodyEncoding)[number]
+type BodyEncoding = (typeof exampleRequestBodyEncoding)[number]
 
-export const exampleBodyMime = [
+const exampleBodyMime = [
   'application/json',
   'text/plain',
   'text/html',
@@ -130,7 +131,7 @@ export const exampleBodyMime = [
   'binary',
 ] as const
 
-export type BodyMime = (typeof exampleBodyMime)[number]
+type BodyMime = (typeof exampleBodyMime)[number]
 
 const contentMapping: Record<BodyEncoding, BodyMime> = {
   json: 'application/json',
@@ -147,7 +148,7 @@ const contentMapping: Record<BodyEncoding, BodyMime> = {
  *
  * If a user changes the encoding of the body we expect the content to change as well
  */
-export const exampleRequestBodySchema = z.object({
+const exampleRequestBodySchema = z.object({
   raw: z
     .object({
       encoding: z.enum(exampleRequestBodyEncoding),
@@ -165,10 +166,10 @@ export const exampleRequestBodySchema = z.object({
   activeBody: z.union([z.literal('raw'), z.literal('formData'), z.literal('binary')]).default('raw'),
 })
 
-export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
+type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
 /** Schema for the OAS serialization of request example bodies */
-export const xScalarExampleBodySchema = z.object({
+const xScalarExampleBodySchema = z.object({
   encoding: z.enum(exampleBodyMime),
   /**
    * Body content as an object with a separately specified encoding or a simple pre-encoded string value
@@ -180,7 +181,7 @@ export const xScalarExampleBodySchema = z.object({
   file: xScalarFileValueSchema.optional(),
 })
 
-export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
+type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 
 // ---------------------------------------------------------------------------
 // Example Schema
@@ -227,7 +228,7 @@ export const xScalarExampleSchema = z.object({
   }),
 })
 
-export type XScalarExample = z.infer<typeof xScalarExampleSchema>
+type XScalarExample = z.infer<typeof xScalarExampleSchema>
 
 /**
  * Convert a request example to the xScalar serialized format

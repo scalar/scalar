@@ -8,7 +8,7 @@ import { z } from 'zod'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#server-variable-object
  */
-export const oasServerVariableSchema = z.object({
+const oasServerVariableSchema = z.object({
   /**
    * An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.
    */
@@ -52,7 +52,7 @@ const extendedServerVariableSchema = oasServerVariableSchema
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#server-object
  */
-export const oasServerSchema = z.object({
+const oasServerSchema = z.object({
   /**
    * REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that
    * the host location is relative to the location where the OpenAPI document is being served. Variable substitutions
