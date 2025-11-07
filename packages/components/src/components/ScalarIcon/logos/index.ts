@@ -1,5 +1,6 @@
 export const LOGOS = [
   'Adonisjs',
+  'Astro',
   'Docusaurus',
   'Dotnet',
   'Elysiajs',

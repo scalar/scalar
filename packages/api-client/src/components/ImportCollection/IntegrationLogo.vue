@@ -13,6 +13,7 @@ const availableIntegrationIcons: Exclude<
   null | undefined | 'html'
 >[] = [
   'adonisjs',
+  'astro',
   'dotnet',
   'elysiajs',
   'express',
