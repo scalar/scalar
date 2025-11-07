@@ -58,7 +58,7 @@ import { ScalarComponent } from '@scalar/astro'
 
 ### Custom CDN
 
-You can use a custom CDN, default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
+You can use a custom CDN, the default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
 You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
 
