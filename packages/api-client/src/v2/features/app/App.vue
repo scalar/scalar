@@ -94,10 +94,9 @@ const method = computed(() => {
 const exampleName = computed(() => getRouteParam('exampleName'))
 
 // Workspace-related state and utilities derived from the workspaceSlug route param.
-const { store, workspaces, activeWorkspace, setWorkspaceId } =
+const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
   useWorkspaceSelector({
     workspaceId: workspaceSlug,
-    eventBus,
   })
 
 /** Sidebar state and selection handling. */
@@ -231,7 +230,7 @@ const createWorkspaceModalState = useModal()
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
         @select:workspace="handleSelectWorkspace"
-        @createWorkspace="createWorkspaceModalState.show()" />
+        @create:workspace="createWorkspaceModalState.show()" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -251,10 +250,10 @@ const createWorkspaceModalState = useModal()
           @update:sidebarWidth="handleSidebarWidthUpdate"
           @create:workspace="createWorkspaceModalState.show()" />
 
-        <!-- Create worksapce modal -->
+        <!-- Create workspace modal -->
         <CreateWorkspaceModal
           :state="createWorkspaceModalState"
-          :eventBus="eventBus" />
+          @create:workspace="(payload) => createWorkspace(payload)" />
 
         <!-- Popup command palette to add resources from anywhere -->
         <!-- <TheCommandPalette /> -->

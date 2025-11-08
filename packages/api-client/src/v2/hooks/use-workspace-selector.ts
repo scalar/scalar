@@ -41,13 +41,7 @@ export type Workspace = {
   id: string
 }
 
-export const useWorkspaceSelector = ({
-  workspaceId,
-  eventBus,
-}: {
-  workspaceId: MaybeRefOrGetter<string | undefined>
-  eventBus: WorkspaceEventBus
-}) => {
+export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrGetter<string | undefined> }) => {
   const activeWorkspace = ref<Workspace | null>(null)
   const workspaces = ref<Workspace[]>([])
   const store = ref<WorkspaceStore | null>(null)
@@ -131,16 +125,19 @@ export const useWorkspaceSelector = ({
   }
 
   /**
-   * Creates a new workspace with the given name.
-   * - TODO: Slugify the name and ensure workspace ID uniqueness.
-   * - Adds a default "draft" document to the new workspace.
-   * - Saves the workspace in persistence and sets it as active.
+   * Creates a new workspace with the provided name.
+   * - Generates a unique ID for the workspace (sluggified from the name and guaranteed unique).
+   * - Adds a default blank document ("draft") to the workspace.
+   * - Persists the workspace and navigates to it.
    *
-   * @param name - The name of the new workspace
+   * Example usage:
+   *   await createWorkspace({ name: 'My Awesome API' })
+   *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ name }: { name: string }): Promise<void> => {
     const persistence = await persistencePromise
 
+    // Generate a unique slug/id for the workspace, based on the name.
     const workspaceId = await generateUniqueValue({
       defaultValue: name,
       validation: async (value) => !(await persistence.workspace.has(value)),
@@ -152,22 +149,22 @@ export const useWorkspaceSelector = ({
       return
     }
 
+    // Create a new client store with the workspace ID and add a default document.
     const client = await createClientStore({ workspaceId })
     await client.addDocument({
       name: 'draft',
       document: defaultDocument,
     })
+
+    // Save the workspace with the name and exported store.
     await persistence.workspace.setItem(workspaceId, {
       name,
       workspace: client.exportWorkspace(),
     })
+
+    // Navigate to the newly created workspace.
     setWorkspaceId(workspaceId)
   }
-
-  // Listen for workspace creation events
-  eventBus.on('workspace:create:workspace', async (payload) => {
-    await createWorkspace({ name: payload.workspaceName })
-  })
 
   return {
     store,

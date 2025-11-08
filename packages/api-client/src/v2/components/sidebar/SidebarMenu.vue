@@ -15,13 +15,21 @@ import { RouterLink } from 'vue-router'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
 const { activeWorkspace, workspaces } = defineProps<{
+  /**
+   * The currently active workspace.
+   * This represents the workspace that the user is currently working in.
+   */
   activeWorkspace: Workspace
+  /**
+   * The list of all available workspaces.
+   * Used to render options for workspace switching and selection.
+   */
   workspaces: Workspace[]
 }>()
 
 const emit = defineEmits<{
   /** Emitted when the user wants to create a new workspace */
-  (e: 'createWorkspace'): void
+  (e: 'create:workspace'): void
   /** Emitted when the user selects a workspace */
   (e: 'select:workspace', id?: string): void
 }>()
@@ -45,7 +53,7 @@ const workspaceOptions = computed<ScalarListboxOption[]>(() =>
         <ScalarMenuWorkspacePicker
           :modelValue="activeWorkspace.id"
           :workspaceOptions="workspaceOptions"
-          @createWorkspace="emit('createWorkspace')"
+          @createWorkspace="emit('create:workspace')"
           @update:modelValue="(value) => emit('select:workspace', value)" />
 
         <ScalarMenuLink

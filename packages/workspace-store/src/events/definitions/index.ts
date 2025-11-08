@@ -1,5 +1,4 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
-import type { WorkspaceEvents } from '@/events/definitions/workspace'
 import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import type { AnalyticsEvents } from './analytics'
@@ -17,7 +16,6 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   MetaEvents &
   OperationEvents &
   ServerEvents<T> &
-  UIEvents &
-  WorkspaceEvents
+  UIEvents
 
 export type { CollectionType } from './common'

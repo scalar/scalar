@@ -2,6 +2,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+import 'fake-indexeddb/auto'
 
 import App from './App.vue'
 

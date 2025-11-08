@@ -284,6 +284,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "fake-indexeddb": "catalog:*"
   }
 }
