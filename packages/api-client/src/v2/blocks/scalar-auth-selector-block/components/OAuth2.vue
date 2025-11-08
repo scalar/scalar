@@ -49,7 +49,9 @@ const flow = computed(() => flows[type]!)
 const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
   emits('update:securityScheme', {
     type: 'oauth2',
-    [type]: payload,
+    flows: {
+      [type]: payload,
+    },
   })
 
 /**
