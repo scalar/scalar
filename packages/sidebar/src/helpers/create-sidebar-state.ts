@@ -203,6 +203,10 @@ export const createSidebarState = <T extends { id: string }>(
     isExpanded,
     isSelected,
     getEntryById,
+    reset: () => {
+      selectedItems.value = {}
+      expandedItems.value = {}
+    }
   }
 }
 

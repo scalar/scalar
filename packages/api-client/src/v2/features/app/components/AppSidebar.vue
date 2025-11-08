@@ -12,7 +12,7 @@ import { Sidebar } from '@/v2/components/sidebar'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { sidebarState, layout } = defineProps<{
+const { sidebarState, layout, activeWorkspace } = defineProps<{
   layout: ClientLayout
   sidebarState: SidebarState<TraversedEntry>
   isWorkspaceOpen?: boolean
@@ -27,15 +27,9 @@ const emit = defineEmits<{
   (e: 'select:workspace', id?: string): void
 }>()
 
-/** Propagate up the workspace model to the parent */
-const workspaceModel = defineModel<string>('workspace', {
-  required: true,
-  default: 'default',
-})
-
 // Temp until we have workspaces in the store
 const workspaceLabel = computed(
-  () => capitalize(workspaceModel.value) + ' Workspace',
+  () => capitalize(activeWorkspace.name) + ' Workspace',
 )
 
 /** Controls the visibility of the sidebar */
@@ -57,7 +51,6 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
   <Sidebar
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
-    v-model:workspace="workspaceModel"
     :activeWorkspace="activeWorkspace"
     :layout="layout"
     :sidebarState="sidebarState"

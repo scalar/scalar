@@ -25,14 +25,13 @@ import { useRouter } from 'vue-router'
  */
 export const useSidebarState = ({
   workspaceStore,
-  workspaceSlug,
   documentSlug,
   path,
   method,
   exampleName,
 }: {
   workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
-  workspaceSlug: MaybeRefOrGetter<string>
+  workspaceSlug: MaybeRefOrGetter<string | undefined>
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
@@ -46,15 +45,23 @@ export const useSidebarState = ({
       return []
     }
 
-    console.log(Object.values(store.workspace.documents)
-      .map((doc) => doc))
-
     return Object.values(store.workspace.documents)
       .map((doc) => doc['x-scalar-navigation'])
-      .filter(isDefined)  as TraversedEntry[]
+      .filter(isDefined) as TraversedEntry[]
   })
 
   const state = createSidebarState(entries)
+
+  // Reset the sidebar state when the we switch workspace
+  watch(
+    () => toValue(workspaceStore),
+    () => {
+      state.reset()
+    },
+    {
+      immediate: true,
+    },
+  )
 
   /**
    * Traverses up the tree to find and return the closest parent node (including self) of a specified type.
@@ -239,7 +246,7 @@ export const useSidebarState = ({
 
   /** Keep the router and the sidebar state in sync */
   watch(
-    [workspaceSlug, documentSlug, path, method, exampleName],
+    [() => toValue(workspaceStore), documentSlug, path, method, exampleName],
     ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
         // Reset selection if no document is selected

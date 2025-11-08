@@ -2,11 +2,13 @@ import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-sto
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { onBeforeMount, ref } from 'vue'
+import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { workspaceSelector } from '@/v2/helpers/local-storage'
-
-const DEFAULT_WORKSPACE_ID = 'default'
+const DEFAULT_WORKSPACE = {
+  name: 'Default',
+  id: 'default',
+}
 const DEFAULT_DEBOUNCE_DELAY = 1000
 
 const defaultDocument = {
@@ -34,108 +36,87 @@ export type Workspace = {
   id: string
 }
 
-export const useWorkspaceSelector = () => {
+export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrGetter<string | undefined> }) => {
   const activeWorkspace = ref<Workspace | null>(null)
   const workspaces = ref<Workspace[]>([])
   const store = ref<WorkspaceStore | null>(null)
-  const localStorage = workspaceSelector()
   const persistencePromise = createWorkspaceStorePersistence()
 
-  onBeforeMount(async () => {
-    const lastWorkspaceId = localStorage.getWorkspaceId()
+  const router = useRouter()
+
+  const loadWorkspace = async (workspaceId: string) => {
     const persistence = await persistencePromise
-    // Try to load the last used workspace
-    if (lastWorkspaceId) {
-      const result = await persistence.workspace.getItem(lastWorkspaceId)
-      if (result) {
-        activeWorkspace.value = { name: result.name, id: lastWorkspaceId }
-        workspaces.value = (await persistence.workspace.getAll()).map((it) => ({ name: it.name, id: it.id }))
-        const client = await createClientStore({ workspaceId: lastWorkspaceId })
-        client.loadWorkspace(result.workspace)
-        store.value = client
-        return
-      }
+    // There is a workspace
+    const workspace = await persistence.workspace.getItem(workspaceId)
+
+    if (!workspace) {
+      return false
     }
 
-    // Get all available workspaces
-    const workspacesResult = await persistence.workspace.getAll()
+    const client = await createClientStore({ workspaceId })
+    client.loadWorkspace(workspace.workspace)
+    activeWorkspace.value = workspace
+    // Setting the store value
+    store.value = client
+    return true
+  }
 
-    // Load the first available workspace
-    if (workspacesResult.length > 0) {
-      const id = workspacesResult[0]?.id
+  watch(
+    () => toValue(workspaceId),
+    async (newWorkspaceId) => {
+      const id = toValue(newWorkspaceId)
+      const persistence = await persistencePromise
+
+      // Get all available workspaces
+      console.log('getting all available workspaces')
+      const workspaceList = await persistence.workspace.getAll()
+      workspaces.value = workspaceList
 
       if (!id) {
-        // store.value = clientStore
         return
       }
 
-      // Load the first available workspace
-      const workspaceData = await persistence.workspace.getItem(id)
+      // Load the selected workspace id
+      if (await loadWorkspace(id)) {
+        return true
+      }
 
-      if (workspaceData) {
-        activeWorkspace.value = { name: workspaceData.name, id: id }
-        workspaces.value = (await persistence.workspace.getAll()).map((it) => ({ name: it.name, id: it.id }))
-        const client = createWorkspaceStore({
-          plugins: [await persistencePlugin({ workspaceId: id, debounceDelay: 1000 })],
+      // Load the first workspace we can find when the default workspace
+      if (id === DEFAULT_WORKSPACE.id) {
+        if (workspaceList[0] && (await loadWorkspace(workspaceList[0].id))) {
+          return
+        }
+
+        // create the default workspace
+        const draftStore = createWorkspaceStore()
+        await draftStore.addDocument({
+          name: 'draft',
+          document: defaultDocument,
         })
-        client.loadWorkspace(workspaceData.workspace)
-        localStorage.setWorkspaceId(id)
-        store.value = client
+        const draftWorkspace = draftStore.exportWorkspace()
+        // Create and navigate to the default workspace
+        await persistence.workspace.setItem(DEFAULT_WORKSPACE.id, {
+          name: 'Default',
+          workspace: draftWorkspace,
+        })
+
+        if (await loadWorkspace(DEFAULT_WORKSPACE.id)) {
+          // Update the workspace list
+          workspaceList.push(DEFAULT_WORKSPACE)
+          return
+        }
+        console.error('[ERROR]: something went wrong when trying to create the default workspace')
         return
       }
-    }
 
-    // If no workspaces are available, create a new one
-    const client = await createClientStore({ workspaceId: DEFAULT_WORKSPACE_ID })
-    await client.addDocument({
-      name: 'draft',
-      document: defaultDocument,
-    })
+      // Navigate to the default workspace, when the workspace does not exist
+      return setWorkspaceId(DEFAULT_WORKSPACE.id)
+    },
+    { immediate: true },
+  )
 
-    // TODO: remove this, just for testing right now
-    await client.addDocument({
-      name: 'stripe',
-      url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
-    })
-
-    // Save the default workspace
-    activeWorkspace.value = { name: 'Default Workspace', id: DEFAULT_WORKSPACE_ID }
-    workspaces.value = [
-      { name: 'Default Workspace', id: DEFAULT_WORKSPACE_ID },
-      { name: 'stripe', id: 'stripe' },
-    ]
-    await persistence.workspace.setItem(DEFAULT_WORKSPACE_ID, {
-      name: 'Default Workspace',
-      workspace: client.exportWorkspace(),
-    })
-
-    await persistence.workspace.setItem('stripe', {
-      name: 'Stripe Workspace',
-      workspace: client.exportWorkspace(),
-    })
-    localStorage.setWorkspaceId(DEFAULT_WORKSPACE_ID)
-    store.value = client
-  })
-
-  /**
-   * Sets the current workspace by its ID.
-   * Loads the workspace from persistence and updates the store.
-   * Also sets the workspaceId in localStorage for future sessions.
-   *
-   * @param workspaceId - The ID of the workspace to set as active.
-   */
-  const setWorkspaceId = async (workspaceId: string): Promise<boolean> => {
-    const persistence = await persistencePromise
-    const result = await persistence.workspace.getItem(workspaceId)
-    if (result) {
-      activeWorkspace.value = { name: result.name, id: workspaceId }
-      const client = await createClientStore({ workspaceId })
-      client.loadWorkspace(result.workspace)
-      store.value = client
-      localStorage.setWorkspaceId(workspaceId)
-      return true
-    }
-    return false
+  const setWorkspaceId = (workspaceId: string) => {
+    router.push({ name: 'workspace', params: { workspaceSlug: workspaceId } })
   }
 
   /**
@@ -158,9 +139,7 @@ export const useWorkspaceSelector = () => {
       name: name,
       workspace: client.exportWorkspace(),
     })
-    localStorage.setWorkspaceId(name)
-    store.value = client
-    activeWorkspace.value = { name: name, id: name }
+    setWorkspaceId(name)
   }
 
   return {

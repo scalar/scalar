@@ -18,7 +18,7 @@ import {
   type XScalarEnvironment,
 } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -35,7 +35,22 @@ const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
 }>()
 
-const { store, workspaces, activeWorkspace } = useWorkspaceSelector()
+const route = useRoute()
+const router = useRouter()
+
+/** Extracts a string parameter from the route */
+const getRouteParam = (paramName: string): string | undefined => {
+  const param = route.params[paramName]
+  return typeof param === 'string' ? param : undefined
+}
+
+/** Current workspace slug from the route, defaults to 'default'. */
+const workspaceSlug = computed(() => getRouteParam('workspaceSlug'))
+
+const { store, workspaces, activeWorkspace, setWorkspaceId } =
+  useWorkspaceSelector({
+    workspaceId: workspaceSlug,
+  })
 
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
@@ -49,28 +64,11 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => store.value
 }
 
-/** Extracts a string parameter from the route */
-const getRouteParam = (paramName: string): string | undefined => {
-  const param = route.params[paramName]
-  return typeof param === 'string' ? param : undefined
-}
-
-const route = useRoute()
-const router = useRouter()
-
 /** Workspace event bus for handling workspace-level events. */
 const eventBus = createWorkspaceEventBus()
 
-/** Temporary workspace model until workspaces are fully integrated. */
-const workspaceModel = ref('default')
-
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(true)
-
-/** Current workspace slug from the route, defaults to 'default'. */
-const workspaceSlug = computed(
-  () => getRouteParam('workspaceSlug') ?? 'default',
-)
 
 /** Current document slug from the route. */
 const documentSlug = computed(() => getRouteParam('documentSlug'))
@@ -110,16 +108,7 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
-/** Initialize workspace client event handlers. */
-watch(
-  () => store,
-  (newStore) => {
-    if (!newStore.value) {
-      return
-    }
-    useWorkspaceClientEvents(eventBus, document, newStore.value)
-  },
-)
+useWorkspaceClientEvents(eventBus, document, store)
 
 /**
  * Merged environment variables from workspace and document levels.
@@ -225,7 +214,15 @@ const routerViewProps = computed(
       <WebTopNav
         v-else
         :activeWorkspace="activeWorkspace"
-        :workspaces="workspaces" />
+        :workspaces="workspaces"
+        @select:workspace="
+          (id) => {
+            if (!id) {
+              return
+            }
+            setWorkspaceId(id)
+          }
+        " />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -233,7 +230,6 @@ const routerViewProps = computed(
         <AppSidebar
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
-          v-model:workspace="workspaceModel"
           :activeWorkspace="activeWorkspace"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
@@ -241,6 +237,14 @@ const routerViewProps = computed(
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
+          @select:workspace="
+            (id) => {
+              if (!id) {
+                return
+              }
+              setWorkspaceId(id)
+            }
+          "
           @selectItem="handleSelectItem"
           @update:sidebarWidth="handleSidebarWidthUpdate" />
 
