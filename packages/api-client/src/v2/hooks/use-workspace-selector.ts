@@ -1,5 +1,4 @@
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
@@ -10,11 +9,16 @@ import { useRouter } from 'vue-router'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
-const DEFAULT_WORKSPACE = {
+const DEFAULT_DEBOUNCE_DELAY = 1000
+
+/**
+ * Default workspace meta used when we need to create or navigate to a fallback workspace.
+ * Keep in sync with the persisted workspace structure.
+ */
+const DEFAULT_WORKSPACE: Workspace = {
   name: 'Default',
   id: 'default',
 }
-const DEFAULT_DEBOUNCE_DELAY = 1000
 
 const defaultDocument = {
   openapi: '3.1.0',
@@ -30,6 +34,9 @@ const defaultDocument = {
   'x-scalar-original-document-hash': 'draft',
 } satisfies OpenApiDocument
 
+/**
+ * Creates a client-side workspace store with persistence enabled for the given workspace id.
+ */
 const createClientStore = async ({ workspaceId }: { workspaceId: string }): Promise<WorkspaceStore> => {
   return createWorkspaceStore({
     plugins: [await persistencePlugin({ workspaceId, debounceDelay: DEFAULT_DEBOUNCE_DELAY })],
@@ -49,28 +56,48 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
 
   const router = useRouter()
 
-  const loadWorkspace = async (workspaceId: string) => {
+  /**
+   * Attempts to load and activate a workspace by id.
+   * Returns true when the workspace was found and activated.
+   */
+  const loadWorkspace = async (id: string): Promise<boolean> => {
     const persistence = await persistencePromise
-    // There is a workspace
-    const workspace = await persistence.workspace.getItem(workspaceId)
+    const workspace = await persistence.workspace.getItem(id)
 
     if (!workspace) {
       return false
     }
 
-    const client = await createClientStore({ workspaceId })
+    const client = await createClientStore({ workspaceId: id })
     client.loadWorkspace(workspace.workspace)
-    workspaceStorage.setActiveWorkspaceId(workspaceId)
-    activeWorkspace.value = workspace
-    // Setting the store value
+    workspaceStorage.setActiveWorkspaceId(id)
+    activeWorkspace.value = { id, name: workspace.name }
     store.value = client
     return true
   }
 
+  /**
+   * Creates and persists the default workspace with a blank draft document.
+   * Used when no workspaces exist yet.
+   */
+  const createAndPersistWorkspace = async ({ id, name }: { id: string; name: string }): Promise<void> => {
+    const draftStore = createWorkspaceStore()
+    await draftStore.addDocument({
+      name: 'draft',
+      document: defaultDocument,
+    })
+
+    const persistence = await persistencePromise
+    await persistence.workspace.setItem(id, {
+      name: name,
+      workspace: draftStore.exportWorkspace(),
+    })
+  }
+
   watch(
     () => toValue(workspaceId),
-    async (newWorkspaceId) => {
-      const id = toValue(newWorkspaceId)
+    async (newWorkspaceId): Promise<void> => {
+      const id = newWorkspaceId
       const persistence = await persistencePromise
 
       // Get all available workspaces
@@ -83,7 +110,7 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
 
       // Load the selected workspace id
       if (await loadWorkspace(id)) {
-        return true
+        return
       }
 
       // Load the first workspace we can find when the default workspace
@@ -92,18 +119,8 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
           return
         }
 
-        // create the default workspace
-        const draftStore = createWorkspaceStore()
-        await draftStore.addDocument({
-          name: 'draft',
-          document: defaultDocument,
-        })
-        const draftWorkspace = draftStore.exportWorkspace()
-        // Create and navigate to the default workspace
-        await persistence.workspace.setItem(DEFAULT_WORKSPACE.id, {
-          name: 'Default',
-          workspace: draftWorkspace,
-        })
+        // Create the default workspace and navigate to it
+        await createAndPersistWorkspace(DEFAULT_WORKSPACE)
 
         if (await loadWorkspace(DEFAULT_WORKSPACE.id)) {
           // Update the workspace list
@@ -120,8 +137,14 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
     { immediate: true },
   )
 
-  const setWorkspaceId = (workspaceId: string) => {
-    router.push({ name: 'workspace', params: { workspaceSlug: workspaceId } })
+  /**
+   * Navigates to the workspace route for the given workspace ID.
+   * Updates the URL to reflect the selected workspace.
+   *
+   * @param id - The unique identifier (slug) of the workspace to navigate to.
+   */
+  const setWorkspaceId = (id: string): void => {
+    router.push({ name: 'workspace', params: { workspaceSlug: id } })
   }
 
   /**
@@ -138,32 +161,22 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
     const persistence = await persistencePromise
 
     // Generate a unique slug/id for the workspace, based on the name.
-    const workspaceId = await generateUniqueValue({
+    const newWorkspaceId = await generateUniqueValue({
       defaultValue: name,
       validation: async (value) => !(await persistence.workspace.has(value)),
       maxRetries: 100,
       transformation: slugify,
     })
 
-    if (!workspaceId) {
+    // Failed to generate a unique workspace id, so we can't create the workspace.
+    if (!newWorkspaceId) {
       return
     }
 
     // Create a new client store with the workspace ID and add a default document.
-    const client = await createClientStore({ workspaceId })
-    await client.addDocument({
-      name: 'draft',
-      document: defaultDocument,
-    })
-
-    // Save the workspace with the name and exported store.
-    await persistence.workspace.setItem(workspaceId, {
-      name,
-      workspace: client.exportWorkspace(),
-    })
-
+    await createAndPersistWorkspace({ id: newWorkspaceId, name })
     // Navigate to the newly created workspace.
-    setWorkspaceId(workspaceId)
+    setWorkspaceId(newWorkspaceId)
   }
 
   return {

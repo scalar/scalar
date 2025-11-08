@@ -253,5 +253,8 @@ export const createWorkspaceStorePersistence = async () => {
         return (await workspaceTable.getItem({ id })) !== undefined
       },
     },
+    clear: async () => {
+      await workspaceTable.deleteAll()
+    },
   }
 }
