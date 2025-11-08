@@ -24,9 +24,8 @@ describe('RequestAuthTab', () => {
     custom: Partial<{
       selectedSecuritySchemas: any
       securitySchemes: any
-      layout: 'client' | 'reference'
+      isStatic: boolean
       environment: any
-      envVariables: any[]
       server: any
     }> = {},
   ) => {
@@ -47,8 +46,7 @@ describe('RequestAuthTab', () => {
       attachTo: document.body,
       props: {
         environment: custom.environment ?? baseEnvironment,
-        envVariables: custom.envVariables ?? [],
-        layout: custom.layout ?? 'client',
+        isStatic: custom.isStatic ?? true,
         selectedSecuritySchemas,
         securitySchemes,
         server: custom.server ?? baseServer,
@@ -94,7 +92,7 @@ describe('RequestAuthTab', () => {
       expect(emitted).toBeTruthy()
       expect(emitted![0]![0]).toEqual({
         type: 'http',
-        payload: { token: 'new-token-123' },
+        'x-scalar-secret-token': 'new-token-123',
       })
     })
 
@@ -170,7 +168,7 @@ describe('RequestAuthTab', () => {
       assert(emitted[0])
       expect(emitted[0][0]).toEqual({
         type: 'http',
-        payload: { username: 'testuser' },
+        'x-scalar-secret-username': 'testuser',
       })
     })
 
@@ -199,7 +197,7 @@ describe('RequestAuthTab', () => {
       assert(emitted[0])
       expect(emitted[0][0]).toEqual({
         type: 'http',
-        payload: { password: 'testpass' },
+        'x-scalar-secret-password': 'testpass',
       })
     })
   })
@@ -259,7 +257,7 @@ describe('RequestAuthTab', () => {
       assert(emitted[0])
       expect(emitted[0][0]).toEqual({
         type: 'apiKey',
-        payload: { name: 'X-Custom-Key' },
+        name: 'X-Custom-Key',
       })
     })
 
@@ -288,7 +286,7 @@ describe('RequestAuthTab', () => {
       assert(emitted[0])
       expect(emitted[0][0]).toEqual({
         type: 'apiKey',
-        payload: { value: 'secret-key-value' },
+        'x-scalar-secret-token': 'secret-key-value',
       })
     })
   })
@@ -338,7 +336,10 @@ describe('RequestAuthTab', () => {
       })
 
       const oauth2Component = wrapper.findComponent(OAuth2)
-      oauth2Component.vm.$emit('update:securityScheme', { token: 'oauth-token' })
+      oauth2Component.vm.$emit('update:securityScheme', {
+        type: 'oauth2',
+        authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
+      })
       await nextTick()
 
       const emitted = wrapper.emitted('update:securityScheme')
@@ -346,8 +347,7 @@ describe('RequestAuthTab', () => {
       assert(emitted[0])
       expect(emitted[0][0]).toEqual({
         type: 'oauth2',
-        flow: 'authorizationCode',
-        payload: { token: 'oauth-token' },
+        authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
       })
     })
 

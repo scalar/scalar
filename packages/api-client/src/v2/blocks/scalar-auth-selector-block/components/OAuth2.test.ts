@@ -45,7 +45,6 @@ describe('OAuth2', () => {
       attachTo: document.body,
       props: {
         environment: baseEnv as any,
-        envVariables: [],
         flows,
         type: (custom.type ?? 'authorizationCode') as any,
         selectedScopes: custom.selectedScopes ?? [],
@@ -75,7 +74,10 @@ describe('OAuth2', () => {
     await clearBtn!.trigger('click')
 
     const clearEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(clearEmit).toEqual({ token: '' })
+    expect(clearEmit).toEqual({
+      type: 'oauth2',
+      authorizationCode: { 'x-scalar-secret-token': '' },
+    })
 
     // Updating the token input propagates via update:modelValue
     const tokenInput = wrapper.findComponent(RequestAuthDataTableInput)
@@ -84,7 +86,10 @@ describe('OAuth2', () => {
     await nextTick()
 
     const updateEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(updateEmit).toEqual({ token: 'xyz' })
+    expect(updateEmit).toEqual({
+      type: 'oauth2',
+      authorizationCode: { 'x-scalar-secret-token': 'xyz' },
+    })
   })
 
   it('renders configuration inputs without token and shows Authorize button', async () => {
@@ -102,13 +107,19 @@ describe('OAuth2', () => {
     inputs[0]!.vm.$emit('update:modelValue', 'https://new-auth.test')
     await nextTick()
     const authUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(authUrlEmit).toEqual({ authUrl: 'https://new-auth.test' })
+    expect(authUrlEmit).toEqual({
+      type: 'oauth2',
+      authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+    })
 
     // Second input corresponds to Token URL
     inputs[1]!.vm.$emit('update:modelValue', 'https://new-token.test')
     await nextTick()
     const tokenUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(tokenUrlEmit).toEqual({ tokenUrl: 'https://new-token.test' })
+    expect(tokenUrlEmit).toEqual({
+      type: 'oauth2',
+      authorizationCode: { tokenUrl: 'https://new-token.test' },
+    })
   })
 
   it('re-emits selected scopes from child component', async () => {

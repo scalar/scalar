@@ -60,7 +60,7 @@ describe('AuthSelector', () => {
     const environment = custom.environment ?? baseEnvironment
     const isStatic = custom.isStatic ?? true
     const security = custom.security ?? [{ BearerAuth: [] }]
-    const selectedSecurity = custom.selectedSecurity ?? { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] }
+    const selectedSecurity = custom.selectedSecurity ?? { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] }
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
     const server = custom.server ?? baseServer
     const title = custom.title ?? 'Authentication'
@@ -173,13 +173,13 @@ describe('AuthSelector', () => {
   describe('selected scheme options computation', () => {
     it('computes selected scheme options from selectedSecurity', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
       const vm = wrapper.vm
-      expect(vm.selectedSchemeOptions).toHaveLength(1)
-      expect(vm.selectedSchemeOptions[0]).toMatchObject({
+      expect(vm.activeSchemeOptions).toHaveLength(1)
+      expect(vm.activeSchemeOptions[0]).toMatchObject({
         label: expect.any(String),
         value: { BearerAuth: [] },
       })
@@ -187,42 +187,42 @@ describe('AuthSelector', () => {
 
     it('handles multiple selected schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
       const vm = wrapper.vm
-      expect(vm.selectedSchemeOptions).toHaveLength(2)
+      expect(vm.activeSchemeOptions).toHaveLength(2)
     })
 
     it('handles complex auth schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [], ApiKeyAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [], ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
       const vm = wrapper.vm
-      expect(vm.selectedSchemeOptions).toHaveLength(1) // Complex scheme is formatted as one option
-      expect(vm.selectedSchemeOptions[0]?.label).toContain('BearerAuth & ApiKeyAuth')
+      expect(vm.activeSchemeOptions).toHaveLength(1) // Complex scheme is formatted as one option
+      expect(vm.activeSchemeOptions[0]?.label).toContain('BearerAuth & ApiKeyAuth')
     })
 
     it('returns empty array when no selected security', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
       })
 
       const vm = wrapper.vm
-      expect(vm.selectedSchemeOptions).toEqual([])
+      expect(vm.activeSchemeOptions).toEqual([])
     })
 
     it('filters out undefined schemes', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { NonExistentAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }, { NonExistentAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
       const vm = wrapper.vm
-      expect(vm.selectedSchemeOptions).toHaveLength(1)
+      expect(vm.activeSchemeOptions).toHaveLength(1)
     })
   })
 
@@ -317,7 +317,7 @@ describe('AuthSelector', () => {
   describe('combobox button display', () => {
     it('shows single auth type when one scheme selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -327,7 +327,7 @@ describe('AuthSelector', () => {
 
     it('shows "Multiple" when multiple schemes selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }, { ApiKeyAuth: [] }] },
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -337,7 +337,7 @@ describe('AuthSelector', () => {
 
     it('shows "Auth Type" when no schemes selected', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
       })
 
       const button = wrapper.findComponent({ name: 'ScalarButton' })
