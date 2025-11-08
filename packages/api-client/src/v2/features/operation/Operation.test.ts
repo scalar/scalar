@@ -41,7 +41,17 @@ describe('Operation', () => {
 
   const render = (overrides: Partial<RouteProps> = {}) => {
     const props = { ...defaultProps, ...overrides } as RouteProps
-    return mount(Operation, { props })
+    return mount(Operation, {
+      props,
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+        },
+      },
+    })
   }
 
   it('renders fallback message when required props are missing', () => {
@@ -76,13 +86,17 @@ describe('Operation', () => {
       components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ bearerAuth: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ bearerAuth: [] }],
       },
       paths: {
         '/pets': {
           get: {
             security: [{ apiKeyAuth: [] }],
+            'x-scalar-selected-security': {
+              selectedIndex: 0,
+              selectedSchemes: [{ apiKeyAuth: [] }],
+            },
             responses: {},
           },
         },
@@ -94,6 +108,10 @@ describe('Operation', () => {
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
     expect(props.security).toEqual([{ apiKeyAuth: [] }])
+    expect(props.selectedSecurity).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ apiKeyAuth: [] }],
+    })
     expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
   })
 
@@ -103,8 +121,8 @@ describe('Operation', () => {
       components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ bearerAuth: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ bearerAuth: [] }],
       },
       paths: {
         '/pets': {
@@ -120,6 +138,10 @@ describe('Operation', () => {
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props()
     expect(props.security).toEqual([{ bearerAuth: [] }])
+    expect(props.selectedSecurity).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ bearerAuth: [] }],
+    })
     expect(props.authMeta).toEqual({ type: 'document' })
   })
 
@@ -129,8 +151,8 @@ describe('Operation', () => {
       components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ bearerAuth: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ bearerAuth: [] }],
       },
       paths: {
         '/pets': {
@@ -148,8 +170,8 @@ describe('Operation', () => {
     const props = oc.props() as any
     expect(props.security).toEqual([{ bearerAuth: [] }, {}])
     expect(props.selectedSecurity).toEqual({
-      'x-selected-index': 0,
-      'x-schemes': [{ bearerAuth: [] }],
+      selectedIndex: 0,
+      selectedSchemes: [{ bearerAuth: [] }],
     })
     expect(props.authMeta).toEqual({ type: 'document' })
   })

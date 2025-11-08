@@ -178,8 +178,8 @@ describe('AuthSelector', () => {
       })
 
       const vm = wrapper.vm
-      expect(vm.activeSchemeOptions).toHaveLength(1)
-      expect(vm.activeSchemeOptions[0]).toMatchObject({
+      expect(vm.selectedSchemeOptions).toHaveLength(1)
+      expect(vm.selectedSchemeOptions[0]).toMatchObject({
         label: expect.any(String),
         value: { BearerAuth: [] },
       })
@@ -192,7 +192,7 @@ describe('AuthSelector', () => {
       })
 
       const vm = wrapper.vm
-      expect(vm.activeSchemeOptions).toHaveLength(2)
+      expect(vm.selectedSchemeOptions).toHaveLength(2)
     })
 
     it('handles complex auth schemes', () => {
@@ -202,8 +202,8 @@ describe('AuthSelector', () => {
       })
 
       const vm = wrapper.vm
-      expect(vm.activeSchemeOptions).toHaveLength(1) // Complex scheme is formatted as one option
-      expect(vm.activeSchemeOptions[0]?.label).toContain('BearerAuth & ApiKeyAuth')
+      expect(vm.selectedSchemeOptions).toHaveLength(1) // Complex scheme is formatted as one option
+      expect(vm.selectedSchemeOptions[0]?.label).toContain('BearerAuth & ApiKeyAuth')
     })
 
     it('returns empty array when no selected security', () => {
@@ -212,7 +212,7 @@ describe('AuthSelector', () => {
       })
 
       const vm = wrapper.vm
-      expect(vm.activeSchemeOptions).toEqual([])
+      expect(vm.selectedSchemeOptions).toEqual([])
     })
 
     it('filters out undefined schemes', () => {
@@ -222,7 +222,7 @@ describe('AuthSelector', () => {
       })
 
       const vm = wrapper.vm
-      expect(vm.activeSchemeOptions).toHaveLength(1)
+      expect(vm.selectedSchemeOptions).toHaveLength(1)
     })
   })
 
