@@ -8,9 +8,8 @@ import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components
 import OperationTableRow from './OperationTableRow.vue'
 
 const environment = {
-  uid: 'env-1' as any,
-  name: 'Test Env',
-  value: 'v',
+  description: 'Test Environment',
+  variables: [],
   color: 'c',
 }
 

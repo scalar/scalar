@@ -14,19 +14,15 @@ const defaultProps = {
   operation: {
     summary: '',
   },
+  layout: 'web' as const,
   exampleKey: 'example-1',
   securitySchemes: {},
-  selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] },
+  selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
   security: [],
-
-  layout: 'web' as const,
-
-  /** TODO: remove when we migrate */
   environment: {
-    uid: 'some-uid' as any,
-    name: 'some-name',
-    value: 'some-value',
-    color: 'some-color',
+    color: 'blue',
+    variables: [],
+    description: 'Test Environment',
   },
   envVariables: [],
   eventBus: createWorkspaceEventBus(),

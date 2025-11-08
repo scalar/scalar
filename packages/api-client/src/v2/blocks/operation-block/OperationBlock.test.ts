@@ -36,10 +36,9 @@ describe('OperationContainer', () => {
     events,
     plugins: [],
     environment: {
-      uid: 'env-1' as any,
-      name: 'Test',
       color: 'blue',
-      value: 'default',
+      variables: [],
+      description: 'Test Environment',
     },
     envVariables: [],
   }
