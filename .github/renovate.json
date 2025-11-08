@@ -37,11 +37,10 @@
       "matchFileNames": [
         "packages/**",
         "package.json",
-        "pnpm-workspace.yml",
+        "pnpm-workspace.yaml",
         "integrations/**",
         "examples/**",
         "projects/**",
-        "playwright/**",
         "tooling/**"
       ],
       "semanticCommits": "enabled",
@@ -219,6 +218,31 @@
       "matchFileNames": ["packages/workspace-store/**"],
       "additionalBranchPrefix": "workspace-store"
     },
+    {
+      "description": "Packages - Analytics Client",
+      "matchFileNames": ["packages/analytics-client/**"],
+      "additionalBranchPrefix": "analytics-client"
+    },
+    {
+      "description": "Packages - OpenAPI Upgrader",
+      "matchFileNames": ["packages/openapi-upgrader/**"],
+      "additionalBranchPrefix": "openapi-upgrader"
+    },
+    {
+      "description": "Packages - Pre Post Request Scripts",
+      "matchFileNames": ["packages/pre-post-request-scripts/**"],
+      "additionalBranchPrefix": "pre-post-request-scripts"
+    },
+    {
+      "description": "Packages - Sidebar",
+      "matchFileNames": ["packages/sidebar/**"],
+      "additionalBranchPrefix": "sidebar"
+    },
+    {
+      "description": "Packages - Use Tooltip",
+      "matchFileNames": ["packages/use-tooltip/**"],
+      "additionalBranchPrefix": "use-tooltip"
+    },
 
     {
       "description": "Global dependencies",
@@ -297,6 +321,11 @@
       "matchFileNames": ["integrations/sveltekit/**", "examples/sveltekit/**"],
       "additionalBranchPrefix": "sveltekit"
     },
+    {
+      "description": "Integrations - Astro",
+      "matchFileNames": ["integrations/astro/**"],
+      "additionalBranchPrefix": "astro"
+    },
 
     {
       "description": "Projects - Client Scalar.com",
@@ -315,22 +344,11 @@
     },
 
     {
-      "description": "Playwright",
-      "matchFileNames": ["playwright/**"],
-      "additionalBranchPrefix": "playwright"
-    },
-
-    {
       "description": "Scripts",
       "matchFileNames": ["scripts/**"],
       "additionalBranchPrefix": "scripts-root"
     },
 
-    {
-      "description": "Examples - CDN API Reference",
-      "matchFileNames": ["examples/cdn-api-reference/**"],
-      "additionalBranchPrefix": "api-reference-example"
-    },
     {
       "description": "Examples - React",
       "matchFileNames": ["examples/react/**", "examples/react-webpack/**"],
