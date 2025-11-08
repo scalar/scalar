@@ -1,9 +1,13 @@
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
+import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { slugify } from '@/v2/helpers/slugify'
+import { workspaceStorage } from '@/v2/helpers/storage'
 
 const DEFAULT_WORKSPACE = {
   name: 'Default',
@@ -55,6 +59,7 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
 
     const client = await createClientStore({ workspaceId })
     client.loadWorkspace(workspace.workspace)
+    workspaceStorage.setActiveWorkspaceId(workspaceId)
     activeWorkspace.value = workspace
     // Setting the store value
     store.value = client
@@ -128,18 +133,29 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
    * @param name - The name of the new workspace
    */
   const createWorkspace = async ({ name }: { name: string }): Promise<void> => {
-    // TODO: slugify the name and make sure it's unique
     const persistence = await persistencePromise
-    const client = await createClientStore({ workspaceId: name })
+
+    const workspaceId = await generateUniqueValue({
+      defaultValue: name,
+      validation: async (value) => !(await persistence.workspace.has(value)),
+      maxRetries: 100,
+      transformation: slugify,
+    })
+
+    if (!workspaceId) {
+      return
+    }
+
+    const client = await createClientStore({ workspaceId })
     await client.addDocument({
       name: 'draft',
       document: defaultDocument,
     })
-    await persistence.workspace.setItem(name, {
-      name: name,
+    await persistence.workspace.setItem(workspaceId, {
+      name: workspaceId,
       workspace: client.exportWorkspace(),
     })
-    setWorkspaceId(name)
+    setWorkspaceId(workspaceId)
   }
 
   return {

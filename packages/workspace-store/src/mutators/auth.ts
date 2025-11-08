@@ -47,7 +47,7 @@ export type AuthMeta =
  * })
  * ```
  */
-export const updateSelectedSecuritySchemes = ({
+export const updateSelectedSecuritySchemes = async ({
   document,
   selectedRequirements,
   newSchemes,
@@ -71,16 +71,15 @@ export const updateSelectedSecuritySchemes = ({
     return getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   }
 
-  // Create any new security schemes required, ensuring unique names for the components
-  const createdSchemes = newSchemes
-    .map((scheme) => {
-      const name = generateUniqueValue({
-        defaultValue: scheme.name,
+  const createdSecurityRequirements = await Promise.all(
+    newSchemes.map(async (newScheme) => {
+      const uniqueSchemeName = await generateUniqueValue({
+        defaultValue: newScheme.name,
         validation: (value) => !document.components?.securitySchemes?.[value],
         maxRetries: 100,
       })
 
-      if (!name) {
+      if (!uniqueSchemeName) {
         return
       }
 
@@ -93,14 +92,17 @@ export const updateSelectedSecuritySchemes = ({
       }
 
       // Add the new security scheme definition
-      document.components.securitySchemes[name] = scheme.scheme
+      document.components.securitySchemes[uniqueSchemeName] = newScheme.scheme
 
       // Return an OpenAPI Security Requirement Object for this new scheme (empty scope array)
       return {
-        [name]: [],
+        [uniqueSchemeName]: [],
       }
-    })
-    .filter(Boolean) as SecurityRequirementObject[]
+    }),
+  )
+
+  // Create any new security schemes required, ensuring unique names for the components
+  const createdSchemes = createdSecurityRequirements.filter(Boolean) as SecurityRequirementObject[]
 
   const target = getTarget()
 

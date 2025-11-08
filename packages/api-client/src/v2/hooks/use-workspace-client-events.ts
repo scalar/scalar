@@ -109,8 +109,8 @@ export const useWorkspaceClientEvents = (
       meta,
     })
   })
-  eventBus.on('auth:update:selected-security-schemes', ({ newSchemes, selectedRequirements, meta }) => {
-    updateSelectedSecuritySchemes({
+  eventBus.on('auth:update:selected-security-schemes', async ({ newSchemes, selectedRequirements, meta }) => {
+    await updateSelectedSecuritySchemes({
       document: document.value,
       newSchemes,
       selectedRequirements,

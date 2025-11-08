@@ -44,14 +44,6 @@ const getRouteParam = (paramName: string): string | undefined => {
   return typeof param === 'string' ? param : undefined
 }
 
-/** Current workspace slug from the route, defaults to 'default'. */
-const workspaceSlug = computed(() => getRouteParam('workspaceSlug'))
-
-const { store, workspaces, activeWorkspace, setWorkspaceId } =
-  useWorkspaceSelector({
-    workspaceId: workspaceSlug,
-  })
-
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 
@@ -70,6 +62,9 @@ const eventBus = createWorkspaceEventBus()
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(true)
 
+/** Current workspace slug from the route, defaults to 'default'. */
+const workspaceSlug = computed(() => getRouteParam('workspaceSlug'))
+
 /** Current document slug from the route. */
 const documentSlug = computed(() => getRouteParam('documentSlug'))
 
@@ -79,7 +74,6 @@ const documentSlug = computed(() => getRouteParam('documentSlug'))
  */
 const document = computed(() => {
   if (!documentSlug.value || store.value === null) return null
-  console.log('Fetching document:', documentSlug.value, store)
   return store.value.workspace.documents[documentSlug.value] ?? null
 })
 
@@ -97,6 +91,12 @@ const method = computed(() => {
 
 /** Example name from the route. */
 const exampleName = computed(() => getRouteParam('exampleName'))
+
+// Workspace-related state and utilities derived from the workspaceSlug route param.
+const { store, workspaces, activeWorkspace, setWorkspaceId } =
+  useWorkspaceSelector({
+    workspaceId: workspaceSlug,
+  })
 
 /** Sidebar state and selection handling. */
 const { handleSelectItem, sidebarState } = useSidebarState({
@@ -187,6 +187,17 @@ const handleWorkspaceClick = () =>
     params: { workspaceSlug: workspaceSlug.value },
   })
 
+/**
+ * Handler for selecting a workspace.
+ * Sets the current workspace ID if provided.
+ */
+const handleSelectWorkspace = (id?: string) => {
+  if (!id) {
+    return
+  }
+  setWorkspaceId(id)
+}
+
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed(
   () =>
@@ -215,14 +226,7 @@ const routerViewProps = computed(
         v-else
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
-        @select:workspace="
-          (id) => {
-            if (!id) {
-              return
-            }
-            setWorkspaceId(id)
-          }
-        " />
+        @select:workspace="handleSelectWorkspace" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -237,14 +241,7 @@ const routerViewProps = computed(
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
-          @select:workspace="
-            (id) => {
-              if (!id) {
-                return
-              }
-              setWorkspaceId(id)
-            }
-          "
+          @select:workspace="handleSelectWorkspace"
           @selectItem="handleSelectItem"
           @update:sidebarWidth="handleSidebarWidthUpdate" />
 

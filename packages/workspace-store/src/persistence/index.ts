@@ -245,6 +245,13 @@ export const createWorkspaceStorePersistence = async () => {
           documentConfigsTable.deleteRange([id]),
         ])
       },
+
+      /**
+       * Checks if a workspace with the given ID exists in the store.
+       */
+      has: async (id: string): Promise<boolean> => {
+        return (await workspaceTable.getItem({ id })) !== undefined
+      },
     },
   }
 }

@@ -1011,8 +1011,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentConfigs, input.documentConfigs as Record<string, Config>)
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
-
-      console.log('Workspace loaded from serialized input.', workspace)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
