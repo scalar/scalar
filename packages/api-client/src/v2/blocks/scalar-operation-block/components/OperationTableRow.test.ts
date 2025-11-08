@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { CodeInput } from '@/components/CodeInput'
-import { DataTableCheckbox } from '@/components/DataTable'
+import { CodeInput } from '@/v2/components/code-input'
+import { DataTableCheckbox } from '@/v2/components/data-table'
 import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
 
 import OperationTableRow from './OperationTableRow.vue'
@@ -19,7 +19,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: '', value: '' },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -31,7 +35,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'test-key', value: 'test-value' },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -45,7 +53,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'test', value: 'value' },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -57,7 +69,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'test', value: 'value', isDisabled: false },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -73,8 +89,12 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'test', value: 'value' },
         environment,
-        envVariables: [],
         hasCheckboxDisabled: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -87,7 +107,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'old-key', value: 'value' },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -103,7 +127,11 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'key', value: 'old-value' },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -119,8 +147,12 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'key', value: 'value' },
         environment,
-        envVariables: [],
         isReadOnly: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -138,7 +170,11 @@ describe('OperationTableRow', () => {
           schema: { type: 'string' },
         },
         environment,
-        envVariables: [],
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
       },
     })
 
@@ -150,7 +186,6 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'key', value: 'value' },
         environment,
-        envVariables: [],
       },
       global: {
         stubs: {
@@ -159,7 +194,7 @@ describe('OperationTableRow', () => {
       },
     })
 
-    expect(wrapper.findComponent({ name: 'OperationTableTooltip' }).exists()).toBe(false)
+    expect(wrapper.findComponent(OperationTableTooltip).exists()).toBe(false)
   })
 
   it('displays file upload button when showUploadButton is true', () => {
@@ -167,7 +202,6 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'key', value: '' },
         environment,
-        envVariables: [],
         showUploadButton: true,
       },
       global: {
@@ -185,7 +219,6 @@ describe('OperationTableRow', () => {
       props: {
         data: { name: 'key', value: '' },
         environment,
-        envVariables: [],
         showUploadButton: true,
       },
       global: {
