@@ -25,6 +25,8 @@ const emit = defineEmits<{
   /** Emitted when an item is selected */
   (e: 'selectItem', id: string): void
   (e: 'select:workspace', id?: string): void
+  /** Emitted when the user wants to create a new workspace */
+  (e: 'create:workspace'): void
 }>()
 
 defineSlots<{
@@ -74,7 +76,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 v-if="layout === 'desktop'"
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
-                @select:workspace="(id) => emit('select:workspace', id)" />
+                @select:workspace="(id) => emit('select:workspace', id)"
+                @createWorkspace="emit('create:workspace')" />
 
               <!-- Toggle the sidebar -->
               <SidebarToggle

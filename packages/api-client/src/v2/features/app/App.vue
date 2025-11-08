@@ -8,7 +8,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarTeleportRoot } from '@scalar/components'
+import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -21,6 +21,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
+import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
@@ -96,6 +97,7 @@ const exampleName = computed(() => getRouteParam('exampleName'))
 const { store, workspaces, activeWorkspace, setWorkspaceId } =
   useWorkspaceSelector({
     workspaceId: workspaceSlug,
+    eventBus,
   })
 
 /** Sidebar state and selection handling. */
@@ -212,6 +214,8 @@ const routerViewProps = computed(
       workspaceStore: store.value!,
     }) satisfies RouteProps,
 )
+
+const createWorkspaceModalState = useModal()
 </script>
 
 <template>
@@ -226,7 +230,8 @@ const routerViewProps = computed(
         v-else
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
-        @select:workspace="handleSelectWorkspace" />
+        @select:workspace="handleSelectWorkspace"
+        @createWorkspace="createWorkspaceModalState.show()" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -243,7 +248,13 @@ const routerViewProps = computed(
           @click:workspace="handleWorkspaceClick"
           @select:workspace="handleSelectWorkspace"
           @selectItem="handleSelectItem"
-          @update:sidebarWidth="handleSidebarWidthUpdate" />
+          @update:sidebarWidth="handleSidebarWidthUpdate"
+          @create:workspace="createWorkspaceModalState.show()" />
+
+        <!-- Create worksapce modal -->
+        <CreateWorkspaceModal
+          :state="createWorkspaceModalState"
+          :eventBus="eventBus" />
 
         <!-- Popup command palette to add resources from anywhere -->
         <!-- <TheCommandPalette /> -->

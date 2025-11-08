@@ -25,6 +25,7 @@ const emit = defineEmits<{
   (e: 'click:workspace'): void
   (e: 'selectItem', id: string): void
   (e: 'select:workspace', id?: string): void
+  (e: 'create:workspace'): void
 }>()
 
 // Temp until we have workspaces in the store
@@ -56,6 +57,7 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     :sidebarState="sidebarState"
     :workspaces="workspaces"
     @select:workspace="(id) => emit('select:workspace', id)"
+    @createWorkspace="emit('create:workspace')"
     @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>

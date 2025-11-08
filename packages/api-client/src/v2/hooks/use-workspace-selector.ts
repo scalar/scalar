@@ -1,4 +1,5 @@
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
@@ -40,7 +41,13 @@ export type Workspace = {
   id: string
 }
 
-export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrGetter<string | undefined> }) => {
+export const useWorkspaceSelector = ({
+  workspaceId,
+  eventBus,
+}: {
+  workspaceId: MaybeRefOrGetter<string | undefined>
+  eventBus: WorkspaceEventBus
+}) => {
   const activeWorkspace = ref<Workspace | null>(null)
   const workspaces = ref<Workspace[]>([])
   const store = ref<WorkspaceStore | null>(null)
@@ -73,7 +80,6 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
       const persistence = await persistencePromise
 
       // Get all available workspaces
-      console.log('getting all available workspaces')
       const workspaceList = await persistence.workspace.getAll()
       workspaces.value = workspaceList
 
@@ -152,11 +158,16 @@ export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrG
       document: defaultDocument,
     })
     await persistence.workspace.setItem(workspaceId, {
-      name: workspaceId,
+      name,
       workspace: client.exportWorkspace(),
     })
     setWorkspaceId(workspaceId)
   }
+
+  // Listen for workspace creation events
+  eventBus.on('workspace:create:workspace', async (payload) => {
+    await createWorkspace({ name: payload.workspaceName })
+  })
 
   return {
     store,
