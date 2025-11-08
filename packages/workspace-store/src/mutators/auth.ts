@@ -172,8 +172,8 @@ export const updateSecurityScheme = (
 
 /**
  * Sets the selected authentication tab (scheme) index for the given OpenAPI document or operation.
- * - When on the document level, updates the 'x-selected-index' on the document's x-scalar-selected-security extension.
- * - When on an operation (endpoint) level, updates the 'x-selected-index' for that operation's x-scalar-selected-security.
+ * - When on the document level, updates the 'selectedIndex' on the document's x-scalar-selected-security extension.
+ * - When on an operation (endpoint) level, updates the 'selectedIndex' for that operation's x-scalar-selected-security.
  *
  * Also initializes the x-scalar-selected-security extension if it does not exist.
  *

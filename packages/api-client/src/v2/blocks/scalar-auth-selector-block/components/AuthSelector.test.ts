@@ -280,7 +280,7 @@ describe('AuthSelector', () => {
     it('passes all required props to RequestAuthDataTable', () => {
       const wrapper = mountWithProps({
         isStatic: true,
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
       })
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
@@ -295,7 +295,7 @@ describe('AuthSelector', () => {
 
     it('passes selectedSchemeOptions to RequestAuthDataTable', () => {
       const wrapper = mountWithProps({
-        selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [{ BearerAuth: [] }] },
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
       })
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
