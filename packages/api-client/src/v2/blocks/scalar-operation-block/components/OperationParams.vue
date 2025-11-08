@@ -8,7 +8,7 @@ import OperationTable from '@/v2/blocks/scalar-operation-block/components/Operat
 import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
 import { getParameterExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
 import { getParameterSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
-import { ViewLayoutCollapse } from '@/v2/components/layout'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 const {
   parameters,
@@ -59,7 +59,7 @@ const tableRows = computed<TableRow[]>(() =>
 const showTooltip = computed(() => parameters.length > 1)
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     class="group/params"
     :itemCount="parameters.length">
     <template #title>{{ title }}</template>
@@ -94,5 +94,5 @@ const showTooltip = computed(() => parameters.length > 1)
       @addRow="(payload) => emits('add', payload)"
       @deleteRow="(index) => emits('delete', { index })"
       @updateRow="(index, payload) => emits('update', { index, payload })" />
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>

@@ -27,7 +27,7 @@ import {
   getSecuritySchemeOptions,
   type SecuritySchemeOption,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
-import ViewLayoutCollapse from '@/v2/components/layout/ViewLayoutCollapse.vue'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
@@ -201,7 +201,7 @@ defineExpose({
 })
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     class="group/params relative"
     :isStatic="isStatic"
     :itemCount="activeSchemeOptions.length"
@@ -299,5 +299,5 @@ defineExpose({
       :state="deleteModal"
       @close="deleteModal.hide()"
       @delete="handleDeleteConfirm" />
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>

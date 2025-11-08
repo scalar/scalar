@@ -1,1 +1,1 @@
-export { default as ViewLayoutCollapse } from './ViewLayoutCollapse.vue'
+export { default as CollapsibleSection } from './CollapsibleSection.vue'

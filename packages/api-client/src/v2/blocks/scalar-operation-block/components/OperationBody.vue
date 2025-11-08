@@ -16,7 +16,7 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@/v2/components/data-table'
-import { ViewLayoutCollapse } from '@/v2/components/layout'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 const { requestBody, exampleKey, environment, title } = defineProps<{
   /** Request body */
@@ -145,7 +145,7 @@ const tableRows = computed(() => {
 })
 </script>
 <template>
-  <ViewLayoutCollapse>
+  <CollapsibleSection>
     <template #title>{{ title }}</template>
     <DataTable
       :columns="['']"
@@ -330,7 +330,7 @@ const tableRows = computed(() => {
         </template>
       </DataTableRow>
     </DataTable>
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>
 <style scoped>
 :deep(.cm-content) {

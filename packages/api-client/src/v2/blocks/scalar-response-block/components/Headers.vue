@@ -4,8 +4,8 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
 import HelpfulLink from '@/components/HelpfulLink.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { httpHeaders } from '@/data/httpHeaders'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 type Header = { name: string; value: string }
 
@@ -20,7 +20,7 @@ const findHeaderInfo = (name: string) => {
 }
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     class="overflow-auto"
     :defaultOpen="false"
     :itemCount="headers.length">
@@ -64,5 +64,5 @@ const findHeaderInfo = (name: string) => {
       class="text-c-3 bg-b-1 flex min-h-12 items-center justify-center rounded border px-4 text-base">
       No Headers
     </div>
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>

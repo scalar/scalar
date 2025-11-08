@@ -3,8 +3,8 @@ import { ScalarVirtualText } from '@scalar/components'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 
@@ -25,7 +25,7 @@ const responseBody = computed(() =>
 </script>
 
 <template>
-  <ViewLayoutCollapse class="!max-h-100% response-body-virtual overflow-x-auto">
+  <CollapsibleSection class="!max-h-100% response-body-virtual overflow-x-auto">
     <template #title>Body</template>
     <template
       v-if="responseBody.dataUrl"
@@ -43,7 +43,7 @@ const responseBody = computed(() =>
       contentClass="language-plaintext whitespace-pre font-code text-base"
       :lineHeight="20"
       :text="textContent" />
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>
 
 <style>
