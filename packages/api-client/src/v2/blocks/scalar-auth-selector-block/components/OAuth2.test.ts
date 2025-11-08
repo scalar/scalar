@@ -76,7 +76,9 @@ describe('OAuth2', () => {
     const clearEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
     expect(clearEmit).toEqual({
       type: 'oauth2',
-      authorizationCode: { 'x-scalar-secret-token': '' },
+      flows: {
+        authorizationCode: { 'x-scalar-secret-token': '' },
+      },
     })
 
     // Updating the token input propagates via update:modelValue
@@ -88,7 +90,9 @@ describe('OAuth2', () => {
     const updateEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
     expect(updateEmit).toEqual({
       type: 'oauth2',
-      authorizationCode: { 'x-scalar-secret-token': 'xyz' },
+      flows: {
+        authorizationCode: { 'x-scalar-secret-token': 'xyz' },
+      },
     })
   })
 
@@ -109,7 +113,9 @@ describe('OAuth2', () => {
     const authUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
     expect(authUrlEmit).toEqual({
       type: 'oauth2',
-      authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+      flows: {
+        authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+      },
     })
 
     // Second input corresponds to Token URL
@@ -118,7 +124,9 @@ describe('OAuth2', () => {
     const tokenUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
     expect(tokenUrlEmit).toEqual({
       type: 'oauth2',
-      authorizationCode: { tokenUrl: 'https://new-token.test' },
+      flows: {
+        authorizationCode: { tokenUrl: 'https://new-token.test' },
+      },
     })
   })
 
