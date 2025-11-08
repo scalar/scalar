@@ -1,3 +1,14 @@
+<script lang="ts">
+/**
+ * Simple collapsible section component that can be used to wrap content that should be collapsed and expanded
+ *
+ * Would like to replace with details/summary elements, but they are not supported in all browsers yet?
+ */
+export default {
+  name: 'CollapsibleSection',
+}
+</script>
+
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'

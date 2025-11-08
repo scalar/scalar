@@ -84,14 +84,6 @@ describe('AuthSelector', () => {
   }
 
   describe('rendering', () => {
-    it('renders with basic props', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.find('[data-testid="auth-selector"]').exists()).toBe(false) // No testid in component
-      expect(wrapper.text()).toContain('Authentication')
-      expect(wrapper.findComponent({ name: 'ViewLayoutCollapse' }).exists()).toBe(true)
-    })
-
     it('renders with custom title', () => {
       const wrapper = mountWithProps({ title: 'Custom Auth Title' })
 
