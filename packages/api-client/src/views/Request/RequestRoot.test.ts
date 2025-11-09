@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import { createRequestOperation } from '@/libs/send-request'
-import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { type WorkspaceStore, useWorkspace } from '@/store'
 import { type ActiveEntitiesStore, useActiveEntities } from '@/store/active-entities'
 import { createStoreEvents } from '@/store/events'
