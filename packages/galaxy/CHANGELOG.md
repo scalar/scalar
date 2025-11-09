@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.11
+
+### Patch Changes
+
+- [#7273](https://github.com/scalar/scalar/pull/7273) [`8750cf0`](https://github.com/scalar/scalar/commit/8750cf0e5779df747a73d3fa149beae87eca92ce) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: nullable not supported in OpenAPI 3.1
+
 ## 0.5.10
 
 ### Patch Changes

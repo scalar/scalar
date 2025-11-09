@@ -1,5 +1,12 @@
 # @scalar/api-client-react
 
+## 1.3.50
+
+### Patch Changes
+
+- Updated dependencies [[`c7a4690`](https://github.com/scalar/scalar/commit/c7a4690cec484ee16cee8dcba7ef5cb0fbb98133), [`7859105`](https://github.com/scalar/scalar/commit/7859105f857633c8f3c945d67a21f7225844ed12), [`7ccd035`](https://github.com/scalar/scalar/commit/7ccd0351de104f78ef9c6e16538753d302c50d47)]:
+  - @scalar/api-client@2.11.0
+
 ## 1.3.49
 
 ### Patch Changes

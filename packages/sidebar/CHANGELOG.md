@@ -1,5 +1,20 @@
 # @scalar/sidebar
 
+## 0.3.0
+
+### Minor Changes
+
+- [#7279](https://github.com/scalar/scalar/pull/7279) [`7ccd035`](https://github.com/scalar/scalar/commit/7ccd0351de104f78ef9c6e16538753d302c50d47) Thanks [@DemonHa](https://github.com/DemonHa)! - feat(api-client): integrate new sidebar with v2 routing
+
+### Patch Changes
+
+- [#7252](https://github.com/scalar/scalar/pull/7252) [`4bec1ba`](https://github.com/scalar/scalar/commit/4bec1ba332e919c4ee32dcfbfb07bd8ee42c4d74) Thanks [@hwkr](https://github.com/hwkr)! - fix(api-reference): improve wrapping of long strings
+
+- Updated dependencies [[`c7a4690`](https://github.com/scalar/scalar/commit/c7a4690cec484ee16cee8dcba7ef5cb0fbb98133), [`9c9dbba`](https://github.com/scalar/scalar/commit/9c9dbbaa940667303f0ace59469fd78c2a741937), [`4bec1ba`](https://github.com/scalar/scalar/commit/4bec1ba332e919c4ee32dcfbfb07bd8ee42c4d74), [`7ccd035`](https://github.com/scalar/scalar/commit/7ccd0351de104f78ef9c6e16538753d302c50d47)]:
+  - @scalar/workspace-store@0.20.0
+  - @scalar/helpers@0.1.1
+  - @scalar/components@0.16.3
+
 ## 0.2.2
 
 ### Patch Changes
