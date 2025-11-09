@@ -4,10 +4,13 @@ import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
+  addServer,
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
+  deleteServer,
+  toggleDocumentSecurity,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
@@ -19,6 +22,9 @@ import {
   updateSelectedAuthTab,
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
+  updateSelectedServer,
+  updateServer,
+  updateServerVariables,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -54,11 +60,8 @@ export const useWorkspaceClientEvents = (
     'document:update:icon',
     (icon) => document.value && (document.value['x-scalar-client-config-icon'] = icon),
   )
-
-  eventBus.on(
-    'document:update:info',
-    (info) => document.value && (document.value.info = mergeObjects(document.value.info, info)),
-  )
+  eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
+  eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
@@ -93,44 +96,23 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('auth:delete:security-scheme', ({ names }) => {
-    deleteSecurityScheme({
-      document: document.value,
-      names,
-    })
-  })
+  eventBus.on('auth:delete:security-scheme', (payload) => deleteSecurityScheme(document.value, payload))
+  eventBus.on('auth:update:active-index', (payload) => updateSelectedAuthTab(document.value, payload))
+  eventBus.on('auth:update:security-scheme', (payload) => updateSecurityScheme(document.value, payload))
+  eventBus.on('auth:update:selected-scopes', (payload) => updateSelectedScopes(document.value, payload))
+  eventBus.on(
+    'auth:update:selected-security-schemes',
+    async (payload) => await updateSelectedSecuritySchemes(document.value, payload),
+  )
 
-  eventBus.on('auth:update:selected-scopes', ({ id, name, scopes, meta }) => {
-    updateSelectedScopes({
-      document: document.value,
-      id,
-      name,
-      scopes,
-      meta,
-    })
-  })
-  eventBus.on('auth:update:selected-security-schemes', async ({ newSchemes, selectedRequirements, meta }) => {
-    await updateSelectedSecuritySchemes({
-      document: document.value,
-      newSchemes,
-      selectedRequirements,
-      meta,
-    })
-  })
-  eventBus.on('auth:update:security-scheme', ({ data, name }) => {
-    updateSecurityScheme({
-      document: document.value,
-      data,
-      name,
-    })
-  })
-  eventBus.on('auth:update:active-index', ({ index, meta }) => {
-    updateSelectedAuthTab({
-      document: document.value,
-      index,
-      meta,
-    })
-  })
+  //------------------------------------------------------------------------------------
+  // Server Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('server:add:server', () => addServer(document.value))
+  eventBus.on('server:update:server', (payload) => updateServer(document.value, payload))
+  eventBus.on('server:delete:server', (payload) => deleteServer(document.value, payload))
+  eventBus.on('server:update:variables', (payload) => updateServerVariables(document.value, payload))
+  eventBus.on('server:update:selected', (payload) => updateSelectedServer(document.value, payload))
 
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers

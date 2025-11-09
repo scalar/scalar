@@ -434,7 +434,7 @@ describe('Schema', () => {
 
       const text = wrapper.text()
       expect(text).toContain('visible')
-      expect(text).toContain('alsoVisible')
+      expect(text).toContain('also​Visible')
       expect(text).not.toContain('secret')
     })
 
@@ -498,7 +498,7 @@ describe('Schema', () => {
 
       const text = wrapper.text()
       expect(text).toContain('visible')
-      expect(text).toContain('alsoVisible')
+      expect(text).toContain('also​Visible')
       expect(text).not.toContain('secret')
     })
 

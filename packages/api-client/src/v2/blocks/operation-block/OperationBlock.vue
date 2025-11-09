@@ -13,10 +13,10 @@
  *   draft overrides for the UI when present.
  */
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -25,8 +25,7 @@ import { computed } from 'vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
-import type { EnvVariable } from '@/store'
-import { createStoreEvents } from '@/store/events'
+import { type createStoreEvents } from '@/store/events'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import { OperationBlock } from '@/v2/blocks/scalar-operation-block'
 import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
@@ -97,10 +96,8 @@ const props = defineProps<{
   events: ReturnType<typeof createStoreEvents>
 
   plugins?: ClientPlugin[]
-
-  /** TODO: to be removed once we fully migrate to the new store */
-  environment: Environment
-  envVariables: EnvVariable[]
+  /** For environment variables in the inputs */
+  environment: XScalarEnvironment
 }>()
 
 const draftMethod = computed(
@@ -113,23 +110,22 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
     <div
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
       <Header
-        :envVariables="envVariables"
+        :documentUrl="documentUrl"
         :environment="environment"
+        :eventBus="eventBus"
         :events="events"
+        :hideClientButton="hideClientButton"
         :history="history"
+        :integration="integration"
+        :isSidebarOpen="isSidebarOpen"
         :layout="layout"
         :method="draftMethod"
         :path="draftPath"
         :percentage="requestLoadingPercentage"
         :server="server"
         :servers="servers"
-        :isSidebarOpen="isSidebarOpen"
         :showSidebar="showSidebar"
-        :hideClientButton="hideClientButton"
-        :integration="integration"
-        :documentUrl="documentUrl"
         :source="source"
-        :eventBus="eventBus"
         @execute="
           () =>
             eventBus.emit('operation:send:request', {
@@ -161,30 +157,31 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
             })
         " />
     </div>
+
     <ViewLayout>
       <ViewLayoutContent class="flex flex-1">
         <OperationBlock
-          :envVariables="envVariables"
+          :authMeta="authMeta"
           :environment="environment"
+          :eventBus="eventBus"
           :exampleKey="exampleKey"
           :layout="layout"
           :method="method"
           :operation="operation"
           :path="path"
-          :authMeta="authMeta"
+          :plugins="plugins"
           :security="security"
-          :eventBus="eventBus"
           :securitySchemes="securitySchemes"
-          :selectedSecurity="selectedSecurity"
-          :plugins="plugins" />
+          :selectedSecurity="selectedSecurity" />
+
         <ResponseBlock
           :appVersion="appVersion"
+          :eventBus="eventBus"
           :events="events"
           :layout="layout"
+          :plugins="plugins"
           :request="request"
           :response="response"
-          :plugins="plugins"
-          :eventBus="eventBus"
           :totalPerformedRequests="totalPerformedRequests"
           @sendRequest="
             eventBus.emit('operation:send:request', {

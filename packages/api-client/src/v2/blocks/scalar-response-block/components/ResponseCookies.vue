@@ -2,14 +2,14 @@
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 defineProps<{
   cookies: { name: string; value: string }[]
 }>()
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     :defaultOpen="false"
     :itemCount="cookies.length">
     <template #title>Cookies</template>
@@ -32,5 +32,5 @@ defineProps<{
         No cookies
       </div>
     </template>
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>

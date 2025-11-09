@@ -10,9 +10,9 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
+import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import { ScalarIconFolder } from '@scalar/icons'
 
-import { formatSidebarLabel } from '@/helpers/format-sidebar-label'
 import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
@@ -165,15 +165,13 @@ const handleDragEnd = (
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
       <template v-if="item.type === 'model'">
-        {{
-          formatSidebarLabel(item.title, { wrapCharacters: /[\/\-\_A-Z\.]/g })
-        }}
+        {{ addWordBreaks(item.title, { preset: 'property' }) }}
       </template>
       <template v-else>
         {{
           options?.operationTitleSource === 'path' && 'path' in item
-            ? formatSidebarLabel(item.path)
-            : formatSidebarLabel(item.title)
+            ? addWordBreaks(item.path)
+            : addWordBreaks(item.title)
         }}
       </template>
       <template

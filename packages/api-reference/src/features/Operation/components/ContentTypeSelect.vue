@@ -46,17 +46,21 @@ const contentTypeSelect = cva({
 <template>
   <ScalarListbox
     v-if="contentTypes.length > 1"
+    v-slot="{ open }"
     v-model="selectedOption"
     :options="options"
-    placement="bottom-end">
+    placement="bottom-end"
+    @click.stop>
     <ScalarButton
       class="h-fit"
       :class="contentTypeSelect({ dropdown: true })"
-      variant="ghost">
+      variant="ghost"
+      @click.stop>
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
       <ScalarIconCaretDown
-        class="ui-open:rotate-180 size-2.75 transition-transform duration-100"
+        class="size-2.75 transition-transform duration-100"
+        :class="{ 'rotate-180': open }"
         weight="bold" />
     </ScalarButton>
   </ScalarListbox>

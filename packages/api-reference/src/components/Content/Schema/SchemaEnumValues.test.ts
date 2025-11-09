@@ -82,9 +82,9 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('100 = Unauthorized')
-      expect(wrapper.text()).toContain('200 = AccessDenied')
-      expect(wrapper.text()).toContain('300 = Unknown')
+      expect(wrapper.text()).toContain('100 = ​Unauthorized')
+      expect(wrapper.text()).toContain('200 = ​Access​Denied')
+      expect(wrapper.text()).toContain('300 = ​Unknown')
     })
 
     it('falls back to x-enumNames when x-enum-varnames is not available', () => {
@@ -97,9 +97,9 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('1 = First')
-      expect(wrapper.text()).toContain('2 = Second')
-      expect(wrapper.text()).toContain('3 = Third')
+      expect(wrapper.text()).toContain('1 = ​First')
+      expect(wrapper.text()).toContain('2 = ​Second')
+      expect(wrapper.text()).toContain('3 = ​Third')
     })
 
     it('prefers x-enum-varnames over x-enumNames when both exist', () => {
@@ -113,10 +113,10 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('1 = VarName1')
-      expect(wrapper.text()).toContain('2 = VarName2')
-      expect(wrapper.text()).not.toContain('EnumName1')
-      expect(wrapper.text()).not.toContain('EnumName2')
+      expect(wrapper.text()).toContain('1 = ​Var​Name1')
+      expect(wrapper.text()).toContain('2 = ​Var​Name2')
+      expect(wrapper.text()).not.toContain('Enum​Name1')
+      expect(wrapper.text()).not.toContain('Enum​Name2')
     })
 
     it('shows plain enum values when no varnames are available', () => {
@@ -144,8 +144,8 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('1 = First')
-      expect(wrapper.text()).toContain('2 = Second')
+      expect(wrapper.text()).toContain('1 = ​First')
+      expect(wrapper.text()).toContain('2 = ​Second')
       expect(wrapper.text()).toContain('3')
       expect(wrapper.text()).toContain('4')
       expect(wrapper.text()).not.toContain('3 = ')
@@ -389,8 +389,8 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('100 = StatusOK')
-      expect(wrapper.text()).toContain('200 = StatusError')
+      expect(wrapper.text()).toContain('100 = ​Status​O​K')
+      expect(wrapper.text()).toContain('200 = ​Status​Error')
       expect(wrapper.text()).toContain('Request successful')
       expect(wrapper.text()).toContain('Request failed')
     })

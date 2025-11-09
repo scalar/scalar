@@ -27,16 +27,15 @@ describe('updateSelectedSecuritySchemes', () => {
 
     const selected: SecurityRequirementObject[] = [{ bearerAuth: [] }]
 
-    updateSelectedSecuritySchemes({
-      document,
+    updateSelectedSecuritySchemes(document, {
       selectedRequirements: selected,
       newSchemes: [],
       meta: { type: 'document' },
     })
 
     expect(document['x-scalar-selected-security']).toBeDefined()
-    expect(document['x-scalar-selected-security']!['x-schemes']).toEqual(selected)
-    expect(document['x-scalar-selected-security']!['x-selected-index']).toBe(0)
+    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual(selected)
+    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
   })
 
   it('appends newly created schemes with unique names and updates selection', () => {
@@ -52,8 +51,7 @@ describe('updateSelectedSecuritySchemes', () => {
       { name: 'ApiKeyAuth', scheme: { type: 'apiKey', in: 'query', name: 'api_key', 'x-scalar-secret-token': '' } },
     ]
 
-    updateSelectedSecuritySchemes({
-      document,
+    updateSelectedSecuritySchemes(document, {
       selectedRequirements: [],
       newSchemes: createItems,
       meta: { type: 'document' },
@@ -65,61 +63,58 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(names).toContain('ApiKeyAuth 1')
 
     // Selection should include the newly created scheme with empty scopes
-    const schemes = document['x-scalar-selected-security']!['x-schemes']
+    const schemes = document['x-scalar-selected-security']!.selectedSchemes
     expect(schemes).toHaveLength(1)
     assert(schemes[0])
     expect(Object.keys(schemes[0])).toEqual(['ApiKeyAuth 1'])
     expect(Object.values(schemes[0])[0]).toEqual([])
 
     // Index is initialized to 0 when adding first item
-    expect(document['x-scalar-selected-security']!['x-selected-index']).toBe(0)
+    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
   })
 
   it('preserves a valid selected index', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 1,
-        'x-schemes': [{ s1: [] }, { s2: [] }],
+        selectedIndex: 1,
+        selectedSchemes: [{ s1: [] }, { s2: [] }],
       },
     })
 
-    updateSelectedSecuritySchemes({
-      document,
+    updateSelectedSecuritySchemes(document, {
       selectedRequirements: [{ s1: [] }, { s2: [] }],
       newSchemes: [],
       meta: { type: 'document' },
     })
 
-    expect(document['x-scalar-selected-security']!['x-selected-index']).toBe(1)
-    expect(document['x-scalar-selected-security']!['x-schemes']).toEqual([{ s1: [] }, { s2: [] }])
+    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(1)
+    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual([{ s1: [] }, { s2: [] }])
   })
 
   it('corrects an out-of-bounds selected index to the last available scheme', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 5,
-        'x-schemes': [{ only: [] }],
+        selectedIndex: 5,
+        selectedSchemes: [{ only: [] }],
       },
     })
 
     const nextSelected: SecurityRequirementObject[] = [{ a: [] }, { b: [] }]
 
-    updateSelectedSecuritySchemes({
-      document,
+    updateSelectedSecuritySchemes(document, {
       selectedRequirements: nextSelected,
       newSchemes: [],
       meta: { type: 'document' },
     })
 
-    expect(document['x-scalar-selected-security']!['x-schemes']).toEqual(nextSelected)
-    expect(document['x-scalar-selected-security']!['x-selected-index']).toBe(nextSelected.length - 1)
+    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual(nextSelected)
+    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(nextSelected.length - 1)
   })
 
   it('updates operation-level selection and updates components for created schemes', () => {
     const document = createDocument({ paths: { '/pets': { get: {} as unknown as Record<string, unknown> } } })
 
-    updateSelectedSecuritySchemes({
-      document,
+    updateSelectedSecuritySchemes(document, {
       selectedRequirements: [{ bearerAuth: [] }],
       newSchemes: [
         {
@@ -149,8 +144,8 @@ describe('updateSelectedSecuritySchemes', () => {
     const operation = (document.paths!['/pets'] as Record<string, any>).get
     const ext = operation['x-scalar-selected-security']
     expect(ext).toBeDefined()
-    expect(ext['x-schemes']).toEqual([{ bearerAuth: [] }, { BearerAuth: [] }])
-    expect(ext['x-selected-index']).toBe(0)
+    expect(ext.selectedSchemes).toEqual([{ bearerAuth: [] }, { BearerAuth: [] }])
+    expect(ext.selectedIndex).toBe(0)
   })
 })
 
@@ -170,12 +165,13 @@ describe('updateSecurityScheme', () => {
       },
     })
 
-    updateSecurityScheme({
-      document,
+    updateSecurityScheme(document, {
       name: 'HttpAuth',
-      data: {
+      payload: {
         type: 'http',
-        payload: { username: 'u', password: 'p', token: 't' },
+        'x-scalar-secret-username': 'u',
+        'x-scalar-secret-password': 'p',
+        'x-scalar-secret-token': 't',
       },
     })
 
@@ -194,12 +190,12 @@ describe('updateSecurityScheme', () => {
       },
     })
 
-    updateSecurityScheme({
-      document,
+    updateSecurityScheme(document, {
       name: 'ApiKey',
-      data: {
+      payload: {
         type: 'apiKey',
-        payload: { name: 'X-NEW-KEY', value: 'secret' },
+        name: 'X-NEW-KEY',
+        'x-scalar-secret-token': 'secret',
       },
     })
 
@@ -232,20 +228,21 @@ describe('updateSecurityScheme', () => {
       },
     })
 
-    updateSecurityScheme({
-      document,
+    updateSecurityScheme(document, {
       name: 'OAuth',
-      data: {
+      payload: {
         type: 'oauth2',
-        flow: 'authorizationCode',
-        payload: {
-          authUrl: 'https://auth',
-          tokenUrl: 'https://token',
-          token: 'tok',
-          redirectUrl: 'https://cb',
-          clientId: 'cid',
-          clientSecret: 'csecret',
-          usePkce: 'SHA-256',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://auth',
+            tokenUrl: 'https://token',
+            'x-scalar-secret-token': 'tok',
+            'x-scalar-secret-redirect-uri': 'https://cb',
+            'x-scalar-secret-client-id': 'cid',
+            'x-scalar-secret-client-secret': 'csecret',
+            'x-usePkce': 'SHA-256',
+            scopes: {},
+          },
         },
       },
     })
@@ -264,11 +261,11 @@ describe('updateSecurityScheme', () => {
 
   it('is a no-op when document is null or scheme missing', () => {
     // null document
-    updateSecurityScheme({ document: null, name: 'X', data: { type: 'http', payload: {} } })
+    updateSecurityScheme(null, { name: 'X', payload: { type: 'http' } })
 
     // missing scheme
     const document = createDocument({ components: { securitySchemes: {} } })
-    updateSecurityScheme({ document, name: 'NotDefined', data: { type: 'http', payload: {} } })
+    updateSecurityScheme(document, { name: 'NotDefined', payload: { type: 'http' } })
 
     // Nothing to assert beyond no throw and document untouched
     expect(document.components!.securitySchemes).toEqual({})
@@ -279,42 +276,39 @@ describe('updateSelectedAuthTab', () => {
   it('initializes document extension when missing and sets selected index', () => {
     const document = createDocument()
 
-    updateSelectedAuthTab({
-      document,
+    updateSelectedAuthTab(document, {
       index: 3,
       meta: { type: 'document' },
     })
 
     const ext = document['x-scalar-selected-security']
     expect(ext).toBeDefined()
-    expect(ext!['x-selected-index']).toBe(3)
-    expect(ext!['x-schemes']).toEqual([])
+    expect(ext!.selectedIndex).toBe(3)
+    expect(ext!.selectedSchemes).toEqual([])
   })
 
   it('updates only the selected index and preserves existing schemes', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ s1: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ s1: [] }],
       },
     })
 
-    updateSelectedAuthTab({
-      document,
+    updateSelectedAuthTab(document, {
       index: 5,
       meta: { type: 'document' },
     })
 
     const ext = document['x-scalar-selected-security']!
-    expect(ext['x-selected-index']).toBe(5)
-    expect(ext['x-schemes']).toEqual([{ s1: [] }])
+    expect(ext.selectedIndex).toBe(5)
+    expect(ext.selectedSchemes).toEqual([{ s1: [] }])
   })
 
   it('sets selected index for an operation target', () => {
     const document = createDocument({ paths: { '/pets': { get: {} as unknown as Record<string, unknown> } } })
 
-    updateSelectedAuthTab({
-      document,
+    updateSelectedAuthTab(document, {
       index: 2,
       meta: { type: 'operation', path: '/pets', method: 'get' },
     })
@@ -322,19 +316,18 @@ describe('updateSelectedAuthTab', () => {
     const operation = (document.paths!['/pets'] as Record<string, any>).get
     const ext = operation['x-scalar-selected-security']
     expect(ext).toBeDefined()
-    expect(ext['x-selected-index']).toBe(2)
-    expect(ext['x-schemes']).toEqual([])
+    expect(ext.selectedIndex).toBe(2)
+    expect(ext.selectedSchemes).toEqual([])
   })
 
   it('is a no-op when document is null', () => {
-    updateSelectedAuthTab({ document: null, index: 1, meta: { type: 'document' } })
+    updateSelectedAuthTab(null, { index: 1, meta: { type: 'document' } })
   })
 
   it('is a no-op when operation target cannot be resolved', () => {
     const document = createDocument({ paths: {} })
 
-    updateSelectedAuthTab({
-      document,
+    updateSelectedAuthTab(document, {
       index: 1,
       meta: { type: 'operation', path: '/missing', method: 'get' },
     })
@@ -348,38 +341,36 @@ describe('updateSelectedScopes', () => {
   it('updates scopes for the matching scheme at document level', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ OAuth: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ OAuth: [] }],
       },
     })
 
-    updateSelectedScopes({
-      document,
+    updateSelectedScopes(document, {
       id: ['OAuth'],
       name: 'OAuth',
       scopes: ['read', 'write'],
       meta: { type: 'document' },
     })
 
-    const schemes = document['x-scalar-selected-security']!['x-schemes']
+    const schemes = document['x-scalar-selected-security']!.selectedSchemes
     expect(schemes[0]?.OAuth).toEqual(['read', 'write'])
   })
 
   it('updates scopes for matching scheme at operation level', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ DocScheme: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ DocScheme: [] }],
       },
       paths: {
         '/pets': {
-          get: { 'x-scalar-selected-security': { 'x-selected-index': 0, 'x-schemes': [{ OpOAuth: ['old'] }] } } as any,
+          get: { 'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ OpOAuth: ['old'] }] } } as any,
         },
       },
     })
 
-    updateSelectedScopes({
-      document,
+    updateSelectedScopes(document, {
       id: ['OpOAuth'],
       name: 'OpOAuth',
       scopes: ['new'],
@@ -387,10 +378,10 @@ describe('updateSelectedScopes', () => {
     })
 
     const op = (document.paths!['/pets'] as any).get
-    expect(op['x-scalar-selected-security']['x-schemes'][0].OpOAuth).toEqual(['new'])
+    expect(op['x-scalar-selected-security'].selectedSchemes[0].OpOAuth).toEqual(['new'])
     assert(document['x-scalar-selected-security'])
     // Document level should remain unchanged
-    const docSchemes = document['x-scalar-selected-security']['x-schemes']
+    const docSchemes = document['x-scalar-selected-security'].selectedSchemes
     assert(docSchemes[0])
     expect(docSchemes[0].DocScheme).toEqual([])
   })
@@ -398,40 +389,39 @@ describe('updateSelectedScopes', () => {
   it('matches by id array of keys (multi-scheme requirement) and updates only the named entry', () => {
     const document = createDocument({
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ a: [], b: [] }, { a: [] }, { b: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ a: [], b: [] }, { a: [] }, { b: [] }],
       },
     })
 
-    updateSelectedScopes({
-      document,
+    updateSelectedScopes(document, {
       id: ['a', 'b'],
       name: 'a',
       scopes: ['one'],
       meta: { type: 'document' },
     })
 
-    const scheme = document['x-scalar-selected-security']!['x-schemes'][0]
+    const scheme = document['x-scalar-selected-security']!.selectedSchemes[0]
     assert(scheme)
     expect(scheme.a).toEqual(['one'])
     expect(scheme.b).toEqual([])
   })
 
   it('is a no-op when document is null', () => {
-    updateSelectedScopes({ document: null, id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
+    updateSelectedScopes(null, { id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
   })
 
   it('is a no-op when selected schemes are missing or scheme id not found', () => {
     const document = createDocument()
 
     // No selected extension yet
-    updateSelectedScopes({ document, id: ['missing'], name: 'missing', scopes: ['s'], meta: { type: 'document' } })
+    updateSelectedScopes(document, { id: ['missing'], name: 'missing', scopes: ['s'], meta: { type: 'document' } })
     expect(document['x-scalar-selected-security']).toBeUndefined()
 
     // With extension but id does not match
-    document['x-scalar-selected-security'] = { 'x-selected-index': 0, 'x-schemes': [{ z: [] }] }
-    updateSelectedScopes({ document, id: ['notZ'], name: 'notZ', scopes: ['s'], meta: { type: 'document' } })
-    const zSchemes = document['x-scalar-selected-security']!['x-schemes']
+    document['x-scalar-selected-security'] = { selectedIndex: 0, selectedSchemes: [{ z: [] }] }
+    updateSelectedScopes(document, { id: ['notZ'], name: 'notZ', scopes: ['s'], meta: { type: 'document' } })
+    const zSchemes = document['x-scalar-selected-security']!.selectedSchemes
     assert(zSchemes[0])
     expect(zSchemes[0].z).toEqual([])
   })
@@ -460,21 +450,21 @@ describe('deleteSecurityScheme', () => {
         },
       },
       'x-scalar-selected-security': {
-        'x-selected-index': 0,
-        'x-schemes': [{ A: [] }, { B: [] }, { C: [] }],
+        selectedIndex: 0,
+        selectedSchemes: [{ A: [] }, { B: [] }, { C: [] }],
       },
       security: [{ A: [] }, { D: [] }],
       paths: {
         '/p': {
           get: {
             security: [{ A: [] }, { E: [] }],
-            'x-scalar-selected-security': { 'x-selected-index': 0, 'x-schemes': [{ B: [] }, { F: [] }] },
+            'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ B: [] }, { F: [] }] },
           } as any,
         },
       },
     })
 
-    deleteSecurityScheme({ document, names: ['A', 'B', 'X'] })
+    deleteSecurityScheme(document, { names: ['A', 'B', 'X'] })
 
     // Components
     assert(document.components)
@@ -485,7 +475,7 @@ describe('deleteSecurityScheme', () => {
 
     // Document extension selections
     assert(document['x-scalar-selected-security'])
-    const docSchemes = document['x-scalar-selected-security']['x-schemes']
+    const docSchemes = document['x-scalar-selected-security'].selectedSchemes
     expect(docSchemes).toEqual([{ C: [] }])
 
     // Document security array
@@ -494,20 +484,20 @@ describe('deleteSecurityScheme', () => {
     // Operation level filtering
     const op = (document.paths!['/p'] as any).get
     expect(op.security).toEqual([{ E: [] }])
-    expect(op['x-scalar-selected-security']['x-schemes']).toEqual([{ F: [] }])
+    expect(op['x-scalar-selected-security'].selectedSchemes).toEqual([{ F: [] }])
   })
 
   it('is a no-op when document is null or components are missing', () => {
     // null doc
-    deleteSecurityScheme({ document: null, names: ['A'] })
+    deleteSecurityScheme(null, { names: ['A'] })
 
     // missing components -> selected security should not be touched due to early return
     const document = createDocument({
-      'x-scalar-selected-security': { 'x-selected-index': 0, 'x-schemes': [{ A: [] }, { B: [] }] },
+      'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ A: [] }, { B: [] }] },
     })
-    deleteSecurityScheme({ document, names: ['A'] })
+    deleteSecurityScheme(document, { names: ['A'] })
 
     assert(document['x-scalar-selected-security'])
-    expect(document['x-scalar-selected-security']['x-schemes']).toEqual([{ A: [] }, { B: [] }])
+    expect(document['x-scalar-selected-security'].selectedSchemes).toEqual([{ A: [] }, { B: [] }])
   })
 })

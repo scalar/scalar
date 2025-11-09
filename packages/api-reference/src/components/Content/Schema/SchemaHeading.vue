@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
@@ -50,7 +51,7 @@ const failsafeType = computed(() => {
       <template v-if="value.enum"> enum </template>
     </span>
     <template v-if="name">
-      {{ name }}
+      {{ addWordBreaks(name, { preset: 'property' }) }}
     </template>
     <template v-else>
       {{ failsafeType }}

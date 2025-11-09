@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 import { getMediaTypeConfig } from './../helpers/media-types'
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
@@ -40,9 +40,9 @@ const mediaConfig = computed(() =>
 )
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     class="max-h-content overflow-y-hidden"
-    :layout="layout">
+    :isStatic="layout === 'reference'">
     <template #title>{{ title }}</template>
     <template
       v-if="data && responseBody.dataUrl"
@@ -80,7 +80,7 @@ const mediaConfig = computed(() =>
         Binary file
       </ResponseBodyInfo>
     </div>
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>
 <style scoped>
 .scalar-code-block:deep(.hljs *) {

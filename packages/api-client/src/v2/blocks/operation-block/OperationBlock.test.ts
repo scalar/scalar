@@ -31,15 +31,14 @@ describe('OperationContainer', () => {
     selectedContentType: 'application/json',
     authMeta: { type: 'document' } as any,
     securitySchemes: {},
-    selectedSecurity: { 'x-selected-index': 0, 'x-schemes': [] } as any,
+    selectedSecurity: { selectedIndex: 0, selectedSchemes: [] } as any,
     security: [],
     events,
     plugins: [],
     environment: {
-      uid: 'env-1' as any,
-      name: 'Test',
       color: 'blue',
-      value: 'default',
+      variables: [],
+      description: 'Test Environment',
     },
     envVariables: [],
   }

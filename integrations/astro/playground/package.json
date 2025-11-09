@@ -1,0 +1,13 @@
+{
+  "name": "@scalar-examples/astro",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev"
+  },
+  "dependencies": {
+    "astro": "catalog:*",
+    "@scalar/astro": "workspace:*"
+  }
+}

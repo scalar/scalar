@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.11
+
+### Patch Changes
+
+- [#7289](https://github.com/scalar/scalar/pull/7289) [`9c9dbba`](https://github.com/scalar/scalar/commit/9c9dbbaa940667303f0ace59469fd78c2a741937) Thanks [@amritk](https://github.com/amritk)! - feat: move debounce to helpers and add max wait
+
+- Updated dependencies [[`9c9dbba`](https://github.com/scalar/scalar/commit/9c9dbbaa940667303f0ace59469fd78c2a741937), [`4bec1ba`](https://github.com/scalar/scalar/commit/4bec1ba332e919c4ee32dcfbfb07bd8ee42c4d74)]:
+  - @scalar/helpers@0.1.1
+
 ## 1.2.10
 
 ### Patch Changes

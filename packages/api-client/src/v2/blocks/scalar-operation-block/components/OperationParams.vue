@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import type { EnvVariable } from '@/store/active-entities'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
 import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
 import { getParameterExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
 import { getParameterSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
+import { CollapsibleSection } from '@/v2/components/layout'
 
 const {
   parameters,
   exampleKey,
   environment,
-  envVariables,
   title,
   globalRoute,
   showAddRowPlaceholder = true,
@@ -27,9 +25,7 @@ const {
   invalidParams?: Set<string>
   globalRoute?: string
   showAddRowPlaceholder?: boolean
-  /** TODO: remove as soon as we migrate to everything to the new store */
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
 }>()
 
 const emits = defineEmits<{
@@ -63,7 +59,7 @@ const tableRows = computed<TableRow[]>(() =>
 const showTooltip = computed(() => parameters.length > 1)
 </script>
 <template>
-  <ViewLayoutCollapse
+  <CollapsibleSection
     class="group/params"
     :itemCount="parameters.length">
     <template #title>{{ title }}</template>
@@ -89,7 +85,6 @@ const showTooltip = computed(() => parameters.length > 1)
       class="flex-1"
       :columns="['32px', '', '']"
       :data="tableRows"
-      :envVariables="envVariables"
       :environment="environment"
       :exampleKey="exampleKey"
       :globalRoute="globalRoute"
@@ -99,5 +94,5 @@ const showTooltip = computed(() => parameters.length > 1)
       @addRow="(payload) => emits('add', payload)"
       @deleteRow="(index) => emits('delete', { index })"
       @updateRow="(index, payload) => emits('update', { index, payload })" />
-  </ViewLayoutCollapse>
+  </CollapsibleSection>
 </template>

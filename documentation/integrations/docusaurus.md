@@ -32,9 +32,13 @@ plugins: [
 ],
 ```
 
-### Multiple API descriptions
+### Multiple API references
 
-Is it possible to show multiple API descriptions? Yes, it is! :) If you use this configuration each API definition will get its own header in the documentation.
+Is it possible to show multiple API references? Yes, it is! :) 
+
+You can either display each API reference in its own page, or display multiple API references on a single page. 
+
+#### Create a page for each API reference
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
@@ -71,7 +75,7 @@ plugins: [
 ],
 ```
 
-Is it possible to show multiple API definitions under one header? Yes it is :) If you use this configuration, then all API definitions will show up in one page and you can switch between them.
+#### Create a page that contains multiple API references
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
