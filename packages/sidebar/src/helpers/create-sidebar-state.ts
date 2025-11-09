@@ -206,7 +206,7 @@ export const createSidebarState = <T extends { id: string }>(
     reset: () => {
       selectedItems.value = {}
       expandedItems.value = {}
-    }
+    },
   }
 }
 
