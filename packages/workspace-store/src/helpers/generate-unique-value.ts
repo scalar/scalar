@@ -143,6 +143,7 @@ async function incrementValue({
     value: [value[0], value[1] + 1],
     validation,
     maxRetries,
+    transformation,
     attempts: attempts + 1,
   })
 }
