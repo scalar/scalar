@@ -134,7 +134,7 @@ export const useWorkspaceSelector = ({
 
         if (await loadWorkspace(DEFAULT_WORKSPACE.id)) {
           // Update the workspace list
-          workspaceList.push(DEFAULT_WORKSPACE)
+          workspaces.value.push(DEFAULT_WORKSPACE)
           return
         }
         console.error('[ERROR]: something went wrong when trying to create the default workspace')
