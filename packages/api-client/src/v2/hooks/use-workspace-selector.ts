@@ -3,7 +3,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, ref, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { slugify } from '@/v2/helpers/slugify'
@@ -48,7 +48,17 @@ export type Workspace = {
   id: string
 }
 
-export const useWorkspaceSelector = ({ workspaceId }: { workspaceId: MaybeRefOrGetter<string | undefined> }) => {
+export const useWorkspaceSelector = ({
+  workspaceId,
+}: {
+  workspaceId: MaybeRefOrGetter<string | undefined>
+}): {
+  activeWorkspace: Ref<Workspace | null>
+  workspaces: Ref<Workspace[]>
+  store: Ref<WorkspaceStore | null>
+  setWorkspaceId: (id: string) => void
+  createWorkspace: (props: { name: string }) => Promise<void>
+} => {
   const activeWorkspace = ref<Workspace | null>(null)
   const workspaces = ref<Workspace[]>([])
   const store = ref<WorkspaceStore | null>(null)
