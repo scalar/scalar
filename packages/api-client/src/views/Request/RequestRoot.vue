@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
@@ -40,8 +40,14 @@ const {
   activeWorkspace,
   activeServer,
 } = useActiveEntities()
-const { cookies, requestHistory, showSidebar, securitySchemes, events } =
-  workspaceContext
+const {
+  cookies,
+  requestHistory,
+  showSidebar,
+  securitySchemes,
+  modalState,
+  events,
+} = workspaceContext
 
 const pluginManager = usePluginManager()
 
@@ -151,6 +157,16 @@ function logRequest() {
   analytics?.capture('client-send-request')
 }
 
+/**
+ * Cancel request when closing the modal
+ * @see https://github.com/scalar/scalar/issues/7115
+ */
+watch(modalState, ({ open }) => {
+  if (!open) {
+    void cancelRequest()
+  }
+})
+
 onMounted(() => {
   events.executeRequest.on(executeRequest)
   events.executeRequest.on(logRequest)
@@ -167,6 +183,7 @@ useOpenApiWatcher()
 onBeforeUnmount(() => {
   events.executeRequest.off(executeRequest)
   events.executeRequest.off(logRequest)
+  events.cancelRequest.off(cancelRequest)
 })
 
 const cloneRequestResult = (result: any) => {
