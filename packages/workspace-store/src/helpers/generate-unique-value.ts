@@ -27,6 +27,7 @@ export async function generateUniqueValue({
   validation,
   /** Transformation function to transform the default value (such as into a slug) */
   transformation,
+  /** The maximum number of attempts to create a unique value by incrementing. */
   maxRetries = 5,
 }: {
   /**
@@ -64,6 +65,7 @@ export async function generateUniqueValue({
     value: [transformed, 1],
     validation,
     maxRetries,
+    transformation,
   })
 }
 
