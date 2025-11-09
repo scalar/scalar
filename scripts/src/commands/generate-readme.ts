@@ -38,6 +38,7 @@ type BadgeType =
   | 'crate-version'
   | 'crate-downloads'
   | 'crate-license'
+  | 'maven-central-version'
 
 interface BadgeConfig {
   type: BadgeType
@@ -355,6 +356,12 @@ function generateBadge(badge: BadgeConfig, packageName: string): string {
         throw new Error('crate-license badge requires package property')
       }
       return `[![License](https://img.shields.io/crates/l/${badge.package})](https://crates.io/crates/${badge.package})`
+
+    case 'maven-central-version':
+      if (!badge.package) {
+        throw new Error('maven-central-version badge requires package property')
+      }
+      return `[![Version](https://img.shields.io/maven-central/v/${badge.package}.svg)](https://central.sonatype.com/artifact/${badge.package})`
 
     default: {
       // TypeScript exhaustiveness check

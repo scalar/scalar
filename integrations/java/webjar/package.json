@@ -1,5 +1,6 @@
 {
   "name": "@scalar/webjar",
+  "description": "Spring Boot WebJar to serve beautiful, interactive API documentation from OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -28,5 +29,15 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/snippetz": "workspace:*"
+  },
+  "readme": {
+    "title": "Scalar API Reference WebJar for Java",
+    "badges": [
+      {
+        "type": "maven-central-version",
+        "package": "com.scalar.maven/scalar"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/spring-boot"
   }
 }
