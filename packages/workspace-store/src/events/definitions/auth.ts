@@ -1,5 +1,28 @@
-import type { AuthMeta, SecuritySchemeUpdate } from '@/mutators/auth'
+import type { PartialDeep } from 'type-fest'
+
+import type { AuthMeta } from '@/mutators/auth'
 import type { SecurityRequirementObject, SecuritySchemeObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ApiKeyObject, HttpObject, OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
+
+/**
+ * SecuritySchemeUpdate represents the possible updates that can be made
+ * to an OpenAPI security scheme object via UI interactions.
+ *
+ * - `http`: Updates to HTTP type schemes (e.g. basic, bearer), allowing token, username, and password changes.
+ * - `apiKey`: Updates to API Key type schemes, allowing the key name and its value to be updated.
+ * - `oauth2`: Updates to OAuth2 type schemes for each supported OAuth2 flow.
+ *    - Can set various properties such as auth/token URLs, tokens, PKCE method, client credentials, etc.
+ */
+export type SecuritySchemeUpdatePayload =
+  | ({
+      type: 'http'
+    } & Partial<Omit<HttpObject, 'type'>>)
+  | ({
+      type: 'apiKey'
+    } & Partial<Omit<ApiKeyObject, 'type'>>)
+  | ({
+      type: 'oauth2'
+    } & PartialDeep<Omit<OAuth2Object, 'type'>>)
 
 /** Event definitions for auth */
 export type AuthEvents = {
@@ -39,7 +62,7 @@ export type AuthEvents = {
    */
   'auth:update:security-scheme': {
     /** The data to update the security scheme with */
-    data: SecuritySchemeUpdate
+    payload: SecuritySchemeUpdatePayload
     /** The name of the security scheme to update */
     name: string
   }

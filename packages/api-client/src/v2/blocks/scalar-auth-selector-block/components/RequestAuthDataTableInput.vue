@@ -1,35 +1,19 @@
 <script setup lang="ts">
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import { useId, type MaybeRefOrGetter } from 'vue'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { useId } from 'vue'
 
-import { DataTableInput } from '@/components/DataTable'
-import type { EnvVariable } from '@/store'
-
-/**
- * Vue class prop type
- *
- * Vue seems to just use any behind the scenes
- *
- * @see https://vuejs.org/guide/essentials/class-and-style.html#class-and-style-bindings
- */
-export type VueClassProp = MaybeRefOrGetter<
-  | string
-  | Record<string, boolean>
-  | (string | Record<string, boolean>)[]
-  | false
->
+import type { VueClassProp } from '@/types/vue'
+import { DataTableInput } from '@/v2/components/data-table'
 
 const {
   containerClass,
   environment,
-  envVariables,
   readOnly = false,
   required = false,
   type,
 } = defineProps<{
   containerClass?: VueClassProp
-  environment: Environment
-  envVariables: EnvVariable[]
+  environment: XScalarEnvironment
   readOnly?: boolean
   required?: boolean
   type?: string
@@ -51,7 +35,6 @@ const id = useId()
     v-model="modelValue"
     :canAddCustomEnumValue="!readOnly"
     :containerClass="containerClass"
-    :envVariables="envVariables"
     :environment="environment"
     lineWrapping
     :readOnly="readOnly"

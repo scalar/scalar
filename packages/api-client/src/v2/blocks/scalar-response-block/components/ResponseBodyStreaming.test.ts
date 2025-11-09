@@ -39,39 +39,6 @@ describe('ResponseBodyStreaming', () => {
     }
   }
 
-  describe('rendering', () => {
-    it('renders the component', async () => {
-      mockReader = createMockReader(['test'])
-      const wrapper = mount(ResponseBodyStreaming, {
-        props: { reader: mockReader },
-      })
-
-      await flushPromises()
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('renders ViewLayoutCollapse component', async () => {
-      mockReader = createMockReader(['test'])
-      const wrapper = mount(ResponseBodyStreaming, {
-        props: { reader: mockReader },
-      })
-
-      await flushPromises()
-      const collapse = wrapper.findComponent({ name: 'ViewLayoutCollapse' })
-      expect(collapse.exists()).toBe(true)
-    })
-
-    it('displays title "Body"', async () => {
-      mockReader = createMockReader(['test'])
-      const wrapper = mount(ResponseBodyStreaming, {
-        props: { reader: mockReader },
-      })
-
-      await flushPromises()
-      expect(wrapper.text()).toContain('Body')
-    })
-  })
-
   describe('streaming data', () => {
     it('reads and displays single chunk', async () => {
       mockReader = createMockReader(['Hello World'])

@@ -16,10 +16,9 @@ describe('AddressBar', () => {
       server: overrides?.server,
       servers: overrides?.servers ?? [],
       environment: {
-        uid: 'env-1' as any,
-        name: 'Test',
-        color: 'blue',
-        value: 'default',
+        description: 'Test',
+        color: '#FFFFFF',
+        variables: [],
       },
       envVariables: [],
       history: [],

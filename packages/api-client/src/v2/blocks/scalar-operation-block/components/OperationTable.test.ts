@@ -4,9 +4,8 @@ import { describe, expect, it } from 'vitest'
 import OperationTable from './OperationTable.vue'
 
 const environment = {
-  uid: 'env-1' as any,
-  name: 'Env',
-  value: 'v',
+  description: 'Test Environment',
+  variables: [],
   color: 'c',
 }
 

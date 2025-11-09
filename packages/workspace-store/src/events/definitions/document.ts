@@ -12,4 +12,8 @@ export type DocumentEvents = {
    * Update the icon of the active document
    */
   'document:update:icon': string
+  /**
+   * Toggle use document security
+   */
+  'document:toggle:document-security': undefined
 }

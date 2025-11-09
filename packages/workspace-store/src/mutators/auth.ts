@@ -1,10 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
+import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
  * AuthMeta defines the meta information needed to specify whether the authentication operation
@@ -47,17 +48,10 @@ export type AuthMeta =
  * })
  * ```
  */
-export const updateSelectedSecuritySchemes = ({
-  document,
-  selectedRequirements,
-  newSchemes,
-  meta,
-}: {
-  document: WorkspaceDocument | null
-  selectedRequirements: SecurityRequirementObject[]
-  newSchemes: { name: string; scheme: SecuritySchemeObject }[]
-  meta: AuthMeta
-}) => {
+export const updateSelectedSecuritySchemes = (
+  document: WorkspaceDocument | null,
+  { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
+) => {
   if (!document) {
     return
   }
@@ -114,67 +108,26 @@ export const updateSelectedSecuritySchemes = ({
   // Ensure the x-scalar-selected-security structure exists on the target
   if (!target['x-scalar-selected-security']) {
     target['x-scalar-selected-security'] = {
-      'x-selected-index': -1,
-      'x-schemes': [],
+      selectedIndex: -1,
+      selectedSchemes: [],
     }
   }
 
-  const selectedIndex = target['x-scalar-selected-security']['x-selected-index']
+  const selectedIndex = target['x-scalar-selected-security'].selectedIndex
 
   // Update the schemes array
-  target['x-scalar-selected-security']['x-schemes'] = newSelectedSecuritySchemes
+  target['x-scalar-selected-security'].selectedSchemes = newSelectedSecuritySchemes
 
   // Adjust selected index if there are schemes and the index is unset/invalid
   if (newSelectedSecuritySchemes.length > 0 && selectedIndex < 0) {
-    target['x-scalar-selected-security']['x-selected-index'] = 0
+    target['x-scalar-selected-security'].selectedIndex = 0
   }
 
   // If the selected index is now out of bounds, select the last available
   if (selectedIndex >= newSelectedSecuritySchemes.length) {
-    target['x-scalar-selected-security']['x-selected-index'] = newSelectedSecuritySchemes.length - 1
+    target['x-scalar-selected-security'].selectedIndex = newSelectedSecuritySchemes.length - 1
   }
 }
-
-/**
- * SecuritySchemeUpdate represents the possible updates that can be made
- * to an OpenAPI security scheme object via UI interactions.
- *
- * - `http`: Updates to HTTP type schemes (e.g. basic, bearer), allowing token, username, and password changes.
- * - `apiKey`: Updates to API Key type schemes, allowing the key name and its value to be updated.
- * - `oauth2`: Updates to OAuth2 type schemes for each supported OAuth2 flow.
- *    - Can set various properties such as auth/token URLs, tokens, PKCE method, client credentials, etc.
- */
-export type SecuritySchemeUpdate =
-  | {
-      type: 'http'
-      payload: Partial<{
-        token: string
-        username: string
-        password: string
-      }>
-    }
-  | {
-      type: 'apiKey'
-      payload: Partial<{
-        name: string
-        value: string
-      }>
-    }
-  | {
-      type: 'oauth2'
-      flow: 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode'
-      payload: Partial<{
-        authUrl: string
-        tokenUrl: string
-        token: string
-        redirectUrl: string
-        clientId: string
-        clientSecret: string
-        usePkce: 'no' | 'SHA-256' | 'plain'
-        username: string
-        password: string
-      }>
-    }
 
 /**
  * Updates a security scheme in the OpenAPI document's components object.
@@ -199,92 +152,28 @@ export type SecuritySchemeUpdate =
  *   name: 'MyHttpAuth',
  * })
  */
-export const updateSecurityScheme = ({
-  document,
-  data,
-  name,
-}: {
-  document: WorkspaceDocument | null
-  data: SecuritySchemeUpdate
-  name: string
-}) => {
-  if (!document) {
-    return
-  }
-
-  const target = getResolvedRef(document.components?.securitySchemes?.[name])
-
+export const updateSecurityScheme = (
+  document: WorkspaceDocument | null,
+  { payload, name }: AuthEvents['auth:update:security-scheme'],
+) => {
+  const target = getResolvedRef(document?.components?.securitySchemes?.[name])
   if (!target) {
+    console.error(`Security scheme ${name} not found`)
     return
   }
 
   // Handle HTTP (basic, bearer, etc.)
-  if (target.type === 'http' && data.type === 'http') {
-    if (data.payload.username) {
-      target['x-scalar-secret-username'] = data.payload.username
-    }
-    if (data.payload.password) {
-      target['x-scalar-secret-password'] = data.payload.password
-    }
-    if (data.payload.token) {
-      target['x-scalar-secret-token'] = data.payload.token
-    }
-
-    // Handle API Key
-  } else if (target.type === 'apiKey' && data.type === 'apiKey') {
-    if (data.payload.name) {
-      target.name = data.payload.name
-    }
-    if (data.payload.value) {
-      target['x-scalar-secret-token'] = data.payload.value
-    }
-
-    // Handle OAuth2 (various flows)
-  } else if (target.type === 'oauth2' && data.type === 'oauth2') {
-    const flow = target.flows[data.flow]
-    if (!flow) {
-      // If the flow is not found, do nothing
-      return
-    }
-
-    if (data.payload.authUrl && 'authorizationUrl' in flow) {
-      flow.authorizationUrl = data.payload.authUrl
-    }
-    if (data.payload.tokenUrl && 'tokenUrl' in flow) {
-      flow.tokenUrl = data.payload.tokenUrl
-    }
-    if (data.payload.token && 'x-scalar-secret-token' in flow) {
-      flow['x-scalar-secret-token'] = data.payload.token
-    }
-    if (data.payload.redirectUrl && 'x-scalar-secret-redirect-uri' in flow) {
-      flow['x-scalar-secret-redirect-uri'] = data.payload.redirectUrl
-    }
-    if (data.payload.clientId && 'x-scalar-secret-client-id' in flow) {
-      flow['x-scalar-secret-client-id'] = data.payload.clientId
-    }
-    if (data.payload.clientSecret && 'x-scalar-secret-client-secret' in flow) {
-      flow['x-scalar-secret-client-secret'] = data.payload.clientSecret
-    }
-    if (data.payload.usePkce && 'x-usePkce' in flow) {
-      flow['x-usePkce'] = data.payload.usePkce
-    }
-    if (data.payload.username && 'x-scalar-secret-username' in flow) {
-      flow['x-scalar-secret-username'] = data.payload.username
-    }
-    if (data.payload.password && 'x-scalar-secret-password' in flow) {
-      flow['x-scalar-secret-password'] = data.payload.password
-    }
+  if (target.type === payload.type) {
+    mergeObjects(target, payload)
   }
 
-  // TODO: handle openid connect type in the future
-
-  return
+  return target
 }
 
 /**
  * Sets the selected authentication tab (scheme) index for the given OpenAPI document or operation.
- * - When on the document level, updates the 'x-selected-index' on the document's x-scalar-selected-security extension.
- * - When on an operation (endpoint) level, updates the 'x-selected-index' for that operation's x-scalar-selected-security.
+ * - When on the document level, updates the 'selectedIndex' on the document's x-scalar-selected-security extension.
+ * - When on an operation (endpoint) level, updates the 'selectedIndex' for that operation's x-scalar-selected-security.
  *
  * Also initializes the x-scalar-selected-security extension if it does not exist.
  *
@@ -307,15 +196,10 @@ export const updateSecurityScheme = ({
  *   meta: { type: 'operation', path: '/pets', method: 'get' }
  * });
  */
-export const updateSelectedAuthTab = ({
-  document,
-  index,
-  meta,
-}: {
-  document: WorkspaceDocument | null
-  index: number
-  meta: AuthMeta
-}) => {
+export const updateSelectedAuthTab = (
+  document: WorkspaceDocument | null,
+  { index, meta }: AuthEvents['auth:update:active-index'],
+) => {
   if (!document) {
     return
   }
@@ -338,13 +222,13 @@ export const updateSelectedAuthTab = ({
   // Ensure the 'x-scalar-selected-security' extension exists
   if (!target['x-scalar-selected-security']) {
     target['x-scalar-selected-security'] = {
-      'x-selected-index': 0,
-      'x-schemes': [],
+      selectedIndex: 0,
+      selectedSchemes: [],
     }
   }
 
   // Set the selected auth tab index
-  target['x-scalar-selected-security']['x-selected-index'] = index
+  target['x-scalar-selected-security'].selectedIndex = index
 }
 
 /**
@@ -362,8 +246,8 @@ export const updateSelectedAuthTab = ({
  * ```ts
  * // Suppose your document (or operation) x-scalar-selected-security looks like:
  * // "x-scalar-selected-security": {
- * //   "x-selected-index": 0,
- * //   "x-schemes": [
+ * //   selectedIndex: 0,
+ * //   selectedSchemes: [
  * //     { "OAuth": ["read:pets"] },
  * //     { "ApiKeyAuth": [] }
  * //   ]
@@ -379,19 +263,10 @@ export const updateSelectedAuthTab = ({
  * // After, the first scheme becomes: { "OAuth": ["write:pets"] }
  * ```
  */
-export const updateSelectedScopes = ({
-  document,
-  id,
-  name,
-  scopes,
-  meta,
-}: {
-  document: WorkspaceDocument | null
-  id: string[]
-  name: string
-  scopes: string[]
-  meta: AuthMeta
-}) => {
+export const updateSelectedScopes = (
+  document: WorkspaceDocument | null,
+  { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
+) => {
   if (!document) {
     return
   }
@@ -411,7 +286,7 @@ export const updateSelectedScopes = ({
   }
 
   // Array of security requirement objects under x-scalar-selected-security
-  const selectedSchemes = target['x-scalar-selected-security']?.['x-schemes']
+  const selectedSchemes = target['x-scalar-selected-security']?.selectedSchemes
 
   if (!selectedSchemes) {
     return
@@ -448,7 +323,10 @@ export const updateSelectedScopes = ({
  * - All document-level and operation-level security entries referencing those schemes are removed.
  * - Any extended x-scalar-selected-security references to those schemes are also removed.
  */
-export const deleteSecurityScheme = ({ document, names }: { document: WorkspaceDocument | null; names: string[] }) => {
+export const deleteSecurityScheme = (
+  document: WorkspaceDocument | null,
+  { names }: AuthEvents['auth:delete:security-scheme'],
+) => {
   if (!document) {
     // Early exit if there is no document to modify
     return
@@ -476,7 +354,7 @@ export const deleteSecurityScheme = ({ document, names }: { document: WorkspaceD
   // -- Remove from document-level `x-scalar-selected-security` extension, if present
   if (document['x-scalar-selected-security']) {
     const selectedSecurity = document['x-scalar-selected-security']
-    selectedSecurity['x-schemes'] = filterSecuritySchemes(selectedSecurity['x-schemes'])
+    selectedSecurity.selectedSchemes = filterSecuritySchemes(selectedSecurity.selectedSchemes)
   }
 
   // -- Remove from document-level `security` property, if present
@@ -502,8 +380,8 @@ export const deleteSecurityScheme = ({ document, names }: { document: WorkspaceD
 
       // Remove from operation-level x-scalar-selected-security array
       if ('x-scalar-selected-security' in resolvedOperation && resolvedOperation['x-scalar-selected-security']) {
-        resolvedOperation['x-scalar-selected-security']['x-schemes'] = filterSecuritySchemes(
-          resolvedOperation['x-scalar-selected-security']['x-schemes'],
+        resolvedOperation['x-scalar-selected-security'].selectedSchemes = filterSecuritySchemes(
+          resolvedOperation['x-scalar-selected-security'].selectedSchemes,
         )
       }
     })

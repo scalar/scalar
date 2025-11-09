@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 import ResponseCookies from './ResponseCookies.vue'
 
@@ -469,17 +468,6 @@ describe('ResponseCookies', () => {
   })
 
   describe('component structure', () => {
-    it('renders ViewLayoutCollapse component', () => {
-      const cookies: Cookie[] = [{ name: 'test', value: 'value' }]
-
-      const wrapper = mount(ResponseCookies, {
-        props: { cookies },
-      })
-
-      const collapse = wrapper.findComponent(ViewLayoutCollapse)
-      expect(collapse.exists()).toBe(true)
-    })
-
     it('renders DataTable when cookies exist', async () => {
       const cookies: Cookie[] = [{ name: 'test', value: 'value' }]
 
