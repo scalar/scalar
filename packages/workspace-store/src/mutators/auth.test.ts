@@ -22,12 +22,12 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
 }
 
 describe('updateSelectedSecuritySchemes', () => {
-  it('initializes document x-scalar-selected-security and sets selected index to 0 when schemes exist', () => {
+  it('initializes document x-scalar-selected-security and sets selected index to 0 when schemes exist', async () => {
     const document = createDocument()
 
     const selected: SecurityRequirementObject[] = [{ bearerAuth: [] }]
 
-    updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(document, {
       selectedRequirements: selected,
       newSchemes: [],
       meta: { type: 'document' },
@@ -38,7 +38,7 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
   })
 
-  it('appends newly created schemes with unique names and updates selection', () => {
+  it('appends newly created schemes with unique names and updates selection', async () => {
     const document = createDocument({
       components: {
         securitySchemes: {
@@ -51,7 +51,7 @@ describe('updateSelectedSecuritySchemes', () => {
       { name: 'ApiKeyAuth', scheme: { type: 'apiKey', in: 'query', name: 'api_key', 'x-scalar-secret-token': '' } },
     ]
 
-    updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(document, {
       selectedRequirements: [],
       newSchemes: createItems,
       meta: { type: 'document' },
@@ -73,7 +73,7 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
   })
 
-  it('preserves a valid selected index', () => {
+  it('preserves a valid selected index', async () => {
     const document = createDocument({
       'x-scalar-selected-security': {
         selectedIndex: 1,
@@ -81,7 +81,7 @@ describe('updateSelectedSecuritySchemes', () => {
       },
     })
 
-    updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(document, {
       selectedRequirements: [{ s1: [] }, { s2: [] }],
       newSchemes: [],
       meta: { type: 'document' },
@@ -91,7 +91,7 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual([{ s1: [] }, { s2: [] }])
   })
 
-  it('corrects an out-of-bounds selected index to the last available scheme', () => {
+  it('corrects an out-of-bounds selected index to the last available scheme', async () => {
     const document = createDocument({
       'x-scalar-selected-security': {
         selectedIndex: 5,
@@ -101,7 +101,7 @@ describe('updateSelectedSecuritySchemes', () => {
 
     const nextSelected: SecurityRequirementObject[] = [{ a: [] }, { b: [] }]
 
-    updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(document, {
       selectedRequirements: nextSelected,
       newSchemes: [],
       meta: { type: 'document' },
@@ -111,10 +111,10 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(document['x-scalar-selected-security']!.selectedIndex).toBe(nextSelected.length - 1)
   })
 
-  it('updates operation-level selection and updates components for created schemes', () => {
+  it('updates operation-level selection and updates components for created schemes', async () => {
     const document = createDocument({ paths: { '/pets': { get: {} as unknown as Record<string, unknown> } } })
 
-    updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(document, {
       selectedRequirements: [{ bearerAuth: [] }],
       newSchemes: [
         {
