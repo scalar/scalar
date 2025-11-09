@@ -976,17 +976,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
     },
     exportWorkspace() {
+      const { activeDocument: _, documents, ...meta } = unpackProxyObject(workspace)
       return {
         documents: {
           ...Object.fromEntries(
-            Object.entries(workspace.documents).map(([name, doc]) => [
+            Object.entries(documents).map(([name, doc]) => [
               name,
               // Get the raw document without any proxies
               unpackProxyObject(doc),
             ]),
           ),
         },
-        meta: unpackProxyObject(workspaceProps?.meta) ?? {},
+        meta: unpackProxyObject(meta) ?? {},
         documentConfigs: unpackProxyObject(documentConfigs),
         originalDocuments: unpackProxyObject(originalDocuments),
         intermediateDocuments: unpackProxyObject(intermediateDocuments),

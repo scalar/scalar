@@ -1,5 +1,6 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { mount } from '@vue/test-utils'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import 'fake-indexeddb/auto'
@@ -11,37 +12,61 @@ import App from './App.vue'
  * Tests focus on core functionality like theme generation, environment merging, and layout rendering
  */
 describe('App', () => {
-  let mockWorkspaceStore: WorkspaceStore
+  const WORKSPACE_ID = 'default'
+  const DOCUMENT_ID = 'doc1'
 
-  beforeEach(() => {
-    // Mock workspace store with minimal required structure
-    mockWorkspaceStore = {
-      workspace: {
-        'x-scalar-theme': 'default',
-        'x-scalar-active-environment': 'prod',
-        'x-scalar-environments': {
-          prod: {
-            variables: [{ name: 'BASE_URL', value: 'https://api.prod.com' }],
-          },
-        },
-        'x-scalar-sidebar-width': 300,
-        documents: {
-          doc1: {
-            uid: 'doc1',
-            info: {
-              title: 'Test Document',
-            },
-            'x-scalar-environments': {
-              prod: {
-                variables: [{ name: 'API_KEY', value: 'prod-key-123' }],
-              },
-            },
-          },
+  /**
+   * Disable persistence side-effects during these tests to avoid IndexedDB structured clone errors
+   * stemming from debounced writes happening after the test completes.
+   */
+  vi.mock('@scalar/workspace-store/plugins/client', () => ({
+    persistencePlugin: async () => ({
+      hooks: {
+        onWorkspaceStateChanges: () => {
+          // no-op in tests
+          return
         },
       },
-      update: vi.fn(),
-    } as any
+    }),
+  }))
 
+  const setupWorkspace = async () => {
+    const store = createWorkspaceStore()
+    // Configure workspace-level settings
+
+    store.workspace['x-scalar-active-environment'] = 'prod'
+    store.workspace['x-scalar-environments'] = {
+      prod: {
+        color: '#FFFFFF',
+        variables: [{ name: 'BASE_URL', value: 'https://api.prod.com' }],
+      },
+    }
+    store.workspace['x-scalar-theme'] = 'default'
+    store.workspace['x-scalar-sidebar-width'] = 300
+
+    // Add a document with its own environment overrides
+    await store.addDocument({
+      name: DOCUMENT_ID,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Test Document', version: '1.0.0' },
+        paths: {},
+        'x-scalar-environments': {
+          prod: {
+            variables: [{ name: 'API_KEY', value: 'prod-key-123' }],
+          },
+        },
+      } as any,
+    })
+
+    const persistence = await createWorkspaceStorePersistence()
+    await persistence.workspace.setItem(WORKSPACE_ID, {
+      name: 'Default',
+      workspace: store.exportWorkspace(),
+    })
+  }
+
+  beforeEach(() => {
     // Mock getThemeStyles
     vi.mock('@scalar/themes', () => ({
       getThemeStyles: vi.fn(() => 'body { color: red; }'),
@@ -59,7 +84,7 @@ describe('App', () => {
         template: '<div class="router-view"><slot /></div>',
       },
       useRoute: () => ({
-        params: { documentSlug: 'doc1' },
+        params: { workspaceSlug: 'default', documentSlug: 'doc1' },
       }),
       useRouter: () => ({
         push: vi.fn(),
@@ -73,14 +98,16 @@ describe('App', () => {
   })
 
   it('generates theme style tag from workspace theme configuration', async () => {
+    await setupWorkspace()
     const wrapper = mount(App, {
       props: {
         layout: 'web',
-        workspaceStore: mockWorkspaceStore,
       },
     })
 
     await nextTick()
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     /**
      * Theme styles should be dynamically generated based on the workspace theme ID
@@ -91,34 +118,44 @@ describe('App', () => {
   })
 
   it('merges workspace and document environment variables correctly', async () => {
+    await setupWorkspace()
     const wrapper = mount(App, {
       props: {
         layout: 'web',
-        workspaceStore: mockWorkspaceStore,
       },
     })
 
     await nextTick()
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     /**
      * Environment variables from both workspace and document levels should be merged
      * This ensures that document-specific overrides work correctly with workspace defaults
      */
     const vm = wrapper.vm as any
+    expect(vm.store.workspace['x-scalar-environments']).toEqual({
+      prod: {
+        color: '#FFFFFF',
+        variables: [{ name: 'BASE_URL', value: 'https://api.prod.com' }],
+      },
+    })
     expect(vm.environment.variables).toHaveLength(2)
     expect(vm.environment.variables[0].name).toBe('BASE_URL')
     expect(vm.environment.variables[1].name).toBe('API_KEY')
   })
 
   it('selects the correct document based on route params', async () => {
+    await setupWorkspace()
     const wrapper = mount(App, {
       props: {
         layout: 'web',
-        workspaceStore: mockWorkspaceStore,
       },
     })
 
     await nextTick()
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     /**
      * The document should be selected based on the route slug parameter
@@ -126,18 +163,20 @@ describe('App', () => {
      */
     const vm = wrapper.vm as any
     expect(vm.document).toBeDefined()
-    expect(vm.document.uid).toBe('doc1')
+    expect(vm.document.info.title).toBe('Test Document')
   })
 
   it('renders DesktopTabs for desktop layout', async () => {
+    await setupWorkspace()
     const wrapper = mount(App, {
       props: {
         layout: 'desktop',
-        workspaceStore: mockWorkspaceStore,
       },
     })
 
     await nextTick()
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     /**
      * Desktop layout should show DesktopTabs instead of WebTopNav
@@ -151,14 +190,16 @@ describe('App', () => {
   })
 
   it('renders WebTopNav for web layout', async () => {
+    await setupWorkspace()
     const wrapper = mount(App, {
       props: {
         layout: 'web',
-        workspaceStore: mockWorkspaceStore,
       },
     })
 
     await nextTick()
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     /**
      * Web layout should show WebTopNav instead of DesktopTabs
