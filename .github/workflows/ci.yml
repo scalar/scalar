@@ -60,6 +60,7 @@ jobs:
       aspnetcore_package_changed: ${{ steps.set-outputs.outputs.aspnetcore_package_changed }}
       aspire_package_changed: ${{ steps.set-outputs.outputs.aspire_package_changed }}
       fastapi_package_changed: ${{ steps.set-outputs.outputs.fastapi_package_changed }}
+      django_ninja_package_changed: ${{ steps.set-outputs.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ steps.set-outputs.outputs.rust_package_changed }}
       java_webjar_package_changed: ${{ steps.set-outputs.outputs.java_webjar_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
@@ -104,6 +105,8 @@ jobs:
               - integrations/dotnet/aspire/package.json
             fastapi_package:
               - integrations/fastapi/package.json
+            django_ninja_package:
+              - integrations/django-ninja/package.json
             rust_package:
               - integrations/rust/package.json
             java_webjar_package:
@@ -122,6 +125,7 @@ jobs:
           echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "aspire_package_changed=${{ steps.changed-package-files.outputs.aspire_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "django_ninja_package_changed=${{ steps.changed-package-files.outputs.django_ninja_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
@@ -1209,12 +1213,87 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
-      - name: Build Python package
+      - name: Build FastAPI package
         working-directory: integrations/fastapi
         run: python -m build
 
-      - name: Publish to PyPI
+      - name: Publish FastAPI package to PyPI
+        if: needs.check-changes.outputs.fastapi_package_changed == 'true'
         working-directory: integrations/fastapi
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+
+  django-ninja-build-test:
+    if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Run tests
+        working-directory: integrations/django-ninja
+        run: python run_tests.py
+
+  django-ninja-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: django-ninja-publish
+      cancel-in-progress: false
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        django-ninja-build-test,
+        check-changes,
+      ]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Django Ninja package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Publish Django Ninja package to PyPI
+        if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
+        working-directory: integrations/django-ninja
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 

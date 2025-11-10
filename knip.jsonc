@@ -41,6 +41,7 @@
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
+    "integrations/django-ninja/**",
     "integrations/hono/**",
     "integrations/java/**",
     "integrations/nestjs/**",
