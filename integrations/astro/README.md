@@ -18,6 +18,10 @@ Scalar API Reference Component for Astro
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/astro)
 
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/astro/CHANGELOG.md) for a list of changes.
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
