@@ -20,6 +20,13 @@ def run_tests():
     print("🧪 Running Scalar Django Ninja Integration Tests")
     print("=" * 50)
 
+    # Install the package in editable mode so tests can import it
+    print("📦 Installing package in editable mode...")
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-e", "."],
+        check=True,
+    )
+
     # Check if pytest is available
     try:
         import pytest
