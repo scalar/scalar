@@ -1,16 +1,16 @@
-import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
-import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
-import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
+import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
+import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
+import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
+
 import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
 
-export const oasCollectionSchema = z.object({
+const oasCollectionSchema = z.object({
   /**
    * @deprecated
-   *
    * Needs to be remove as it is not a spec property
    */
   'type': z.literal('collection').optional().default('collection'),
@@ -49,7 +49,7 @@ export const oasCollectionSchema = z.object({
   // security
 })
 
-export const extendedCollectionSchema = z.object({
+const extendedCollectionSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['COLLECTION']>(),
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
