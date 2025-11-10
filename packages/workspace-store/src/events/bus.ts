@@ -1,3 +1,5 @@
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
+
 import type { ApiReferenceEvents } from './definitions'
 
 type Unsubscribe = () => void
@@ -159,6 +161,12 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
   const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
     const [event, payload] = args
+
+    // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
+    // but are always assigning plain objects at any level. In debug mode, we allow unlimited traversal for easier inspection,
+    // otherwise limit the depth for performance.
+    const unpackedPayload = unpackProxyObject(payload, { depth: debug ? null : 5 })
+
     const listeners = events.get(event)
 
     if (!listeners || listeners.size === 0) {
@@ -174,7 +182,7 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     // Execute all listeners
     for (const listener of listenersArray) {
       try {
-        listener(payload)
+        listener(unpackedPayload)
       } catch (error) {
         // Do not let one listener error break other listeners
         console.error(`[EventBus] Error in listener for "${String(event)}":`, error)
