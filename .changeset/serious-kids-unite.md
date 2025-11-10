@@ -1,5 +1,5 @@
 ---
-'scalar-django-ninja': major
+'scalar-django-ninja': minor
 ---
 
 Refactored django-ninja integration
