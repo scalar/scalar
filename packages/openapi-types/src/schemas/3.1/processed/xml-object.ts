@@ -41,4 +41,5 @@ export const XmlObjectSchema = z.object({
   wrapped: z.boolean().optional(),
 })
 
-export type XMLObject = z.infer<typeof XmlObjectSchema>
+// not used but kept for consistency
+// export type XMLObject = z.infer<typeof XmlObjectSchema>
