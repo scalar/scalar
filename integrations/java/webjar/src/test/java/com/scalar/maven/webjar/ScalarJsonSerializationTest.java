@@ -52,6 +52,7 @@ class ScalarJsonSerializationTest {
         properties.setHideSearch(false);
         properties.setHideClientButton(false);
         properties.setPersistAuth(true);
+        properties.setTelemetry(false);
         properties.setOrderRequiredPropertiesFirst(true);
         properties.setShowOperationId(true);
         properties.setBaseServerUrl("https://api.example.com");
@@ -150,6 +151,7 @@ class ScalarJsonSerializationTest {
         assertThat(json).contains("\"hideSearch\":false");
         assertThat(json).contains("\"hideClientButton\":false");
         assertThat(json).contains("\"persistAuth\":true");
+        assertThat(json).contains("\"telemetry\":false");
         assertThat(json).contains("\"orderRequiredPropertiesFirst\":true");
         assertThat(json).contains("\"showOperationId\":true");
         assertThat(json).contains("\"baseServerURL\":\"https://api.example.com\"");

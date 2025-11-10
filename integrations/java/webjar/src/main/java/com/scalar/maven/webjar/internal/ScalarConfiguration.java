@@ -112,6 +112,9 @@ public class ScalarConfiguration {
     @JsonProperty("persistAuth")
     private Boolean persistAuth;
 
+    @JsonProperty("telemetry")
+    private Boolean telemetry;
+
     @JsonProperty("documentDownloadType")
     private DocumentDownloadType documentDownloadType;
 
@@ -361,6 +364,14 @@ public class ScalarConfiguration {
 
     public void setPersistAuth(Boolean persistAuth) {
         this.persistAuth = persistAuth;
+    }
+
+    public Boolean getTelemetry() {
+        return telemetry;
+    }
+
+    public void setTelemetry(Boolean telemetry) {
+        this.telemetry = telemetry;
     }
 
     public DocumentDownloadType getDocumentDownloadType() {

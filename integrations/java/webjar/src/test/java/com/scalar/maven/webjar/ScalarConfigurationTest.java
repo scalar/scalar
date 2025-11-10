@@ -60,6 +60,7 @@ public class ScalarConfigurationTest {
         properties.setDocumentDownloadType(DocumentDownloadType.BOTH);
         properties.setShowSidebar(false);
         properties.setHideModels(true);
+        properties.setTelemetry(false);
 
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
 
@@ -69,6 +70,7 @@ public class ScalarConfigurationTest {
         assertEquals(DocumentDownloadType.BOTH, config.getDocumentDownloadType());
         assertEquals(false, config.getShowSidebar());
         assertEquals(true, config.getHideModels());
+        assertEquals(false, config.getTelemetry());
     }
 
     @Test
