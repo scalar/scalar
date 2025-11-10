@@ -55,8 +55,7 @@ Make sure to commit and push the changes to your repository.
 
 ### Autocomplete in VS Code and Cursor
 
-To get autocomplete and nice squiggly lines for any beautiful, but invalid properties, allow VS Code (or Cursor) to
-download schemas from URLs:
+To get autocomplete and type-checking (for example, to catch any incorrect or invalid properties), enable schema downloads from URLs in VS Code (or Cursor):
 
 ```json
 // .vscode/settings.json
