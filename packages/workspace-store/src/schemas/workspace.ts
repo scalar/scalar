@@ -26,22 +26,8 @@ import {
   ServerObjectSchema,
 } from './v3.1/strict/openapi-document'
 
-export const WorkspaceDocumentMetaSchema = Type.Partial(
-  Type.Object({
-    [extensions.document.activeAuth]: Type.String(),
-    [extensions.document.activeServer]: Type.String(),
-  }),
-)
-
-export type WorkspaceDocumentMeta = {
-  [extensions.document.activeAuth]?: string
-  [extensions.document.activeServer]?: string
-}
-
-// Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
-export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
-
-export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
+export type WorkspaceDocument = OpenApiDocument
+export const WorkspaceDocumentSchema = OpenAPIDocumentSchema
 
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({

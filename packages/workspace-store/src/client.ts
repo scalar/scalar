@@ -30,7 +30,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { Workspace, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
@@ -51,8 +51,6 @@ const defaultConfig: RequiredDeep<Config> = {
  * This type defines the required and optional fields for initializing a document in the workspace.
  */
 type WorkspaceDocumentMetaInput = {
-  /** Optional metadata about the document like title, description, etc */
-  meta?: WorkspaceDocumentMeta
   /** Required unique identifier for the document */
   name: string
   /** Optional configuration options */
@@ -167,23 +165,6 @@ export type WorkspaceStore = {
    * update('x-scalar-active-document', 'document-name')
    */
   update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]): void
-  /**
-   * Updates a specific metadata field in a document
-   * @param name - The name of the document to update ('active' or a specific document name)
-   * @param key - The metadata field to update
-   * @param value - The new value for the field
-   * @throws Error if the specified document doesn't exist
-   * @example
-   * // Update the auth of the active document
-   * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth of a specific document
-   * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
-   */
-  updateDocument<K extends keyof WorkspaceDocumentMeta>(
-    name: 'active' | (string & {}),
-    key: K,
-    value: WorkspaceDocumentMeta[K],
-  ): void
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
    * This method computes the difference between the current document and the new input,
@@ -712,7 +693,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
   ) {
-    const { name, meta } = input
+    const { name } = input
     const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
 
     measureSync('initialize', () => {
@@ -742,7 +723,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const strictDocument: UnknownObject = createMagicProxy(
       {
         ...inputDocument,
-        ...meta,
         'x-original-oas-version': originalDocuments[name]?.openapi ?? originalDocuments[name]?.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
@@ -818,7 +798,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Asynchronously adds a new document to the workspace by loading and validating the input.
   // If loading fails, a placeholder error document is added instead.
   async function addDocument(input: WorkspaceDocumentInput) {
-    const { name, meta } = input
+    const { name } = input
 
     const resolve = await measureAsync(
       'loadDocument',
@@ -831,7 +811,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
         workspace.documents[name] = {
-          ...meta,
           openapi: '3.1.0',
           info: {
             title: `Document '${name}' could not be loaded`,
@@ -847,7 +826,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         console.error(`Failed to load document '${name}': response data is not a valid object`)
 
         workspace.documents[name] = {
-          ...meta,
           openapi: '3.1.0',
           info: {
             title: `Document '${name}' could not be loaded`,
@@ -892,19 +870,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
       Object.assign(workspace, { [key]: value })
     },
-    updateDocument<K extends keyof WorkspaceDocumentMeta>(
-      name: 'active' | (string & {}),
-      key: K,
-      value: WorkspaceDocumentMeta[K],
-    ) {
-      const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
-
-      if (!currentDocument) {
-        throw 'Please select a valid document'
-      }
-
-      Object.assign(currentDocument, { [key]: value })
-    },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
 
@@ -919,10 +884,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // Preserve the current metadata
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
-        meta: {
-          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
-        },
         initialize: false,
       })
     },
