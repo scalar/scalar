@@ -204,6 +204,10 @@ public partial class ScalarOptions
     /// <summary>
     /// Controls whether telemetry is enabled (default: enabled).
     /// </summary>
+    /// <remarks>
+    /// Telemetry tracks only whether a request was sent through the API client.
+    /// We don't track who sent the request, what request was sent, or where it was sent to.
+    /// </remarks>
     public bool? Telemetry { get; set; }
 
     /// <summary>

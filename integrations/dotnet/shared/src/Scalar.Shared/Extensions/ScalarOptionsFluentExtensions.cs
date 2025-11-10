@@ -266,6 +266,9 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Disables telemetry (telemetry is enabled by default).
     /// </summary>
+    /// <remarks>
+    /// Telemetry tracks only whether a request was sent through the API client.
+    /// </remarks>
     /// <param name="options">The options to configure.</param>
     public static TOptions DisableTelemetry<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {

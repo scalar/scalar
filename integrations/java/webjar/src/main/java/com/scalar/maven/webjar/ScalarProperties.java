@@ -194,6 +194,8 @@ public class ScalarProperties {
 
     /**
      * Controls whether telemetry is enabled.
+     * Telemetry tracks only whether a request was sent through the API client.
+     * We don't track who sent the request, what request was sent, or where it was sent to.
      * Defaults to true (enabled).
      */
     private boolean telemetry = true;
