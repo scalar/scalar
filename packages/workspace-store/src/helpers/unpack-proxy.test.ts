@@ -241,4 +241,18 @@ describe('unpackProxyObject', () => {
       expect(result.foo.bar).not.toBe(proxy2)
     })
   })
+
+  it('does work when we have a circular reference inside the magic proxy', () => {
+    const input = {
+      a: {
+        b: {
+          c: {
+            $ref: '#/a',
+          },
+        },
+      },
+    }
+
+    expect(unpackProxyObject(createMagicProxy(input))).toEqual(input)
+  })
 })
