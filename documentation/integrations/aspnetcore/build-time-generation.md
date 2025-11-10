@@ -81,6 +81,7 @@ Once you have generated your OpenAPI document at build time, you can easily publ
 Create a workflow file `.github/workflows/publish-openapi.yml`:
 
 ```yaml
+# .github/workflows/publish-to-scalar-registry.yml
 name: Publish OpenAPI to Scalar Registry
 
 on:
