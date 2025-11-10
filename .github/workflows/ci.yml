@@ -1210,7 +1210,7 @@ jobs:
         run: python run_tests.py
 
   pypi-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.fastapi_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && (needs.check-changes.outputs.fastapi_package_changed == 'true' || needs.check-changes.outputs.django_ninja_package_changed == 'true')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1249,6 +1249,7 @@ jobs:
         run: python -m build
 
       - name: Publish FastAPI package to PyPI
+        if: needs.check-changes.outputs.fastapi_package_changed == 'true'
         working-directory: integrations/fastapi
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
@@ -1264,6 +1265,7 @@ jobs:
         run: python -m build
 
       - name: Publish Django Ninja package to PyPI
+        if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
         working-directory: integrations/django-ninja
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
