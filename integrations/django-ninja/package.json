@@ -20,5 +20,23 @@
     "test": "command -v python >/dev/null 2>&1 && python run_tests.py || echo '⚠️ python is not available, skipping the tests.'"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "readme": {
+    "title": "Scalar API Reference Plugin for Django Ninja",
+    "badges": [
+      {
+        "type": "pypi-version",
+        "package": "scalar-ninja"
+      },
+      {
+        "type": "pypi-downloads",
+        "package": "scalar-ninja"
+      },
+      {
+        "type": "pypi-license",
+        "package": "scalar-ninja"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja"
+  }
 }
