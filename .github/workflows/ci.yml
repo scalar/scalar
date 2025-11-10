@@ -55,6 +55,7 @@ jobs:
       dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
       java_changed: ${{ steps.set-outputs.outputs.java_changed }}
       fastapi_changed: ${{ steps.set-outputs.outputs.fastapi_changed }}
+      django_ninja_changed: ${{ steps.set-outputs.outputs.django_ninja_changed }}
       rust_changed: ${{ steps.set-outputs.outputs.rust_changed }}
       docker_changed: ${{ steps.set-outputs.outputs.docker_changed }}
       aspnetcore_package_changed: ${{ steps.set-outputs.outputs.aspnetcore_package_changed }}
@@ -84,6 +85,8 @@ jobs:
               - integrations/rust/**
             docker_integration:
               - integrations/docker/**
+            django_ninja_integration:
+              - integrations/django-ninja/**
 
       - name: Check whether packages files were modified
         id: changed-packages-files
@@ -120,6 +123,7 @@ jobs:
           echo "dotnet_changed=${{ steps.changed-integration-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_changed=${{ steps.changed-integration-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "fastapi_changed=${{ steps.changed-integration-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "django_ninja_changed=${{ steps.changed-integration-files.outputs.django_ninja_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "rust_changed=${{ steps.changed-integration-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
@@ -1192,13 +1196,12 @@ jobs:
         run: python -m build
 
       - name: Publish FastAPI package to PyPI
-        if: needs.check-changes.outputs.fastapi_package_changed == 'true'
         working-directory: integrations/fastapi
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   django-ninja-build-test:
-    if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    if: needs.check-changes.outputs.django_ninja_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, check-changes]
@@ -1234,16 +1237,7 @@ jobs:
     concurrency:
       group: django-ninja-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        django-ninja-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, django-ninja-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1266,7 +1260,6 @@ jobs:
         run: python -m build
 
       - name: Publish Django Ninja package to PyPI
-        if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
         working-directory: integrations/django-ninja
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
