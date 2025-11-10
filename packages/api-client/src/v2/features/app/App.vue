@@ -57,7 +57,9 @@ const route = useRoute()
 const router = useRouter()
 
 /** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus()
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
 
 /** Temporary workspace model until workspaces are fully integrated. */
 const workspaceModel = ref('default')
