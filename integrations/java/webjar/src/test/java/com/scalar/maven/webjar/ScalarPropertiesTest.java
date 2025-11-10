@@ -1,6 +1,7 @@
 package com.scalar.maven.webjar;
 
 import com.scalar.maven.webjar.config.ScalarSource;
+import com.scalar.maven.webjar.enums.DeveloperToolsVisibility;
 import com.scalar.maven.webjar.enums.DocumentDownloadType;
 import com.scalar.maven.webjar.enums.ScalarLayout;
 import com.scalar.maven.webjar.enums.ScalarTheme;
@@ -142,7 +143,7 @@ class ScalarPropertiesTest {
     class EnabledProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get enabled state")
         void shouldSetAndGetEnabledState(boolean enabled) {
             // When
@@ -227,7 +228,7 @@ class ScalarPropertiesTest {
     class ShowSidebarProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get showSidebar state")
         void shouldSetAndGetShowSidebarState(boolean showSidebar) {
             // When
@@ -243,7 +244,7 @@ class ScalarPropertiesTest {
     class HideModelsProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideModels state")
         void shouldSetAndGetHideModelsState(boolean hideModels) {
             // When
@@ -259,7 +260,7 @@ class ScalarPropertiesTest {
     class HideTestRequestButtonProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideTestRequestButton state")
         void shouldSetAndGetHideTestRequestButtonState(boolean hideTestRequestButton) {
             // When
@@ -275,7 +276,7 @@ class ScalarPropertiesTest {
     class DarkModeProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get darkMode state")
         void shouldSetAndGetDarkModeState(boolean darkMode) {
             // When
@@ -291,7 +292,7 @@ class ScalarPropertiesTest {
     class HideDarkModeToggleProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideDarkModeToggle state")
         void shouldSetAndGetHideDarkModeToggleState(boolean hideDarkModeToggle) {
             // When
@@ -345,7 +346,7 @@ class ScalarPropertiesTest {
     class HideSearchProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideSearch state")
         void shouldSetAndGetHideSearchState(boolean hideSearch) {
             // When
@@ -361,7 +362,7 @@ class ScalarPropertiesTest {
     class ActuatorEnabledProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get actuatorEnabled state")
         void shouldSetAndGetActuatorEnabledState(boolean actuatorEnabled) {
             // When
@@ -369,6 +370,60 @@ class ScalarPropertiesTest {
 
             // Then
             assertThat(properties.isActuatorEnabled()).isEqualTo(actuatorEnabled);
+        }
+    }
+
+    @Nested
+    @DisplayName("showDeveloperTools property")
+    class ShowDeveloperToolsProperty {
+
+        @Test
+        @DisplayName("should have null default value")
+        void shouldHaveNullDefaultValue() {
+            assertThat(properties.getShowDeveloperTools()).isNull();
+        }
+
+        @Test
+        @DisplayName("should set and get ALWAYS value")
+        void shouldSetAndGetAlwaysValue() {
+            // When
+            properties.setShowDeveloperTools(DeveloperToolsVisibility.ALWAYS);
+
+            // Then
+            assertThat(properties.getShowDeveloperTools()).isEqualTo(DeveloperToolsVisibility.ALWAYS);
+        }
+
+        @Test
+        @DisplayName("should set and get LOCALHOST value")
+        void shouldSetAndGetLocalhostValue() {
+            // When
+            properties.setShowDeveloperTools(DeveloperToolsVisibility.LOCALHOST);
+
+            // Then
+            assertThat(properties.getShowDeveloperTools()).isEqualTo(DeveloperToolsVisibility.LOCALHOST);
+        }
+
+        @Test
+        @DisplayName("should set and get NEVER value")
+        void shouldSetAndGetNeverValue() {
+            // When
+            properties.setShowDeveloperTools(DeveloperToolsVisibility.NEVER);
+
+            // Then
+            assertThat(properties.getShowDeveloperTools()).isEqualTo(DeveloperToolsVisibility.NEVER);
+        }
+
+        @Test
+        @DisplayName("should handle null value")
+        void shouldHandleNullValue() {
+            // Given
+            properties.setShowDeveloperTools(DeveloperToolsVisibility.ALWAYS);
+
+            // When
+            properties.setShowDeveloperTools(null);
+
+            // Then
+            assertThat(properties.getShowDeveloperTools()).isNull();
         }
     }
 
