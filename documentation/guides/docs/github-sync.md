@@ -53,6 +53,29 @@ Your docs site will be automatically available at `https://<subdomain>.apidocume
 
 Make sure to commit and push the changes to your repository.
 
+### Autocomplete in VS Code and Cursor
+
+To get autocomplete and nice squiggly lines for any beautiful, but invalid properties, allow VS Code (or Cursor) to
+download schemas from URLs:
+
+```json
+// .vscode/settings.json
+{
+  "json.schemaDownload.enable": true
+}
+```
+
+And add the magic `$schema` keyword to your configuration file:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config.json"
+}
+```
+
+VS Code (or Cursor) will fetch the schema and help you write a valid configuration.
+
 ## Connect your repository
 
 Create a free Scalar account here: https://dashboard.scalar.com/register
