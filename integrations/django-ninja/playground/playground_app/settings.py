@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import sys
 
-# Use the local scalar_django_ninja package
+# Use the local scalar_ninja package
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

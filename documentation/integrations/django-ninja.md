@@ -7,7 +7,7 @@ The easiest way to render a modern and beautiful API reference based on your Dja
 ## Installation
 
 ```bash
-pip install git+https://github.com/scalar/scalar.git#subdirectory=integrations/django-ninja
+pip install scalar-ninja
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ Just pass the `ScalarViewer` instance to the `docs` parameter of the NinjaAPI in
 
 ```python
 from ninja import NinjaAPI
-from scalar_django_ninja import ScalarViewer
+from scalar_ninja import ScalarViewer
 
 api = NinjaAPI(
     version="1.0.0",
@@ -48,7 +48,7 @@ You can configure `ScalarViewer` by passing `ScalarConfig` to the method. Detail
 
 ```python
 from ninja import NinjaAPI
-from scalar_django_ninja import ScalarConfig, ScalarViewer
+from scalar_ninja import ScalarConfig, ScalarViewer
 
 scalar_config = ScalarConfig(
     show_sidebar=False,
@@ -67,7 +67,7 @@ For backwards compatibility you can also add the available configuration options
 
 ```python
 from ninja import NinjaAPI
-from scalar_django_ninja import ScalarViewer
+from scalar_ninja import ScalarViewer
 
 api = NinjaAPI(
     version="1.0.0",
@@ -150,7 +150,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 ### DocumentDownloadType
 
 ```python
-from scalar_django_ninja import DocumentDownloadType
+from scalar_ninja import DocumentDownloadType
 
 # Available options:
 DocumentDownloadType.JSON    # Download as JSON only
@@ -162,7 +162,7 @@ DocumentDownloadType.NONE    # Hide download button
 ### Layout
 
 ```python
-from scalar_django_ninja import Layout
+from scalar_ninja import Layout
 
 # Available options:
 Layout.MODERN    # Modern layout
@@ -172,7 +172,7 @@ Layout.CLASSIC   # Classic layout
 ### SearchHotKey
 
 ```python
-from scalar_django_ninja import SearchHotKey
+from scalar_ninja import SearchHotKey
 
 # All letters from A to Z, e.g.:
 SearchHotKey.K   # Use 'K' key for 'Cmd+K' (Mac) / 'Ctrl+K' (Windows/Linux)
@@ -181,7 +181,7 @@ SearchHotKey.K   # Use 'K' key for 'Cmd+K' (Mac) / 'Ctrl+K' (Windows/Linux)
 ### Theme
 
 ```python
-from scalar_django_ninja import Theme
+from scalar_ninja import Theme
 
 # Available options:
 Theme.DEFAULT   # Default theme

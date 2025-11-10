@@ -29,7 +29,7 @@ if not settings.configured:
 from django.test import RequestFactory
 from ninja import NinjaAPI, Schema
 
-from scalar_django_ninja import (
+from scalar_ninja import (
     Layout,
     ScalarConfig,
     ScalarViewer,

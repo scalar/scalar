@@ -1,1 +1,1 @@
-"""Tests for scalar_django_ninja integration."""
+"""Tests for scalar_ninja integration."""

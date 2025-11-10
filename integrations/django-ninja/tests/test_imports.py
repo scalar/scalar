@@ -26,11 +26,11 @@ if not settings.configured:
     )
 
 
-def test_scalar_django_ninja_imports():
-    """Test that all scalar_django_ninja imports work correctly"""
+def test_scalar_ninja_imports():
+    """Test that all scalar_ninja imports work correctly"""
 
     # Test main imports
-    from scalar_django_ninja import (
+    from scalar_ninja import (
         DocumentDownloadType,
         Layout,
         OpenAPISource,
@@ -51,7 +51,7 @@ def test_scalar_django_ninja_imports():
 
 def test_document_download_type_enum():
     """Test that DocumentDownloadType enum has correct values"""
-    from scalar_django_ninja import DocumentDownloadType
+    from scalar_ninja import DocumentDownloadType
 
     assert DocumentDownloadType.JSON.value == "json"
     assert DocumentDownloadType.YAML.value == "yaml"
@@ -61,7 +61,7 @@ def test_document_download_type_enum():
 
 def test_layout_enum():
     """Test that Layout enum has correct values"""
-    from scalar_django_ninja import Layout
+    from scalar_ninja import Layout
 
     assert Layout.MODERN.value == "modern"
     assert Layout.CLASSIC.value == "classic"
@@ -69,7 +69,7 @@ def test_layout_enum():
 
 def test_search_hot_key_enum():
     """Test that SearchHotKey enum has correct values"""
-    from scalar_django_ninja import SearchHotKey
+    from scalar_ninja import SearchHotKey
 
     # Test a few key values
     assert SearchHotKey.K.value == "k"
@@ -86,7 +86,7 @@ def test_search_hot_key_enum():
 
 def test_theme_enum():
     """Test that Theme enum has correct values"""
-    from scalar_django_ninja import Theme
+    from scalar_ninja import Theme
 
     assert Theme.DEFAULT.value == "default"
     assert Theme.ALTERNATE.value == "alternate"
@@ -104,7 +104,7 @@ def test_theme_enum():
 
 def test_theme_enum_completeness():
     """Test that all expected theme values are available"""
-    from scalar_django_ninja import Theme
+    from scalar_ninja import Theme
 
     # Check that all expected themes are present
     expected_themes = [
@@ -136,7 +136,7 @@ def test_theme_enum_completeness():
 
 def test_theme_enum_uniqueness():
     """Test that all theme values are unique"""
-    from scalar_django_ninja import Theme
+    from scalar_ninja import Theme
 
     theme_values = [theme.value for theme in Theme]
     unique_values = set(theme_values)
@@ -176,7 +176,7 @@ def test_pydantic_imports():
 
 def test_openapi_source_model():
     """Test that OpenAPISource model can be instantiated"""
-    from scalar_django_ninja import OpenAPISource
+    from scalar_ninja import OpenAPISource
 
     # Test basic instantiation
     source = OpenAPISource(title="Test API", url="/openapi.json")
@@ -192,7 +192,7 @@ def test_openapi_source_model():
 
 def test_scalar_config_model():
     """Test that ScalarConfig model can be instantiated"""
-    from scalar_django_ninja import ScalarConfig, Theme, Layout
+    from scalar_ninja import ScalarConfig, Theme, Layout
 
     # Test basic instantiation
     config = ScalarConfig(openapi_url="/api/openapi.json", title="Test API")

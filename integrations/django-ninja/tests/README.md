@@ -1,6 +1,6 @@
 # Scalar Django Ninja Integration Tests
 
-This directory contains comprehensive tests for the `scalar_django_ninja` integration package.
+This directory contains comprehensive tests for the `scalar_ninja` integration package.
 
 ## Test Structure
 
@@ -18,8 +18,8 @@ Tests basic imports and enum values to catch import issues early.
 - Django and Pydantic imports
 - Model instantiation (OpenAPISource, ScalarConfig)
 
-### 2. `test_scalar_django_ninja.py`
-Tests core functionality of the scalar_django_ninja package.
+### 2. `test_scalar_ninja.py`
+Tests core functionality of the scalar_ninja package.
 
 **Coverage:**
 - Enum classes (Layout, SearchHotKey, Theme, DocumentDownloadType)
@@ -76,7 +76,7 @@ pytest tests/
 pytest -v
 
 # With coverage report
-pytest --cov=scalar_django_ninja --cov-report=html
+pytest --cov=scalar_ninja --cov-report=html
 ```
 
 ### Run Specific Test Files
@@ -86,7 +86,7 @@ pytest --cov=scalar_django_ninja --cov-report=html
 pytest tests/test_imports.py
 
 # Run only core functionality tests
-pytest tests/test_scalar_django_ninja.py
+pytest tests/test_scalar_ninja.py
 
 # Run only integration tests
 pytest tests/test_integration.py
@@ -96,7 +96,7 @@ pytest tests/test_integration.py
 
 ```bash
 # Run a specific test class
-pytest tests/test_scalar_django_ninja.py::TestTheme
+pytest tests/test_scalar_ninja.py::TestTheme
 
 # Run a specific test method
 pytest tests/test_integration.py::TestDjangoNinjaIntegration::test_scalar_viewer_with_api
@@ -155,9 +155,9 @@ These tests are designed to run in CI/CD pipelines. They require:
 
 ## Adding New Tests
 
-When adding new features to `scalar_django_ninja`, please:
+When adding new features to `scalar_ninja`, please:
 
-1. Add unit tests to `test_scalar_django_ninja.py` for new configuration options
+1. Add unit tests to `test_scalar_ninja.py` for new configuration options
 2. Add integration tests to `test_integration.py` for new viewer features
 3. Update `test_imports.py` if adding new public API components
 4. Ensure all tests pass before submitting a PR

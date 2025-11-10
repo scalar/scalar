@@ -1,5 +1,5 @@
 """
-Tests for scalar_django_ninja core functionality.
+Tests for scalar_ninja core functionality.
 """
 
 from django.conf import settings
@@ -25,7 +25,7 @@ if not settings.configured:
         },
     )
 
-from scalar_django_ninja import (
+from scalar_ninja import (
     DocumentDownloadType,
     Layout,
     OpenAPISource,
@@ -34,7 +34,7 @@ from scalar_django_ninja import (
     SearchHotKey,
     Theme,
 )
-from scalar_django_ninja.scalar_django_ninja import get_scalar_api_reference
+from scalar_ninja.scalar_ninja import get_scalar_api_reference
 
 
 class TestLayout:

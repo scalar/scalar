@@ -6,7 +6,7 @@ from django.urls import path
 from ninja import NinjaAPI, Schema
 from typing import Union
 
-from scalar_django_ninja import ScalarViewer, Theme
+from scalar_ninja import ScalarViewer, Theme
 
 # Create API instance with custom docs
 api = NinjaAPI(

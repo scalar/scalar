@@ -1,4 +1,4 @@
-from .scalar_django_ninja import (
+from .scalar_ninja import (
     DocumentDownloadType,
     Layout,
     OpenAPISource,

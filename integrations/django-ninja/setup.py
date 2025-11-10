@@ -12,7 +12,7 @@ def get_version():
 
 
 setup(
-    name="scalar_django_ninja",
+    name="scalar_ninja",
     version=get_version(),
     packages=find_packages(exclude=["tests"]),
     install_requires=[],
