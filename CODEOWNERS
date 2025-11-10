@@ -26,7 +26,7 @@
 /integrations/fastapi @marclave
 /integrations/fastify @hanspagel @marclave
 /integrations/hono @hanspagel @marclave
-/integrations/java @marclave @hanspagel @xC0dex
+/integrations/java @hanspagel @xC0dex
 /integrations/nestjs @marclave
 /integrations/nextjs @amritk @marclave
 /integrations/nuxt @amritk @marclave
