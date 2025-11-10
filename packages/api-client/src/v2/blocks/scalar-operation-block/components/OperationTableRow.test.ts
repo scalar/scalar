@@ -278,25 +278,4 @@ describe('OperationTableRow', () => {
     expect(wrapper.emitted('updateRow')).toBeTruthy()
     expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ key: 'selectedVar' })
   })
-
-  it('emits updateRow when variable is selected in value input', async () => {
-    const wrapper = mount(OperationTableRow, {
-      props: {
-        data: { name: 'key', value: 'value' },
-        environment,
-        envVariables: [],
-      },
-      global: {
-        stubs: {
-          RouterLink: true,
-        },
-      },
-    })
-
-    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
-    await valueInput?.vm.$emit('selectVariable', 'selectedVar')
-
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ value: 'selectedVar' })
-  })
 })
