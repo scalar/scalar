@@ -856,7 +856,7 @@ jobs:
     if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build, check-changes]
+    needs: [required-jobs-main, check-changes]
     permissions:
       contents: read
     steps:
@@ -1464,30 +1464,6 @@ jobs:
 
   # ---------------------------------------------------------------------------------------------------------
   # Other jobs
-
-  stats:
-    # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: '@scalar/api-reference'
-      - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   required-jobs-pull-requests:
     if: github.event_name == 'pull_request'
