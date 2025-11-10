@@ -262,4 +262,14 @@ public static partial class ScalarOptionsExtensions
         options.OperationSorter = OperationSorter.Method;
         return options;
     }
+
+    /// <summary>
+    /// Disables telemetry (telemetry is enabled by default).
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    public static TOptions DisableTelemetry<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.Telemetry = false;
+        return options;
+    }
 }

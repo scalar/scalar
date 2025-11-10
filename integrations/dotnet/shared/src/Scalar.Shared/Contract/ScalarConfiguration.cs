@@ -79,6 +79,8 @@ internal sealed class ScalarConfiguration
 
     public required bool? PersistAuth { get; init; }
 
+    public required bool? Telemetry { get; init; }
+
     public required DocumentDownloadType? DocumentDownloadType { get; init; }
 
     public required bool? OrderRequiredPropertiesFirst { get; init; }

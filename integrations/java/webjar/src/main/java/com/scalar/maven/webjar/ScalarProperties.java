@@ -193,6 +193,12 @@ public class ScalarProperties {
     private boolean persistAuth = false;
 
     /**
+     * Controls whether telemetry is enabled.
+     * Defaults to true (enabled).
+     */
+    private boolean telemetry = true;
+
+    /**
      * Controls whether required properties are ordered first in schema properties.
      * Defaults to true (required first).
      */
@@ -573,6 +579,14 @@ public class ScalarProperties {
 
     public void setPersistAuth(boolean persistAuth) {
         this.persistAuth = persistAuth;
+    }
+
+    public boolean isTelemetry() {
+        return telemetry;
+    }
+
+    public void setTelemetry(boolean telemetry) {
+        this.telemetry = telemetry;
     }
 
     public boolean isOrderRequiredPropertiesFirst() {

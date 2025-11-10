@@ -202,6 +202,11 @@ public partial class ScalarOptions
     public bool? PersistentAuthentication { get; set; }
 
     /// <summary>
+    /// Controls whether telemetry is enabled (default: enabled).
+    /// </summary>
+    public bool? Telemetry { get; set; }
+
+    /// <summary>
     /// Controls the type of document download available for the API documentation (default: <see cref="DocumentDownloadType.Both" />).
     /// </summary>
     public DocumentDownloadType? DocumentDownloadType { get; set; }

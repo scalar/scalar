@@ -781,6 +781,20 @@ Whether to persist authentication credentials in local storage. This allows the 
 > [!WARNING]
 > Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
 
+#### telemetry
+
+**Type:** `boolean`
+
+Whether to enable telemetry.
+
+**Default:** `true`
+
+```js
+{
+  telemetry: false
+}
+```
+
 #### plugins
 
 **Type:** `ApiReferencePlugin[]`
