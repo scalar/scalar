@@ -81,7 +81,7 @@ public class ScalarConfigurationTest {
         assertEquals(false, config.getShowSidebar());
         assertEquals(true, config.getHideModels());
         assertEquals(false, config.getTelemetry());
-        assertEquals(DeveloperToolsVisibility.ALWAYS, config.getShowToolbar());
+        assertEquals(DeveloperToolsVisibility.ALWAYS, config.getShowDeveloperTools());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class ScalarConfigurationTest {
         assertEquals(OperationSorter.METHOD, config.getOperationsSorter());
         assertEquals(ThemeMode.DARK, config.getForceDarkModeState());
         assertEquals(PropertyOrder.ALPHA, config.getOrderSchemaPropertiesBy());
-        assertEquals(DeveloperToolsVisibility.NEVER, config.getShowToolbar());
+        assertEquals(DeveloperToolsVisibility.NEVER, config.getShowDeveloperTools());
     }
 
 }

@@ -89,7 +89,7 @@ internal sealed class ScalarConfiguration
 
     public required bool? ShowOperationId { get; init; }
 
-    public required DeveloperToolsVisibility? ShowToolbar { get; init; }
+    public required DeveloperToolsVisibility? ShowDeveloperTools { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

@@ -39,7 +39,7 @@ public class ScalarOptionsMapperTests
         configuration.Telemetry.Should().BeNull();
         configuration.OrderRequiredPropertiesFirst.Should().BeNull();
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
-        configuration.ShowToolbar.Should().BeNull();
+        configuration.ShowDeveloperTools.Should().BeNull();
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class ScalarOptionsMapperTests
         configuration.Telemetry.Should().BeFalse();
         configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
         configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
-        configuration.ShowToolbar.Should().Be(DeveloperToolsVisibility.Always);
+        configuration.ShowDeveloperTools.Should().Be(DeveloperToolsVisibility.Always);
     }
 
     [Fact]

@@ -57,7 +57,7 @@ public class ScalarConfigurationMapper {
         config.setOperationsSorter(properties.getOperationSorter());
         config.setForceDarkModeState(properties.getForceThemeMode());
         config.setOrderSchemaPropertiesBy(properties.getSchemaPropertyOrder());
-        config.setShowToolbar(properties.getShowDeveloperTools());
+        config.setShowDeveloperTools(properties.getShowDeveloperTools());
 
         return config;
     }
