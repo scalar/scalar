@@ -127,6 +127,9 @@ public class ScalarConfiguration {
     @JsonProperty("showOperationId")
     private Boolean showOperationId;
 
+    @JsonProperty("showToolbar")
+    private DeveloperToolsVisibility showToolbar;
+
     /**
      * Creates a new ScalarConfiguration.
      */
@@ -404,5 +407,13 @@ public class ScalarConfiguration {
 
     public void setShowOperationId(Boolean showOperationId) {
         this.showOperationId = showOperationId;
+    }
+
+    public DeveloperToolsVisibility getShowToolbar() {
+        return showToolbar;
+    }
+
+    public void setShowToolbar(DeveloperToolsVisibility showToolbar) {
+        this.showToolbar = showToolbar;
     }
 }

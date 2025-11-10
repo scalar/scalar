@@ -9,11 +9,11 @@ namespace Scalar.AspNetCore;
 #endif
 
 /// <summary>
-/// Controls the visibility of the configuration toolbar.
+/// Controls the visibility of the developer tools toolbar.
 /// </summary>
 [EnumExtensions]
-[JsonConverter(typeof(ToolbarVisibilityJsonConverter))]
-internal enum ToolbarVisibility
+[JsonConverter(typeof(DeveloperToolsVisibilityJsonConverter))]
+public enum DeveloperToolsVisibility
 {
     /// <summary>
     /// Always show the toolbar.
@@ -33,3 +33,4 @@ internal enum ToolbarVisibility
     [Description("never")]
     Never
 }
+
