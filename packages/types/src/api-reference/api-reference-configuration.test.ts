@@ -254,6 +254,7 @@ describe('api-reference-configuration', () => {
       const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.showDeveloperTools).toBe('always')
+      // @ts-expect-error showToolbar is not in the type
       expect(migratedConfig.showToolbar).toBeUndefined()
     })
   })

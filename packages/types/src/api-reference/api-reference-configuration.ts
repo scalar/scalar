@@ -357,7 +357,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
  */
 export type ApiReferenceConfigurationRaw = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>, // Remove deprecated attributes
-  'proxy' | 'spec' | 'authentication'
+  'proxy' | 'spec' | 'authentication' | 'showToolbar'
 > & {
   authentication?: AuthenticationConfiguration
 }
