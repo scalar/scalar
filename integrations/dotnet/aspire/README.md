@@ -11,7 +11,7 @@
 [![Downloads](https://img.shields.io/nuget/dt/Scalar.Aspire)](https://www.nuget.org/packages/Scalar.Aspire)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-This .NET package `Scalar.Aspire` provides an easy way to create a unified API reference for all your .NET Aspire services based on their OpenAPI/Swagger documents.
+Automatically discover and create a unified, interactive API Reference for all your .NET Aspire services from their OpenAPI/Swagger documents.
 
 ## Documentation
 
