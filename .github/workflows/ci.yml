@@ -132,6 +132,7 @@ jobs:
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
+    if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
