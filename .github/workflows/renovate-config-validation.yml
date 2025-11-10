@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
           node-version: '22'
-          cache: false
+          package-manager-cache: false
 
       - name: Validate Renovate configuration
         run: npx --yes --package renovate -- renovate-config-validator
