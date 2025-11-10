@@ -1360,4 +1360,30 @@ describe('create-request-operation', () => {
     })
     expect(responseFromOperation!.headers.get(HEADER_MOCK_NAME)).toBe(HEADER_MOCK_VALUE)
   })
+
+  it('handles `onBeforeRequest` errors', async () => {
+    const mockPluginManager = {
+      executeHook: vi.fn().mockRejectedValue(Error('AAAA')),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+      pluginManager: mockPluginManager,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    await expect(requestOperation.sendRequest()).resolves.toStrictEqual([
+      expect.objectContaining({ message: 'onBeforeRequest request hook failed' }),
+      null,
+    ])
+  })
 })

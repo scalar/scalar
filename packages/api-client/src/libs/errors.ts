@@ -7,6 +7,7 @@ export const ERRORS = {
   REQUEST_ABORTED: 'The request has been cancelled',
   REQUEST_FAILED: 'An error occurred while making the request',
   URL_EMPTY: 'The address bar input seems to be empty. Try adding a URL.',
+  ON_BEFORE_REQUEST_FAILED: 'onBeforeRequest request hook failed',
 } as const
 
 /** Normalizes caught error into an error instance */

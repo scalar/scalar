@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
+import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
+import { ScalarIconPlay } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -8,7 +10,6 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { ref, useId, watch } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
@@ -109,14 +110,16 @@ function abortLoading() {
 
 events.requestStatus.on((status) => {
   if (status === 'start') {
-    startLoading()
+    return startLoading()
   }
   if (status === 'stop') {
-    stopLoading()
+    return stopLoading()
   }
   if (status === 'abort') {
-    abortLoading()
+    return abortLoading()
   }
+
+  status satisfies undefined
 })
 
 /** Focus the address bar (or the send button if in modal layout) */
@@ -237,10 +240,10 @@ function updateRequestPath(url: string) {
         <span
           aria-hidden="true"
           class="inline-flex items-center gap-1">
-          <ScalarIcon
-            class="relative shrink-0 fill-current"
-            icon="Play"
-            size="xs" />
+          <ScalarIconPlay
+            class="relative shrink-0"
+            size="xs"
+            weight="fill" />
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>
         <span class="sr-only">
