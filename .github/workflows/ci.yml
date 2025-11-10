@@ -986,16 +986,7 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        dotnet-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, dotnet-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1057,16 +1048,7 @@ jobs:
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        dotnet-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, dotnet-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1186,16 +1168,7 @@ jobs:
     concurrency:
       group: fastapi-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        fastapi-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, fastapi-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1361,16 +1334,7 @@ jobs:
     concurrency:
       group: rust-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        rust-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, rust-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1446,16 +1410,7 @@ jobs:
 
   java-webjar-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_webjar_package_changed == 'true'
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        java-webjar-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, java-webjar-build-test, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
       group: java-webjar-publish
