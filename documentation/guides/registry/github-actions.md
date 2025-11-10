@@ -146,7 +146,7 @@ jobs:
           node-version: 22
 
       - name: Validate ${{ matrix.api.name }}
-        run: npx @scalar/cli document validate ${{ matrix.api.file }}
+        run: npx @scalar/cli document validate "${{ matrix.api.file }}"
 
       - name: Login to Scalar Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
@@ -156,7 +156,7 @@ jobs:
           npx @scalar/cli registry publish \
             --namespace ${{ vars.SCALAR_NAMESPACE }} \
             --slug ${{ matrix.api.slug }} \
-            ${{ matrix.api.file }}
+            "${{ matrix.api.file }}"
 ```
 
 ## Secrets

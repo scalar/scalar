@@ -179,7 +179,7 @@ validate_apis:
       - API_NAME: "order-api"
         API_FILE: "apis/order-api/openapi.json"
   script:
-    - npx @scalar/cli document validate $API_FILE
+    - npx @scalar/cli document validate "$API_FILE"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
@@ -201,7 +201,7 @@ deploy_apis:
         API_SLUG: "order-api"
   script:
     - npx @scalar/cli auth login --token $SCALAR_API_KEY
-    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE --slug $API_SLUG $API_FILE
+    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE --slug $API_SLUG "$API_FILE"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
