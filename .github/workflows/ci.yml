@@ -29,7 +29,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -193,7 +193,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './examples/**'
@@ -209,7 +209,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -229,7 +229,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -251,7 +251,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
@@ -283,7 +283,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
@@ -332,7 +332,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
@@ -386,7 +386,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: 'scalar-app...'
@@ -445,7 +445,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/components...'
@@ -501,7 +501,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
@@ -560,7 +560,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           # Build everything
@@ -612,7 +612,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations,projects}/**'
@@ -662,7 +662,7 @@ jobs:
               - packages/api-client/**
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: 'client-scalar-com...'
@@ -727,7 +727,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/galaxy
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/galaxy...'
@@ -775,7 +775,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar-examples/web...'
@@ -818,7 +818,7 @@ jobs:
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
 
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
@@ -1523,7 +1523,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference'
