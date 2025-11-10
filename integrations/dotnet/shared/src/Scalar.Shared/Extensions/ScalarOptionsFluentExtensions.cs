@@ -276,6 +276,7 @@ public static partial class ScalarOptionsExtensions
         return options;
     }
 
+    /// <summary>
     /// Always shows the developer tools toolbar.
     /// </summary>
     /// <param name="options">The options to configure.</param>
