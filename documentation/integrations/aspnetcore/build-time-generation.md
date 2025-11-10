@@ -92,12 +92,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-          
+
       - name: Build and Generate OpenAPI
         run: |
           dotnet build --configuration Release
