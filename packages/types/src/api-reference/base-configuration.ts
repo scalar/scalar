@@ -73,8 +73,15 @@ export const baseConfigurationSchema = z.object({
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
   /**
+   * Whether and when to show the developer tools.
+   *
+   * @default 'localhost' to only show the toolbar on localhost or similar hosts
+   */
+  showDeveloperTools: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
+  /**
    * Sets the visibility of the developer tools
    * @default 'localhost' to only show the toolbar on localhost or similar hosts
+   * @deprecated Use showDeveloperTools instead
    */
   showToolbar: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
   /**
