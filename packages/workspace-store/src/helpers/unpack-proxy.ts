@@ -32,19 +32,30 @@ export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number |
       return value
     }
 
-    // Compose all the proxy unwrappers in order
+    // Compose all the proxy unwraps in order
     const raw = unpackDetectChangesProxy(toRaw(getRaw(unpackOverridesProxy(value))))
 
     // Show a warning if a nested value was a proxy (usually undesired, can cause subtle bugs)
     if (currentDepth !== 0 && raw !== value) {
       console.warn(
-        '%c⚠ Warning:%c You tried to assign a proxied object.\n' +
-          '%c💡 Tip:%c Pass a plain object instead — wrapping a proxy inside another proxy may cause weird bugs.',
+        '%c⚠ Warning:%c You tried to assign a proxied object (depth: %d).\n' +
+          '%c💡 Tip:%c Pass a plain object instead — wrapping a proxy inside another proxy may cause weird bugs.\n' +
+          '%c🔍 Debug Info:%c The problematic value is shown below:',
+        // styles
         'background: #fdd835; color: #000; font-weight: bold; padding: 2px 4px; border-radius: 3px;',
         'color: inherit;',
+        currentDepth,
         'color: #00bfa5; font-weight: bold;',
         'color: inherit;',
+        'color: #03a9f4; font-weight: bold;',
+        'color: inherit;',
+        input,
       )
+
+      // Collapsed trace group for cleaner output
+      console.groupCollapsed('%c📜 Proxy assignment trace', 'color: #9c27b0; font-weight: bold;')
+      console.trace({ value, raw })
+      console.groupEnd()
     }
 
     // Recursively process all properties/entries to make sure we are not assigning proxies directly,
