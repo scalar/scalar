@@ -201,7 +201,7 @@ Ready? [Create your Scalar Account](https://scalar.com)
 | Project                                                                                        | Description                      |
 | ---------------------------------------------------------------------------------------------- | -------------------------------- |
 | [Scalar API Reference](https://guides.scalar.com/scalar/scalar-api-references/getting-started) | Self-hosted API Reference        |
-| [Scalar App](https://scalar.com/download)                                                      | Postman alternative              |
+| [Scalar API Client](https://scalar.com/download)                                               | Postman alternative              |
 | [Scalar Registry](https://guides.scalar.com/scalar/scalar-registry/getting-started)            | Manage OpenAPI documents         |
 | [Scalar Docs](https://guides.scalar.com/scalar/scalar-docs/getting-started)                    | Hosted documentation             |
 | [Scalar Docs Starter](https://github.com/scalar/starter)                                       | Starter template for Scalar Docs |
