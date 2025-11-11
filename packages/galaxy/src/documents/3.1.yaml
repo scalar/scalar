@@ -182,7 +182,7 @@ paths:
                       $ref: '#/components/schemas/Planet'
               responses:
                 '200':
-                  description: Your server returns this code if it accepts the callback
+                  description: Your server returns this code if it accepts the failure callback notification
         planetExploded:
           '{$request.body#/successCallbackUrl}':
             post:
@@ -194,7 +194,7 @@ paths:
                       $ref: '#/components/schemas/Planet'
               responses:
                 '200':
-                  description: Your server returns this code if it accepts the callback
+                  description: Your server returns this code if it accepts the planet explosion callback notification
       requestBody:
         description: Planet
         content:
@@ -279,7 +279,7 @@ paths:
         - $ref: '#/components/parameters/planetId'
       responses:
         '200':
-          description: OK
+          description: Planet updated successfully
           content:
             application/json:
               schema:
@@ -407,7 +407,7 @@ paths:
                   password: scalar-is-cool
       responses:
         '201':
-          description: Created
+          description: User account created successfully
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
@@ -495,7 +495,7 @@ paths:
         - apiKeyQuery: []
       responses:
         '200':
-          description: OK
+          description: Authenticated user information retrieved successfully
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
@@ -1168,7 +1168,7 @@ components:
             - The request was invalid.
     ForbiddenError:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for forbidden access (RFC 7807). Returned when the user does not have permission to access the requested resource.
       type: object
       properties:
         type:
@@ -1190,7 +1190,7 @@ components:
             - You are not authorized to access this resource.
     NotFoundError:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for resource not found (RFC 7807). Returned when the requested resource does not exist.
       type: object
       properties:
         type:
@@ -1212,7 +1212,7 @@ components:
             - The resource you are trying to access does not exist.
     UnauthorizedError:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for unauthorized access (RFC 7807). Returned when authentication is required or has failed.
       type: object
       properties:
         type:
@@ -1234,7 +1234,7 @@ components:
             - You are not authorized to access this resource.
     Conflict:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for resource conflicts (RFC 7807). Returned when the request conflicts with the current state of the resource.
       type: object
       properties:
         type:
@@ -1256,7 +1256,7 @@ components:
             - The resource you are trying to access is in conflict.
     UnprocessableEntity:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for unprocessable entity (RFC 7807). Returned when the request is well-formed but contains semantic errors.
       type: object
       properties:
         type:
@@ -1278,7 +1278,7 @@ components:
             - The request was invalid.
     TooManyRequestsError:
       x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      description: Error response for rate limiting (RFC 7807). Returned when the client has exceeded the rate limit for requests.
       type: object
       properties:
         type:
