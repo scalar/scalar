@@ -22,11 +22,6 @@ import { unpackOverridesProxy } from '@/helpers/overrides-proxy'
 export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number | null } = {}): T => {
   // Internal DFS helper to recursively strip all known proxies (Vue, overrides, detect-changes, magic proxies)
   const dfs = (value: any, currentDepth: number = 0): any => {
-    // If we have reached the maximum depth, return the value as-is (potentially still partially proxied)
-    if (depth !== null && currentDepth > depth) {
-      return value
-    }
-
     // Base case: non-objects (primitives, null) are returned as-is
     if (typeof value !== 'object' || value === null) {
       return value
@@ -34,6 +29,11 @@ export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number |
 
     // Compose all the proxy unwraps in order
     const raw = unpackDetectChangesProxy(toRaw(getRaw(unpackOverridesProxy(value))))
+
+    // If we have reached the maximum depth, return the value (potentially still partially proxied)
+    if (depth !== null && currentDepth >= depth) {
+      return raw
+    }
 
     // Show a warning if a nested value was a proxy (usually undesired, can cause subtle bugs)
     if (currentDepth !== 0 && raw !== value) {
@@ -61,7 +61,27 @@ export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number |
     // Recursively process all properties/entries to make sure we are not assigning proxies directly,
     // but are always assigning plain objects at any level.
     Object.entries(raw).forEach(([key, value]) => {
-      raw[key] = dfs(value, currentDepth + 1)
+      const propertyResult = dfs(value, currentDepth + 1)
+      const result = Reflect.set(raw, key, propertyResult)
+
+      if (!result) {
+        console.warn(
+          '%c🚫 Readonly Property Error:%c Failed to set property "%s" on object.\n' +
+            '%c💡 Tip:%c This property is readonly or non-configurable. You cannot unpack a readonly property — the value was not updated.\n' +
+            '%c🔍 Debug Info:%c Property: %s | Value: %o | Object: %o',
+          // styles
+          'background: #f44336; color: #fff; font-weight: bold; padding: 2px 4px; border-radius: 3px;',
+          'color: inherit;',
+          key,
+          'color: #00bfa5; font-weight: bold;',
+          'color: inherit;',
+          'color: #03a9f4; font-weight: bold;',
+          'color: inherit;',
+          key,
+          propertyResult,
+          raw,
+        )
+      }
     })
 
     return raw
