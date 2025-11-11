@@ -11,7 +11,7 @@ import {
   type HoveredItem,
 } from '@scalar/draggable'
 import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
-import { ScalarIconFolder } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 
 import type { Item } from '@/types'
 
@@ -117,8 +117,9 @@ const handleDragEnd = (
       <template
         v-if="item.type === 'document'"
         #icon="{ open }">
-        <ScalarIconFolder
-          class="text-c-3 block group-hover/group-button:hidden" />
+        <LibraryIcon
+          class="text-c-3 block group-hover/group-button:hidden"
+          :src="item.icon ?? 'interface-content-folder'" />
         <ScalarSidebarGroupToggle
           class="text-c-3 hidden group-hover/group-button:block"
           :open="open" />

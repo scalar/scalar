@@ -65,8 +65,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
-        @selectItem="(id) => emit('selectItem', id)"
-        @reorder="(...args) => log('reorder', ...args)">
+        @reorder="(...args) => log('reorder', ...args)"
+        @selectItem="(id) => emit('selectItem', id)">
         <template #search>
           <div
             class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">

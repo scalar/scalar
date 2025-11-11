@@ -112,5 +112,6 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
     title: document.info.title,
     name: documentName,
     children: entries,
+    icon: document['x-scalar-icon'],
   } satisfies TraversedDocument
 }

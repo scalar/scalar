@@ -10,3 +10,18 @@ export const toggleDocumentSecurity = (document: WorkspaceDocument | null) => {
 
   document['x-scalar-document-security'] = !document['x-scalar-document-security']
 }
+
+/**
+ * Update the document icon and also update the corresponding sidebar entry
+ *
+ * Does not perform a sidebar rebuild for performance benefit
+ */
+export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: string) => {
+  if (!document || !document['x-scalar-navigation']) {
+    return
+  }
+
+  document['x-scalar-icon'] = icon
+
+  document['x-scalar-navigation'].icon = icon
+}

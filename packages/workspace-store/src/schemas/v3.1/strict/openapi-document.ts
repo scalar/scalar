@@ -10,6 +10,7 @@ import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import {
   type XScalarSelectedSecurity,
   XScalarSelectedSecuritySchema,
@@ -95,6 +96,7 @@ const OpenApiExtensionsSchema = compose(
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
+  XScalarIconSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
@@ -114,7 +116,8 @@ export type OpenAPIExtensions = Partial<{
   XScalarEnvironments &
   XScalarSelectedSecurity &
   XScalarSelectedServer &
-  XScalarDocumentSecurity
+  XScalarDocumentSecurity &
+  XScalarIcon
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
