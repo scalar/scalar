@@ -13,10 +13,5 @@ export default defineConfig({
     cssMinify: false,
     minify: false,
   },
-  test: {
-    coverage: {
-      enabled: true,
-      reporter: 'text',
-    },
-  },
+  test: {},
 })

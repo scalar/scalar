@@ -82,7 +82,7 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "jsdom": "^22.1.0",
+    "jsdom": "catalog:*",
     "plugins": "^0.4.2",
     "storybook": "^8.0.8",
     "storybook-dark-mode": "^4.0.1",

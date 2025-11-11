@@ -281,7 +281,7 @@
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
-    "jsdom": "^22.1.0",
+    "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
