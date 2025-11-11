@@ -667,7 +667,7 @@ components:
       description: Entity tag for caching
       schema:
         type: string
-        example: '33a64df551'
+        example: '"33a64df551"'
     Last-Modified:
       description: The last modification date of the resource
       schema:
