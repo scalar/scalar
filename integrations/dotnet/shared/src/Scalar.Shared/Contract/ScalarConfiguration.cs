@@ -88,6 +88,8 @@ internal sealed class ScalarConfiguration
     public required PropertyOrder? OrderSchemaPropertiesBy { get; init; }
 
     public required bool? ShowOperationId { get; init; }
+
+    public required DeveloperToolsVisibility? ShowDeveloperTools { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

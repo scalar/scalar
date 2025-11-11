@@ -262,6 +262,11 @@ public class ScalarProperties {
     private PropertyOrder schemaPropertyOrder;
 
     /**
+     * Controls the visibility of the developer tools toolbar.
+     */
+    private DeveloperToolsVisibility showDeveloperTools;
+
+    /**
      * Gets the list of OpenAPI specification sources
      *
      * @return list of OpenAPI specification sources
@@ -759,6 +764,24 @@ public class ScalarProperties {
      */
     public void setSchemaPropertyOrder(PropertyOrder schemaPropertyOrder) {
         this.schemaPropertyOrder = schemaPropertyOrder;
+    }
+
+    /**
+     * Gets the developer tools toolbar visibility.
+     *
+     * @return the developer tools visibility enum
+     */
+    public DeveloperToolsVisibility getShowDeveloperTools() {
+        return showDeveloperTools;
+    }
+
+    /**
+     * Sets the developer tools toolbar visibility.
+     *
+     * @param showDeveloperTools the developer tools visibility enum
+     */
+    public void setShowDeveloperTools(DeveloperToolsVisibility showDeveloperTools) {
+        this.showDeveloperTools = showDeveloperTools;
     }
 
 }
