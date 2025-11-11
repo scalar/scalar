@@ -32,6 +32,7 @@ const defaultDocument = {
     },
   },
   'x-scalar-original-document-hash': 'draft',
+  'x-scalar-icon': 'interface-edit-tool-pencil',
 } satisfies OpenApiDocument
 
 /**
