@@ -1,12 +1,13 @@
 # Publish Scalar Projects using GitHub Actions
 
-You can add a GitHub Actions workflow to automatically publish your Scalar projects.
+You can add a [GitHub Actions workflow](https://docs.github.com/en/actions/get-started/quickstart) to automatically publish your Scalar projects.
 
 ## Basic Workflow
 
 Here's a simple workflow that publishes a Scalar project:
 
 ```yaml
+# .github/workflows/publish-scalar-project.yml
 name: Publish Scalar Project
 
 on:
@@ -38,6 +39,7 @@ jobs:
 For different environments:
 
 ```yaml
+# .github/workflows/publish-scalar-project.yml
 name: Publish Scalar Project
 
 on:
