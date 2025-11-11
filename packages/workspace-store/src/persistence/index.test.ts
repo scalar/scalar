@@ -332,6 +332,67 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
     })
   })
 
+  describe('workspace.has', () => {
+    it('returns false when the workspace does not exist', async () => {
+      const exists = await persistence.workspace.has('missing-workspace')
+      expect(exists).toBe(false)
+    })
+
+    it('returns true when the workspace exists', async () => {
+      await persistence.workspace.setItem('workspace-1', {
+        name: 'Exists',
+        workspace: {
+          documents: {},
+          originalDocuments: {},
+          intermediateDocuments: {},
+          overrides: {},
+          meta: {},
+          documentConfigs: {},
+        },
+      })
+
+      const exists = await persistence.workspace.has('workspace-1')
+      expect(exists).toBe(true)
+    })
+
+    it('returns false after the workspace is deleted', async () => {
+      await persistence.workspace.setItem('workspace-2', {
+        name: 'To Delete',
+        workspace: {
+          documents: {},
+          originalDocuments: {},
+          intermediateDocuments: {},
+          overrides: {},
+          meta: {},
+          documentConfigs: {},
+        },
+      })
+      expect(await persistence.workspace.has('workspace-2')).toBe(true)
+
+      await persistence.workspace.deleteItem('workspace-2')
+      expect(await persistence.workspace.has('workspace-2')).toBe(false)
+    })
+
+    it('returns false if only chunks exist without a workspace record', async () => {
+      const orphanId = 'orphan-workspace'
+      // Write chunks without creating the workspace record
+      await persistence.meta.setItem(orphanId, { 'x-scalar-dark-mode': true })
+      await persistence.documents.setItem(orphanId, 'doc-1', {
+        openapi: '3.1.0',
+        info: { title: 'Doc', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      })
+      await persistence.originalDocuments.setItem(orphanId, 'doc-1', { openapi: '3.1.0' })
+      await persistence.intermediateDocuments.setItem(orphanId, 'doc-1', { interim: true })
+      await persistence.overrides.setItem(orphanId, 'doc-1', { x: 1 })
+      await persistence.documentConfigs.setItem(orphanId, 'doc-1', {})
+
+      const exists = await persistence.workspace.has(orphanId)
+      expect(exists).toBe(false)
+    })
+  })
+
   describe('workspace chunks', () => {
     describe('meta.setItem', () => {
       it('sets workspace meta information', async () => {

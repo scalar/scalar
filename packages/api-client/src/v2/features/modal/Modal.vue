@@ -116,6 +116,8 @@ const isSidebarOpen = ref(true)
         <ScalarTeleportRoot>
           <main class="flex flex-1 flex-row">
             <Sidebar
+              :activeWorkspace="{ name: 'Default', id: 'default' }"
+              :workspaces="[]"
               v-show="isSidebarOpen"
               v-model:isSidebarOpen="isSidebarOpen"
               :sidebarState="sidebarState"

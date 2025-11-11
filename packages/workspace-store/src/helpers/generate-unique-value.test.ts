@@ -3,11 +3,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { generateUniqueValue } from './generate-unique-value'
 
 describe('generateUniqueValue', () => {
-  it('returns the transformed/default value when it is unique', () => {
+  it('returns the transformed/default value when it is unique', async () => {
     const existing = new Set<string>(['foo 1', 'foo 2'])
     const validation = vi.fn((value: string): boolean => !existing.has(value))
 
-    const result = generateUniqueValue({
+    const result = await generateUniqueValue({
       defaultValue: 'foo',
       validation,
       maxRetries: 5,
@@ -18,11 +18,11 @@ describe('generateUniqueValue', () => {
     expect(validation).toHaveBeenCalledWith('foo')
   })
 
-  it('increments until a unique value is found', () => {
+  it('increments until a unique value is found', async () => {
     const existing = new Set<string>(['foo', 'foo 1', 'foo 2'])
     const validation = vi.fn((value: string): boolean => !existing.has(value))
 
-    const result = generateUniqueValue({
+    const result = await generateUniqueValue({
       defaultValue: 'foo',
       validation,
       maxRetries: 10,
@@ -37,11 +37,11 @@ describe('generateUniqueValue', () => {
     expect(validation).toHaveBeenNthCalledWith(4, 'foo 3')
   })
 
-  it('returns undefined when no unique value is found within maxRetries', () => {
+  it('returns undefined when no unique value is found within maxRetries', async () => {
     const existing = new Set<string>(['foo', 'foo 1', 'foo 2', 'foo 3'])
     const validation = vi.fn((value: string): boolean => !existing.has(value))
 
-    const result = generateUniqueValue({
+    const result = await generateUniqueValue({
       defaultValue: 'foo',
       validation,
       maxRetries: 3,
@@ -56,12 +56,12 @@ describe('generateUniqueValue', () => {
     expect(validation).toHaveBeenNthCalledWith(4, 'foo 3')
   })
 
-  it('applies transformation before validation', () => {
+  it('applies transformation before validation', async () => {
     const transformation = (value: string): string => value.toLowerCase().replace(/\s+/g, '-')
     const existing = new Set<string>(['foo-bar 1'])
     const validation = vi.fn((value: string): boolean => !existing.has(value))
 
-    const result = generateUniqueValue({
+    const result = await generateUniqueValue({
       defaultValue: 'Foo Bar',
       validation,
       transformation,
@@ -73,12 +73,12 @@ describe('generateUniqueValue', () => {
     expect(validation).toHaveBeenCalledWith('foo-bar')
   })
 
-  it('applies transformation and increments when needed', () => {
+  it('applies transformation and increments when needed', async () => {
     const transformation = (value: string): string => value.toLowerCase()
     const existing = new Set<string>(['foo', 'foo 1'])
     const validation = vi.fn((value: string): boolean => !existing.has(value))
 
-    const result = generateUniqueValue({
+    const result = await generateUniqueValue({
       defaultValue: 'FOO',
       validation,
       transformation,

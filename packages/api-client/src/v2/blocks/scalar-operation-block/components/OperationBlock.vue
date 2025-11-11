@@ -23,7 +23,18 @@ import OperationParams from '@/v2/blocks/scalar-operation-block/components/Opera
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
 import type { ClientPlugin } from '@/v2/plugins'
 
-const props = defineProps<{
+const {
+  operation,
+  method,
+  layout,
+  securitySchemes,
+  path,
+  exampleKey,
+  security,
+  eventBus,
+  environment,
+  authMeta = { type: 'document' },
+} = defineProps<{
   method: HttpMethod
   path: string
   operation: OperationObject
@@ -38,19 +49,6 @@ const props = defineProps<{
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
 }>()
-
-const {
-  operation,
-  method,
-  layout,
-  securitySchemes,
-  path,
-  exampleKey,
-  security,
-  eventBus,
-  environment,
-} = props
-const authMeta = props.authMeta ?? { type: 'document' }
 
 const meta = computed(() => ({
   method,

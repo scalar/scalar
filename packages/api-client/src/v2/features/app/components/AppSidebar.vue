@@ -9,29 +9,52 @@ import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { sidebarState, layout } = defineProps<{
+const { sidebarState, layout, activeWorkspace } = defineProps<{
+  /**
+   * The current layout of the app (e.g., 'desktop', 'web')
+   */
   layout: ClientLayout
+
+  /**
+   * The sidebar state, holding navigation items and state
+   */
   sidebarState: SidebarState<TraversedEntry>
+
+  /**
+   * Whether the workspace overview sidebar is currently open
+   */
   isWorkspaceOpen?: boolean
+  /**
+   * The currently active workspace.
+   * This represents the workspace that the user is currently working in.
+   */
+  activeWorkspace: Workspace
+  /**
+   * The list of all available workspaces.
+   * Used to render options for workspace switching and selection.
+   */
+  workspaces: Workspace[]
 }>()
 
 const emit = defineEmits<{
+  /** Emitted when the command palette is opened, possibly with a specific action (e.g., 'import') */
   (e: 'open:commandPalette', action?: 'import'): void
+  /** Emitted when the workspace button in the sidebar is clicked */
   (e: 'click:workspace'): void
+  /** Emitted when a navigation or sidebar item is selected by ID */
   (e: 'selectItem', id: string): void
+  /** Emitted when a workspace is selected by optional ID */
+  (e: 'select:workspace', id?: string): void
+  /** Emitted when the user requests to create a new workspace */
+  (e: 'create:workspace'): void
 }>()
 
-/** Propagate up the workspace model to the parent */
-const workspaceModel = defineModel<string>('workspace', {
-  required: true,
-  default: 'default',
-})
-
-// Temp until we have workspaces in the store
+/** The label for the workspace button in the sidebar */
 const workspaceLabel = computed(
-  () => capitalize(workspaceModel.value) + ' Workspace',
+  () => capitalize(activeWorkspace.name) + ' Workspace',
 )
 
 /** Controls the visibility of the sidebar */
@@ -53,16 +76,19 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
   <Sidebar
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
-    v-model:workspace="workspaceModel"
-    :sidebarState="sidebarState"
+    :activeWorkspace="activeWorkspace"
     :layout="layout"
+    :sidebarState="sidebarState"
+    :workspaces="workspaces"
+    @select:workspace="(id) => emit('select:workspace', id)"
+    @createWorkspace="emit('create:workspace')"
     @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
       <ScalarSidebarItem
         is="button"
-        :icon="ScalarIconGlobe"
         :active="isWorkspaceOpen"
+        :icon="ScalarIconGlobe"
         @click="emit('click:workspace')">
         {{ workspaceLabel }}
       </ScalarSidebarItem>
