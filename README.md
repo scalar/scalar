@@ -210,7 +210,8 @@ Ready? [Create your Scalar Account](https://scalar.com)
 | [Scalar Mock Server](https://guides.scalar.com/scalar/scalar-mock-server/getting-started)      | Mock APIs from OpenAPI documents |
 | [Scalar Galaxy](packages/galaxy/README.md)                                                     | Our OpenAPI Example              |
 | [Scalar Editor](https://editor.scalar.com/)                                                    | OpenAPI Online Editor            |
-| [Scalar Open API Parser](packages/openapi-parser/README.md)                                    | Parse OpenAPI documents          |
+| [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                                     | Parse OpenAPI documents          |
+| [Scalar OpenAPI Upgrader](packages/openapi-upgrader/README.md)                                 | Upgrade OpenAPI documents        |
 | [Scalar Void Server](packages/void-server/README.md)                                           | HTTP Request Mirror              |
 
 <br>
