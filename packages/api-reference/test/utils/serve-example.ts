@@ -18,7 +18,7 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   cdn: '/scalar.js',
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   proxyUrl: 'https://proxy.scalar.com',
-  showToolbar: 'never', // Hide the toolbar by default for snapshots
+  showDeveloperTools: 'never', // Hide the toolbar by default for snapshots
 }
 
 /**

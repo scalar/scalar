@@ -1,12 +1,13 @@
 # Push to the Scalar Registry using GitHub Actions
 
-You can add a GitHub Actions workflow to your GitHub repository to automatically push your OpenAPI documents to the Scalar Registry.
+You can add a [GitHub Actions workflow](https://docs.github.com/en/actions/get-started/quickstart) to your GitHub repository to automatically push your OpenAPI documents to the Scalar Registry.
 
 ## Basic Workflow
 
 Here's a simple workflow that validates and uploads an OpenAPI document to Scalar:
 
 ```yaml
+# .github/workflows/push-to-scalar-registry.yml
 name: Push OpenAPI document to the Scalar Registry
 
 on:
@@ -41,6 +42,7 @@ jobs:
 For projects that need different environments (development, staging, production), you can use conditional logic:
 
 ```yaml
+# .github/workflows/publish-openapi-document.yml
 name: Publish OpenAPI Document
 
 on:
@@ -83,6 +85,7 @@ jobs:
 For teams that want to validate OpenAPI documents before merging:
 
 ```yaml
+# .github/workflows/validate-openapi.yml
 name: Validate OpenAPI on Pull Request
 
 on:
@@ -111,6 +114,7 @@ jobs:
 For repositories containing multiple APIs:
 
 ```yaml
+# .github/workflows/publish-multiple-apis.yml
 name: Publish Multiple APIs
 
 on:
@@ -146,7 +150,7 @@ jobs:
           node-version: 22
 
       - name: Validate ${{ matrix.api.name }}
-        run: npx @scalar/cli document validate ${{ matrix.api.file }}
+        run: npx @scalar/cli document validate "${{ matrix.api.file }}"
 
       - name: Login to Scalar Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
@@ -156,7 +160,7 @@ jobs:
           npx @scalar/cli registry publish \
             --namespace ${{ vars.SCALAR_NAMESPACE }} \
             --slug ${{ matrix.api.slug }} \
-            ${{ matrix.api.file }}
+            "${{ matrix.api.file }}"
 ```
 
 ## Secrets

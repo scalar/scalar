@@ -4,9 +4,9 @@ import { ref, watch } from 'vue'
 const docStyle = document.documentElement.style
 
 // Toggle the toolbar visibility
-const showToolbar = ref(true)
+const showDeveloperTools = ref(true)
 watch(
-  showToolbar,
+  showDeveloperTools,
   (show) => {
     if (show) {
       docStyle.setProperty('--scalar-header-height', '40px')
@@ -19,7 +19,7 @@ watch(
 </script>
 <template>
   <header
-    v-if="showToolbar"
+    v-if="showDeveloperTools"
     class="dev-header">
     <div class="dev-title">
       Dev Toolbar
@@ -35,7 +35,7 @@ watch(
       <button
         class="dev-hide-toolbar"
         type="button"
-        @click="showToolbar = false">
+        @click="showDeveloperTools = false">
         Hide
       </button>
     </div>
@@ -44,7 +44,7 @@ watch(
     v-else
     class="dev-show-toolbar"
     type="button"
-    @click="showToolbar = true">
+    @click="showDeveloperTools = true">
     Dev Toolbar
   </button>
 </template>

@@ -1268,6 +1268,9 @@ importers:
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.6
+      fake-indexeddb:
+        specifier: catalog:*
+        version: 6.2.3
       fastify:
         specifier: catalog:*
         version: 5.4.0

@@ -1,4 +1,3 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
@@ -37,13 +36,9 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 /**
  * Create the API Client with router and passes in the workspace store as a prop
  */
-export const createApiClientApp = (
-  el: HTMLElement | null,
-  workspaceStore: WorkspaceStore,
-  { layout = 'desktop' }: CreateApiClientOptions,
-) => {
+export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop' }: CreateApiClientOptions) => {
   // Pass in our initial props at the top level
-  const app = createApp(App, { workspaceStore, layout })
+  const app = createApp(App, { layout })
 
   // Add the router
   app.use(createAppRouter(layout))

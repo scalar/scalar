@@ -21,28 +21,43 @@
  * // uniqueName === 'foo 3'
  * ```
  */
-export function generateUniqueValue({
+export async function generateUniqueValue({
   defaultValue,
   /** Check function to verify the uniqueness of the value */
   validation,
   /** Transformation function to transform the default value (such as into a slug) */
   transformation,
+  /** The maximum number of attempts to create a unique value by incrementing. */
   maxRetries = 5,
 }: {
   /**
-   * Value which will be used to derive a new unique value.
+   * The original value to base the unique generation upon.
+   * Example: "workspace", which may end up producing "workspace 2", "workspace 3", etc.
    */
   defaultValue: string
-  /** Validate if the new generated value is unique */
+
+  /**
+   * Validation function that determines if a generated value is unique.
+   * Should return true if the value is unique; false if not.
+   * Can be asynchronous or synchronous.
+   */
   validation: (value: string) => Promise<boolean> | boolean
-  /** Transform the default value to get a new value which will match the schema of the value we need to derive */
+
+  /**
+   * Optional function to transform the default value before attempting uniqueness.
+   * Example: Transform "Workspace A" into "workspace-a" to follow a slug schema.
+   */
   transformation?: (value: string) => string
-  /** The maximum number of retry attempts to generate a unique value. */
+
+  /**
+   * The maximum number of attempts to create a unique value by incrementing.
+   * For example, if set to 5: "foo", "foo 1", "foo 2", "foo 3", "foo 4" will be attempted.
+   */
   maxRetries: number
 }) {
   const transformed = transformation?.(defaultValue) ?? defaultValue
 
-  if (validation(transformed)) {
+  if (await validation(transformed)) {
     return transformed
   }
 
@@ -50,6 +65,7 @@ export function generateUniqueValue({
     value: [transformed, 1],
     validation,
     maxRetries,
+    transformation,
   })
 }
 
@@ -74,31 +90,60 @@ export function generateUniqueValue({
  * // result === "bar 2"
  * ```
  */
-function incrementValue({
+async function incrementValue({
   value,
   validation,
   maxRetries,
   attempts = 0,
+  transformation,
 }: {
+  /**
+   * Tuple containing the base value and the starting increment number.
+   * Example: ["workspace", 1] will try "workspace 1", "workspace 2", etc.
+   */
   value: [string, number] // [base value, next increment]
+
+  /**
+   * Function to validate if the generated value is unique.
+   * Should return true if the value is unique, otherwise false.
+   * Supports both synchronous and asynchronous operation.
+   */
   validation: (value: string) => Promise<boolean> | boolean
+
+  /**
+   * The maximum number of retry attempts to generate a unique value.
+   * Generation will stop and return undefined if this number is exceeded.
+   */
   maxRetries: number
+
+  /**
+   * The current attempt count.
+   * Used internally for recursion; users should generally omit this field.
+   */
   attempts?: number
+
+  /**
+   * Optional function to transform the value before passing it to validation.
+   * E.g., for slugifying a value for URLs.
+   */
+  transformation?: (value: string) => string
 }) {
   if (attempts >= maxRetries) {
     return
   }
 
   const incremented = value.join(' ')
+  const transformed = transformation?.(incremented) ?? incremented
 
-  if (validation(incremented)) {
-    return incremented
+  if (await validation(transformed)) {
+    return transformed
   }
 
   return incrementValue({
     value: [value[0], value[1] + 1],
     validation,
     maxRetries,
+    transformation,
     attempts: attempts + 1,
   })
 }

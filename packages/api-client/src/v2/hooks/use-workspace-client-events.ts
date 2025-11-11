@@ -30,7 +30,7 @@ import {
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import type { ComputedRef } from 'vue'
+import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -38,13 +38,21 @@ import type { ComputedRef } from 'vue'
 export const useWorkspaceClientEvents = (
   eventBus: WorkspaceEventBus,
   document: ComputedRef<WorkspaceDocument | null>,
-  workspaceStore: WorkspaceStore,
+  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>,
 ) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
     document: ComputedRef<WorkspaceDocument | null>,
     collectionType: CollectionType['collectionType'],
-  ) => (collectionType === 'document' ? document.value : workspaceStore.workspace)
+  ) => {
+    const store = toValue(workspaceStore)
+
+    if (!store) {
+      return
+    }
+
+    return collectionType === 'document' ? document.value : store.workspace
+  }
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers
@@ -56,9 +64,14 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('environment:upsert:environment', (payload) =>
-    upsertEnvironment(document.value, workspaceStore.workspace, payload),
-  )
+  eventBus.on('environment:upsert:environment', (payload) => {
+    const store = toValue(workspaceStore)
+    if (!store) {
+      return
+    }
+
+    upsertEnvironment(document.value, store.workspace, payload)
+  })
 
   eventBus.on(
     'environment:delete:environment',
@@ -66,9 +79,13 @@ export const useWorkspaceClientEvents = (
       delete getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName],
   )
 
-  eventBus.on('environment:upsert:environment-variable', (payload) =>
-    upsertEnvironmentVariable(getCollection(document, payload.collectionType), payload),
-  )
+  eventBus.on('environment:upsert:environment-variable', (payload) => {
+    const collection = getCollection(document, payload.collectionType)
+    if (!collection) {
+      return
+    }
+    upsertEnvironmentVariable(collection, payload)
+  })
 
   eventBus.on('environment:delete:environment-variable', ({ environmentName, index, collectionType }) =>
     getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
@@ -81,8 +98,9 @@ export const useWorkspaceClientEvents = (
   eventBus.on('auth:update:active-index', (payload) => updateSelectedAuthTab(document.value, payload))
   eventBus.on('auth:update:security-scheme', (payload) => updateSecurityScheme(document.value, payload))
   eventBus.on('auth:update:selected-scopes', (payload) => updateSelectedScopes(document.value, payload))
-  eventBus.on('auth:update:selected-security-schemes', (payload) =>
-    updateSelectedSecuritySchemes(document.value, payload),
+  eventBus.on(
+    'auth:update:selected-security-schemes',
+    async (payload) => await updateSelectedSecuritySchemes(document.value, payload),
   )
 
   //------------------------------------------------------------------------------------

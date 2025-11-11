@@ -16,12 +16,12 @@ const { configuration } = defineProps<{
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
 
-const showToolbar = computed<boolean>(() => {
-  if (configuration?.showToolbar === 'always') {
+const showDeveloperTools = computed<boolean>(() => {
+  if (configuration?.showDeveloperTools === 'always') {
     return true
   }
 
-  if (configuration?.showToolbar === 'never') {
+  if (configuration?.showDeveloperTools === 'never') {
     return false
   }
 
@@ -34,7 +34,7 @@ const showToolbar = computed<boolean>(() => {
 </script>
 <template>
   <header
-    v-if="showToolbar"
+    v-if="showDeveloperTools"
     aria-label="Developer Tools"
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div

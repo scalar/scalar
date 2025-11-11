@@ -8,13 +8,6 @@
 <h1>
 	<p>Scalar</p>
 	<p>
-		<a href="https://scalar.com/download" target="_blank">
-			<picture>
-				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b">
-				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/579d0853-b2a5-4ea8-b2bd-a98753faeaf3">
-				<img width="48.494%" height="250" src="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b#gh-light-mode-only" alt="Scalar API client">
-			</picture>
-		</a>
 		<a href="https://docs.scalar.com/swagger-editor" target="_blank">
 			<picture>
 				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/9b639f2d-0204-4b15-b918-158072a9afa5">
@@ -22,8 +15,36 @@
 				<img width="48.494%" height="250" src="https://github.com/user-attachments/assets/9b639f2d-0204-4b15-b918-158072a9afa5#gh-light-mode-only" alt="Scalar API Reference">
 			</picture>
 	 	</a>
+		<a href="https://scalar.com/download" target="_blank">
+			<picture>
+				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b">
+				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/579d0853-b2a5-4ea8-b2bd-a98753faeaf3">
+				<img width="48.494%" height="250" src="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b#gh-light-mode-only" alt="Scalar API client">
+			</picture>
+		</a>
 	</p>
 </h1>
+
+<p>
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/3a24fc5c-5d3c-4be4-8b9e-399bd49e4fb7#gh-light-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/76f123ae-f458-409f-84d3-b9ad14fd3fb2#gh-dark-mode-only">
+</p>
+
+### Interactive API Reference from OpenAPI/Swagger
+
+└ Uses OpenAPI/Swagger documents <br>
+└ Request examples for many favorite languages and frameworks <br>
+└ Comes with an integrated API playground <br>
+└ Integrates with your favorite framework <br>
+└ Doesn't look like 2011 <br>
+└ <a href="https://docs.scalar.com/swagger-editor">Try Demo</a>
+
+<!-- minimal line break-->
+<p>
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/7d7e7ba7-2b02-49f3-abcd-b24c566a3c16#gh-light-mode-only">
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/341bfb1d-5cb0-4ec6-89eb-4b1dcc07eeb7#gh-dark-mode-only">
+</p>
+<!-- end minimal line break-->
 
 <p>
 	<img width="830" height="auto" src="https://github.com/user-attachments/assets/d9f90c51-82d4-4948-9365-658ccc7d78c4#gh-light-mode-only">
@@ -40,26 +61,6 @@
 └ Save and organize requests into collections <br>
 └ <a href="https://scalar.com/download">Download (Windows, MacOS, Linux)</a> <br>
 └ <a href="https://client.scalar.com/">Try Online Demo</a>
-
-<!-- minimal line break-->
-<p>
-	<img width="1200" height="1" src="https://github.com/user-attachments/assets/7d7e7ba7-2b02-49f3-abcd-b24c566a3c16#gh-light-mode-only">
-	<img width="1200" height="1" src="https://github.com/user-attachments/assets/341bfb1d-5cb0-4ec6-89eb-4b1dcc07eeb7#gh-dark-mode-only">
-</p>
-<!-- end minimal line break-->
-
-<p>
-	<img width="830" height="auto" src="https://github.com/user-attachments/assets/3a24fc5c-5d3c-4be4-8b9e-399bd49e4fb7#gh-light-mode-only">
-	<img width="830" height="auto" src="https://github.com/user-attachments/assets/76f123ae-f458-409f-84d3-b9ad14fd3fb2#gh-dark-mode-only">
-</p>
-
-<h3>Interactive API Reference from OpenAPI/Swagger</h3>
-└ Uses OpenAPI/Swagger documents <br>
-└ Request examples for many favorite languages and frameworks <br>
-└ Comes with an integrated API playground <br>
-└ Integrates with your favorite framework <br>
-└ Doesn't look like 2011 <br>
-└ <a href="https://docs.scalar.com/swagger-editor">Try Demo</a>
 
 <!-- minimal line break-->
 <p>

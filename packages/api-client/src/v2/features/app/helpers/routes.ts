@@ -5,6 +5,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
+import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
@@ -138,6 +139,6 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/workspace/default/document/default/overview',
+    redirect: () => `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/draft/overview`,
   },
 ] satisfies RouteRecordRaw[]

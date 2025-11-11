@@ -6,6 +6,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
@@ -16,11 +17,16 @@ const { sidebarState, layout } = defineProps<{
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
   layout: ClientLayout
+  activeWorkspace: Workspace
+  workspaces: Workspace[]
 }>()
 
 const emit = defineEmits<{
   /** Emitted when an item is selected */
   (e: 'selectItem', id: string): void
+  (e: 'select:workspace', id?: string): void
+  /** Emitted when the user wants to create a new workspace */
+  (e: 'create:workspace'): void
 }>()
 
 defineSlots<{
@@ -34,11 +40,6 @@ const log = (name: string, ...args: any[]) => {
   console.log('[LOG] event name: ', name)
   console.log('[LOG]', ...args)
 }
-
-/** Propagate up the workspace model to the parent */
-const workspaceModel = defineModel<string>('workspace', {
-  default: 'default',
-})
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -67,14 +68,16 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
         layout="client"
         @reorder="(...args) => log('reorder', ...args)"
         @selectItem="(id) => emit('selectItem', id)">
-        <template #search>
-          <div
-            class="bg-sidebar-b-1 sticky top-0 z-1 flex flex-col gap-3 px-3 pt-3">
+        <template #header>
+          <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
             <div class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
                 v-if="layout === 'desktop'"
-                v-model:workspace="workspaceModel" />
+                :activeWorkspace="activeWorkspace"
+                :workspaces="workspaces"
+                @select:workspace="(id) => emit('select:workspace', id)"
+                @createWorkspace="emit('create:workspace')" />
 
               <!-- Toggle the sidebar -->
               <SidebarToggle
