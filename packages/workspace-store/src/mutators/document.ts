@@ -21,7 +21,8 @@ export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: str
     return
   }
 
+  // Update the document icon
   document['x-scalar-icon'] = icon
-
+  // Update the sidebar document icon
   document['x-scalar-navigation'].icon = icon
 }

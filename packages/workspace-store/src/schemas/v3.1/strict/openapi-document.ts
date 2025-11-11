@@ -79,8 +79,6 @@ const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),
-      /** A custom icon representing the collection */
-      'x-scalar-client-config-icon': Type.String(),
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
       'x-scalar-original-source-url': Type.String(),
@@ -101,8 +99,6 @@ const OpenApiExtensionsSchema = compose(
 
 export type OpenAPIExtensions = Partial<{
   'x-scalar-client-config-active-environment': string
-  /** A custom icon representing the collection */
-  'x-scalar-client-config-icon': string
   'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
   /** Original document source url / when loading a document from an external source */
