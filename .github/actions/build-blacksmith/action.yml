@@ -1,20 +1,16 @@
 name: 'Build'
-description: 'Build using blacksmith runners and cache'
+description: 'Build packages using blacksmith runners with persistent turbo cache'
 inputs:
   node-version:
-    description: 'Node Version'
+    description: 'Node.js version to use'
     required: false
     default: '20'
   packages:
-    description: 'Package glob to build. Example: "@scalar/api-reference" or "packages/*"'
+    description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
-    default: 'false'
 runs:
   using: 'composite'
   steps:
-    - name: Check turbo cache dir
-      shell: bash
-      run: echo $TURBO_CACHE_DIR
     - name: Install pnpm
       uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
     - name: Setup Node.js ${{ inputs.node-version }}
@@ -22,19 +18,14 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
-    - name: Persist turbo cache
+    - name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
       with:
         key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
-    - name: Check turbo cache dir
-      shell: bash
-      run: echo Connecting $TURBO_CACHE_DIR on ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
     - name: Install dependencies
       shell: bash
       run: pnpm install
-    - name: Build specified packages
+    - name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' build
-      env:
-        NODE_OPTIONS: '--max_old_space_size=8192'
+      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' --filter='!./integrations/{java,rust,dotnet,docker}/**' build

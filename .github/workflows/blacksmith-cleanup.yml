@@ -10,7 +10,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [22]
     timeout-minutes: 10
     steps:
       - name: Attach sticky disk

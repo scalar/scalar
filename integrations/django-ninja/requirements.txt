@@ -1,2 +1,4 @@
+django>=4.2
 django-ninja==1.1.0
-typing_extensions==4.11.0
+pydantic==2.7.1
+pydantic_core==2.18.2

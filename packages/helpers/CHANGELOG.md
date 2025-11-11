@@ -1,5 +1,13 @@
 # @scalar/helpers
 
+## 0.1.1
+
+### Patch Changes
+
+- [#7289](https://github.com/scalar/scalar/pull/7289) [`9c9dbba`](https://github.com/scalar/scalar/commit/9c9dbbaa940667303f0ace59469fd78c2a741937) Thanks [@amritk](https://github.com/amritk)! - feat: move debounce to helpers and add max wait
+
+- [#7252](https://github.com/scalar/scalar/pull/7252) [`4bec1ba`](https://github.com/scalar/scalar/commit/4bec1ba332e919c4ee32dcfbfb07bd8ee42c4d74) Thanks [@hwkr](https://github.com/hwkr)! - fix(api-reference): improve wrapping of long strings
+
 ## 0.1.0
 
 ### Minor Changes

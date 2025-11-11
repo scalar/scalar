@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
-export type XScalarEnvVar = z.infer<typeof xScalarEnvVarSchema>
-
-export const xScalarEnvVarSchema = z.union([
+const xScalarEnvVarSchema = z.union([
   z.object({
     description: z.string().optional(),
     default: z.string().default(''),
   }),
   z.string(),
 ])
+// not used but kept for consistency
+// export type XScalarEnvVar = z.infer<typeof xScalarEnvVarSchema>
 
-export const xScalarEnvironmentSchema = z.object({
+const xScalarEnvironmentSchema = z.object({
   description: z.string().optional(),
   color: z.string().optional(),
   /** A map of variables by name */

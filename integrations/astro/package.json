@@ -1,0 +1,59 @@
+{
+  "name": "@scalar/astro",
+  "description": "Scalar API Reference Component for Astro",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/astro"
+  },
+  "keywords": [
+    "astro-component",
+    "utils",
+    "scalar",
+    "openapi",
+    "swagger"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "cd playground && pnpm dev"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "files": [
+    "src",
+    "index.ts"
+  ],
+  "readme": {
+    "title": "Scalar API Reference for Astro",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/astro"
+  },
+  "dependencies": {
+    "@scalar/core": "workspace:*"
+  },
+  "devDependencies": {
+    "astro": "^4.0.0 || ^5.0.0"
+  },
+  "peerDependencies": {
+    "astro": "^4.0.0 || ^5.0.0"
+  }
+}

@@ -19,11 +19,9 @@
     "packages/import/**",
     "packages/json-magic/**",
     "packages/nextjs-openapi/**",
-    "packages/oas-utils/**",
     "packages/object-utils/**",
     "packages/openapi-parser/**",
     "packages/openapi-to-markdown/**",
-    "packages/openapi-types/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
     "packages/pre-post-request-scripts/**",
@@ -43,6 +41,7 @@
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
+    "integrations/django-ninja/**",
     "integrations/hono/**",
     "integrations/java/**",
     "integrations/nestjs/**",
@@ -52,6 +51,9 @@
     "integrations/sveltekit/**"
   ],
   "ignoreFiles": [
+    // test types files are marked as unused
+    "**/*.test-d.ts",
+
     "**/esbuild.ts",
 
     // Referenced in scalar.config.json
@@ -73,6 +75,19 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/oas-utils": {
+      "entry": [
+        "src/entities/*/index.ts",
+        "src/helpers/index.ts",
+        "src/helpers/security/index.ts",
+        "src/migrations/index.ts",
+        "src/spec-getters/index.ts",
+        "src/transforms/index.ts"
+      ]
+    },
+    "packages/openapi-types": {
+      "entry": ["src/index.ts", "src/helpers/index.ts", "src/schemas/extensions/index.ts", "src/schemas/3.1/*/index.ts"]
+    },
     "integrations/docusaurus": {
       "ignoreFiles": [
         // Loaded dynamically by index.ts

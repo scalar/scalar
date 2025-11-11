@@ -36,7 +36,7 @@ describe('RequestAuthDataTable', () => {
     custom: Partial<{
       selectedSchemeOptions: any[]
       securitySchemes: any
-      layout: 'client' | 'reference'
+      isStatic: boolean
       environment: any
       envVariables: any[]
       server: any
@@ -54,7 +54,7 @@ describe('RequestAuthDataTable', () => {
     ]
 
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
-    const layout = custom.layout ?? 'client'
+    const isStatic = custom.isStatic ?? true
     const environment = custom.environment ?? baseEnvironment
     const envVariables = custom.envVariables ?? []
     const server = custom.server ?? baseServer
@@ -66,7 +66,7 @@ describe('RequestAuthDataTable', () => {
       props: {
         selectedSchemeOptions,
         securitySchemes,
-        layout,
+        isStatic,
         environment,
         envVariables,
         server,
@@ -220,7 +220,7 @@ describe('RequestAuthDataTable', () => {
       const vm = wrapper.vm
 
       // Set active index to 0
-      vm.activeAuthIndex = 0
+      wrapper.setProps({ activeAuthIndex: 0 })
       await nextTick()
 
       // Update props to empty array
@@ -251,7 +251,7 @@ describe('RequestAuthDataTable', () => {
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
-        data: {
+        payload: {
           scheme: 'BearerAuth',
           value: 'test-token',
         },
@@ -291,16 +291,14 @@ describe('RequestAuthDataTable', () => {
 
       const wrapper = mountWithProps({
         envVariables,
-        layout: 'reference',
+        isStatic: false,
       })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
       expect(requestAuthTab.exists()).toBe(true)
 
       const props = requestAuthTab.props()
-      expect(props.envVariables).toEqual(envVariables)
       expect(props.environment).toEqual(baseEnvironment)
-      expect(props.layout).toBe('reference')
       expect(props.securitySchemes).toEqual(baseSecuritySchemes)
       expect(props.server).toEqual(baseServer)
     })

@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [[`9c9dbba`](https://github.com/scalar/scalar/commit/9c9dbbaa940667303f0ace59469fd78c2a741937), [`4bec1ba`](https://github.com/scalar/scalar/commit/4bec1ba332e919c4ee32dcfbfb07bd8ee42c4d74)]:
+  - @scalar/helpers@0.1.1
+  - @scalar/oas-utils@0.6.3
+  - @scalar/openapi-parser@0.23.2
+
 ## 0.7.0
 
 ### Minor Changes

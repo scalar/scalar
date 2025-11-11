@@ -11,19 +11,20 @@ on:
   workflow_dispatch: null
 
 env:
-  NODE_OPTIONS: '--max_old_space_size=8192'
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
   # Initial build.
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -45,93 +46,90 @@ jobs:
           path: temp-artifacts/scalar.js
           retention-days: 3
 
-  docker:
-    name: Build and Tag Docker Image
+  check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    needs: [build]
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
+      java_changed: ${{ steps.set-outputs.outputs.java_changed }}
+      fastapi_changed: ${{ steps.set-outputs.outputs.fastapi_changed }}
+      rust_changed: ${{ steps.set-outputs.outputs.rust_changed }}
+      docker_changed: ${{ steps.set-outputs.outputs.docker_changed }}
+      aspnetcore_package_changed: ${{ steps.set-outputs.outputs.aspnetcore_package_changed }}
+      aspire_package_changed: ${{ steps.set-outputs.outputs.aspire_package_changed }}
+      fastapi_package_changed: ${{ steps.set-outputs.outputs.fastapi_package_changed }}
+      django_ninja_package_changed: ${{ steps.set-outputs.outputs.django_ninja_package_changed }}
+      rust_package_changed: ${{ steps.set-outputs.outputs.rust_package_changed }}
+      java_webjar_package_changed: ${{ steps.set-outputs.outputs.java_webjar_package_changed }}
+      docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
+      icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Check whether the Dockerfile or any of its contents were modified
-        id: changed-files
+      - name: Check whether integration files were modified
+        id: changed-integration-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
         with:
           files_yaml: |
-            api_reference_docker:
+            dotnet_integration:
+              - integrations/dotnet/**
+            java_integration:
+              - integrations/java/**
+            fastapi_integration:
+              - integrations/fastapi/**
+            rust_integration:
+              - integrations/rust/**
+            docker_integration:
               - integrations/docker/**
-            api_reference_docker_version:
+
+      - name: Check whether packages files were modified
+        id: changed-packages-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            icons_changed:
+              - packages/icons/**
+              - packages/components/src/components/ScalarIcon/**
+
+      - name: Check whether integration package.json files were modified
+        id: changed-package-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            aspnetcore_package:
+              - integrations/dotnet/aspnetcore/package.json
+            aspire_package:
+              - integrations/dotnet/aspire/package.json
+            fastapi_package:
+              - integrations/fastapi/package.json
+            django_ninja_package:
+              - integrations/django-ninja/package.json
+            rust_package:
+              - integrations/rust/package.json
+            java_webjar_package:
+              - integrations/java/webjar/package.json
+            docker_package:
               - integrations/docker/package.json
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Get version from package.json
-        id: package-version
-        working-directory: integrations/docker
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Download scalar.js artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
-        with:
-          name: scalar-js
-          path: integrations/docker/assets
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Compress static assets
-        working-directory: integrations/docker/assets
-        run: gzip --keep --verbose --force scalar.js
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
-        with:
-          platforms: |
-            linux/amd64
-            linux/arm64
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-        with:
-          context: integrations/docker
-          file: integrations/docker/Dockerfile
-          load: true
-          tags: scalarapi/api-reference:latest
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Log in to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
-        with:
-          # Username of your Docker account
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          # https://app.docker.com/settings/personal-access-tokens
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-        with:
-          context: integrations/docker
-          file: integrations/docker/Dockerfile
-          push: true
-          platforms: |
-            linux/amd64
-            linux/arm64
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+      - name: Set job outputs
+        id: set-outputs
+        run: |
+          echo "dotnet_changed=${{ steps.changed-integration-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "java_changed=${{ steps.changed-integration-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "fastapi_changed=${{ steps.changed-integration-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "rust_changed=${{ steps.changed-integration-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "aspire_package_changed=${{ steps.changed-package-files.outputs.aspire_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "django_ninja_package_changed=${{ steps.changed-package-files.outputs.django_ninja_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -157,6 +155,32 @@ jobs:
         run: pnpm lint:check
       - name: Check formatting
         run: pnpm format:check
+
+  lint-icons:
+    if: needs.check-changes.outputs.icons_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    needs: [build, check-changes]
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint Component Library Icons
+        run: pnpm --filter components lint:icons
+      - name: Lint Icon Library Icons
+        run: pnpm --filter icons lint:icons
 
   build-examples:
     needs: [build]
@@ -193,6 +217,7 @@ jobs:
         run: pnpm types:check
 
   knip:
+    if: github.event_name == 'pull_request'
     name: Run Knip checks
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -312,7 +337,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
@@ -418,7 +443,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -474,7 +499,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -515,7 +540,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: beefcake
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 15
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn't happen in parallel.
@@ -526,7 +551,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, format, types, test-packages, test-integrations]
+    needs: [required-jobs-main]
     strategy:
       matrix:
         node-version: [22]
@@ -535,10 +560,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          use-github-runner: 'true'
+          # Build everything
+          packages: './**'
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -566,11 +592,8 @@ jobs:
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  bust-cdn-cache:
-    needs: [npm-publish]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    steps:
       - name: Bust CDN cache
+        if: steps.changesets.outputs.published == 'true'
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
@@ -829,12 +852,87 @@ jobs:
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
 
-  dotnet-build-test:
+  docker-build-test:
+    if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    needs: [build, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/docker
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: scalar-js
+          path: integrations/docker/assets
+
+      - name: Compress static assets
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force scalar.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Build Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          load: true
+          tags: scalarapi/api-reference:latest
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        with:
+          scan-type: 'image'
+          image-ref: 'scalarapi/api-reference:latest'
+          format: 'table'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
+        name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          # Username of your Docker account
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # https://app.docker.com/settings/personal-access-tokens
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
+        name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+
+  dotnet-build-test:
+    if: needs.check-changes.outputs.dotnet_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build, check-changes]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -881,15 +979,13 @@ jobs:
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspnetcore_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don't want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -898,8 +994,10 @@ jobs:
         test-packages,
         test-integrations,
         dotnet-build-test,
+        check-changes,
       ]
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -910,73 +1008,55 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - name: Check for new NuGet package version
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            aspnetcore_package:
-              - integrations/dotnet/aspnetcore/package.json
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Extract version from package.json
+      - name: Extract version from package.json
         working-directory: integrations/dotnet/aspnetcore
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Download scalar.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
           path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Compress static assets
+      - name: Compress static assets
         working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Cache NuGet packages
+      - name: Cache NuGet packages
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Restore dependencies
+      - name: Restore dependencies
         working-directory: integrations/dotnet/aspnetcore
         run: dotnet restore
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Pack packages
+      - name: Pack packages
         working-directory: integrations/dotnet/aspnetcore
         run: |
           dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=$VERSION
           dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=$VERSION
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Publish packages
+      - name: Publish packages
         working-directory: integrations/dotnet/aspnetcore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspire_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     needs:
       [
         build,
@@ -985,8 +1065,10 @@ jobs:
         test-packages,
         test-integrations,
         dotnet-build-test,
+        check-changes,
       ]
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -997,49 +1079,35 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - name: Check for Aspire package.json changes
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            aspire_package:
-              - integrations/dotnet/aspire/package.json
-
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Extract version from package.json
+      - name: Extract version from package.json
         working-directory: integrations/dotnet/aspire
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Download scalar.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Log in to DockerHub
+      - name: Log in to DockerHub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Set up QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Setup Docker Builder
+      - name: Setup Docker Builder
         uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
         with:
           platforms: |
             linux/amd64
             linux/arm64
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Build and push Aspire Docker image
+      - name: Build and push Aspire Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
           context: integrations/dotnet/aspire
@@ -1052,45 +1120,42 @@ jobs:
             scalarapi/aspire-api-reference:latest
             scalarapi/aspire-api-reference:${{ env.VERSION }}
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Set version in Constants.cs
+      - name: Set version in Constants.cs
         working-directory: integrations/dotnet/aspire
         run: |
           sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
           cat src/Scalar.Aspire/Constants.cs
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Cache NuGet packages
+      - name: Cache NuGet packages
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Restore dependencies
+      - name: Restore dependencies
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet restore
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Pack Scalar.Aspire NuGet package
+      - name: Pack Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Publish Scalar.Aspire NuGet package
+      - name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
+    if: needs.check-changes.outputs.fastapi_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-changes]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -1115,7 +1180,7 @@ jobs:
         run: python run_tests.py
 
   fastapi-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.fastapi_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1129,48 +1194,116 @@ jobs:
         test-packages,
         test-integrations,
         fastapi-build-test,
+        check-changes,
       ]
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Check for FastAPI integration changes
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            fastapi_integration:
-              - integrations/fastapi/package.json
-
-      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
-        name: Setup Python
+      - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
         with:
           python-version: '3.11'
 
-      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
-        name: Install build dependencies
+      - name: Install build dependencies
         working-directory: integrations/fastapi
         run: |
           python -m pip install --upgrade pip
           pip install build twine
 
-      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
-        name: Build Python package
+      - name: Build FastAPI package
         working-directory: integrations/fastapi
         run: python -m build
 
-      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
-        name: Publish to PyPI
+      - name: Publish FastAPI package to PyPI
+        if: needs.check-changes.outputs.fastapi_package_changed == 'true'
         working-directory: integrations/fastapi
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
-  rust-build-test:
+  django-ninja-build-test:
+    if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Run tests
+        working-directory: integrations/django-ninja
+        run: python run_tests.py
+
+  django-ninja-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: django-ninja-publish
+      cancel-in-progress: false
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        django-ninja-build-test,
+        check-changes,
+      ]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Django Ninja package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Publish Django Ninja package to PyPI
+        if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
+        working-directory: integrations/django-ninja
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+
+  rust-build-test:
+    if: needs.check-changes.outputs.rust_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build, check-changes]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -1222,43 +1355,41 @@ jobs:
           cargo build --example warp --features warp
 
   rust-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.rust_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
       group: rust-publish
       cancel-in-progress: false
     needs:
-      [build, format, types, test-packages, test-integrations, rust-build-test]
-
+      [
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        rust-build-test,
+        check-changes,
+      ]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Check for Rust integration changes
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            rust_integration:
-              - integrations/rust/package.json
-
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Download scalar.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
           path: integrations/rust/ui
 
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Setup Rust
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
           toolchain: stable
           components: rustfmt, clippy
 
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Cache cargo registry
+      - name: Cache cargo registry
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: |
@@ -1269,29 +1400,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Extract version from package.json
+      - name: Extract version from package.json
         working-directory: integrations/rust
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Update Cargo.toml version
+      - name: Update Cargo.toml version
         working-directory: integrations/rust
         run: |
           sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
           cat Cargo.toml | grep version
 
-      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
-        name: Publish to crates.io
+      - name: Publish to crates.io
         working-directory: integrations/rust
         run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-  java-webjar-test:
-    needs: [build]
+  java-webjar-build-test:
+    if: needs.check-changes.outputs.java_changed == 'true'
+    needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
@@ -1316,8 +1445,17 @@ jobs:
         run: mvn clean test
 
   java-webjar-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    needs: [build, java-webjar-test]
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_webjar_package_changed == 'true'
+    needs:
+      [
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        java-webjar-build-test,
+        check-changes,
+      ]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
       group: java-webjar-publish
@@ -1328,21 +1466,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Check for new Webjar version
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            java_webjar_package:
-              - integrations/java/webjar/package.json
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Download scalar.js artifact
+      - name: Download scalar.js artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
           path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Setup Java
+      - name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
@@ -1355,23 +1484,19 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
 
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Extract version from package.json
+      - name: Extract version from package.json
         working-directory: integrations/java/webjar
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Set version in pom.xml (using the version from package.json)
+      - name: Set version in pom.xml (using the version from package.json)
         working-directory: integrations/java/webjar
         run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Build Java WebJar
+      - name: Build Java WebJar
         working-directory: integrations/java/webjar
         run: mvn clean package
-      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
-        name: Release Java WebJar
+      - name: Release Java WebJar
         working-directory: integrations/java/webjar
         run: mvn deploy
         env:
@@ -1409,12 +1534,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
-  required-ci-ok:
-    name: Required CI OK
+  required-jobs-pull-requests:
+    if: github.event_name == 'pull_request'
+    name: Required Jobs for Pull Requests
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
-    if: always()
     needs:
       [
         build,
@@ -1425,6 +1550,18 @@ jobs:
         test-proxy-server,
         types,
       ]
+    steps:
+      - name: Exit with error if some jobs are not successful
+        run: exit 1
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+
+  required-jobs-main:
+    if: github.ref == 'refs/heads/main'
+    name: Required Jobs for Main
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 1
+    permissions: {}
+    needs: [build, test-packages, test-integrations, test-proxy-server, types]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1

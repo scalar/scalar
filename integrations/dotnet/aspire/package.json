@@ -1,6 +1,6 @@
 {
   "name": "@scalar/aspire",
-  "description": "This .NET package `Scalar.Aspire` provides an easy way to create a unified API reference for all your .NET Aspire services based on their OpenAPI/Swagger documents.",
+  "description": "Automatically discover and create a unified, interactive API Reference for all your .NET Aspire services from their OpenAPI/Swagger documents.",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.7.2",
+  "version": "0.7.3",
   "private": true,
   "engines": {
     "node": ">=20"

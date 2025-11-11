@@ -1,3 +1,6 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,
@@ -6,7 +9,7 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { httpStatusCodes, isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
@@ -190,7 +193,13 @@ export const createRequestOperation = ({
       status?.emit('start')
 
       if (pluginManager) {
-        await pluginManager.executeHook('onBeforeRequest', { request: proxiedRequest })
+        try {
+          await pluginManager.executeHook('onBeforeRequest', { request: proxiedRequest })
+        } catch (e) {
+          const _e = new Error(ERRORS.ON_BEFORE_REQUEST_FAILED, { cause: e })
+          status?.emit('abort')
+          return [normalizeError(_e), null]
+        }
       }
 
       // Start timer to get response duration

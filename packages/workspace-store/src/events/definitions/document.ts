@@ -9,7 +9,11 @@ export type DocumentEvents = {
    */
   'document:update:info': PartialDeep<InfoObject>
   /**
-   * Update the icon of the active document/workspace
+   * Update the icon of the active document
    */
   'document:update:icon': string
+  /**
+   * Toggle use document security
+   */
+  'document:toggle:document-security': undefined
 }

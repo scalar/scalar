@@ -5,6 +5,7 @@ import {
   ScalarIcon,
   ScalarPopover,
 } from '@scalar/components'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -25,8 +26,14 @@ const { target, server, servers } = defineProps<{
 
 const emits = defineEmits<{
   /** Update a server variable for the selected server */
-  (e: 'update:selectedServer', payload: { id: string }): void
-  (e: 'update:variable', payload: { key: string; value: string }): void
+  (
+    e: 'update:selectedServer',
+    payload: ApiReferenceEvents['server:update:selected'],
+  ): void
+  (
+    e: 'update:variable',
+    payload: ApiReferenceEvents['server:update:variables'],
+  ): void
   (e: 'addServer'): void
 }>()
 
@@ -73,14 +80,14 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         @click="close">
         <!-- Request -->
         <ServerDropdownItem
-          v-for="serverOption in requestServerOptions"
+          v-for="(serverOption, index) in requestServerOptions"
           :key="serverOption.id"
           :server="server"
           :serverOption="serverOption"
           type="request"
-          @update:selectedServer="emits('update:selectedServer', $event)"
+          @update:selectedServer="emits('update:selectedServer', { index })"
           @update:variable="
-            (key, value) => emits('update:variable', { key, value })
+            (key, value) => emits('update:variable', { index, key, value })
           " />
         <!-- Add Server -->
         <template v-if="layout !== 'modal'">

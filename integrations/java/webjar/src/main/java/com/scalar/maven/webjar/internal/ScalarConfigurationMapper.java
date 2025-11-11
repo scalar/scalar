@@ -46,6 +46,7 @@ public class ScalarConfigurationMapper {
         config.setSources(properties.getSources());
         config.setBaseServerUrl(properties.getBaseServerUrl());
         config.setPersistAuth(properties.isPersistAuth());
+        config.setTelemetry(properties.isTelemetry());
         config.setOrderRequiredPropertiesFirst(properties.isOrderRequiredPropertiesFirst());
         config.setShowOperationId(properties.isShowOperationId());
         config.setTheme(properties.getTheme());

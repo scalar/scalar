@@ -31,6 +31,17 @@ describe('ScalarMarkdownSummary (aria attributes)', () => {
     }
   })
 
+  it('does not show the "More" and "Less" buttons when controlled', () => {
+    const wrapper = mount(ScalarMarkdownSummary, {
+      props: {
+        modelValue: true,
+        value: '# Title',
+        controlled: true,
+      },
+    })
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
+
   it('sets aria-controls to a stable id string', () => {
     const wrapper = mount(ScalarMarkdownSummary, {
       props: {

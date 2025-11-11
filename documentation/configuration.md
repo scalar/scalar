@@ -781,6 +781,26 @@ Whether to persist authentication credentials in local storage. This allows the 
 > [!WARNING]
 > Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
 
+#### telemetry
+
+**Type:** `boolean`
+
+Whether to enable telemetry.
+
+Wait, did I say telemetry? We do track one thing, and only thing, and that’s *whether* a request was sent through the API client. This gives us a tiny, tiny insight into whether people use the API client and confirms whether we’re on the right track building a good experience for everyone. You can search the codebase for `analytics?.capture` to see what we capture, it’s all open-source. :)
+
+To be clear: *We don’t track who sends a request, we don’t track what request was sent and we don't track where a request was sent to.*
+
+Anyway, totally makes sense to disable it in some environments, so feel free to add `telemetry: false`, we will still be thankful you are using Scalar.
+
+**Default:** `true`
+
+```js
+{
+  telemetry: false
+}
+```
+
 #### plugins
 
 **Type:** `ApiReferencePlugin[]`

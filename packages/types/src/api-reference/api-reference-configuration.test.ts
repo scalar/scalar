@@ -131,6 +131,7 @@ describe('api-reference-configuration', () => {
     it('validates integration enum values', () => {
       const validIntegrations = [
         'adonisjs',
+        'astro',
         'docusaurus',
         'dotnet',
         'elysiajs',

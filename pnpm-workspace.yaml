@@ -46,6 +46,7 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     ansis: 4.1.0
+    astro: 5.15.3
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
@@ -54,7 +55,7 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.10.2
+    hono: 4.10.3
     js-base64: ^3.7.8
     microdiff: ^1.5.0
     nanoid: 5.1.5

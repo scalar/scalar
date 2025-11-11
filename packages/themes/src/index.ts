@@ -103,7 +103,7 @@ export const themeLabels = {
  * Static UIDs must be assigned and never changed when a new theme is created.
  * Slugs should be formatted as kebab-case and cannot change after initial creation.
  */
-export const presets: Record<Exclude<ThemeId, 'none'>, Theme> = {
+export const presets = {
   default: {
     uid: 'qTQR9jSM8E-LihpyZzPOi',
     name: 'Default',
@@ -195,7 +195,7 @@ export const presets: Record<Exclude<ThemeId, 'none'>, Theme> = {
     theme: fastifyTheme,
     slug: 'fastify',
   },
-}
+} as const satisfies Record<Exclude<ThemeId, 'none'>, Theme>
 
 /** List of available theme presets */
 export const themePresets = Object.values(presets)

@@ -1,0 +1,42 @@
+{
+  "name": "scalar-django-ninja",
+  "description": "Scalar Django Ninja integration",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/django-ninja"
+  },
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "command -v python >/dev/null 2>&1 && python manage.py runserver || echo '⚠️ python is not available, skipping the dev server.'",
+    "test": "command -v python >/dev/null 2>&1 && python run_tests.py || echo '⚠️ python is not available, skipping the tests.'"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "readme": {
+    "title": "Scalar API Reference Plugin for Django Ninja",
+    "badges": [
+      {
+        "type": "pypi-version",
+        "package": "scalar-ninja"
+      },
+      {
+        "type": "pypi-downloads",
+        "package": "scalar-ninja"
+      },
+      {
+        "type": "pypi-license",
+        "package": "scalar-ninja"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja"
+  }
+}
