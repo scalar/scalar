@@ -1,6 +1,5 @@
 <script lang="ts">
 export type ModalProps = {
-  activeEntities: ActiveEntities
   workspaceStore: WorkspaceStore
   modalState: ModalState
 }
@@ -31,7 +30,6 @@ import {
 } from 'vue'
 
 import { Sidebar } from '@/v2/components/sidebar'
-import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 
 const { workspaceStore, modalState } = defineProps<ModalProps>()
