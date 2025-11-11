@@ -29,7 +29,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -45,6 +45,13 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
+      - if: matrix.node-version == 22
+        name: Upload webpack stats to RelativeCI
+        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        with:
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -55,6 +62,7 @@ jobs:
       dotnet_changed: ${{ steps.set-outputs.outputs.dotnet_changed }}
       java_changed: ${{ steps.set-outputs.outputs.java_changed }}
       fastapi_changed: ${{ steps.set-outputs.outputs.fastapi_changed }}
+      django_ninja_changed: ${{ steps.set-outputs.outputs.django_ninja_changed }}
       rust_changed: ${{ steps.set-outputs.outputs.rust_changed }}
       docker_changed: ${{ steps.set-outputs.outputs.docker_changed }}
       aspnetcore_package_changed: ${{ steps.set-outputs.outputs.aspnetcore_package_changed }}
@@ -84,6 +92,8 @@ jobs:
               - integrations/rust/**
             docker_integration:
               - integrations/docker/**
+            django_ninja_integration:
+              - integrations/django-ninja/**
 
       - name: Check whether packages files were modified
         id: changed-packages-files
@@ -120,6 +130,7 @@ jobs:
           echo "dotnet_changed=${{ steps.changed-integration-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_changed=${{ steps.changed-integration-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "fastapi_changed=${{ steps.changed-integration-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+          echo "django_ninja_changed=${{ steps.changed-integration-files.outputs.django_ninja_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "rust_changed=${{ steps.changed-integration-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
           echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
@@ -132,6 +143,7 @@ jobs:
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
+    if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
@@ -193,7 +205,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './examples/**'
@@ -209,7 +221,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -229,7 +241,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
@@ -251,7 +263,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
@@ -283,7 +295,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
@@ -332,7 +344,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
@@ -386,7 +398,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: 'scalar-app...'
@@ -445,7 +457,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/components...'
@@ -501,7 +513,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
@@ -560,7 +572,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           # Build everything
@@ -612,7 +624,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations,projects}/**'
@@ -662,7 +674,7 @@ jobs:
               - packages/api-client/**
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: 'client-scalar-com...'
@@ -727,7 +739,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/galaxy
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/galaxy...'
@@ -775,7 +787,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar-examples/web...'
@@ -818,7 +830,7 @@ jobs:
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
 
       - name: Build
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
@@ -852,11 +864,58 @@ jobs:
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
 
-  docker-build-test:
+  docker-build-scan:
     if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: scalar-js
+          path: integrations/docker/assets
+
+      - name: Compress static assets
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force scalar.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        with:
+          platforms: linux/amd64
+
+      - name: Build Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          load: true
+          tags: scalarapi/api-reference:latest
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        with:
+          scan-type: 'image'
+          image-ref: 'scalarapi/api-reference:latest'
+          format: 'table'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  docker-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: docker-publish
+      cancel-in-progress: false
+    needs: [required-jobs-main, docker-build-scan, check-changes]
     permissions:
       contents: read
     steps:
@@ -885,26 +944,7 @@ jobs:
             linux/amd64
             linux/arm64
 
-      - name: Build Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-        with:
-          context: integrations/docker
-          file: integrations/docker/Dockerfile
-          load: true
-          tags: scalarapi/api-reference:latest
-
-      - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
-        name: Log in to DockerHub
+      - name: Log in to DockerHub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
           # Username of your Docker account
@@ -912,8 +952,7 @@ jobs:
           # https://app.docker.com/settings/personal-access-tokens
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
-        name: Build and Push Docker image
+      - name: Build and Push Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
           context: integrations/docker
@@ -986,16 +1025,7 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        dotnet-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, dotnet-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1057,16 +1087,7 @@ jobs:
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        dotnet-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, dotnet-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1186,16 +1207,7 @@ jobs:
     concurrency:
       group: fastapi-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        fastapi-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, fastapi-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1218,13 +1230,12 @@ jobs:
         run: python -m build
 
       - name: Publish FastAPI package to PyPI
-        if: needs.check-changes.outputs.fastapi_package_changed == 'true'
         working-directory: integrations/fastapi
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   django-ninja-build-test:
-    if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    if: needs.check-changes.outputs.django_ninja_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, check-changes]
@@ -1260,16 +1271,7 @@ jobs:
     concurrency:
       group: django-ninja-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        django-ninja-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, django-ninja-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1292,7 +1294,6 @@ jobs:
         run: python -m build
 
       - name: Publish Django Ninja package to PyPI
-        if: needs.check-changes.outputs.django_ninja_package_changed == 'true'
         working-directory: integrations/django-ninja
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
@@ -1361,16 +1362,7 @@ jobs:
     concurrency:
       group: rust-publish
       cancel-in-progress: false
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        rust-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, rust-build-test, check-changes]
     permissions:
       contents: read
     steps:
@@ -1446,16 +1438,7 @@ jobs:
 
   java-webjar-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_webjar_package_changed == 'true'
-    needs:
-      [
-        build,
-        format,
-        types,
-        test-packages,
-        test-integrations,
-        java-webjar-build-test,
-        check-changes,
-      ]
+    needs: [required-jobs-main, java-webjar-build-test, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
       group: java-webjar-publish
@@ -1509,30 +1492,6 @@ jobs:
 
   # ---------------------------------------------------------------------------------------------------------
   # Other jobs
-
-  stats:
-    # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages: '@scalar/api-reference'
-      - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   required-jobs-pull-requests:
     if: github.event_name == 'pull_request'
