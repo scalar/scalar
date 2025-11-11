@@ -982,8 +982,7 @@ components:
         discoveredAt:
           type: string
           format: date-time
-          examples:
-            - 1610-01-07T00:00:00Z
+          example: 1610-01-07T00:00:00Z
         image:
           type:
             - string
@@ -1008,8 +1007,7 @@ components:
           type: string
           format: date-time
           readOnly: true
-          examples:
-            - 2024-01-15T14:30:00Z
+          example: 2024-01-15T14:30:00Z
         successCallbackUrl:
           type: string
           format: uri
@@ -1131,8 +1129,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the image was uploaded
-          examples:
-            - 2024-01-15T14:30:00Z
+          example: 2024-01-15T14:30:00Z
         fileSize:
           type: integer
           description: Size of the uploaded image in bytes
