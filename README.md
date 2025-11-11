@@ -173,11 +173,12 @@ The following frameworks have chosen Scalar API Reference as their default OpenA
 
 We're offering a free and paid managed hosting on the edge, too:
 
-- Write your API documentation and publish your API references (free)
-- Get SSL and a super cool `*.apidocumentation.com` subdomain (free)
-- Write free text documentation (paid)
-- Collaborate with your whole team (paid)
-- Use any domain (paid)
+- Write your API documentation and publish API references (free)
+- `YOUR_NAME_HERE.apidocumentation.com` subdomain and SSL (free)
+- [GitHub Sync](https://guides.scalar.com/scalar/scalar-docs/github-sync)
+- Write free-form documentation
+- Collaborate with your team
+- Use any domain
 
 Ready? [Create your Scalar Account](https://scalar.com)
 
@@ -187,11 +188,11 @@ Ready? [Create your Scalar Account](https://scalar.com)
 
 | Topic                                                                                 | Description                          |
 | ------------------------------------------------------------------------------------- | ------------------------------------ |
-| [Themes](https://guides.scalar.com/scalar/scalar-api-references/themes)               | Predefined themes, layouts & styling |
 | [Configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) | The universal configuration object   |
+| [Themes](https://guides.scalar.com/scalar/scalar-api-references/themes)               | Predefined themes, layouts & styling |
+| [OpenAPI](https://guides.scalar.com/scalar/scalar-api-references/openapi)             | OpenAPI specification extensions     |
+| [Markdown](https://guides.scalar.com/scalar/scalar-api-references/markdown)           | Supported Markdown syntax            |
 | [Plugins](https://guides.scalar.com/scalar/scalar-api-references/plugins)             | Extend the functionality             |
-| [OpenAPI](https://guides.scalar.com/scalar/scalar-api-references/openapi)             | OpenAPI and our extensions to it     |
-| [Markdown](https://guides.scalar.com/scalar/scalar-api-references/markdown)           | The supported Markdown syntax        |
 
 <br>
 
@@ -203,6 +204,7 @@ Ready? [Create your Scalar Account](https://scalar.com)
 | [Scalar App](https://scalar.com/download)                                                      | Postman alternative              |
 | [Scalar Registry](https://guides.scalar.com/scalar/scalar-registry/getting-started)            | Manage OpenAPI documents         |
 | [Scalar Docs](https://guides.scalar.com/scalar/scalar-docs/getting-started)                    | Hosted documentation             |
+| [Scalar Docs Starter](https://github.com/scalar/starter)                                       | Starter template for Scalar Docs |
 | [Scalar SDKs](https://guides.scalar.com/scalar/scalar-sdks/getting-started)                    | SDK generation                   |
 | [Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started)                      | Command-line interface           |
 | [Scalar Mock Server](https://guides.scalar.com/scalar/scalar-mock-server/getting-started)      | Mock APIs from OpenAPI documents |
