@@ -52,7 +52,7 @@ info:
   contact:
     name: Scalar Support
     url: https://scalar.com
-    email: marc@scalar.com
+    email: support@scalar.com
   license:
     name: MIT
     url: https://opensource.org/license/MIT
@@ -389,6 +389,11 @@ paths:
                   name: Cam
                   email: cam@scalar.com
                   password: scalar-is-cool
+              Hans:
+                value:
+                  name: Hans
+                  email: hans@scalar.com
+                  password: 5c4l4r
           application/xml:
             schema:
               allOf:
@@ -405,6 +410,11 @@ paths:
                   name: Cam
                   email: cam@scalar.com
                   password: scalar-is-cool
+              Hans:
+                value:
+                  name: Hans
+                  email: hans@scalar.com
+                  password: 5c4l4r
       responses:
         '201':
           description: Created
@@ -797,6 +807,8 @@ components:
           type: string
           examples:
             - Marc
+            - Cam
+            - Hans
     Credentials:
       description: Credentials to authenticate a user
       type: object
@@ -809,13 +821,15 @@ components:
           format: email
           examples:
             - marc@scalar.com
+            - cam@scalar.com
+            - hans@scalar.com
         password:
           type: string
           writeOnly: true
           examples:
             - i-love-scalar
-            - i-love-OSS
-            - i-love-code
+            - i-love-oss
+            - qwerty123
     Token:
       description: A token to authenticate a user
       type: object
