@@ -1,3 +1,5 @@
+import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
+
 const ACTIVE_WORKSPACE_ID_KEY = 'scalar.activeWorkspaceId' as const
 
 /**
@@ -18,7 +20,7 @@ export const workspaceStorage = {
    * @returns {string | undefined} The currently active workspace ID, or undefined if not set.
    */
   getActiveWorkspaceId(): string | undefined {
-    return localStorage.getItem(ACTIVE_WORKSPACE_ID_KEY) ?? undefined
+    return safeLocalStorage().getItem(ACTIVE_WORKSPACE_ID_KEY) ?? undefined
   },
 
   /**
@@ -26,6 +28,6 @@ export const workspaceStorage = {
    * @param {string} id - The workspace ID to set as active.
    */
   setActiveWorkspaceId(id: string): void {
-    localStorage.setItem(ACTIVE_WORKSPACE_ID_KEY, id)
+    safeLocalStorage().setItem(ACTIVE_WORKSPACE_ID_KEY, id)
   },
 } as const

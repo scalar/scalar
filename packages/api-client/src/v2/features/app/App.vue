@@ -159,14 +159,10 @@ const themeStyleTag = computed(() => {
 })
 
 /** Width of the sidebar, with fallback to default. */
-const sidebarWidth = computed(() => {
-  if (store.value === null) {
-    return DEFAULT_SIDEBAR_WIDTH
-  }
-  return (
-    store.value.workspace['x-scalar-sidebar-width'] ?? DEFAULT_SIDEBAR_WIDTH
-  )
-})
+const sidebarWidth = computed(
+  () =>
+    store.value?.workspace?.['x-scalar-sidebar-width'] ?? DEFAULT_SIDEBAR_WIDTH,
+)
 
 /** Check if the workspace overview is currently open. */
 const isWorkspaceOpen = computed(() =>
@@ -174,13 +170,8 @@ const isWorkspaceOpen = computed(() =>
 )
 
 /** Handler for sidebar width changes. */
-const handleSidebarWidthUpdate = (width: number) => {
-  if (store.value === null) {
-    return
-  }
-
-  store.value.update('x-scalar-sidebar-width', width)
-}
+const handleSidebarWidthUpdate = (width: number) =>
+  store.value?.update('x-scalar-sidebar-width', width)
 
 /** Handler for workspace navigation. */
 const handleWorkspaceClick = () =>
