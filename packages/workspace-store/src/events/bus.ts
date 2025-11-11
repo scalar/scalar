@@ -163,9 +163,8 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     const [event, payload] = args
 
     // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
-    // but are always assigning plain objects at any level. In debug mode, we allow unlimited traversal for easier inspection,
-    // otherwise limit the depth for performance.
-    const unpackedPayload = unpackProxyObject(payload, { depth: debug ? null : 5 })
+    // but are always assigning plain objects 5 level depth.
+    const unpackedPayload = unpackProxyObject(payload, { depth: 5 })
 
     const listeners = events.get(event)
 
