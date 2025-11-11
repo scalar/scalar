@@ -5,7 +5,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
 
-const CONFIG_SETTING = 'showToolbar: "never"'
+const CONFIG_SETTING = 'showDeveloperTools: "never"'
 
 const { copyToClipboard } = useClipboard()
 </script>

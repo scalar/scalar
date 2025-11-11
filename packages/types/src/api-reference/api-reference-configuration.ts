@@ -357,7 +357,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
  */
 export type ApiReferenceConfigurationRaw = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>, // Remove deprecated attributes
-  'proxy' | 'spec' | 'authentication'
+  'proxy' | 'spec' | 'authentication' | 'showToolbar'
 > & {
   authentication?: AuthenticationConfiguration
 }
@@ -439,6 +439,16 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
     configuration.proxyUrl = NEW_PROXY_URL
   }
 
+  // Migrate showToolbar to showDeveloperTools
+  if (configuration.showToolbar && configuration.showToolbar !== 'localhost') {
+    console.warn(`[DEPRECATED] You're using the deprecated 'showToolbar' attribute. Use 'showDeveloperTools' instead.`)
+
+    configuration.showDeveloperTools = configuration.showToolbar
+
+    // @ts-expect-error - We're deleting the deprecated attribute
+    delete configuration.showToolbar
+  }
+
   return configuration
 })
 
@@ -448,7 +458,7 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
 export type ApiReferenceConfigurationWithSource = Omit<
   z.infer<typeof apiReferenceConfigurationWithSourceSchema>,
   // Remove deprecated attributes
-  'proxy' | 'spec' | 'authentication'
+  'proxy' | 'spec' | 'authentication' | 'showToolbar'
 > & {
   authentication?: AuthenticationConfiguration
 }

@@ -891,11 +891,11 @@ Whether the sidebar should be shown.
 }
 ```
 
-#### showToolbar
+#### showDeveloperTools
 
 **Type:** `'always' | 'localhost' | 'never'`
 
-Sets the visibility the developer tools, by default only shows on localhost or similar hosts.
+Whether and when to show the developer tools. By default only shows on `localhost` (and other domains used for development).
 
 **Default:** `'localhost'`
 
@@ -903,7 +903,7 @@ To disable the toolbar set:
 
 ```js
 {
-  showToolbar: 'never'
+  showDeveloperTools: 'never'
 }
 ```
 
