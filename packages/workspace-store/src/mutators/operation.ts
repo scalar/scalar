@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
+import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
@@ -45,28 +46,23 @@ export type OperationExampleMeta = OperationMeta & {
  *
  * Example:
  * ```ts
- * updateOperationSummary({
+ * updateOperationSummary(
  *   document,
+ *   {
  *   meta: { method: 'get', path: '/users/{id}' },
  *   payload: { summary: 'Get a single user' },
  * })
  * ```
  */
-export const updateOperationSummary = ({
-  document,
-  meta,
-  payload: { summary },
-}: {
-  document: WorkspaceDocument | null
-  payload: { summary: string }
-  meta: OperationMeta
-}) => {
+export const updateOperationSummary = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
-
   if (!operation) {
     return
   }
@@ -89,21 +85,15 @@ export const updateOperationSummary = ({
  * })
  * ```
  */
-export const updateOperationMethodDraft = ({
-  document,
-  meta,
-  payload: { method },
-}: {
-  document: WorkspaceDocument | null
-  payload: { method: HttpMethod }
-  meta: OperationMeta
-}) => {
+export const updateOperationMethodDraft = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { method } }: OperationEvents['operation:update:method'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
   if (!operation) {
     return
   }
@@ -127,21 +117,15 @@ export const updateOperationMethodDraft = ({
  * })
  * ```
  */
-export const updateOperationPathDraft = ({
-  document,
-  meta,
-  payload: { path },
-}: {
-  document: WorkspaceDocument | null
-  payload: { path: string }
-  meta: OperationMeta
-}) => {
+export const updateOperationPathDraft = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { path } }: OperationEvents['operation:update:path'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
   if (!operation) {
     return
   }
@@ -183,21 +167,10 @@ export const updateOperationPathDraft = ({
  * })
  * ```
  */
-export const addOperationParameter = ({
-  document,
-  meta,
-  payload,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  payload: {
-    key: string
-    value: string
-    isEnabled: boolean
-  }
-  meta: OperationExampleMeta
-}) => {
+export const addOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, payload, type }: OperationEvents['operation:add:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -245,23 +218,10 @@ export const addOperationParameter = ({
  * })
  * ```
  */
-export const updateOperationParameter = ({
-  document,
-  meta,
-  type,
-  payload,
-  index,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  index: number
-  payload: Partial<{
-    key: string
-    value: string
-    isEnabled: boolean
-  }>
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, type, payload, index }: OperationEvents['operation:update:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -277,8 +237,6 @@ export const updateOperationParameter = ({
   // The passed index corresponds to this filtered list
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
-
-  // Don't proceed if parameter doesn't exist
   if (!parameter) {
     return
   }
@@ -325,17 +283,10 @@ export const updateOperationParameter = ({
  * })
  * ```
  */
-export const deleteOperationParameter = ({
-  document,
-  meta,
-  index,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  index: number
-  meta: OperationExampleMeta
-}) => {
+export const deleteOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, index, type }: OperationEvents['operation:delete:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -350,8 +301,6 @@ export const deleteOperationParameter = ({
   // Translate the index from the filtered list to the actual parameters array
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
-
-  // Don't proceed if parameter doesn't exist
   if (!parameter) {
     return
   }
@@ -375,22 +324,15 @@ export const deleteOperationParameter = ({
  * })
  * ```
  */
-export const deleteAllOperationParameters = ({
-  document,
-  meta,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  meta: OperationMeta
-}) => {
+export const deleteAllOperationParameters = (
+  document: WorkspaceDocument | null,
+  { meta, type }: OperationEvents['operation:delete-all:parameters'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
@@ -417,30 +359,20 @@ export const deleteAllOperationParameters = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyContentType = ({
-  document,
-  meta,
-  payload,
-}: {
-  document: WorkspaceDocument | null
-  payload: {
-    contentType: string
-  }
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyContentType = (
+  document: WorkspaceDocument | null,
+  { meta, payload }: OperationEvents['operation:update:requestBody:contentType'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -470,32 +402,20 @@ export const updateOperationRequestBodyContentType = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyExample = ({
-  document,
-  meta,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  contentType: string
-  payload: {
-    value: string | File | undefined
-  }
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyExample = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -515,7 +435,6 @@ export const updateOperationRequestBodyExample = ({
   const examples = getResolvedRef(mediaType.examples)!
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example) {
     examples[meta.exampleKey] = {
       value: payload.value,
@@ -541,17 +460,10 @@ export const updateOperationRequestBodyExample = ({
  * })
  * ```
  */
-export const addOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  payload: Partial<{ key: string; value?: string | File }>
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const addOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:add:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
@@ -621,32 +533,20 @@ export const addOperationRequestBodyFormRow = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  index,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  index: number
-  payload: Partial<{ key: string; value: string | File | null }>
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, index, payload, contentType }: OperationEvents['operation:update:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -659,13 +559,11 @@ export const updateOperationRequestBodyFormRow = ({
   }
 
   const examples = getResolvedRef(requestBody!.content[contentType]!.examples)
-
   if (!examples) {
     return
   }
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example || !Array.isArray(example.value)) {
     return
   }
@@ -691,30 +589,20 @@ export const updateOperationRequestBodyFormRow = ({
  * })
  * ```
  */
-export const deleteOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  index,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  index: number
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const deleteOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, index, contentType }: OperationEvents['operation:delete:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   const requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     return
   }
@@ -724,13 +612,11 @@ export const deleteOperationRequestBodyFormRow = ({
   }
 
   const examples = getResolvedRef(requestBody.content[contentType]!.examples)
-
   if (!examples) {
     return
   }
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example || !Array.isArray(example.value)) {
     return
   }

@@ -59,6 +59,7 @@ const selectedSecurity = computed(() => {
   return document?.['x-scalar-selected-security']
 })
 
+/** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
   if (isOperationAuth.value) {
     return {
