@@ -45,6 +45,13 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
+      - if: matrix.node-version == 22
+        name: Upload webpack stats to RelativeCI
+        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        with:
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
