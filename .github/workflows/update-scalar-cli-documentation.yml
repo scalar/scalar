@@ -27,9 +27,10 @@ jobs:
         with:
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
           node-version: ${{ matrix.node-version }}
+          package-manager-cache: false
       - name: Generate CLI documentation
         run: npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
       - name: Extract just the commands

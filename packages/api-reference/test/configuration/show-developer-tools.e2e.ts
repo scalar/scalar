@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
-test.describe('showToolbar', () => {
-  test('shows toolbar when enabled', async ({ page }) => {
+test.describe('showDeveloperTools', () => {
+  test('shows developer tools when enabled', async ({ page }) => {
     const example = await serveExample({
-      showToolbar: 'always',
+      showDeveloperTools: 'always',
     })
 
     await page.goto(example)
@@ -12,9 +12,9 @@ test.describe('showToolbar', () => {
     await expect(page.getByLabel('Developer Tools')).toBeVisible()
   })
 
-  test('hides toolbar if set to never', async ({ page }) => {
+  test('hides developer tools if set to never', async ({ page }) => {
     const example = await serveExample({
-      showToolbar: 'never',
+      showDeveloperTools: 'never',
     })
 
     await page.goto(example)

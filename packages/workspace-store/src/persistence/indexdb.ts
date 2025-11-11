@@ -267,6 +267,15 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
   }
 
   /**
+   * Deletes all items from the table.
+   * @returns void
+   */
+  async function deleteAll(): Promise<void> {
+    const store = getStore('readwrite')
+    await requestAsPromise(store.clear())
+  }
+
+  /**
    * Retrieves all items from the table.
    * @returns Array of all objects in the store
    */
@@ -282,6 +291,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     deleteItem,
     deleteRange,
     getAll,
+    deleteAll,
   }
 }
 

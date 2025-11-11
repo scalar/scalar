@@ -33,6 +33,11 @@ public class ScalarConfigurationTest {
         DocumentDownloadType downloadType = DocumentDownloadType.BOTH;
         String downloadTypeJson = mapper.writeValueAsString(downloadType);
         assertEquals("\"both\"", downloadTypeJson);
+
+        // Test DeveloperToolsVisibility serialization
+        DeveloperToolsVisibility visibility = DeveloperToolsVisibility.ALWAYS;
+        String visibilityJson = mapper.writeValueAsString(visibility);
+        assertEquals("\"always\"", visibilityJson);
     }
 
     @Test
@@ -50,6 +55,10 @@ public class ScalarConfigurationTest {
         // Test DocumentDownloadType deserialization
         DocumentDownloadType downloadType = mapper.readValue("\"both\"", DocumentDownloadType.class);
         assertEquals(DocumentDownloadType.BOTH, downloadType);
+
+        // Test DeveloperToolsVisibility deserialization
+        DeveloperToolsVisibility visibility = mapper.readValue("\"always\"", DeveloperToolsVisibility.class);
+        assertEquals(DeveloperToolsVisibility.ALWAYS, visibility);
     }
 
     @Test
@@ -61,6 +70,7 @@ public class ScalarConfigurationTest {
         properties.setShowSidebar(false);
         properties.setHideModels(true);
         properties.setTelemetry(false);
+        properties.setShowDeveloperTools(DeveloperToolsVisibility.ALWAYS);
 
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
 
@@ -71,6 +81,7 @@ public class ScalarConfigurationTest {
         assertEquals(false, config.getShowSidebar());
         assertEquals(true, config.getHideModels());
         assertEquals(false, config.getTelemetry());
+        assertEquals(DeveloperToolsVisibility.ALWAYS, config.getShowDeveloperTools());
     }
 
     @Test
@@ -84,6 +95,7 @@ public class ScalarConfigurationTest {
         properties.setOperationSorter(OperationSorter.METHOD);
         properties.setForceThemeMode(ThemeMode.DARK);
         properties.setSchemaPropertyOrder(PropertyOrder.ALPHA);
+        properties.setShowDeveloperTools(DeveloperToolsVisibility.NEVER);
 
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
 
@@ -96,6 +108,7 @@ public class ScalarConfigurationTest {
         assertEquals(OperationSorter.METHOD, config.getOperationsSorter());
         assertEquals(ThemeMode.DARK, config.getForceDarkModeState());
         assertEquals(PropertyOrder.ALPHA, config.getOrderSchemaPropertiesBy());
+        assertEquals(DeveloperToolsVisibility.NEVER, config.getShowDeveloperTools());
     }
 
 }

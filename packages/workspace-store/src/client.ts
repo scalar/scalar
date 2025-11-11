@@ -23,7 +23,7 @@ import { createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
-import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
+import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
@@ -976,45 +976,42 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
     },
     exportWorkspace() {
+      const { activeDocument: _, documents, ...meta } = unpackProxyObject(workspace)
       return {
         documents: {
           ...Object.fromEntries(
-            Object.entries(workspace.documents).map(([name, doc]) => [
+            Object.entries(documents).map(([name, doc]) => [
               name,
-              // Extract the raw document data for export, removing any Vue reactivity wrappers.
-              // When importing, the document can be wrapped again in a magic proxy.
-              toRaw(getRaw(unpackOverridesProxy(doc))),
+              // Get the raw document without any proxies
+              unpackProxyObject(doc),
             ]),
           ),
         },
-        meta: workspaceProps?.meta ?? {},
-        documentConfigs,
-        originalDocuments,
-        intermediateDocuments,
-        overrides,
+        meta: unpackProxyObject(meta) ?? {},
+        documentConfigs: unpackProxyObject(documentConfigs),
+        originalDocuments: unpackProxyObject(originalDocuments),
+        intermediateDocuments: unpackProxyObject(intermediateDocuments),
+        overrides: unpackProxyObject(overrides),
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
-      const result = coerceValue(InMemoryWorkspaceSchema, input)
-
-      // Assign the magic proxy to the documents
       safeAssign(
         workspace.documents,
         Object.fromEntries(
-          Object.entries(result.documents).map(([name, doc]) => [
+          Object.entries(input.documents).map(([name, doc]) => [
             name,
             createOverridesProxy(createMagicProxy(doc), {
-              overrides: result.overrides[name],
+              overrides: input.overrides[name],
             }),
           ]),
         ),
       )
 
-      safeAssign(originalDocuments, result.originalDocuments)
-      safeAssign(intermediateDocuments, result.intermediateDocuments)
-      safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
-      safeAssign(overrides, result.overrides)
-      safeAssign(workspace, result.meta)
+      safeAssign(originalDocuments, input.originalDocuments)
+      safeAssign(intermediateDocuments, input.intermediateDocuments)
+      safeAssign(documentConfigs, input.documentConfigs as Record<string, Config>)
+      safeAssign(overrides, input.overrides)
+      safeAssign(workspace, input.meta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification

@@ -229,4 +229,9 @@ public partial class ScalarOptions
     /// Controls whether the operation ID is shown in the UI (default: <c>false</c>).
     /// </summary>
     public bool? ShowOperationId { get; set; }
+
+    /// <summary>
+    /// Controls the visibility of the developer tools toolbar.
+    /// </summary>
+    public DeveloperToolsVisibility? ShowDeveloperTools { get; set; }
 }

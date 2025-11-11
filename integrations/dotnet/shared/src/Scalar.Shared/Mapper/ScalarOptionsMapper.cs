@@ -61,7 +61,8 @@ internal static partial class ScalarOptionsMapper
 #pragma warning restore CS0618 // Type or member is obsolete
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
             OrderSchemaPropertiesBy = options.SchemaPropertyOrder,
-            ShowOperationId = options.ShowOperationId
+            ShowOperationId = options.ShowOperationId,
+            ShowDeveloperTools = options.ShowDeveloperTools
         };
     }
 

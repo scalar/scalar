@@ -275,4 +275,24 @@ public static partial class ScalarOptionsExtensions
         options.Telemetry = false;
         return options;
     }
+
+    /// <summary>
+    /// Always shows the developer tools toolbar.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    public static TOptions AlwaysShowDeveloperTools<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.ShowDeveloperTools = DeveloperToolsVisibility.Always;
+        return options;
+    }
+
+    /// <summary>
+    /// Hides the developer tools toolbar.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideDeveloperTools<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.ShowDeveloperTools = DeveloperToolsVisibility.Never;
+        return options;
+    }
 }

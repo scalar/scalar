@@ -245,6 +245,18 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
     })
+
+    it('migrates showToolbar to showDeveloperTools', () => {
+      const config = {
+        showToolbar: 'always',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+
+      expect(migratedConfig.showDeveloperTools).toBe('always')
+      // @ts-expect-error showToolbar is not in the type
+      expect(migratedConfig.showToolbar).toBeUndefined()
+    })
   })
 
   describe('hooks', () => {
