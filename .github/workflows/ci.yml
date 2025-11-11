@@ -13,6 +13,7 @@ on:
 env:
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  TURBO_BASE_FLAGS: "--concurrency=100% --filter='!./integrations/{java,rust,dotnet,docker}/**'"
 jobs:
   # Initial build.
   # We only build the packages and integrations as everything else depends on them
@@ -73,6 +74,7 @@ jobs:
       java_webjar_package_changed: ${{ steps.set-outputs.outputs.java_webjar_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
+      proxy_changed: ${{ steps.set-outputs.outputs.proxy_changed }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -103,6 +105,14 @@ jobs:
             icons_changed:
               - packages/icons/**
               - packages/components/src/components/ScalarIcon/**
+
+      - name: Check whether project files were modified
+        id: changed-project-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            proxy_changed:
+              - projects/proxy-scalar-com/**
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -141,6 +151,7 @@ jobs:
           echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "proxy_changed=${{ steps.changed-project-files.outputs.proxy_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -181,14 +192,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: ./.github/actions/setup-node
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
+          use-turbo-cache: 'false'
       - name: Lint Component Library Icons
         run: pnpm --filter components lint:icons
       - name: Lint Icon Library Icons
@@ -220,13 +228,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build
-        uses: ./.github/actions/build
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: ./.github/actions/setup-node
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './{packages,integrations}/**'
       - name: Check types
-        run: pnpm types:check
+        run: pnpm turbo ${{ env.TURBO_BASE_FLAGS }} types:check
 
   knip:
     if: github.event_name == 'pull_request'
@@ -305,8 +312,9 @@ jobs:
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
 
-  test-proxy-server:
-    needs: [build]
+  proxy-server-build-test:
+    if: github.ref == 'refs/heads/main' || needs.check-changes.outputs.proxy_changed == 'true'
+    needs: [check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
@@ -1499,16 +1507,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
-    needs:
-      [
-        build,
-        format,
-        knip,
-        test-packages,
-        test-integrations,
-        test-proxy-server,
-        types,
-      ]
+    needs: [build, format, knip, test-packages, test-integrations, types]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
@@ -1520,7 +1519,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
-    needs: [build, test-packages, test-integrations, test-proxy-server, types]
+    needs:
+      [build, test-packages, test-integrations, proxy-server-build-test, types]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1

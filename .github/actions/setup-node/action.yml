@@ -1,0 +1,32 @@
+name: 'Setup Node'
+description: 'Setup Node.js environment with pnpm, stickydisk, and install dependencies'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: true
+  use-turbo-cache:
+    description: 'Whether to use turbo cache'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
+
+    - name: Setup Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'pnpm'
+
+    - name: Setup persistent turbo cache
+      if: inputs.use-turbo-cache == 'true'
+      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+      with:
+        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-random-0
+        path: ${{ env.TURBO_CACHE_DIR }}
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install

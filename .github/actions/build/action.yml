@@ -11,21 +11,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install pnpm
-      uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-    - name: Setup Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+    - name: Setup
+      uses: ./.github/actions/setup-node
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'pnpm'
-    - name: Setup persistent turbo cache
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
-      with:
-        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
-        path: ${{ env.TURBO_CACHE_DIR }}
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install
     - name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' --filter='!./integrations/{java,rust,dotnet,docker}/**' build
+      run: pnpm turbo --filter '${{inputs.packages}}' ${{ env.TURBO_BASE_FLAGS }} build
