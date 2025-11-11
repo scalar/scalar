@@ -534,7 +534,7 @@ Whether to show the dark mode toggle.
 }
 ```
 
-### showOperationId
+#### showOperationId
 
 **Type:** `boolean`
 
