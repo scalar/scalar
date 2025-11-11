@@ -79,22 +79,30 @@ security:
   - apiKeyCookie: []
   - oAuth2: []
   - openIdConnect: []
+x-speakeasy-webhooks:
+  security:
+    type: signature
+    headerName: x-signature
+    signatureTextEncoding: base64
+    algorithm: hmac-sha256
 tags:
   - name: Authentication
-    description:
-      Some endpoints are public, but some require authentication. We provide
-      all the required endpoints to create an account and authorize yourself.
+    description: Some endpoints are public, but some require authentication. We
+      provide all the required endpoints to create an account and authorize
+      yourself.
   - name: Planets
     description: Everything about planets
   - name: Celestial Bodies
     description: Celestial bodies are the planets and satellites in the Scalar Galaxy.
 paths:
-  '/planets':
+  /planets:
     get:
       tags:
         - Planets
       summary: Get all planets
-      description: It's easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.
+      description:
+        It's easy to say you know them all, but do you really? Retrieve all
+        the planets and check whether you missed one.
       operationId: getAllData
       security:
         - {}
@@ -142,7 +150,9 @@ paths:
       tags:
         - Planets
       summary: Create a planet
-      description: Time to play god and create a new planet. What do you think? Ah, don't think too much. What could go wrong anyway?
+      description:
+        Time to play god and create a new planet. What do you think? Ah,
+        don't think too much. What could go wrong anyway?
       operationId: createPlanet
       callbacks:
         planetCreated:
@@ -158,7 +168,10 @@ paths:
                 '200':
                   description: Your server returns this code if it accepts the callback
                 '204':
-                  description: Your server should return this HTTP status code if no longer interested in further updates
+                  description:
+                    Your server should return this HTTP status code if no longer
+                    interested in further updates
+        planetCreationFailed:
           '{$request.body#/failureCallbackUrl}':
             post:
               requestBody:
@@ -212,12 +225,14 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
-  '/planets/{planetId}':
+  /planets/{planetId}:
     get:
       tags:
         - Planets
       summary: Get a planet
-      description: You'll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.
+      description:
+        You'll better learn a little bit more about the planets. It might
+        come in handy once space travel is available for everyone.
       operationId: getPlanet
       security:
         - {}
@@ -248,7 +263,8 @@ paths:
       tags:
         - Planets
       summary: Update a planet
-      description: Sometimes you make mistakes, that's fine. No worries, you can update all planets.
+      description: Sometimes you make mistakes, that's fine. No worries, you can
+        update all planets.
       operationId: updatePlanet
       requestBody:
         description: New information about the planet
@@ -282,10 +298,9 @@ paths:
         - Planets
       summary: Delete a planet
       operationId: deletePlanet
-      description:
-        This endpoint was used to delete planets. Unfortunately, that caused
-        a lot of trouble for planets with life. So, this endpoint is now deprecated
-        and should not be used anymore.
+      description: This endpoint was used to delete planets. Unfortunately, that
+        caused a lot of trouble for planets with life. So, this endpoint is now
+        deprecated and should not be used anymore.
       x-scalar-stability: experimental
       parameters:
         - $ref: '#/components/parameters/planetId'
@@ -294,7 +309,7 @@ paths:
           description: No Content
         '404':
           $ref: '#/components/responses/NotFound'
-  '/planets/{planetId}/image':
+  /planets/{planetId}/image:
     post:
       tags:
         - Planets
@@ -326,7 +341,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-  '/celestial-bodies':
+  /celestial-bodies:
     post:
       tags:
         - Celestial Bodies
@@ -346,7 +361,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CelestialBody'
-  '/user/signup':
+  /user/signup:
     post:
       tags:
         - Authentication
@@ -417,12 +432,14 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-  '/auth/token':
+  /auth/token:
     post:
       tags:
         - Authentication
       summary: Get a token
-      description: Yeah, this is the boring security stuff. Just get your super secret token and move on.
+      description:
+        Yeah, this is the boring security stuff. Just get your super secret
+        token and move on.
       operationId: getToken
       security:
         - {}
@@ -454,15 +471,15 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Token'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '429':
           $ref: '#/components/responses/TooManyRequests'
-  '/me':
+  /me:
     get:
       tags:
         - Authentication
@@ -508,9 +525,6 @@ webhooks:
         description: Information about a new planet
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Planet'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Planet'
       responses:
@@ -600,9 +614,7 @@ components:
         default: 10
     offset:
       name: offset
-      description:
-        The number of items to skip before starting to collect the result
-        set
+      description: The number of items to skip before starting to collect the result set
       in: query
       required: false
       schema:
@@ -630,7 +642,7 @@ components:
       schema:
         type: string
         format: uuid
-        example: '123e4567-e89b-12d3-a456-426614174000'
+        example: 123e4567-e89b-12d3-a456-426614174000
     X-Pagination-Total:
       description: Total number of items available
       schema:
@@ -650,7 +662,7 @@ components:
       description: Cache control directives
       schema:
         type: string
-        example: 'max-age=3600, public'
+        example: max-age=3600, public
     ETag:
       description: Entity tag for caching
       schema:
@@ -661,13 +673,13 @@ components:
       schema:
         type: string
         format: date-time
-        example: '2023-12-01T12:00:00Z'
+        example: 2023-12-01T12:00:00Z
     Location:
       description: The URL of the newly created resource
       schema:
         type: string
         format: uri
-        example: 'https://galaxy.scalar.com/planets/123'
+        example: https://galaxy.scalar.com/planets/123
     X-Processing-Time:
       description: The time taken to process the request in milliseconds
       schema:
@@ -819,8 +831,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          planet: '#/components/schemas/Planet'
-          satellite: '#/components/schemas/Satellite'
+          terrestrial: '#/components/schemas/Planet'
+          gas_giant: '#/components/schemas/Planet'
+          ice_giant: '#/components/schemas/Planet'
+          dwarf: '#/components/schemas/Planet'
+          super_earth: '#/components/schemas/Planet'
+          moon: '#/components/schemas/Satellite'
+          asteroid: '#/components/schemas/Satellite'
+          comet: '#/components/schemas/Satellite'
       description: A celestial body which can be either a planet or a satellite
     Planet:
       description: A planet in the Scalar Galaxy
@@ -868,8 +886,12 @@ components:
             - SuperEarth
           x-enum-descriptions:
             terrestrial: Rocky planets with solid surfaces, like Earth and Mars
-            gas_giant: Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn
-            ice_giant: Planets composed of water, ammonia, and methane ices, like Uranus and Neptune
+            gas_giant:
+              Large planets composed mainly of hydrogen and helium, like Jupiter
+              and Saturn
+            ice_giant:
+              Planets composed of water, ammonia, and methane ices, like Uranus and
+              Neptune
             dwarf: Small planetary bodies that don't meet full planet criteria, like Pluto
             super_earth: Rocky planets larger than Earth but smaller than gas giants
           examples:
@@ -961,7 +983,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '1610-01-07T00:00:00Z'
+            - 1610-01-07T00:00:00Z
         image:
           type:
             - string
@@ -979,13 +1001,15 @@ components:
           items:
             type: string
           examples:
-            - ['solar-system', 'rocky', 'explored']
+            - - solar-system
+              - rocky
+              - explored
         lastUpdated:
           type: string
           format: date-time
           readOnly: true
           examples:
-            - '2024-01-15T14:30:00Z'
+            - 2024-01-15T14:30:00Z
         successCallbackUrl:
           type: string
           format: uri
@@ -1039,7 +1063,9 @@ components:
           x-enum-descriptions:
             moon: Natural satellites that orbit planets
             asteroid: Rocky objects that orbit the sun, typically found in the asteroid belt
-            comet: Icy bodies that release gas when approaching the sun, creating visible tails
+            comet:
+              Icy bodies that release gas when approaching the sun, creating visible
+              tails
           examples:
             - moon
         orbit:
@@ -1086,7 +1112,7 @@ components:
                 - string
                 - 'null'
               examples:
-                - '/planets?limit=10&offset=10'
+                - /planets?limit=10&offset=10
     ImageUploadedMessage:
       x-scalar-ignore: true
       description: Message about an image upload
@@ -1106,7 +1132,7 @@ components:
           format: date-time
           description: Timestamp when the image was uploaded
           examples:
-            - '2024-01-15T14:30:00Z'
+            - 2024-01-15T14:30:00Z
         fileSize:
           type: integer
           description: Size of the uploaded image in bytes
