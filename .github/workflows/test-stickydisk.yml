@@ -1,0 +1,78 @@
+name: Test Stickydisk
+
+on:
+  pull_request:
+  workflow_dispatch: null
+
+jobs:
+  write-file:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    steps:
+      - name: Attach sticky disk
+        uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+        with:
+          key: ${{ github.repository }}-test-stickydisk
+          path: .test-stickydisk
+      - name: Create test directory
+        run: mkdir -p .test-stickydisk
+      - name: Write test file
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          TEST_CONTENT="Stickydisk test file created at: $TIMESTAMP
+          Repository: ${{ github.repository }}
+          Workflow run: ${{ github.run_id }}
+          Commit: ${{ github.sha }}"
+          echo "$TEST_CONTENT" > .test-stickydisk/test-file.txt
+          echo "Test file written successfully"
+          echo "Content:"
+          cat .test-stickydisk/test-file.txt
+
+  read-file:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    needs: [write-file]
+    steps:
+      - name: Attach sticky disk
+        uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+        with:
+          key: ${{ github.repository }}-test-stickydisk
+          path: .test-stickydisk
+      - name: Check if test file exists
+        run: |
+          if [ ! -f .test-stickydisk/test-file.txt ]; then
+            echo "ERROR: Test file not found at .test-stickydisk/test-file.txt"
+            echo "Listing contents of .test-stickydisk:"
+            ls -la .test-stickydisk/ || echo "Directory does not exist"
+            exit 1
+          fi
+          echo "Test file found successfully"
+      - name: Read and validate test file content
+        run: |
+          FILE_CONTENT=$(cat .test-stickydisk/test-file.txt)
+          echo "File content:"
+          echo "$FILE_CONTENT"
+          echo ""
+
+          # Validate that the file contains expected information
+          if ! echo "$FILE_CONTENT" | grep -q "Stickydisk test file created at:"; then
+            echo "ERROR: File content does not contain expected header"
+            exit 1
+          fi
+
+          if ! echo "$FILE_CONTENT" | grep -q "${{ github.repository }}"; then
+            echo "ERROR: File content does not contain repository name"
+            exit 1
+          fi
+
+          if ! echo "$FILE_CONTENT" | grep -q "${{ github.run_id }}"; then
+            echo "ERROR: File content does not contain workflow run ID"
+            exit 1
+          fi
+
+          if ! echo "$FILE_CONTENT" | grep -q "${{ github.sha }}"; then
+            echo "ERROR: File content does not contain commit SHA"
+            exit 1
+          fi
+
+          echo "SUCCESS: All validations passed. Stickydisk is working correctly!"
