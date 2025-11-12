@@ -59,7 +59,9 @@ if (typeof window !== 'undefined') {
 }
 
 /** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus()
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
 
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(true)
