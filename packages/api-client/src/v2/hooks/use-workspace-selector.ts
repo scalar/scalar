@@ -99,15 +99,17 @@ export const useWorkspaceSelector = ({
 
     // For the dev mode we might want couple more documents for testing purpose
     // TODO: remove as soon as the command palette is implemented
-    await draftStore.addDocument({
-      name: 'scalar-galaxy',
-      url: 'https://galaxy.scalar.com/openapi.yaml',
-    })
+    if (import.meta.env.DEV) {
+      await draftStore.addDocument({
+        name: 'scalar-galaxy',
+        url: 'https://galaxy.scalar.com/openapi.yaml',
+      })
 
-    await draftStore.addDocument({
-      name: 'swagger-petstore-3-0',
-      url: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    })
+      await draftStore.addDocument({
+        name: 'swagger-petstore-3-0',
+        url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+      })
+    }
 
     const persistence = await persistencePromise
     await persistence.workspace.setItem(id, {
