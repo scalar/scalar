@@ -11,7 +11,7 @@ on:
   workflow_dispatch: null
 
 env:
-  TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
+  TURBO_CACHE_DIR: '${{ github.workspace }}/.turbo'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   TURBO_BASE_FLAGS: "--concurrency=100% --filter='!./integrations/{java,rust,dotnet,docker}/**'"
 jobs:
