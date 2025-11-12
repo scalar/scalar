@@ -1,3 +1,5 @@
+import type { ParameterObject, ParameterWithContentObject } from '@/schemas/v3.1/strict/parameter'
+
 import type { SchemaObject } from './schema'
 
 export const isObjectSchema = (schema: SchemaObject): schema is Extract<SchemaObject, { type: 'object' }> => {
@@ -26,4 +28,12 @@ export const isNumberSchema = (
       (Array.isArray(schema.type) && schema.type.includes('number')) ||
       (Array.isArray(schema.type) && schema.type.includes('integer')))
   )
+}
+
+/**
+ * Type guard to check if the given parameter is a ParameterWithContentObject,
+ * i.e., it has a 'content' property defined.
+ */
+export const isContentTypeParameterObject = (parameter: ParameterObject): parameter is ParameterWithContentObject => {
+  return 'content' in parameter && parameter.content !== undefined
 }

@@ -386,7 +386,7 @@ describe('updateOperationParameter', () => {
     expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
   })
 
-  it('updates name even if exampleKey is missing; does not create new example', () => {
+  it('updates name and example even if exampleKey is missing', () => {
     const document = createDocument({
       paths: {
         '/search': {
@@ -407,7 +407,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
-      payload: { key: 'query', value: 'ignored', isEnabled: false },
+      payload: { key: 'query', value: 'new value', isEnabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -417,7 +417,7 @@ describe('updateOperationParameter', () => {
     expect(param?.name).toBe('query')
     // But no new example for 'other' should be created; default remains unchanged
     assert(param && 'examples' in param && param.examples)
-    expect(param.examples.other).toBeUndefined()
+    expect(getResolvedRef(param.examples.other)?.value).toBe('new value')
     expect(getResolvedRef(param.examples.default)?.value).toBe('one')
   })
 
