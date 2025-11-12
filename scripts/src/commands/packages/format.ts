@@ -125,7 +125,7 @@ async function formatPackage(filepath: string) {
   // Ensure all peers are installed as dev dependencies to handle turbo order
   Object.entries(data.peerDependencies || {}).forEach(([key, peer]) => {
     // avoids override catalog entries with peer dependencies value
-    if (data.devDependencies[key].startsWith('catalog:')) {
+    if (data.devDependencies[key]?.startsWith('catalog:')) {
       return
     }
     data.devDependencies[key] = peer
