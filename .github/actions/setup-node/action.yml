@@ -20,12 +20,19 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
 
-    - name: Setup persistent turbo cache
-      if: inputs.use-turbo-cache == 'true'
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+    - name: Cache NuGet packages
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
       with:
-        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-random-0
+        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-${{ github.ref_name }}
+        restore-keys: |
+          ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-
         path: ${{ env.TURBO_CACHE_DIR }}
+    # - name: Setup persistent turbo cache
+    #   if: inputs.use-turbo-cache == 'true'
+    #   uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+    #   with:
+    #     key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-random-0
+    #     path: ${{ env.TURBO_CACHE_DIR }}
 
     - name: Install dependencies
       shell: bash
