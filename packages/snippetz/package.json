@@ -25,6 +25,7 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -237,7 +238,6 @@
     "dist",
     "CHANGELOG"
   ],
-  "module": "./dist/index.js",
   "dependencies": {
     "@scalar/types": "workspace:*",
     "js-base64": "catalog:*",

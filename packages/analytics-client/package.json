@@ -24,6 +24,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -34,7 +35,6 @@
   "files": [
     "dist"
   ],
-  "module": "dist/index.js",
   "dependencies": {
     "zod": "catalog:*"
   },

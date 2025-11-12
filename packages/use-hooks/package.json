@@ -24,6 +24,7 @@
   },
   "type": "module",
   "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -55,7 +56,6 @@
   "files": [
     "dist"
   ],
-  "module": "./dist/index.js",
   "dependencies": {
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "catalog:*",

@@ -1,7 +1,3 @@
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-
 namespace Scalar.AspNetCore.Swashbuckle.Filters;
 
 internal sealed class ExcludeFromApiReferenceDocumentFilter : IDocumentFilter
@@ -13,11 +9,22 @@ internal sealed class ExcludeFromApiReferenceDocumentFilter : IDocumentFilter
         // Group operations by tag
         foreach (var path in swaggerDoc.Paths)
         {
+            if (path.Value.Operations is null)
+            {
+                continue;
+            }
+
             foreach (var (_, operation) in path.Value.Operations)
             {
-                var tags = operation.Tags ?? [];
+                var tags = operation.Tags ?? new HashSet<OpenApiTagReference>();
+
                 foreach (var tagName in tags.Select(tag => tag.Name))
                 {
+                    if (tagName is null)
+                    {
+                        continue;
+                    }
+
                     if (!tagOperations.TryGetValue(tagName, out var operations))
                     {
                         operations = [];
@@ -42,7 +49,9 @@ internal sealed class ExcludeFromApiReferenceDocumentFilter : IDocumentFilter
                 continue;
             }
 
-            tagToExclude.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
+            tagToExclude.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+            tagToExclude.Extensions.TryAdd(ScalarIgnore, new JsonNodeExtension(TrueNode));
+
             // Remove the ignore extension from all operations with this tag
             foreach (var openApiOperation in operations)
             {
