@@ -18,6 +18,7 @@ import { computed } from 'vue'
 import { createStoreEvents } from '@/store/events'
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
 
 const { document, layout, eventBus, path, method, environment, exampleName } =
   defineProps<RouteProps>()
@@ -28,31 +29,14 @@ const operation = computed(() =>
     : undefined,
 )
 
-const isOperationAuth = computed(
-  () =>
-    (operation.value?.security?.length ?? 0) > 0 &&
-    JSON.stringify(operation.value?.security) !== '[{}]',
+/** Compute what the security requirements should be for a request */
+const security = computed(() =>
+  getSecurityRequirements(document, operation.value),
 )
 
-// Compute the security requirements for the operation
-const security = computed(() => {
-  if (!operation.value || !document) {
-    return []
-  }
-
-  if (isOperationAuth.value) {
-    return operation.value.security ?? []
-  }
-
-  if (JSON.stringify(operation.value?.security) === '[{}]') {
-    return [...(document.security ?? []), {}]
-  }
-
-  return document.security ?? []
-})
-
+/** Select the selected security for the operation or document */
 const selectedSecurity = computed(() => {
-  if (isOperationAuth.value) {
+  if (document?.['x-scalar-set-operation-security']) {
     return operation.value?.['x-scalar-selected-security']
   }
 
@@ -61,7 +45,7 @@ const selectedSecurity = computed(() => {
 
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
-  if (isOperationAuth.value) {
+  if (document?.['x-scalar-set-operation-security']) {
     return {
       type: 'operation',
       path: path ?? '',
@@ -78,6 +62,7 @@ const APP_VERSION = PACKAGE_VERSION
 </script>
 
 <template>
+  <!-- Operation exists -->
   <template v-if="path && method && exampleName && operation">
     <OperationBlock
       :appVersion="APP_VERSION"
@@ -99,6 +84,8 @@ const APP_VERSION = PACKAGE_VERSION
       :servers="[]"
       :totalPerformedRequests="0" />
   </template>
+
+  <!-- Empty state -->
   <div
     v-else
     class="flex h-full w-full items-center justify-center">
