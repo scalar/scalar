@@ -8,17 +8,16 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import type { createStoreEvents } from '@/store/events'
-import Headers from '@/v2/blocks/scalar-response-block/components/Headers.vue'
-import { textMediaTypes } from '@/v2/blocks/scalar-response-block/helpers/media-types'
+import Headers from '@/v2/blocks/response-block/components/Headers.vue'
+import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
+import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
+import ResponseBodyVirtual from '@/v2/blocks/response-block/components/ResponseBodyVirtual.vue'
+import ResponseCookies from '@/v2/blocks/response-block/components/ResponseCookies.vue'
+import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.vue'
+import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
+import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
+import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import type { ClientPlugin } from '@/v2/plugins'
-
-import ResponseBody from './ResponseBody.vue'
-import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
-import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
-import ResponseCookies from './ResponseCookies.vue'
-import ResponseEmpty from './ResponseEmpty.vue'
-import ResponseLoadingOverlay from './ResponseLoadingOverlay.vue'
-import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */
@@ -212,11 +211,11 @@ defineExpose({
           v-for="(plugin, index) in plugins"
           :key="index">
           <component
-            v-if="plugin.components?.response"
             :is="plugin.components.response"
+            v-if="plugin.components?.response"
             v-show="activeFilter === 'All'"
-            :response="response"
-            :request="request" />
+            :request="request"
+            :response="response" />
         </ScalarErrorBoundary>
         <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
           <!-- Streaming response body -->

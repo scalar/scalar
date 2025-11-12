@@ -7,9 +7,9 @@ import type { Entries } from 'type-fest'
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
-import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
-import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
-import { getExampleFromBody } from '@/v2/blocks/scalar-operation-block/helpers/get-request-body-example'
+import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
+import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTable,
@@ -224,7 +224,7 @@ const tableRows = computed(() => {
           </div>
         </template>
         <template v-else-if="selectedContentType === 'multipart/form-data'">
-          <OperationTable
+          <RequestTable
             :data="tableRows"
             :environment="environment"
             showUploadButton
@@ -281,7 +281,7 @@ const tableRows = computed(() => {
           v-else-if="
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
-          <OperationTable
+          <RequestTable
             :data="tableRows"
             :environment="environment"
             @addRow="

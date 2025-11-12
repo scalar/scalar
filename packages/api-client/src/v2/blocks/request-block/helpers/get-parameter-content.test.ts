@@ -1,7 +1,7 @@
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getParameterContentValue } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-content'
+import { getParameterContentValue } from '@/v2/blocks/request-block/helpers/get-parameter-content'
 
 describe('getParameterContentValue', () => {
   it('returns undefined when there is no content key', () => {

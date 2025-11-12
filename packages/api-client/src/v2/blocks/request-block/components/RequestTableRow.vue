@@ -6,9 +6,9 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
 import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
-import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
-import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
 import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTableCell,

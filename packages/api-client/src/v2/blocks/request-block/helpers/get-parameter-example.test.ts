@@ -1,7 +1,7 @@
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getParameterExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
+import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
 
 describe('getParameterExample', () => {
   it('extract example from parameter #1', () => {

@@ -26,14 +26,14 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { type createStoreEvents } from '@/store/events'
+import { RequestBlock } from '@/v2/blocks/request-block'
+import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import { OperationBlock } from '@/v2/blocks/scalar-operation-block'
-import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
 import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
 
-const props = defineProps<{
+const { eventBus, path, method, exampleKey, operation } = defineProps<{
   eventBus: WorkspaceEventBus
 
   /** Application version */
@@ -101,9 +101,36 @@ const props = defineProps<{
 }>()
 
 const draftMethod = computed(
-  () => (props.operation['x-scalar-method'] as HttpMethodType) ?? props.method,
+  () => (operation['x-scalar-method'] as HttpMethodType) ?? method,
 )
-const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
+const draftPath = computed(() => operation['x-scalar-path'] ?? path)
+
+const handleExecute = () =>
+  eventBus.emit('operation:send:request', {
+    meta: { path, method, exampleKey },
+  })
+
+const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
+  eventBus.emit('operation:update:method', {
+    meta: {
+      method,
+      path,
+    },
+    payload: {
+      method: payload.value,
+    },
+  })
+
+const handleUpdatePath = (payload: { value: string }) =>
+  eventBus.emit('operation:update:path', {
+    meta: {
+      method,
+      path,
+    },
+    payload: {
+      path: payload.value,
+    },
+  })
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -126,41 +153,14 @@ const draftPath = computed(() => props.operation['x-scalar-path'] ?? props.path)
         :servers="servers"
         :showSidebar="showSidebar"
         :source="source"
-        @execute="
-          () =>
-            eventBus.emit('operation:send:request', {
-              meta: { path, method, exampleKey },
-            })
-        "
-        @update:method="
-          (payload) =>
-            eventBus.emit('operation:update:method', {
-              meta: {
-                method,
-                path,
-              },
-              payload: {
-                method: payload.value,
-              },
-            })
-        "
-        @update:path="
-          (payload) =>
-            eventBus.emit('operation:update:path', {
-              meta: {
-                method,
-                path,
-              },
-              payload: {
-                path: payload.value,
-              },
-            })
-        " />
+        @execute="handleExecute"
+        @update:method="handleUpdateMethod"
+        @update:path="handleUpdatePath" />
     </div>
 
     <ViewLayout>
       <ViewLayoutContent class="flex flex-1">
-        <OperationBlock
+        <RequestBlock
           :authMeta="authMeta"
           :environment="environment"
           :eventBus="eventBus"

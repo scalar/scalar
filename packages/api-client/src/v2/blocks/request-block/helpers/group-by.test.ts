@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
+import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 
 describe('groupBy', () => {
   it('groups array elements by a common key', () => {

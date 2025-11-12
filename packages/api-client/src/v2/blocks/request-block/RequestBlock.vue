@@ -17,10 +17,10 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
+import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
+import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
+import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
-import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
-import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
 import type { ClientPlugin } from '@/v2/plugins'
 
 const {
@@ -279,7 +279,7 @@ const labelRequestNameId = useId()
       title="Authorization" />
 
     <!-- Variables (Path Parameters) -->
-    <OperationParams
+    <RequestParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
       :id="filterIds.Variables"
       :environment="environment"
@@ -292,7 +292,7 @@ const labelRequestNameId = useId()
       @update="createParameterHandlers('path').onUpdate" />
 
     <!-- Cookies -->
-    <OperationParams
+    <RequestParams
       v-show="isSectionVisible('Cookies')"
       :id="filterIds.Cookies"
       :environment="environment"
@@ -306,7 +306,7 @@ const labelRequestNameId = useId()
       @update="createParameterHandlers('cookie').onUpdate" />
 
     <!-- Headers -->
-    <OperationParams
+    <RequestParams
       v-show="isSectionVisible('Headers')"
       :id="filterIds.Headers"
       :environment="environment"
@@ -319,7 +319,7 @@ const labelRequestNameId = useId()
       @update="createParameterHandlers('header').onUpdate" />
 
     <!-- Query Parameters -->
-    <OperationParams
+    <RequestParams
       v-show="isSectionVisible('Query')"
       :id="filterIds.Query"
       :environment="environment"
@@ -332,7 +332,7 @@ const labelRequestNameId = useId()
       @update="createParameterHandlers('query').onUpdate" />
 
     <!-- Request Body -->
-    <OperationBody
+    <RequestBody
       v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
       :id="filterIds.Body"
       :environment="environment"

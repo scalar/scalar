@@ -1,7 +1,7 @@
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getParameterSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
+import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 
 describe('getParameterSchema', () => {
   it('return undefined when the schema does not exists', () => {

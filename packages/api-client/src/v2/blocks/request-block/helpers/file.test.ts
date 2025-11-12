@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { boolean } from 'zod'
 
-import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
+import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 
 describe('file', () => {
   describe('getFileName', () => {

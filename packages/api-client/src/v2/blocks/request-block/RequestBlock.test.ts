@@ -3,10 +3,10 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 
+import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 
-import OperationBlock from './OperationBlock.vue'
+import RequestBlock from './RequestBlock.vue'
 
 const defaultProps = {
   method: 'get' as const,
@@ -28,12 +28,12 @@ const defaultProps = {
   eventBus: createWorkspaceEventBus(),
 }
 
-describe('OperationBlock', () => {
+describe('RequestBlock', () => {
   it('renders request name input and emits on change for non-modal layout', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
     eventBus.on('operation:update:summary', fn)
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
       global: {
         stubs: {
@@ -57,7 +57,7 @@ describe('OperationBlock', () => {
   })
 
   it('renders summary text instead of input in modal layout', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, operation: { summary: 'My request' }, layout: 'modal' },
       global: {
         stubs: {
@@ -70,7 +70,7 @@ describe('OperationBlock', () => {
   })
 
   it('applies aria-label with request summary on the container', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
         operation: { ...(defaultProps.operation as any), summary: 'Summary' },
@@ -86,7 +86,7 @@ describe('OperationBlock', () => {
   })
 
   it('shows Auth section in modal layout', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
         layout: 'modal',
@@ -112,7 +112,7 @@ describe('OperationBlock', () => {
   })
 
   it('hides Auth section in modal layout when no security is configured', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
         layout: 'modal',
@@ -131,7 +131,7 @@ describe('OperationBlock', () => {
   })
 
   it('shows Auth section when not in modal layout', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps },
       global: {
         stubs: {
@@ -146,7 +146,7 @@ describe('OperationBlock', () => {
   })
 
   it('hides request body for methods without a body', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'get' },
       global: {
         stubs: {
@@ -155,13 +155,13 @@ describe('OperationBlock', () => {
       },
     })
 
-    const bodyGet = wrapper.findComponent(OperationBody)
+    const bodyGet = wrapper.findComponent(RequestBody)
     expect(bodyGet.exists()).toBe(true)
     expect(bodyGet.isVisible()).toBe(false)
   })
 
   it('shows request body for methods with a body', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'post' },
       global: {
         stubs: {
@@ -170,7 +170,7 @@ describe('OperationBlock', () => {
       },
     })
 
-    const bodyGet = wrapper.findComponent(OperationBody)
+    const bodyGet = wrapper.findComponent(RequestBody)
     expect(bodyGet.exists()).toBe(true)
     expect(bodyGet.isVisible()).toBe(true)
   })
@@ -181,7 +181,7 @@ describe('OperationBlock', () => {
     eventBus.on('operation:add:parameter', fn)
     eventBus.on('operation:update:parameter', fn)
     eventBus.on('operation:delete:parameter', fn)
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
       global: {
         stubs: {
@@ -242,7 +242,7 @@ describe('OperationBlock', () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
     eventBus.on('operation:delete-all:parameters', fn)
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
       global: {
         stubs: {
@@ -270,7 +270,7 @@ describe('OperationBlock', () => {
     eventBus.on('operation:update:requestBody:value', fn)
     eventBus.on('operation:add:requestBody:formRow', fn)
     eventBus.on('operation:update:requestBody:formRow', fn)
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'post', eventBus },
       global: {
         stubs: {
@@ -279,7 +279,7 @@ describe('OperationBlock', () => {
       },
     })
 
-    const body = wrapper.findComponent(OperationBody)
+    const body = wrapper.findComponent(RequestBody)
     expect(body.exists()).toBe(true)
 
     const contentTypePayload = { value: 'application/json' }
@@ -324,7 +324,7 @@ describe('OperationBlock', () => {
   })
 
   it('renders plugin component when provided', () => {
-    const wrapper = mount(OperationBlock, {
+    const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
         plugins: [

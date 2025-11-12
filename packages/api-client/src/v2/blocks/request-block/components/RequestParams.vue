@@ -4,10 +4,10 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
+import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
 import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
-import { getParameterExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
-import { getParameterSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 const {

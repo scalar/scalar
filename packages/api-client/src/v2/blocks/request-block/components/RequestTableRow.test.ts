@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
+import RequestTableTooltip from '@/v2/blocks/request-block/components/RequestTableTooltip.vue'
 import { CodeInput } from '@/v2/components/code-input'
 import { DataTableCheckbox } from '@/v2/components/data-table'
 
-import OperationTableRow from './OperationTableRow.vue'
+import OperationTableRow from './RequestTableRow.vue'
 
 const environment = {
   description: 'Test Environment',
@@ -178,7 +178,7 @@ describe('OperationTableRow', () => {
       },
     })
 
-    expect(wrapper.findComponent(OperationTableTooltip).exists()).toBe(true)
+    expect(wrapper.findComponent(RequestTableTooltip).exists()).toBe(true)
   })
 
   it('does not display tooltip when schema does not exist', () => {
@@ -194,7 +194,7 @@ describe('OperationTableRow', () => {
       },
     })
 
-    expect(wrapper.findComponent(OperationTableTooltip).exists()).toBe(false)
+    expect(wrapper.findComponent(RequestTableTooltip).exists()).toBe(false)
   })
 
   it('displays file upload button when showUploadButton is true', () => {
