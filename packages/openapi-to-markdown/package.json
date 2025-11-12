@@ -36,16 +36,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
     }
   },
   "files": [
@@ -60,13 +50,11 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
-    "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.0",
     "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
-    "rehype-stringify": "^10.0.0",
     "remark-gfm": "^4.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.4",
