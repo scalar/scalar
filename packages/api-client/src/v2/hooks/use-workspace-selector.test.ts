@@ -49,7 +49,9 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // We are loading documents from an url so it takes a while to load
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     expect(store.value).not.toBeNull()
     assert(store.value)
@@ -95,13 +97,13 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
     })
   })
 
-  it('should create and navigate to the new worksapce', async () => {
+  it('should create and navigate to the new workspace', async () => {
     const persistence = await persistencePromise
     const { activeWorkspace, createWorkspace } = useWorkspaceSelector({ workspaceId: 'default' })
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     expect(activeWorkspace.value).not.toBeNull()
     assert(activeWorkspace.value)
@@ -113,7 +115,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // this will set the active workspace to the new workspace
     expect(push).toHaveBeenCalledWith({ name: 'workspace', params: { workspaceSlug: 'new-workspace' } })
