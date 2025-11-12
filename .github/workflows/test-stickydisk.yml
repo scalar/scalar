@@ -38,7 +38,7 @@ jobs:
         with:
           key: ${{ github.repository }}-test-stickydisk
           path: .test-stickydisk
-      - name: Check if test file exists
+      - name: Check if test file exists 1
         run: |
           if [ ! -f .test-stickydisk/test-file.txt ]; then
             echo "ERROR: Test file not found at .test-stickydisk/test-file.txt"
