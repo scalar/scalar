@@ -68,7 +68,7 @@ public abstract class AbstractScalarController {
 
         // Replace the placeholders with actual values
         String bundleUrl = buildJsBundleUrl(basePath);
-        String title = Objects.requireNonNullElse(properties.getTitle(), "Scalar API Reference");
+        String title = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
         String injectedHtml = html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
                 .replace("__TITLE__", title)

@@ -67,7 +67,7 @@ public class ScalarProperties {
      * Controls the title of the HTML document.
      * Defaults to "Scalar API Reference".
      */
-    private String title = "Scalar API Reference";
+    private String pageTitle = "Scalar API Reference";
 
     /**
      * Whether the sidebar should be shown.
@@ -350,17 +350,17 @@ public class ScalarProperties {
      *
      * @return the HTML document title
      */
-    public String getTitle() {
-        return title;
+    public String getPageTitle() {
+        return pageTitle;
     }
 
     /**
      * Sets the title of the HTML document.
      *
-     * @param title the HTML document title
+     * @param pageTitle the HTML document title
      */
-    public void setTitle(String title) {
-        this.title = title;
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
     }
 
     /**

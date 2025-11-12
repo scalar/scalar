@@ -41,7 +41,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithDefaultConfiguration() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
-            when(properties.getTitle()).thenReturn("Scalar API Reference");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -67,7 +67,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithCustomUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api/openapi.json");
-            when(properties.getTitle()).thenReturn("Scalar API Reference");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -93,7 +93,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithNullUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn(null);
-            when(properties.getTitle()).thenReturn("Scalar API Reference");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -119,7 +119,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithEmptyUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("");
-            when(properties.getTitle()).thenReturn("Scalar API Reference");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -139,6 +139,31 @@ class ScalarControllerTest {
                     .contains("<title>Scalar API Reference</title>")
                     .contains("Scalar.createApiReference('#app',");
         }
+
+        @Test
+        @DisplayName("should return HTML with custom pageTitle")
+        void shouldReturnHtmlWithCustomPageTitle() throws Exception {
+            // Given
+            when(properties.getPageTitle()).thenReturn("My Custom API Documentation");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs(request);
+
+            // Then
+            assertThat(response)
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
+
+            String html = response.getBody();
+            assertThat(html)
+                    .isNotNull()
+                    .contains("<!doctype html>")
+                    .contains("<title>My Custom API Documentation</title>")
+                    .contains("Scalar.createApiReference('#app',");
+        }
     }
 
     @Nested
@@ -150,7 +175,7 @@ class ScalarControllerTest {
         void shouldReturnValidHtmlStructure() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api.json");
-            when(properties.getTitle()).thenReturn("Scalar API Reference");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
