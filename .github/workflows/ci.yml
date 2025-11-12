@@ -27,11 +27,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Restore turbo cache
-        id: turbo-cache-restore
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+      - name: Cache turbo cache
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-${{ github.ref_name }}
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-build-${{ github.sha }}
+          restore-keys: |
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-build-
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
           path: ${{ env.TURBO_CACHE_DIR }}
 
       - name: Checkout repository
@@ -41,12 +43,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
-
-      - name: Save turbo cache
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          key: ${{ steps.turbo-cache-restore.outputs.cache-primary-key }}
-          path: ${{ env.TURBO_CACHE_DIR }}
 
       - if: matrix.node-version == 22
         name: Copy and rename standalone.js to scalar.js
@@ -242,6 +238,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Cache turbo cache
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-types-${{ github.sha }}
+          restore-keys: |
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-types-
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
+          path: ${{ env.TURBO_CACHE_DIR }}
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: ./.github/actions/setup-node
         with:
