@@ -299,7 +299,7 @@ export const updateOperationParameter = ({
   // Create the example if it doesn't exist
   if (!example) {
     parameter.examples[meta.exampleKey] = {
-      value: payload.value,
+      value: payload.value ?? '',
       'x-disabled': payload.isEnabled === undefined ? false : !payload.isEnabled,
     }
     return
