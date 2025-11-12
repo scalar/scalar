@@ -21,7 +21,6 @@
     "packages/nextjs-openapi/**",
     "packages/object-utils/**",
     "packages/openapi-parser/**",
-    "packages/openapi-to-markdown/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
     "packages/pre-post-request-scripts/**",

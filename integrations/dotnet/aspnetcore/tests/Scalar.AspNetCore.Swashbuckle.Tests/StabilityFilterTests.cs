@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Scalar.AspNetCore.Microsoft.Tests;
+namespace Scalar.AspNetCore.Swashbuckle.Tests;
 
-public class StabilityTransformerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class StabilityFilterTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
     [Fact]
     public async Task StabilityTransformer_ShouldAddStabilityExtension()

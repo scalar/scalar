@@ -47,7 +47,7 @@ export async function createMarkdownFromOpenApi(content: AnyDocument) {
   return markdownFromHtml(await createHtmlFromOpenApi(content))
 }
 
-export async function markdownFromHtml(html: string): Promise<string> {
+async function markdownFromHtml(html: string): Promise<string> {
   const file = await unified()
     .use(rehypeParse, { fragment: true })
     .use(remarkGfm)
