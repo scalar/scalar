@@ -11,7 +11,6 @@ on:
   workflow_dispatch: null
 
 env:
-  TURBO_CACHE_DIR: '${{ github.workspace }}/.turbo'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   TURBO_BASE_FLAGS: "--concurrency=100% --filter='!./integrations/{java,rust,dotnet,docker}/**'"
 jobs:
@@ -29,11 +28,11 @@ jobs:
       - name: Cache turbo cache
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-build-${{ github.sha }}
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-build-${{ github.sha }}
           restore-keys: |
-            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-build-
-            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
-          path: ${{ env.TURBO_CACHE_DIR }}
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-build-
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-
+          path: .turbo
 
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -241,11 +240,11 @@ jobs:
       - name: Cache turbo cache
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-types-${{ github.sha }}
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-types-${{ github.sha }}
           restore-keys: |
-            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-types-
-            ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
-          path: ${{ env.TURBO_CACHE_DIR }}
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-types-
+            ${{ github.repository }}-${{ matrix.node-version }}-turbo-
+          path: .turbo
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: ./.github/actions/setup-node
         with:

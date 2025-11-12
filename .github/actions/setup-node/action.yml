@@ -24,7 +24,7 @@ runs:
     #   if: inputs.use-turbo-cache == 'true'
     #   uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
     #   with:
-    #     key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-random-0
+    #     key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
     #     path: ${{ env.TURBO_CACHE_DIR }}
 
     - name: Install dependencies
