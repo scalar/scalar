@@ -41,6 +41,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithDefaultConfiguration() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
+            when(properties.getTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -66,6 +67,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithCustomUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api/openapi.json");
+            when(properties.getTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -91,6 +93,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithNullUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn(null);
+            when(properties.getTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -116,6 +119,7 @@ class ScalarControllerTest {
         void shouldReturnHtmlWithEmptyUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("");
+            when(properties.getTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);
@@ -146,6 +150,7 @@ class ScalarControllerTest {
         void shouldReturnValidHtmlStructure() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = controller.getDocs(request);

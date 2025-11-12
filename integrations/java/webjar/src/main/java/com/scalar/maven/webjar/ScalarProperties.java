@@ -64,6 +64,12 @@ public class ScalarProperties {
     private String path = "/scalar";
 
     /**
+     * Controls the title of the HTML document.
+     * Defaults to "Scalar API Reference".
+     */
+    private String title = "Scalar API Reference";
+
+    /**
      * Whether the sidebar should be shown.
      * Defaults to true.
      */
@@ -195,7 +201,8 @@ public class ScalarProperties {
     /**
      * Controls whether telemetry is enabled.
      * Telemetry tracks only whether a request was sent through the API client.
-     * We don't track who sent the request, what request was sent, or where it was sent to.
+     * We don't track who sent the request, what request was sent, or where it was
+     * sent to.
      * Defaults to true (enabled).
      */
     private boolean telemetry = true;
@@ -336,6 +343,24 @@ public class ScalarProperties {
      */
     public void setPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * Gets the title of the HTML document.
+     *
+     * @return the HTML document title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title of the HTML document.
+     *
+     * @param title the HTML document title
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**

@@ -50,6 +50,12 @@ class ScalarPropertiesTest {
         }
 
         @Test
+        @DisplayName("should have correct default title")
+        void shouldHaveCorrectDefaultTitle() {
+            assertThat(properties.getTitle()).isEqualTo("Scalar API Reference");
+        }
+
+        @Test
         @DisplayName("should have correct default showSidebar")
         void shouldHaveCorrectDefaultShowSidebar() {
             assertThat(properties.isShowSidebar()).isTrue();
@@ -143,7 +149,7 @@ class ScalarPropertiesTest {
     class EnabledProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get enabled state")
         void shouldSetAndGetEnabledState(boolean enabled) {
             // When
@@ -228,7 +234,7 @@ class ScalarPropertiesTest {
     class ShowSidebarProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get showSidebar state")
         void shouldSetAndGetShowSidebarState(boolean showSidebar) {
             // When
@@ -244,7 +250,7 @@ class ScalarPropertiesTest {
     class HideModelsProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideModels state")
         void shouldSetAndGetHideModelsState(boolean hideModels) {
             // When
@@ -260,7 +266,7 @@ class ScalarPropertiesTest {
     class HideTestRequestButtonProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideTestRequestButton state")
         void shouldSetAndGetHideTestRequestButtonState(boolean hideTestRequestButton) {
             // When
@@ -276,7 +282,7 @@ class ScalarPropertiesTest {
     class DarkModeProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get darkMode state")
         void shouldSetAndGetDarkModeState(boolean darkMode) {
             // When
@@ -292,7 +298,7 @@ class ScalarPropertiesTest {
     class HideDarkModeToggleProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideDarkModeToggle state")
         void shouldSetAndGetHideDarkModeToggleState(boolean hideDarkModeToggle) {
             // When
@@ -346,7 +352,7 @@ class ScalarPropertiesTest {
     class HideSearchProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get hideSearch state")
         void shouldSetAndGetHideSearchState(boolean hideSearch) {
             // When
@@ -362,7 +368,7 @@ class ScalarPropertiesTest {
     class ActuatorEnabledProperty {
 
         @ParameterizedTest
-        @ValueSource(booleans = {true, false})
+        @ValueSource(booleans = { true, false })
         @DisplayName("should set and get actuatorEnabled state")
         void shouldSetAndGetActuatorEnabledState(boolean actuatorEnabled) {
             // When
