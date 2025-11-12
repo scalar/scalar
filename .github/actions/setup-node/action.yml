@@ -20,11 +20,6 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
 
-    - name: Restore turbo cache
-      uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-      with:
-        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache-${{ github.ref_name }}
-        path: ${{ env.TURBO_CACHE_DIR }}
     # - name: Setup persistent turbo cache
     #   if: inputs.use-turbo-cache == 'true'
     #   uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
