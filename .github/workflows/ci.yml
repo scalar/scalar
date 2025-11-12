@@ -45,7 +45,7 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
-      - if: matrix.node-version == 22
+      - if: github.event.pull_request.head.repo.full_name == github.repository && matrix.node-version == 22
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
         with:
