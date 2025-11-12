@@ -43,6 +43,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -229,7 +230,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "module": "dist/index.js",
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
@@ -279,12 +279,12 @@
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
+    "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "jsdom": "^22.1.0",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
-    "vitest": "catalog:*",
-    "fake-indexeddb": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

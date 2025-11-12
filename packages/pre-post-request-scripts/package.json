@@ -36,6 +36,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -87,7 +88,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "module": "dist/index.js",
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.3",
     "@headlessui/vue": "catalog:*",

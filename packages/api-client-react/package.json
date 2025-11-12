@@ -31,6 +31,7 @@
   },
   "type": "module",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -43,7 +44,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "module": "./dist/index.js",
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/types": "workspace:*",

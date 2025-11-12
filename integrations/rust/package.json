@@ -71,22 +71,6 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "rust": {
-    "crate": "scalar_api_reference",
-    "version": "0.1.0",
-    "features": [
-      "axum",
-      "actix-web",
-      "warp"
-    ],
-    "examples": [
-      "axum",
-      "actix",
-      "warp"
-    ]
-  },
-  "dependencies": {},
-  "devDependencies": {},
   "readme": {
     "title": "Scalar API Reference Crate for Rust",
     "badges": [
@@ -104,5 +88,21 @@
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/rust"
-  }
+  },
+  "rust": {
+    "crate": "scalar_api_reference",
+    "version": "0.1.0",
+    "features": [
+      "axum",
+      "actix-web",
+      "warp"
+    ],
+    "examples": [
+      "axum",
+      "actix",
+      "warp"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }

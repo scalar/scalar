@@ -29,6 +29,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
     "./array/*": {
       "import": "./dist/array/*.js",
@@ -95,7 +96,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "module": "dist/index.js",
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*",

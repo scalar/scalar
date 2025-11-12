@@ -35,6 +35,7 @@
   },
   "type": "module",
   "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -46,7 +47,6 @@
   "files": [
     "dist"
   ],
-  "module": "./dist/index.js",
   "dependencies": {
     "@floating-ui/utils": "catalog:*",
     "@floating-ui/vue": "catalog:*",
