@@ -1,8 +1,3 @@
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-
 namespace Scalar.AspNetCore.Swashbuckle.Filters;
 
 internal sealed class ExcludeFromApiReferenceOperationFilter : IOperationFilter
@@ -11,10 +6,12 @@ internal sealed class ExcludeFromApiReferenceOperationFilter : IOperationFilter
     {
         var hasExcludeAttribute = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<ExcludeFromApiReferenceAttribute>().Any();
 
-        if (hasExcludeAttribute)
+        if (!hasExcludeAttribute)
         {
-            operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-            operation.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
+            return;
         }
+
+        operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        operation.Extensions.TryAdd(ScalarIgnore, new JsonNodeExtension(TrueNode));
     }
 }
