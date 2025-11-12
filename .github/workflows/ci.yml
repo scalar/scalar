@@ -53,6 +53,24 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
+  build-dummy:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    permissions:
+      contents: read
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
+
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
