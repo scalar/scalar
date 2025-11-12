@@ -2,6 +2,12 @@ import { build } from './src/esbuild'
 
 await build({
   platform: 'node',
-  entries: 'auto',
+  entries: [
+    //
+    './src/index.ts',
+    './src/esbuild/index.ts',
+    './src/rollup/index.ts',
+    './src/vite/index.ts',
+  ],
   allowCss: false,
 })
