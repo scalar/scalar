@@ -68,10 +68,10 @@ public abstract class AbstractScalarController {
 
         // Replace the placeholders with actual values
         String bundleUrl = buildJsBundleUrl(basePath);
-        String title = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
+        String pageTitle = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
         String injectedHtml = html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
-                .replace("__TITLE__", title)
+                .replace("__PAGE_TITLE__", pageTitle)
                 .replace("__CONFIGURATION__", buildConfigurationJson(request));
 
         return injectedHtml;
@@ -130,7 +130,7 @@ public abstract class AbstractScalarController {
      * @param properties the properties to configure
      * @param request    the HTTP request
      * @return the configured properties (may be the same instance or a modified
-     * copy)
+     *         copy)
      */
     protected ScalarProperties configureProperties(ScalarProperties properties, HttpServletRequest request) {
         return properties;
