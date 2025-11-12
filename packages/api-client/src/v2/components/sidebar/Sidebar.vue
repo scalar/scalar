@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ScalarIconButton, ScalarSidebarSearchInput } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { ScalarSidebar, type SidebarState } from '@scalar/sidebar'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import { SearchButton } from '@/v2/features/search'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -19,6 +22,8 @@ const { sidebarState, layout } = defineProps<{
   layout: ClientLayout
   activeWorkspace: Workspace
   workspaces: Workspace[]
+  eventBus: WorkspaceEventBus
+  documents: WorkspaceDocument[]
 }>()
 
 const emit = defineEmits<{
@@ -76,8 +81,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 v-if="layout === 'desktop'"
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
-                @select:workspace="(id) => emit('select:workspace', id)"
-                @createWorkspace="emit('create:workspace')" />
+                @createWorkspace="emit('create:workspace')"
+                @select:workspace="(id) => emit('select:workspace', id)" />
 
               <!-- Toggle the sidebar -->
               <SidebarToggle
@@ -92,10 +97,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <!-- Search input, always visible on web -->
-            <ScalarSidebarSearchInput
+            <SearchButton
               v-if="isSearchVisible || layout === 'web'"
-              :autofocus="layout !== 'web'" />
+              :documents="documents"
+              :eventBus="eventBus" />
           </div>
         </template>
 

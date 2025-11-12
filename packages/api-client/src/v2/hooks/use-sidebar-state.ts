@@ -240,6 +240,15 @@ export const useSidebarState = ({
       })
     }
 
+    if (entry.type === 'text') {
+      return router.push({
+        name: 'document.overview',
+        params: {
+          documentSlug: getParent('document', entry)?.name,
+        },
+      })
+    }
+
     state.setExpanded(id, !state.isExpanded(id))
     return
   }

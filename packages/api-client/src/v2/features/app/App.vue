@@ -37,6 +37,23 @@ const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
 }>()
 
+/** Expose workspace store to window for debugging purposes. */
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => store.value
+}
+/** Default sidebar width in pixels. */
+const DEFAULT_SIDEBAR_WIDTH = 288
+
+/** Initialize color mode to ensure it is set on mount. */
+useColorMode()
+
+/** Workspace event bus for handling workspace-level events. */
+const eventBus = createWorkspaceEventBus()
+
+/** Controls the visibility of the sidebar. */
+const isSidebarOpen = ref(true)
+
 const route = useRoute()
 const router = useRouter()
 
@@ -45,24 +62,6 @@ const getRouteParam = (paramName: string): string | undefined => {
   const param = route.params[paramName]
   return typeof param === 'string' ? param : undefined
 }
-
-/** Default sidebar width in pixels. */
-const DEFAULT_SIDEBAR_WIDTH = 288
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode()
-
-/** Expose workspace store to window for debugging purposes. */
-if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => store.value
-}
-
-/** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus()
-
-/** Controls the visibility of the sidebar. */
-const isSidebarOpen = ref(true)
 
 /** Current workspace slug from the route, defaults to 'default'. */
 const workspaceSlug = computed(() => getRouteParam('workspaceSlug'))
@@ -110,7 +109,12 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
-useWorkspaceClientEvents(eventBus, document, store)
+useWorkspaceClientEvents({
+  eventBus,
+  document,
+  workspaceStore: store,
+  navigateTo: handleSelectItem,
+})
 
 /**
  * Merged environment variables from workspace and document levels.
@@ -221,8 +225,8 @@ const createWorkspaceModalState = useModal()
         v-else
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
-        @select:workspace="handleSelectWorkspace"
-        @create:workspace="createWorkspaceModalState.show()" />
+        @create:workspace="createWorkspaceModalState.show()"
+        @select:workspace="handleSelectWorkspace" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -231,16 +235,18 @@ const createWorkspaceModalState = useModal()
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
+          :documents="Object.values(store.workspace.documents)"
+          :eventBus="eventBus"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
           :sidebarState="sidebarState"
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
+          @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
           @selectItem="handleSelectItem"
-          @update:sidebarWidth="handleSidebarWidthUpdate"
-          @create:workspace="createWorkspaceModalState.show()" />
+          @update:sidebarWidth="handleSidebarWidthUpdate" />
 
         <!-- Create workspace modal -->
         <CreateWorkspaceModal

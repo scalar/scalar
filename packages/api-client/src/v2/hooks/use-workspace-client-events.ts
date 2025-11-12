@@ -35,11 +35,17 @@ import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
 /**
  * Top level state mutation handling for the workspace store in the client
  */
-export const useWorkspaceClientEvents = (
-  eventBus: WorkspaceEventBus,
-  document: ComputedRef<WorkspaceDocument | null>,
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>,
-) => {
+export const useWorkspaceClientEvents = ({
+  eventBus,
+  document,
+  workspaceStore,
+  navigateTo,
+}: {
+  eventBus: WorkspaceEventBus
+  document: ComputedRef<WorkspaceDocument | null>
+  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
+  navigateTo: (id: string) => Promise<unknown> | undefined
+}) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
     document: ComputedRef<WorkspaceDocument | null>,
@@ -60,6 +66,7 @@ export const useWorkspaceClientEvents = (
   eventBus.on('document:update:icon', (icon) => updateDocumentIcon(document.value, icon))
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
+  eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers

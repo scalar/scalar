@@ -2,6 +2,8 @@
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
 import { ScalarIconGlobe } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { capitalize, computed } from 'vue'
 
@@ -37,6 +39,8 @@ const { sidebarState, layout, activeWorkspace } = defineProps<{
    * Used to render options for workspace switching and selection.
    */
   workspaces: Workspace[]
+  eventBus: WorkspaceEventBus
+  documents: WorkspaceDocument[]
 }>()
 
 const emit = defineEmits<{
@@ -77,11 +81,13 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     :activeWorkspace="activeWorkspace"
+    :documents="documents"
+    :eventBus="eventBus"
     :layout="layout"
     :sidebarState="sidebarState"
     :workspaces="workspaces"
-    @select:workspace="(id) => emit('select:workspace', id)"
     @createWorkspace="emit('create:workspace')"
+    @select:workspace="(id) => emit('select:workspace', id)"
     @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
