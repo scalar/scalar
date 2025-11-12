@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarMarkdown, ScalarMarkdownSummary } from '@scalar/components'
+import {
+  ScalarMarkdown,
+  ScalarMarkdownSummary,
+  ScalarWrappingText,
+} from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -105,7 +108,11 @@ const shouldCollapse = computed<boolean>(() =>
             class="parameter-item-icon size-3 transition-transform duration-100"
             :class="{ 'rotate-90': open }"
             weight="bold" />
-          <div>{{ addWordBreaks(name, { preset: 'property' }) }}</div>
+          <div>
+            <ScalarWrappingText
+              :text="name"
+              preset="property" />
+          </div>
         </div>
         <ScalarMarkdownSummary
           v-if="!open && parameter.description"

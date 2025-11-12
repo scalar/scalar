@@ -4,13 +4,13 @@ import {
   ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
+  ScalarWrappingText,
 } from '@scalar/components'
 import {
   Draggable,
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import { ScalarIconFolder } from '@scalar/icons'
 
 import type { Item } from '@/types'
@@ -165,14 +165,17 @@ const handleDragEnd = (
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
       <template v-if="item.type === 'model'">
-        {{ addWordBreaks(item.title, { preset: 'property' }) }}
+        <ScalarWrappingText
+          :text="item.title"
+          preset="property" />
       </template>
       <template v-else>
-        {{
-          options?.operationTitleSource === 'path' && 'path' in item
-            ? addWordBreaks(item.path)
-            : addWordBreaks(item.title)
-        }}
+        <ScalarWrappingText
+          :text="
+            options?.operationTitleSource === 'path' && 'path' in item
+              ? item.path
+              : item.title
+          " />
       </template>
       <template
         v-if="'method' in item || $slots.decorator"
