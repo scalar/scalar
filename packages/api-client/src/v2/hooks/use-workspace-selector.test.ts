@@ -18,7 +18,7 @@ vi.mock('vue-router', () => ({
   })),
 }))
 
-describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () => {
+describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout: 50_000 }, () => {
   const persistencePromise = createWorkspaceStorePersistence()
 
   beforeEach(() => {
@@ -51,7 +51,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
     await flushPromises()
 
     // We are loading documents from an url so it takes a while to load
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 10_000))
 
     expect(store.value).not.toBeNull()
     assert(store.value)
@@ -103,7 +103,8 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // change the timeout when we remove the loading default documents
+    await new Promise((resolve) => setTimeout(resolve, 10_000))
 
     expect(activeWorkspace.value).not.toBeNull()
     assert(activeWorkspace.value)
@@ -115,7 +116,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false }, () =>
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 10_000))
 
     // this will set the active workspace to the new workspace
     expect(push).toHaveBeenCalledWith({ name: 'workspace', params: { workspaceSlug: 'new-workspace' } })
