@@ -49,6 +49,7 @@
   },
   "type": "module",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -78,7 +79,6 @@
   "esm.sh": {
     "bundle": true
   },
-  "module": "./dist/index.js",
   "dependencies": {
     "@floating-ui/vue": "catalog:*",
     "@headlessui/vue": "catalog:*",

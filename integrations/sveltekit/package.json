@@ -44,6 +44,21 @@
     "!src/**/*.test.*",
     "!src/**/*.spec.*"
   ],
+  "readme": {
+    "title": "Scalar API Reference for SvelteKit",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/sveltekit"
+  },
   "sideEffects": [
     "**/*.css"
   ],
@@ -61,20 +76,5 @@
   "peerDependencies": {
     "@sveltejs/kit": "^2.25.0",
     "svelte": "^5.0.0"
-  },
-  "readme": {
-    "title": "Scalar API Reference for SvelteKit",
-    "badges": [
-      {
-        "type": "npm-version"
-      },
-      {
-        "type": "npm-downloads"
-      },
-      {
-        "type": "npm-license"
-      }
-    ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/sveltekit"
   }
 }
