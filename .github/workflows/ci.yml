@@ -34,6 +34,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
+
+      - name: Save turbo cache
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache-${{ github.ref_name }}
+          path: ${{ env.TURBO_CACHE_DIR }}
+
       - if: matrix.node-version == 22
         name: Copy and rename standalone.js to scalar.js
         run: |
