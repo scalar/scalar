@@ -15,8 +15,6 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'title', weight: 0.7 },
       // Medium weight - helpful but often verbose
       { name: 'description', weight: 0.3 },
-      // Lowest weight - can be very long and noisy
-      { name: 'body', weight: 0.2 },
       // High weight - unique identifiers for operations
       { name: 'operationId', weight: 0.6 },
       // Good weight - endpoint paths are searchable

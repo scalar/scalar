@@ -88,7 +88,7 @@ function handleClick() {
   </ScalarSidebarSearchButton>
 
   <SearchModal
-    :documents
+    :documents="documents"
     :eventBus="eventBus"
     :hideModels="hideModels"
     :modalState="modalState" />

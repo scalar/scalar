@@ -11,7 +11,7 @@ const MAX_SEARCH_RESULTS = 25
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex(documents: MaybeRefOrGetter<OpenApiDocument[] | undefined>) {
+export function useSearchIndex(documents: MaybeRefOrGetter<OpenApiDocument[]>) {
   /** When the document changes we replace the search index */
   const fuse = computed(() => {
     const instance = createFuseInstance()

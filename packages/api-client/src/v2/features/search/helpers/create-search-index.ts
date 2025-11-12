@@ -7,7 +7,7 @@ import type { FuseData } from '@/v2/features/search/types'
 /**
  * Create a search index from a list of entries.
  */
-export function createSearchIndex(documents: OpenApiDocument[] | undefined): FuseData[] {
+export function createSearchIndex(documents: OpenApiDocument[]): FuseData[] {
   const index: FuseData[] = []
 
   /**
@@ -24,7 +24,6 @@ export function createSearchIndex(documents: OpenApiDocument[] | undefined): Fus
     })
   }
 
-  // processEntries(document?.['x-scalar-navigation']?.children ?? [])
   documents?.forEach((document) => processEntries(document['x-scalar-navigation']?.children ?? [], document))
 
   return index
