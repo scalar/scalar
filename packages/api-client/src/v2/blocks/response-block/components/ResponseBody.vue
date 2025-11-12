@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 
-import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
+import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'
+import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
 import { CollapsibleSection } from '@/v2/components/layout'
 
-import { getMediaTypeConfig } from './../helpers/media-types'
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyPreview from './ResponseBodyPreview.vue'

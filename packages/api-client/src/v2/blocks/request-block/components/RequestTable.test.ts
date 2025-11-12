@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import OperationTable from './OperationTable.vue'
+import RequestTable from './RequestTable.vue'
 
 const environment = {
   description: 'Test Environment',
@@ -9,9 +9,9 @@ const environment = {
   color: 'c',
 }
 
-describe('OperationTable', () => {
+describe('RequestTable', () => {
   it('renders with empty data', () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [],
         environment,
@@ -20,13 +20,13 @@ describe('OperationTable', () => {
     })
 
     expect(wrapper.exists()).toBe(true)
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Should have one empty row added by displayData computed
     expect(rows.length).toBe(1)
   })
 
   it('renders with provided data', () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [
           { name: 'header1', value: 'value1', isEnabled: true },
@@ -37,13 +37,13 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Should have 2 data rows + 1 empty row
     expect(rows.length).toBe(3)
   })
 
   it('adds empty row when last row has content', () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [
           { name: 'key1', value: 'val1', isEnabled: true },
@@ -54,13 +54,13 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Original 2 rows + 1 empty row
     expect(rows.length).toBe(3)
   })
 
   it('does not add empty row when last row is already empty', () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [
           { name: 'key1', value: 'val1', isEnabled: true },
@@ -71,13 +71,13 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Only 2 rows, no additional empty row needed
     expect(rows.length).toBe(2)
   })
 
   it('emits addRow when updating last row', async () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [{ name: 'existing', value: 'data', isEnabled: true }],
         environment,
@@ -85,7 +85,7 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Update the last row (index 1, which is the empty row)
     await rows[1]?.vm.$emit('updateRow', { key: 'new', value: 'row' })
 
@@ -97,7 +97,7 @@ describe('OperationTable', () => {
   })
 
   it('emits updateRow when updating existing row', async () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [
           { name: 'key1', value: 'val1', isEnabled: true },
@@ -108,7 +108,7 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Update first row (index 0)
     await rows[0]?.vm.$emit('updateRow', {
       key: 'updated',
@@ -121,7 +121,7 @@ describe('OperationTable', () => {
   })
 
   it('emits deleteRow with correct index', async () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [
           { name: 'key1', value: 'val1', isEnabled: true },
@@ -132,7 +132,7 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     await rows[1]?.vm.$emit('deleteRow')
 
     expect(wrapper.emitted('deleteRow')).toBeTruthy()
@@ -140,7 +140,7 @@ describe('OperationTable', () => {
   })
 
   it('emits uploadFile with correct index', async () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [{ name: 'file', value: '', isEnabled: true }],
         environment,
@@ -149,7 +149,7 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     await rows[0]?.vm.$emit('uploadFile')
 
     expect(wrapper.emitted('uploadFile')).toBeTruthy()
@@ -157,7 +157,7 @@ describe('OperationTable', () => {
   })
 
   it('emits removeFile with correct index', async () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [{ name: 'file', value: 'test.pdf', isEnabled: true }],
         environment,
@@ -166,15 +166,15 @@ describe('OperationTable', () => {
       },
     })
 
-    const rows = wrapper.findAllComponents({ name: 'OperationTableRow' })
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     await rows[0]?.vm.$emit('removeFile')
 
     expect(wrapper.emitted('removeFile')).toBeTruthy()
     expect(wrapper.emitted('removeFile')?.[0]?.[0]).toBe(0)
   })
 
-  it('passes props to OperationTableRow correctly', () => {
-    const wrapper = mount(OperationTable, {
+  it('passes props to RequestTableRow correctly', () => {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [{ name: 'test', value: 'value', isEnabled: true }],
         environment,
@@ -186,7 +186,7 @@ describe('OperationTable', () => {
       },
     })
 
-    const row = wrapper.findComponent({ name: 'OperationTableRow' })
+    const row = wrapper.findComponent({ name: 'RequestTableRow' })
     expect(row.props('isReadOnly')).toBe(true)
     expect(row.props('hasCheckboxDisabled')).toBe(true)
     expect(row.props('label')).toBe('Custom Label')
@@ -194,7 +194,7 @@ describe('OperationTable', () => {
   })
 
   it('renders DataTableHeader with correct label', () => {
-    const wrapper = mount(OperationTable, {
+    const wrapper = mount(RequestTable, {
       props: {
         data: [],
         environment,

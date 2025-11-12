@@ -5,7 +5,7 @@ import RequestTableTooltip from '@/v2/blocks/request-block/components/RequestTab
 import { CodeInput } from '@/v2/components/code-input'
 import { DataTableCheckbox } from '@/v2/components/data-table'
 
-import OperationTableRow from './RequestTableRow.vue'
+import RequestTableRow from './RequestTableRow.vue'
 
 const environment = {
   description: 'Test Environment',
@@ -13,9 +13,9 @@ const environment = {
   color: 'c',
 }
 
-describe('OperationTableRow', () => {
+describe('RequestTableRow', () => {
   it('renders with minimal props', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: '', value: '' },
         environment,
@@ -31,7 +31,7 @@ describe('OperationTableRow', () => {
   })
 
   it('renders with data', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'test-key', value: 'test-value' },
         environment,
@@ -49,7 +49,7 @@ describe('OperationTableRow', () => {
   })
 
   it('displays checkbox when no globalRoute is provided', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'test', value: 'value' },
         environment,
@@ -65,7 +65,7 @@ describe('OperationTableRow', () => {
   })
 
   it('emits updateRow when checkbox is toggled', async () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'test', value: 'value', isDisabled: false },
         environment,
@@ -85,7 +85,7 @@ describe('OperationTableRow', () => {
   })
 
   it('disables checkbox when hasCheckboxDisabled is true', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'test', value: 'value' },
         environment,
@@ -103,7 +103,7 @@ describe('OperationTableRow', () => {
   })
 
   it('emits updateRow when key input changes', async () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'old-key', value: 'value' },
         environment,
@@ -123,7 +123,7 @@ describe('OperationTableRow', () => {
   })
 
   it('emits updateRow when value input changes', async () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: 'old-value' },
         environment,
@@ -143,7 +143,7 @@ describe('OperationTableRow', () => {
   })
 
   it('disables inputs when isReadOnly is true', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: 'value' },
         environment,
@@ -162,7 +162,7 @@ describe('OperationTableRow', () => {
   })
 
   it('displays tooltip when schema exists', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: {
           name: 'key',
@@ -182,7 +182,7 @@ describe('OperationTableRow', () => {
   })
 
   it('does not display tooltip when schema does not exist', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: 'value' },
         environment,
@@ -198,7 +198,7 @@ describe('OperationTableRow', () => {
   })
 
   it('displays file upload button when showUploadButton is true', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: '' },
         environment,
@@ -215,7 +215,7 @@ describe('OperationTableRow', () => {
   })
 
   it('emits uploadFile when upload button is clicked', async () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: '' },
         environment,
@@ -237,7 +237,7 @@ describe('OperationTableRow', () => {
 
   it('displays file name when value is a File instance', () => {
     const file = new File(['content'], 'test.txt', { type: 'text/plain' })
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: file },
         environment,
@@ -254,7 +254,7 @@ describe('OperationTableRow', () => {
   })
 
   it('handles null value correctly', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: null },
         environment,
@@ -271,7 +271,7 @@ describe('OperationTableRow', () => {
   })
 
   it('marks key input as required when isRequired is true', () => {
-    const wrapper = mount(OperationTableRow, {
+    const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: 'value', isRequired: true },
         environment,

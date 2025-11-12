@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import OperationParams from './OperationParams.vue'
+import RequestParams from './RequestParams.vue'
 
 const ScalarTooltipStub = {
   name: 'ScalarTooltip',
@@ -20,9 +20,9 @@ const environment = {
   color: 'c',
 }
 
-describe('OperationParams', () => {
+describe('RequestParams', () => {
   it('renders with empty parameters and passes data to table', () => {
-    const wrapper = mount(OperationParams, {
+    const wrapper = mount(RequestParams, {
       props: {
         parameters: [],
         exampleKey: 'ex',
@@ -44,7 +44,7 @@ describe('OperationParams', () => {
   })
 
   it('re-emits add, update, and delete events from OperationTable', () => {
-    const wrapper = mount(OperationParams, {
+    const wrapper = mount(RequestParams, {
       props: {
         parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } } as any],
         exampleKey: 'ex',

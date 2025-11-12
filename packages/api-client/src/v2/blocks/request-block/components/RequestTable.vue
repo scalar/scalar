@@ -2,9 +2,9 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
-import OperationTableRow, {
+import RequestTableRow, {
   type TableRow,
-} from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
+} from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import {
   DataTable,
   DataTableHeader,
@@ -113,7 +113,7 @@ const updateOrAdd = ({
       <DataTableHeader>{{ label }} Value</DataTableHeader>
     </DataTableRow>
 
-    <OperationTableRow
+    <RequestTableRow
       v-for="(row, idx) in displayData"
       :key="idx"
       :data="row"

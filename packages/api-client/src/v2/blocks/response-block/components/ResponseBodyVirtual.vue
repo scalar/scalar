@@ -3,7 +3,7 @@ import { ScalarVirtualText } from '@scalar/components'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
+import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'

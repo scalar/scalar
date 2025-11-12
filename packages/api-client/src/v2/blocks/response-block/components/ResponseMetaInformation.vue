@@ -6,11 +6,10 @@ import { computed, ref } from 'vue'
 
 import HelpfulLink from '@/components/HelpfulLink.vue'
 import type { createStoreEvents } from '@/store/events'
-import { getContentLength } from '@/v2/blocks/scalar-response-block/helpers/get-content-length'
+import { getContentLength } from '@/v2/blocks/response-block/helpers/get-content-length'
 
 const { events, response } = defineProps<{
   response: ResponseInstance
-  /** Event bus */
   events: ReturnType<typeof createStoreEvents>
 }>()
 

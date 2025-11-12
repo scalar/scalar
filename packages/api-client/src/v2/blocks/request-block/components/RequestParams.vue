@@ -6,9 +6,10 @@ import { computed } from 'vue'
 
 import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
-import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
-import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
 import { CollapsibleSection } from '@/v2/components/layout'
+
+import RequestTable from './RequestTable.vue'
+import type { TableRow } from './RequestTableRow.vue'
 
 const {
   parameters,
@@ -81,7 +82,7 @@ const showTooltip = computed(() => parameters.length > 1)
         </ScalarTooltip>
       </div>
     </template>
-    <OperationTable
+    <RequestTable
       class="flex-1"
       :columns="['32px', '', '']"
       :data="tableRows"

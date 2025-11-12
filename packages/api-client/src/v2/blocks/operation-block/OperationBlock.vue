@@ -94,7 +94,7 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   security: OpenApiDocument['security']
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
-
+  /** Client plugins */
   plugins?: ClientPlugin[]
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
@@ -105,11 +105,13 @@ const draftMethod = computed(
 )
 const draftPath = computed(() => operation['x-scalar-path'] ?? path)
 
+/** Execute the current operation example */
 const handleExecute = () =>
   eventBus.emit('operation:send:request', {
     meta: { path, method, exampleKey },
   })
 
+/** Update the HTTP method for the operation in its draft state */
 const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
   eventBus.emit('operation:update:method', {
     meta: {
@@ -121,6 +123,7 @@ const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
     },
   })
 
+/** Update the path for the operation in its draft state */
 const handleUpdatePath = (payload: { value: string }) =>
   eventBus.emit('operation:update:path', {
     meta: {
@@ -136,23 +139,24 @@ const handleUpdatePath = (payload: { value: string }) =>
   <div class="bg-b-1 flex h-full flex-col">
     <div
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
+      <!-- Address Bar -->
       <Header
-        :documentUrl="documentUrl"
-        :environment="environment"
-        :eventBus="eventBus"
-        :events="events"
-        :hideClientButton="hideClientButton"
-        :history="history"
-        :integration="integration"
-        :isSidebarOpen="isSidebarOpen"
-        :layout="layout"
+        :documentUrl
+        :environment
+        :eventBus
+        :events
+        :hideClientButton
+        :history
+        :integration
+        :isSidebarOpen
+        :layout
         :method="draftMethod"
         :path="draftPath"
         :percentage="requestLoadingPercentage"
-        :server="server"
-        :servers="servers"
-        :showSidebar="showSidebar"
-        :source="source"
+        :server
+        :servers
+        :showSidebar
+        :source
         @execute="handleExecute"
         @update:method="handleUpdateMethod"
         @update:path="handleUpdatePath" />
@@ -160,34 +164,32 @@ const handleUpdatePath = (payload: { value: string }) =>
 
     <ViewLayout>
       <ViewLayoutContent class="flex flex-1">
+        <!-- Request Section -->
         <RequestBlock
-          :authMeta="authMeta"
-          :environment="environment"
-          :eventBus="eventBus"
-          :exampleKey="exampleKey"
-          :layout="layout"
-          :method="method"
-          :operation="operation"
-          :path="path"
-          :plugins="plugins"
-          :security="security"
-          :securitySchemes="securitySchemes"
-          :selectedSecurity="selectedSecurity" />
+          :authMeta
+          :environment
+          :eventBus
+          :exampleKey
+          :layout
+          :method="draftMethod"
+          :operation
+          :path="draftPath"
+          :plugins
+          :security
+          :securitySchemes
+          :selectedSecurity />
 
+        <!-- Response Section -->
         <ResponseBlock
-          :appVersion="appVersion"
-          :eventBus="eventBus"
-          :events="events"
-          :layout="layout"
-          :plugins="plugins"
-          :request="request"
-          :response="response"
-          :totalPerformedRequests="totalPerformedRequests"
-          @sendRequest="
-            eventBus.emit('operation:send:request', {
-              meta: { path, method, exampleKey },
-            })
-          " />
+          :appVersion
+          :eventBus
+          :events
+          :layout
+          :plugins
+          :request
+          :response
+          :totalPerformedRequests
+          @sendRequest="handleExecute" />
       </ViewLayoutContent>
     </ViewLayout>
   </div>

@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createStoreEvents } from '@/store/events'
-import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
+import { ResponseBlock } from '@/v2/blocks/response-block'
 
 import Header from './components/Header.vue'
 import OperationBlock from './OperationBlock.vue'

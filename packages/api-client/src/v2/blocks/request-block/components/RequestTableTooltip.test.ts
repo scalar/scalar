@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import OperationTableTooltip from './OperationTableTooltip.vue'
+import RequestTableTooltip from './RequestTableTooltip.vue'
 
 const ScalarPopoverStub = {
   name: 'ScalarPopover',
@@ -18,9 +18,9 @@ const ScalarIconWarningStub = {
   template: '<span class="icon-warning" />',
 }
 
-describe('OperationTableTooltip', () => {
+describe('RequestTableTooltip', () => {
   it('renders with minimal props', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: '',
       },
@@ -37,7 +37,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays info icon when value is valid', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'test',
         schema: { type: 'string' },
@@ -56,7 +56,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays warning icon when value is invalid', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'not-a-number',
         schema: { type: 'number' },
@@ -75,7 +75,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('sets correct aria-label for valid input', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'test',
       },
@@ -93,7 +93,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('sets correct aria-label and role for invalid input', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'invalid',
         schema: { type: 'number' },
@@ -113,7 +113,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays schema type information', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: '123',
         schema: { type: 'number' },
@@ -131,7 +131,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays schema format information', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'test@example.com',
         schema: { type: 'string', format: 'email' },
@@ -149,7 +149,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays minimum and maximum constraints', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: '5',
         schema: { type: 'number', minimum: 1, maximum: 10 },
@@ -168,7 +168,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays default value', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: '',
         schema: { type: 'string', default: 'default-value' },
@@ -186,7 +186,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays schema description when value is valid', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'test',
         schema: {
@@ -207,7 +207,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('does not display description when value is invalid', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'invalid',
         schema: {
@@ -228,7 +228,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('handles null value', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: null,
       },
@@ -247,7 +247,7 @@ describe('OperationTableTooltip', () => {
 
   it('handles File value', () => {
     const file = new File(['content'], 'test.txt', { type: 'text/plain' })
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: file,
       },
@@ -264,7 +264,7 @@ describe('OperationTableTooltip', () => {
   })
 
   it('displays all schema properties together', () => {
-    const wrapper = mount(OperationTableTooltip, {
+    const wrapper = mount(RequestTableTooltip, {
       props: {
         value: '5',
         schema: {

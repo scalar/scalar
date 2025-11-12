@@ -120,8 +120,8 @@ const emit = defineEmits<{
           Only shown in `modal` layout and hidden for GitBook Integration
       -->
       <button
-        v-if="layout === 'modal'"
-        class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+        v-if="layout === 'modal' && source !== 'gitbook'"
+        class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
         @click="eventBus.emit('hide:modal')">
         <ScalarIcon
@@ -137,8 +137,8 @@ const emit = defineEmits<{
           Hidden by default and visible for GitBook Integration in `modal` layout
       -->
       <button
-        v-if="layout === 'modal'"
-        class="text-c-1 hover:bg-b-2 active:text-c-1 gitbook-show -mr-1.5 rounded p-2"
+        v-if="layout === 'modal' && source === 'gitbook'"
+        class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
         type="button"
         @click="eventBus.emit('hide:modal')">
         <ScalarIcon
@@ -151,9 +151,6 @@ const emit = defineEmits<{
   </div>
 </template>
 <style scoped>
-.gitbook-show {
-  display: none;
-}
 .app-exit-button {
   color: white;
   background: rgba(0, 0, 0, 0.1);

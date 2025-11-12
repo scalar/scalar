@@ -8,13 +8,14 @@ import { computed } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
-import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
 import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
   DataTableRow,
 } from '@/v2/components/data-table'
+
+import RequestTableTooltip from './RequestTableTooltip.vue'
 
 const {
   data,
@@ -168,7 +169,7 @@ const valueModel = computed({
             @click="emits('deleteRow')">
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
-          <OperationTableTooltip
+          <RequestTableTooltip
             v-if="data.schema"
             :schema="data.schema"
             :value="data.value" />
