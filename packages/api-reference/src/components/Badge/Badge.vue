@@ -17,7 +17,7 @@ const badgeStyle = computed(() =>
 
 <template>
   <div
-    class="badge custom rebuild test"
+    class="badge"
     :style="badgeStyle">
     <slot />
   </div>
