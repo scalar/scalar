@@ -87,6 +87,36 @@ export const useSidebarState = ({
   }
 
   /**
+   * Recursively searches for and returns the first child node (including the given node itself)
+   * of a specific type within the provided node's subtree.
+   *
+   * @template Type - The type of node to search for.
+   * @param type - The node type to match.
+   * @param node - The root node to begin searching from.
+   * @returns The first child node of the specified type, or null if not found.
+   */
+  const getChild = <Type extends TraversedEntry['type']>(
+    type: Type,
+    node: TraversedEntry,
+  ): (TraversedEntry & { type: Type }) | null => {
+    if (node.type === type) {
+      return node as TraversedEntry & { type: Type }
+    }
+
+    if ('children' in node) {
+      for (const child of node.children ?? []) {
+        const result = getChild(type, child)
+
+        if (result) {
+          return result
+        }
+      }
+    }
+
+    return null
+  }
+
+  /**
    * Generates a unique string ID for an API location, based on the document, path, method, and example.
    * Filters out undefined values and serializes the composite array into a stable string.
    *
@@ -247,6 +277,27 @@ export const useSidebarState = ({
           documentSlug: getParent('document', entry)?.name,
         },
       })
+    }
+
+    // Navigate to the first operation example entry we can find
+    if (entry.type === 'tag') {
+      const operation = getChild('operation', entry)
+
+      if (operation) {
+        const firstExample = getChild('example', operation)
+
+        if (firstExample) {
+          return router.push({
+            name: 'example',
+            params: {
+              documentSlug: getParent('document', entry)?.name,
+              pathEncoded: encodeURIComponent(operation.path),
+              method: operation.method,
+              exampleName: entry.name,
+            },
+          })
+        }
+      }
     }
 
     state.setExpanded(id, !state.isExpanded(id))
