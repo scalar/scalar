@@ -130,7 +130,7 @@ public abstract class AbstractScalarController {
      * @param properties the properties to configure
      * @param request    the HTTP request
      * @return the configured properties (may be the same instance or a modified
-     *         copy)
+     * copy)
      */
     protected ScalarProperties configureProperties(ScalarProperties properties, HttpServletRequest request) {
         return properties;
