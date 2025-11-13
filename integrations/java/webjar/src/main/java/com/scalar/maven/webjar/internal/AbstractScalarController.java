@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Abstract base class for Scalar API Reference controllers.
@@ -67,8 +68,10 @@ public abstract class AbstractScalarController {
 
         // Replace the placeholders with actual values
         String bundleUrl = buildJsBundleUrl(basePath);
+        String pageTitle = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
         String injectedHtml = html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
+                .replace("__PAGE_TITLE__", pageTitle)
                 .replace("__CONFIGURATION__", buildConfigurationJson(request));
 
         return injectedHtml;

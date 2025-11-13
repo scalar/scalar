@@ -41,6 +41,7 @@ class ScalarActuatorEndpointTest {
         void shouldReturnHtmlWithDefaultConfiguration() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);
@@ -66,6 +67,7 @@ class ScalarActuatorEndpointTest {
         void shouldReturnHtmlWithCustomUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api/openapi.json");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);
@@ -91,6 +93,7 @@ class ScalarActuatorEndpointTest {
         void shouldReturnHtmlWithNullUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn(null);
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);
@@ -116,6 +119,7 @@ class ScalarActuatorEndpointTest {
         void shouldReturnHtmlWithEmptyUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);
@@ -141,6 +145,7 @@ class ScalarActuatorEndpointTest {
         void shouldReturnValidHtmlStructure() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getPageTitle()).thenReturn("Scalar API Reference");
 
             // When
             ResponseEntity<String> response = endpoint.scalarUi(request);

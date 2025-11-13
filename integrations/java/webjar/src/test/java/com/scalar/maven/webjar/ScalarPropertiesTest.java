@@ -50,6 +50,12 @@ class ScalarPropertiesTest {
         }
 
         @Test
+        @DisplayName("should have correct default pageTitle")
+        void shouldHaveCorrectDefaultTitle() {
+            assertThat(properties.getPageTitle()).isEqualTo("Scalar API Reference");
+        }
+
+        @Test
         @DisplayName("should have correct default showSidebar")
         void shouldHaveCorrectDefaultShowSidebar() {
             assertThat(properties.isShowSidebar()).isTrue();
