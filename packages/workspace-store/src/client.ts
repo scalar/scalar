@@ -889,7 +889,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     console.log('building sidebar for document', documentName)
 
     // Build the sidebar
-    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
+    // We unpack the document to be processed to avoid assigning proxy objects as direct references
+    // Note: only the top level object is suppposed to contain a proxy, all the nested objects should be unproxied
+    // This allows for an easy unpacking of the proxy object without having to traverse the entire object tree
+    const navigation = createNavigation(
+      documentName,
+      unpackProxyObject(document),
+      getDocumentConfiguration(documentName),
+    )
     document[extensions.document.navigation] = navigation
 
     return true

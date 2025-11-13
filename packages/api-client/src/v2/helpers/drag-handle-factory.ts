@@ -372,6 +372,12 @@ export const dragHandleFactory = ({
    * Returns true if the drop operation is allowed, false otherwise.
    */
   const isDroppable = (_draggingItem: DraggingItem, _hoveredItem: HoveredItem): boolean => {
+    const store = toValue(_store)
+
+    if (!store) {
+      return false
+    }
+
     const draggingItem = sidebarState.getEntryById(_draggingItem.id)
     const hoveredItem = sidebarState.getEntryById(_hoveredItem.id)
 
@@ -396,6 +402,26 @@ export const dragHandleFactory = ({
 
     // Operation can be reorder when the parent is the same or dropped on a tag or document
     if (draggingItem.type === 'operation') {
+      const hoveredDocumentEntry = getParentEntry('document', hoveredItem)
+      const draggingDocumentEntry = getParentEntry('document', draggingItem)
+
+      if (!hoveredDocumentEntry) {
+        return false
+      }
+
+      const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
+      if (!hoveredDocument) {
+        return false
+      }
+
+      // You can not drop an example on a document with a conflicting path/method combination
+      if (
+        draggingDocumentEntry?.id !== hoveredDocumentEntry.id &&
+        hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method]
+      ) {
+        return false
+      }
+
       return (
         // for the same parent, you can reorder only
         (itemsShareParent(draggingItem, hoveredItem) && isReorder(_hoveredItem)) ||

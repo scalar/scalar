@@ -23,7 +23,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
   // Add all examples from parameters
   if (operation.parameters) {
     operation.parameters.forEach((_parameter) => {
-      const parameter = getResolvedRef(_parameter)
+      const parameter = getResolvedRef(_parameter) ?? {}
 
       if ('content' in parameter && parameter.content) {
         Object.values(parameter.content).forEach((mediaType) => {
@@ -44,7 +44,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
   // Add all examples from responses
   if (operation.responses) {
     Object.values(operation.responses).forEach((response) => {
-      const resolvedResponse = getResolvedRef(response)
+      const resolvedResponse = getResolvedRef(response) ?? {}
 
       if ('content' in resolvedResponse && resolvedResponse.content) {
         Object.values(resolvedResponse.content ?? {}).forEach((mediaType) => {

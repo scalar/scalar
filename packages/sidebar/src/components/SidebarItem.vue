@@ -18,10 +18,26 @@ import type { Item } from '@/types'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
 const { item, layout, isSelected, isExpanded } = defineProps<{
+  /**
+   * The sidebar item to render.
+   */
   item: Item
+  /**
+   * The layout mode for the sidebar ('client' or 'reference').
+   */
   layout: 'client' | 'reference'
+  /**
+   * Function to determine if an item is currently selected by id.
+   */
   isSelected: (id: string) => boolean
+  /**
+   * Function to determine if an item is currently expanded (showing its children) by id.
+   */
   isExpanded: (id: string) => boolean
+  /**
+   * Sidebar configuration options.
+   * - operationTitleSource: sets whether operations show their path or summary as the display title.
+   */
   options:
     | {
         operationTitleSource: 'path' | 'summary' | undefined
@@ -39,11 +55,24 @@ const { item, layout, isSelected, isExpanded } = defineProps<{
 }>()
 
 const emits = defineEmits<{
+  /**
+   * Emitted when the item is selected
+   * @param id - The id of the selected item
+   */
   (e: 'selectItem', id: string): void
+  /**
+   * Emitted when a drag operation ends for this item
+   * @param draggingItem - The item being dragged
+   * @param hoveredItem - The item currently being hovered over
+   */
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 defineSlots<{
+  /**
+   * Adds an optional decorator for each item, such as an edit menu.
+   * The slot receives an object with the current item.
+   */
   decorator?(props: { item: Item }): unknown
 }>()
 
