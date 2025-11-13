@@ -113,7 +113,7 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
-useWorkspaceClientEvents(eventBus, document, store)
+useWorkspaceClientEvents(eventBus, document, store, isSidebarOpen)
 useGlobalHotKeys(eventBus, layout)
 
 /**

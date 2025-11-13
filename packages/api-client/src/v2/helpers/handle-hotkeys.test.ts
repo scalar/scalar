@@ -2,7 +2,7 @@ import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { handleHotkeyDown } from './handle-hotkey-down'
+import { handleHotkeys } from './handle-hotkeys'
 
 // Mock the isMacOS function
 vi.mock('@scalar/helpers/general/is-mac-os', () => ({
@@ -69,7 +69,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('l', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', undefined)
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
@@ -79,7 +79,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(false)
 
     const event = createKeyboardEvent('l', { ctrlKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', undefined)
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
@@ -90,7 +90,7 @@ describe('handle-hotkey-down', () => {
 
     // Pressing l without Meta on macOS - still fires when not in editable element
     const event = createKeyboardEvent('l', {})
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     // Hotkeys work without modifiers outside editable elements
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', undefined)
@@ -100,7 +100,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('x', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -110,7 +110,7 @@ describe('handle-hotkey-down', () => {
 
     const textarea = createElement('textarea')
     const event = createKeyboardEvent('b', {}, textarea)
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -120,7 +120,7 @@ describe('handle-hotkey-down', () => {
 
     const contentEditable = createElement('div', { contentEditable: 'true' })
     const event = createKeyboardEvent('b', {}, contentEditable)
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -130,7 +130,7 @@ describe('handle-hotkey-down', () => {
 
     const input = createElement('input')
     const event = createKeyboardEvent('b', {}, input)
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -140,7 +140,7 @@ describe('handle-hotkey-down', () => {
 
     const input = createElement('input')
     const event = createKeyboardEvent('ArrowDown', {}, input)
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -150,7 +150,7 @@ describe('handle-hotkey-down', () => {
 
     const textarea = createElement('textarea')
     const event = createKeyboardEvent('l', { metaKey: true }, textarea)
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', undefined)
   })
@@ -159,7 +159,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('3', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab', { index: 2 })
   })
@@ -168,7 +168,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('ArrowLeft', { metaKey: true, altKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', undefined)
   })
@@ -179,7 +179,7 @@ describe('handle-hotkey-down', () => {
     // ArrowLeft requires both Meta and Alt, but only Meta is pressed
     // Still fires when not in editable element
     const event = createKeyboardEvent('ArrowLeft', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     // Hotkeys work without exact modifiers outside editable elements
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', undefined)
@@ -191,7 +191,7 @@ describe('handle-hotkey-down', () => {
     const div = createElement('div')
     div.setAttribute('contenteditable', 'true')
     const event = createKeyboardEvent('b', {}, div)
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
@@ -206,7 +206,7 @@ describe('handle-hotkey-down', () => {
       writable: false,
     })
 
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     // Should still fire because modifiers are pressed
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:toggle:sidebar', undefined)
@@ -216,7 +216,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('Enter', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('operation:send:request', undefined)
   })
@@ -225,7 +225,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(false)
 
     const event = createKeyboardEvent('k', { ctrlKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:command-palette', 'addOperation')
   })
@@ -234,7 +234,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('f', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', undefined)
   })
@@ -243,7 +243,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('l', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'web')
+    handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', undefined)
   })
@@ -252,7 +252,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('t', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:add:tab', undefined)
   })
@@ -261,7 +261,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('w', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:close:tab', undefined)
   })
@@ -270,7 +270,7 @@ describe('handle-hotkey-down', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('9', { metaKey: true })
-    handleHotkeyDown(event, mockEventBus, 'desktop')
+    handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab-last', undefined)
   })

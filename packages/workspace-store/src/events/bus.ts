@@ -209,7 +209,7 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     const listeners = events.get(event)
 
     if (!listeners || listeners.size === 0) {
-      log(`No listeners for "${String(event)}"`)
+      log(`🛑 No listeners for "${String(event)}"`)
       return
     }
 

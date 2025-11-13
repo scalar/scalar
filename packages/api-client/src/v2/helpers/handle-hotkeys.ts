@@ -3,7 +3,7 @@ import type { ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-st
 
 import type { ClientLayout } from '@/v2/types/layout'
 
-type HotKeyModifiers = ('Alt' | 'Control' | 'Shift' | 'Meta' | 'default')[]
+type HotKeyModifiers = ('altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey' | 'default')[]
 
 /** Hotkey configuration type, matches payloads with the event bus */
 export type HotKeyConfig<E extends keyof ApiReferenceEvents = keyof ApiReferenceEvents> = Record<
@@ -24,19 +24,21 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 /** Hotkey map by layout */
 export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
   web: DEFAULT_HOTKEYS,
+
   modal: {
     ...DEFAULT_HOTKEYS,
     Escape: { event: 'ui:close:client-modal', modifiers: [] },
     l: { event: 'ui:focus:send-button', modifiers: ['default'] },
   },
+
   desktop: {
     ...DEFAULT_HOTKEYS,
     f: { event: 'ui:focus:search', modifiers: ['default'] },
     n: { event: 'ui:open:command-palette', modifiers: ['default'] },
     t: { event: 'tabs:add:tab', modifiers: ['default'] },
     w: { event: 'tabs:close:tab', modifiers: ['default'] },
-    ArrowLeft: { event: 'tabs:navigate:previous', modifiers: ['default', 'Alt'] },
-    ArrowRight: { event: 'tabs:navigate:next', modifiers: ['default', 'Alt'] },
+    ArrowLeft: { event: 'tabs:navigate:previous', modifiers: ['default', 'altKey'] },
+    ArrowRight: { event: 'tabs:navigate:next', modifiers: ['default', 'altKey'] },
     1: { event: 'tabs:focus:tab', payload: { index: 0 }, modifiers: ['default'] },
     2: { event: 'tabs:focus:tab', payload: { index: 1 }, modifiers: ['default'] },
     3: { event: 'tabs:focus:tab', payload: { index: 2 }, modifiers: ['default'] },
@@ -50,31 +52,7 @@ export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
 }
 
 /** Keys that should work in input fields when the modifier is pressed */
-const INPUT_ALLOWED_KEYS = new Set([
-  'Escape',
-  'ArrowDown',
-  'ArrowUp',
-  'Enter',
-  'F1',
-  'F2',
-  'F3',
-  'F4',
-  'F5',
-  'F6',
-  'F7',
-  'F8',
-  'F9',
-  'F10',
-  'F11',
-  'F12',
-])
-
-const MODIFIER_MAP = {
-  Alt: 'altKey',
-  Control: 'ctrlKey',
-  Shift: 'shiftKey',
-  Meta: 'metaKey',
-} as const
+const INPUT_ALLOWED_KEYS = new Set(['Escape', 'ArrowDown', 'ArrowUp', 'Enter'])
 
 /**
  * Checks if all required modifiers are pressed.
@@ -82,7 +60,7 @@ const MODIFIER_MAP = {
  */
 const areModifiersPressed = (event: KeyboardEvent, modifiers: HotKeyModifiers): boolean =>
   modifiers
-    .map((modifier) => (modifier === 'default' ? (isMacOS() ? 'metaKey' : 'ctrlKey') : MODIFIER_MAP[modifier]))
+    .map((modifier) => (modifier === 'default' ? (isMacOS() ? 'metaKey' : 'ctrlKey') : modifier))
     .every((key) => event[key] === true)
 
 /**
@@ -113,13 +91,11 @@ const isEditableElement = (event: KeyboardEvent, key: string): boolean => {
  * @param eventBus - event bus for emitting hotkey actions
  * @param layout - client layout
  */
-export const handleHotkeyDown = (event: KeyboardEvent, eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
+export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
   /** Special case for space */
   const key = event.key === ' ' ? 'Space' : event.key
-  /** The discriminated hotkeys config */
-  const hotkeys = HOTKEYS[layout]
-  /** Get the hotkey event with payload  */
-  const hotkeyEvent = hotkeys[key]
+  /** Get the discriminated hotkey event with payload  */
+  const hotkeyEvent = HOTKEYS[layout][key]
 
   if (!hotkeyEvent) {
     return
@@ -128,13 +104,11 @@ export const handleHotkeyDown = (event: KeyboardEvent, eventBus: WorkspaceEventB
   // Escape always fires, regardless of context
   if (key === 'Escape') {
     eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
-    event.preventDefault()
     return
   }
 
-  // If modifiers are pressed, fire the hotkey (even in input fields)
+  // If modifiers are pressed, fire the hotkey (even in input fields), and prevent the default behavior
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
-    console.log('fire hotkey', hotkeyEvent.event, hotkeyEvent.payload)
     eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
     event.preventDefault()
     return

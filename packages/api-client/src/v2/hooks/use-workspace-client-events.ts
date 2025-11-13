@@ -29,7 +29,7 @@ import {
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
+import { type ComputedRef, type Ref, toValue } from 'vue'
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -37,7 +37,8 @@ import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
 export const useWorkspaceClientEvents = (
   eventBus: WorkspaceEventBus,
   document: ComputedRef<WorkspaceDocument | null>,
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>,
+  workspaceStore: Ref<WorkspaceStore | null>,
+  isSidebarOpen: Ref<boolean>,
 ) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
@@ -47,7 +48,7 @@ export const useWorkspaceClientEvents = (
     const store = toValue(workspaceStore)
 
     if (!store) {
-      return
+      return null
     }
 
     return collectionType === 'document' ? document.value : store.workspace
@@ -67,12 +68,10 @@ export const useWorkspaceClientEvents = (
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('environment:upsert:environment', (payload) => {
-    const store = toValue(workspaceStore)
-    if (!store) {
+    if (!workspaceStore.value) {
       return
     }
-
-    upsertEnvironment(document.value, store.workspace, payload)
+    upsertEnvironment(document.value, workspaceStore.value.workspace, payload)
   })
 
   eventBus.on(
@@ -83,9 +82,6 @@ export const useWorkspaceClientEvents = (
 
   eventBus.on('environment:upsert:environment-variable', (payload) => {
     const collection = getCollection(document, payload.collectionType)
-    if (!collection) {
-      return
-    }
     upsertEnvironmentVariable(collection, payload)
   })
 
@@ -141,4 +137,9 @@ export const useWorkspaceClientEvents = (
   eventBus.on('operation:delete:requestBody:formRow', (payload) =>
     deleteOperationRequestBodyFormRow(document.value, payload),
   )
+
+  //------------------------------------------------------------------------------------
+  // UI Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
 }

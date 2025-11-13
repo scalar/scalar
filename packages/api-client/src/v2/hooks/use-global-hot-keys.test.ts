@@ -1,7 +1,7 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { handleHotkeyDown } from '@/v2/features/app/helpers/handle-hotkey-down'
+import { handleHotkeyDown } from '@/v2/helpers/handle-hotkeys'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { useGlobalHotKeys } from './use-global-hot-keys'
