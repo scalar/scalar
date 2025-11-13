@@ -7,7 +7,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { fileURLToPath } from 'node:url'
 import { glob } from 'glob'
 
 const cssExports = {
@@ -132,12 +131,4 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
   console.log()
 
   await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
-}
-
-/** Standard path aliases for Vite */
-export function alias(url: string) {
-  return {
-    '@test': fileURLToPath(new URL('./test', url)),
-    '@': fileURLToPath(new URL('./src', url)),
-  }
 }

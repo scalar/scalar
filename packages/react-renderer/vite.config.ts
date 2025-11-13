@@ -1,5 +1,6 @@
 import { URL, fileURLToPath } from 'node:url'
-import { createViteBuildOptions } from '@scalar/build-tooling'
+
+import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import react from '@vitejs/plugin-react'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'

@@ -21,7 +21,6 @@
     "format": "node scripts/format.js",
     "lint:check": "node scripts/lint-check.js",
     "lint:fix": "node scripts/lint-fix.js",
-    "preview": "dotenv -o -- vite preview",
     "types:build": "node scripts/types-build.js",
     "types:check": "node scripts/types-check.js"
   },
@@ -31,16 +30,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
     },
     "./esbuild": {
       "import": "./dist/esbuild/index.js",
@@ -52,20 +41,10 @@
       "types": "./dist/rollup/index.d.ts",
       "default": "./dist/rollup/index.js"
     },
-    "./rollup/plugins": {
-      "import": "./dist/rollup/plugins/index.js",
-      "types": "./dist/rollup/plugins/index.d.ts",
-      "default": "./dist/rollup/plugins/index.js"
-    },
     "./vite": {
       "import": "./dist/vite/index.js",
       "types": "./dist/vite/index.d.ts",
       "default": "./dist/vite/index.js"
-    },
-    "./vite/plugins": {
-      "import": "./dist/vite/plugins/index.js",
-      "types": "./dist/vite/plugins/index.d.ts",
-      "default": "./dist/vite/plugins/index.js"
     }
   },
   "bin": {
@@ -84,7 +63,6 @@
   "dependencies": {
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-swc": "^0.4.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-yaml": "^4.1.2",
     "ansis": "catalog:*",
