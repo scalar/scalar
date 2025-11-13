@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconGlobe } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -41,6 +42,14 @@ const { sidebarState, layout, activeWorkspace } = defineProps<{
   workspaces: Workspace[]
   eventBus: WorkspaceEventBus
   documents: WorkspaceDocument[]
+  /**
+   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emit = defineEmits<{
@@ -54,6 +63,7 @@ const emit = defineEmits<{
   (e: 'select:workspace', id?: string): void
   /** Emitted when the user requests to create a new workspace */
   (e: 'create:workspace'): void
+  (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 /** The label for the workspace button in the sidebar */
@@ -78,6 +88,7 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
 
 <template>
   <Sidebar
+    :isDroppable="isDroppable"
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     :activeWorkspace="activeWorkspace"
@@ -88,7 +99,10 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     :workspaces="workspaces"
     @createWorkspace="emit('create:workspace')"
     @select:workspace="(id) => emit('select:workspace', id)"
-    @selectItem="(id) => emit('selectItem', id)">
+    @selectItem="(id) => emit('selectItem', id)"
+    @reorder="
+      (draggingItem, hoveredItem) => emit('reorder', draggingItem, hoveredItem)
+    ">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
       <ScalarSidebarItem

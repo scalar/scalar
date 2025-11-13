@@ -34,6 +34,7 @@ export const persistencePlugin = async ({
       onWorkspaceStateChanges(event) {
         // If the event is for workspace meta data, debounce by workspaceId
         if (event.type === 'meta') {
+          console.log('meta', event.value)
           return execute(`meta-${workspaceId}`, () => persistence.meta.setItem(workspaceId, event.value))
         }
 

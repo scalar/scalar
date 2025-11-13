@@ -27,6 +27,15 @@ const { item, layout, isSelected, isExpanded } = defineProps<{
         operationTitleSource: 'path' | 'summary' | undefined
       }
     | undefined
+
+  /**
+   * Prevents items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emits = defineEmits<{
@@ -80,6 +89,7 @@ const handleDragEnd = (
     :id="item.id"
     class="flex flex-1 flex-col"
     :isDraggable="layout === 'client'"
+    :isDroppable="isDroppable"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
     <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
@@ -93,6 +103,7 @@ const handleDragEnd = (
           :item="child"
           :layout="layout"
           :options="options"
+          :isDroppable="isDroppable"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
           <template #decorator="slotProps">
@@ -149,6 +160,7 @@ const handleDragEnd = (
           :layout="layout"
           :options="options"
           :parentIds="[]"
+          :isDroppable="isDroppable"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
           <template #decorator="slotProps">

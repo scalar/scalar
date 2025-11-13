@@ -30,10 +30,8 @@ import {
   watch,
 } from 'vue'
 
-import { Sidebar } from '@/v2/components/sidebar'
 import TempReplaceMe from '@/v2/components/TempReplaceMe.vue'
 import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
-import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 
 const { workspaceStore, activeEntities, modalState } = defineProps<ModalProps>()
 
@@ -48,14 +46,14 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
 
 // TODO: replace me
 // We probably will not use a router/sidebar for modal mode
-const { sidebarState } = useSidebarState({
-  workspaceStore,
-  workspaceSlug: 'default',
-  documentSlug: '',
-  exampleName: '',
-  method: 'get',
-  path: '',
-})
+// const { sidebarState } = useSidebarState({
+//   workspaceStore,
+//   workspaceSlug: 'default',
+//   documentSlug: '',
+//   exampleName: '',
+//   method: 'get',
+//   path: '',
+// })
 
 /**
  * Close the modal on escape
@@ -115,7 +113,7 @@ const isSidebarOpen = ref(true)
         tabindex="-1">
         <ScalarTeleportRoot>
           <main class="flex flex-1 flex-row">
-            <Sidebar
+            <!-- <Sidebar
               :activeWorkspace="{ name: 'Default', id: 'default' }"
               :workspaces="[]"
               v-show="isSidebarOpen"
@@ -128,7 +126,7 @@ const isSidebarOpen = ref(true)
               @update:sidebarWidth="
                 (width) =>
                   workspaceStore.update('x-scalar-sidebar-width', width)
-              " />
+              " /> -->
 
             <!-- Insert the operation page here -->
             <TempReplaceMe

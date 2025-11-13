@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { ScalarSidebar, type SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -24,6 +25,14 @@ const { sidebarState, layout } = defineProps<{
   workspaces: Workspace[]
   eventBus: WorkspaceEventBus
   documents: WorkspaceDocument[]
+  /**
+   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emit = defineEmits<{
@@ -32,6 +41,7 @@ const emit = defineEmits<{
   (e: 'select:workspace', id?: string): void
   /** Emitted when the user wants to create a new workspace */
   (e: 'create:workspace'): void
+  (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 defineSlots<{
@@ -40,11 +50,6 @@ defineSlots<{
   /** Slot to add additional content to the footer */
   footer?(): unknown
 }>()
-
-const log = (name: string, ...args: any[]) => {
-  console.log('[LOG] event name: ', name)
-  console.log('[LOG]', ...args)
-}
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -67,11 +72,15 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     <template #default>
       <ScalarSidebar
         class="flex w-auto flex-1 pt-2"
+        :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
-        @reorder="(...args) => log('reorder', ...args)"
+        @reorder="
+          (draggingItem, hoveredItem) =>
+            emit('reorder', draggingItem, hoveredItem)
+        "
         @selectItem="(id) => emit('selectItem', id)">
         <template #header>
           <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">

@@ -16,6 +16,15 @@ const { layout, items } = defineProps<{
   options?: {
     operationTitleSource: 'path' | 'summary' | undefined
   }
+
+  /**
+   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emit = defineEmits<{
@@ -58,6 +67,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="item in items"
           :key="item.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="item"
