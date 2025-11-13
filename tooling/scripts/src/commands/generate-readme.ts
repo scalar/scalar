@@ -80,6 +80,7 @@ export const generateReadme = new Command('generate-readme')
 
 async function generateReadmeFiles() {
   const root = getWorkspaceRoot()
+  console.log(root)
   const integrationsDir = path.join(root, 'integrations')
   const packagesDir = path.join(root, 'packages')
 
