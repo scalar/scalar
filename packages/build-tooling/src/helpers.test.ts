@@ -36,7 +36,25 @@ describe('addPackageFileExports', () => {
     expect(readFileMock).not.toHaveBeenCalled()
   })
 
-  it('should process "src/index"', async () => {
+  it('should process "src/index" provided as string', async () => {
+    await addPackageFileExports({ entries: './src/index.ts' })
+
+    expect(writeFileMock.mock.lastCall?.at(1)).toMatchInlineSnapshot(`
+      "{
+        "name": "test",
+        "exports": {
+          ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+          }
+        }
+      }
+      "
+    `)
+  })
+
+  it('should process "src/index" provided as array', async () => {
     await addPackageFileExports({ entries: ['./src/index.ts'] })
 
     expect(writeFileMock.mock.lastCall?.at(1)).toMatchInlineSnapshot(`

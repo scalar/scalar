@@ -76,14 +76,13 @@ export async function addPackageFileExports({
   allowCss?: boolean
   entries: string | string[]
 }): Promise<void> {
-  if (entries.length === 0) {
+  const paths = Array.isArray(entries) ? entries : [entries]
+  if (paths.length === 0) {
     return
   }
 
   /** package.json type exports need to be updated */
   const packageExports: PackageExports = {}
-
-  const paths = Array.isArray(entries) ? entries : [entries]
 
   paths.forEach((entry) => {
     // Get the nested path that will be transpiled to dist with preserved modules
