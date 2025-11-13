@@ -69,7 +69,7 @@ jobs:
             This PR updates the CLI commands documentation by running the latest version of @scalar/cli.
 
             ```bash
-            npx @scalar/cli@latest readme generate --output documentation/guides/cli/commands.md
+            npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
             ```
           branch: docs/update-cli-documentation
           delete-branch: true
