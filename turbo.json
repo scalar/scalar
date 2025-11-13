@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
-  "globalEnv": ["GOCACHE", "LOCALAPPDATA", "REMOTE_CONTAINERS"],
+  "globalPassThroughEnv": ["GOCACHE", "LOCALAPPDATA", "REMOTE_CONTAINERS"],
   "ui": "tui",
   "tasks": {
     "lint:fix": {},
@@ -9,12 +9,10 @@
       "dependsOn": ["^build"]
     },
     "types:check": {
-      "dependsOn": ["^build"],
-      "cache": true
+      "dependsOn": ["build"]
     },
     "types:build": {
-      "dependsOn": ["^build"],
-      "cache": true
+      "dependsOn": ["build"]
     },
     "dev": {
       "cache": false,
