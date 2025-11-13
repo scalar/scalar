@@ -616,18 +616,61 @@ Pass an array of individual clients to hide just those clients:
 
 Here's a list of all clients that you can potentially hide:
 
+<!-- AUTO-GENERATED:CLIENTS START -->
+<!-- This section is automatically generated. Do not edit manually. -->
+<!-- Source: packages/snippetz/src/clients/index.ts -->
+<!-- Generator: packages/snippetz/scripts/generate-markdown-docs.ts -->
+
 ```js
 {
-  hiddenClients: [
-    'libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1',
-    'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch',
-    'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch',
-    'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2',
-    'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native',
-    'curl', 'httpie', 'wget', 'nsurlsession', 'undici'
-  ],
+  hiddenClients: {
+    // C
+    c: ['libcurl'],
+    // Clojure
+    clojure: ['clj_http'],
+    // C#
+    csharp: ['httpclient', 'restsharp'],
+    // Dart
+    dart: ['http'],
+    // F#
+    fsharp: ['httpclient'],
+    // Go
+    go: ['native'],
+    // HTTP
+    http: ['http1.1'],
+    // Java
+    java: ['asynchttp', 'nethttp', 'okhttp', 'unirest'],
+    // JavaScript
+    js: ['axios', 'fetch', 'jquery', 'ofetch', 'xhr'],
+    // Kotlin
+    kotlin: ['okhttp'],
+    // Node.js
+    node: ['axios', 'fetch', 'ofetch', 'undici'],
+    // Objective-C
+    objc: ['nsurlsession'],
+    // OCaml
+    ocaml: ['cohttp'],
+    // PHP
+    php: ['curl', 'guzzle'],
+    // PowerShell
+    powershell: ['restmethod', 'webrequest'],
+    // Python
+    python: ['httpx_async', 'httpx_sync', 'python3', 'requests'],
+    // R
+    r: ['httr'],
+    // Ruby
+    ruby: ['native'],
+    // Rust
+    rust: ['reqwest'],
+    // Shell
+    shell: ['curl', 'httpie', 'wget'],
+    // Swift
+    swift: ['nsurlsession'],
+  }
 }
 ```
+
+<!-- AUTO-GENERATED:CLIENTS END -->
 
 But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render:
 
