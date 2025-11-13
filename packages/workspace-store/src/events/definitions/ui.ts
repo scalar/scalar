@@ -10,6 +10,14 @@ export type UIEvents = {
     format: 'json' | 'yaml' | 'direct'
   }
   /**
+   * Focus the address bar
+   */
+  'focus:address-bar': undefined
+  /**
+   * Focus the send button
+   */
+  'focus:send-button': undefined
+  /**
    * Open the Api Client modal to a specific operation
    */
   'open:client': {

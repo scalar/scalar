@@ -5,11 +5,10 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, useId } from 'vue'
+import { computed, useId } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
-import type { createStoreEvents } from '@/store/events'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
 
@@ -23,7 +22,6 @@ const {
   server,
   environment,
   percentage = 100,
-  events,
 } = defineProps<{
   /** Current request path */
   path: string
@@ -40,9 +38,8 @@ const {
   /** The amount remaining to load from 100 -> 0 */
   percentage?: number
   /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
-
   eventBus: WorkspaceEventBus
+  /** Environment */
   environment: XScalarEnvironment
 }>()
 
@@ -66,24 +63,9 @@ const emit = defineEmits<{
 
 const id = useId()
 
-const addressBarRef = ref<typeof CodeInput | null>(null)
-const sendButtonRef = ref<typeof ScalarButton | null>(null)
-
-/** Handle hotkeys */
-events.hotKeys.on((event) => {
-  if (event?.focusAddressBar) {
-    addressBarRef.value?.focus()
-  }
-})
-
-/** Focus the address bar (or the send button if in modal layout) */
-events.focusAddressBar.on(() => {
-  if (layout === 'modal') {
-    sendButtonRef.value?.$el?.focus()
-  } else {
-    addressBarRef.value?.focus()
-  }
-})
+/** We want to drill down these refs so we can focus them via hotkeys */
+const addressBarRef = defineModel<typeof CodeInput | null>('addressBarRef')
+const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
 
 /** Calculate the style for the address bar */
 const style = computed(() => ({

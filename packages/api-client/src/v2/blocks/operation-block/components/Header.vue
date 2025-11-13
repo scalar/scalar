@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon, type ScalarButton } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -7,8 +7,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 
 import { OpenApiClientButton } from '@/components'
 import type { ClientLayout } from '@/hooks'
-import type { createStoreEvents } from '@/store/events'
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { CodeInput } from '@/v2/components/code-input'
 
 const { showSidebar = true, hideClientButton = false } = defineProps<{
   /** Current request path */
@@ -45,7 +45,6 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
-  events: ReturnType<typeof createStoreEvents>
 }>()
 
 const emit = defineEmits<{
@@ -64,6 +63,10 @@ const emit = defineEmits<{
   ): void
   (e: 'update:servers'): void
 }>()
+
+/** We want to drill down these refs so we can focus them via hotkeys */
+const addressBarRef = defineModel<typeof CodeInput | null>('addressBarRef')
+const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
 </script>
 
 <template>
@@ -82,14 +85,15 @@ const emit = defineEmits<{
         :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
+      :addressBarRef
       :environment
       :eventBus
-      :events
       :history
       :layout
       :method
       :path
       :percentage="requestLoadingPercentage"
+      :sendButtonRef
       :server
       :servers
       @execute="emit('execute')"

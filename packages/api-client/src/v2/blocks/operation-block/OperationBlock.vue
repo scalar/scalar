@@ -17,6 +17,7 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import type { ScalarButton } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -30,10 +31,11 @@ import { computed } from 'vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
-import { type createStoreEvents } from '@/store/events'
+import { createStoreEvents } from '@/store/events'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { CodeInput } from '@/v2/components/code-input'
 import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
@@ -91,8 +93,6 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Required security for the operation/document */
   security: OpenApiDocument['security']
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
   /** Client plugins */
   plugins?: ClientPlugin[]
   /** For environment variables in the inputs */
@@ -140,6 +140,10 @@ const handleUpdatePath = (payload: { value: string }) =>
       path: payload.value,
     },
   })
+
+/** We want to drill down these refs so we can focus them via hotkeys */
+const addressBarRef = defineModel<typeof CodeInput | null>('addressBarRef')
+const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -147,10 +151,10 @@ const handleUpdatePath = (payload: { value: string }) =>
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
       <!-- Address Bar -->
       <Header
+        :addressBarRef
         :documentUrl
         :environment
         :eventBus
-        :events
         :hideClientButton
         :history
         :integration
@@ -159,6 +163,7 @@ const handleUpdatePath = (payload: { value: string }) =>
         :method="draftMethod"
         :path="draftPath"
         :percentage="requestLoadingPercentage"
+        :sendButtonRef
         :server
         :servers
         :showSidebar
@@ -190,7 +195,7 @@ const handleUpdatePath = (payload: { value: string }) =>
         <ResponseBlock
           :appVersion
           :eventBus
-          :events
+          :events="createStoreEvents()"
           :layout
           :plugins
           :request
