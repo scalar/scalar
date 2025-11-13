@@ -345,8 +345,8 @@
 
     {
       "description": "Scripts",
-      "matchFileNames": ["scripts/**"],
-      "additionalBranchPrefix": "scripts-root"
+      "matchFileNames": ["tooling/scripts/**"],
+      "additionalBranchPrefix": "tooling-scripts"
     },
 
     {

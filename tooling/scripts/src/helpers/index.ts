@@ -8,10 +8,20 @@ import as from 'ansis'
 /** Returns the monorepo root directory path */
 export function getWorkspaceRoot() {
   const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
+  let currentDir = path.dirname(__filename)
 
-  // Use relative path to root and then resolve
-  return path.resolve(`${__dirname}/../../..`)
+  // Walk up the directory tree until we find pnpm-workspace.yaml
+  while (currentDir !== path.dirname(currentDir)) {
+    const workspaceFile = path.join(currentDir, 'pnpm-workspace.yaml')
+    if (fs.existsSync(workspaceFile)) {
+      return currentDir
+    }
+    currentDir = path.dirname(currentDir)
+  }
+
+  // Fallback: use relative path (should not happen in normal operation)
+  const __dirname = path.dirname(__filename)
+  return path.resolve(`${__dirname}/../../../../`)
 }
 
 export function runCommand(command: string, logFilename?: string): Promise<unknown> {

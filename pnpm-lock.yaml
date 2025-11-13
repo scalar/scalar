@@ -2837,7 +2837,7 @@ importers:
         specifier: catalog:*
         version: 3.5.21(typescript@5.8.3)
 
-  scripts:
+  tooling/scripts:
     dependencies:
       ansis:
         specifier: catalog:*
