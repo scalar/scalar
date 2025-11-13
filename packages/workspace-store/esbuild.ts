@@ -11,6 +11,8 @@ const entries = [
   './src/events/index.ts',
   './src/navigation/index.ts',
   './src/persistence/index.ts',
+  './src/plugins/bundler/index.ts',
+  './src/plugins/client/index.ts',
   './src/mutators/index.ts',
 ]
 

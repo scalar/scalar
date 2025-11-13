@@ -160,6 +160,111 @@
       "types": "./dist/types/index.d.ts",
       "default": "./dist/types/index.js"
     },
+    "./v2/blocks/operation-block": {
+      "import": "./dist/v2/blocks/operation-block/index.js",
+      "types": "./dist/v2/blocks/operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/operation-block/index.js"
+    },
+    "./v2/blocks/operation-code-sample": {
+      "import": "./dist/v2/blocks/operation-code-sample/index.js",
+      "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
+      "default": "./dist/v2/blocks/operation-code-sample/index.js"
+    },
+    "./v2/blocks/scalar-address-bar-block": {
+      "import": "./dist/v2/blocks/scalar-address-bar-block/index.js",
+      "types": "./dist/v2/blocks/scalar-address-bar-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-address-bar-block/index.js"
+    },
+    "./v2/blocks/scalar-auth-selector-block": {
+      "import": "./dist/v2/blocks/scalar-auth-selector-block/index.js",
+      "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
+    },
+    "./v2/blocks/scalar-operation-block": {
+      "import": "./dist/v2/blocks/scalar-operation-block/index.js",
+      "types": "./dist/v2/blocks/scalar-operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-operation-block/index.js"
+    },
+    "./v2/blocks/scalar-response-block": {
+      "import": "./dist/v2/blocks/scalar-response-block/index.js",
+      "types": "./dist/v2/blocks/scalar-response-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-response-block/index.js"
+    },
+    "./v2/components/code-input": {
+      "import": "./dist/v2/components/code-input/index.js",
+      "types": "./dist/v2/components/code-input/index.d.ts",
+      "default": "./dist/v2/components/code-input/index.js"
+    },
+    "./v2/components/data-table": {
+      "import": "./dist/v2/components/data-table/index.js",
+      "types": "./dist/v2/components/data-table/index.d.ts",
+      "default": "./dist/v2/components/data-table/index.js"
+    },
+    "./v2/components/forms": {
+      "import": "./dist/v2/components/forms/index.js",
+      "types": "./dist/v2/components/forms/index.d.ts",
+      "default": "./dist/v2/components/forms/index.js"
+    },
+    "./v2/components/layout": {
+      "import": "./dist/v2/components/layout/index.js",
+      "types": "./dist/v2/components/layout/index.d.ts",
+      "default": "./dist/v2/components/layout/index.js"
+    },
+    "./v2/components/modals": {
+      "import": "./dist/v2/components/modals/index.js",
+      "types": "./dist/v2/components/modals/index.d.ts",
+      "default": "./dist/v2/components/modals/index.js"
+    },
+    "./v2/components/resize": {
+      "import": "./dist/v2/components/resize/index.js",
+      "types": "./dist/v2/components/resize/index.d.ts",
+      "default": "./dist/v2/components/resize/index.js"
+    },
+    "./v2/components/server": {
+      "import": "./dist/v2/components/server/index.js",
+      "types": "./dist/v2/components/server/index.d.ts",
+      "default": "./dist/v2/components/server/index.js"
+    },
+    "./v2/components/sidebar": {
+      "import": "./dist/v2/components/sidebar/index.js",
+      "types": "./dist/v2/components/sidebar/index.d.ts",
+      "default": "./dist/v2/components/sidebar/index.js"
+    },
+    "./v2/features/app": {
+      "import": "./dist/v2/features/app/index.js",
+      "types": "./dist/v2/features/app/index.d.ts",
+      "default": "./dist/v2/features/app/index.js"
+    },
+    "./v2/features/app/components": {
+      "import": "./dist/v2/features/app/components/index.js",
+      "types": "./dist/v2/features/app/components/index.d.ts",
+      "default": "./dist/v2/features/app/components/index.js"
+    },
+    "./v2/features/environments": {
+      "import": "./dist/v2/features/environments/index.js",
+      "types": "./dist/v2/features/environments/index.d.ts",
+      "default": "./dist/v2/features/environments/index.js"
+    },
+    "./v2/features/global-cookies": {
+      "import": "./dist/v2/features/global-cookies/index.js",
+      "types": "./dist/v2/features/global-cookies/index.d.ts",
+      "default": "./dist/v2/features/global-cookies/index.js"
+    },
+    "./v2/features/modal": {
+      "import": "./dist/v2/features/modal/index.js",
+      "types": "./dist/v2/features/modal/index.d.ts",
+      "default": "./dist/v2/features/modal/index.js"
+    },
+    "./v2/features/operation": {
+      "import": "./dist/v2/features/operation/index.js",
+      "types": "./dist/v2/features/operation/index.d.ts",
+      "default": "./dist/v2/features/operation/index.js"
+    },
+    "./v2/features/settings": {
+      "import": "./dist/v2/features/settings/index.js",
+      "types": "./dist/v2/features/settings/index.d.ts",
+      "default": "./dist/v2/features/settings/index.js"
+    },
     "./views/Components/CodeSnippet": {
       "import": "./dist/views/Components/CodeSnippet/index.js",
       "types": "./dist/views/Components/CodeSnippet/index.d.ts",
@@ -199,31 +304,6 @@
       "import": "./dist/views/Request/types/index.js",
       "types": "./dist/views/Request/types/index.d.ts",
       "default": "./dist/views/Request/types/index.js"
-    },
-    "./v2/blocks/operation-code-sample": {
-      "import": "./dist/v2/blocks/operation-code-sample/index.js",
-      "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
-      "default": "./dist/v2/blocks/operation-code-sample/index.js"
-    },
-    "./v2/blocks/scalar-address-bar-block": {
-      "import": "./dist/v2/blocks/scalar-address-bar-block/index.js",
-      "types": "./dist/v2/blocks/scalar-address-bar-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-address-bar-block/index.js"
-    },
-    "./v2/blocks/scalar-auth-selector-block": {
-      "import": "./dist/v2/blocks/scalar-auth-selector-block/index.js",
-      "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
-    },
-    "./v2/blocks/scalar-operation-block": {
-      "import": "./dist/v2/blocks/scalar-operation-block/index.js",
-      "types": "./dist/v2/blocks/scalar-operation-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-operation-block/index.js"
-    },
-    "./v2/blocks/scalar-response-block": {
-      "import": "./dist/v2/blocks/scalar-response-block/index.js",
-      "types": "./dist/v2/blocks/scalar-response-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-response-block/index.js"
     }
   },
   "files": [

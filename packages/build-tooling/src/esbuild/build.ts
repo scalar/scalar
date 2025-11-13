@@ -9,7 +9,7 @@ import { glob } from 'glob'
 import { addPackageFileExports, findEntryPoints } from '../helpers'
 import { runCommand } from './helpers'
 
-function makeEntryPoints(allowJs?: boolean) {
+function makeEntryPoints(allowJs?: boolean): Array<string> {
   const entryPoints = ['src/**/*.ts']
 
   if (allowJs) {
@@ -82,7 +82,7 @@ export async function build({
    */
   onSuccess?: () => Promise<void> | void
   onBeforeBuild?: () => Promise<void> | void
-}) {
+}): Promise<unknown> {
   await fs.rm('dist', { recursive: true, force: true })
 
   /**
@@ -92,10 +92,7 @@ export async function build({
   if (entries === 'auto') {
     await findEntryPoints({ allowCss })
   } else {
-    await addPackageFileExports({
-      entries,
-      allowCss,
-    })
+    await addPackageFileExports({ entries, allowCss })
   }
 
   const buildOptions =

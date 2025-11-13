@@ -7,6 +7,7 @@ build({
     'src/file/*.ts',
     'src/general/*.ts',
     'src/http/*.ts',
+    'src/node/*.ts',
     'src/object/*.ts',
     'src/regex/*.ts',
     'src/string/*.ts',

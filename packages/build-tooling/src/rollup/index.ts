@@ -1,1 +1,2 @@
-export { createRollupConfig, type StrictPluginOptions } from './options'
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
+export { type StrictPluginOptions, createRollupConfig } from './options'

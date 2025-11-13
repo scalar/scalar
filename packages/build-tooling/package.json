@@ -21,6 +21,7 @@
     "format": "node scripts/format.js",
     "lint:check": "node scripts/lint-check.js",
     "lint:fix": "node scripts/lint-fix.js",
+    "test": "vitest",
     "types:build": "node scripts/types-build.js",
     "types:check": "node scripts/types-check.js"
   },
