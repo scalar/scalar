@@ -12,7 +12,7 @@ on:
 
 env:
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
-  # Exclude these packages from the build as they are handled by dedicated jobs
+  # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker}/**" --filter "!./projects/proxy-scalar-com/**"'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
