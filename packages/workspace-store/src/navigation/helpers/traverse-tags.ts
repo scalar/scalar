@@ -96,31 +96,40 @@ const getSortedTagEntries = ({
       return []
     }
 
-    // Alpha sort
-    if (operationsSorter === 'alpha') {
-      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.title.localeCompare(b.title) : 0))
-    }
-    // Method sort
-    else if (operationsSorter === 'method') {
-      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.method.localeCompare(b.method) : 0))
-    }
-    // Custom sort
-    else if (typeof operationsSorter === 'function') {
-      entries.sort((a, b) => {
-        // Guard against tags
-        if (!(a.type === 'operation' || a.type === 'webhook') || !(b.type === 'operation' || b.type === 'webhook')) {
-          return 0
-        }
+    const sortOrder = tag['x-scalar-order']
 
-        // Handle webhooks as well as operations
-        const pathA = a.type === 'operation' ? a.path : a.name
-        const pathB = b.type === 'operation' ? b.path : b.name
-
-        return operationsSorter(
-          { method: a.method, path: pathA, ref: a.ref, httpVerb: a.method },
-          { method: b.method, path: pathB, ref: b.ref, httpVerb: b.method },
+    if (sortOrder) {
+      // Sort the entries by the sort order if it is provided
+      entries.sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+    } else {
+      // Alpha sort
+      if (operationsSorter === 'alpha') {
+        entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.title.localeCompare(b.title) : 0))
+      }
+      // Method sort
+      else if (operationsSorter === 'method') {
+        entries.sort((a, b) =>
+          a.type === 'operation' && b.type === 'operation' ? a.method.localeCompare(b.method) : 0,
         )
-      })
+      }
+      // Custom sort
+      else if (typeof operationsSorter === 'function') {
+        entries.sort((a, b) => {
+          // Guard against tags
+          if (!(a.type === 'operation' || a.type === 'webhook') || !(b.type === 'operation' || b.type === 'webhook')) {
+            return 0
+          }
+
+          // Handle webhooks as well as operations
+          const pathA = a.type === 'operation' ? a.path : a.name
+          const pathB = b.type === 'operation' ? b.path : b.name
+
+          return operationsSorter(
+            { method: a.method, path: pathA, ref: a.ref, httpVerb: a.method },
+            { method: b.method, path: pathB, ref: b.ref, httpVerb: b.method },
+          )
+        })
+      }
     }
 
     return entries.length
@@ -140,6 +149,7 @@ const getSortedTagEntries = ({
   const withoutDefault = defaultEntry ? entries.filter((entry) => entry.title !== 'default') : entries
 
   // If sort order is provided, use it to sort the entries
+  // TODO: detect when the sort order is outdated and try to fix it
   if (sortOrder) {
     entries.sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
     return entries

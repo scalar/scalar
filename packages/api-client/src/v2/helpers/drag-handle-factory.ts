@@ -1,8 +1,9 @@
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { type SidebarState, getParentEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry, TraversedOperation } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
 const getTargetFromEntry = ({
@@ -29,6 +30,24 @@ const getTargetFromEntry = ({
   }
 
   return null
+}
+
+const getOperationFromEntry = ({
+  store,
+  documentName,
+  entry,
+}: {
+  store: WorkspaceStore
+  documentName: string
+  entry: TraversedOperation
+}) => {
+  const document = store.workspace.documents[documentName]
+
+  if (!document) {
+    return null
+  }
+
+  return getResolvedRef(document.paths?.[entry.path]?.[entry.method]) ?? null
 }
 
 export const dragHandleFactory = ({
@@ -132,7 +151,9 @@ export const dragHandleFactory = ({
         currentOrder.splice(draggedIndex, 1)
         currentOrder.splice(hoveredIndex, 0, draggingItem.id)
 
-        target['x-scalar-order'] = currentOrder
+        console.log({ message: 'handling tag reordering', target, currentOrder })
+
+        target['x-scalar-order'] = unpackProxyObject(currentOrder, { depth: null })
 
         // Rebuild the sidebar for the document
         store.buildSidebar(draggingDocument.id)
@@ -141,6 +162,98 @@ export const dragHandleFactory = ({
 
       // TODO: handle the case where the parents are differnet
 
+      return true
+    }
+
+    if (draggingItem.type === 'operation') {
+      const draggingDocument = getParentEntry('document', draggingItem)
+      const hoveredDocument = getParentEntry('document', hoveredItem)
+
+      // TODO: handle the case where the docuemnts are different
+      if (draggingDocument !== hoveredDocument || !draggingDocument || !hoveredDocument) {
+        console.log('dragging operation inside different documents, returning false')
+        return false
+      }
+
+      console.log('dragging operation inside the same document')
+
+      const draggingParent = draggingItem.parent
+      const hoveredParent = hoveredItem.parent
+
+      if (
+        !draggingParent ||
+        !hoveredParent ||
+        (draggingParent.type !== 'tag' && draggingParent.type !== 'document') ||
+        (hoveredParent.type !== 'tag' && hoveredParent.type !== 'document')
+      ) {
+        console.log('invalid parents, returning false')
+        return false
+      }
+
+      if (draggingParent.id === hoveredParent.id) {
+        // For the same parent, we just need to update the order of the operations
+        console.log('same parent, ordering operations')
+
+        const target = getTargetFromEntry({ store, documentName: draggingDocument.id, entry: draggingParent })
+
+        if (!target) {
+          console.log('no target, returning false')
+          return false
+        }
+
+        const currentOrder = target['x-scalar-order'] ?? draggingParent.children?.map((child) => child.id) ?? []
+
+        const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
+        const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
+
+        if (draggedIndex === -1 || hoveredIndex === -1) {
+          console.log('no index, returning false')
+          return false
+        }
+
+        currentOrder.splice(draggedIndex, 1)
+        currentOrder.splice(hoveredIndex, 0, draggingItem.id)
+
+        console.log({ target, currentOrder })
+
+        target['x-scalar-order'] = unpackProxyObject(currentOrder)
+
+        // Rebuild the sidebar for the document
+        store.buildSidebar(draggingDocument.id)
+        return true
+      }
+
+      console.log('different parent')
+
+      // When the parents are different, we need to first remove the current tag from the operation
+      const operation = getOperationFromEntry({ store, documentName: draggingDocument.id, entry: draggingItem })
+
+      if (!operation) {
+        console.log('no operation, returning false')
+        return false
+      }
+
+      // When the current parent is a tag, we need to remove the operation from the tag
+      // and add it to the new tag
+      const currentTagParent = getParentEntry('tag', draggingItem)
+      const newTagParent = getParentEntry('tag', hoveredItem)
+
+      const currentTags = currentTagParent
+        ? (operation.tags?.filter((tag) => tag !== currentTagParent.name) ?? [])
+        : (operation.tags ?? [])
+      const newTags = newTagParent ? [...currentTags, newTagParent.name] : currentTags
+
+      operation.tags = Array.from(new Set(newTags))
+
+      console.log('operaiton tags updated', operation.tags)
+
+      // Here the tags are updated
+      // Now make sure to update the ordering of the old target and the new target
+
+      // TODO: make sure we move the operaiton to the new docuement, if that is the case
+
+      // Rebuild the sidebar for the document
+      store.buildSidebar(draggingDocument.id)
       return true
     }
 
@@ -172,6 +285,15 @@ export const dragHandleFactory = ({
         hoveredItem.type === 'tag' &&
         _hoveredItem.offset === 0 &&
         getParentEntry('document', hoveredItem) === getParentEntry('document', draggingItem)
+      )
+    }
+
+    // For operations we can reorder, move them to another tag but not to a tag group, another document
+    if (draggingItem.type === 'operation') {
+      return (
+        (hoveredItem.type === 'tag' && hoveredItem.isGroup === false && draggingItem.parent !== hoveredItem.parent) ||
+        (hoveredItem.type === 'document' && _hoveredItem.offset === 2) ||
+        (hoveredItem.type === 'operation' && _hoveredItem.offset === 0)
       )
     }
 
