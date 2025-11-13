@@ -5,6 +5,7 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 type HotKeyModifiers = ('Alt' | 'Control' | 'Shift' | 'Meta' | 'default')[]
 
+/** Hotkey configuration type, matches payloads with the event bus */
 export type HotKeyConfig<E extends keyof ApiReferenceEvents = keyof ApiReferenceEvents> = Record<
   string | number,
   undefined extends ApiReferenceEvents[E]
@@ -12,30 +13,7 @@ export type HotKeyConfig<E extends keyof ApiReferenceEvents = keyof ApiReference
     : { event: E; payload: ApiReferenceEvents[E]; modifiers: HotKeyModifiers }
 >
 
-/**
- * Desktop-only hotkeys for advanced navigation and window management.
- */
-export const DESKTOP_HOTKEYS: HotKeyConfig = {
-  f: { event: 'ui:focus:search', modifiers: ['default'] },
-  n: { event: 'ui:open:command-palette', modifiers: ['default'] },
-  t: { event: 'tabs:add:tab', modifiers: ['default'] },
-  w: { event: 'tabs:close:tab', modifiers: ['default'] },
-  ArrowLeft: { event: 'tabs:navigate:previous', modifiers: ['default', 'Alt'] },
-  ArrowRight: { event: 'tabs:navigate:next', modifiers: ['default', 'Alt'] },
-  1: { event: 'tabs:focus:tab', payload: { index: 0 }, modifiers: ['default'] },
-  2: { event: 'tabs:focus:tab', payload: { index: 1 }, modifiers: ['default'] },
-  3: { event: 'tabs:focus:tab', payload: { index: 2 }, modifiers: ['default'] },
-  4: { event: 'tabs:focus:tab', payload: { index: 3 }, modifiers: ['default'] },
-  5: { event: 'tabs:focus:tab', payload: { index: 4 }, modifiers: ['default'] },
-  6: { event: 'tabs:focus:tab', payload: { index: 5 }, modifiers: ['default'] },
-  7: { event: 'tabs:focus:tab', payload: { index: 6 }, modifiers: ['default'] },
-  8: { event: 'tabs:focus:tab', payload: { index: 7 }, modifiers: ['default'] },
-  9: { event: 'tabs:focus:tab-last', modifiers: ['default'] },
-}
-
-/**
- * Default hotkeys available in both the app and modal contexts.
- */
+/** Default hotkeys available in most contexts */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Enter: { event: 'operation:send:request', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
@@ -43,10 +21,35 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
 }
 
-/**
- * Keys that should work in input fields when the modifier is pressed.
- * Using a Set for O(1) lookup performance.
- */
+/** Hotkey map by layout */
+export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
+  web: DEFAULT_HOTKEYS,
+  modal: {
+    ...DEFAULT_HOTKEYS,
+    Escape: { event: 'ui:close:client-modal', modifiers: [] },
+    l: { event: 'ui:focus:send-button', modifiers: ['default'] },
+  },
+  desktop: {
+    ...DEFAULT_HOTKEYS,
+    f: { event: 'ui:focus:search', modifiers: ['default'] },
+    n: { event: 'ui:open:command-palette', modifiers: ['default'] },
+    t: { event: 'tabs:add:tab', modifiers: ['default'] },
+    w: { event: 'tabs:close:tab', modifiers: ['default'] },
+    ArrowLeft: { event: 'tabs:navigate:previous', modifiers: ['default', 'Alt'] },
+    ArrowRight: { event: 'tabs:navigate:next', modifiers: ['default', 'Alt'] },
+    1: { event: 'tabs:focus:tab', payload: { index: 0 }, modifiers: ['default'] },
+    2: { event: 'tabs:focus:tab', payload: { index: 1 }, modifiers: ['default'] },
+    3: { event: 'tabs:focus:tab', payload: { index: 2 }, modifiers: ['default'] },
+    4: { event: 'tabs:focus:tab', payload: { index: 3 }, modifiers: ['default'] },
+    5: { event: 'tabs:focus:tab', payload: { index: 4 }, modifiers: ['default'] },
+    6: { event: 'tabs:focus:tab', payload: { index: 5 }, modifiers: ['default'] },
+    7: { event: 'tabs:focus:tab', payload: { index: 6 }, modifiers: ['default'] },
+    8: { event: 'tabs:focus:tab', payload: { index: 7 }, modifiers: ['default'] },
+    9: { event: 'tabs:focus:tab-last', modifiers: ['default'] },
+  },
+}
+
+/** Keys that should work in input fields when the modifier is pressed */
 const INPUT_ALLOWED_KEYS = new Set([
   'Escape',
   'ArrowDown',
@@ -114,7 +117,7 @@ export const handleHotkeyDown = (event: KeyboardEvent, eventBus: WorkspaceEventB
   /** Special case for space */
   const key = event.key === ' ' ? 'Space' : event.key
   /** The discriminated hotkeys config */
-  const hotkeys = layout === 'desktop' ? DESKTOP_HOTKEYS : DEFAULT_HOTKEYS
+  const hotkeys = HOTKEYS[layout]
   /** Get the hotkey event with payload  */
   const hotkeyEvent = hotkeys[key]
 
@@ -125,12 +128,15 @@ export const handleHotkeyDown = (event: KeyboardEvent, eventBus: WorkspaceEventB
   // Escape always fires, regardless of context
   if (key === 'Escape') {
     eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
+    event.preventDefault()
     return
   }
 
   // If modifiers are pressed, fire the hotkey (even in input fields)
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
+    console.log('fire hotkey', hotkeyEvent.event, hotkeyEvent.payload)
     eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
+    event.preventDefault()
     return
   }
 

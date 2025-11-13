@@ -10,7 +10,7 @@ import type { ClientLayout } from '@/v2/types/layout'
  * @param eventBus - workspace event bus
  * @param layout - client layout
  */
-export const useHotKeys = (eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
+export const useGlobalHotKeys = (eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
   const handleKeyDown = (ev: KeyboardEvent) => handleHotkeyDown(ev, eventBus, layout)
 
   // Enable the listeners

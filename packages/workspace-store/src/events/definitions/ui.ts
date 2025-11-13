@@ -28,12 +28,18 @@ export type UIEvents = {
   /**
    * Open the Api Client modal to a specific operation
    */
-  'ui:open:client': {
+  'ui:open:client-modal': {
     /** The HTTP method of the operation to load */
     method: HttpMethod
     /** The path of the operation to load */
     path: string
+    /** The example name to load */
+    exampleName?: string
   }
+  /**
+   * Close the client modal
+   */
+  'ui:close:client-modal': undefined
   /**
    * Open our command palette
    */

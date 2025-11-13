@@ -116,23 +116,63 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const events = new Map<keyof ApiReferenceEvents, ListenerSet>()
 
   /**
+   * Track pending log entries for batching
+   */
+  type PendingLogEntry = { message: string; args: unknown[] }
+  const pendingLogs: PendingLogEntry[] = []
+  let logTimeout: ReturnType<typeof setTimeout> | null = null
+
+  /**
    * Get or create a listener set for an event
    */
   const getListeners = <E extends keyof ApiReferenceEvents>(event: E): ListenerSet => {
-    let listeners = events.get(event)
-    if (!listeners) {
-      listeners = new Set()
-      events.set(event, listeners)
-    }
+    const listeners = events.get(event) ?? new Set()
+    events.set(event, listeners)
     return listeners
   }
 
   /**
+   * Flush batched logs using console.groupCollapsed
+   */
+  const flushLogs = (): void => {
+    if (pendingLogs.length === 0) {
+      return
+    }
+
+    if (debug) {
+      if (pendingLogs.length === 1) {
+        // Only one log, output it normally without grouping
+        const firstLog = pendingLogs[0]
+        if (firstLog) {
+          console.log(`[EventBus] ${firstLog.message}`, ...firstLog.args)
+        }
+      } else {
+        // Multiple logs, use a collapsed group
+        console.groupCollapsed(`[EventBus] ${pendingLogs.length} operations`)
+        for (const { message, args } of pendingLogs) {
+          console.log(message, ...args)
+        }
+        console.groupEnd()
+      }
+    }
+
+    pendingLogs.length = 0
+    logTimeout = null
+  }
+
+  /**
    * Log debug information if debug mode is enabled
+   * Batches multiple logs together using console.groupCollapsed
    */
   const log = (message: string, ...args: unknown[]): void => {
     if (debug) {
-      console.log(`[EventBus] ${message}`, ...args)
+      pendingLogs.push({ message, args })
+
+      // Clear existing timeout and set a new one to batch logs
+      if (logTimeout) {
+        clearTimeout(logTimeout)
+      }
+      logTimeout = setTimeout(flushLogs, 500)
     }
   }
 

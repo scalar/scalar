@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { handleHotkeyDown } from '@/v2/features/app/helpers/handle-hotkey-down'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { useHotKeys } from './use-hot-keys'
+import { useGlobalHotKeys } from './use-global-hot-keys'
 
 // Mock Vue lifecycle hooks
 vi.mock('vue', async () => {
@@ -41,7 +41,7 @@ describe('use-hot-keys', () => {
   it('adds keydown event listener on mount', () => {
     const layout: ClientLayout = 'web'
 
-    useHotKeys(mockEventBus, layout)
+    useGlobalHotKeys(mockEventBus, layout)
 
     expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
     expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
@@ -50,7 +50,7 @@ describe('use-hot-keys', () => {
   it('removes keydown event listener on unmount', () => {
     const layout: ClientLayout = 'web'
 
-    useHotKeys(mockEventBus, layout)
+    useGlobalHotKeys(mockEventBus, layout)
 
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
     expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
@@ -59,7 +59,7 @@ describe('use-hot-keys', () => {
   it('calls handleHotkeyDown with correct parameters when keydown event fires', () => {
     const layout: ClientLayout = 'web'
 
-    useHotKeys(mockEventBus, layout)
+    useGlobalHotKeys(mockEventBus, layout)
 
     // Get the callback that was registered
     const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
@@ -77,7 +77,7 @@ describe('use-hot-keys', () => {
   it('passes desktop layout to handleHotkeyDown when using desktop layout', () => {
     const layout: ClientLayout = 'desktop'
 
-    useHotKeys(mockEventBus, layout)
+    useGlobalHotKeys(mockEventBus, layout)
 
     // Get the callback that was registered
     const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
@@ -94,7 +94,7 @@ describe('use-hot-keys', () => {
   it('removes the same handler that was added', () => {
     const layout: ClientLayout = 'web'
 
-    useHotKeys(mockEventBus, layout)
+    useGlobalHotKeys(mockEventBus, layout)
 
     // Get the handler that was added and removed
     const addedHandler = addEventListenerSpy.mock.calls[0]?.[1]

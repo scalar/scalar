@@ -5,7 +5,13 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  useId,
+  useTemplateRef,
+} from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
@@ -71,19 +77,22 @@ const style = computed(() => ({
 }))
 
 /** Handle focus events */
-const addressBarRef = ref<typeof CodeInput | null>(null)
-const sendButtonRef = ref<typeof ScalarButton | null>(null)
-const handleFocusAddressBar = () => addressBarRef.value?.focus()
+const addressBarRef = useTemplateRef('addressBarRef')
+const sendButtonRef = useTemplateRef('sendButtonRef')
+const handleFocusAddressBar = () => {
+  console.log('handleFocusAddressBar')
+  addressBarRef.value?.focus()
+}
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 onMounted(() => {
-  eventBus.on('focus:address-bar', handleFocusAddressBar)
-  eventBus.on('focus:send-button', handleFocusSendButton)
+  eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
+  eventBus.on('ui:focus:send-button', handleFocusSendButton)
 })
 
 onBeforeUnmount(() => {
-  eventBus.off('focus:address-bar', handleFocusAddressBar)
-  eventBus.off('focus:send-button', handleFocusSendButton)
+  eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
+  eventBus.off('ui:focus:send-button', handleFocusSendButton)
 })
 </script>
 <template>
