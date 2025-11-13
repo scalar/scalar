@@ -62,7 +62,7 @@ README.md files for integrations are automatically generated from metadata in `p
 pnpm script generate-readme
 ```
 
-For more information, see the [scripts README](./scripts/README.md).
+For more information, see the [scripts README](./tooling/scripts/README.md).
 
 ### Java & .NET Enums
 

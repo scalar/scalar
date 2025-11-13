@@ -51,9 +51,6 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.1.6
       version: 19.1.6
-    '@types/semver':
-      specifier: 7.5.8
-      version: 7.5.8
     '@typescript-eslint/parser':
       specifier: ^8.0.0
       version: 8.24.0
@@ -81,12 +78,6 @@ catalogs:
     chokidar:
       specifier: 4.0.3
       version: 4.0.3
-    commander:
-      specifier: 13.1.0
-      version: 13.1.0
-    concurrently:
-      specifier: 9.1.2
-      version: 9.1.2
     esbuild:
       specifier: 0.25.6
       version: 0.25.6
@@ -120,9 +111,6 @@ catalogs:
     next:
       specifier: ^15.4.7
       version: 15.5.2
-    picomatch:
-      specifier: 4.0.2
-      version: 4.0.2
     postcss:
       specifier: ^8.4.38
       version: 8.5.6
@@ -135,9 +123,6 @@ catalogs:
     rollup:
       specifier: 4.45.1
       version: 4.45.1
-    semver:
-      specifier: 7.7.2
-      version: 7.7.2
     shx:
       specifier: ^0.4.0
       version: 0.4.0
@@ -2836,40 +2821,6 @@ importers:
       vue:
         specifier: catalog:*
         version: 3.5.21(typescript@5.8.3)
-
-  scripts:
-    dependencies:
-      ansis:
-        specifier: catalog:*
-        version: 4.1.0
-      commander:
-        specifier: catalog:*
-        version: 13.1.0
-      concurrently:
-        specifier: catalog:*
-        version: 9.1.2
-      picomatch:
-        specifier: catalog:*
-        version: 4.0.2
-      semver:
-        specifier: catalog:*
-        version: 7.7.2
-      yaml:
-        specifier: catalog:*
-        version: 2.8.0
-      zod:
-        specifier: catalog:*
-        version: 4.1.11
-    devDependencies:
-      '@types/picomatch':
-        specifier: catalog:*
-        version: 4.0.2
-      '@types/semver':
-        specifier: catalog:*
-        version: 7.5.8
-      vite:
-        specifier: catalog:*
-        version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
 packages:
 
@@ -10203,10 +10154,6 @@ packages:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
 
-  commander@13.1.0:
-    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
-    engines: {node: '>=18'}
-
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
@@ -10296,11 +10243,6 @@ packages:
   concat-stream@2.0.0:
     resolution: {integrity: sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==}
     engines: {'0': node >= 6.0}
-
-  concurrently@9.1.2:
-    resolution: {integrity: sha512-H9MWcoPsYddwbOGM6difjVwVZHl63nwMEwDJG/L7VGtuaJhb12h2caPG2tVPWs7emuYix252iGfqOyrz1GczTQ==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   conf@7.1.2:
     resolution: {integrity: sha512-r8/HEoWPFn4CztjhMJaWNAe5n+gPUCSaJ0oufbqDLFKsA1V8JjAG7G+p0pgoDFAws9Bpk2VtVLLXqOBA7WxLeg==}
@@ -15112,10 +15054,6 @@ packages:
     resolution: {integrity: sha512-I3EurrIQMlRc9IaAZnqRR044Phh2DXY+55o7uJ0V+hYZAcQYSuFWsc9q5PvyDHUSCe1Qxn/iBz+78s86zWnGag==}
     engines: {node: '>=10'}
 
-  picomatch@4.0.2:
-    resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
-    engines: {node: '>=12'}
-
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
@@ -16869,11 +16807,6 @@ packages:
 
   semver@7.5.4:
     resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
-    engines: {node: '>=10'}
-    hasBin: true
-
-  semver@7.7.2:
-    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -28861,8 +28794,6 @@ snapshots:
 
   commander@11.1.0: {}
 
-  commander@13.1.0: {}
-
   commander@2.20.3: {}
 
   commander@4.1.1: {}
@@ -28951,16 +28882,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
       typedarray: 0.0.6
-
-  concurrently@9.1.2:
-    dependencies:
-      chalk: 4.1.2
-      lodash: 4.17.21
-      rxjs: 7.8.1
-      shell-quote: 1.8.3
-      supports-color: 8.1.1
-      tree-kill: 1.2.2
-      yargs: 17.7.2
 
   conf@7.1.2:
     dependencies:
@@ -35294,8 +35215,6 @@ snapshots:
 
   picomatch@3.0.1: {}
 
-  picomatch@4.0.2: {}
-
   picomatch@4.0.3: {}
 
   pify@2.3.0: {}
@@ -37299,8 +37218,6 @@ snapshots:
   semver@7.5.4:
     dependencies:
       lru-cache: 6.0.0
-
-  semver@7.7.2: {}
 
   semver@7.7.3: {}
 
