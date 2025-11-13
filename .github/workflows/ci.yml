@@ -25,10 +25,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build
-        uses: ./.github/actions/build
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: ./.github/actions/build
         with:
           packages: './{packages,integrations}/**'
       - name: Copy and rename standalone.js to scalar.js
@@ -212,7 +210,6 @@ jobs:
 
   knip:
     if: github.event_name == 'pull_request'
-    name: Run Knip checks
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -227,7 +224,6 @@ jobs:
         run: pnpm lint:knip
 
   test-packages:
-    name: Test packages (shard ${{ matrix.shard-index }}/${{ matrix.shard-total }})
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -1425,7 +1421,6 @@ jobs:
 
   required-jobs-pull-requests:
     if: github.event_name == 'pull_request'
-    name: Required Jobs for Pull Requests
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
@@ -1446,7 +1441,6 @@ jobs:
 
   required-jobs-main:
     if: github.ref == 'refs/heads/main'
-    name: Required Jobs for Main
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
