@@ -5,22 +5,30 @@ export type UIEvents = {
   /**
    * Download the document from the store
    */
-  'download:document': {
+  'ui:download:document': {
     /** Format to download the document in */
     format: 'json' | 'yaml' | 'direct'
   }
   /**
    * Focus the address bar
    */
-  'focus:address-bar': undefined
+  'ui:focus:address-bar': undefined
   /**
    * Focus the send button
    */
-  'focus:send-button': undefined
+  'ui:focus:send-button': undefined
+  /**
+   * Focus the search
+   */
+  'ui:focus:search': undefined
+  /**
+   * Toggle the sidebar
+   */
+  'ui:toggle:sidebar': undefined
   /**
    * Open the Api Client modal to a specific operation
    */
-  'open:client': {
+  'ui:open:client': {
     /** The HTTP method of the operation to load */
     method: HttpMethod
     /** The path of the operation to load */
@@ -29,7 +37,7 @@ export type UIEvents = {
   /**
    * Open our command palette
    */
-  'open:command-palette':
+  'ui:open:command-palette':
     | 'import'
     | 'addServer'
     | 'addCollection'
