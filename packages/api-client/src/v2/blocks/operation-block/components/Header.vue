@@ -62,6 +62,7 @@ const emit = defineEmits<{
       value: HttpMethod
     },
   ): void
+  (e: 'update:servers'): void
 }>()
 </script>
 
@@ -93,7 +94,8 @@ const emit = defineEmits<{
       :servers
       @execute="emit('execute')"
       @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)" />
+      @update:path="(payload) => emit('update:path', payload)"
+      @update:servers="emit('update:servers')" />
 
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">

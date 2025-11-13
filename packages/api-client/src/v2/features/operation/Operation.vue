@@ -14,6 +14,7 @@ export default {}
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { createStoreEvents } from '@/store/events'
 import { OperationBlock } from '@/v2/blocks/operation-block'
@@ -67,6 +68,8 @@ const authMeta = computed<AuthMeta>(() => {
 })
 
 const APP_VERSION = PACKAGE_VERSION
+
+const router = useRouter()
 </script>
 
 <template>
@@ -90,7 +93,8 @@ const APP_VERSION = PACKAGE_VERSION
       :selectedSecurity
       :server="selectedServer"
       :servers="document?.servers ?? []"
-      :totalPerformedRequests="0" />
+      :totalPerformedRequests="0"
+      @update:servers="router.push({ name: 'document.servers' })" />
   </template>
 
   <!-- Empty state -->

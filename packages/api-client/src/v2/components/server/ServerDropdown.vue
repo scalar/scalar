@@ -2,9 +2,9 @@
 import {
   ScalarButton,
   ScalarFloatingBackdrop,
-  ScalarIcon,
   ScalarPopover,
 } from '@scalar/components'
+import { ScalarIconPencilSimple, ScalarIconPlus } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -34,7 +34,7 @@ const emits = defineEmits<{
     e: 'update:variable',
     payload: ApiReferenceEvents['server:update:variables'],
   ): void
-  (e: 'addServer'): void
+  (e: 'update:servers'): void
 }>()
 
 const requestServerOptions = computed(() =>
@@ -50,12 +50,6 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   }
   return server?.url || ''
 })
-
-/** Ensure we allow de-selection of the server */
-const handleServerChange = (_index: number, url: string) => {
-  const index = url === server?.url ? -1 : _index
-  emits('update:selectedServer', { index })
-}
 </script>
 <template>
   <ScalarPopover
@@ -75,9 +69,7 @@ const handleServerChange = (_index: number, url: string) => {
       </template>
       <template v-else>
         <span class="sr-only">Add Server</span>
-        <ScalarIcon
-          icon="Add"
-          size="xs" />
+        <ScalarIconPlus class="size-3" />
       </template>
     </ScalarButton>
     <template #popover="{ close }">
@@ -91,22 +83,23 @@ const handleServerChange = (_index: number, url: string) => {
           :server="server"
           :serverOption="serverOption"
           type="request"
-          @update:selectedServer="handleServerChange(index, serverOption.id)"
+          @update:selectedServer="
+            emits('update:selectedServer', { url: serverOption.id })
+          "
           @update:variable="
             (key, value) => emits('update:variable', { index, key, value })
           " />
+
         <!-- Add Server -->
         <template v-if="layout !== 'modal'">
           <button
             class="text-xxs hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded p-1.75"
             type="button"
-            @click="emits('addServer')">
-            <div class="flex h-4 w-4 items-center justify-center">
-              <ScalarIcon
-                icon="Add"
-                size="sm" />
+            @click="emits('update:servers')">
+            <div class="flex items-center justify-center">
+              <ScalarIconPencilSimple class="size-4" />
             </div>
-            <span>Add Server</span>
+            <span>Update Servers</span>
           </button>
         </template>
       </div>

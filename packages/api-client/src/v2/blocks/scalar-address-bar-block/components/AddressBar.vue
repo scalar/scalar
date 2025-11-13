@@ -61,6 +61,7 @@ const emit = defineEmits<{
       value: HttpMethodType
     },
   ): void
+  (e: 'update:servers'): void
 }>()
 
 const id = useId()
@@ -121,10 +122,10 @@ const style = computed(() => ({
           :server="server"
           :servers="servers"
           :target="id"
-          @addServer="eventBus.emit('open:command-palette', 'addServer')"
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
+          @update:servers="emit('update:servers')"
           @update:variable="
             (payload) => eventBus.emit('server:update:variables', payload)
           " />

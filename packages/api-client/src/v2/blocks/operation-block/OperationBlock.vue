@@ -99,6 +99,11 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   environment: XScalarEnvironment
 }>()
 
+const emit = defineEmits<{
+  /** Route to the appropriate server page */
+  (e: 'update:servers'): void
+}>()
+
 /**
  * We use a draft method and path to allow the user to explicitly save the method or path changes
  * as it re-calculates the sidebar and we need to ensure they don't conflict
@@ -160,7 +165,8 @@ const handleUpdatePath = (payload: { value: string }) =>
         :source
         @execute="handleExecute"
         @update:method="handleUpdateMethod"
-        @update:path="handleUpdatePath" />
+        @update:path="handleUpdatePath"
+        @update:servers="emit('update:servers')" />
     </div>
 
     <ViewLayout>
