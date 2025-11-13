@@ -2,6 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
+import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 /**
  * Describes the minimal identity for an operation in the workspace document.
@@ -284,21 +285,29 @@ export const updateOperationParameter = ({
 
   parameter.name = payload.key ?? parameter.name ?? ''
 
-  // TODO: handle content-type parameters
-  if ('examples' in parameter) {
-    if (!parameter.examples) {
-      parameter.examples = {}
-    }
-
-    const example = getResolvedRef(parameter.examples[meta.exampleKey])
-
-    if (!example) {
-      return
-    }
-
-    example.value = payload.value ?? example?.value ?? ''
-    example['x-disabled'] = payload.isEnabled === undefined ? example['x-disabled'] : !payload.isEnabled
+  if (isContentTypeParameterObject(parameter)) {
+    // TODO: handle content-type parameters
+    return
   }
+
+  if (!parameter.examples) {
+    parameter.examples = {}
+  }
+
+  const example = getResolvedRef(parameter.examples[meta.exampleKey])
+
+  // Create the example if it doesn't exist
+  if (!example) {
+    parameter.examples[meta.exampleKey] = {
+      value: payload.value ?? '',
+      'x-disabled': payload.isEnabled === undefined ? false : !payload.isEnabled,
+    }
+    return
+  }
+
+  // Update existing example value
+  example.value = payload.value ?? example?.value ?? ''
+  example['x-disabled'] = payload.isEnabled === undefined ? example['x-disabled'] : !payload.isEnabled
 }
 
 /**

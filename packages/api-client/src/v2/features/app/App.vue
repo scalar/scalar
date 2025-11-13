@@ -48,8 +48,16 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode()
 
+/** Expose workspace store to window for debugging purposes. */
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => store.value
+}
+
 /** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus()
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
 
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(true)
