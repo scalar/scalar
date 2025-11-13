@@ -37,4 +37,4 @@ runs:
       run: pnpm install
     - name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' --filter='!./integrations/{java,rust,dotnet,docker}/**' build
+      run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter '${{inputs.packages}}' build

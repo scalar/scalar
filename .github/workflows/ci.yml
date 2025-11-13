@@ -12,6 +12,8 @@ on:
 
 env:
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
+  # Exclude these packages from turbo as they are handled by dedicated jobs
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker}/**" --filter "!./projects/proxy-scalar-com/**"'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
   # Initial build.
@@ -206,7 +208,7 @@ jobs:
         with:
           packages: './{packages,integrations}/**'
       - name: Check types
-        run: pnpm types:check
+        run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
   knip:
     if: github.event_name == 'pull_request'
