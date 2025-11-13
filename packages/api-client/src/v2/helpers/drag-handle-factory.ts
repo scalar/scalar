@@ -3,53 +3,146 @@ import { type SidebarState, getParentEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import type { TraversedEntry, TraversedOperation } from '@scalar/workspace-store/schemas/navigation'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
+import type {
+  TraversedDocument,
+  TraversedEntry,
+  TraversedOperation,
+  TraversedTag,
+} from '@scalar/workspace-store/schemas/navigation'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
-const getTargetFromEntry = ({
+/**
+ * Reorders items in an array by moving an item from one index to another,
+ * adjusting insertion point based on offset.
+ * Returns the new order array, or null if indices are invalid.
+ *
+ * Offset meaning:
+ * - offset 0: insert before the hovered item
+ * - offset 1: insert after the hovered item
+ * - offset 2: (used for drop-into-parent operations, not typical reorder)
+ */
+const reorderArray = <T>(array: T[], fromIndex: number, toIndex: number, offset: number): T[] | null => {
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+    return null
+  }
+
+  const newArray = [...array]
+  const [removed] = newArray.splice(fromIndex, 1)
+  if (removed === undefined) {
+    return null
+  }
+
+  let insertIndex = toIndex
+
+  // Offset handling: offset 1 means place after hovered, offset 0 means before
+  if (offset === 1) {
+    // If moving 'down', adjust for removal, otherwise just add +1 for after
+    insertIndex = fromIndex < toIndex ? toIndex : toIndex + 1
+  } else if (offset === 0) {
+    // Insert before hovered item
+    insertIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
+  } else if (offset === 2) {
+    // For drop-into-parent, fall back to end of array
+    insertIndex = newArray.length
+  }
+
+  // Clamp insertIndex
+  if (insertIndex < 0) {
+    insertIndex = 0
+  }
+  if (insertIndex > newArray.length) {
+    insertIndex = newArray.length
+  }
+
+  newArray.splice(insertIndex, 0, removed)
+  return unpackProxyObject(newArray, { depth: 1 })
+}
+
+const isEntryType = <Entry extends TraversedEntry, const Type extends TraversedEntry['type'][]>(
+  entry: Entry,
+  type: Type,
+): entry is Entry & { type: Type[number] } => {
+  return type.includes(entry.type)
+}
+
+const isReorder = (hoveredItem: HoveredItem): boolean => {
+  return hoveredItem.offset < 2
+}
+
+const isDrop = (hoveredItem: HoveredItem): boolean => {
+  return hoveredItem.offset === 2
+}
+
+const itemsShareParent = (
+  draggingItem: TraversedEntry & { parent?: TraversedEntry },
+  hoveredItem: TraversedEntry & { parent?: TraversedEntry },
+): boolean => {
+  if (!draggingItem.parent || !hoveredItem.parent) {
+    return false
+  }
+  return draggingItem.parent.id === hoveredItem.parent.id
+}
+
+type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | TraversedOperation> =
+  Entry extends TraversedDocument
+    ? WorkspaceDocument
+    : Entry extends TraversedTag
+      ? TagObject
+      : Entry extends TraversedOperation
+        ? OperationObject
+        : never
+
+const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | TraversedOperation>({
   store,
-  documentName,
   entry,
 }: {
   store: WorkspaceStore
-  documentName: string
-  entry: TraversedEntry
-}) => {
-  const document = store.workspace.documents[documentName]
+  entry: Entry
+}): GetOpenapiObject<Entry> | null => {
+  const documentEntry = getParentEntry('document', entry)
+
+  if (!documentEntry) {
+    return null
+  }
+
+  const document = store.workspace.documents[documentEntry.name]
 
   if (!document) {
     return null
   }
 
   if (entry.type === 'document') {
-    return document
+    return document as GetOpenapiObject<Entry>
   }
 
   if (entry.type === 'tag') {
-    return document.tags?.find((tag) => tag.name === entry.name)
+    return (document.tags?.find((tag) => tag.name === entry.name) as GetOpenapiObject<Entry> | undefined) ?? null
+  }
+
+  if (entry.type === 'operation') {
+    return (getResolvedRef(document.paths?.[entry.path]?.[entry.method]) as GetOpenapiObject<Entry> | undefined) ?? null
   }
 
   return null
 }
 
-const getOperationFromEntry = ({
-  store,
-  documentName,
-  entry,
-}: {
-  store: WorkspaceStore
-  documentName: string
-  entry: TraversedOperation
-}) => {
-  const document = store.workspace.documents[documentName]
+const buildSidebar = ({ store, entry }: { store: WorkspaceStore; entry: TraversedEntry }) => {
+  const documentEntry = getParentEntry('document', entry)
 
-  if (!document) {
-    return null
+  if (!documentEntry) {
+    return
   }
 
-  return getResolvedRef(document.paths?.[entry.path]?.[entry.method]) ?? null
+  store.buildSidebar(documentEntry.name)
 }
 
+/**
+ * Factory function that creates drag and drop handlers for sidebar items.
+ * Handles reordering and moving of documents, tags, and operations.
+ */
 export const dragHandleFactory = ({
   store: _store,
   sidebarState,
@@ -57,7 +150,10 @@ export const dragHandleFactory = ({
   store: MaybeRefOrGetter<WorkspaceStore | null>
   sidebarState: SidebarState<TraversedEntry>
 }) => {
-  // Return boolean to indicate if the drag and drop was successful
+  /**
+   * Handles the end of a drag operation.
+   * Returns true if the drag and drop was successful, false otherwise.
+   */
   const handleDragEnd = (_draggingItem: DraggingItem, _hoveredItem: HoveredItem): boolean => {
     const store = toValue(_store)
 
@@ -65,202 +161,217 @@ export const dragHandleFactory = ({
       return false
     }
 
+    // Get the items from the sidebar state
     const draggingItem = sidebarState.getEntryById(_draggingItem.id)
     const hoveredItem = sidebarState.getEntryById(_hoveredItem.id)
 
+    // If the items are not found, return false
+    // We can not process the drag and drop if we can not find the items
     if (!draggingItem || !hoveredItem) {
       return false
     }
 
-    console.log({ draggingItem, hoveredItem, _draggingItem, _hoveredItem })
+    // Handle docuemnts reordering
+    if (draggingItem.type === 'document') {
+      // Documents can only be reordered (not dropped into other documents)
+      if (hoveredItem.type !== 'document' || !isReorder(_hoveredItem)) {
+        return false
+      }
 
-    // Handle document reordering
-    if (draggingItem.type === 'document' && hoveredItem.type === 'document') {
+      // Get the current order of the documents
       const currentOrder = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
 
       const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
       const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
 
-      if (draggedIndex === -1 || hoveredIndex === -1) {
+      const newOrder = reorderArray(currentOrder, draggedIndex, hoveredIndex, _hoveredItem.offset)
+
+      if (!newOrder) {
         return false
       }
 
-      currentOrder.splice(draggedIndex, 1)
-      currentOrder.splice(hoveredIndex, 0, draggingItem.id)
-
-      // Update the order of the documents
-      store.update('x-scalar-order', currentOrder)
+      store.update('x-scalar-order', newOrder)
+      // The reorder has been successful, we can return true
       return true
     }
 
-    // For the tags we can only reorder them
-    // Conditions:
-    // - They need to share the same documenet
-    // - The actual parent might be differnet, but the document should be the same
-    // TODO: handle different parents
+    // Handle tags reordering
     if (draggingItem.type === 'tag') {
-      const draggingDocument = getParentEntry('document', draggingItem)
-      const hoveredDocument = getParentEntry('document', hoveredItem)
-
-      if (draggingDocument !== hoveredDocument || !draggingDocument || !hoveredDocument) {
+      // Tags can only be reordered within the same parent
+      if (hoveredItem.type !== 'tag' || !isReorder(_hoveredItem) || !itemsShareParent(draggingItem, hoveredItem)) {
         return false
       }
 
-      // Update the order of the tags
-      const draggingParent = draggingItem.parent
-      const hoveredParent = hoveredItem.parent
-
-      console.log({ draggingParent, hoveredParent })
-
-      // Check if the parents are tags or documents
-      if (
-        !draggingParent ||
-        !hoveredParent ||
-        (draggingParent.type !== 'tag' && draggingParent.type !== 'document') ||
-        (hoveredParent.type !== 'tag' && hoveredParent.type !== 'document')
-      ) {
-        console.log('invalid parents, returning false')
+      if (!draggingItem.parent || !isEntryType(draggingItem.parent, ['tag', 'document'])) {
         return false
       }
 
-      // Update the order of the tags
-      // When the parents are the same, we can reorder the tags within the same siblings
-      if (draggingParent.id === hoveredParent.id) {
-        console.log('same parent, ordering tags')
-        const target = getTargetFromEntry({ store, documentName: draggingDocument.id, entry: draggingParent })
+      // tags share the same parent so we can get the parent object
+      const parent = getOpenapiObject({ store, entry: draggingItem.parent })
 
-        console.log({ target })
-
-        if (!target) {
-          console.log('no target, returning false')
-          return false
-        }
-
-        const currentOrder = unpackProxyObject(
-          target['x-scalar-order'] ?? draggingParent.children?.map((child) => child.id) ?? [],
-        )
-
-        const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
-        const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
-
-        if (draggedIndex === -1 || hoveredIndex === -1) {
-          console.log('no index, returning false')
-          return false
-        }
-
-        currentOrder.splice(draggedIndex, 1)
-        currentOrder.splice(hoveredIndex, 0, draggingItem.id)
-
-        console.log({ message: 'handling tag reordering', target, currentOrder })
-
-        target['x-scalar-order'] = unpackProxyObject(currentOrder, { depth: null })
-
-        // Rebuild the sidebar for the document
-        store.buildSidebar(draggingDocument.id)
-        return true
+      if (!parent) {
+        return false
       }
 
-      // TODO: handle the case where the parents are differnet
+      // get the current order of the tags in the parent
+      const currentOrder = parent['x-scalar-order'] ?? draggingItem.parent.children?.map((child) => child.id) ?? []
 
+      const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
+      const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
+
+      const newOrder = reorderArray(currentOrder, draggedIndex, hoveredIndex, _hoveredItem.offset)
+
+      if (!newOrder) {
+        return false
+      }
+
+      parent['x-scalar-order'] = newOrder
+      // Build the sidebar
+      buildSidebar({ store, entry: draggingItem.parent })
       return true
     }
 
+    // Handle operations reordering & moving
     if (draggingItem.type === 'operation') {
-      const draggingDocument = getParentEntry('document', draggingItem)
-      const hoveredDocument = getParentEntry('document', hoveredItem)
-
-      // TODO: handle the case where the docuemnts are different
-      if (draggingDocument !== hoveredDocument || !draggingDocument || !hoveredDocument) {
-        console.log('dragging operation inside different documents, returning false')
-        return false
-      }
-
-      console.log('dragging operation inside the same document')
-
-      const draggingParent = draggingItem.parent
-      const hoveredParent = hoveredItem.parent
-
-      if (
-        !draggingParent ||
-        !hoveredParent ||
-        (draggingParent.type !== 'tag' && draggingParent.type !== 'document') ||
-        (hoveredParent.type !== 'tag' && hoveredParent.type !== 'document')
-      ) {
-        console.log('invalid parents, returning false')
-        return false
-      }
-
-      if (draggingParent.id === hoveredParent.id) {
-        // For the same parent, we just need to update the order of the operations
-        console.log('same parent, ordering operations')
-
-        const target = getTargetFromEntry({ store, documentName: draggingDocument.id, entry: draggingParent })
-
-        if (!target) {
-          console.log('no target, returning false')
+      // Handle reordering under the same parent
+      if (hoveredItem.type === 'operation' && isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)) {
+        // This logic can be extracted to a separate function, we can share this kind of logic with the tags reordering
+        if (!draggingItem.parent || !isEntryType(draggingItem.parent, ['tag', 'document'])) {
           return false
         }
 
-        const currentOrder = target['x-scalar-order'] ?? draggingParent.children?.map((child) => child.id) ?? []
+        // tags share the same parent so we can get the parent object
+        const parent = getOpenapiObject({ store, entry: draggingItem.parent })
+
+        if (!parent) {
+          return false
+        }
+
+        // get the current order of the tags in the parent
+        const currentOrder = parent['x-scalar-order'] ?? draggingItem.parent.children?.map((child) => child.id) ?? []
 
         const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
         const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
 
-        if (draggedIndex === -1 || hoveredIndex === -1) {
-          console.log('no index, returning false')
+        const newOrder = reorderArray(currentOrder, draggedIndex, hoveredIndex, _hoveredItem.offset)
+
+        if (!newOrder) {
           return false
         }
 
-        currentOrder.splice(draggedIndex, 1)
-        currentOrder.splice(hoveredIndex, 0, draggingItem.id)
+        parent['x-scalar-order'] = newOrder
+        // Build the sidebar
+        buildSidebar({ store, entry: draggingItem.parent })
 
-        console.log({ target, currentOrder })
-
-        target['x-scalar-order'] = unpackProxyObject(currentOrder)
-
-        // Rebuild the sidebar for the document
-        store.buildSidebar(draggingDocument.id)
         return true
       }
 
-      console.log('different parent')
+      // Handle moving operations between different documents and/or tags
+      if (isEntryType(hoveredItem, ['tag', 'document']) && isDrop(_hoveredItem)) {
+        // We need to make sure to update the tags fields of the current operation
+        const currentOperation = getOpenapiObject({ store, entry: draggingItem })
 
-      // When the parents are different, we need to first remove the current tag from the operation
-      const operation = getOperationFromEntry({ store, documentName: draggingDocument.id, entry: draggingItem })
+        if (!currentOperation) {
+          return false
+        }
 
-      if (!operation) {
-        console.log('no operation, returning false')
-        return false
+        const tags = new Set(currentOperation.tags ?? [])
+
+        const draggedTag = getParentEntry('tag', draggingItem)
+        const hoveredTag = getParentEntry('tag', hoveredItem)
+
+        // When droping into a tag, we need to add the tag to the current operation
+        if (hoveredTag) {
+          tags.add(hoveredTag.name)
+        }
+
+        // We remove when the operation is dragged from a tag
+        if (draggedTag) {
+          tags.delete(draggedTag.name)
+        }
+
+        // We update the operation tags
+        currentOperation.tags = Array.from(tags)
+
+        // Now we need to move the operaiton to the new location
+        const draggingDocumentEntry = getParentEntry('document', draggingItem)
+        const hoveredDocumentEntry = getParentEntry('document', hoveredItem)
+
+        if (!draggingDocumentEntry || !hoveredDocumentEntry) {
+          return false
+        }
+
+        const draggingDocument = getOpenapiObject({ store, entry: draggingDocumentEntry })
+        const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
+
+        if (!draggingDocument || !hoveredDocument) {
+          return false
+        }
+
+        // Create a deep copy of the operation before deleting it from the old location
+        // This ensures we're assigning a plain object, not a proxy reference that might be broken
+        const operationCopy = unpackProxyObject(currentOperation, { depth: null })
+
+        // Delete the operation from the old location
+        if (draggingDocument.paths?.[draggingItem.path]?.[draggingItem.method]) {
+          delete draggingDocument.paths?.[draggingItem.path]?.[draggingItem.method]
+        }
+
+        // Add the operation to the new location
+        if (!hoveredDocument.paths) {
+          hoveredDocument.paths = {
+            [draggingItem.path]: {
+              [draggingItem.method]: operationCopy,
+            },
+          }
+        } else {
+          if (!hoveredDocument.paths[draggingItem.path]) {
+            hoveredDocument.paths[draggingItem.path] = {}
+          }
+          // We just created the path object if it didn't exist, so we can safely set the operation
+          hoveredDocument.paths[draggingItem.path]![draggingItem.method] = operationCopy
+        }
+
+        // Update the old parent's x-scalar-order
+        const draggingParent = draggingItem.parent
+        // When dropping on a document or tag, the hoveredParent is the hoveredItem itself
+        // (not its parent), since we're dropping INTO that document/tag
+        const hoveredParent = hoveredItem
+
+        if (!draggingParent || !isEntryType(draggingParent, ['tag', 'document']) || !hoveredParent) {
+          return false
+        }
+
+        const oldTarget = getOpenapiObject({ store, entry: draggingParent })
+
+        // TODO: after the self healing, we don't need to manually remove and add the items to the order list
+        // !We would only need to do that on reorder, not on move
+        // Only update the old target, the new target will be updated by the buildSidebar call
+        if (oldTarget?.['x-scalar-order']) {
+          oldTarget['x-scalar-order'] = unpackProxyObject(
+            oldTarget['x-scalar-order'].filter((id: string) => id !== draggingItem.id),
+            { depth: null },
+          )
+        }
+
+        // Rebuild sidebars for both documents
+        buildSidebar({ store, entry: draggingParent })
+        buildSidebar({ store, entry: hoveredParent })
+
+        return true
       }
 
-      // When the current parent is a tag, we need to remove the operation from the tag
-      // and add it to the new tag
-      const currentTagParent = getParentEntry('tag', draggingItem)
-      const newTagParent = getParentEntry('tag', hoveredItem)
-
-      const currentTags = currentTagParent
-        ? (operation.tags?.filter((tag) => tag !== currentTagParent.name) ?? [])
-        : (operation.tags ?? [])
-      const newTags = newTagParent ? [...currentTags, newTagParent.name] : currentTags
-
-      operation.tags = Array.from(new Set(newTags))
-
-      console.log('operaiton tags updated', operation.tags)
-
-      // Here the tags are updated
-      // Now make sure to update the ordering of the old target and the new target
-
-      // TODO: make sure we move the operaiton to the new docuement, if that is the case
-
-      // Rebuild the sidebar for the document
-      store.buildSidebar(draggingDocument.id)
-      return true
+      return false
     }
 
     return false
   }
 
-  const isDroppable = (_draggingItem: DraggingItem, _hoveredItem: HoveredItem) => {
+  /**
+   * Determines if an item can be dropped on another item.
+   * Returns true if the drop operation is allowed, false otherwise.
+   */
+  const isDroppable = (_draggingItem: DraggingItem, _hoveredItem: HoveredItem): boolean => {
     const draggingItem = sidebarState.getEntryById(_draggingItem.id)
     const hoveredItem = sidebarState.getEntryById(_hoveredItem.id)
 
@@ -268,32 +379,30 @@ export const dragHandleFactory = ({
       return false
     }
 
-    // For the examples we don't allow reordering
-    if (draggingItem?.type === 'example') {
+    // Examples cannot be reordered
+    if (draggingItem.type === 'example') {
       return false
     }
 
-    // We can reorder documents
-    // You can not drop the document into other documents, just order them
-    if (draggingItem?.type === 'document') {
-      return hoveredItem.type === 'document' && _hoveredItem.offset === 0
+    // Documents can only be reordered (not dropped into other documents)
+    if (draggingItem.type === 'document') {
+      return hoveredItem.type === 'document' && isReorder(_hoveredItem)
     }
 
-    // For tags we can only reorder them
+    // Tags can only be reordered within the same parent
     if (draggingItem.type === 'tag') {
-      return (
-        hoveredItem.type === 'tag' &&
-        _hoveredItem.offset === 0 &&
-        getParentEntry('document', hoveredItem) === getParentEntry('document', draggingItem)
-      )
+      return hoveredItem.type === 'tag' && isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)
     }
 
-    // For operations we can reorder, move them to another tag but not to a tag group, another document
+    // Operation can be reorder when the parent is the same or dropped on a tag or document
     if (draggingItem.type === 'operation') {
       return (
-        (hoveredItem.type === 'tag' && hoveredItem.isGroup === false && draggingItem.parent !== hoveredItem.parent) ||
-        (hoveredItem.type === 'document' && _hoveredItem.offset === 2) ||
-        (hoveredItem.type === 'operation' && _hoveredItem.offset === 0)
+        // for the same parent, you can reorder only
+        (itemsShareParent(draggingItem, hoveredItem) && isReorder(_hoveredItem)) ||
+        // for different parents, you can drop it inside a tag or a document only
+        (!itemsShareParent(draggingItem, hoveredItem) &&
+          isDrop(_hoveredItem) &&
+          isEntryType(hoveredItem, ['tag', 'document']))
       )
     }
 

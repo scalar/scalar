@@ -1,5 +1,6 @@
 import { debounce } from '@scalar/helpers/general/debounce'
 
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createWorkspaceStorePersistence } from '@/persistence'
 import type { WorkspacePlugin } from '@/workspace-plugin'
 
@@ -34,7 +35,6 @@ export const persistencePlugin = async ({
       onWorkspaceStateChanges(event) {
         // If the event is for workspace meta data, debounce by workspaceId
         if (event.type === 'meta') {
-          console.log('meta', event.value)
           return execute(`meta-${workspaceId}`, () => persistence.meta.setItem(workspaceId, event.value))
         }
 
@@ -47,6 +47,8 @@ export const persistencePlugin = async ({
 
         // Debounce per document content and workspace
         if (event.type === 'documents') {
+          // Try to get the warning here to see what is going on
+          unpackProxyObject(event.value, { depth: null })
           return execute(`documents-${workspaceId}-${event.documentName}`, () =>
             persistence.documents.setItem(workspaceId, event.documentName, event.value),
           )
