@@ -2,9 +2,8 @@ name: 'Build'
 description: 'Build packages using blacksmith runners with persistent turbo cache'
 inputs:
   node-version:
-    description: 'Node.js version to use'
+    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
     required: false
-    default: '20'
   packages:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
@@ -13,15 +12,24 @@ runs:
   steps:
     - name: Install pnpm
       uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-    - name: Setup Node.js ${{ inputs.node-version }}
+    - name: Read Node.js version from .nvmrc
+      id: node-version
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.node-version }}" ]; then
+          echo "version=${{ inputs.node-version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=$(cat .nvmrc | tr -d 'v')" >> $GITHUB_OUTPUT
+        fi
+    - name: Setup Node.js
       uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
       with:
-        node-version: ${{ inputs.node-version }}
+        node-version: ${{ steps.node-version.outputs.version }}
         cache: 'pnpm'
     - name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
       with:
-        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
+        key: ${{ github.repository }}-${{ steps.node-version.outputs.version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
     - name: Install dependencies
       shell: bash

@@ -20,9 +20,6 @@ jobs:
   build:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     permissions:
       contents: read
     steps:
@@ -31,21 +28,18 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
-      - if: matrix.node-version == 22
-        name: Copy and rename standalone.js to scalar.js
+      - name: Copy and rename standalone.js to scalar.js
         run: |
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
-      - if: matrix.node-version == 22
-        name: Upload scalar.js artifact
+      - name: Upload scalar.js artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
-      - if: matrix.node-version == 22 && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false))
+      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
         with:
@@ -146,17 +140,14 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
           # prettier and biome versions are pinned in package.json
           cache-dependency-path: 'package.json'
@@ -175,17 +166,14 @@ jobs:
     needs: [build, check-changes]
     permissions:
       contents: read
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
@@ -198,32 +186,24 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './examples/**'
 
   types:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
       - name: Check types
         run: pnpm types:check
@@ -234,16 +214,12 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
       - name: Knip
         run: pnpm lint:knip
@@ -256,7 +232,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22]
         shard-index: [1, 2]
         shard-total: [2]
     steps:
@@ -265,7 +240,6 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './packages/**'
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
@@ -288,16 +262,12 @@ jobs:
     env:
       HOME: '/root'
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './integrations/**'
       - name: Run tests
         run: pnpm vitest integrations/* --silent
@@ -336,9 +306,6 @@ jobs:
       contents: read
       pull-requests: write
     timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -346,7 +313,6 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
@@ -390,9 +356,6 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -400,7 +363,6 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: 'scalar-app...'
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
@@ -448,9 +410,6 @@ jobs:
       contents: read
       pull-requests: write
     timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -459,7 +418,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: '@scalar/components...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
@@ -504,9 +462,6 @@ jobs:
       contents: read
       pull-requests: write
     timeout-minutes: 15
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -515,7 +470,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
@@ -564,9 +518,6 @@ jobs:
       contents: write
       id-token: write
     needs: [required-jobs-main]
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -574,7 +525,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           # Build everything
           packages: './**'
       - name: Git Status
@@ -616,9 +566,6 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -626,7 +573,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations,projects}/**'
       - name: Git Status
         run: git status
@@ -658,9 +604,6 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -676,7 +619,6 @@ jobs:
         name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: 'client-scalar-com...'
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.staging.scalar.com (staging)
@@ -731,9 +673,6 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -741,7 +680,6 @@ jobs:
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
@@ -778,9 +716,6 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency: ${{ github.workflow }}-${{ github.ref }}
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -789,7 +724,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: '@scalar-examples/web...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
@@ -819,9 +753,6 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -832,7 +763,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          node-version: ${{ matrix.node-version }}
           packages: './packages/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
