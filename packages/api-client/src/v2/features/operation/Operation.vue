@@ -34,6 +34,14 @@ const security = computed(() =>
   getSecurityRequirements(document, operation.value),
 )
 
+/** Compute the selected server for the document only for now */
+const selectedServer = computed(
+  () =>
+    document?.servers?.find(
+      ({ url }) => url === document?.['x-scalar-selected-server'],
+    ) ?? null,
+)
+
 /** Select the selected security for the operation or document */
 const selectedSecurity = computed(() => {
   if (document?.['x-scalar-set-operation-security']) {
@@ -66,22 +74,22 @@ const APP_VERSION = PACKAGE_VERSION
   <template v-if="path && method && exampleName && operation">
     <OperationBlock
       :appVersion="APP_VERSION"
-      :authMeta="authMeta"
-      :environment="environment"
-      :eventBus="eventBus"
+      :authMeta
+      :environment
+      :eventBus
       :events="createStoreEvents()"
       :exampleKey="exampleName"
       :history="[]"
-      :layout="layout"
-      :method="method"
-      :operation="operation"
-      :path="path"
+      :layout
+      :method
+      :operation
+      :path
       :plugins="[]"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
-      :selectedSecurity="selectedSecurity"
-      :server="undefined"
-      :servers="[]"
+      :selectedSecurity
+      :server="selectedServer"
+      :servers="document?.servers ?? []"
       :totalPerformedRequests="0" />
   </template>
 

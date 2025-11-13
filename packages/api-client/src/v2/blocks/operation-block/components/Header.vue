@@ -17,7 +17,6 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   method: HttpMethod
   /** Client layout */
   layout: ClientLayout
-
   /** Sidebar open state */
   isSidebarOpen?: boolean
   /** Controls sidebar visibility */
@@ -30,12 +29,10 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   documentUrl?: string
   /** Client source */
   source?: 'gitbook' | 'api-reference'
-
   /** Currently selected server */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
-
   /** List of request history */
   history: History[]
   /**
@@ -45,11 +42,9 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
    * The amount remaining to load from 100 -> 0
    */
   requestLoadingPercentage?: number
-
   /** Event bus */
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
-
   events: ReturnType<typeof createStoreEvents>
 }>()
 
@@ -86,19 +81,20 @@ const emit = defineEmits<{
         :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
-      :environment="environment"
-      :eventBus="eventBus"
-      :events="events"
-      :history="history"
-      :layout="layout"
-      :method="method"
-      :path="path"
+      :environment
+      :eventBus
+      :events
+      :history
+      :layout
+      :method
+      :path
       :percentage="requestLoadingPercentage"
-      :server="server"
-      :servers="servers"
+      :server
+      :servers
       @execute="emit('execute')"
       @update:method="(payload) => emit('update:method', payload)"
       @update:path="(payload) => emit('update:path', payload)" />
+
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
       <!-- 

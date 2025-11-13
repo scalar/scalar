@@ -1,4 +1,5 @@
-import { type Static, Type } from '@scalar/typebox'
+import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
+import { type TLiteral, Type } from '@scalar/typebox'
 
 /**
  * path and method identifiers for Scalar operations
@@ -8,7 +9,10 @@ import { type Static, Type } from '@scalar/typebox'
  */
 export const XScalarOperationIdentifiersSchema = Type.Object({
   'x-scalar-path': Type.Optional(Type.String()),
-  'x-scalar-method': Type.Optional(Type.String()),
+  'x-scalar-method': Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
 })
 
-export type XScalarOperationIdentifiers = Static<typeof XScalarOperationIdentifiersSchema>
+export type XScalarOperationIdentifiers = {
+  'x-scalar-path'?: string
+  'x-scalar-method'?: HttpMethod
+}

@@ -213,9 +213,13 @@ export const updateSelectedServer = (
   document: WorkspaceDocument | null,
   { index }: ServerEvents['server:update:selected'],
 ): string | undefined => {
+  if (!document) {
+    return
+  }
+
   const url = document?.servers?.[index]?.url
   if (!url) {
-    console.error('Server not found', index, document?.servers)
+    document['x-scalar-selected-server'] = undefined
     return
   }
 

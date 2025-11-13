@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { ref, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
@@ -30,7 +30,7 @@ const {
   /** Current request method */
   method: HttpMethodType
   /** Currently selected server */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
   /** List of request history */
@@ -68,10 +68,6 @@ const id = useId()
 const addressBarRef = ref<typeof CodeInput | null>(null)
 const sendButtonRef = ref<typeof ScalarButton | null>(null)
 
-function getBackgroundColor() {
-  return REQUEST_METHODS[method].colorVar
-}
-
 /** Handle hotkeys */
 events.hotKeys.on((event) => {
   if (event?.focusAddressBar) {
@@ -87,6 +83,12 @@ events.focusAddressBar.on(() => {
     addressBarRef.value?.focus()
   }
 })
+
+/** Calculate the style for the address bar */
+const style = computed(() => ({
+  backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
+  transform: `translate3d(-${percentage}%,0,0)`,
+}))
 </script>
 <template>
   <div
@@ -99,10 +101,7 @@ events.focusAddressBar.on(() => {
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
           class="absolute top-0 left-0 z-[1002] h-full w-full"
-          :style="{
-            backgroundColor: `color-mix(in srgb, transparent 90%, ${getBackgroundColor()})`,
-            transform: `translate3d(-${percentage}%,0,0)`,
-          }" />
+          :style />
       </div>
       <div class="z-context-plus flex gap-1">
         <HttpMethod

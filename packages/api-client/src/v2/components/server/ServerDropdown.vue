@@ -17,7 +17,7 @@ const { target, server, servers } = defineProps<{
   /** List of servers that are available for the operation/document level */
   servers: ServerObject[]
   /** Currently selected server */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
   /** Client layout */
@@ -50,6 +50,12 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   }
   return server?.url || ''
 })
+
+/** Ensure we allow de-selection of the server */
+const handleServerChange = (_index: number, url: string) => {
+  const index = url === server?.url ? -1 : _index
+  emits('update:selectedServer', { index })
+}
 </script>
 <template>
   <ScalarPopover
@@ -85,7 +91,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           :server="server"
           :serverOption="serverOption"
           type="request"
-          @update:selectedServer="emits('update:selectedServer', { index })"
+          @update:selectedServer="handleServerChange(index, serverOption.id)"
           @update:variable="
             (key, value) => emits('update:variable', { index, key, value })
           " />

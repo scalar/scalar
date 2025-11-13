@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
 /**
  * OperationBlock
  *
@@ -12,6 +12,11 @@
  * - Uses operation['x-scalar-method'] and operation['x-scalar-path'] to provide
  *   draft overrides for the UI when present.
  */
+export default {
+  name: 'OperationBlock',
+}
+</script>
+<script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -35,22 +40,18 @@ import Header from './components/Header.vue'
 
 const { eventBus, path, method, exampleKey, operation } = defineProps<{
   eventBus: WorkspaceEventBus
-
   /** Application version */
   appVersion: string
-
   /** Current request path */
   path: string
   /** Current request method */
   method: HttpMethodType
   /** Client layout */
   layout: ClientLayout
-
   /** Currently selected server */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
-
   /** List of request history */
   history: History[]
   /**
@@ -78,12 +79,10 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   documentUrl?: string
   /** Client source */
   source?: 'gitbook' | 'api-reference'
-
   /** Operation object */
   operation: OperationObject
   /** Currently selected example key for the current operation */
   exampleKey: string
-
   /** Meta information for the auth update */
   authMeta?: AuthMeta
   /** Document defined security schemes */
@@ -100,9 +99,11 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   environment: XScalarEnvironment
 }>()
 
-const draftMethod = computed(
-  () => (operation['x-scalar-method'] as HttpMethodType) ?? method,
-)
+/**
+ * We use a draft method and path to allow the user to explicitly save the method or path changes
+ * as it re-calculates the sidebar and we need to ensure they don't conflict
+ */
+const draftMethod = computed(() => operation['x-scalar-method'] ?? method)
 const draftPath = computed(() => operation['x-scalar-path'] ?? path)
 
 /** Execute the current operation example */
