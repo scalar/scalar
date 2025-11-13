@@ -3,7 +3,7 @@ packages:
   - integrations/**/*
   - packages/**/*
   - playwright
-  - scripts
+  - tooling/scripts
   - projects/**/*
   - '!**/.next/**'
   - '!**/dist/**'
