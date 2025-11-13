@@ -11,14 +11,9 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Attach sticky disk
-        uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+        uses: useblacksmith/stickydisk-delete@b41313d28b8647d72114c9ba3c96bb04061562b6 # v1
         with:
-          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
-          path: /
-      - name: Check
-        run: echo Removing on ${{ matrix.node-version }}
-      - name: Cleanup Turbo Cache
-        run: rm -rf *
+          delete-key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
