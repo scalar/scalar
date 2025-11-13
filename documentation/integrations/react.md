@@ -105,25 +105,25 @@ Cool, you've got your (existing) React project and want to render an API referen
 pnpm add @scalar/api-reference-react
 ```
 
-And then, add a new component or just replace the `App.jsx` with the following content:
+And then, add a new component or just replace the `main.jsx` with the following content:
 
 ```jsx
-// src/App.jsx
-import { ApiReferenceReact } from '@scalar/api-reference-react'
+// src/main.jsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 
+import { ApiReferenceReact } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
 
-function App() {
-  return (
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
     <ApiReferenceReact
       configuration={{
         url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
       }}
     />
-  )
-}
-
-export default App
+  </StrictMode>,
+)
 ```
 
 Open <http://localhost:5173/> and you should see your API reference. Done!
