@@ -90,3 +90,36 @@ import { ScalarComponent } from '@scalar/astro'
   proxyUrl: 'https://proxy.scalar.com',
 }} />
 ```
+
+### Hide clients
+
+ You can control which code examples are shown by passing an array of clients, to hide the given clients.
+
+```
+{
+  hiddenClients: {
+    c: ['libcurl'],
+    csharp: ['httpclient', 'restsharp'],
+    clojure: ['clj_http'],
+    dart: ['http'],
+    go: ['native'],
+    http: ['http1.1', 'http1', 'http2'],
+    java: ['asynchttp', 'okhttp', 'unirest', 'nethttp'],
+    js: ['xhr', 'fetch', 'axios', 'jquery', 'ofetch', 'request'],
+    kotlin: ['okhttp'],
+    node: ['undici', 'axios', 'fetch', 'ofetch'],
+    objc: ['nsurlsession'],
+    ocaml: ['cohttp'],
+    // Some Scalar builds expose F# separately; hide its HttpClient if present
+    fsharp: ['httpclient'],
+    php: ['curl', 'guzzle'],
+    powershell: ['restmethod', 'webrequest'],
+    python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
+    r: ['httr'],
+    ruby: ['native'],
+    rust: ['reqwest'],
+    shell: ['httpie', 'wget'],
+    swift: ['nsurlsession'],
+  }
+}
+```
