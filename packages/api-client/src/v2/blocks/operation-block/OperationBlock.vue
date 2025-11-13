@@ -35,7 +35,6 @@ import { createStoreEvents } from '@/store/events'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { CodeInput } from '@/v2/components/code-input'
 import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
@@ -140,10 +139,6 @@ const handleUpdatePath = (payload: { value: string }) =>
       path: payload.value,
     },
   })
-
-/** We want to drill down these refs so we can focus them via hotkeys */
-const addressBarRef = defineModel<typeof CodeInput | null>('addressBarRef')
-const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -151,7 +146,6 @@ const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
       <!-- Address Bar -->
       <Header
-        :addressBarRef
         :documentUrl
         :environment
         :eventBus
@@ -163,7 +157,6 @@ const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
         :method="draftMethod"
         :path="draftPath"
         :percentage="requestLoadingPercentage"
-        :sendButtonRef
         :server
         :servers
         :showSidebar

@@ -11,14 +11,12 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import type { ScalarButton } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
-import type { CodeInput } from '@/v2/components/code-input'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
 
@@ -71,29 +69,12 @@ const authMeta = computed<AuthMeta>(() => {
 const APP_VERSION = PACKAGE_VERSION
 
 const router = useRouter()
-
-/** Drill down these refs so we can focus them */
-const addressBarRef = ref<typeof CodeInput | null>(null)
-const sendButtonRef = ref<typeof ScalarButton | null>(null)
-const handleFocusAddressBar = () => addressBarRef.value?.focus()
-const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
-
-onMounted(() => {
-  eventBus.on('focus:address-bar', handleFocusAddressBar)
-  eventBus.on('focus:send-button', handleFocusSendButton)
-})
-
-onBeforeUnmount(() => {
-  eventBus.off('focus:address-bar', handleFocusAddressBar)
-  eventBus.off('focus:send-button', handleFocusSendButton)
-})
 </script>
 
 <template>
   <!-- Operation exists -->
   <template v-if="path && method && exampleName && operation">
     <OperationBlock
-      :addressBarRef
       :appVersion="APP_VERSION"
       :authMeta
       :environment
@@ -108,7 +89,6 @@ onBeforeUnmount(() => {
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedSecurity
-      :sendButtonRef
       :server="selectedServer"
       :servers="document?.servers ?? []"
       :totalPerformedRequests="0"

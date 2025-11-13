@@ -5,7 +5,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
@@ -18,6 +18,7 @@ const {
   path,
   method,
   layout,
+  eventBus,
   history,
   server,
   environment,
@@ -63,15 +64,27 @@ const emit = defineEmits<{
 
 const id = useId()
 
-/** We want to drill down these refs so we can focus them via hotkeys */
-const addressBarRef = defineModel<typeof CodeInput | null>('addressBarRef')
-const sendButtonRef = defineModel<typeof ScalarButton | null>('sendButtonRef')
-
 /** Calculate the style for the address bar */
 const style = computed(() => ({
   backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
   transform: `translate3d(-${percentage}%,0,0)`,
 }))
+
+/** Handle focus events */
+const addressBarRef = ref<typeof CodeInput | null>(null)
+const sendButtonRef = ref<typeof ScalarButton | null>(null)
+const handleFocusAddressBar = () => addressBarRef.value?.focus()
+const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
+
+onMounted(() => {
+  eventBus.on('focus:address-bar', handleFocusAddressBar)
+  eventBus.on('focus:send-button', handleFocusSendButton)
+})
+
+onBeforeUnmount(() => {
+  eventBus.off('focus:address-bar', handleFocusAddressBar)
+  eventBus.off('focus:send-button', handleFocusSendButton)
+})
 </script>
 <template>
   <div
