@@ -73,54 +73,22 @@ const getSortedTagEntries = ({
   tagsMap,
   options: { tagsSorter, operationsSorter, generateId },
   documentId,
+  sortOrder,
 }: {
   _keys: string[]
   /** Map of tags and their entries */
   tagsMap: TagsMap
   options: Options
   documentId: string
+  sortOrder: string[] | undefined
 }) => {
-  // Ensure that default is last if it exists
-  const hasDefault = _keys.includes('default')
-  const keys = hasDefault ? _keys.filter((key) => key !== 'default') : _keys
-
-  // Alpha sort
-  if (tagsSorter === 'alpha') {
-    keys.sort((a, b) => {
-      const nameA =
-        getTag({
-          tagsMap,
-          name: a,
-          documentId,
-          generateId,
-        }).tag['x-displayName'] ||
-        a ||
-        'Untitled Tag'
-      const nameB = getTag({ tagsMap, name: b, documentId, generateId }).tag['x-displayName'] || b || 'Untitled Tag'
-      return nameA.localeCompare(nameB)
-    })
-  }
-  // Custom sort
-  else if (typeof tagsSorter === 'function') {
-    keys.sort((a, b) =>
-      tagsSorter(
-        getTag({ tagsMap, name: a, documentId, generateId }).tag,
-        getTag({ tagsMap, name: b, documentId, generateId }).tag,
-      ),
-    )
-  }
-
-  if (hasDefault) {
-    keys.push('default')
-  }
-
   /**
    * Process each tag and its entries:
    * - Skip internal and ignored tags
    * - Sort operations within tags
    * - Create tag entries with sorted operations
    */
-  return keys.flatMap((key) => {
+  const entries = _keys.flatMap((key) => {
     const { tag, entries } = getTag({ tagsMap, name: key, documentId, generateId })
 
     // Skip if the tag is internal or scalar-ignore
@@ -165,6 +133,46 @@ const getSortedTagEntries = ({
         })
       : []
   })
+
+  // Sort the entries by the sort order
+  // Ensure that default is last if it exists
+  const defaultEntry = entries.find((entry) => entry.title === 'default')
+  const withoutDefault = defaultEntry ? entries.filter((entry) => entry.title !== 'default') : entries
+
+  // If sort order is provided, use it to sort the entries
+  if (sortOrder) {
+    entries.sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+    return entries
+  }
+
+  // Alpha sort
+  if (tagsSorter === 'alpha') {
+    withoutDefault.sort((a, b) => {
+      const nameA =
+        getTag({
+          tagsMap,
+          name: a.title,
+          documentId,
+          generateId,
+        }).tag['x-displayName'] ||
+        a.title ||
+        'Untitled Tag'
+      const nameB =
+        getTag({ tagsMap, name: b.title, documentId, generateId }).tag['x-displayName'] || b.title || 'Untitled Tag'
+      return nameA.localeCompare(nameB)
+    })
+  }
+  // Custom sort
+  else if (typeof tagsSorter === 'function') {
+    withoutDefault.sort((a, b) =>
+      tagsSorter(
+        getTag({ tagsMap, name: a.title, documentId, generateId }).tag,
+        getTag({ tagsMap, name: b.title, documentId, generateId }).tag,
+      ),
+    )
+  }
+
+  return defaultEntry ? [...withoutDefault, defaultEntry] : withoutDefault
 }
 
 /**
@@ -198,6 +206,7 @@ export const traverseTags = ({
         tagsMap,
         options: { tagsSorter, operationsSorter, generateId },
         documentId: documentId,
+        sortOrder: tagGroup['x-scalar-order'],
       })
       return entries.length
         ? createTagEntry({
@@ -218,6 +227,7 @@ export const traverseTags = ({
     tagsMap,
     options: { generateId, tagsSorter, operationsSorter },
     documentId: documentId,
+    sortOrder: document['x-scalar-order'],
   })
 
   // Flatten if we only have default tag

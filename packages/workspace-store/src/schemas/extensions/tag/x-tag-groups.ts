@@ -1,15 +1,21 @@
 import { Type } from '@scalar/typebox'
 
-export const XTagGroupSchema = Type.Object({
-  /**
-   * The group name.
-   */
-  name: Type.String(),
-  /**
-   * List of tags to include in this group.
-   */
-  tags: Type.Array(Type.String()),
-})
+import { compose } from '@/schemas/compose'
+import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
+
+export const XTagGroupSchema = compose(
+  Type.Object({
+    /**
+     * The group name.
+     */
+    name: Type.String(),
+    /**
+     * List of tags to include in this group.
+     */
+    tags: Type.Array(Type.String()),
+  }),
+  XScalarOrderSchema,
+)
 
 export type XTagGroup = {
   /**
@@ -20,7 +26,7 @@ export type XTagGroup = {
    * List of tags to include in this group.
    */
   tags: string[]
-}
+} & XScalarOrder
 
 /**
  * x-tagGroups

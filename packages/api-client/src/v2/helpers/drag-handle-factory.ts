@@ -133,6 +133,9 @@ export const dragHandleFactory = ({
         currentOrder.splice(hoveredIndex, 0, draggingItem.id)
 
         target['x-scalar-order'] = currentOrder
+
+        // Rebuild the sidebar for the document
+        store.buildSidebar(draggingDocument.id)
         return true
       }
 

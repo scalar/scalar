@@ -307,6 +307,13 @@ export type WorkspaceStore = {
    */
   saveDocument(documentName: string): Promise<unknown[] | undefined>
   /**
+   * Builds the sidebar for the specified document.
+   *
+   * @param documentName - The name of the document to build the sidebar for
+   * @returns boolean indicating if the sidebar was built successfully
+   */
+  buildSidebar: (documentName: string) => boolean
+  /**
    * Restores the specified document to its last locally saved state.
    *
    * This method updates the current reactive document (in the workspace) with the contents of the
@@ -871,6 +878,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  const buildSidebar = (documentName: string) => {
+    const document = workspace.documents[documentName]
+
+    if (!document) {
+      console.error(`Document '${documentName}' does not exist in the workspace.`)
+      return false
+    }
+
+    console.log('building sidebar for document', documentName)
+
+    // Build the sidebar
+    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
+    document[extensions.document.navigation] = navigation
+
+    return true
+  }
+
   // Returns the effective document configuration for a given document name,
   // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
   const getDocumentConfiguration = (name: string) => {
@@ -957,6 +981,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
+    buildSidebar,
     saveDocument,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
