@@ -806,7 +806,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(name, strictDocument as OpenApiDocument, input.config)
+      const navigation = createNavigation(name, unpackProxyObject(strictDocument) as OpenApiDocument, input.config)
 
       strictDocument[extensions.document.navigation] = navigation
 
@@ -878,25 +878,36 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
-  const buildSidebar = (documentName: string) => {
+  /**
+   * Builds (or updates) the navigation sidebar for the specified document.
+   *
+   * This method generates the sidebar navigation structure for a workspace document,
+   * and attaches it to the document's metadata under the navigation extension key.
+   * The document is unpacked to avoid assigning proxy objects as direct property references.
+   *
+   * - Only the top-level object is proxied; all child objects should be unproxied.
+   * - This approach enables safe unpacking of the proxy object without recursively traversing the full object tree.
+   *
+   * @param documentName - The name/key of the document whose sidebar should be built.
+   * @returns {boolean} True if the sidebar was built successfully, false if the document does not exist.
+   */
+  const buildSidebar = (documentName: string): boolean => {
     const document = workspace.documents[documentName]
 
     if (!document) {
+      // Log and exit if the document does not exist in the workspace
       console.error(`Document '${documentName}' does not exist in the workspace.`)
       return false
     }
 
-    console.log('building sidebar for document', documentName)
+    // Unpack the document just at the top level to prevent proxy object mutations;
+    // this allows us to process a raw, non-proxied snapshot (excluding child proxies).
+    const unpackedDocument = unpackProxyObject(document)
 
-    // Build the sidebar
-    // We unpack the document to be processed to avoid assigning proxy objects as direct references
-    // Note: only the top level object is suppposed to contain a proxy, all the nested objects should be unproxied
-    // This allows for an easy unpacking of the proxy object without having to traverse the entire object tree
-    const navigation = createNavigation(
-      documentName,
-      unpackProxyObject(document),
-      getDocumentConfiguration(documentName),
-    )
+    // Generate the navigation structure for the sidebar.
+    const navigation = createNavigation(documentName, unpackedDocument, getDocumentConfiguration(documentName))
+
+    // Set the computed navigation structure on the document metadata.
     document[extensions.document.navigation] = navigation
 
     return true

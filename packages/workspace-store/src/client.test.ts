@@ -585,6 +585,51 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('buildSidebar returns false when document does not exist', () => {
+    const store = createWorkspaceStore()
+    const result = store.buildSidebar('non-existent-document')
+    expect(result).toBe(false)
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existent-document' does not exist in the workspace.")
+  })
+
+  it('buildSidebar handles documents with x-scalar-order without proxy issues', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      document: {
+        openapi: '3.0.3',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        tags: [
+          {
+            name: 'Users',
+            'x-scalar-order': ['user-1', 'user-2'],
+          },
+        ],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['Users'],
+              summary: 'Get users',
+              responses: {
+                200: {
+                  description: 'Success',
+                },
+              },
+            },
+          },
+        },
+      },
+      name: 'test-doc',
+    })
+
+    const result = store.buildSidebar('test-doc')
+    expect(result).toBe(true)
+    expect(store.workspace.documents['test-doc']?.['x-scalar-navigation']).toBeDefined()
+  })
+
   it('correctly get the config #1', () => {
     const store = createWorkspaceStore({
       config: {

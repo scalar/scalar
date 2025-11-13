@@ -36,6 +36,10 @@ const createTagEntry = ({
   })
   const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
 
+  // Update the order of the children based on the items
+  // This will ensure that the sort order is always in sync with the items
+  tag['x-scalar-order'] = children.map((child) => child.id)
+
   const entry = {
     id,
     title,
@@ -98,9 +102,16 @@ const getSortedTagEntries = ({
 
     const sortOrder = tag['x-scalar-order']
 
-    if (sortOrder) {
+    if (sortOrder !== undefined) {
       // Sort the entries by the sort order if it is provided
-      entries.sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+      entries.sort((a, b) => {
+        const idxA = sortOrder.indexOf(a.id)
+        const idxB = sortOrder.indexOf(b.id)
+        // Items not found in sortOrder should come last (after all found items)
+        const safeIdxA = idxA === -1 ? Number.POSITIVE_INFINITY : idxA
+        const safeIdxB = idxB === -1 ? Number.POSITIVE_INFINITY : idxB
+        return safeIdxA - safeIdxB
+      })
     } else {
       // Alpha sort
       if (operationsSorter === 'alpha') {
@@ -149,9 +160,15 @@ const getSortedTagEntries = ({
   const withoutDefault = defaultEntry ? entries.filter((entry) => entry.title !== 'default') : entries
 
   // If sort order is provided, use it to sort the entries
-  // TODO: detect when the sort order is outdated and try to fix it
   if (sortOrder) {
-    entries.sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+    entries.sort((a, b) => {
+      const indexA = sortOrder.indexOf(a.id)
+      const indexB = sortOrder.indexOf(b.id)
+      // If an id is not found, treat it as "infinity" so those items go last.
+      const safeIndexA = indexA === -1 ? Number.POSITIVE_INFINITY : indexA
+      const safeIndexB = indexB === -1 ? Number.POSITIVE_INFINITY : indexB
+      return safeIndexA - safeIndexB
+    })
     return entries
   }
 
@@ -176,8 +193,8 @@ const getSortedTagEntries = ({
   else if (typeof tagsSorter === 'function') {
     withoutDefault.sort((a, b) =>
       tagsSorter(
-        getTag({ tagsMap, name: a.title, documentId, generateId }).tag,
-        getTag({ tagsMap, name: b.title, documentId, generateId }).tag,
+        getTag({ tagsMap, name: a.name, documentId, generateId }).tag,
+        getTag({ tagsMap, name: b.name, documentId, generateId }).tag,
       ),
     )
   }
@@ -218,6 +235,10 @@ export const traverseTags = ({
         documentId: documentId,
         sortOrder: tagGroup['x-scalar-order'],
       })
+
+      // Try to update the sort order of the tag group to keep it in sync with the items
+      tagGroup['x-scalar-order'] = entries.map((entry) => entry.id)
+
       return entries.length
         ? createTagEntry({
             tag: tagGroup,
@@ -232,18 +253,34 @@ export const traverseTags = ({
 
   // Ungrouped regular tags
   const keys = Array.from(tagsMap.keys())
+  const onlyDefaultTag = keys.length === 1 && keys[0] === 'default'
+
+  if (onlyDefaultTag) {
+    const tag = tagsMap.get('default')
+
+    if (tag?.tag) {
+      // Set the sort order of the default tag so we can sort the items even when the default tag is a fake tag
+      tag.tag['x-scalar-order'] = document['x-scalar-order']
+    }
+  }
+
   const tags = getSortedTagEntries({
     _keys: keys,
     tagsMap,
     options: { generateId, tagsSorter, operationsSorter },
     documentId: documentId,
-    sortOrder: document['x-scalar-order'],
+    sortOrder: onlyDefaultTag ? undefined : document['x-scalar-order'],
   })
 
   // Flatten if we only have default tag
-  if (tags.length === 1 && tags[0]?.title === 'default') {
-    return tags[0]?.children ?? []
+  if (onlyDefaultTag) {
+    const children = tags[0]?.children ?? []
+    // Try to update the sort order of the children to keep it in sync with the items
+    document['x-scalar-order'] = children.map((entry) => entry.id)
+    return children
   }
 
+  // Try to update the sort order of the tags to keep it in sync with the items
+  document['x-scalar-order'] = tags.map((entry) => entry.id)
   return tags
 }
