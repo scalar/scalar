@@ -34,3 +34,10 @@ export const Base = {
     preset: 'path',
   },
 } satisfies Story
+
+export const Property = {
+  args: {
+    text: 'ThisIsAVeryLongCamelCasePropertyNameThatNeedsToWrapProperly',
+    preset: 'property',
+  },
+} satisfies Story
