@@ -17,8 +17,8 @@ type EventListener<E extends keyof ApiReferenceEvents> = undefined extends ApiRe
  * for a cleaner API surface.
  */
 type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiReferenceEvents[E]
-  ? [event: E, payload?: ApiReferenceEvents[E]]
-  : [event: E, payload: ApiReferenceEvents[E]]
+  ? [event: E, payload?: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean }]
+  : [event: E, payload: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean }]
 
 /**
  * Type-safe event bus for workspace events
@@ -200,12 +200,11 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   }
 
   const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
-    const [event, payload] = args
-    console.log('emit', event, payload)
+    const [event, payload, options] = args
 
     // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
     // but are always assigning plain objects 5 level depth.
-    const unpackedPayload = unpackProxyObject(payload, { depth: 5 })
+    const unpackedPayload = options?.skipUnpackProxy ? payload : unpackProxyObject(payload, { depth: 5 })
 
     const listeners = events.get(event)
 
