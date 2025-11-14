@@ -39,8 +39,7 @@ describe('updateOperationSummary', () => {
       },
     })
 
-    updateOperationSummary({
-      document,
+    updateOperationSummary(document, {
       meta: { method: 'get', path: '/users' },
       payload: { summary: 'New summary' },
     })
@@ -50,8 +49,7 @@ describe('updateOperationSummary', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationSummary({
-        document: null,
+      updateOperationSummary(null, {
         meta: { method: 'get', path: '/users' },
         payload: { summary: 'Anything' },
       }),
@@ -65,8 +63,7 @@ describe('updateOperationSummary', () => {
       },
     })
 
-    updateOperationSummary({
-      document,
+    updateOperationSummary(document, {
       meta: { method: 'get', path: '/users' },
       payload: { summary: 'New summary' },
     })
@@ -89,8 +86,7 @@ describe('updateOperationMethodDraft', () => {
       },
     })
 
-    updateOperationMethodDraft({
-      document,
+    updateOperationMethodDraft(document, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'post' },
     })
@@ -103,8 +99,7 @@ describe('updateOperationMethodDraft', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationMethodDraft({
-        document: null,
+      updateOperationMethodDraft(null, {
         meta: { method: 'get', path: '/users' },
         payload: { method: 'post' },
       }),
@@ -118,8 +113,7 @@ describe('updateOperationMethodDraft', () => {
       },
     })
 
-    updateOperationMethodDraft({
-      document,
+    updateOperationMethodDraft(document, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'post' },
     })
@@ -138,8 +132,7 @@ describe('updateOperationPathDraft', () => {
       },
     })
 
-    updateOperationPathDraft({
-      document,
+    updateOperationPathDraft(document, {
       meta: { method: 'get', path: '/users' },
       payload: { path: '/users/{id}/posts/{postId}' },
     })
@@ -169,8 +162,7 @@ describe('updateOperationPathDraft', () => {
       },
     })
 
-    updateOperationPathDraft({
-      document,
+    updateOperationPathDraft(document, {
       meta: { method: 'get', path: '/users' },
       payload: { path: '/users/{id}' },
     })
@@ -188,8 +180,7 @@ describe('updateOperationPathDraft', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationPathDraft({
-        document: null,
+      updateOperationPathDraft(null, {
         meta: { method: 'get', path: '/users' },
         payload: { path: '/users/{id}' },
       }),
@@ -203,8 +194,7 @@ describe('updateOperationPathDraft', () => {
       },
     })
 
-    updateOperationPathDraft({
-      document,
+    updateOperationPathDraft(document, {
       meta: { method: 'get', path: '/users' },
       payload: { path: '/users/{id}' },
     })
@@ -225,8 +215,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'john', isEnabled: true },
@@ -252,8 +241,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'id', value: '123', isEnabled: false },
@@ -272,8 +260,7 @@ describe('addOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      addOperationParameter({
-        document: null,
+      addOperationParameter(null, {
         type: 'query',
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
         payload: { key: 'q', value: 'x', isEnabled: true },
@@ -288,8 +275,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
       payload: { key: 'q', value: 'x', isEnabled: true },
@@ -312,22 +298,19 @@ describe('updateOperationParameter', () => {
     })
 
     // Add two query params so we can target index 1 for type 'query'
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'p', value: 'two', isEnabled: false },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -362,15 +345,13 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -395,15 +376,13 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
@@ -430,22 +409,19 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'abc', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
     // index 0 for type 'query' refers to the second element in the raw array
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -464,8 +440,7 @@ describe('updateOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationParameter({
-        document: null,
+      updateOperationParameter(null, {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -481,8 +456,7 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -504,28 +478,24 @@ describe('deleteOperationParameter', () => {
     })
 
     // Add a header and two query params (order matters)
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'a', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'page', value: '2', isEnabled: true },
     })
 
     // Delete the second query (index 1 within filtered query params)
-    deleteOperationParameter({
-      document,
+    deleteOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -541,8 +511,7 @@ describe('deleteOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      deleteOperationParameter({
-        document: null,
+      deleteOperationParameter(null, {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -557,8 +526,7 @@ describe('deleteOperationParameter', () => {
       },
     })
 
-    deleteOperationParameter({
-      document,
+    deleteOperationParameter(document, {
       type: 'query',
       index: 5,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -579,33 +547,28 @@ describe('deleteAllOperationParameters', () => {
     })
 
     // Add a mix of parameter types
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'a', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'page', value: '2', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'id', value: '123', isEnabled: true },
     })
 
-    deleteAllOperationParameters({
-      document,
+    deleteAllOperationParameters(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}' },
     })
@@ -622,8 +585,7 @@ describe('deleteAllOperationParameters', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      deleteAllOperationParameters({
-        document: null,
+      deleteAllOperationParameters(null, {
         type: 'query',
         meta: { method: 'get', path: '/users/{id}' },
       }),
@@ -637,8 +599,7 @@ describe('deleteAllOperationParameters', () => {
       },
     })
 
-    deleteAllOperationParameters({
-      document,
+    deleteAllOperationParameters(document, {
       type: 'query',
       meta: { method: 'get', path: '/users' },
     })
@@ -657,8 +618,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { contentType: 'application/json' },
     })
@@ -685,8 +645,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'a' },
       payload: { contentType: 'text/plain' },
     })
@@ -703,8 +662,7 @@ describe('updateOperationRequestBodyContentType', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationRequestBodyContentType({
-        document: null,
+      updateOperationRequestBodyContentType(null, {
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
         payload: { contentType: 'application/json' },
       }),
@@ -718,8 +676,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { contentType: 'application/json' },
     })
@@ -738,8 +695,7 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: '{"name":"Ada"}' },
@@ -765,15 +721,13 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'v1' },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'v2' },
@@ -799,15 +753,13 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'A' },
       payload: { value: 'one' },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'B' },
       payload: { value: 'two' },
@@ -827,8 +779,7 @@ describe('updateOperationRequestBodyExample', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationRequestBodyExample({
-        document: null,
+      updateOperationRequestBodyExample(null, {
         contentType: 'application/json',
         meta: { method: 'post', path: '/users', exampleKey: 'default' },
         payload: { value: 'x' },
@@ -843,8 +794,7 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'x' },
@@ -864,8 +814,7 @@ describe('addOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -893,14 +842,12 @@ describe('addOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'description', value: 'Profile picture' },
@@ -918,8 +865,7 @@ describe('addOperationRequestBodyFormRow', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      addOperationRequestBodyFormRow({
-        document: null,
+      addOperationRequestBodyFormRow(null, {
         contentType: 'multipart/form-data',
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
         payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -930,8 +876,7 @@ describe('addOperationRequestBodyFormRow', () => {
   it('no-ops when operation does not exist', () => {
     const document = createDocument({ paths: { '/upload': {} } })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -951,21 +896,18 @@ describe('updateOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'description', value: 'Profile picture' },
     })
 
-    updateOperationRequestBodyFormRow({
-      document,
+    updateOperationRequestBodyFormRow(document, {
       index: 1,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -990,8 +932,7 @@ describe('updateOperationRequestBodyFormRow', () => {
     })
 
     // No requestBody/content/examples present
-    updateOperationRequestBodyFormRow({
-      document,
+    updateOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1014,15 +955,13 @@ describe('deleteOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1044,21 +983,18 @@ describe('deleteOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'a', value: '1' },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'b', value: '2' },
     })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1075,8 +1011,7 @@ describe('deleteOperationRequestBodyFormRow', () => {
 
   it('no-ops when document is null or operation does not exist', () => {
     expect(() =>
-      deleteOperationRequestBodyFormRow({
-        document: null,
+      deleteOperationRequestBodyFormRow(null, {
         index: 0,
         contentType: 'multipart/form-data',
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1085,8 +1020,7 @@ describe('deleteOperationRequestBodyFormRow', () => {
 
     const document = createDocument({ paths: { '/upload': {} } })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },

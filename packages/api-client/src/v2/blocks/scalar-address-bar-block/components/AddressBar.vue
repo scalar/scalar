@@ -88,13 +88,11 @@ const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 const handleFocusAddressBar = ({
   event,
 }: ApiReferenceEvents['ui:focus:address-bar']) => {
-  // if its already focussed we just propagate native behaviour which should focus the browser address bar
+  // if its already has focus we just propagate native behaviour which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
-    console.log('already focussed')
     return
   }
 
-  console.log('we keep going')
   addressBarRef.value?.focus()
   event.preventDefault()
 }
