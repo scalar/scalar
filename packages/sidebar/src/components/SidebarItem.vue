@@ -6,13 +6,14 @@ import {
   ScalarSidebarSection,
   ScalarWrappingText,
 } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons/library'
+import { computed } from 'vue'
+
 import {
-  Draggable,
+  useDraggable,
   type DraggingItem,
   type HoveredItem,
-} from '@scalar/draggable'
-import { LibraryIcon } from '@scalar/icons/library'
-
+} from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
@@ -92,6 +93,9 @@ const isGroup = (
   return 'isGroup' in currentItem && currentItem.isGroup
 }
 
+/** Whether the item is draggable */
+const draggable = computed(() => layout === 'client')
+
 const filterItems = (items: Item[]) => {
   if (layout === 'reference') {
     return items
@@ -106,133 +110,133 @@ const filterItems = (items: Item[]) => {
 /**
  * Handle drag end event and bubble it up to parent.
  */
-const handleDragEnd = (
-  draggingItem: DraggingItem,
-  hoveredItem: HoveredItem,
-) => {
+const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   emits('onDragEnd', draggingItem, hoveredItem)
 }
+const { draggableProps, draggableEvents } = useDraggable({
+  id: item.id,
+  enabled: draggable,
+  onDragEnd,
+})
 </script>
 <template>
-  <Draggable
-    :id="item.id"
-    class="flex flex-1 flex-col"
-    :isDraggable="layout === 'client'"
-    :isDroppable="isDroppable"
-    :parentIds="[]"
-    @onDragEnd="handleDragEnd">
-    <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
-      {{ item.title }}
-      <template #items>
-        <SidebarItem
-          v-for="child in filterItems(item.children)"
-          :key="child.id"
-          :isDroppable="isDroppable"
-          :isExpanded="isExpanded"
-          :isSelected="isSelected"
-          :item="child"
-          :layout="layout"
-          :options="options"
-          @onDragEnd="handleDragEnd"
-          @selectItem="(id) => emits('selectItem', id)">
-          <template #decorator="slotProps">
-            <slot
-              v-bind="slotProps"
-              name="decorator" />
-          </template>
-        </SidebarItem>
-      </template>
-    </ScalarSidebarSection>
-    <ScalarSidebarGroup
-      v-else-if="
-        hasChildren(item) &&
-        ((layout === 'reference' &&
-          !(item.type === 'operation' || item.type === 'webhook')) ||
-          layout === 'client')
-      "
-      :active="isSelected(item.id)"
-      controlled
-      :open="isExpanded(item.id)"
-      @click="() => emits('selectItem', item.id)">
-      <template
-        v-if="item.type === 'document'"
-        #icon="{ open }">
-        <LibraryIcon
-          class="text-c-3 block group-hover/group-button:hidden"
-          :src="item.icon ?? 'interface-content-folder'" />
-        <ScalarSidebarGroupToggle
-          class="text-c-3 hidden group-hover/group-button:block"
-          :open="open" />
-      </template>
-      {{ item.title }}
-      <template
-        v-if="'method' in item || $slots.decorator"
-        #aside>
-        <slot
-          v-if="$slots.decorator"
-          :item="item"
-          name="decorator" />
-        <SidebarHttpBadge
-          v-if="'method' in item"
-          :active="isSelected(item.id)"
-          class="ml-2 h-4 self-start"
-          :method="item.method"
-          :webhook="item.type === 'webhook'" />
-      </template>
-      <template #items>
-        <SidebarItem
-          v-for="child in filterItems(item.children)"
-          :key="child.id"
-          :isDroppable="isDroppable"
-          :isExpanded="isExpanded"
-          :isSelected="isSelected"
-          :item="child"
-          :layout="layout"
-          :options="options"
-          :parentIds="[]"
-          @onDragEnd="handleDragEnd"
-          @selectItem="(id) => emits('selectItem', id)">
-          <template #decorator="slotProps">
-            <slot
-              v-bind="slotProps"
-              name="decorator" />
-          </template>
-        </SidebarItem>
-      </template>
-    </ScalarSidebarGroup>
-    <ScalarSidebarItem
-      is="button"
-      v-else
-      class="text-left"
-      :selected="isSelected(item.id)"
-      @click="() => emits('selectItem', item.id)">
-      <template v-if="item.type === 'model'">
-        <ScalarWrappingText
-          preset="property"
-          :text="item.title" />
-      </template>
-      <template v-else>
-        <ScalarWrappingText
-          :text="
-            options?.operationTitleSource === 'path' && 'path' in item
-              ? item.path
-              : item.title
-          " />
-      </template>
-      <template
-        v-if="'method' in item || $slots.decorator"
-        #aside>
-        <slot
-          v-if="$slots.decorator"
-          :item="item"
-          name="decorator" />
-        <SidebarHttpBadge
-          v-if="'method' in item"
-          :active="isSelected(item.id)"
-          class="ml-2 h-4 self-start"
-          :method="item.method"
-          :webhook="item.type === 'webhook'" />
-      </template>
-    </ScalarSidebarItem>
-  </Draggable>
+  <ScalarSidebarSection
+    v-if="hasChildren(item) && isGroup(item)"
+    v-bind="draggableProps"
+    v-on="draggableEvents">
+    {{ item.title }}
+    <template #items>
+      <SidebarItem
+        v-for="child in filterItems(item.children)"
+        :key="child.id"
+        :isDroppable="isDroppable"
+        :isExpanded="isExpanded"
+        :isSelected="isSelected"
+        :item="child"
+        :layout="layout"
+        :options="options"
+        @onDragEnd="onDragEnd"
+        @selectItem="(id) => emits('selectItem', id)">
+        <template #decorator="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="decorator" />
+        </template>
+      </SidebarItem>
+    </template>
+  </ScalarSidebarSection>
+  <ScalarSidebarGroup
+    v-else-if="
+      hasChildren(item) &&
+      ((layout === 'reference' &&
+        !(item.type === 'operation' || item.type === 'webhook')) ||
+        layout === 'client')
+    "
+    :active="isSelected(item.id)"
+    controlled
+    :open="isExpanded(item.id)"
+    v-bind="draggableProps"
+    v-on="draggableEvents"
+    @click="() => emits('selectItem', item.id)">
+    <template
+      v-if="item.type === 'document'"
+      #icon="{ open }">
+      <LibraryIcon
+        class="text-c-3 block group-hover/group-button:hidden"
+        :src="item.icon ?? 'interface-content-folder'" />
+      <ScalarSidebarGroupToggle
+        class="text-c-3 hidden group-hover/group-button:block"
+        :open="open" />
+    </template>
+    {{ item.title }}
+    <template
+      v-if="'method' in item || $slots.decorator"
+      #aside>
+      <slot
+        v-if="$slots.decorator"
+        :item="item"
+        name="decorator" />
+      <SidebarHttpBadge
+        v-if="'method' in item"
+        :active="isSelected(item.id)"
+        class="ml-2 h-4 self-start"
+        :method="item.method"
+        :webhook="item.type === 'webhook'" />
+    </template>
+    <template #items>
+      <SidebarItem
+        v-for="child in filterItems(item.children)"
+        :key="child.id"
+        :isDroppable="isDroppable"
+        :isExpanded="isExpanded"
+        :isSelected="isSelected"
+        :item="child"
+        :layout="layout"
+        :options="options"
+        :parentIds="[]"
+        @onDragEnd="onDragEnd"
+        @selectItem="(id) => emits('selectItem', id)">
+        <template #decorator="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="decorator" />
+        </template>
+      </SidebarItem>
+    </template>
+  </ScalarSidebarGroup>
+  <ScalarSidebarItem
+    v-else
+    is="button"
+    v-bind="draggableProps"
+    v-on="draggableEvents"
+    :selected="isSelected(item.id)"
+    @click="() => emits('selectItem', item.id)">
+    <template v-if="item.type === 'model'">
+      <ScalarWrappingText
+        preset="property"
+        :text="item.title" />
+    </template>
+    <template v-else>
+      <ScalarWrappingText
+        :text="
+          options?.operationTitleSource === 'path' && 'path' in item
+            ? item.path
+            : item.title
+        " />
+    </template>
+    <template
+      v-if="'method' in item || $slots.decorator"
+      #aside>
+      <slot
+        v-if="$slots.decorator"
+        :item="item"
+        name="decorator" />
+      <SidebarHttpBadge
+        v-if="'method' in item"
+        :active="isSelected(item.id)"
+        class="ml-2 h-4 self-start"
+        :method="item.method"
+        :webhook="item.type === 'webhook'" />
+    </template>
+  </ScalarSidebarItem>
 </template>
