@@ -4,7 +4,7 @@ import path from 'node:path'
 import as from 'ansis'
 import chokidar from 'chokidar'
 import * as esbuild from 'esbuild'
-import { glob } from 'glob'
+import { sync as fgSync } from 'fast-glob'
 
 import { addPackageFileExports, findEntryPoints } from '../helpers'
 import { runCommand } from './helpers'
@@ -16,7 +16,7 @@ function makeEntryPoints(allowJs?: boolean): Array<string> {
     entryPoints.push('src/**/*.js')
   }
 
-  const entryPointsWithoutTests = glob.sync(entryPoints, {
+  const entryPointsWithoutTests = fgSync(entryPoints, {
     ignore: ['**/*.@(test|spec).@(ts|js)'],
   })
 

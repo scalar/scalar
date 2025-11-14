@@ -10,7 +10,10 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   build: createViteBuildOptions({
-    entry: await findEntryPoints({ allowCss: false }),
+    entry: await findEntryPoints({
+      baseDir: import.meta.dirname,
+      allowCss: false,
+    }),
     options: {
       ssr: false,
     },

@@ -16,6 +16,7 @@ import { addPackageFileExports } from '../src/helpers'
  * you have to reset it first
  */
 describe('addPackageFileExports', () => {
+  const consoleInfoMock = vi.spyOn(console, 'info')
   const readFileMock = vi.spyOn(fs, 'readFile')
   const writeFileMock = vi.spyOn(fs, 'writeFile')
 
@@ -24,16 +25,39 @@ describe('addPackageFileExports', () => {
     writeFileMock.mockResolvedValueOnce(void 0)
 
     return () => {
+      consoleInfoMock.mockClear()
       readFileMock.mockReset()
       writeFileMock.mockReset()
     }
   })
 
-  it('should do nothing if entries is empty', async () => {
+  it('should set export field to empty if no entry is provided', async () => {
     await addPackageFileExports({ entries: [] })
 
-    expect(readFileMock).not.toHaveBeenCalled()
-    expect(readFileMock).not.toHaveBeenCalled()
+    expect(consoleInfoMock).toHaveBeenCalledWith('INFO: no entries specified. `exports` will be set to {}')
+    expect(writeFileMock.mock.lastCall?.at(1)).toMatchInlineSnapshot(`
+      "{
+        "name": "test",
+        "exports": {}
+      }
+      "
+    `)
+  })
+
+  it('should set reset `exports` field to empty if no entry is provided', async () => {
+    readFileMock.mockReset()
+    readFileMock.mockResolvedValueOnce('{ "name": "test", "exports": { ".": "./dist/index.js" } }')
+
+    await addPackageFileExports({ entries: [] })
+
+    expect(consoleInfoMock).toHaveBeenCalledWith('INFO: no entries specified. `exports` will be set to {}')
+    expect(writeFileMock.mock.lastCall?.at(1)).toMatchInlineSnapshot(`
+      "{
+        "name": "test",
+        "exports": {}
+      }
+      "
+    `)
   })
 
   it('should process "src/index" provided as string', async () => {
@@ -124,6 +148,25 @@ describe('addPackageFileExports', () => {
             "import": "./dist/plugin/node.js",
             "types": "./dist/plugin/node.d.ts",
             "default": "./dist/plugin/node.js"
+          }
+        }
+      }
+      "
+    `)
+  })
+
+  it('should not include playground files inside exports', async () => {
+    await addPackageFileExports({ entries: ['./src/plugin/index.ts', './src/playground/index.ts'] })
+
+    expect(consoleInfoMock).toHaveBeenCalledWith('INFO: will not add ./playground file exports to package.json')
+    expect(writeFileMock.mock.lastCall?.at(1)).toMatchInlineSnapshot(`
+      "{
+        "name": "test",
+        "exports": {
+          "./plugin": {
+            "import": "./dist/plugin/index.js",
+            "types": "./dist/plugin/index.d.ts",
+            "default": "./dist/plugin/index.js"
           }
         }
       }

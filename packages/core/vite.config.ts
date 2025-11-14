@@ -21,7 +21,10 @@ export default defineConfig({
     minify: false,
     target: 'esnext',
     lib: {
-      entry: await findEntryPoints({ allowCss: false }),
+      entry: await findEntryPoints({
+        baseDir: import.meta.dirname,
+        allowCss: false,
+      }),
       formats: ['es'],
     },
     rollupOptions: {

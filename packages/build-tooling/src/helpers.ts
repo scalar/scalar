@@ -6,7 +6,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { glob } from 'glob'
+import fgAsync from 'fast-glob'
 
 const cssExports = {
   /** Adds provisions for a css folder in the built output */
@@ -23,12 +23,23 @@ const cssExports = {
   },
 }
 
-/** Search for ALL index.ts files in the repo and export them as nested exports */
-export async function findEntryPoints({ allowCss }: { allowCss?: boolean } = {}): Promise<Array<string>> {
-  const entries: string[] = []
-  glob.sync('./src/**/index.ts').forEach((e) => entries.push(e))
+/** Search for ALL index.ts files in a folder and export them as nested exports */
+export async function findEntryPoints(options?: {
+  /**
+   * The folder from where start scanning.
+   * Avoid problem when `process.cwd()` is not in the project directory
+   *
+   * @see https://github.com/scalar/scalar/pull/7349#discussion_r2524796684
+   */
+  baseDir?: string
+  allowCss?: boolean
+}): Promise<Array<string>> {
+  const { baseDir = process.cwd(), allowCss } = options ?? {}
 
-  await addPackageFileExports({ allowCss, entries })
+  const entries = await fgAsync('src/**/index.ts', { cwd: baseDir, absolute: false })
+
+  await addPackageFileExports({ packageDir: baseDir, allowCss, entries })
+
   return entries
 }
 
@@ -69,51 +80,60 @@ function formatEntry(namespacePath: string, filename: string): string {
  *
  * ex. import { foo } from '@scalar/some-package/foo-domain'
  */
-export async function addPackageFileExports({
-  allowCss,
-  entries,
-}: {
-  allowCss?: boolean
+export async function addPackageFileExports(options: {
   entries: string | string[]
+  /**
+   * The folder where `package.json` is located.
+   * Avoid problem when `process.cwd()` is not in the project directory
+   *
+   * @see https://github.com/scalar/scalar/pull/7349#discussion_r2524796684
+   */
+  packageDir?: string
+  allowCss?: boolean
 }): Promise<void> {
-  const paths = Array.isArray(entries) ? entries : [entries]
-  if (paths.length === 0) {
-    return
-  }
+  const { packageDir = process.cwd(), entries, allowCss } = options
 
-  /** package.json type exports need to be updated */
+  const paths = Array.isArray(entries) ? entries : [entries]
+
   const packageExports: PackageExports = {}
 
-  paths.forEach((entry) => {
-    // Get the nested path that will be transpiled to dist with preserved modules
-    // Always use forward slashes for paths in package.json regardless of OS
-    const normalizedEntry = entry.split(path.sep).join('/')
-    const segments = normalizedEntry.split('/').filter((s) => !['.', 'src'].includes(s))
+  /** package.json type exports need to be updated */
+  if (paths.length > 0) {
+    paths.forEach((entry) => {
+      // Get the nested path that will be transpiled to dist with preserved modules
+      // Always use forward slashes for paths in package.json regardless of OS
+      const normalizedEntry = entry.split(path.sep).join('/')
+      const segments = normalizedEntry.split('/').filter((s) => !['.', 'src'].includes(s))
 
-    /** Nested folder the entry files lives in for a path scoped export */
-    const namespace = segments.slice(0, -1)
-    /** Filename without the extension */
-    const filename = segments.at(-1)?.split('.').at(0) ?? ''
-    /** Output filepath relative to ./dist and not ./src */
-    const filepath = [...namespace, filename].join('/')
+      /** Nested folder the entry files lives in for a path scoped export */
+      const namespace = segments.slice(0, -1)
+      /** Filename without the extension */
+      const filename = segments.at(-1)?.split('.').at(0) ?? ''
+      /** Output filepath relative to ./dist and not ./src */
+      const filepath = [...namespace, filename].join('/')
 
-    if (filepath.includes('playground')) {
-      console.info('INFO: will not add ./playground file exports to package.json')
-      return
-    }
+      if (filepath.includes('playground')) {
+        console.info('INFO: will not add ./playground file exports to package.json')
+        return
+      }
 
-    const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
+      const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
 
-    // Add support for wildcard exports
-    packageExports[formatEntry(namespacePath, filename)] = {
-      import: `./dist/${filepath}.js`,
-      types: `./dist/${filepath}.d.ts`,
-      default: `./dist/${filepath}.js`,
-    }
-  })
+      // Add support for wildcard exports
+      packageExports[formatEntry(namespacePath, filename)] = {
+        import: `./dist/${filepath}.js`,
+        types: `./dist/${filepath}.d.ts`,
+        default: `./dist/${filepath}.js`,
+      }
+    })
+  } else {
+    console.info('INFO: no entries specified. `exports` will be set to {}')
+  }
+
+  const packageFilePath = path.join(packageDir, 'package.json')
 
   // Update the package file with the new exports
-  const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
+  const packageFile = JSON.parse(await fs.readFile(packageFilePath, 'utf-8'))
   packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
 
   // Sort the keys in the exports object to ensure consistent order across OS
@@ -133,5 +153,5 @@ export async function addPackageFileExports({
   )
   console.log()
 
-  await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
+  await fs.writeFile(packageFilePath, `${JSON.stringify(packageFile, null, 2)}\n`)
 }
