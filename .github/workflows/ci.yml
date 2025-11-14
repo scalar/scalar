@@ -180,17 +180,6 @@ jobs:
       - name: Lint Icon Library Icons
         run: pnpm --filter icons lint:icons
 
-  build-examples:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: './examples/**'
-
   types:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
