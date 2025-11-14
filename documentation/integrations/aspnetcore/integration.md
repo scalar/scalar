@@ -45,7 +45,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-For `NSwag`:
+For `NSwag.AspNetCore`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -81,11 +81,6 @@ You're all set! 🎉 Navigate to `/scalar` to view your API Reference.
 :::scalar-callout{ type=info }
 For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#configuration-options__multiple-openapi-documents).
 :::
-
-## Migration Guide
-
-If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
-If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
 
 ## MapScalarApiReference Overloads
 
@@ -249,7 +244,7 @@ Scalar allows you to pre-configure authentication details for your API, making i
 :::scalar-callout{ type=warning }
 **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
 
-The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle.AspNetCore.SwaggerGen`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
+The security schemes are added by your OpenAPI generator (`NSwag.AspNetCore`, `Swashbuckle.AspNetCore.SwaggerGen`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 :::
 
 :::scalar-callout{ type=danger }
