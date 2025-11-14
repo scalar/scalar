@@ -38,8 +38,6 @@ import java.io.IOException;
 @RestController
 @ConditionalOnMissingBean(ScalarController.class)
 public class ScalarController extends AbstractScalarController {
-
-    private static final String DEFAULT_PATH = "/scalar";
     private static final String JS_FILENAME = "scalar.js";
 
     /**

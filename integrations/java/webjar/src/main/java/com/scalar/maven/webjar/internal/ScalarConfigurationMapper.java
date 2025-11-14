@@ -13,6 +13,9 @@ import com.scalar.maven.webjar.ScalarProperties;
  */
 public class ScalarConfigurationMapper {
 
+    private ScalarConfigurationMapper() {}
+
+
     /**
      * Maps ScalarProperties to ScalarConfiguration.
      *

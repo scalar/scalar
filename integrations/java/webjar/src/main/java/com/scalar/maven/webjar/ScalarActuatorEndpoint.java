@@ -60,7 +60,7 @@ public class ScalarActuatorEndpoint extends AbstractScalarController {
     public final ResponseEntity<String> scalarUi(HttpServletRequest request) throws IOException {
         String basePath = properties.getPath();
         if (basePath == null || basePath.isEmpty()) {
-            basePath = "/scalar";
+            basePath = DEFAULT_PATH;
         }
 
         String html = renderHtml(basePath, request);

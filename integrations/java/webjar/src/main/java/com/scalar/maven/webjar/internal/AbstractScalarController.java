@@ -27,13 +27,13 @@ import java.util.Objects;
  * {@link #configureProperties(ScalarProperties, HttpServletRequest)}
  * method to customize the properties before they are serialized to JSON.
  * </p>
- *
- * @since 0.1.0
  */
 public abstract class AbstractScalarController {
 
     private static final String JS_FILENAME = "scalar.js";
     private static final String HTML_TEMPLATE_PATH = "/META-INF/resources/webjars/scalar/index.html";
+
+    protected static final String DEFAULT_PATH = "/scalar";
 
     protected final ScalarProperties properties;
     private final ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public abstract class AbstractScalarController {
      * @return the rendered HTML content
      * @throws IOException if the HTML template cannot be loaded
      */
-    protected String renderHtml(String basePath, HttpServletRequest request) throws IOException {
+    protected final String renderHtml(String basePath, HttpServletRequest request) throws IOException {
         // Load the template HTML
         InputStream inputStream = getClass().getResourceAsStream(HTML_TEMPLATE_PATH);
         if (inputStream == null) {
@@ -65,16 +65,16 @@ public abstract class AbstractScalarController {
         }
 
         String html = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        inputStream.close();
 
         // Replace the placeholders with actual values
         String bundleUrl = buildJsBundleUrl(basePath);
         String pageTitle = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
-        String injectedHtml = html
+
+        return html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
                 .replace("__PAGE_TITLE__", pageTitle)
                 .replace("__CONFIGURATION__", buildConfigurationJson(request));
-
-        return injectedHtml;
     }
 
     /**
@@ -83,10 +83,7 @@ public abstract class AbstractScalarController {
      * @param basePath the base path for the Scalar interface
      * @return the complete URL for the JavaScript bundle
      */
-    protected String buildJsBundleUrl(String basePath) {
-        if (basePath == null || basePath.isEmpty()) {
-            basePath = "/scalar";
-        }
+    private String buildJsBundleUrl(String basePath) {
 
         // Remove trailing slash to avoid double slashes when concatenating
         if (basePath.endsWith("/")) {
@@ -108,7 +105,7 @@ public abstract class AbstractScalarController {
      * @return a ResponseEntity containing the JavaScript bundle content
      * @throws IOException if the JavaScript file cannot be loaded
      */
-    protected ResponseEntity<byte[]> getScalarJsContent() throws IOException {
+    protected final ResponseEntity<byte[]> getScalarJsContent() throws IOException {
         InputStream inputStream = getClass().getResourceAsStream("/META-INF/resources/webjars/scalar/" + JS_FILENAME);
         if (inputStream == null) {
             return ResponseEntity.notFound().build();
@@ -116,6 +113,7 @@ public abstract class AbstractScalarController {
 
         byte[] jsContent = inputStream.readAllBytes();
 
+        inputStream.close();
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("application/javascript"))
                 .body(jsContent);

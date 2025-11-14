@@ -180,7 +180,6 @@
           <encoding>UTF-8</encoding>
           <doclint>none</doclint>
           <failOnError>true</failOnError>
-          <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
         </configuration>
       </plugin>
 

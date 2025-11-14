@@ -130,12 +130,6 @@ public class ScalarConfiguration {
     @JsonProperty("showDeveloperTools")
     private DeveloperToolsVisibility showDeveloperTools;
 
-    /**
-     * Creates a new ScalarConfiguration.
-     */
-    public ScalarConfiguration() {
-    }
-
     // Getters and setters
     public String getUrl() {
         return url;
