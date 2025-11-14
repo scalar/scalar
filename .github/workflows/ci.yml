@@ -639,7 +639,7 @@ jobs:
 
   push-to-scalar-registry:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
 
