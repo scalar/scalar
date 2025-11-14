@@ -44,7 +44,7 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
   })
 
   /** Traverse all the document path  */
-  traversePaths({ document, tagsMap, generateId, documentId })
+  const { untaggedOperations } = traversePaths({ document, tagsMap, generateId, documentId })
 
   const untaggedWebhooksParentId = generateId({
     type: 'webhook',
@@ -69,6 +69,8 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
 
   // Add tagged operations, webhooks and tagGroups
   entries.push(...tagsEntries)
+  // Add untagged operations
+  entries.push(...untaggedOperations)
 
   // Add untagged webhooks
   if (untaggedWebhooks.length) {
@@ -104,6 +106,23 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
         children: untaggedModels,
       })
     }
+  }
+
+  const sortOrder = document['x-scalar-order']
+
+  // Try to sort the entries using the x-scalar-order
+  if (sortOrder) {
+    entries.sort((a, b) => {
+      const indexA = sortOrder.indexOf(a.id)
+      const indexB = sortOrder.indexOf(b.id)
+      // If an id is not found, treat it as "infinity" so those items go last.
+      const safeIndexA = indexA === -1 ? Number.POSITIVE_INFINITY : indexA
+      const safeIndexB = indexB === -1 ? Number.POSITIVE_INFINITY : indexB
+      return safeIndexA - safeIndexB
+    })
+
+    // Now update the sort order of the entries
+    document['x-scalar-order'] = entries.map((entry) => entry.id)
   }
 
   return {

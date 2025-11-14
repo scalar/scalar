@@ -59,7 +59,6 @@ const createTagEntry = ({
  *
  * This function handles:
  * - Sorting tags alphabetically or using a custom sort function
- * - Ensuring the default tag appears last
  * - Sorting operations within tags by title, method, or custom function
  * - Filtering out internal and ignored tags
  * - Creating tag entries with their associated operations
@@ -154,11 +153,6 @@ const getSortedTagEntries = ({
       : []
   })
 
-  // Sort the entries by the sort order
-  // Ensure that default is last if it exists
-  const defaultEntry = entries.find((entry) => entry.title === 'default')
-  const withoutDefault = defaultEntry ? entries.filter((entry) => entry.title !== 'default') : entries
-
   // If sort order is provided, use it to sort the entries
   if (sortOrder) {
     entries.sort((a, b) => {
@@ -174,7 +168,7 @@ const getSortedTagEntries = ({
 
   // Alpha sort
   if (tagsSorter === 'alpha') {
-    withoutDefault.sort((a, b) => {
+    entries.sort((a, b) => {
       const nameA =
         getTag({
           tagsMap,
@@ -191,7 +185,7 @@ const getSortedTagEntries = ({
   }
   // Custom sort
   else if (typeof tagsSorter === 'function') {
-    withoutDefault.sort((a, b) =>
+    entries.sort((a, b) =>
       tagsSorter(
         getTag({ tagsMap, name: a.name, documentId, generateId }).tag,
         getTag({ tagsMap, name: b.name, documentId, generateId }).tag,
@@ -199,7 +193,7 @@ const getSortedTagEntries = ({
     )
   }
 
-  return defaultEntry ? [...withoutDefault, defaultEntry] : withoutDefault
+  return entries
 }
 
 /**
@@ -209,7 +203,6 @@ const getSortedTagEntries = ({
  * - Handle tag groups if specified via x-tagGroups
  * - Sort tags and their operations according to provided sorters
  * - Create navigation entries for each tag or tag group
- * - Flatten default tag entries if it's the only tag present
  */
 export const traverseTags = ({
   document,
@@ -253,34 +246,14 @@ export const traverseTags = ({
 
   // Ungrouped regular tags
   const keys = Array.from(tagsMap.keys())
-  const onlyDefaultTag = keys.length === 1 && keys[0] === 'default'
-
-  if (onlyDefaultTag) {
-    const tag = tagsMap.get('default')
-
-    if (tag?.tag) {
-      // Set the sort order of the default tag so we can sort the items even when the default tag is a fake tag
-      tag.tag['x-scalar-order'] = document['x-scalar-order']
-    }
-  }
 
   const tags = getSortedTagEntries({
     _keys: keys,
     tagsMap,
     options: { generateId, tagsSorter, operationsSorter },
     documentId: documentId,
-    sortOrder: onlyDefaultTag ? undefined : document['x-scalar-order'],
+    sortOrder: document['x-scalar-order'],
   })
 
-  // Flatten if we only have default tag
-  if (onlyDefaultTag) {
-    const children = tags[0]?.children ?? []
-    // Try to update the sort order of the children to keep it in sync with the items
-    document['x-scalar-order'] = children.map((entry) => entry.id)
-    return children
-  }
-
-  // Try to update the sort order of the tags to keep it in sync with the items
-  document['x-scalar-order'] = tags.map((entry) => entry.id)
   return tags
 }

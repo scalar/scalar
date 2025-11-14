@@ -234,7 +234,7 @@ export const dragHandleFactory = ({
     // Handle operations reordering & moving
     if (draggingItem.type === 'operation') {
       // Handle reordering under the same parent
-      if (hoveredItem.type === 'operation' && isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)) {
+      if (isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)) {
         // This logic can be extracted to a separate function, we can share this kind of logic with the tags reordering
         if (!draggingItem.parent || !isEntryType(draggingItem.parent, ['tag', 'document'])) {
           return false
@@ -260,6 +260,7 @@ export const dragHandleFactory = ({
         }
 
         parent['x-scalar-order'] = newOrder
+
         // Build the sidebar
         buildSidebar({ store, entry: draggingItem.parent })
 
@@ -397,7 +398,7 @@ export const dragHandleFactory = ({
 
     // Tags can only be reordered within the same parent
     if (draggingItem.type === 'tag') {
-      return hoveredItem.type === 'tag' && isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)
+      return isReorder(_hoveredItem) && itemsShareParent(draggingItem, hoveredItem)
     }
 
     // Operation can be reorder when the parent is the same or dropped on a tag or document
@@ -405,7 +406,7 @@ export const dragHandleFactory = ({
       const hoveredDocumentEntry = getParentEntry('document', hoveredItem)
       const draggingDocumentEntry = getParentEntry('document', draggingItem)
 
-      if (!hoveredDocumentEntry) {
+      if (!hoveredDocumentEntry || !draggingDocumentEntry) {
         return false
       }
 
@@ -414,21 +415,16 @@ export const dragHandleFactory = ({
         return false
       }
 
-      // You can not drop an example on a document with a conflicting path/method combination
-      if (
-        draggingDocumentEntry?.id !== hoveredDocumentEntry.id &&
-        hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method]
-      ) {
-        return false
-      }
-
       return (
         // for the same parent, you can reorder only
         (itemsShareParent(draggingItem, hoveredItem) && isReorder(_hoveredItem)) ||
+        (itemsShareParent(draggingItem, hoveredItem) && hoveredItem.type === 'tag' && isDrop(_hoveredItem)) ||
         // for different parents, you can drop it inside a tag or a document only
         (!itemsShareParent(draggingItem, hoveredItem) &&
           isDrop(_hoveredItem) &&
-          isEntryType(hoveredItem, ['tag', 'document']))
+          isEntryType(hoveredItem, ['tag', 'document'])) ||
+        (draggingDocumentEntry.id !== hoveredDocumentEntry.id &&
+          hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method] === undefined)
       )
     }
 

@@ -21,7 +21,7 @@ describe('traversePaths', () => {
     const document = createDocument()
     const tagsMap: TagsMap = new Map()
 
-    traversePaths({
+    const result = traversePaths({
       document,
       tagsMap,
       documentId: 'doc-1',
@@ -33,6 +33,7 @@ describe('traversePaths', () => {
       },
     })
     expect(tagsMap.size).toBe(0)
+    expect(result.untaggedOperations).toHaveLength(0)
   })
 
   it('should correctly process operations with tags', () => {
@@ -59,7 +60,7 @@ describe('traversePaths', () => {
       ],
     ])
 
-    traversePaths({
+    const result = traversePaths({
       document,
       tagsMap,
       documentId: 'doc-1',
@@ -73,6 +74,7 @@ describe('traversePaths', () => {
 
     expect(tagsMap.size).toBe(1)
     expect(tagsMap.get('Users')?.entries.length).toBe(2)
+    expect(result.untaggedOperations).toHaveLength(0)
 
     const usersEntries = tagsMap.get('Users')?.entries || []
     expect(usersEntries[0]).toMatchObject({
@@ -82,7 +84,7 @@ describe('traversePaths', () => {
     })
   })
 
-  it('should handle operations without tags', () => {
+  it('should collect operations without tags', () => {
     const document = createDocument()
     document.paths = {
       '/health': {
@@ -95,7 +97,7 @@ describe('traversePaths', () => {
 
     const tagsMap: TagsMap = new Map()
 
-    traversePaths({
+    const result = traversePaths({
       document,
       tagsMap,
       documentId: 'doc-1',
@@ -107,9 +109,9 @@ describe('traversePaths', () => {
       },
     })
 
-    expect(tagsMap.size).toBe(1)
-    expect(tagsMap.get('default')?.entries.length).toBe(1)
-    expect(tagsMap.get('default')?.entries[0]).toMatchObject({
+    expect(tagsMap.size).toBe(0)
+    expect(result.untaggedOperations).toHaveLength(1)
+    expect(result.untaggedOperations[0]).toMatchObject({
       title: 'Health check',
       path: '/health',
       method: 'get',
@@ -140,7 +142,7 @@ describe('traversePaths', () => {
       ['Foobar', { id: 'tag/foobar', parentId: 'doc-1', tag: { name: 'Foobar' }, entries: [] }],
     ])
 
-    traversePaths({
+    const result = traversePaths({
       document,
       tagsMap,
       documentId: 'doc-1',
@@ -153,8 +155,9 @@ describe('traversePaths', () => {
     })
     expect(tagsMap.get('Foobar')?.entries.length).toBe(1)
     expect(tagsMap.get('Foobar')?.entries[0]?.title).toBe('Get Hello World')
-    expect(tagsMap.get('default')?.entries.length).toBe(1)
-    expect(tagsMap.get('default')?.entries[0]?.title).toBe('Post Hello World')
+    // Operations without tags are collected separately
+    expect(result.untaggedOperations).toHaveLength(1)
+    expect(result.untaggedOperations[0]?.title).toBe('Post Hello World')
   })
 
   it('should handle deprecated operations', () => {

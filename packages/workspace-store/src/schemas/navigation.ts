@@ -241,7 +241,7 @@ type OperationProps = {
   path: string
   method: string
   type: 'operation'
-  parentTag: ParentTag
+  parentTag?: ParentTag
 }
 
 type WebhookProps = {

@@ -88,7 +88,20 @@ describe('traverseTags', () => {
         },
       },
     })
-    expect(result).toEqual([createMockEntry('Test Operation')])
+    // Default tag is now treated like any other tag (not flattened)
+    expect(result).toEqual([
+      {
+        type: 'tag',
+        id: 'default',
+        title: 'default',
+        name: 'default',
+        isWebhooks: false,
+        description: undefined,
+        children: [createMockEntry('Test Operation')],
+        isGroup: false,
+        xKeys: {},
+      },
+    ])
   })
 
   it('should handle a mix of tags and default tag', () => {
