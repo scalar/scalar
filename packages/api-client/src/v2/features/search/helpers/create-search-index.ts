@@ -19,7 +19,7 @@ export function createSearchIndex(documents: OpenApiDocument[]): FuseData[] {
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children)
+        processEntries(entry.children, document)
       }
     })
   }
