@@ -11,9 +11,5 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    coverage: {
-      include: ['src/**'],
-      reporter: ['text'],
-    },
   },
 })
