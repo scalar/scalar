@@ -415,14 +415,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build
+
+      - name: Build packages
         uses: ./.github/actions/build
         with:
           packages: '@scalar/components...'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
@@ -443,9 +442,9 @@ jobs:
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
-          report-tag: test-components-snapshots
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
+          report-tag: test-components-snapshots
 
   test-cdn-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
@@ -467,14 +466,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build
+      - name: Build packages
         uses: ./.github/actions/build
         with:
           packages: '@scalar/api-reference...'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:cdn:ci
         # Only when the PR is from the same repository

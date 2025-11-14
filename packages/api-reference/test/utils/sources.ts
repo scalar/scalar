@@ -1,3 +1,4 @@
+import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 /** All of the sources */
@@ -12,18 +13,18 @@ export const sources = [
   {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-    url: 'https://galaxy.scalar.com/openapi.yaml',
+    content: galaxy,
+  },
+  {
+    title: 'Scalar Galaxy (Classic Layout)',
+    slug: 'scalar-galaxy-classic',
+    content: galaxy,
+    layout: 'classic',
   },
   {
     title: 'Scalar Galaxy Registry',
     slug: 'scalar-galaxy-registry',
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-  },
-  {
-    title: 'Scalar Galaxy (Classic Layout)',
-    slug: 'scalar-galaxy-classic',
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    layout: 'classic',
   },
   {
     title: 'Stripe',

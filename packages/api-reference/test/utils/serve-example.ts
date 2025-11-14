@@ -18,6 +18,9 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   cdn: '/scalar.js',
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   proxyUrl: 'https://proxy.scalar.com',
+  // TODO: Remove this once the CDN supports the showDeveloperTools attribute
+  // @ts-expect-error - we need this until next release (after 1.39.3)
+  showToolbar: 'never',
   showDeveloperTools: 'never', // Hide the toolbar by default for snapshots
 }
 
@@ -70,7 +73,6 @@ export function serveExample(givenConfiguration?: Partial<HtmlRenderingConfigura
               ...givenConfiguration,
             }
           : DEFAULT_CONFIGURATION
-
       return c.html(getHtmlDocument(configuration))
     })
 
