@@ -58,7 +58,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "jsdom": "^22.1.0",
+    "jsdom": "catalog:*",
     "svglint": "^2.7.1",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

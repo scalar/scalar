@@ -13,7 +13,6 @@
     "packages/core/**",
     "packages/draggable/**",
     "packages/galaxy/**",
-    "packages/helpers/**",
     "packages/icons/**",
     "packages/import/**",
     "packages/json-magic/**",
@@ -74,6 +73,9 @@
   "workspaces": {
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/{esbuild,rollup,vite}/index.ts"]
+    },
+    "packages/helpers": {
+      "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
     },
     "packages/oas-utils": {
       "entry": [

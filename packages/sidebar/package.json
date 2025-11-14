@@ -55,7 +55,7 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "jsdom": "^22.1.0",
+    "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

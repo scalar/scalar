@@ -164,7 +164,6 @@ packages/
 - **Framework**: Vitest
 - **Location**: `*.test.ts` files alongside source
 - **Command**: `pnpm test`
-- **Coverage**: `pnpm test:coverage`
 
 ### E2E Tests
 - **Framework**: Playwright
