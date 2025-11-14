@@ -17,7 +17,6 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import type { ScalarButton } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
