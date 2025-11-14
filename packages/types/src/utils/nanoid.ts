@@ -5,7 +5,6 @@ import { z } from 'zod'
 export const nanoidSchema = z
   .string()
   .min(7)
-  .optional()
   .default(() => nanoid())
 
 /** UID format for objects */

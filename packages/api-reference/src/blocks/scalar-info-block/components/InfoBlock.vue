@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ExternalDocumentationObject,
