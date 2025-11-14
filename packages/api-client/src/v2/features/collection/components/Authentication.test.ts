@@ -82,7 +82,7 @@ describe('Authentication', () => {
     await toggle.vm.$emit('update:modelValue', false)
     await nextTick()
 
-    expect(emitSpy).toHaveBeenCalledWith('document:toggle:document-security')
+    expect(emitSpy).toHaveBeenCalledWith('document:toggle:security')
   })
 
   it('passes correct props to AuthSelector when document security is enabled', () => {
