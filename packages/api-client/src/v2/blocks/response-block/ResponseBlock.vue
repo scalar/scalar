@@ -176,8 +176,10 @@ defineExpose({
           :events="events"
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
-          @addRequest="eventBus.emit('open:command-palette', 'addOperation')"
-          @openCommandPalette="eventBus.emit('open:command-palette')"
+          @addRequest="
+            eventBus.emit('ui:open:command-palette', { action: 'addOperation' })
+          "
+          @openCommandPalette="eventBus.emit('ui:open:command-palette')"
           @sendRequest="emits('sendRequest')" />
       </template>
       <template v-else>

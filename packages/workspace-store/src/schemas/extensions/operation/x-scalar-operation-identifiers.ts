@@ -9,7 +9,9 @@ import { type TLiteral, Type } from '@scalar/typebox'
  */
 export const XScalarOperationIdentifiersSchema = Type.Object({
   'x-scalar-path': Type.Optional(Type.String()),
-  'x-scalar-method': Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
+  'x-scalar-method': Type.Optional(
+    Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
+  ),
 })
 
 export type XScalarOperationIdentifiers = {

@@ -53,10 +53,12 @@ export type UIEvents = {
   /**
    * Open the command palette
    */
-  'ui:open:command-palette': {
-    action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
-    event: KeyboardEvent
-  }
+  'ui:open:command-palette':
+    | {
+        action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
+        event?: KeyboardEvent
+      }
+    | undefined
 
   /** Set a navigation item's (such as a tag or operation) expanded state */
   'toggle:nav-item': {
