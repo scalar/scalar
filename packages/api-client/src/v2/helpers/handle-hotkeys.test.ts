@@ -71,7 +71,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('l', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
   })
 
@@ -81,7 +81,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('l', { ctrlKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
   })
 
@@ -93,7 +93,7 @@ describe('handle-hotkey-down', () => {
     handleHotkeys(event, mockEventBus, 'web')
 
     // Hotkeys work without modifiers outside editable elements
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
   })
 
   it('does not fire hotkey for unmapped keys', () => {
@@ -152,7 +152,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('l', { metaKey: true }, textarea)
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
   })
 
   it('correctly passes payload to event bus for tab navigation', () => {
@@ -161,7 +161,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('3', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab', { event }, { skipUnpackProxy: true })
   })
 
   it('handles multiple modifiers correctly with Alt+Cmd', () => {
@@ -170,7 +170,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('ArrowLeft', { metaKey: true, altKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event }, { skipUnpackProxy: true })
   })
 
   it('fires hotkey with partial modifiers when not in editable element', () => {
@@ -182,7 +182,7 @@ describe('handle-hotkey-down', () => {
     handleHotkeys(event, mockEventBus, 'desktop')
 
     // Hotkeys work without exact modifiers outside editable elements
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event }, { skipUnpackProxy: true })
   })
 
   it('handles contenteditable attribute with string value', () => {
@@ -209,7 +209,7 @@ describe('handle-hotkey-down', () => {
     handleHotkeys(event, mockEventBus, 'web')
 
     // Should still fire because modifiers are pressed
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:toggle:sidebar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:toggle:sidebar', { event }, { skipUnpackProxy: true })
   })
 
   it('fires Enter hotkey to send requests with default modifier', () => {
@@ -218,7 +218,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('Enter', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:send:request', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:send:request', { event }, { skipUnpackProxy: true })
   })
 
   it('opens command palette with correct payload for addOperation', () => {
@@ -227,7 +227,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('k', { ctrlKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:command-palette', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:command-palette', { event }, { skipUnpackProxy: true })
   })
 
   it('uses desktop-specific hotkeys in desktop layout', () => {
@@ -236,7 +236,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('f', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
   })
 
   it('uses web-specific hotkeys in web layout', () => {
@@ -245,7 +245,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('l', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
   })
 
   it('opens new tab with desktop layout', () => {
@@ -254,7 +254,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('t', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:add:tab', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:add:tab', { event }, { skipUnpackProxy: true })
   })
 
   it('closes tab with desktop layout', () => {
@@ -263,7 +263,7 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('w', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:close:tab', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:close:tab', { event }, { skipUnpackProxy: true })
   })
 
   it('focuses last tab with desktop layout', () => {
@@ -272,6 +272,6 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('9', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab-last', { event })
+    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab-last', { event }, { skipUnpackProxy: true })
   })
 })

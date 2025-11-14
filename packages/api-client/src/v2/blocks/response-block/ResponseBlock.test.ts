@@ -77,7 +77,7 @@ describe('ResponseBlock', () => {
       emptyComponent.vm.$emit('addRequest')
 
       expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('addOperation')
+      expect(fn).toHaveBeenCalledWith({ action: 'addOperation' })
     })
 
     it('emits sendRequest when ResponseEmpty emits it', () => {

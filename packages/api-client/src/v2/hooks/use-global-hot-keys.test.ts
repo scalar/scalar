@@ -17,7 +17,7 @@ vi.mock('vue', async () => {
 })
 
 // Mock the handleHotkeys function
-vi.mock('@/v2/features/app/helpers/handle-hotkey-down', () => ({
+vi.mock('@/v2/helpers/handle-hotkeys', () => ({
   handleHotkeys: vi.fn(),
 }))
 
