@@ -1,0 +1,5 @@
+# Maven build output
+target/
+scalar.js
+
+.idea/
