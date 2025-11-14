@@ -103,7 +103,9 @@ describe('traverseDocument', () => {
         'title': 'test',
         isWebhooks: false,
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/test/get/test'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/test/get/test',
@@ -283,7 +285,9 @@ describe('traverseDocument', () => {
         isWebhooks: false,
         'title': 'tag1',
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/tag1/get/test1'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/tag1/get/test1',
@@ -304,7 +308,9 @@ describe('traverseDocument', () => {
         isWebhooks: false,
         'title': 'tag2',
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/tag2/post/test2'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/tag2/post/test2',

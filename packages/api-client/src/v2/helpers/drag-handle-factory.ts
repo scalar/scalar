@@ -415,16 +415,24 @@ export const dragHandleFactory = ({
         return false
       }
 
+      const sameParent = itemsShareParent(draggingItem, hoveredItem)
+
+      // Don't allow reorder when parents are different
+      if (isReorder(_hoveredItem) && !sameParent) {
+        return false
+      }
+
       return (
-        // for the same parent, you can reorder only
-        (itemsShareParent(draggingItem, hoveredItem) && isReorder(_hoveredItem)) ||
-        (itemsShareParent(draggingItem, hoveredItem) && hoveredItem.type === 'tag' && isDrop(_hoveredItem)) ||
-        // for different parents, you can drop it inside a tag or a document only
-        (!itemsShareParent(draggingItem, hoveredItem) &&
+        // for the same parent, you can reorder or drop inside a tag or document
+        (sameParent && isReorder(_hoveredItem)) ||
+        (sameParent && isDrop(_hoveredItem) && isEntryType(hoveredItem, ['tag', 'document'])) ||
+        // for different parents, you can drop it inside a tag or a document
+        // allow when it's the same document or when the other document doesn't have a conflicting path/method combination
+        (!sameParent &&
           isDrop(_hoveredItem) &&
-          isEntryType(hoveredItem, ['tag', 'document'])) ||
-        (draggingDocumentEntry.id !== hoveredDocumentEntry.id &&
-          hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method] === undefined)
+          isEntryType(hoveredItem, ['tag', 'document']) &&
+          (draggingDocumentEntry.id === hoveredDocumentEntry.id ||
+            hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method] === undefined))
       )
     }
 

@@ -4,6 +4,7 @@ import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
 type Options = Pick<TraverseSpecOptions, 'tagsSorter' | 'operationsSorter' | 'generateId'>
 
@@ -49,7 +50,7 @@ const createTagEntry = ({
     isGroup,
     isWebhooks: false,
     type: 'tag',
-    xKeys: getXKeysFromObject(tag),
+    xKeys: getXKeysFromObject(unpackProxyObject(tag)),
   } satisfies TraversedTag
 
   return entry

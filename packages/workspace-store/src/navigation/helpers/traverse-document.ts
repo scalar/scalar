@@ -1,3 +1,4 @@
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
@@ -122,7 +123,7 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
     })
 
     // Now update the sort order of the entries
-    document['x-scalar-order'] = entries.map((entry) => entry.id)
+    document['x-scalar-order'] = unpackProxyObject(entries.map((entry) => entry.id))
   }
 
   return {

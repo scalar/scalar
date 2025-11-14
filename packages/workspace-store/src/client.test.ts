@@ -1922,7 +1922,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(JSON.stringify(store.exportWorkspace())).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-scalar-active-server":"server-1","x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-dark-mode":true,"x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-scalar-active-server":"server-1","x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-dark-mode":true,"x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
       )
     })
   })
@@ -2310,7 +2310,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(JSON.stringify(store.exportWorkspace())).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"08a6752152cd6bf0","x-scalar-original-source-url":"http://localhost:9989/default","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[{"id":"default/tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]},"servers":[{"url":"http://localhost:9989"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"08a6752152cd6bf0","x-scalar-original-source-url":"http://localhost:9989/default","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[{"id":"default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]},"servers":[{"url":"http://localhost:9989"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
       )
     })
 
@@ -2452,7 +2452,6 @@ describe('create-workspace-store', () => {
   })
 
   describe('replaceDocument', () => {
-    // TODO: here check why models are not generated
     it('should replace the document with the new provided document', async () => {
       const store = createWorkspaceStore()
 
@@ -2555,7 +2554,7 @@ describe('create-workspace-store', () => {
           title: 'My API',
           children: [
             {
-              'id': 'default/tag/default/get/users',
+              'id': 'default/get/users',
               'title': 'Get all users',
               'isDeprecated': false,
               'path': '/users',
@@ -2705,7 +2704,7 @@ describe('create-workspace-store', () => {
           title: 'Updated API',
           children: [
             {
-              id: 'default/tag/default/get/users-v2',
+              id: 'default/get/users-v2',
               method: 'get',
               path: '/users-v2',
               isDeprecated: false,
@@ -2992,7 +2991,7 @@ describe('create-workspace-store', () => {
         title: 'My API',
         children: [
           {
-            'id': 'default/tag/default/get/users',
+            'id': 'default/get/users',
             'isDeprecated': false,
             'method': 'get',
             'path': '/users',
@@ -3051,7 +3050,7 @@ describe('create-workspace-store', () => {
         title: 'My API',
         children: [
           {
-            'id': 'default/tag/default/get/pets',
+            'id': 'default/get/pets',
             'isDeprecated': false,
             'method': 'get',
             'path': '/pets',
@@ -3119,7 +3118,9 @@ describe('create-workspace-store', () => {
             'name': 'users',
             'title': 'users',
             'type': 'tag',
-            'xKeys': {},
+            'xKeys': {
+              'x-scalar-order': ['document-1/tag/some-tag-id/some-id'],
+            },
           },
         ],
       })

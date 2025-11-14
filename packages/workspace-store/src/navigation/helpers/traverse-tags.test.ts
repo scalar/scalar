@@ -1,8 +1,8 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
@@ -99,7 +99,9 @@ describe('traverseTags', () => {
         description: undefined,
         children: [createMockEntry('Test Operation')],
         isGroup: false,
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['entry-Test Operation'],
+        },
       },
     ])
   })
@@ -141,17 +143,6 @@ describe('traverseTags', () => {
     expect(result).toEqual([
       {
         type: 'tag',
-        id: 'tag1',
-        title: 'tag1',
-        name: 'tag1',
-        isWebhooks: false,
-        description: undefined,
-        children: [createMockEntry('Test Operation')],
-        isGroup: false,
-        xKeys: {},
-      },
-      {
-        type: 'tag',
         id: 'default',
         title: 'default',
         name: 'default',
@@ -159,7 +150,22 @@ describe('traverseTags', () => {
         description: undefined,
         children: [createMockEntry('Test Operation')],
         isGroup: false,
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['entry-Test Operation'],
+        },
+      },
+      {
+        type: 'tag',
+        id: 'tag1',
+        title: 'tag1',
+        name: 'tag1',
+        isWebhooks: false,
+        description: undefined,
+        children: [createMockEntry('Test Operation')],
+        isGroup: false,
+        xKeys: {
+          'x-scalar-order': ['entry-Test Operation'],
+        },
       },
     ])
   })
@@ -277,8 +283,14 @@ describe('traverseTags', () => {
       },
       documentId: 'doc-1',
     })
-    expect((result[0] as TraversedOperation).method).toBe('get')
-    expect((result[1] as TraversedOperation).method).toBe('post')
+    expect(result[0]?.type).toBe('tag')
+    expect(result[0]?.title).toBe('default')
+    assert(result[0]?.type === 'tag')
+    expect(result[0]?.children).toHaveLength(2)
+    assert(result[0]?.children?.[0]?.type === 'operation')
+    assert(result[0]?.children?.[1]?.type === 'operation')
+    expect(result[0]?.children?.[0].method).toBe('get')
+    expect(result[0]?.children?.[1].method).toBe('post')
   })
 
   it('should handle custom operationSorter using [deprecated] httpVerb', () => {
@@ -312,8 +324,14 @@ describe('traverseTags', () => {
       },
       documentId: 'doc-1',
     })
-    expect((result[0] as TraversedOperation).method).toBe('get')
-    expect((result[1] as TraversedOperation).method).toBe('post')
+    expect(result[0]?.type).toBe('tag')
+    expect(result[0]?.title).toBe('default')
+    assert(result[0]?.type === 'tag')
+    expect(result[0]?.children).toHaveLength(2)
+    assert(result[0]?.children?.[0]?.type === 'operation')
+    assert(result[0]?.children?.[1]?.type === 'operation')
+    expect(result[0]?.children?.[0].method).toBe('get')
+    expect(result[0]?.children?.[1].method).toBe('post')
   })
 
   it('should handle custom tag sorter', () => {
@@ -390,8 +408,13 @@ describe('traverseTags', () => {
       },
       documentId: 'doc-1',
     })
-    expect(result[0]?.title).toBe('Operation A')
-    expect(result[1]?.title).toBe('Operation B')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.title).toBe('default')
+    assert(result[0]?.type === 'tag')
+    expect(result[0].children).toHaveLength(2)
+    expect(result[0].children?.[0]?.title).toBe('Operation A')
+    expect(result[0].children?.[1]?.title).toBe('Operation B')
   })
 
   it('should handle internal tags', () => {

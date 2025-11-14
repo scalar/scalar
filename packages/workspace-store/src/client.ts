@@ -806,7 +806,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(name, unpackProxyObject(strictDocument) as OpenApiDocument, input.config)
+      const navigation = createNavigation(name, strictDocument as OpenApiDocument, input.config)
 
       strictDocument[extensions.document.navigation] = navigation
 
@@ -900,12 +900,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return false
     }
 
-    // Unpack the document just at the top level to prevent proxy object mutations;
-    // this allows us to process a raw, non-proxied snapshot (excluding child proxies).
-    const unpackedDocument = unpackProxyObject(document)
-
     // Generate the navigation structure for the sidebar.
-    const navigation = createNavigation(documentName, unpackedDocument, getDocumentConfiguration(documentName))
+    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
 
     // Set the computed navigation structure on the document metadata.
     document[extensions.document.navigation] = navigation
