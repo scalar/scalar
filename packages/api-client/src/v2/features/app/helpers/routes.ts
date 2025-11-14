@@ -6,6 +6,7 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { RouteRecordRaw } from 'vue-router'
 
 import { workspaceStorage } from '@/v2/helpers/storage'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
@@ -18,6 +19,7 @@ export type RouteProps = {
   exampleName?: string
   environment: XScalarEnvironment
   workspaceStore: WorkspaceStore
+  activeWorkspace: Workspace
   // workspaceSlug: string
   // documentSlug?: string
 }

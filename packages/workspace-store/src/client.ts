@@ -232,6 +232,14 @@ export type WorkspaceStore = {
    * })
    */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
+    /**
+   * Deletes a document from the workspace
+   * @param documentName - The name of the document to delete
+   * @example
+   * // Delete the document named 'api'
+   * store.deleteDocument('api')
+   */
+  deleteDocument(documentName: string): void
   /**
    * Returns the merged configuration for the active document.
    *
@@ -949,6 +957,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       })
     },
     addDocument,
+    deleteDocument: (documentName) => {
+      // Reset the active document to the first one if the deleted document was the active one
+      if (workspace['x-scalar-active-document'] === documentName) {
+        workspace['x-scalar-active-document'] = Object.keys(workspace.documents)[0] ?? undefined
+      }
+
+      // Delete the document from the workspace
+      delete workspace.documents[documentName]
+      delete originalDocuments[documentName]
+      delete intermediateDocuments[documentName]
+      delete documentConfigs[documentName]
+      delete overrides[documentName]
+      delete extraDocumentConfigurations[documentName]
+    },
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
     },

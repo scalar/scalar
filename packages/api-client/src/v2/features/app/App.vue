@@ -205,6 +205,7 @@ const routerViewProps = computed(
       method: method.value,
       path: path.value,
       workspaceStore: store.value!,
+      activeWorkspace: activeWorkspace.value!,
     }) satisfies RouteProps,
 )
 
@@ -223,8 +224,8 @@ const createWorkspaceModalState = useModal()
         v-else
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
-        @select:workspace="handleSelectWorkspace"
-        @create:workspace="createWorkspaceModalState.show()" />
+        @create:workspace="createWorkspaceModalState.show()"
+        @select:workspace="handleSelectWorkspace" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -239,10 +240,10 @@ const createWorkspaceModalState = useModal()
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
+          @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
           @selectItem="handleSelectItem"
-          @update:sidebarWidth="handleSidebarWidthUpdate"
-          @create:workspace="createWorkspaceModalState.show()" />
+          @update:sidebarWidth="handleSidebarWidthUpdate" />
 
         <!-- Create workspace modal -->
         <CreateWorkspaceModal

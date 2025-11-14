@@ -16,4 +16,10 @@ export type DocumentEvents = {
    * Toggle use document security
    */
   'document:toggle:document-security': undefined
+  /**
+   * Update the watch mode of the document
+   *
+   * Makes sense for the doucments that have been loaded from a remote source
+   */
+  'document:update:watch-mode': boolean
 }

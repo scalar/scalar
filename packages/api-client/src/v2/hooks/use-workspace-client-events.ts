@@ -25,6 +25,7 @@ import {
   updateSelectedServer,
   updateServer,
   updateServerVariables,
+  updateWatchMode,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -62,6 +63,7 @@ export const useWorkspaceClientEvents = (
   )
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
+  eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers

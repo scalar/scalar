@@ -10,3 +10,11 @@ export const toggleDocumentSecurity = (document: WorkspaceDocument | null) => {
 
   document['x-scalar-document-security'] = !document['x-scalar-document-security']
 }
+
+export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: boolean) => {
+  if (!document) {
+    return
+  }
+
+  document['x-scalar-watch-mode'] = watchMode
+}

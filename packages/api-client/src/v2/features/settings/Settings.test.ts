@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import Settings from './Settings.vue'
+import Settings from './CollectionSettings.vue'
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
