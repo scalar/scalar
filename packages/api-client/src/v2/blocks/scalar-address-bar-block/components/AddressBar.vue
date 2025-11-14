@@ -2,7 +2,10 @@
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -77,13 +80,24 @@ const style = computed(() => ({
 }))
 
 /** Handle focus events */
-const addressBarRef = useTemplateRef('addressBarRef')
 const sendButtonRef = useTemplateRef('sendButtonRef')
-const handleFocusAddressBar = () => {
-  console.log('handleFocusAddressBar')
-  addressBarRef.value?.focus()
-}
+const addressBarRef = useTemplateRef('addressBarRef')
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
+
+/** Focus the addressbar */
+const handleFocusAddressBar = ({
+  event,
+}: ApiReferenceEvents['ui:focus:address-bar']) => {
+  // if its already focussed we just propagate native behaviour which should focus the browser address bar
+  if (addressBarRef.value?.isFocused && layout !== 'desktop') {
+    console.log('already focussed')
+    return
+  }
+
+  console.log('we keep going')
+  addressBarRef.value?.focus()
+  event.preventDefault()
+}
 
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)

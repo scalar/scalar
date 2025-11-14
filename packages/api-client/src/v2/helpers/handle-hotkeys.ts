@@ -8,9 +8,7 @@ type HotKeyModifiers = ('altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey' | 'default
 /** Hotkey configuration type, matches payloads with the event bus */
 export type HotKeyConfig<E extends keyof ApiReferenceEvents = keyof ApiReferenceEvents> = Record<
   string | number,
-  undefined extends ApiReferenceEvents[E]
-    ? { event: E; payload?: ApiReferenceEvents[E]; modifiers: HotKeyModifiers }
-    : { event: E; payload: ApiReferenceEvents[E]; modifiers: HotKeyModifiers }
+  { event: E; payload?: ApiReferenceEvents[E]; modifiers: HotKeyModifiers }
 >
 
 /** Default hotkeys available in most contexts */
@@ -101,21 +99,23 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
     return
   }
 
+  // Default to sending the keyboard event as the payload, we may want to merge these one day...
+  const payload = hotkeyEvent.payload ?? { event }
+
   // Escape always fires, regardless of context
   if (key === 'Escape') {
-    eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
+    eventBus.emit(hotkeyEvent.event, payload)
     return
   }
 
   // If modifiers are pressed, fire the hotkey (even in input fields), and prevent the default behavior
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
-    eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
-    event.preventDefault()
+    eventBus.emit(hotkeyEvent.event, payload)
     return
   }
 
   // Without modifiers, only fire if not in an editable element
   if (!isEditableElement(event, key)) {
-    eventBus.emit(hotkeyEvent.event, hotkeyEvent.payload)
+    eventBus.emit(hotkeyEvent.event, payload)
   }
 }

@@ -12,19 +12,27 @@ export type UIEvents = {
   /**
    * Focus the address bar
    */
-  'ui:focus:address-bar': undefined
+  'ui:focus:address-bar': {
+    event: KeyboardEvent
+  }
   /**
    * Focus the send button
    */
-  'ui:focus:send-button': undefined
+  'ui:focus:send-button': {
+    event: KeyboardEvent
+  }
   /**
    * Focus the search
    */
-  'ui:focus:search': undefined
+  'ui:focus:search': {
+    event: KeyboardEvent
+  }
   /**
    * Toggle the sidebar
    */
-  'ui:toggle:sidebar': undefined
+  'ui:toggle:sidebar': {
+    event: KeyboardEvent
+  }
   /**
    * Open the Api Client modal to a specific operation
    */
