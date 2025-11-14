@@ -5,21 +5,18 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 type HotKeyModifiers = ('altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey' | 'default')[]
 
-/** Hotkey configuration type, matches payloads with the event bus */
-export type HotKeyConfig<E extends keyof ApiReferenceEvents = keyof ApiReferenceEvents> = Record<
-  string | number,
-  { event: E; payload?: ApiReferenceEvents[E]; modifiers: HotKeyModifiers }
->
+/** Hotkey configuration */
+export type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEvents; modifiers: HotKeyModifiers }>
 
 /** Default hotkeys available in most contexts */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Enter: { event: 'operation:send:request', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
-  k: { event: 'ui:open:command-palette', payload: 'addOperation', modifiers: ['default'] },
+  k: { event: 'ui:open:command-palette', modifiers: ['default'] },
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
 }
 
-/** Hotkey map by layout */
+/** Hotkey map by layout, we can allow the user to override this later */
 export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
   web: DEFAULT_HOTKEYS,
 
@@ -37,14 +34,14 @@ export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
     w: { event: 'tabs:close:tab', modifiers: ['default'] },
     ArrowLeft: { event: 'tabs:navigate:previous', modifiers: ['default', 'altKey'] },
     ArrowRight: { event: 'tabs:navigate:next', modifiers: ['default', 'altKey'] },
-    1: { event: 'tabs:focus:tab', payload: { index: 0 }, modifiers: ['default'] },
-    2: { event: 'tabs:focus:tab', payload: { index: 1 }, modifiers: ['default'] },
-    3: { event: 'tabs:focus:tab', payload: { index: 2 }, modifiers: ['default'] },
-    4: { event: 'tabs:focus:tab', payload: { index: 3 }, modifiers: ['default'] },
-    5: { event: 'tabs:focus:tab', payload: { index: 4 }, modifiers: ['default'] },
-    6: { event: 'tabs:focus:tab', payload: { index: 5 }, modifiers: ['default'] },
-    7: { event: 'tabs:focus:tab', payload: { index: 6 }, modifiers: ['default'] },
-    8: { event: 'tabs:focus:tab', payload: { index: 7 }, modifiers: ['default'] },
+    1: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    2: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    3: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    4: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    5: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    6: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    7: { event: 'tabs:focus:tab', modifiers: ['default'] },
+    8: { event: 'tabs:focus:tab', modifiers: ['default'] },
     9: { event: 'tabs:focus:tab-last', modifiers: ['default'] },
   },
 }
@@ -99,8 +96,8 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
     return
   }
 
-  // Default to sending the keyboard event as the payload, we may want to merge these one day...
-  const payload = hotkeyEvent.payload ?? { event }
+  // Default to sending the keyboard event as the payload
+  const payload = { event }
 
   // Escape always fires, regardless of context
   if (key === 'Escape') {

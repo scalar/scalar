@@ -3,28 +3,37 @@ export type TabEvents = {
   /**
    * Add a new tab
    */
-  'tabs:add:tab': undefined
+  'tabs:add:tab': {
+    event: KeyboardEvent
+  }
   /**
    * Closes the current tab
    */
-  'tabs:close:tab': undefined
+  'tabs:close:tab': {
+    event: KeyboardEvent
+  }
   /**
    * Navigates to the previous tab
    */
-  'tabs:navigate:previous': undefined
+  'tabs:navigate:previous': {
+    event: KeyboardEvent
+  }
   /**
    * Navigates to the next tab
    */
-  'tabs:navigate:next': undefined
+  'tabs:navigate:next': {
+    event: KeyboardEvent
+  }
   /**
-   * Jumps to a specific tab
+   * Jumps to a specific tab, we can grab the number from the keyboard event
    */
   'tabs:focus:tab': {
-    /** The index of the tab to jump to */
-    index: number
+    event: KeyboardEvent
   }
   /**
    * Focuses the last tab
    */
-  'tabs:focus:tab-last': undefined
+  'tabs:focus:tab-last': {
+    event: KeyboardEvent
+  }
 }

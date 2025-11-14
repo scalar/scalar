@@ -47,18 +47,16 @@ export type UIEvents = {
   /**
    * Close the client modal
    */
-  'ui:close:client-modal': undefined
+  'ui:close:client-modal': {
+    event: KeyboardEvent
+  }
   /**
-   * Open our command palette
+   * Open the command palette
    */
-  'ui:open:command-palette':
-    | 'import'
-    | 'addServer'
-    | 'addCollection'
-    | 'addTag'
-    | 'addExample'
-    | 'addOperation'
-    | undefined
+  'ui:open:command-palette': {
+    action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
+    event: KeyboardEvent
+  }
 
   /** Set a navigation item's (such as a tag or operation) expanded state */
   'toggle:nav-item': {

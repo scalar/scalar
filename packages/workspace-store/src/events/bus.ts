@@ -201,6 +201,7 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
   const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
     const [event, payload] = args
+    console.log('emit', event, payload)
 
     // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
     // but are always assigning plain objects 5 level depth.
