@@ -673,7 +673,7 @@ jobs:
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
         run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
-  deploy-examples:
+  deploy-api-reference:
     # Main Branch or PR from the same repository
     if: |
       github.ref == 'refs/heads/main' || (
