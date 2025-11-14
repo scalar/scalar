@@ -1,3 +1,5 @@
+import { debounce } from '@scalar/helpers/general/debounce'
+
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
 import type { ApiReferenceEvents } from './definitions'
@@ -15,10 +17,13 @@ type EventListener<E extends keyof ApiReferenceEvents> = undefined extends ApiRe
 /**
  * Helper type for emit parameters that uses rest parameters
  * for a cleaner API surface.
+ *
+ * @example
+ * bus.emit('scalar-update-sidebar', { value: true }, { debounceKey: 'test' })
  */
 type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiReferenceEvents[E]
-  ? [event: E, payload?: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean }]
-  : [event: E, payload: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean }]
+  ? [event: E, payload?: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean; debounceKey?: string }]
+  : [event: E, payload: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean; debounceKey?: string }]
 
 /**
  * Type-safe event bus for workspace events
@@ -62,6 +67,9 @@ export type WorkspaceEventBus = {
    *
    * @param event - The event name to emit
    * @param payload - The event detail payload (optional if event allows undefined)
+   * @param options.skipUnpackProxy - Whether to skip unpacking the proxy object,
+   * useful if we are sure there is no proxy OR when passing js events like keyboard events.
+   * @param options.debounceKey - If present we will debounce the event by the key + event name.
    *
    * @example
    * bus.emit('scalar-update-sidebar', { value: true })
@@ -121,6 +129,12 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   type PendingLogEntry = { message: string; args: unknown[] }
   const pendingLogs: PendingLogEntry[] = []
   let logTimeout: ReturnType<typeof setTimeout> | null = null
+
+  /**
+   * Single debounce instance for all debounced emits
+   * Uses keys to separate different event + debounceKey combinations
+   */
+  const { execute: debouncedEmitter } = debounce({ delay: 328, maxWait: 5000 })
 
   /**
    * Get or create a listener set for an event
@@ -199,9 +213,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     }
   }
 
-  const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
-    const [event, payload, options] = args
-
+  /**
+   * Internal function that performs the actual emission logic
+   * This is extracted so it can be wrapped with debouncing
+   */
+  const performEmit = <E extends keyof ApiReferenceEvents>(
+    event: E,
+    payload: ApiReferenceEvents[E] | undefined,
+    options?: { skipUnpackProxy?: boolean },
+  ): void => {
     // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
     // but are always assigning plain objects 5 level depth.
     const unpackedPayload = options?.skipUnpackProxy ? payload : unpackProxyObject(payload, { depth: 5 })
@@ -227,6 +247,22 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
         console.error(`[EventBus] Error in listener for "${String(event)}":`, error)
       }
     }
+  }
+
+  const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
+    const [event, payload, options] = args
+
+    // If no debounce key is provided, emit immediately
+    if (!options?.debounceKey) {
+      performEmit(event, payload, options)
+      return
+    }
+
+    // Create a unique key for this event + debounce key combination
+    const debounceMapKey = `${String(event)}-${options.debounceKey}`
+
+    // Pass the closure directly - debounce will store the latest version
+    debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
   return {

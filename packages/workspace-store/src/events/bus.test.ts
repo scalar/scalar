@@ -126,4 +126,112 @@ describe('createWorkspaceEventBus', () => {
     expect(handler2).toHaveBeenCalledTimes(1)
     expect(handler3).toHaveBeenCalledTimes(2)
   })
+
+  it('handles debouncing when there is a debounce key present', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+
+    // Handler should not have been called yet
+    expect(handler).toHaveBeenCalledTimes(0)
+
+    // Advance time to trigger the debounced function
+    vi.advanceTimersByTime(400)
+
+    // Now the handler should have been called only once
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler).toHaveBeenCalledWith(true)
+
+    vi.useRealTimers()
+  })
+
+  it('handles different debounce keys independently', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+
+    // Emit with two different debounce keys
+    bus.emit('update:dark-mode', true, { debounceKey: 'key1' })
+    bus.emit('update:dark-mode', false, { debounceKey: 'key2' })
+
+    expect(handler).toHaveBeenCalledTimes(0)
+
+    // Advance time
+    vi.advanceTimersByTime(400)
+
+    // Both should have been called once each
+    expect(handler).toHaveBeenCalledTimes(2)
+
+    vi.useRealTimers()
+  })
+
+  it('does not debounce when no debounce key is provided', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+    bus.emit('update:dark-mode', true)
+    bus.emit('update:dark-mode', false)
+    bus.emit('update:dark-mode', true)
+
+    // Should be called immediately without debouncing
+    expect(handler).toHaveBeenCalledTimes(3)
+
+    vi.useRealTimers()
+  })
+
+  it('handles mix of debounced and non-debounced emits', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+
+    // Non-debounced emit
+    bus.emit('update:dark-mode', true)
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    // Debounced emits
+    bus.emit('update:dark-mode', false, { debounceKey: 'test' })
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    // Advance time
+    vi.advanceTimersByTime(400)
+    expect(handler).toHaveBeenCalledTimes(2)
+
+    vi.useRealTimers()
+  })
+
+  it('uses the latest payload value when debouncing multiple emits', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+
+    // Emit multiple times with different payloads
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+    bus.emit('update:dark-mode', false, { debounceKey: 'test' })
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+
+    expect(handler).toHaveBeenCalledTimes(0)
+
+    // Advance time
+    vi.advanceTimersByTime(400)
+
+    // Should be called once with the last payload value
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler).toHaveBeenCalledWith(true)
+
+    vi.useRealTimers()
+  })
 })
