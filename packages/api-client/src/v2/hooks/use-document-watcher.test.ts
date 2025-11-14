@@ -1,9 +1,7 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 
@@ -15,7 +13,6 @@ describe('useDocumentWatcher', () => {
 
   beforeEach(() => {
     vi.useFakeTimers()
-
     server = fastify({ logger: false })
 
     return async () => {
@@ -23,7 +20,6 @@ describe('useDocumentWatcher', () => {
       vi.useRealTimers()
       vi.restoreAllMocks()
       await server.close()
-      await setTimeout(100)
     }
   })
 
@@ -54,14 +50,15 @@ describe('useDocumentWatcher', () => {
 
     const defaultDocument = store.workspace.documents['default']
     assert(defaultDocument)
+
     // Enable watch mode on the document so the watcher starts polling
     defaultDocument['x-scalar-watch-mode'] = true
 
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout: 200 })
+    const initialTimeout = 200
+    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
 
-    vi.advanceTimersByTime(200)
-    // Wait for the timer to complete
-    await setTimeout(100)
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    await vi.advanceTimersToNextTimerAsync()
 
     expect(store.workspace.documents['default']?.info?.title).toBe('New updated API')
   })
@@ -106,14 +103,14 @@ describe('useDocumentWatcher', () => {
 
     const selectedDocument = ref<'a' | 'b'>('a')
 
-    useDocumentWatcher({ documentName: selectedDocument, store, initialTimeout: 200 })
+    const initialTimeout = 200
+    useDocumentWatcher({ documentName: selectedDocument, store, initialTimeout })
 
     selectedDocument.value = 'b'
-    await setTimeout(10)
+    await nextTick()
 
-    vi.advanceTimersByTime(200)
-    // Wait for the timer to complete
-    await setTimeout(10)
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    await vi.advanceTimersToNextTimerAsync()
 
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
     expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
@@ -147,15 +144,18 @@ describe('useDocumentWatcher', () => {
     assert(defaultDocument)
     defaultDocument['x-scalar-watch-mode'] = true
 
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout: 200 })
+    const initialTimeout = 200
+    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
+    // Wait for the watcher to initialize
+    await nextTick()
 
-    vi.advanceTimersByTime(200)
-    // Wait for the timer to complete
-    await setTimeout(100)
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    await vi.advanceTimersToNextTimerAsync()
 
-    vi.advanceTimersByTime(200 * 2)
-    // Wait for the timer to complete
-    await setTimeout(100)
+    // Next attempt — triggers exponential backoff
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    await vi.advanceTimersByTimeAsync(initialTimeout * 2)
+    await vi.advanceTimersToNextTimerAsync()
 
     expect(fn).toHaveBeenCalledTimes(3)
   })

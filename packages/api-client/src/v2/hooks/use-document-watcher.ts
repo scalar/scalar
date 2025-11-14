@@ -5,7 +5,7 @@ import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
  * Watches the specified document in the workspace store and periodically rebases it with its remote source.
  *
  * This utility sets up a watcher on the given document. If the document specifies an 'x-scalar-original-source-url',
- * this hook polls the remote source every second (using setInterval) and calls `store.rebaseDocument`.
+ * this hook polls the remote source every second (using setTimeout) and calls `store.rebaseDocument`.
  * If rebase conflicts are detected, it applies automatic conflict resolution by preferring remote changes.
  *
  * @param params - Object with:
@@ -30,18 +30,17 @@ export const useDocumentWatcher = ({
   store: WorkspaceStore
   initialTimeout?: number
 }) => {
-  let timeout = initialTimeout
   const document = computed(() => store.workspace.documents[toValue(documentName)])
 
-  let interval: ReturnType<typeof setInterval> | null = null
+  let timeout = initialTimeout
+  let timer: ReturnType<typeof setTimeout> | null = null
 
   watch(
     [() => document.value?.['x-scalar-original-source-url'], () => document.value?.['x-scalar-watch-mode']],
     ([sourceUrl, watchMode]) => {
-      // Clear any existing interval
-      if (interval) {
-        clearInterval(interval)
-        interval = null
+      if (timer) {
+        clearTimeout(timer)
+        timer = null
       }
 
       if (!sourceUrl || !watchMode) {
@@ -50,14 +49,16 @@ export const useDocumentWatcher = ({
         return
       }
 
-      // Reset timeout on successful call
+      const scheduleNext = () => {
+        if (timer) {
+          clearTimeout(timer)
+        }
+        timer = setTimeout(poll, timeout)
+      }
+
       const onSuccessfulCall = () => {
         timeout = initialTimeout
-        if (interval) {
-          clearInterval(interval)
-          interval = null
-        }
-        interval = setInterval(poll, timeout)
+        scheduleNext()
       }
 
       const poll = async () => {
@@ -68,24 +69,20 @@ export const useDocumentWatcher = ({
 
         if (result?.ok) {
           // On conflicts, prefers remote changes by automatically choosing the first option for each conflict tuple
-          await result.applyChanges(result.conflicts.flatMap((conflictTuple) => conflictTuple[0]))
-
+          await result.applyChanges(result.conflicts.flatMap(([remote]) => remote))
           onSuccessfulCall()
         } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
           // Its still a successful call, just nothing changed
           onSuccessfulCall()
         } else {
-          timeout *= 2 // Exponential backoff on failure
-
-          if (interval) {
-            clearInterval(interval)
-            interval = setInterval(poll, timeout)
-          }
+          // Exponential backoff on failure
+          timeout *= 2
+          scheduleNext()
         }
       }
 
-      // Poll the remote source every x seconds and attempt to rebase
-      interval = setInterval(poll, timeout)
+      // schedule the first poll of the remote source after x seconds and attempt to rebase
+      scheduleNext()
     },
     { immediate: true },
   )
