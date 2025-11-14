@@ -164,10 +164,12 @@ const handleSummaryUpdate = (event: Event): void => {
 }
 
 /** Parameter handlers */
-const pathHandlers = createParameterHandlers('path', eventBus, meta.value)
-const cookieHandlers = createParameterHandlers('cookie', eventBus, meta.value)
-const headerHandlers = createParameterHandlers('header', eventBus, meta.value)
-const queryHandlers = createParameterHandlers('query', eventBus, meta.value)
+const parameterHandlers = computed(() => ({
+  path: createParameterHandlers('path', eventBus, meta.value),
+  cookie: createParameterHandlers('cookie', eventBus, meta.value),
+  header: createParameterHandlers('header', eventBus, meta.value),
+  query: createParameterHandlers('query', eventBus, meta.value),
+}))
 
 /** Handle request body form row addition */
 const handleAddFormRow = (payload: {
@@ -281,9 +283,7 @@ const labelRequestNameId = useId()
       :parameters="sections.path ?? []"
       :showAddRowPlaceholder="false"
       title="Variables"
-      @delete="pathHandlers.onDelete"
-      @deleteAll="pathHandlers.onDeleteAll"
-      @update="pathHandlers.onUpdate" />
+      v-on="parameterHandlers.path" />
 
     <!-- Cookies -->
     <RequestParams
@@ -294,10 +294,7 @@ const labelRequestNameId = useId()
       :parameters="sections.cookie ?? []"
       :showAddRowPlaceholder="true"
       title="Cookies"
-      @add="cookieHandlers.onAdd"
-      @delete="cookieHandlers.onDelete"
-      @deleteAll="cookieHandlers.onDeleteAll"
-      @update="cookieHandlers.onUpdate" />
+      v-on="parameterHandlers.cookie" />
 
     <!-- Headers -->
     <RequestParams
@@ -307,10 +304,7 @@ const labelRequestNameId = useId()
       :exampleKey
       :parameters="sections.header ?? []"
       title="Headers"
-      @add="headerHandlers.onAdd"
-      @delete="headerHandlers.onDelete"
-      @deleteAll="headerHandlers.onDeleteAll"
-      @update="headerHandlers.onUpdate" />
+      v-on="parameterHandlers.header" />
 
     <!-- Query Parameters -->
     <RequestParams
@@ -320,10 +314,7 @@ const labelRequestNameId = useId()
       :exampleKey
       :parameters="sections.query ?? []"
       title="Query Parameters"
-      @add="queryHandlers.onAdd"
-      @delete="queryHandlers.onDelete"
-      @deleteAll="queryHandlers.onDeleteAll"
-      @update="queryHandlers.onUpdate" />
+      v-on="parameterHandlers.query" />
 
     <!-- Request Body -->
     <RequestBody

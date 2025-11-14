@@ -9,7 +9,7 @@ export const createParameterHandlers = (
   eventBus: WorkspaceEventBus,
   meta: OperationExampleMeta,
 ) => ({
-  onAdd: (payload: { key?: string; value?: string }) =>
+  add: (payload: { key?: string; value?: string }) =>
     eventBus.emit('operation:add:parameter', {
       type,
       payload: {
@@ -19,18 +19,18 @@ export const createParameterHandlers = (
       },
       meta,
     }),
-  onDelete: (payload: { index: number }) =>
+  delete: (payload: { index: number }) =>
     eventBus.emit('operation:delete:parameter', {
       type,
       index: payload.index,
       meta,
     }),
-  onDeleteAll: () =>
+  deleteAll: () =>
     eventBus.emit('operation:delete-all:parameters', {
       type,
       meta,
     }),
-  onUpdate: (payload: { index: number; payload: Partial<{ key: string; value: string; isEnabled: boolean }> }) =>
+  update: (payload: { index: number; payload: Partial<{ key: string; value: string; isEnabled: boolean }> }) =>
     eventBus.emit('operation:update:parameter', {
       type,
       index: payload.index,
