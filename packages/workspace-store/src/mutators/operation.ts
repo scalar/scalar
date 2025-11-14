@@ -1,8 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
+import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 /**
@@ -34,6 +37,114 @@ export type OperationMeta = {
  */
 export type OperationExampleMeta = OperationMeta & {
   exampleKey: string
+}
+
+/** ------------------------------------------------------------------------------------------------
+ * Helper Functions for Path Parameter Synchronization
+ * ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Creates a map of parameter names to their character positions in a path.
+ * Used to detect renamed path parameters by position matching.
+ */
+const getParameterPositions = (path: string, parameters: readonly string[]): Record<string, number> => {
+  const positions: Record<string, number> = {}
+
+  for (const paramName of parameters) {
+    const position = path.indexOf(`{${paramName}}`)
+    if (position !== -1) {
+      positions[paramName] = position
+    }
+  }
+
+  return positions
+}
+
+/**
+ * Syncs path parameters when the path changes.
+ *
+ * Preserves parameter configurations by:
+ * 1. Keeping parameters with matching names
+ * 2. Renaming parameters at the same position
+ * 3. Creating new parameters with empty examples
+ * 4. Removing parameters that no longer exist in the new path
+ */
+const syncParametersForPathChange = (
+  newPath: string,
+  oldPath: string,
+  existingParameters: ReferenceType<ParameterObject>[],
+): ReferenceType<ParameterObject>[] => {
+  // Extract path parameter names from both paths
+  const oldPathParams = findVariables(oldPath, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+  const newPathParams = findVariables(newPath, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+
+  const oldPositions = getParameterPositions(oldPath, oldPathParams)
+  const newPositions = getParameterPositions(newPath, newPathParams)
+
+  // Separate path and non-path parameters, keeping original references
+  const pathParameters: ReferenceType<ParameterObject>[] = []
+  const nonPathParameters: ReferenceType<ParameterObject>[] = []
+
+  for (const param of existingParameters) {
+    const resolved = getResolvedRef(param)
+    if (resolved?.in === 'path') {
+      pathParameters.push(param)
+    } else {
+      nonPathParameters.push(param)
+    }
+  }
+
+  // Create a map of existing path parameters by name for quick lookup
+  const existingPathParamsByName = new Map<string, ReferenceType<ParameterObject>>()
+  for (const param of pathParameters) {
+    const resolved = getResolvedRef(param)
+    if (resolved?.name) {
+      existingPathParamsByName.set(resolved.name, param)
+    }
+  }
+
+  const usedOldParams = new Set<string>()
+  const syncedPathParameters: ReferenceType<ParameterObject>[] = []
+
+  for (const newParamName of newPathParams) {
+    // Case 1: Parameter with same name exists - preserve its config
+    if (existingPathParamsByName.has(newParamName)) {
+      syncedPathParameters.push(existingPathParamsByName.get(newParamName)!)
+      usedOldParams.add(newParamName)
+      continue
+    }
+
+    // Case 2: Check for parameter at same position (likely a rename)
+    const newParamPosition = newPositions[newParamName]
+    const oldParamAtPosition = oldPathParams.find(
+      (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
+    )
+
+    if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
+      // Rename: transfer the old parameter's config to the new name
+      const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
+      const resolved = getResolvedRef(oldParam)
+      if (resolved) {
+        resolved.name = newParamName
+        syncedPathParameters.push(oldParam)
+        usedOldParams.add(oldParamAtPosition)
+        continue
+      }
+    }
+
+    // Case 3: New parameter - create with empty examples
+    syncedPathParameters.push({
+      name: newParamName,
+      in: 'path',
+    })
+  }
+
+  // Return all parameters: synced path parameters + preserved non-path parameters
+  return [...syncedPathParameters, ...nonPathParameters]
 }
 
 /** ------------------------------------------------------------------------------------------------
@@ -85,39 +196,47 @@ export const updateOperationSummary = (
  * })
  * ```
  */
-export const updateOperationMethodDraft = (
+export const updateOperationMethod = (
   document: WorkspaceDocument | null,
   { meta, payload: { method } }: OperationEvents['operation:update:method'],
-) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+): undefined | OperationObject => {
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  operation['x-scalar-method'] = method
+  /** Ensure the path exists */
+  const path = document?.paths?.[meta.path]
+  if (!path) {
+    console.error('Path not found', { meta, document })
+    return
+  }
+
+  path[method] = operation
+  delete path[meta.method]
+
+  return operation
 }
 
 /**
- * Records a normalized path for the operation under `x-scalar-path`, and
- * synchronizes path parameters in `operation.parameters` with the placeholders
- * present in the provided `path` (e.g. `/users/{id}`). Existing non-path
- * parameters are preserved.
- * Safely no-ops if the document or operation does not exist.
+ * Moves the operation to a new path in the document and synchronizes path
+ * parameters in `operation.parameters` with the placeholders present in the
+ * provided `path` (e.g. `/users/{id}`). When path parameters change,
+ * intelligently syncs them by preserving configurations for renamed parameters
+ * (detected by position) and existing parameters. Existing non-path parameters
+ * are preserved. The operation is removed from the old path location.
  *
  * Example:
  * ```ts
- * updateOperationPathDraft({
+ * updateOperationPath({
  *   document,
  *   meta: { method: 'get', path: '/users/{id}' },
- *   payload: { path: '/users/{id}' },
+ *   payload: { path: '/users/{userId}' },
  * })
  * ```
  */
-export const updateOperationPathDraft = (
+export const updateOperationPath = (
   document: WorkspaceDocument | null,
   { meta, payload: { path } }: OperationEvents['operation:update:path'],
 ) => {
@@ -130,22 +249,47 @@ export const updateOperationPathDraft = (
     return
   }
 
-  operation['x-scalar-path'] = path
+  // If the path has not changed, no need to move the operation
+  if (meta.path === path) {
+    return
+  }
 
-  // Extract the path variables from the path
-  const pathVariables = Array.from(path.matchAll(/{([^\/}]+)}/g), (m) => m[1])
+  // Sync path parameters if either the old or new path has path parameters
+  const oldPathParams = findVariables(meta.path, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+  const newPathParams = findVariables(path, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
 
-  // now we need to update the operation path variables
-  const pathVariablesWithoutPathParameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== 'path')
+  if (oldPathParams.length > 0 || newPathParams.length > 0) {
+    const existingParameters = operation.parameters ?? []
+    operation.parameters = syncParametersForPathChange(path, meta.path, existingParameters)
+  }
 
-  operation.parameters = [
-    ...(pathVariablesWithoutPathParameters ?? []),
-    ...pathVariables.map((it) => ({
-      name: it ?? '',
-      in: 'path' as const,
-      required: true,
-    })),
-  ]
+  // Initialize the paths object if it does not exist
+  if (!document.paths) {
+    document.paths = {}
+  }
+
+  // Initialize the new path if it does not exist
+  if (!document.paths[path]) {
+    document.paths[path] = {}
+  }
+
+  // Move the operation to the new path
+  document.paths[path][meta.method] = operation
+
+  // Remove the operation from the old path
+  const oldPath = document.paths[meta.path]
+  if (oldPath) {
+    delete oldPath[meta.method]
+
+    // If the old path has no more operations, remove the path entry
+    if (Object.keys(oldPath).length === 0) {
+      delete document.paths[meta.path]
+    }
+  }
 }
 
 /** ------------------------------------------------------------------------------------------------
