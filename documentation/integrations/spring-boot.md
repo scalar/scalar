@@ -10,6 +10,56 @@ The Scalar WebJar provides automatic integration with Spring Boot applications. 
 
 ## Migration Guide
 
+### Migration from v0.x to v1.x
+
+Version 1.0 introduces a modular architecture. The monolithic `scalar` artifact has been split into separate modules.
+
+**Old (v0.x)**:
+```xml
+<dependency>
+    <groupId>com.scalar.maven</groupId>
+    <artifactId>scalar</artifactId>
+    <version>0.4.3</version>
+</dependency>
+```
+
+**New (v1.x) - For Spring WebMVC**:
+```xml
+<dependency>
+    <groupId>com.scalar.maven</groupId>
+    <artifactId>scalar-webmvc</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+**New (v1.x) - For Spring WebFlux**:
+```xml
+<dependency>
+    <groupId>com.scalar.maven</groupId>
+    <artifactId>scalar-webflux</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+### Package Changes
+
+Package names remain unchanged for properties and config classes:
+- `com.scalar.maven.webjar.*` (unchanged)
+
+Auto-configuration class names have changed:
+- Old: `ScalarAutoConfiguration`
+- New: `ScalarWebMvcAutoConfiguration` or `ScalarWebFluxAutoConfiguration`
+
+### Configuration
+
+All configuration properties remain the same - no changes required to your `application.properties` or `application.yml`.
+
+### Custom Controllers
+
+If you extended `AbstractScalarController`:
+- WebMVC: Extend `ScalarWebMvcController` and override `configureProperties(ScalarProperties, HttpServletRequest)`
+- WebFlux: Extend `ScalarWebFluxController` and override `configureProperties(ScalarProperties, ServerHttpRequest)`
+
 ### Breaking Changes in Latest Version
 
 The following string-based properties have been replaced with enum-based properties:
@@ -67,23 +117,41 @@ ScalarSource source = new ScalarSource();
 
 ### Maven
 
-Add the [WebJar dependency](https://central.sonatype.com/artifact/com.scalar.maven/scalar) to your `pom.xml`:
+**For Spring WebMVC applications**, add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
     <groupId>com.scalar.maven</groupId>
-    <artifactId>scalar</artifactId>
-    <version>0.1.0</version>
+    <artifactId>scalar-webmvc</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+**For Spring WebFlux applications**, add:
+
+```xml
+<dependency>
+    <groupId>com.scalar.maven</groupId>
+    <artifactId>scalar-webflux</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
-Add the dependency to your `build.gradle`:
+**For Spring WebMVC applications**, add to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'com.scalar.maven:scalar:0.1.0'
+    implementation 'com.scalar.maven:scalar-webmvc:1.0.0'
+}
+```
+
+**For Spring WebFlux applications**:
+
+```gradle
+dependencies {
+    implementation 'com.scalar.maven:scalar-webflux:1.0.0'
 }
 ```
 
@@ -91,7 +159,9 @@ Or if using Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("com.scalar.maven:scalar:0.1.0")
+    implementation("com.scalar.maven:scalar-webmvc:1.0.0")
+    // or for WebFlux:
+    // implementation("com.scalar.maven:scalar-webflux:1.0.0")
 }
 ```
 
@@ -199,7 +269,8 @@ public class SecurityConfig {
 
 The Scalar integration automatically configures:
 
-- **ScalarController**: Serves the API reference interface
+- **ScalarWebMvcController** or **ScalarWebFluxController**: Serves the API reference interface
+- **ScalarHtmlRenderer**: HTML rendering engine
 - **ScalarProperties**: Configuration properties binding
 - **Static Resources**: JavaScript bundles and HTML templates
 
@@ -209,14 +280,14 @@ The auto-configuration is conditional on:
 
 - `scalar.enabled=true`
 - Spring Boot web starter being present
-- No existing `ScalarController` bean
+- No existing controller bean
 
 ### Excluding Auto-Configuration
 
 To exclude the auto-configuration:
 
 ```java
-@SpringBootApplication(exclude = ScalarAutoConfiguration.class)
+@SpringBootApplication(exclude = ScalarWebMvcAutoConfiguration.class)
 public class MyApplication {
     // ...
 }
@@ -225,7 +296,7 @@ public class MyApplication {
 Or in `application.properties`:
 
 ```properties
-spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
+spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarWebMvcAutoConfiguration
 ```
 
 ## Configuration Properties
