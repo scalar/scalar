@@ -1,8 +1,8 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import { createSidebarState } from '../helpers/create-sidebar-state'

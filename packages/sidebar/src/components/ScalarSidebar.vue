@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 
+import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
