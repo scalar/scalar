@@ -6,8 +6,9 @@ import { createParameterHandlers } from './create-parameter-handlers'
 
 describe('createParameterHandlers', () => {
   const mockMeta: OperationExampleMeta = {
-    operationId: 'test-operation',
-    exampleId: 'test-example',
+    exampleKey: 'test-example',
+    method: 'get',
+    path: '/test',
   }
 
   beforeEach(() => {

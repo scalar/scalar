@@ -1,7 +1,7 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { handleHotkeyDown } from '@/v2/helpers/handle-hotkeys'
+import { handleHotkeys } from '@/v2/helpers/handle-hotkeys'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { useGlobalHotKeys } from './use-global-hot-keys'
@@ -16,9 +16,9 @@ vi.mock('vue', async () => {
   }
 })
 
-// Mock the handleHotkeyDown function
+// Mock the handleHotkeys function
 vi.mock('@/v2/features/app/helpers/handle-hotkey-down', () => ({
-  handleHotkeyDown: vi.fn(),
+  handleHotkeys: vi.fn(),
 }))
 
 describe('use-hot-keys', () => {
@@ -56,7 +56,7 @@ describe('use-hot-keys', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
   })
 
-  it('calls handleHotkeyDown with correct parameters when keydown event fires', () => {
+  it('calls handleHotkeys with correct parameters when keydown event fires', () => {
     const layout: ClientLayout = 'web'
 
     useGlobalHotKeys(mockEventBus, layout)
@@ -70,11 +70,11 @@ describe('use-hot-keys', () => {
     // Trigger the callback
     callback(keyboardEvent)
 
-    expect(handleHotkeyDown).toHaveBeenCalledWith(keyboardEvent, mockEventBus, layout)
-    expect(handleHotkeyDown).toHaveBeenCalledTimes(1)
+    expect(handleHotkeys).toHaveBeenCalledWith(keyboardEvent, mockEventBus, layout)
+    expect(handleHotkeys).toHaveBeenCalledTimes(1)
   })
 
-  it('passes desktop layout to handleHotkeyDown when using desktop layout', () => {
+  it('passes desktop layout to handleHotkeys when using desktop layout', () => {
     const layout: ClientLayout = 'desktop'
 
     useGlobalHotKeys(mockEventBus, layout)
@@ -88,7 +88,7 @@ describe('use-hot-keys', () => {
     // Trigger the callback
     callback(keyboardEvent)
 
-    expect(handleHotkeyDown).toHaveBeenCalledWith(keyboardEvent, mockEventBus, 'desktop')
+    expect(handleHotkeys).toHaveBeenCalledWith(keyboardEvent, mockEventBus, 'desktop')
   })
 
   it('removes the same handler that was added', () => {

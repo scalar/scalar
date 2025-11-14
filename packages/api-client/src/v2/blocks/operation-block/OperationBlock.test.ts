@@ -22,7 +22,7 @@ describe('OperationContainer', () => {
     path: '/pets',
     method: 'get' as const,
     layout: 'web' as const,
-    server: undefined,
+    server: null,
     servers: [],
     history: [],
     totalPerformedRequests: 0,

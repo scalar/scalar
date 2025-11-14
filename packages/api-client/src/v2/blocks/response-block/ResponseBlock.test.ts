@@ -7,9 +7,9 @@ import { defineComponent, markRaw } from 'vue'
 import type { ClientLayout } from '@/hooks'
 import { createStoreEvents } from '@/store/events'
 
+import ResponseEmpty from './components/ResponseEmpty.vue'
+import ResponseMetaInformation from './components/ResponseMetaInformation.vue'
 import ResponseBlock from './ResponseBlock.vue'
-import ResponseEmpty from './ResponseEmpty.vue'
-import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
 const events = createStoreEvents()
 
@@ -65,7 +65,7 @@ describe('ResponseBlock', () => {
     it('emits addRequest when ResponseEmpty emits it', () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('open:command-palette', fn)
+      eventBus.on('ui:open:command-palette', fn)
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
@@ -94,7 +94,7 @@ describe('ResponseBlock', () => {
     it('emits openCommandPalette when ResponseEmpty emits it', () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
-      eventBus.on('open:command-palette', fn)
+      eventBus.on('ui:open:command-palette', fn)
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
