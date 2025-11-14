@@ -27,7 +27,7 @@ import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
 import type { ScalarSidebarItemProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
+const { is = 'li' } = defineProps<ScalarSidebarItemProps>()
 
 defineSlots<{
   /** The text content of the toggle */
@@ -42,7 +42,9 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="group/item group/sidebar-section contents">
+  <component
+    :is="is"
+    v-bind="cx('group/item group/sidebar-section contents')">
     <ScalarSidebarSpacer
       class="group/spacer-before h-3"
       :indent="level" />
@@ -54,15 +56,13 @@ const { cx } = useBindCx()
       :indent="level">
       <slot />
     </ScalarSidebarButton>
-    <component
-      :is="is"
-      v-bind="cx('flex flex-col gap-px')">
+    <ul class="flex flex-col gap-px">
       <slot name="items" />
-    </component>
+    </ul>
     <ScalarSidebarSpacer
       class="group/spacer-after h-3"
       :indent="level" />
-  </li>
+  </component>
 </template>
 <style>
 @reference "../../style.css";

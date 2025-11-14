@@ -33,7 +33,12 @@ import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'ul', controlled } = defineProps<ScalarSidebarGroupProps>()
+const { is = 'li', controlled } = defineProps<ScalarSidebarGroupProps>()
+
+defineEmits<{
+  /** Emitted when the group toggle button is clicked */
+  (e: 'click', event: MouseEvent): void
+}>()
 
 const model = defineModel<boolean>('open', { default: false })
 
@@ -42,10 +47,12 @@ defineSlots<ScalarSidebarGroupSlots>()
 const { level } = useSidebarGroups({ increment: true })
 
 defineOptions({ inheritAttrs: false })
-const { stylingAttrsCx, otherAttrs } = useBindCx()
+const { cx } = useBindCx()
 </script>
 <template>
-  <li class="group/item flex flex-col gap-px">
+  <component
+    v-bind="cx('group/item flex flex-col gap-px')"
+    :is="is">
     <slot
       :level="level"
       name="button"
@@ -58,8 +65,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
         :disabled
         :indent="level"
         :selected
-        v-bind="otherAttrs"
-        @click="!controlled && (model = !model)">
+        @click="($emit('click', $event), !controlled && (model = !model))">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"
@@ -84,13 +90,12 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
         <slot :open="model" />
       </ScalarSidebarButton>
     </slot>
-    <component
-      :is="is"
+    <ul
       v-if="model"
-      v-bind="stylingAttrsCx('group/items flex flex-col gap-px')">
+      class="group/items flex flex-col gap-px">
       <slot
         name="items"
         :open="model" />
-    </component>
-  </li>
+    </ul>
+  </component>
 </template>
