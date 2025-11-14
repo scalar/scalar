@@ -41,7 +41,6 @@
   ],
   "dependencies": {
     "@scalar/components": "workspace:*",
-    "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/themes": "workspace:*",

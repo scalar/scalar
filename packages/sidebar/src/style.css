@@ -10,7 +10,41 @@
 }
 
 @import "@scalar/components/style.css"; /* Component Library Styles */
-@import "@scalar/draggable/style.css"; /* Draggable Library Styles */
+
+/* Draggable Styles */
+.dragover-asChild,
+.dragover-above,
+.dragover-below {
+  position: relative;
+}
+.dragover-above:after,
+.dragover-below:after {
+  content: "";
+  position: absolute;
+  top: -1.5px;
+  height: 3px;
+  width: 100%;
+  display: block;
+  background: color-mix(in srgb, var(--scalar-color-blue), transparent 85%);
+  pointer-events: none;
+  border-radius: var(--scalar-radius);
+}
+.dragover-below:after {
+  top: initial;
+  bottom: -1.5px;
+}
+.dragover-asChild:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: color-mix(in srgb, var(--scalar-color-blue), transparent 85%);
+  pointer-events: none;
+  border-radius: var(--scalar-radius);
+}
 
 /* Search for Tailwind classes in the API Reference */
 @source "./";

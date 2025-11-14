@@ -2371,9 +2371,6 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      '@scalar/draggable':
-        specifier: workspace:*
-        version: link:../draggable
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
