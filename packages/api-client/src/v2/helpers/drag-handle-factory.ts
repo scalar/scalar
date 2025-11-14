@@ -1,4 +1,6 @@
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { dereference } from '@scalar/openapi-parser'
 import { type SidebarState, getParentEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -10,6 +12,7 @@ import type {
   TraversedOperation,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import { type MaybeRefOrGetter, toValue } from 'vue'
@@ -68,14 +71,61 @@ const isEntryType = <Entry extends TraversedEntry, const Type extends TraversedE
   return type.includes(entry.type)
 }
 
+/**
+ * Determines if the hovered item qualifies as a "reorder" operation in drag-and-drop logic.
+ *
+ * Reorder: An offset of 0 or 1 means the item is being moved before or after another item,
+ * rather than being "dropped into" a parent container (which uses offset 2).
+ *
+ * @param hoveredItem - The item currently hovered over during drag-and-drop.
+ * @returns {boolean} True if this is a reorder operation, false if it's a "drop-into-parent".
+ *
+ * @example
+ * isReorder({ offset: 0 }); // true   (before hovered item)
+ * isReorder({ offset: 1 }); // true   (after hovered item)
+ * isReorder({ offset: 2 }); // false  (drop into parent)
+ */
 const isReorder = (hoveredItem: HoveredItem): boolean => {
   return hoveredItem.offset < 2
 }
 
+/**
+ * Determines if the hovered item represents a "drop into parent" operation.
+ *
+ * Drop-into-parent: An offset of 2 means the item should be moved inside a parent container.
+ *
+ * @param hoveredItem - The item currently hovered over during drag-and-drop.
+ * @returns {boolean} True if this is a "drop-into-parent" operation, false otherwise.
+ *
+ * @example
+ * isDrop({ offset: 2 }); // true
+ * isDrop({ offset: 1 }); // false
+ * isDrop({ offset: 0 }); // false
+ */
 const isDrop = (hoveredItem: HoveredItem): boolean => {
   return hoveredItem.offset === 2
 }
 
+/**
+ * Checks if two sidebar entries (dragging and hovered) share the same parent.
+ *
+ * This is useful for determining if items can be reordered within the same context,
+ * such as reordering tags or operations under the same tag or document, during drag-and-drop operations.
+ *
+ * @param draggingItem - The entry currently being dragged (must have a parent to compare).
+ * @param hoveredItem - The entry currently hovered over (must have a parent to compare).
+ * @returns {boolean} True if both entries have the same parent (by id), false otherwise.
+ *
+ * @example
+ * const parent = { id: 'doc-1', type: 'document' };
+ * const tagA = { id: 'tag-1', type: 'tag', parent };
+ * const tagB = { id: 'tag-2', type: 'tag', parent };
+ * itemsShareParent(tagA, tagB); // true
+ *
+ * const otherParent = { id: 'doc-2', type: 'document' };
+ * const tagC = { id: 'tag-3', type: 'tag', parent: otherParent };
+ * itemsShareParent(tagA, tagC); // false
+ */
 const itemsShareParent = (
   draggingItem: TraversedEntry & { parent?: TraversedEntry },
   hoveredItem: TraversedEntry & { parent?: TraversedEntry },
@@ -95,6 +145,27 @@ type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | Traversed
         ? OperationObject
         : never
 
+/**
+ * Retrieves the corresponding OpenAPI object (document, tag, or operation) from the workspace store based on the provided entry.
+ *
+ * This helper abstracts the common lookup logic for working with sidebar/drag-and-drop entries and their associated OpenAPI objects.
+ * Returns `null` when the lookup cannot be completed (e.g., document/tag/operation not found).
+ *
+ * @template Entry Either TraversedDocument, TraversedTag, or TraversedOperation.
+ * @param store - The workspace store containing loaded documents.
+ * @param entry - The sidebar entry (document, tag, or operation).
+ * @returns The corresponding OpenAPI object (WorkspaceDocument, TagObject, or OperationObject) or `null` if not found.
+ *
+ * @example
+ * // For a Document entry:
+ * const document = getOpenapiObject({ store, entry: documentEntry })
+ *
+ * // For a Tag entry:
+ * const tag = getOpenapiObject({ store, entry: tagEntry })
+ *
+ * // For an Operation entry:
+ * const operation = getOpenapiObject({ store, entry: operationEntry })
+ */
 const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | TraversedOperation>({
   store,
   entry,
@@ -105,12 +176,14 @@ const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | Trave
   const documentEntry = getParentEntry('document', entry)
 
   if (!documentEntry) {
+    // If document parent is not found, cannot resolve OpenAPI object
     return null
   }
 
   const document = store.workspace.documents[documentEntry.name]
 
   if (!document) {
+    // Document is not loaded in the store
     return null
   }
 
@@ -119,24 +192,62 @@ const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | Trave
   }
 
   if (entry.type === 'tag') {
+    // Find the tag by name in the document's tags array
     return (document.tags?.find((tag) => tag.name === entry.name) as GetOpenapiObject<Entry> | undefined) ?? null
   }
 
   if (entry.type === 'operation') {
+    // Fetch and resolve the referenced operation object at the given path/method
     return (getResolvedRef(document.paths?.[entry.path]?.[entry.method]) as GetOpenapiObject<Entry> | undefined) ?? null
   }
 
+  // If entry type is unknown, return null
   return null
 }
 
+/**
+ * Triggers the rebuilding of the sidebar for a specific document entry in the workspace.
+ * This is useful after any operation that might alter the sidebar structure
+ * (e.g., after drag-and-drop or adding/removing tags).
+ *
+ * @param store - The WorkspaceStore instance.
+ * @param entry - The sidebar entry, typically a document, tag, or operation.
+ *
+ * Example:
+ *   buildSidebar({ store, entry });
+ *   // After moving an operation or tag, the sidebar will reflect the update.
+ */
 const buildSidebar = ({ store, entry }: { store: WorkspaceStore; entry: TraversedEntry }) => {
   const documentEntry = getParentEntry('document', entry)
 
   if (!documentEntry) {
+    // No parent document found; there is nothing to rebuild.
     return
   }
 
   store.buildSidebar(documentEntry.name)
+}
+
+/**
+ * Retrieves the dereferenced operation object for a given path and method from the workspace document.
+ * This resolves all $ref references so you always get the full, dereferenced operation.
+ *
+ * @param document - The WorkspaceDocument to dereference (may contain $ref).
+ * @param path - The OpenAPI path string (e.g. "/pets/{petId}").
+ * @param method - The HTTP method (e.g. "get", "post").
+ * @returns The fully dereferenced operation object, or undefined if not found.
+ *
+ * Example:
+ *   const operation = getDereferencedOperation(doc, "/pets", "get");
+ *   if (operation) {
+ *     // Access resolved responses, parameters, requestBody, etc.
+ *   }
+ */
+const getDereferencedOperation = (document: WorkspaceDocument, path: string, method: HttpMethod) => {
+  const { schema } = dereference(document)
+  // We cast the schema because we know it's an OpenApiDocument
+  // We also cast the operation object because we know it's an OperationObject and not a ReferenceObject
+  return (schema as OpenApiDocument).paths?.[path]?.[method] as OperationObject | undefined
 }
 
 /**
@@ -269,8 +380,30 @@ export const dragHandleFactory = ({
 
       // Handle moving operations between different documents and/or tags
       if (isEntryType(hoveredItem, ['tag', 'document']) && isDrop(_hoveredItem)) {
+        // Now we need to move the operaiton to the new location
+        const draggingDocumentEntry = getParentEntry('document', draggingItem)
+        const hoveredDocumentEntry = getParentEntry('document', hoveredItem)
+
+        if (!draggingDocumentEntry || !hoveredDocumentEntry) {
+          return false
+        }
+
+        const draggingDocument = getOpenapiObject({ store, entry: draggingDocumentEntry })
+        const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
+
+        if (!draggingDocument || !hoveredDocument) {
+          return false
+        }
+
         // We need to make sure to update the tags fields of the current operation
-        const currentOperation = getOpenapiObject({ store, entry: draggingItem })
+        // We get the dereferenced operation from the dragging document
+        // This is because the internal refs of the operation might be broken after the move
+        // TODO: handle circular refs on the operation
+        const currentOperation = getDereferencedOperation(
+          unpackProxyObject(draggingDocument),
+          draggingItem.path,
+          draggingItem.method,
+        )
 
         if (!currentOperation) {
           return false
@@ -293,21 +426,6 @@ export const dragHandleFactory = ({
 
         // We update the operation tags
         currentOperation.tags = Array.from(tags)
-
-        // Now we need to move the operaiton to the new location
-        const draggingDocumentEntry = getParentEntry('document', draggingItem)
-        const hoveredDocumentEntry = getParentEntry('document', hoveredItem)
-
-        if (!draggingDocumentEntry || !hoveredDocumentEntry) {
-          return false
-        }
-
-        const draggingDocument = getOpenapiObject({ store, entry: draggingDocumentEntry })
-        const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
-
-        if (!draggingDocument || !hoveredDocument) {
-          return false
-        }
 
         // Create a deep copy of the operation before deleting it from the old location
         // This ensures we're assigning a plain object, not a proxy reference that might be broken
@@ -343,18 +461,7 @@ export const dragHandleFactory = ({
           return false
         }
 
-        const oldTarget = getOpenapiObject({ store, entry: draggingParent })
-
-        // TODO: after the self healing, we don't need to manually remove and add the items to the order list
-        // !We would only need to do that on reorder, not on move
-        // Only update the old target, the new target will be updated by the buildSidebar call
-        if (oldTarget?.['x-scalar-order']) {
-          oldTarget['x-scalar-order'] = unpackProxyObject(
-            oldTarget['x-scalar-order'].filter((id: string) => id !== draggingItem.id),
-            { depth: null },
-          )
-        }
-
+        // We don't need to update the order list because the buildSidebar will handle it
         // Rebuild sidebars for both documents
         buildSidebar({ store, entry: draggingParent })
         buildSidebar({ store, entry: hoveredParent })
