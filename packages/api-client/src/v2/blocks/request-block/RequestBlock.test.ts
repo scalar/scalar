@@ -190,7 +190,7 @@ describe('RequestBlock', () => {
       },
     })
 
-    const params = wrapper.findAllComponents({ name: 'OperationParams' })
+    const params = wrapper.findAllComponents({ name: 'RequestParams' })
     expect(params.length).toBe(4)
 
     const titleToType: Record<string, string> = {
@@ -252,7 +252,7 @@ describe('RequestBlock', () => {
     })
 
     const cookies = wrapper
-      .findAllComponents({ name: 'OperationParams' })
+      .findAllComponents({ name: 'RequestParams' })
       .find((p) => (p.props() as any).title === 'Cookies')
     expect(cookies).toBeTruthy()
     cookies!.vm.$emit('deleteAll')

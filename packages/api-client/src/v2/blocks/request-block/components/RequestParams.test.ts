@@ -3,17 +3,6 @@ import { describe, expect, it } from 'vitest'
 
 import RequestParams from './RequestParams.vue'
 
-const ScalarTooltipStub = {
-  name: 'ScalarTooltip',
-  template: '<div><slot /></div>',
-}
-
-const ScalarButtonStub = {
-  name: 'ScalarButton',
-  emits: ['click'],
-  template: '<button @click="$emit(\'click\')"><slot /></button>',
-}
-
 const environment = {
   description: 'Test Environment',
   variables: [],
@@ -28,53 +17,38 @@ describe('RequestParams', () => {
         exampleKey: 'ex',
         title: 'Headers',
         environment,
-        envVariables: [],
-      },
-      global: {
-        stubs: {
-          ScalarTooltip: ScalarTooltipStub,
-          ScalarButton: ScalarButtonStub,
-          RouterLink: true,
-        },
       },
     })
 
-    const table = wrapper.findComponent({ name: 'OperationTable' })
+    const table = wrapper.findComponent({ name: 'RequestTable' })
     expect(table.exists()).toBe(true)
   })
 
-  it('re-emits add, update, and delete events from OperationTable', () => {
+  it('re-emits add, update, and delete events from RequestTable', async () => {
     const wrapper = mount(RequestParams, {
       props: {
         parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } } as any],
         exampleKey: 'ex',
         title: 'Variables',
         environment,
-        envVariables: [],
-      },
-      global: {
-        stubs: {
-          ScalarTooltip: ScalarTooltipStub,
-          ScalarButton: ScalarButtonStub,
-          RouterLink: true,
-        },
       },
     })
 
-    const table = wrapper.findComponent({ name: 'OperationTable' })
+    const table = wrapper.findComponent({ name: 'RequestTable' })
+
     // addRow -> add
-    table.vm.$emit('addRow', { key: 'k', value: 'v' })
+    await table.vm.$emit('addRow', { key: 'k', value: 'v' })
     expect(wrapper.emitted('add')?.[0]?.[0]).toEqual({ key: 'k', value: 'v' })
 
     // updateRow -> update
-    table.vm.$emit('updateRow', 1, { key: 'x', value: 'y', isEnabled: true })
+    await table.vm.$emit('updateRow', 1, { key: 'x', value: 'y', isEnabled: true })
     expect(wrapper.emitted('update')?.[0]?.[0]).toEqual({
       index: 1,
       payload: { key: 'x', value: 'y', isEnabled: true },
     })
 
     // deleteRow -> delete
-    table.vm.$emit('deleteRow', 2)
+    await table.vm.$emit('deleteRow', 2)
     expect(wrapper.emitted('delete')?.[0]?.[0]).toEqual({ index: 2 })
   })
 })
