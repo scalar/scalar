@@ -8,8 +8,7 @@ import Authentication from './Authentication.vue'
 
 describe('Authentication', () => {
   const baseDocument = {
-    uid: 'doc-1',
-    'x-scalar-document-security': true,
+    'x-scalar-set-operation-security': true,
     'x-scalar-selected-server': 'https://api.example.com',
     'x-scalar-selected-security': {
       selectedIndex: 0,
@@ -105,7 +104,7 @@ describe('Authentication', () => {
     const { wrapper } = mountWithProps({
       document: {
         ...baseDocument,
-        'x-scalar-document-security': false,
+        'x-scalar-set-operation-security': false,
       },
     })
 
