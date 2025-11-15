@@ -74,7 +74,7 @@ describe('DocumentCollection', () => {
   it('renders document with title and icon when document is provided', async () => {
     const document = createMockDocument({
       info: { title: 'My API', version: '1.0.0' },
-      'x-scalar-client-config-icon': 'interface-content-book',
+      'x-scalar-icon': 'interface-content-book',
     })
 
     const { wrapper } = await mountWithRouter(document)

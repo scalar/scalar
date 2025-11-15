@@ -108,6 +108,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
+    "@scalar/object-utils": "workspace:*",
     "github-slugger": "^2.0.0",
     "type-fest": "catalog:*",
     "vue": "catalog:*",

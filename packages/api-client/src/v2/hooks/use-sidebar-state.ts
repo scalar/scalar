@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import { createSidebarState, generateReverseIndex, getParentEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
@@ -45,8 +45,10 @@ export const useSidebarState = ({
       return []
     }
 
-    return Object.values(store.workspace.documents)
-      .map((doc) => doc['x-scalar-navigation'])
+    const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
+
+    return order
+      .map((doc) => store.workspace.documents[doc]?.['x-scalar-navigation'])
       .filter(isDefined) as TraversedEntry[]
   })
 
@@ -62,29 +64,6 @@ export const useSidebarState = ({
       immediate: true,
     },
   )
-
-  /**
-   * Traverses up the tree to find and return the closest parent node (including self) of a specified type.
-   *
-   * @template Type - The type of node to look for.
-   * @param type - The type to match in the parent chain.
-   * @param node - The node from which traversal begins.
-   * @returns The closest parent node of the specified type, or undefined if not found.
-   */
-  const getParent = <Type extends TraversedEntry['type']>(
-    type: Type,
-    node?: TraversedEntry & { parent?: TraversedEntry },
-  ): (TraversedEntry & { type: Type }) | undefined => {
-    if (!node) {
-      return undefined
-    }
-
-    if (node.type === type) {
-      return node as TraversedEntry & { type: Type }
-    }
-
-    return getParent(type, node.parent)
-  }
 
   /**
    * Generates a unique string ID for an API location, based on the document, path, method, and example.
@@ -124,8 +103,8 @@ export const useSidebarState = ({
       nestedKey: 'children',
       filter: (node) => node.type === 'document' || node.type === 'operation' || node.type === 'example',
       getId: (node) => {
-        const document = getParent('document', node)
-        const operation = getParent('operation', node)
+        const document = getParentEntry('document', node)
+        const operation = getParentEntry('operation', node)
         return generateId({
           document: document?.name ?? '',
           path: operation?.path,
@@ -216,7 +195,7 @@ export const useSidebarState = ({
       return router.push({
         name: 'example',
         params: {
-          documentSlug: getParent('document', entry)?.name,
+          documentSlug: getParentEntry('document', entry)?.name,
           pathEncoded: encodeURIComponent(entry.path),
           method: entry.method,
           exampleName: firstExample?.name ?? 'default',
@@ -228,14 +207,23 @@ export const useSidebarState = ({
     if (entry.type === 'example') {
       state.setSelected(id)
       state.setExpanded(id, true)
-      const operation = getParent('operation', entry)
+      const operation = getParentEntry('operation', entry)
       return router.push({
         name: 'example',
         params: {
-          documentSlug: getParent('document', entry)?.name,
+          documentSlug: getParentEntry('document', entry)?.name,
           pathEncoded: encodeURIComponent(operation?.path ?? ''),
           method: operation?.method,
           exampleName: entry.name,
+        },
+      })
+    }
+
+    if (entry.type === 'text') {
+      return router.push({
+        name: 'document.overview',
+        params: {
+          documentSlug: getParentEntry('document', entry)?.name,
         },
       })
     }

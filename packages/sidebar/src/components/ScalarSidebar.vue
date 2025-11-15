@@ -6,20 +6,61 @@ import type { Item } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
 
-const { layout, items } = defineProps<{
-  /** Layout type */
+const {
+  layout,
+  items,
+  indent = 20,
+} = defineProps<{
+  /**
+   * Layout type for the sidebar.
+   * Determines whether the sidebar should behave in 'client' or 'reference' mode.
+   */
   layout: 'client' | 'reference'
-  /** Sidebar state */
+  /**
+   * List of items to render in the sidebar.
+   */
   items: Item[]
+  /**
+   * Function to determine whether a given item (by id) is currently selected.
+   */
   isSelected: (id: string) => boolean
+  /**
+   * Function to determine whether a given item (by id) is currently expanded (open to show children).
+   */
   isExpanded: (id: string) => boolean
+  /**
+   * Sidebar configuration options.
+   * - operationTitleSource: sets whether operations show their path or summary as the display title.
+   */
   options?: {
     operationTitleSource: 'path' | 'summary' | undefined
   }
+  /**
+   * The indentation in pixels to apply to nested items/groups in the sidebar.
+   */
+  indent?: number
+  /**
+   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emit = defineEmits<{
+  /**
+   * Emitted when the user reorders sidebar items via drag-and-drop.
+   * @param draggingItem - The item being dragged.
+   * @param hoveredItem - The item currently being hovered over.
+   */
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+
+  /**
+   * Emitted when a sidebar item is selected.
+   * @param id - The id of the selected item.
+   */
   (e: 'selectItem', id: string): void
 }>()
 
@@ -48,7 +89,11 @@ const handleDragEnd = (
 }
 </script>
 <template>
-  <ScalarSidebar class="flex min-h-0 flex-col">
+  <ScalarSidebar
+    class="flex min-h-0 flex-col"
+    :style="{
+      '--scalar-sidebar-indent': indent + 'px',
+    }">
     <slot name="header" />
     <slot>
       <ScalarSidebarItems class="custom-scroll pt-0">
@@ -58,6 +103,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="item in items"
           :key="item.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="item"

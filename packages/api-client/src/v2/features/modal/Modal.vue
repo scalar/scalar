@@ -1,5 +1,6 @@
 <script lang="ts">
 export type ModalProps = {
+  // eslint-disable-next-line vue/no-unused-properties
   workspaceStore: WorkspaceStore
   modalState: ModalState
 }
@@ -29,10 +30,7 @@ import {
   watch,
 } from 'vue'
 
-import { Sidebar } from '@/v2/components/sidebar'
-import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
-
-const { workspaceStore, modalState } = defineProps<ModalProps>()
+const { modalState } = defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -45,14 +43,14 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
 
 // TODO: replace me
 // We probably will not use a router/sidebar for modal mode
-const { sidebarState } = useSidebarState({
-  workspaceStore,
-  workspaceSlug: 'default',
-  documentSlug: '',
-  exampleName: '',
-  method: 'get',
-  path: '',
-})
+// const { sidebarState } = useSidebarState({
+//   workspaceStore,
+//   workspaceSlug: 'default',
+//   documentSlug: '',
+//   exampleName: '',
+//   method: 'get',
+//   path: '',
+// })
 
 /**
  * Close the modal on escape
@@ -92,9 +90,6 @@ onBeforeMount(() => addScalarClassesToHeadless())
 onBeforeUnmount(() => {
   cleanUpListeners()
 })
-
-/** Controls the visibility of the sidebar */
-const isSidebarOpen = ref(true)
 </script>
 
 <template>
@@ -112,7 +107,7 @@ const isSidebarOpen = ref(true)
         tabindex="-1">
         <ScalarTeleportRoot>
           <main class="flex flex-1 flex-row">
-            <Sidebar
+            <!-- <Sidebar
               :activeWorkspace="{ name: 'Default', id: 'default' }"
               :workspaces="[]"
               v-show="isSidebarOpen"
@@ -125,7 +120,7 @@ const isSidebarOpen = ref(true)
               @update:sidebarWidth="
                 (width) =>
                   workspaceStore.update('x-scalar-sidebar-width', width)
-              " />
+              " /> -->
 
             <!-- Insert the operation page here -->
             Insert operation page here

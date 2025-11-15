@@ -79,6 +79,7 @@ const startDrag = (event: MouseEvent) => {
   bottom: 0;
   border-right: 2px solid transparent;
   transition: border-right-color 0.3s;
+  z-index: 100;
 }
 </style>
 <style>

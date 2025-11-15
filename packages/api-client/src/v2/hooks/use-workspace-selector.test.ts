@@ -109,7 +109,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     expect(activeWorkspace.value).not.toBeNull()
     assert(activeWorkspace.value)
     expect(activeWorkspace.value.id).toBe('default')
-    expect(activeWorkspace.value.name).toBe('Default')
+    expect(activeWorkspace.value.name).toBe('Default Workspace')
 
     // create a new workspace
     await createWorkspace({ name: 'New Workspace' })

@@ -5,7 +5,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components'
 import { Draggable } from '@scalar/draggable'
-import { ScalarIconFolder } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -351,7 +351,7 @@ describe('SidebarItem', () => {
         },
       })
 
-      expect(wrapper.findComponent(ScalarIconFolder).exists()).toBe(true)
+      expect(wrapper.findComponent(LibraryIcon).exists()).toBe(true)
     })
   })
 
