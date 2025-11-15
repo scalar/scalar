@@ -6,7 +6,7 @@ import { computed, useId } from 'vue'
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 
 const { server, serverOption } = defineProps<{
-  server: ServerObject | undefined
+  server: ServerObject | null
   serverOption: {
     id: string
     label: string
@@ -27,12 +27,7 @@ const hasVariables = () => {
 }
 
 const isSelectedServer = computed(() => serverOption.id === server?.url)
-
 const isExpanded = computed(() => isSelectedServer.value && hasVariables())
-
-const updateServerVariable = (key: string, value: string) => {
-  emit('update:variable', key, value)
-}
 </script>
 <template>
   <div
@@ -58,7 +53,9 @@ const updateServerVariable = (key: string, value: string) => {
       @click.stop>
       <ServerVariablesForm
         :variables="server?.variables"
-        @update:variable="updateServerVariable" />
+        @update:variable="
+          (key, value) => emit('update:variable', key, value)
+        " />
       <!-- Description -->
       <div v-if="server?.description">
         <div class="description text-c-3 px-3 py-1.5">

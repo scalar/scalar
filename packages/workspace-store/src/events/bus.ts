@@ -1,3 +1,5 @@
+import { debounce } from '@scalar/helpers/general/debounce'
+
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
 import type { ApiReferenceEvents } from './definitions'
@@ -15,10 +17,13 @@ type EventListener<E extends keyof ApiReferenceEvents> = undefined extends ApiRe
 /**
  * Helper type for emit parameters that uses rest parameters
  * for a cleaner API surface.
+ *
+ * @example
+ * bus.emit('scalar-update-sidebar', { value: true }, { debounceKey: 'test' })
  */
 type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiReferenceEvents[E]
-  ? [event: E, payload?: ApiReferenceEvents[E]]
-  : [event: E, payload: ApiReferenceEvents[E]]
+  ? [event: E, payload?: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean; debounceKey?: string }]
+  : [event: E, payload: ApiReferenceEvents[E], options?: { skipUnpackProxy?: boolean; debounceKey?: string }]
 
 /**
  * Type-safe event bus for workspace events
@@ -62,6 +67,9 @@ export type WorkspaceEventBus = {
    *
    * @param event - The event name to emit
    * @param payload - The event detail payload (optional if event allows undefined)
+   * @param options.skipUnpackProxy - Whether to skip unpacking the proxy object,
+   * useful if we are sure there is no proxy OR when passing js events like keyboard events.
+   * @param options.debounceKey - If present we will debounce the event by the key + event name.
    *
    * @example
    * bus.emit('scalar-update-sidebar', { value: true })
@@ -116,23 +124,69 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const events = new Map<keyof ApiReferenceEvents, ListenerSet>()
 
   /**
+   * Track pending log entries for batching
+   */
+  type PendingLogEntry = { message: string; args: unknown[] }
+  const pendingLogs: PendingLogEntry[] = []
+  let logTimeout: ReturnType<typeof setTimeout> | null = null
+
+  /**
+   * Single debounce instance for all debounced emits
+   * Uses keys to separate different event + debounceKey combinations
+   */
+  const { execute: debouncedEmitter } = debounce({ delay: 328 })
+
+  /**
    * Get or create a listener set for an event
    */
   const getListeners = <E extends keyof ApiReferenceEvents>(event: E): ListenerSet => {
-    let listeners = events.get(event)
-    if (!listeners) {
-      listeners = new Set()
-      events.set(event, listeners)
-    }
+    const listeners = events.get(event) ?? new Set()
+    events.set(event, listeners)
     return listeners
   }
 
   /**
+   * Flush batched logs using console.groupCollapsed
+   */
+  const flushLogs = (): void => {
+    if (pendingLogs.length === 0) {
+      return
+    }
+
+    if (debug) {
+      if (pendingLogs.length === 1) {
+        // Only one log, output it normally without grouping
+        const firstLog = pendingLogs[0]
+        if (firstLog) {
+          console.log(`[EventBus] ${firstLog.message}`, ...firstLog.args)
+        }
+      } else {
+        // Multiple logs, use a collapsed group
+        console.groupCollapsed(`[EventBus] ${pendingLogs.length} operations`)
+        for (const { message, args } of pendingLogs) {
+          console.log(message, ...args)
+        }
+        console.groupEnd()
+      }
+    }
+
+    pendingLogs.length = 0
+    logTimeout = null
+  }
+
+  /**
    * Log debug information if debug mode is enabled
+   * Batches multiple logs together using console.groupCollapsed
    */
   const log = (message: string, ...args: unknown[]): void => {
     if (debug) {
-      console.log(`[EventBus] ${message}`, ...args)
+      pendingLogs.push({ message, args })
+
+      // Clear existing timeout and set a new one to batch logs
+      if (logTimeout) {
+        clearTimeout(logTimeout)
+      }
+      logTimeout = setTimeout(flushLogs, 500)
     }
   }
 
@@ -159,17 +213,23 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     }
   }
 
-  const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
-    const [event, payload] = args
-
+  /**
+   * Internal function that performs the actual emission logic
+   * This is extracted so it can be wrapped with debouncing
+   */
+  const performEmit = <E extends keyof ApiReferenceEvents>(
+    event: E,
+    payload: ApiReferenceEvents[E] | undefined,
+    options?: { skipUnpackProxy?: boolean },
+  ): void => {
     // We unpack the payload here to ensure that, within mutators, we are not assigning proxies directly,
     // but are always assigning plain objects 5 level depth.
-    const unpackedPayload = unpackProxyObject(payload, { depth: 5 })
+    const unpackedPayload = options?.skipUnpackProxy ? payload : unpackProxyObject(payload, { depth: 5 })
 
     const listeners = events.get(event)
 
     if (!listeners || listeners.size === 0) {
-      log(`No listeners for "${String(event)}"`)
+      log(`🛑 No listeners for "${String(event)}"`)
       return
     }
 
@@ -187,6 +247,22 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
         console.error(`[EventBus] Error in listener for "${String(event)}":`, error)
       }
     }
+  }
+
+  const emit = <E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void => {
+    const [event, payload, options] = args
+
+    // If no debounce key is provided, emit immediately
+    if (!options?.debounceKey) {
+      performEmit(event, payload, options)
+      return
+    }
+
+    // Create a unique key for this event + debounce key combination
+    const debounceMapKey = `${event}-${options.debounceKey}`
+
+    // Pass the closure directly - debounce will store the latest version
+    debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
   return {

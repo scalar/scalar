@@ -1,14 +1,14 @@
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
- * Toggle use document security
+ * Toggle setting selected security schemes at the operation level
  */
-export const toggleDocumentSecurity = (document: WorkspaceDocument | null) => {
+export const toggleSecurity = (document: WorkspaceDocument | null) => {
   if (!document) {
     return
   }
 
-  document['x-scalar-document-security'] = !document['x-scalar-document-security']
+  document['x-scalar-set-operation-security'] = !document['x-scalar-set-operation-security']
 }
 
 export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: boolean) => {

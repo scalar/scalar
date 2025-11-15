@@ -22,7 +22,7 @@ describe('Header', () => {
     integration: null as string | null,
     documentUrl: undefined as string | undefined,
     source: 'api-reference' as const,
-    server: undefined,
+    server: null,
     servers: [] as any[],
     history: [] as any[],
     requestLoadingPercentage: undefined as number | undefined,

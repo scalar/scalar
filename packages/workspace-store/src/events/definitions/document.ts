@@ -13,9 +13,9 @@ export type DocumentEvents = {
    */
   'document:update:icon': string
   /**
-   * Toggle use document security
+   * Toggle setting selected security schemes at the operation level
    */
-  'document:toggle:document-security': undefined
+  'document:toggle:security': undefined
   /**
    * Update the watch mode of the document
    *

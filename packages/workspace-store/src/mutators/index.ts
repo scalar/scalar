@@ -142,7 +142,7 @@ export {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from './auth'
-export { toggleDocumentSecurity, updateWatchMode } from './document'
+export { toggleSecurity, updateWatchMode } from './document'
 export {
   upsertEnvironment,
   upsertEnvironmentVariable,
@@ -155,9 +155,9 @@ export {
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
-  updateOperationMethodDraft as updateOperationMethod,
+  updateOperationMethod,
   updateOperationParameter,
-  updateOperationPathDraft as updateOperationPath,
+  updateOperationPath,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
