@@ -3,7 +3,7 @@ packages:
   - integrations/**/*
   - packages/**/*
   - playwright
-  - scripts
+  - tooling/scripts
   - projects/**/*
   - '!**/.next/**'
   - '!**/dist/**'
@@ -57,6 +57,7 @@ catalogs:
     fuse.js: ^7.1.0
     hono: 4.10.3
     js-base64: ^3.7.8
+    jsdom: 26.1.0
     microdiff: ^1.5.0
     nanoid: 5.1.5
     next: ^15.4.7

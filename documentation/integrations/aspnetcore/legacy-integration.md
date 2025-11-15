@@ -4,7 +4,7 @@ This guide explains how to integrate Scalar API Reference into .NET Framework an
 
 ## Prerequisites
 
-- An ASP.NET or ASP.NET Core application with OpenAPI support (using `Swashbuckle.AspNetCore.SwaggerGen` or `NSwag`)
+- An ASP.NET or ASP.NET Core application with OpenAPI support (using `Swashbuckle.AspNetCore.SwaggerGen` or `NSwag.AspNetCore`)
 
 
 ## Step 1: Enable OpenAPI support in your project

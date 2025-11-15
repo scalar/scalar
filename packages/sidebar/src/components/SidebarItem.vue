@@ -4,13 +4,13 @@ import {
   ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
+  ScalarWrappingText,
 } from '@scalar/components'
 import {
   Draggable,
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import { LibraryIcon } from '@scalar/icons/library'
 
 import type { Item } from '@/types'
@@ -127,12 +127,12 @@ const handleDragEnd = (
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="child"
           :layout="layout"
           :options="options"
-          :isDroppable="isDroppable"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
           <template #decorator="slotProps">
@@ -183,13 +183,13 @@ const handleDragEnd = (
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="child"
           :layout="layout"
           :options="options"
           :parentIds="[]"
-          :isDroppable="isDroppable"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emits('selectItem', id)">
           <template #decorator="slotProps">
@@ -207,14 +207,17 @@ const handleDragEnd = (
       :selected="isSelected(item.id)"
       @click="() => emits('selectItem', item.id)">
       <template v-if="item.type === 'model'">
-        {{ addWordBreaks(item.title, { preset: 'property' }) }}
+        <ScalarWrappingText
+          preset="property"
+          :text="item.title" />
       </template>
       <template v-else>
-        {{
-          options?.operationTitleSource === 'path' && 'path' in item
-            ? addWordBreaks(item.path)
-            : addWordBreaks(item.title)
-        }}
+        <ScalarWrappingText
+          :text="
+            options?.operationTitleSource === 'path' && 'path' in item
+              ? item.path
+              : item.title
+          " />
       </template>
       <template
         v-if="'method' in item || $slots.decorator"

@@ -22,6 +22,7 @@
 **/.docusaurus/**
 **/obj/**
 **/bin/**
+**/target/**
 integrations/docker/assets/**
 
 **/vite.config.ts.timestamp-*.mjs

@@ -1,4 +1,4 @@
-import { alias } from '@scalar/build-tooling'
+import { alias } from '@scalar/build-tooling/vite'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -11,9 +11,5 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    coverage: {
-      include: ['src/**'],
-      reporter: ['text'],
-    },
   },
 })

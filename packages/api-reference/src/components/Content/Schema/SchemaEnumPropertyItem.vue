@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components'
-import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
+import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
 
 defineProps<{
   label: string
@@ -11,9 +10,11 @@ defineProps<{
 <template>
   <li class="property-enum-value">
     <div class="property-enum-value-content">
-      <span class="property-enum-value-label">{{
-        addWordBreaks(label, { preset: 'property' })
-      }}</span>
+      <span class="property-enum-value-label">
+        <ScalarWrappingText
+          :text="label"
+          preset="property" />
+      </span>
       <span
         v-if="description"
         class="property-enum-value-description">

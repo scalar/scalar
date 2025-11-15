@@ -8,18 +8,15 @@
     "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/build-tooling/**",
     "packages/code-highlight/**",
     "packages/components/**",
     "packages/core/**",
     "packages/draggable/**",
     "packages/galaxy/**",
-    "packages/helpers/**",
     "packages/icons/**",
     "packages/import/**",
     "packages/json-magic/**",
     "packages/nextjs-openapi/**",
-    "packages/object-utils/**",
     "packages/openapi-parser/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
@@ -74,6 +71,12 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/build-tooling": {
+      "entry": ["src/index.ts", "src/{esbuild,rollup,vite}/index.ts"]
+    },
+    "packages/helpers": {
+      "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
+    },
     "packages/oas-utils": {
       "entry": [
         "src/entities/*/index.ts",
@@ -83,6 +86,9 @@
         "src/spec-getters/index.ts",
         "src/transforms/index.ts"
       ]
+    },
+    "packages/object-utils": {
+      "entry": ["src/*/index.ts"]
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts", "src/schemas/extensions/index.ts", "src/schemas/3.1/*/index.ts"]

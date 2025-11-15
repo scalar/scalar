@@ -53,8 +53,7 @@ Here's an example of a basic `rollup.config.ts` file:
 
 ```typescript
 import type { RollupOptions } from 'rollup'
-
-import { createRollupConfig } from './src/rollup-options'
+import { createRollupConfig } from '@scalar/build-tooling/rollup'
 
 const options: RollupOptions = {
   // Specify the entry point(s) for your build
@@ -82,11 +81,8 @@ While Vite uses Rollup under the hood for production builds, it provides additio
 A basic Vite configuration for a Vue project might look like this:
 
 ```typescript
-import {
-  alias,
-  createViteBuildOptions,
-  findEntryPoints,
-} from '@scalar/build-tooling'
+import { alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
+import { findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 

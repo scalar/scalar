@@ -1,4 +1,4 @@
-// Checkout /scripts/README.md for more information on how to use this command.
+// Checkout /tooling/scripts/README.md for more information on how to use this command.
 
 import type { Dirent } from 'node:fs'
 import fs from 'node:fs/promises'

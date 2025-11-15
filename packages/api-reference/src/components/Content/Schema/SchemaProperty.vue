@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { addWordBreaks } from '@scalar/helpers/string/add-word-breaks'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -55,8 +54,6 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
-/** Helper to format the property label */
-const formatLabel = (s: string) => addWordBreaks(s, { preset: 'property' })
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb && props.name
@@ -288,16 +285,22 @@ const compositionsToRender = computed(() => {
           :eventBus="eventBus">
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
-              {{ formatLabel(name) }}
+              <ScalarWrappingText
+                :text="name"
+                preset="property" />
             </span>
           </template>
           <template v-else-if="variant === 'additionalProperties'">
             <span class="property-name-additional-properties">
-              {{ formatLabel(name) }}
+              <ScalarWrappingText
+                :text="name"
+                preset="property" />
             </span>
           </template>
           <template v-else>
-            {{ formatLabel(name) }}
+            <ScalarWrappingText
+              :text="name"
+              preset="property" />
           </template>
         </WithBreadcrumb>
       </template>
