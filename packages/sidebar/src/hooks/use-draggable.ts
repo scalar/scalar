@@ -1,3 +1,4 @@
+import { cva } from '@scalar/use-hooks/useBindCx'
 import { type MaybeRef, type Ref, computed, ref, toValue } from 'vue'
 
 /**
@@ -36,6 +37,18 @@ const throttle = (callback: (...args: any) => void, limit: number) => {
     setTimeout(() => (wait = false), limit)
   }
 }
+
+/** Draggable class variants to  */
+const draggableVariants = cva({
+  base: 'relative after:absolute after:w-full after:block after:bg-blue after:opacity-15 after:pointer-events-none after:rounded',
+  variants: {
+    position: {
+      above: 'after:-top-0.25 after:h-0.75',
+      below: 'after:-bottom-0.25 after:h-0.75',
+      asChild: 'after:inset-0',
+    },
+  },
+})
 
 /**
  * Shared state for drag and drop operations
@@ -192,16 +205,17 @@ export function useDraggable(options: UseDraggableOptions) {
     onDragEnd?.(_draggingItem, _hoveredItem)
   }
 
-  // Set above middle below classes based on offset
-  const positionDict = ['above', 'below', 'asChild']
   const draggableClass = computed(() => {
-    let classList = 'sidebar-indent-nested'
+    const position =
+      id === hoveredItem.value?.id
+        ? (['above', 'below', 'asChild'][hoveredItem.value.offset] as 'above' | 'below' | 'asChild' | undefined)
+        : undefined
 
-    if (id === hoveredItem.value?.id) {
-      classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
+    if (!position) {
+      return ''
     }
 
-    return classList
+    return draggableVariants({ position })
   })
 
   /**

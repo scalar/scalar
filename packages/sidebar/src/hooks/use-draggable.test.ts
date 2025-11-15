@@ -12,7 +12,7 @@ describe('useDraggable', () => {
 
     expect(draggingItem.value).toBeNull()
     expect(hoveredItem.value).toBeNull()
-    expect(draggableProps.value.class).toBe('sidebar-indent-nested')
+    expect(draggableProps.value.class).toBe('')
     expect(draggableProps.value.draggable).toBe(true)
   })
 
