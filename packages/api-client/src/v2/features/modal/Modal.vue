@@ -1,5 +1,6 @@
 <script lang="ts">
 export type ModalProps = {
+  // eslint-disable-next-line vue/no-unused-properties
   workspaceStore: WorkspaceStore
   modalState: ModalState
 }
@@ -29,10 +30,7 @@ import {
   watch,
 } from 'vue'
 
-import { Sidebar } from '@/v2/components/sidebar'
-import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
-
-const { workspaceStore, modalState } = defineProps<ModalProps>()
+const { modalState } = defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
