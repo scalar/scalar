@@ -485,14 +485,20 @@ const exampleOptions = computed(() => {
 const selectedExample = computed({
   get: () => {
     const rawValue = example.body.raw?.value ?? '{}'
-    const parsedValue = JSON.parse(rawValue)
-    const getExample = exampleOptions.value.find((e) => {
-      const exampleValue = e.value as {
-        value: Record<string, string>
-      }
-      return JSON.stringify(exampleValue.value) === JSON.stringify(parsedValue)
-    })
-    return getExample ?? exampleOptions.value[0]
+    try {
+      const parsedValue = JSON.parse(rawValue)
+      const getExample = exampleOptions.value.find((e) => {
+        const exampleValue = e.value as {
+          value: Record<string, string>
+        }
+        return (
+          JSON.stringify(exampleValue.value) === JSON.stringify(parsedValue)
+        )
+      })
+      return getExample ?? exampleOptions.value[0]
+    } catch {
+      return exampleOptions.value[0]
+    }
   },
   set: (opt) => {
     if (opt?.id) {
