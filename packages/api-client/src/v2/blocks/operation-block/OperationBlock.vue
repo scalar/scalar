@@ -25,7 +25,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import { computed } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -102,13 +101,6 @@ const emit = defineEmits<{
   (e: 'update:servers'): void
 }>()
 
-/**
- * We use a draft method and path to allow the user to explicitly save the method or path changes
- * as it re-calculates the sidebar and we need to ensure they don't conflict
- */
-const draftMethod = computed(() => operation['x-scalar-method'] ?? method)
-const draftPath = computed(() => operation['x-scalar-path'] ?? path)
-
 /** Execute the current operation example */
 const handleExecute = () =>
   eventBus.emit('operation:send:request', {
@@ -129,15 +121,19 @@ const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
 
 /** Update the path for the operation in its draft state */
 const handleUpdatePath = (payload: { value: string }) =>
-  eventBus.emit('operation:update:path', {
-    meta: {
-      method,
-      path,
+  eventBus.emit(
+    'operation:update:path',
+    {
+      meta: {
+        method,
+        path,
+      },
+      payload: {
+        path: payload.value,
+      },
     },
-    payload: {
-      path: payload.value,
-    },
-  })
+    { debounceKey: 'operation-update-path' },
+  )
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -153,8 +149,8 @@ const handleUpdatePath = (payload: { value: string }) =>
         :integration
         :isSidebarOpen
         :layout
-        :method="draftMethod"
-        :path="draftPath"
+        :method
+        :path
         :percentage="requestLoadingPercentage"
         :server
         :servers
@@ -175,9 +171,9 @@ const handleUpdatePath = (payload: { value: string }) =>
           :eventBus
           :exampleKey
           :layout
-          :method="draftMethod"
+          :method
           :operation
-          :path="draftPath"
+          :path
           :plugins
           :security
           :securitySchemes

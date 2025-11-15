@@ -134,7 +134,7 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Single debounce instance for all debounced emits
    * Uses keys to separate different event + debounceKey combinations
    */
-  const { execute: debouncedEmitter } = debounce({ delay: 328, maxWait: 5000 })
+  const { execute: debouncedEmitter } = debounce({ delay: 328 })
 
   /**
    * Get or create a listener set for an event
