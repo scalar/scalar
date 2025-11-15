@@ -9,7 +9,7 @@ const { document, eventBus, environment } = defineProps<CollectionProps>()
 
 /** If enabled we use/set the selected security schemes on the document level */
 const useDocumentSecurity = computed(
-  () => document?.['x-scalar-document-security'] ?? false,
+  () => document?.['x-scalar-set-operation-security'] ?? false,
 )
 
 /** Grab the currently selected server for relative auth URIs */
@@ -30,7 +30,7 @@ const server = computed(() =>
           class="w-4"
           :modelValue="useDocumentSecurity"
           @update:modelValue="
-            () => eventBus.emit('document:toggle:document-security')
+            () => eventBus.emit('document:toggle:security')
           " />
       </div>
       <p class="pr-6 text-sm">

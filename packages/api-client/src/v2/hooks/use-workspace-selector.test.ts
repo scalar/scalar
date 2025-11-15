@@ -38,7 +38,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     expect(store.value).toBeNull()
   })
 
-  it('should create a default workspace with a draft document when the default workspace is selected', async () => {
+  it('should create a default workspace with a drafts document when the default workspace is selected', async () => {
     const persistence = await persistencePromise
     const workspaces = await persistence.workspace.getAll()
 
@@ -55,12 +55,12 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
 
     expect(store.value).not.toBeNull()
     assert(store.value)
-    expect(store.value.workspace.documents['draft']).not.toBeNull()
+    expect(store.value.workspace.documents['drafts']).not.toBeNull()
 
-    assert(store.value.workspace.documents['draft'])
-    expect(store.value.workspace.documents['draft'].info?.title).toBe('Draft')
-    expect(store.value.workspace.documents['draft'].openapi).toBe('3.1.0')
-    expect(store.value.workspace.documents['draft'].paths).not.toBeNull()
+    assert(store.value.workspace.documents['drafts'])
+    expect(store.value.workspace.documents['drafts'].info?.title).toBe('Drafts')
+    expect(store.value.workspace.documents['drafts'].openapi).toBe('3.1.0')
+    expect(store.value.workspace.documents['drafts'].paths).not.toBeNull()
 
     // check that a workspace was created
     expect(await persistence.workspace.getAll()).toHaveLength(1)

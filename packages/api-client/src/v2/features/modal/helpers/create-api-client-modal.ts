@@ -48,7 +48,6 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   // Pass in our initial props at the top level
   const app = createApp(Modal, {
     workspaceStore,
-    activeEntities,
     modalState,
   } satisfies ModalProps)
 

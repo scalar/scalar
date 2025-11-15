@@ -5,29 +5,59 @@ export type UIEvents = {
   /**
    * Download the document from the store
    */
-  'download:document': {
+  'ui:download:document': {
     /** Format to download the document in */
     format: 'json' | 'yaml' | 'direct'
   }
   /**
+   * Focus the address bar
+   */
+  'ui:focus:address-bar': {
+    event: KeyboardEvent
+  }
+  /**
+   * Focus the send button
+   */
+  'ui:focus:send-button': {
+    event: KeyboardEvent
+  }
+  /**
+   * Focus the search
+   */
+  'ui:focus:search': {
+    event: KeyboardEvent
+  }
+  /**
+   * Toggle the sidebar
+   */
+  'ui:toggle:sidebar': {
+    event: KeyboardEvent
+  }
+  /**
    * Open the Api Client modal to a specific operation
    */
-  'open:client': {
+  'ui:open:client-modal': {
     /** The HTTP method of the operation to load */
     method: HttpMethod
     /** The path of the operation to load */
     path: string
+    /** The example name to load */
+    exampleName?: string
   }
   /**
-   * Open our command palette
+   * Close the client modal
    */
-  'open:command-palette':
-    | 'import'
-    | 'addServer'
-    | 'addCollection'
-    | 'addTag'
-    | 'addExample'
-    | 'addOperation'
+  'ui:close:client-modal': {
+    event: KeyboardEvent
+  }
+  /**
+   * Open the command palette
+   */
+  'ui:open:command-palette':
+    | {
+        action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
+        event?: KeyboardEvent
+      }
     | undefined
 
   /** Set a navigation item's (such as a tag or operation) expanded state */

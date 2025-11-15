@@ -215,15 +215,15 @@
       "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
       "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
     },
-    "./v2/blocks/scalar-operation-block": {
-      "import": "./dist/v2/blocks/scalar-operation-block/index.js",
-      "types": "./dist/v2/blocks/scalar-operation-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-operation-block/index.js"
+    "./v2/blocks/operation-block": {
+      "import": "./dist/v2/blocks/operation-block/index.js",
+      "types": "./dist/v2/blocks/operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/operation-block/index.js"
     },
-    "./v2/blocks/scalar-response-block": {
-      "import": "./dist/v2/blocks/scalar-response-block/index.js",
-      "types": "./dist/v2/blocks/scalar-response-block/index.d.ts",
-      "default": "./dist/v2/blocks/scalar-response-block/index.js"
+    "./v2/blocks/response-block": {
+      "import": "./dist/v2/blocks/response-block/index.js",
+      "types": "./dist/v2/blocks/response-block/index.d.ts",
+      "default": "./dist/v2/blocks/response-block/index.js"
     }
   },
   "files": [

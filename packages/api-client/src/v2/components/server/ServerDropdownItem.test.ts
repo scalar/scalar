@@ -235,7 +235,7 @@ describe('ServerDropdownItem', () => {
   it('handles undefined server gracefully', () => {
     const wrapper = mount(ServerDropdownItem, {
       props: {
-        server: undefined,
+        server: null,
         serverOption: defaultServerOption,
       },
     })

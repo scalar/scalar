@@ -1,4 +1,5 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
+import type { TabEvents } from '@/events/definitions/tabs'
 
 import type { AnalyticsEvents } from './analytics'
 import type { AuthEvents } from './auth'
@@ -15,6 +16,7 @@ export type ApiReferenceEvents = AuthEvents &
   MetaEvents &
   OperationEvents &
   ServerEvents &
+  TabEvents &
   UIEvents
 
 export type { CollectionType } from './common'

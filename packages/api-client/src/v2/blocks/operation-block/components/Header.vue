@@ -7,7 +7,6 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 
 import { OpenApiClientButton } from '@/components'
 import type { ClientLayout } from '@/hooks'
-import type { createStoreEvents } from '@/store/events'
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 
 const { showSidebar = true, hideClientButton = false } = defineProps<{
@@ -17,7 +16,6 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   method: HttpMethod
   /** Client layout */
   layout: ClientLayout
-
   /** Sidebar open state */
   isSidebarOpen?: boolean
   /** Controls sidebar visibility */
@@ -30,12 +28,10 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   documentUrl?: string
   /** Client source */
   source?: 'gitbook' | 'api-reference'
-
   /** Currently selected server */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
-
   /** List of request history */
   history: History[]
   /**
@@ -45,12 +41,9 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
    * The amount remaining to load from 100 -> 0
    */
   requestLoadingPercentage?: number
-
   /** Event bus */
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
-
-  events: ReturnType<typeof createStoreEvents>
 }>()
 
 const emit = defineEmits<{
@@ -67,6 +60,7 @@ const emit = defineEmits<{
       value: HttpMethod
     },
   ): void
+  (e: 'update:servers'): void
 }>()
 </script>
 
@@ -86,19 +80,20 @@ const emit = defineEmits<{
         :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <AddressBar
-      :environment="environment"
-      :eventBus="eventBus"
-      :events="events"
-      :history="history"
-      :layout="layout"
-      :method="method"
-      :path="path"
+      :environment
+      :eventBus
+      :history
+      :layout
+      :method
+      :path
       :percentage="requestLoadingPercentage"
-      :server="server"
-      :servers="servers"
+      :server
+      :servers
       @execute="emit('execute')"
       @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)" />
+      @update:path="(payload) => emit('update:path', payload)"
+      @update:servers="emit('update:servers')" />
+
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
       <!-- 
@@ -120,8 +115,8 @@ const emit = defineEmits<{
           Only shown in `modal` layout and hidden for GitBook Integration
       -->
       <button
-        v-if="layout === 'modal'"
-        class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+        v-if="layout === 'modal' && source !== 'gitbook'"
+        class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
         @click="eventBus.emit('hide:modal')">
         <ScalarIcon
@@ -137,8 +132,8 @@ const emit = defineEmits<{
           Hidden by default and visible for GitBook Integration in `modal` layout
       -->
       <button
-        v-if="layout === 'modal'"
-        class="text-c-1 hover:bg-b-2 active:text-c-1 gitbook-show -mr-1.5 rounded p-2"
+        v-if="layout === 'modal' && source === 'gitbook'"
+        class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
         type="button"
         @click="eventBus.emit('hide:modal')">
         <ScalarIcon
@@ -151,9 +146,6 @@ const emit = defineEmits<{
   </div>
 </template>
 <style scoped>
-.gitbook-show {
-  display: none;
-}
 .app-exit-button {
   color: white;
   background: rgba(0, 0, 0, 0.1);

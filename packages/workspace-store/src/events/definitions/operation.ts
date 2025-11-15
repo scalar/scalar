@@ -4,17 +4,10 @@ import type { OperationExampleMeta, OperationMeta } from '@/mutators'
 
 /** Event definitions for the operation */
 export type OperationEvents = {
-  /**
-   * Update the selected example for the operation
-   */
-  'update:selected-example': {
-    /** The name of the example to select */
-    name: string
-  }
+  //------------------------------------------------------------------------------------
+  // Operation Actions
+  //------------------------------------------------------------------------------------
 
-  /** ------------------------------------------------------------------------------------------------
-   * Operation Actions
-   * ------------------------------------------------------------------------------------------------ */
   /**
    * Fires when the user requests to send the operation (e.g., triggers "Try It" or sends a request).
    * Contains the OperationExampleMeta, which identifies the operation and the example variant to use.
@@ -23,9 +16,10 @@ export type OperationEvents = {
     meta: OperationExampleMeta
   }
 
-  /** ------------------------------------------------------------------------------------------------
-   * Operation Draft Mutators
-   * ------------------------------------------------------------------------------------------------ */
+  //------------------------------------------------------------------------------------
+  // Operation Draft Mutators
+  //------------------------------------------------------------------------------------
+
   /**
    * Update the summary for the operation.
    * Triggers when the user edits the summary/description for an endpoint.

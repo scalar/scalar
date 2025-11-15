@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createStoreEvents } from '@/store/events'
-import { ResponseBlock } from '@/v2/blocks/scalar-response-block'
+import { ResponseBlock } from '@/v2/blocks/response-block'
 
 import Header from './components/Header.vue'
 import OperationBlock from './OperationBlock.vue'
@@ -22,7 +22,7 @@ describe('OperationContainer', () => {
     path: '/pets',
     method: 'get' as const,
     layout: 'web' as const,
-    server: undefined,
+    server: null,
     servers: [],
     history: [],
     totalPerformedRequests: 0,
@@ -47,22 +47,6 @@ describe('OperationContainer', () => {
     const props = { ...defaultProps, ...overrides }
     return mount(OperationBlock, { props })
   }
-
-  it('passes draft method and path overrides to Header from operation', () => {
-    const wrapper = render({
-      method: 'get',
-      path: '/pets',
-      operation: {
-        responses: {},
-        'x-scalar-method': 'post',
-        'x-scalar-path': '/pets/{id}',
-      },
-    })
-
-    const header = wrapper.getComponent(Header)
-    expect(header.props().method).toBe('post')
-    expect(header.props().path).toBe('/pets/{id}')
-  })
 
   it('emits operation:send:request via event bus when execute is triggered', () => {
     const fn = vi.fn()
@@ -94,6 +78,7 @@ describe('OperationContainer', () => {
   })
 
   it('emits operation:update:path with new value when path is updated', () => {
+    vi.useFakeTimers()
     const fn = vi.fn()
     eventBus.on('operation:update:path', fn)
 
@@ -101,12 +86,17 @@ describe('OperationContainer', () => {
     const header = wrapper.getComponent(Header)
     header.vm.$emit('update:path', { value: '/animals' })
 
+    // Path updates are debounced, so we need to advance timers
+    vi.advanceTimersByTime(400)
+
     expect(fn).toHaveBeenCalledTimes(1)
 
     expect(fn).toHaveBeenCalledWith({
       meta: { method: 'get', path: '/pets' },
       payload: { path: '/animals' },
     })
+
+    vi.useRealTimers()
   })
 
   it('emits operation:send:request when ResponseBlock sendRequest event is triggered', () => {

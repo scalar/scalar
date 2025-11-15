@@ -10,7 +10,7 @@ import {
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
-  toggleDocumentSecurity,
+  toggleSecurity,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
@@ -29,7 +29,7 @@ import {
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
+import { type ComputedRef, type Ref, toValue } from 'vue'
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -37,7 +37,8 @@ import { type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue'
 export const useWorkspaceClientEvents = (
   eventBus: WorkspaceEventBus,
   document: ComputedRef<WorkspaceDocument | null>,
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>,
+  workspaceStore: Ref<WorkspaceStore | null>,
+  isSidebarOpen: Ref<boolean>,
 ) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
@@ -47,7 +48,7 @@ export const useWorkspaceClientEvents = (
     const store = toValue(workspaceStore)
 
     if (!store) {
-      return
+      return null
     }
 
     return collectionType === 'document' ? document.value : store.workspace
@@ -61,18 +62,16 @@ export const useWorkspaceClientEvents = (
     (icon) => document.value && (document.value['x-scalar-client-config-icon'] = icon),
   )
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
-  eventBus.on('document:toggle:document-security', () => toggleDocumentSecurity(document.value))
+  eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('environment:upsert:environment', (payload) => {
-    const store = toValue(workspaceStore)
-    if (!store) {
+    if (!workspaceStore.value) {
       return
     }
-
-    upsertEnvironment(document.value, store.workspace, payload)
+    upsertEnvironment(document.value, workspaceStore.value.workspace, payload)
   })
 
   eventBus.on(
@@ -83,9 +82,6 @@ export const useWorkspaceClientEvents = (
 
   eventBus.on('environment:upsert:environment-variable', (payload) => {
     const collection = getCollection(document, payload.collectionType)
-    if (!collection) {
-      return
-    }
     upsertEnvironmentVariable(collection, payload)
   })
 
@@ -117,106 +113,33 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('operation:update:method', ({ payload, meta }) => {
-    updateOperationMethod({
-      document: document.value,
-      meta,
-      payload,
-    })
-  })
+  eventBus.on('operation:update:method', (payload) => updateOperationMethod(document.value, payload))
+  eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
+  eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
+  eventBus.on('operation:add:parameter', (payload) => addOperationParameter(document.value, payload))
+  eventBus.on('operation:update:parameter', (payload) => updateOperationParameter(document.value, payload))
+  eventBus.on('operation:delete:parameter', (payload) => deleteOperationParameter(document.value, payload))
+  eventBus.on('operation:delete-all:parameters', (payload) => deleteAllOperationParameters(document.value, payload))
 
-  eventBus.on('operation:update:path', ({ meta, payload }) => {
-    updateOperationPath({
-      document: document.value,
-      meta,
-      payload,
-    })
-  })
+  //------------------------------------------------------------------------------------
+  // Operation Request Body Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('operation:update:requestBody:contentType', (payload) =>
+    updateOperationRequestBodyContentType(document.value, payload),
+  )
+  eventBus.on('operation:update:requestBody:value', (payload) =>
+    updateOperationRequestBodyExample(document.value, payload),
+  )
+  eventBus.on('operation:add:requestBody:formRow', (payload) => addOperationRequestBodyFormRow(document.value, payload))
+  eventBus.on('operation:update:requestBody:formRow', (payload) =>
+    updateOperationRequestBodyFormRow(document.value, payload),
+  )
+  eventBus.on('operation:delete:requestBody:formRow', (payload) =>
+    deleteOperationRequestBodyFormRow(document.value, payload),
+  )
 
-  eventBus.on('operation:update:summary', ({ payload, meta }) => {
-    updateOperationSummary({
-      document: document.value,
-      meta,
-      payload,
-    })
-  })
-
-  eventBus.on('operation:add:parameter', ({ type, meta, payload }) => {
-    addOperationParameter({
-      document: document.value,
-      meta,
-      payload,
-      type,
-    })
-  })
-  eventBus.on('operation:update:parameter', ({ meta, payload, index, type }) => {
-    updateOperationParameter({
-      document: document.value,
-      meta,
-      payload,
-      index,
-      type,
-    })
-  })
-  eventBus.on('operation:delete:parameter', ({ index, meta, type }) => {
-    deleteOperationParameter({
-      document: document.value,
-      meta,
-      index,
-      type,
-    })
-  })
-  eventBus.on('operation:delete-all:parameters', ({ meta, type }) => {
-    deleteAllOperationParameters({
-      document: document.value,
-      meta,
-      type,
-    })
-  })
-
-  // operation body related event handlers
-  eventBus.on('operation:update:requestBody:contentType', ({ payload, meta }) => {
-    updateOperationRequestBodyContentType({
-      document: document.value,
-      meta,
-      payload,
-    })
-  })
-
-  eventBus.on('operation:update:requestBody:value', ({ contentType, payload, meta }) => {
-    updateOperationRequestBodyExample({
-      document: document.value,
-      meta,
-      payload,
-      contentType,
-    })
-  })
-
-  eventBus.on('operation:add:requestBody:formRow', ({ payload, contentType, meta }) => {
-    addOperationRequestBodyFormRow({
-      document: document.value,
-      meta,
-      payload,
-      contentType,
-    })
-  })
-
-  eventBus.on('operation:update:requestBody:formRow', ({ index, payload, contentType, meta }) => {
-    updateOperationRequestBodyFormRow({
-      document: document.value,
-      meta,
-      index,
-      payload,
-      contentType,
-    })
-  })
-
-  eventBus.on('operation:delete:requestBody:formRow', ({ index, contentType, meta }) => {
-    deleteOperationRequestBodyFormRow({
-      document: document.value,
-      meta,
-      index,
-      contentType,
-    })
-  })
+  //------------------------------------------------------------------------------------
+  // UI Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
 }

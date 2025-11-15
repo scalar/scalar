@@ -36,7 +36,7 @@ export type ServerEvents = {
    * Update the selected server for the document
    */
   'server:update:selected': {
-    /** The index of the server to update */
-    index: number
+    /** The URL of the server to select */
+    url: string
   }
 }

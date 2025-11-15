@@ -1,6 +1,5 @@
 <script lang="ts">
 export type ModalProps = {
-  activeEntities: ActiveEntities
   workspaceStore: WorkspaceStore
   modalState: ModalState
 }
@@ -31,11 +30,9 @@ import {
 } from 'vue'
 
 import { Sidebar } from '@/v2/components/sidebar'
-import TempReplaceMe from '@/v2/components/TempReplaceMe.vue'
-import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 
-const { workspaceStore, activeEntities, modalState } = defineProps<ModalProps>()
+const { workspaceStore, modalState } = defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -120,8 +117,8 @@ const isSidebarOpen = ref(true)
               :workspaces="[]"
               v-show="isSidebarOpen"
               v-model:isSidebarOpen="isSidebarOpen"
-              :sidebarState="sidebarState"
               layout="modal"
+              :sidebarState="sidebarState"
               :sidebarWidth="
                 workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
               "
@@ -131,14 +128,7 @@ const isSidebarOpen = ref(true)
               " />
 
             <!-- Insert the operation page here -->
-            <TempReplaceMe
-              :documentSlug="activeEntities.documentSlug"
-              :example="activeEntities.example"
-              layout="modal"
-              :method="activeEntities.method"
-              :path="activeEntities.path"
-              :workspaceStore="workspaceStore"
-              workspaceSlug="default" />
+            Insert operation page here
           </main>
         </ScalarTeleportRoot>
       </div>

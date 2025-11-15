@@ -350,6 +350,7 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
 
 defineExpose({
   focus: () => codeMirror.value?.focus(),
+  isFocused,
   handleChange,
   handleSubmit,
   handleBlur,

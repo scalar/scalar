@@ -8,8 +8,7 @@ import Authentication from './Authentication.vue'
 
 describe('Authentication', () => {
   const baseDocument = {
-    uid: 'doc-1',
-    'x-scalar-document-security': true,
+    'x-scalar-set-operation-security': true,
     'x-scalar-selected-server': 'https://api.example.com',
     'x-scalar-selected-security': {
       selectedIndex: 0,
@@ -82,7 +81,7 @@ describe('Authentication', () => {
     await toggle.vm.$emit('update:modelValue', false)
     await nextTick()
 
-    expect(emitSpy).toHaveBeenCalledWith('document:toggle:document-security')
+    expect(emitSpy).toHaveBeenCalledWith('document:toggle:security')
   })
 
   it('passes correct props to AuthSelector when document security is enabled', () => {
@@ -105,7 +104,7 @@ describe('Authentication', () => {
     const { wrapper } = mountWithProps({
       document: {
         ...baseDocument,
-        'x-scalar-document-security': false,
+        'x-scalar-set-operation-security': false,
       },
     })
 

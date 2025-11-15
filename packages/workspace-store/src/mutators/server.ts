@@ -211,15 +211,18 @@ export const updateServerVariables = (
  */
 export const updateSelectedServer = (
   document: WorkspaceDocument | null,
-  { index }: ServerEvents['server:update:selected'],
+  { url }: ServerEvents['server:update:selected'],
 ): string | undefined => {
-  const url = document?.servers?.[index]?.url
-  if (!url) {
-    console.error('Server not found', index, document?.servers)
+  if (!document) {
     return
   }
 
-  // Set it and return the url
-  document['x-scalar-selected-server'] = url
+  // If no servers match then return undefined
+  if (!document.servers?.some((server) => server.url === url)) {
+    return
+  }
+
+  // [un]set it and return the url
+  document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === url ? undefined : url
   return document['x-scalar-selected-server']
 }

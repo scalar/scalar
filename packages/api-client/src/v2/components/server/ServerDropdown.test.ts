@@ -10,7 +10,7 @@ describe('ServerDropdown', () => {
       { url: 'https://api-2.example.com/', variables: {} },
     ]
 
-    const server = options?.server ?? servers[0]
+    const server = options && 'server' in options ? options.server : servers[0]
 
     return mount(ServerDropdown, {
       props: {
@@ -52,9 +52,12 @@ describe('ServerDropdown', () => {
   })
 
   it('renders Add Server affordance when no server is selected', () => {
-    const wrapper = makeWrapper({ server: undefined })
-    // Accessible label rendered in DOM
-    expect(wrapper.text()).toContain('Add Server')
+    const wrapper = makeWrapper({ server: null })
+    // Plus icon button should be rendered (no server URL shown)
+    const button = wrapper.find('button')
+    expect(button.exists()).toBe(true)
+    // Should not show any server URL
+    expect(wrapper.text()).not.toMatch(/https?:\/\//)
   })
 
   it('renders a dropdown item for each server option', () => {
@@ -78,17 +81,17 @@ describe('ServerDropdown', () => {
     expect(emitted?.[0]).toEqual([{ index: 0, key: 'version', value: 'v2' }])
   })
 
-  it('emits addServer when the Add Server button is clicked', async () => {
+  it('emits update:servers when the Update Servers button is clicked', async () => {
     const wrapper = makeWrapper()
-    const addBtn = wrapper.findAll('button').find((b) => b.text().includes('Add Server'))
-    expect(addBtn).toBeTruthy()
-    await addBtn!.trigger('click')
-    expect(wrapper.emitted('addServer')).toBeTruthy()
+    const updateBtn = wrapper.findAll('button').find((b) => b.text().includes('Update Servers'))
+    expect(updateBtn).toBeTruthy()
+    await updateBtn!.trigger('click')
+    expect(wrapper.emitted('update:servers')).toBeTruthy()
   })
 
-  it('does not render Add Server button when layout is modal', () => {
+  it('does not render Update Servers button when layout is modal', () => {
     const wrapper = makeWrapper({ layout: 'modal' })
-    const addBtn = wrapper.findAll('button').find((b) => b.text().includes('Add Server'))
-    expect(addBtn).toBeUndefined()
+    const updateBtn = wrapper.findAll('button').find((b) => b.text().includes('Update Servers'))
+    expect(updateBtn).toBeUndefined()
   })
 })

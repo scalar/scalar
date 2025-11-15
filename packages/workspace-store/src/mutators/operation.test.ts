@@ -1,3 +1,4 @@
+import { consoleErrorSpy } from '@scalar/helpers/testing/console-spies'
 import { assert, describe, expect, it } from 'vitest'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -9,9 +10,9 @@ import {
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
-  updateOperationMethodDraft,
+  updateOperationMethod,
   updateOperationParameter,
-  updateOperationPathDraft,
+  updateOperationPath,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
@@ -39,8 +40,7 @@ describe('updateOperationSummary', () => {
       },
     })
 
-    updateOperationSummary({
-      document,
+    updateOperationSummary(document, {
       meta: { method: 'get', path: '/users' },
       payload: { summary: 'New summary' },
     })
@@ -50,8 +50,7 @@ describe('updateOperationSummary', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationSummary({
-        document: null,
+      updateOperationSummary(null, {
         meta: { method: 'get', path: '/users' },
         payload: { summary: 'Anything' },
       }),
@@ -65,8 +64,7 @@ describe('updateOperationSummary', () => {
       },
     })
 
-    updateOperationSummary({
-      document,
+    updateOperationSummary(document, {
       meta: { method: 'get', path: '/users' },
       payload: { summary: 'New summary' },
     })
@@ -75,141 +73,377 @@ describe('updateOperationSummary', () => {
   })
 })
 
-describe('updateOperationMethodDraft', () => {
-  it('sets x-scalar-method on existing operation and preserves original slot', () => {
+describe('updateOperationMethod', () => {
+  it('moves operation from one HTTP method to another on same path', () => {
     const document = createDocument({
       paths: {
         '/users': {
           get: {
+            summary: 'Get users',
+            description: 'Retrieve list of users',
+            parameters: [{ name: 'limit', in: 'query' }],
+          },
+        },
+      },
+    })
+
+    updateOperationMethod(document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { method: 'post' },
+    })
+
+    // The operation should now be under 'post'
+    expect(document.paths).toStrictEqual({
+      '/users': {
+        post: {
+          description: 'Retrieve list of users',
+          parameters: [
+            {
+              in: 'query',
+              name: 'limit',
+            },
+          ],
+          summary: 'Get users',
+        },
+      },
+    })
+  })
+
+  it('preserves all operation properties when changing method', () => {
+    const document = createDocument({
+      paths: {
+        '/posts/{id}': {
+          put: {
+            summary: 'Update post',
+            description: 'Updates an existing post',
+            operationId: 'updatePost',
+            tags: ['posts'],
+            parameters: [
+              { name: 'id', in: 'path', required: true },
+              { name: 'X-Api-Key', in: 'header' },
+            ],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object' },
+                },
+              },
+            },
             responses: {
-              '200': { description: 'ok' },
+              '200': { description: 'Success' },
             },
           },
         },
       },
     })
 
-    updateOperationMethodDraft({
-      document,
-      meta: { method: 'get', path: '/users' },
-      payload: { method: 'post' },
-    })
-    const opWithExt = getResolvedRef(document.paths?.['/users']?.get)
-    assert(opWithExt)
-    expect(opWithExt['x-scalar-method']).toBe('post')
-    expect(document.paths?.['/users']?.get).toBeDefined()
-    expect(document.paths?.['/users']?.post).toBeUndefined()
-  })
-
-  it('no-ops when document is null', () => {
-    expect(() =>
-      updateOperationMethodDraft({
-        document: null,
-        meta: { method: 'get', path: '/users' },
-        payload: { method: 'post' },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when operation does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {},
-      },
+    updateOperationMethod(document, {
+      meta: { method: 'put', path: '/posts/{id}' },
+      payload: { method: 'patch' },
     })
 
-    updateOperationMethodDraft({
-      document,
-      meta: { method: 'get', path: '/users' },
-      payload: { method: 'post' },
-    })
-
-    expect(document.paths?.['/users']).toEqual({})
-  })
-})
-
-describe('updateOperationPathDraft', () => {
-  it('sets x-scalar-path and syncs path parameters from payload.path', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {},
+    expect(document.paths).toStrictEqual({
+      '/posts/{id}': {
+        patch: {
+          summary: 'Update post',
+          description: 'Updates an existing post',
+          operationId: 'updatePost',
+          tags: ['posts'],
+          parameters: [
+            { name: 'id', in: 'path', required: true },
+            { name: 'X-Api-Key', in: 'header' },
+          ],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Success' },
+          },
         },
       },
     })
-
-    updateOperationPathDraft({
-      document,
-      meta: { method: 'get', path: '/users' },
-      payload: { path: '/users/{id}/posts/{postId}' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/users']?.get)
-    assert(op)
-    expect(op['x-scalar-path']).toBe('/users/{id}/posts/{postId}')
-
-    const params = (op.parameters ?? []).map((p: unknown) => getResolvedRef(p as any))
-    expect(params).toEqual([
-      { name: 'id', in: 'path', required: true },
-      { name: 'postId', in: 'path', required: true },
-    ])
   })
 
-  it('preserves non-path parameters and replaces path parameters based on new path', () => {
+  it('returns undefined and logs error when path does not exist', () => {
     const document = createDocument({
       paths: {
         '/users': {
           get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    const result = updateOperationMethod(document, {
+      meta: { method: 'get', path: '/nonexistent' },
+      payload: { method: 'post' },
+    })
+
+    expect(result).toBeUndefined()
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Operation not found', expect.any(Object))
+    expect(document.paths).toStrictEqual({
+      '/users': {
+        get: {
+          summary: 'Get users',
+        },
+      },
+    })
+
+    consoleErrorSpy.mockRestore()
+  })
+})
+
+describe('updateOperationPath', () => {
+  it('moves operation to a new path and removes from old path', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            description: 'Retrieve all users',
+          },
+        },
+      },
+    })
+
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { path: '/api/users' },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/api/users': {
+        get: {
+          summary: 'Get users',
+          description: 'Retrieve all users',
+        },
+      },
+    })
+  })
+
+  it('preserves all operation properties when moving to new path', () => {
+    const document = createDocument({
+      paths: {
+        '/posts': {
+          post: {
+            summary: 'Create post',
+            description: 'Creates a new post',
+            operationId: 'createPost',
+            tags: ['posts'],
+            parameters: [{ name: 'X-Api-Key', in: 'header' }],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object' },
+                },
+              },
+            },
+            responses: {
+              '201': { description: 'Created' },
+            },
+          },
+        },
+      },
+    })
+
+    updateOperationPath(document, {
+      meta: { method: 'post', path: '/posts' },
+      payload: { path: '/api/v2/posts' },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/api/v2/posts': {
+        post: {
+          summary: 'Create post',
+          description: 'Creates a new post',
+          operationId: 'createPost',
+          tags: ['posts'],
+          parameters: [{ name: 'X-Api-Key', in: 'header' }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+              },
+            },
+          },
+          responses: {
+            '201': { description: 'Created' },
+          },
+        },
+      },
+    })
+  })
+
+  it('keeps other operations on old path when moving one operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+          post: {
+            summary: 'Create user',
+          },
+        },
+      },
+    })
+
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { path: '/api/users' },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/users': {
+        post: {
+          summary: 'Create user',
+        },
+      },
+      '/api/users': {
+        get: {
+          summary: 'Get users',
+        },
+      },
+    })
+  })
+
+  it('maintains the path params', () => {
+    const document = createDocument({
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get users',
             parameters: [
-              { name: 'q', in: 'query' },
-              { name: 'old', in: 'path', required: true },
+              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+              { name: 'name', in: 'query' },
             ],
           },
         },
       },
     })
 
-    updateOperationPathDraft({
-      document,
-      meta: { method: 'get', path: '/users' },
-      payload: { path: '/users/{id}' },
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { path: '/events/{id}' },
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.get)
-    assert(op)
-    expect(op['x-scalar-path']).toBe('/users/{id}')
-
-    const params = (op.parameters ?? []).map((p: unknown) => getResolvedRef(p as any))
-    expect(params).toEqual([
-      { name: 'q', in: 'query' },
-      { name: 'id', in: 'path', required: true },
-    ])
+    expect(document.paths).toStrictEqual({
+      '/events/{id}': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
   })
 
-  it('no-ops when document is null', () => {
-    expect(() =>
-      updateOperationPathDraft({
-        document: null,
-        meta: { method: 'get', path: '/users' },
-        payload: { path: '/users/{id}' },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when operation does not exist', () => {
+  it('maintains swapped path params', () => {
     const document = createDocument({
       paths: {
-        '/users': {},
+        '/users/{id}/{limit}': {
+          get: {
+            summary: 'Get users',
+            parameters: [
+              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+              { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
+              { name: 'name', in: 'query' },
+            ],
+          },
+        },
       },
     })
 
-    updateOperationPathDraft({
-      document,
-      meta: { method: 'get', path: '/users' },
-      payload: { path: '/users/{id}' },
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users/{id}/{limit}' },
+      payload: { path: '/events/{limit}/{id}' },
     })
 
-    expect(document.paths?.['/users']).toEqual({})
+    expect(document.paths).toStrictEqual({
+      '/events/{limit}/{id}': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
+            { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
+  })
+
+  it('renames path params', () => {
+    const document = createDocument({
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get users',
+            parameters: [
+              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+              { name: 'name', in: 'query' },
+            ],
+          },
+        },
+      },
+    })
+
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { path: '/users/{limit}' },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/users/{limit}': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'limit', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
+  })
+
+  it('creates new path params', () => {
+    const document = createDocument({
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get users',
+            parameters: [
+              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+              { name: 'name', in: 'query' },
+            ],
+          },
+        },
+      },
+    })
+
+    updateOperationPath(document, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { path: '/users/events/{limit}' },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/users/events/{limit}': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'limit', in: 'path' },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
   })
 })
 
@@ -225,8 +459,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'john', isEnabled: true },
@@ -252,8 +485,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'id', value: '123', isEnabled: false },
@@ -272,8 +504,7 @@ describe('addOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      addOperationParameter({
-        document: null,
+      addOperationParameter(null, {
         type: 'query',
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
         payload: { key: 'q', value: 'x', isEnabled: true },
@@ -288,8 +519,7 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
       payload: { key: 'q', value: 'x', isEnabled: true },
@@ -312,22 +542,19 @@ describe('updateOperationParameter', () => {
     })
 
     // Add two query params so we can target index 1 for type 'query'
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'p', value: 'two', isEnabled: false },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -362,15 +589,13 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -395,15 +620,13 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
@@ -430,22 +653,19 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'abc', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
 
     // index 0 for type 'query' refers to the second element in the raw array
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -464,8 +684,7 @@ describe('updateOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationParameter({
-        document: null,
+      updateOperationParameter(null, {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -481,8 +700,7 @@ describe('updateOperationParameter', () => {
       },
     })
 
-    updateOperationParameter({
-      document,
+    updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -504,28 +722,24 @@ describe('deleteOperationParameter', () => {
     })
 
     // Add a header and two query params (order matters)
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'a', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { key: 'page', value: '2', isEnabled: true },
     })
 
     // Delete the second query (index 1 within filtered query params)
-    deleteOperationParameter({
-      document,
+    deleteOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -541,8 +755,7 @@ describe('deleteOperationParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      deleteOperationParameter({
-        document: null,
+      deleteOperationParameter(null, {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -557,8 +770,7 @@ describe('deleteOperationParameter', () => {
       },
     })
 
-    deleteOperationParameter({
-      document,
+    deleteOperationParameter(document, {
       type: 'query',
       index: 5,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
@@ -579,33 +791,28 @@ describe('deleteAllOperationParameters', () => {
     })
 
     // Add a mix of parameter types
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'X-Trace', value: 'a', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'q', value: 'one', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'page', value: '2', isEnabled: true },
     })
-    addOperationParameter({
-      document,
+    addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { key: 'id', value: '123', isEnabled: true },
     })
 
-    deleteAllOperationParameters({
-      document,
+    deleteAllOperationParameters(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}' },
     })
@@ -622,8 +829,7 @@ describe('deleteAllOperationParameters', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      deleteAllOperationParameters({
-        document: null,
+      deleteAllOperationParameters(null, {
         type: 'query',
         meta: { method: 'get', path: '/users/{id}' },
       }),
@@ -637,8 +843,7 @@ describe('deleteAllOperationParameters', () => {
       },
     })
 
-    deleteAllOperationParameters({
-      document,
+    deleteAllOperationParameters(document, {
       type: 'query',
       meta: { method: 'get', path: '/users' },
     })
@@ -657,8 +862,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { contentType: 'application/json' },
     })
@@ -685,8 +889,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'a' },
       payload: { contentType: 'text/plain' },
     })
@@ -703,8 +906,7 @@ describe('updateOperationRequestBodyContentType', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationRequestBodyContentType({
-        document: null,
+      updateOperationRequestBodyContentType(null, {
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
         payload: { contentType: 'application/json' },
       }),
@@ -718,8 +920,7 @@ describe('updateOperationRequestBodyContentType', () => {
       },
     })
 
-    updateOperationRequestBodyContentType({
-      document,
+    updateOperationRequestBodyContentType(document, {
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { contentType: 'application/json' },
     })
@@ -738,8 +939,7 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: '{"name":"Ada"}' },
@@ -765,15 +965,13 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'v1' },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'v2' },
@@ -799,15 +997,13 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'A' },
       payload: { value: 'one' },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'B' },
       payload: { value: 'two' },
@@ -827,8 +1023,7 @@ describe('updateOperationRequestBodyExample', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationRequestBodyExample({
-        document: null,
+      updateOperationRequestBodyExample(null, {
         contentType: 'application/json',
         meta: { method: 'post', path: '/users', exampleKey: 'default' },
         payload: { value: 'x' },
@@ -843,8 +1038,7 @@ describe('updateOperationRequestBodyExample', () => {
       },
     })
 
-    updateOperationRequestBodyExample({
-      document,
+    updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
       payload: { value: 'x' },
@@ -864,8 +1058,7 @@ describe('addOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -893,14 +1086,12 @@ describe('addOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'description', value: 'Profile picture' },
@@ -918,8 +1109,7 @@ describe('addOperationRequestBodyFormRow', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      addOperationRequestBodyFormRow({
-        document: null,
+      addOperationRequestBodyFormRow(null, {
         contentType: 'multipart/form-data',
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
         payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -930,8 +1120,7 @@ describe('addOperationRequestBodyFormRow', () => {
   it('no-ops when operation does not exist', () => {
     const document = createDocument({ paths: { '/upload': {} } })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
@@ -951,21 +1140,18 @@ describe('updateOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'description', value: 'Profile picture' },
     })
 
-    updateOperationRequestBodyFormRow({
-      document,
+    updateOperationRequestBodyFormRow(document, {
       index: 1,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -990,8 +1176,7 @@ describe('updateOperationRequestBodyFormRow', () => {
     })
 
     // No requestBody/content/examples present
-    updateOperationRequestBodyFormRow({
-      document,
+    updateOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1014,15 +1199,13 @@ describe('deleteOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'file', value: new File(['x'], 'a.txt') },
     })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1044,21 +1227,18 @@ describe('deleteOperationRequestBodyFormRow', () => {
       },
     })
 
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'a', value: '1' },
     })
-    addOperationRequestBodyFormRow({
-      document,
+    addOperationRequestBodyFormRow(document, {
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
       payload: { key: 'b', value: '2' },
     })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1075,8 +1255,7 @@ describe('deleteOperationRequestBodyFormRow', () => {
 
   it('no-ops when document is null or operation does not exist', () => {
     expect(() =>
-      deleteOperationRequestBodyFormRow({
-        document: null,
+      deleteOperationRequestBodyFormRow(null, {
         index: 0,
         contentType: 'multipart/form-data',
         meta: { method: 'post', path: '/upload', exampleKey: 'default' },
@@ -1085,8 +1264,7 @@ describe('deleteOperationRequestBodyFormRow', () => {
 
     const document = createDocument({ paths: { '/upload': {} } })
 
-    deleteOperationRequestBodyFormRow({
-      document,
+    deleteOperationRequestBodyFormRow(document, {
       index: 0,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
