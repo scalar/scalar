@@ -1,5 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type FastifyInstance, fastify } from 'fastify'
@@ -117,7 +115,6 @@ describe('plugins', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 
@@ -160,7 +157,6 @@ describe('plugins', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 
@@ -236,7 +232,6 @@ describe('plugins', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 

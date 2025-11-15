@@ -1,16 +1,18 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { Hono } from 'hono'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { Scalar, apiReference } from './scalar'
+import { Scalar } from './scalar'
 
 type Bindings = {
   SOME_VAR: string
   ENVIRONMENT: string
 }
 
-describe('apiReference', () => {
+describe('Scalar', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('returns HTML with default theme CSS when theme is not provided', async () => {
     const app = new Hono()
     const config = {
@@ -186,7 +188,7 @@ describe('apiReference', () => {
       content: { info: { title: 'Test API' } },
     }
 
-    app.get('/', apiReference(config))
+    app.get('/', Scalar(config))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -230,6 +232,8 @@ describe('apiReference', () => {
   })
 
   it('works with config resolver (async)', async () => {
+    vi.useFakeTimers()
+
     const app = new Hono<{ Bindings: Bindings }>()
     // mock env
     app.use('*', (c, next) => {
@@ -239,22 +243,28 @@ describe('apiReference', () => {
 
     const config = { content: { info: { title: 'Test API' } } }
 
-    const getTheme = (): Promise<'deepSpace' | 'laserwave'> => {
-      return setTimeout(100, 'deepSpace')
-    }
-
     app.get(
       '/',
       Scalar<{ Bindings: Bindings }>(async (c) => {
         expect(c.env.SOME_VAR).toBe('SOME_VAR')
         expect(c.env.ENVIRONMENT).toBe('development')
 
-        const theme = await getTheme()
+        const theme = await new Promise<'deepSpace'>((resolve) => {
+          setTimeout(
+            () => resolve('deepSpace'),
+            // advance time by the same amount below
+            100,
+          )
+        })
         return { ...config, theme }
       }),
     )
 
-    const response = await app.request('/')
+    const req = app.request('/')
+    // Same time of handler Promise above
+    vi.advanceTimersByTime(100)
+    const response = await req
+
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toContain('text/html')
     const text = await response.text()
