@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 
-import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
+import type {
+  DraggingItem,
+  HoveredItem,
+  UseDraggableOptions,
+} from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
@@ -44,9 +48,7 @@ const {
    *
    * @default true
    */
-  isDroppable?:
-    | boolean
-    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
+  isDroppable?: UseDraggableOptions['isDroppable']
 }>()
 
 const emit = defineEmits<{
@@ -103,6 +105,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="item in items"
           :key="item.id"
+          :isDraggable="layout === 'client'"
           :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"

@@ -7,53 +7,58 @@ import {
   ScalarWrappingText,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
-import { computed } from 'vue'
 
 import {
   useDraggable,
   type DraggingItem,
   type HoveredItem,
+  type UseDraggableOptions,
 } from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
-const { item, layout, isSelected, isExpanded } = defineProps<{
-  /**
-   * The sidebar item to render.
-   */
-  item: Item
-  /**
-   * The layout mode for the sidebar ('client' or 'reference').
-   */
-  layout: 'client' | 'reference'
-  /**
-   * Function to determine if an item is currently selected by id.
-   */
-  isSelected: (id: string) => boolean
-  /**
-   * Function to determine if an item is currently expanded (showing its children) by id.
-   */
-  isExpanded: (id: string) => boolean
-  /**
-   * Sidebar configuration options.
-   * - operationTitleSource: sets whether operations show their path or summary as the display title.
-   */
-  options:
-    | {
-        operationTitleSource: 'path' | 'summary' | undefined
-      }
-    | undefined
+const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
+  defineProps<{
+    /**
+     * The sidebar item to render.
+     */
+    item: Item
+    /**
+     * The layout mode for the sidebar ('client' or 'reference').
+     */
+    layout: 'client' | 'reference'
+    /**
+     * Function to determine if an item is currently selected by id.
+     */
+    isSelected: (id: string) => boolean
+    /**
+     * Function to determine if an item is currently expanded (showing its children) by id.
+     */
+    isExpanded: (id: string) => boolean
+    /**
+     * Sidebar configuration options.
+     * - operationTitleSource: sets whether operations show their path or summary as the display title.
+     */
+    options:
+      | {
+          operationTitleSource: 'path' | 'summary' | undefined
+        }
+      | undefined
 
-  /**
-   * Prevents items from being hovered and dropped into. Can be either a function or a boolean
-   *
-   * @default true
-   */
-  isDroppable?:
-    | boolean
-    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
-}>()
+    /**
+     * Prevents this item from being dragged.
+     *
+     * @default true
+     */
+    isDraggable?: UseDraggableOptions['isDraggable']
+    /**
+     * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
+     *
+     * @default true
+     */
+    isDroppable?: UseDraggableOptions['isDroppable']
+  }>()
 
 const emits = defineEmits<{
   /**
@@ -93,9 +98,6 @@ const isGroup = (
   return 'isGroup' in currentItem && currentItem.isGroup
 }
 
-/** Whether the item is draggable */
-const draggable = computed(() => layout === 'client')
-
 const filterItems = (items: Item[]) => {
   if (layout === 'reference') {
     return items
@@ -115,7 +117,8 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 }
 const { draggableProps, draggableEvents } = useDraggable({
   id: item.id,
-  enabled: draggable,
+  isDraggable,
+  isDroppable,
   onDragEnd,
 })
 </script>

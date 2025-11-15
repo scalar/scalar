@@ -12,7 +12,7 @@ describe('useDraggable', () => {
 
     expect(draggingItem.value).toBeNull()
     expect(hoveredItem.value).toBeNull()
-    expect(draggableProps.value.class).toBe('sidebar-indent-nested')
+    expect(draggableProps.value.class).toBe('')
     expect(draggableProps.value.draggable).toBe(true)
   })
 
@@ -48,7 +48,7 @@ describe('useDraggable', () => {
     const { draggableEvents } = useDraggable({
       id: 'test-1',
       parentIds: [],
-      enabled: false,
+      isDraggable: false,
       onDragStart,
     })
 
@@ -72,7 +72,7 @@ describe('useDraggable', () => {
     const { draggableProps } = useDraggable({
       id: 'test-1',
       parentIds: [],
-      enabled: true,
+      isDraggable: true,
     })
 
     expect(draggableProps.value).toHaveProperty('class')
@@ -95,16 +95,16 @@ describe('useDraggable', () => {
   })
 
   it('updates draggable prop when enabled changes', () => {
-    const enabled = ref(true)
+    const isDraggable = ref(true)
     const { draggableProps } = useDraggable({
       id: 'test-1',
       parentIds: [],
-      enabled,
+      isDraggable,
     })
 
     expect(draggableProps.value.draggable).toBe(true)
 
-    enabled.value = false
+    isDraggable.value = false
     expect(draggableProps.value.draggable).toBe(false)
   })
 })
