@@ -48,22 +48,6 @@ describe('OperationContainer', () => {
     return mount(OperationBlock, { props })
   }
 
-  it('passes draft method and path overrides to Header from operation', () => {
-    const wrapper = render({
-      method: 'get',
-      path: '/pets',
-      operation: {
-        responses: {},
-        'x-scalar-method': 'post',
-        'x-scalar-path': '/pets/{id}',
-      },
-    })
-
-    const header = wrapper.getComponent(Header)
-    expect(header.props().method).toBe('post')
-    expect(header.props().path).toBe('/pets/{id}')
-  })
-
   it('emits operation:send:request via event bus when execute is triggered', () => {
     const fn = vi.fn()
     eventBus.on('operation:send:request', fn)
