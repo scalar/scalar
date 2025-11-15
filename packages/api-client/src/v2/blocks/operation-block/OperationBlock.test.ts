@@ -78,6 +78,7 @@ describe('OperationContainer', () => {
   })
 
   it('emits operation:update:path with new value when path is updated', () => {
+    vi.useFakeTimers()
     const fn = vi.fn()
     eventBus.on('operation:update:path', fn)
 
@@ -85,12 +86,17 @@ describe('OperationContainer', () => {
     const header = wrapper.getComponent(Header)
     header.vm.$emit('update:path', { value: '/animals' })
 
+    // Path updates are debounced, so we need to advance timers
+    vi.advanceTimersByTime(400)
+
     expect(fn).toHaveBeenCalledTimes(1)
 
     expect(fn).toHaveBeenCalledWith({
       meta: { method: 'get', path: '/pets' },
       payload: { path: '/animals' },
     })
+
+    vi.useRealTimers()
   })
 
   it('emits operation:send:request when ResponseBlock sendRequest event is triggered', () => {

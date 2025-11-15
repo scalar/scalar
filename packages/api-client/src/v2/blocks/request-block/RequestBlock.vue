@@ -91,6 +91,20 @@ const OPERATION_SECTIONS: readonly Filter[] = [
   'Body',
 ] as const
 
+/**
+ * Pre-generated stable IDs for all possible filter sections.
+ * These are created once at setup time to avoid regenerating IDs on re-render.
+ */
+const sectionIds: Record<Filter, string> = {
+  All: useId(),
+  Auth: useId(),
+  Variables: useId(),
+  Cookies: useId(),
+  Headers: useId(),
+  Query: useId(),
+  Body: useId(),
+}
+
 /** Filters available based on operation state */
 const filters = computed<Filter[]>(() => {
   const availableFilters = new Set<Filter>(['All', ...OPERATION_SECTIONS])
@@ -108,11 +122,14 @@ const filters = computed<Filter[]>(() => {
   return [...availableFilters]
 })
 
-/** Generate stable IDs for filter sections */
+/**
+ * Map available filters to their pre-generated stable IDs.
+ * Only includes IDs for filters that are currently available.
+ */
 const filterIds = computed(
   () =>
     Object.fromEntries(
-      filters.value.map((section) => [section, useId()]),
+      filters.value.map((section) => [section, sectionIds[section]]),
     ) as Record<Filter, string>,
 )
 
