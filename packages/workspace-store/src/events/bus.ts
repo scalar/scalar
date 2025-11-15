@@ -259,7 +259,7 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     }
 
     // Create a unique key for this event + debounce key combination
-    const debounceMapKey = `${String(event)}-${options.debounceKey}`
+    const debounceMapKey = `${event}-${options.debounceKey}`
 
     // Pass the closure directly - debounce will store the latest version
     debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))

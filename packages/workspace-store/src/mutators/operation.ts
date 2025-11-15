@@ -3,8 +3,9 @@ import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
-import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -199,7 +200,7 @@ export const updateOperationSummary = (
 export const updateOperationMethod = (
   document: WorkspaceDocument | null,
   { meta, payload: { method } }: OperationEvents['operation:update:method'],
-): undefined | OperationObject => {
+) => {
   const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
     console.error('Operation not found', { meta, document })
@@ -213,10 +214,8 @@ export const updateOperationMethod = (
     return
   }
 
-  path[method] = operation
+  path[method] = unpackProxyObject(operation)
   delete path[meta.method]
-
-  return operation
 }
 
 /**
@@ -278,7 +277,7 @@ export const updateOperationPath = (
   }
 
   // Move the operation to the new path
-  document.paths[path][meta.method] = operation
+  document.paths[path][meta.method] = unpackProxyObject(operation)
 
   // Remove the operation from the old path
   const oldPath = document.paths[meta.path]
