@@ -24,6 +24,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
@@ -112,7 +113,8 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
-useWorkspaceClientEvents(eventBus, document, store)
+useWorkspaceClientEvents(eventBus, document, store, isSidebarOpen)
+useGlobalHotKeys(eventBus, layout)
 
 /**
  * Merged environment variables from workspace and document levels.
@@ -223,8 +225,8 @@ const createWorkspaceModalState = useModal()
         v-else
         :activeWorkspace="activeWorkspace"
         :workspaces="workspaces"
-        @select:workspace="handleSelectWorkspace"
-        @create:workspace="createWorkspaceModalState.show()" />
+        @create:workspace="createWorkspaceModalState.show()"
+        @select:workspace="handleSelectWorkspace" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -239,10 +241,10 @@ const createWorkspaceModalState = useModal()
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
+          @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
           @selectItem="handleSelectItem"
-          @update:sidebarWidth="handleSidebarWidthUpdate"
-          @create:workspace="createWorkspaceModalState.show()" />
+          @update:sidebarWidth="handleSidebarWidthUpdate" />
 
         <!-- Create workspace modal -->
         <CreateWorkspaceModal

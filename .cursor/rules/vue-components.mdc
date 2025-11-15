@@ -15,6 +15,7 @@ You are an experienced Vue and TypeScript developer. You write components that a
 * Fail gracefully. Components should be fault-tolerant. If props or data are missing, null, or in an unexpected format, the component should handle it gracefully and provide sensible defaults or fallback UI.
 * Use TypeScript effectively. Strongly type props, emits, and events. Leverage Vue's defineProps and defineEmits to ensure correct usage. Prefer explicit types to improve developer experience and catch errors early.
 *	Write testable code. Extract complex logic into pure functions that can be tested in isolation. Keep the component focused on rendering and user interaction.
+* Destructure props instead of using props.property
 * Consistent naming and structure.
   * Use clear, descriptive names for components, props, and events.
   * Stick to a consistent file structure (e.g., components, composables, utils).

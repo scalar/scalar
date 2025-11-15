@@ -28,6 +28,7 @@ export const xScalarEnvironmentSchema = Type.Object({
   variables: Type.Array(xScalarEnvVarSchema),
 })
 
+/** An environment definition */
 export type XScalarEnvironment = {
   /** Optional description for the environment */
   description?: string

@@ -37,12 +37,6 @@ export type CollectionProps = RouteProps &
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
-  // Global settings
-  {
-    name: 'settings',
-    path: '/settings',
-    component: () => import('@/v2/components/TempReplaceMe.vue'),
-  },
   {
     path: '/workspace/:workspaceSlug',
     children: [

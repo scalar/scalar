@@ -1,7 +1,12 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { findVariables } from '@scalar/helpers/regex/find-variables'
 
+import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
+import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 /**
@@ -36,6 +41,114 @@ export type OperationExampleMeta = OperationMeta & {
 }
 
 /** ------------------------------------------------------------------------------------------------
+ * Helper Functions for Path Parameter Synchronization
+ * ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Creates a map of parameter names to their character positions in a path.
+ * Used to detect renamed path parameters by position matching.
+ */
+const getParameterPositions = (path: string, parameters: readonly string[]): Record<string, number> => {
+  const positions: Record<string, number> = {}
+
+  for (const paramName of parameters) {
+    const position = path.indexOf(`{${paramName}}`)
+    if (position !== -1) {
+      positions[paramName] = position
+    }
+  }
+
+  return positions
+}
+
+/**
+ * Syncs path parameters when the path changes.
+ *
+ * Preserves parameter configurations by:
+ * 1. Keeping parameters with matching names
+ * 2. Renaming parameters at the same position
+ * 3. Creating new parameters with empty examples
+ * 4. Removing parameters that no longer exist in the new path
+ */
+const syncParametersForPathChange = (
+  newPath: string,
+  oldPath: string,
+  existingParameters: ReferenceType<ParameterObject>[],
+): ReferenceType<ParameterObject>[] => {
+  // Extract path parameter names from both paths
+  const oldPathParams = findVariables(oldPath, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+  const newPathParams = findVariables(newPath, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+
+  const oldPositions = getParameterPositions(oldPath, oldPathParams)
+  const newPositions = getParameterPositions(newPath, newPathParams)
+
+  // Separate path and non-path parameters, keeping original references
+  const pathParameters: ReferenceType<ParameterObject>[] = []
+  const nonPathParameters: ReferenceType<ParameterObject>[] = []
+
+  for (const param of existingParameters) {
+    const resolved = getResolvedRef(param)
+    if (resolved?.in === 'path') {
+      pathParameters.push(param)
+    } else {
+      nonPathParameters.push(param)
+    }
+  }
+
+  // Create a map of existing path parameters by name for quick lookup
+  const existingPathParamsByName = new Map<string, ReferenceType<ParameterObject>>()
+  for (const param of pathParameters) {
+    const resolved = getResolvedRef(param)
+    if (resolved?.name) {
+      existingPathParamsByName.set(resolved.name, param)
+    }
+  }
+
+  const usedOldParams = new Set<string>()
+  const syncedPathParameters: ReferenceType<ParameterObject>[] = []
+
+  for (const newParamName of newPathParams) {
+    // Case 1: Parameter with same name exists - preserve its config
+    if (existingPathParamsByName.has(newParamName)) {
+      syncedPathParameters.push(existingPathParamsByName.get(newParamName)!)
+      usedOldParams.add(newParamName)
+      continue
+    }
+
+    // Case 2: Check for parameter at same position (likely a rename)
+    const newParamPosition = newPositions[newParamName]
+    const oldParamAtPosition = oldPathParams.find(
+      (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
+    )
+
+    if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
+      // Rename: transfer the old parameter's config to the new name
+      const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
+      const resolved = getResolvedRef(oldParam)
+      if (resolved) {
+        resolved.name = newParamName
+        syncedPathParameters.push(oldParam)
+        usedOldParams.add(oldParamAtPosition)
+        continue
+      }
+    }
+
+    // Case 3: New parameter - create with empty examples
+    syncedPathParameters.push({
+      name: newParamName,
+      in: 'path',
+    })
+  }
+
+  // Return all parameters: synced path parameters + preserved non-path parameters
+  return [...syncedPathParameters, ...nonPathParameters]
+}
+
+/** ------------------------------------------------------------------------------------------------
  * Operation Draft Mutators
  * ------------------------------------------------------------------------------------------------ */
 
@@ -45,28 +158,23 @@ export type OperationExampleMeta = OperationMeta & {
  *
  * Example:
  * ```ts
- * updateOperationSummary({
+ * updateOperationSummary(
  *   document,
+ *   {
  *   meta: { method: 'get', path: '/users/{id}' },
  *   payload: { summary: 'Get a single user' },
  * })
  * ```
  */
-export const updateOperationSummary = ({
-  document,
-  meta,
-  payload: { summary },
-}: {
-  document: WorkspaceDocument | null
-  payload: { summary: string }
-  meta: OperationMeta
-}) => {
+export const updateOperationSummary = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
-
   if (!operation) {
     return
   }
@@ -89,79 +197,98 @@ export const updateOperationSummary = ({
  * })
  * ```
  */
-export const updateOperationMethodDraft = ({
-  document,
-  meta,
-  payload: { method },
-}: {
-  document: WorkspaceDocument | null
-  payload: { method: HttpMethod }
-  meta: OperationMeta
-}) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
+export const updateOperationMethod = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { method } }: OperationEvents['operation:update:method'],
+) => {
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  operation['x-scalar-method'] = method
+  /** Ensure the path exists */
+  const path = document?.paths?.[meta.path]
+  if (!path) {
+    console.error('Path not found', { meta, document })
+    return
+  }
+
+  path[method] = unpackProxyObject(operation)
+  delete path[meta.method]
 }
 
 /**
- * Records a normalized path for the operation under `x-scalar-path`, and
- * synchronizes path parameters in `operation.parameters` with the placeholders
- * present in the provided `path` (e.g. `/users/{id}`). Existing non-path
- * parameters are preserved.
- * Safely no-ops if the document or operation does not exist.
+ * Moves the operation to a new path in the document and synchronizes path
+ * parameters in `operation.parameters` with the placeholders present in the
+ * provided `path` (e.g. `/users/{id}`). When path parameters change,
+ * intelligently syncs them by preserving configurations for renamed parameters
+ * (detected by position) and existing parameters. Existing non-path parameters
+ * are preserved. The operation is removed from the old path location.
  *
  * Example:
  * ```ts
- * updateOperationPathDraft({
+ * updateOperationPath({
  *   document,
  *   meta: { method: 'get', path: '/users/{id}' },
- *   payload: { path: '/users/{id}' },
+ *   payload: { path: '/users/{userId}' },
  * })
  * ```
  */
-export const updateOperationPathDraft = ({
-  document,
-  meta,
-  payload: { path },
-}: {
-  document: WorkspaceDocument | null
-  payload: { path: string }
-  meta: OperationMeta
-}) => {
+export const updateOperationPath = (
+  document: WorkspaceDocument | null,
+  { meta, payload: { path } }: OperationEvents['operation:update:path'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
   if (!operation) {
     return
   }
 
-  operation['x-scalar-path'] = path
+  // If the path has not changed, no need to move the operation
+  if (meta.path === path) {
+    return
+  }
 
-  // Extract the path variables from the path
-  const pathVariables = Array.from(path.matchAll(/{([^\/}]+)}/g), (m) => m[1])
+  // Sync path parameters if either the old or new path has path parameters
+  const oldPathParams = findVariables(meta.path, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
+  const newPathParams = findVariables(path, { includePath: true, includeEnv: false }).filter(
+    (v): v is string => v !== undefined,
+  )
 
-  // now we need to update the operation path variables
-  const pathVariablesWithoutPathParameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== 'path')
+  if (oldPathParams.length > 0 || newPathParams.length > 0) {
+    const existingParameters = operation.parameters ?? []
+    operation.parameters = syncParametersForPathChange(path, meta.path, existingParameters)
+  }
 
-  operation.parameters = [
-    ...(pathVariablesWithoutPathParameters ?? []),
-    ...pathVariables.map((it) => ({
-      name: it ?? '',
-      in: 'path' as const,
-      required: true,
-    })),
-  ]
+  // Initialize the paths object if it does not exist
+  if (!document.paths) {
+    document.paths = {}
+  }
+
+  // Initialize the new path if it does not exist
+  if (!document.paths[path]) {
+    document.paths[path] = {}
+  }
+
+  // Move the operation to the new path
+  document.paths[path][meta.method] = unpackProxyObject(operation)
+
+  // Remove the operation from the old path
+  const oldPath = document.paths[meta.path]
+  if (oldPath) {
+    delete oldPath[meta.method]
+
+    // If the old path has no more operations, remove the path entry
+    if (Object.keys(oldPath).length === 0) {
+      delete document.paths[meta.path]
+    }
+  }
 }
 
 /** ------------------------------------------------------------------------------------------------
@@ -183,21 +310,10 @@ export const updateOperationPathDraft = ({
  * })
  * ```
  */
-export const addOperationParameter = ({
-  document,
-  meta,
-  payload,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  payload: {
-    key: string
-    value: string
-    isEnabled: boolean
-  }
-  meta: OperationExampleMeta
-}) => {
+export const addOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, payload, type }: OperationEvents['operation:add:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -245,23 +361,10 @@ export const addOperationParameter = ({
  * })
  * ```
  */
-export const updateOperationParameter = ({
-  document,
-  meta,
-  type,
-  payload,
-  index,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  index: number
-  payload: Partial<{
-    key: string
-    value: string
-    isEnabled: boolean
-  }>
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, type, payload, index }: OperationEvents['operation:update:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -277,8 +380,6 @@ export const updateOperationParameter = ({
   // The passed index corresponds to this filtered list
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
-
-  // Don't proceed if parameter doesn't exist
   if (!parameter) {
     return
   }
@@ -325,17 +426,10 @@ export const updateOperationParameter = ({
  * })
  * ```
  */
-export const deleteOperationParameter = ({
-  document,
-  meta,
-  index,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  index: number
-  meta: OperationExampleMeta
-}) => {
+export const deleteOperationParameter = (
+  document: WorkspaceDocument | null,
+  { meta, index, type }: OperationEvents['operation:delete:parameter'],
+) => {
   if (!document) {
     return
   }
@@ -350,8 +444,6 @@ export const deleteOperationParameter = ({
   // Translate the index from the filtered list to the actual parameters array
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
-
-  // Don't proceed if parameter doesn't exist
   if (!parameter) {
     return
   }
@@ -375,22 +467,15 @@ export const deleteOperationParameter = ({
  * })
  * ```
  */
-export const deleteAllOperationParameters = ({
-  document,
-  meta,
-  type,
-}: {
-  document: WorkspaceDocument | null
-  type: 'header' | 'path' | 'query' | 'cookie'
-  meta: OperationMeta
-}) => {
+export const deleteAllOperationParameters = (
+  document: WorkspaceDocument | null,
+  { meta, type }: OperationEvents['operation:delete-all:parameters'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
@@ -417,30 +502,20 @@ export const deleteAllOperationParameters = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyContentType = ({
-  document,
-  meta,
-  payload,
-}: {
-  document: WorkspaceDocument | null
-  payload: {
-    contentType: string
-  }
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyContentType = (
+  document: WorkspaceDocument | null,
+  { meta, payload }: OperationEvents['operation:update:requestBody:contentType'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -470,32 +545,20 @@ export const updateOperationRequestBodyContentType = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyExample = ({
-  document,
-  meta,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  contentType: string
-  payload: {
-    value: string | File | undefined
-  }
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyExample = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -515,7 +578,6 @@ export const updateOperationRequestBodyExample = ({
   const examples = getResolvedRef(mediaType.examples)!
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example) {
     examples[meta.exampleKey] = {
       value: payload.value,
@@ -541,17 +603,10 @@ export const updateOperationRequestBodyExample = ({
  * })
  * ```
  */
-export const addOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  payload: Partial<{ key: string; value?: string | File }>
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const addOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:add:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
@@ -621,32 +676,20 @@ export const addOperationRequestBodyFormRow = ({
  * })
  * ```
  */
-export const updateOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  index,
-  payload,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  index: number
-  payload: Partial<{ key: string; value: string | File | null }>
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const updateOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, index, payload, contentType }: OperationEvents['operation:update:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -659,13 +702,11 @@ export const updateOperationRequestBodyFormRow = ({
   }
 
   const examples = getResolvedRef(requestBody!.content[contentType]!.examples)
-
   if (!examples) {
     return
   }
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example || !Array.isArray(example.value)) {
     return
   }
@@ -691,30 +732,20 @@ export const updateOperationRequestBodyFormRow = ({
  * })
  * ```
  */
-export const deleteOperationRequestBodyFormRow = ({
-  document,
-  meta,
-  index,
-  contentType,
-}: {
-  document: WorkspaceDocument | null
-  index: number
-  contentType: string
-  meta: OperationExampleMeta
-}) => {
+export const deleteOperationRequestBodyFormRow = (
+  document: WorkspaceDocument | null,
+  { meta, index, contentType }: OperationEvents['operation:delete:requestBody:formRow'],
+) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   const requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     return
   }
@@ -724,13 +755,11 @@ export const deleteOperationRequestBodyFormRow = ({
   }
 
   const examples = getResolvedRef(requestBody.content[contentType]!.examples)
-
   if (!examples) {
     return
   }
 
   const example = getResolvedRef(examples[meta.exampleKey])
-
   if (!example || !Array.isArray(example.value)) {
     return
   }
