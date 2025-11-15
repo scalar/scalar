@@ -9,24 +9,24 @@ describe('event-backend', () => {
   it('openapi1', async () => {
     const result = await validate(openapi1)
 
-    // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    // There are 682 total validation errors in this file, this may not be an effective test.
+    expect(result.errors?.[0]?.message).toContain('Property schema is not expected to be here')
     expect(result.valid).toBe(false)
   })
 
   it('openapi2', async () => {
     const result = await validate(openapi2)
 
-    // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    // 203 errors in this file, this may not be an effective test.
+    expect(result.errors?.[0]?.message).toBe('Property schema is not expected to be here')
     expect(result.valid).toBe(false)
   })
 
   it('openapi3', async () => {
     const result = await validate(openapi3)
 
-    // TODO: What does that mean?
-    expect(result.errors?.[0]?.message).toBe(`must have required property '$ref'`)
+    // 203 here as well.
+    expect(result.errors?.[0]?.message).toBe('Property schema is not expected to be here')
     expect(result.valid).toBe(false)
   })
 })

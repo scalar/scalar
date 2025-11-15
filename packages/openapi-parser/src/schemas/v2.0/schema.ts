@@ -168,7 +168,14 @@ export default {
           "$ref": "#/definitions/vendorExtension"
         },
         "^/": {
-          "$ref": "#/definitions/pathItem"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/pathItem"
+            },
+            {
+              "$ref": "#/definitions/jsonReference"
+            }
+          ]
         }
       },
       "additionalProperties": false
