@@ -2380,6 +2380,9 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

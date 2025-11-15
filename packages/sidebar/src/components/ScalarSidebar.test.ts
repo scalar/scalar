@@ -406,6 +406,62 @@ describe('ScalarSidebar', () => {
   })
 
   describe('drag and drop', () => {
+    it('enables dragging for client layout', () => {
+      const items: Item[] = [
+        {
+          id: '1',
+          title: 'Test Item',
+          type: 'operation',
+          ref: 'ref-1',
+          method: 'get',
+          path: '/test',
+        },
+      ]
+
+      const state = createSidebarState(items)
+
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'client',
+          items: state.items.value,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+        },
+      })
+
+      const sidebarItem = wrapper.findComponent(SidebarItem)
+      // Check that isDraggable prop is passed as true for client layout
+      expect(sidebarItem.props('isDraggable')).toBe(true)
+    })
+
+    it('disables dragging for reference layout', () => {
+      const items: Item[] = [
+        {
+          id: '1',
+          title: 'Test Item',
+          type: 'operation',
+          ref: 'ref-1',
+          method: 'get',
+          path: '/test',
+        },
+      ]
+
+      const state = createSidebarState(items)
+
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'reference',
+          items: state.items.value,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+        },
+      })
+
+      const sidebarItem = wrapper.findComponent(SidebarItem)
+      // Check that isDraggable prop is passed as false for reference layout
+      expect(sidebarItem.props('isDraggable')).toBe(false)
+    })
+
     it('emits reorder event when onDragEnd is triggered', () => {
       const items: Item[] = [
         {

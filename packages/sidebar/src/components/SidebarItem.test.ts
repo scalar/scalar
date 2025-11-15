@@ -535,7 +535,7 @@ describe('SidebarItem', () => {
       expect(sidebarItem.vm.$attrs).toHaveProperty('draggable')
     })
 
-    it('enables dragging for client layout', () => {
+    it('defaults to enabled dragging when isDraggable is not provided', () => {
       const item: Item = {
         id: '1',
         title: 'Test Item',
@@ -548,17 +548,16 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
-          layout: 'client',
           item,
         },
       })
 
       const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
-      // Check that draggable prop is passed (value should be true for client layout)
+      // Check that draggable prop defaults to true when not explicitly provided
       expect(sidebarItem.vm.$attrs.draggable).toBe(true)
     })
 
-    it('disables dragging for reference layout', () => {
+    it('respects explicit isDraggable prop when provided', () => {
       const item: Item = {
         id: '1',
         title: 'Test Item',
@@ -571,13 +570,13 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
-          layout: 'reference',
           item,
+          isDraggable: false,
         },
       })
 
       const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
-      // Check that draggable prop is passed (value should be false for reference layout)
+      // Check that draggable prop respects explicit value
       expect(sidebarItem.vm.$attrs.draggable).toBe(false)
     })
 
