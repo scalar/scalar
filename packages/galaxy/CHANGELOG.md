@@ -1,5 +1,15 @@
 # @scalar/galaxy
 
+## 0.5.12
+
+### Patch Changes
+
+- [#7332](https://github.com/scalar/scalar/pull/7332) [`93a466e`](https://github.com/scalar/scalar/commit/93a466e79b8a9f0475f36fe7b4254f4bbeaea616) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: use support@scalar.com as the email address
+
+- [#7326](https://github.com/scalar/scalar/pull/7326) [`4455bdc`](https://github.com/scalar/scalar/commit/4455bdc53f645b144bf31912e585bf82c52beb34) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: union discriminator specified in `components.schemas.CelestialBody` is incorrect
+
+- [#7334](https://github.com/scalar/scalar/pull/7334) [`db20273`](https://github.com/scalar/scalar/commit/db20273dbbad0d7dd251506c2301f076329651a0) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: no duplicate descriptions
+
 ## 0.5.11
 
 ### Patch Changes

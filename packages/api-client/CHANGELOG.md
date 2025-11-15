@@ -1,5 +1,45 @@
 # @scalar/api-client
 
+## 2.12.0
+
+### Minor Changes
+
+- [#7310](https://github.com/scalar/scalar/pull/7310) [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: workspace selector
+
+### Patch Changes
+
+- [#7329](https://github.com/scalar/scalar/pull/7329) [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: setting nested proxies directly cases problems
+
+- [#7311](https://github.com/scalar/scalar/pull/7311) [`a35f5cf`](https://github.com/scalar/scalar/commit/a35f5cf3bce49b0ffda758e95bd31c77109e3c5b) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(api-client): abort request on modal close
+
+- [#7365](https://github.com/scalar/scalar/pull/7365) [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc) Thanks [@amritk](https://github.com/amritk)! - feat: added hot keys to client v2
+
+- [#7368](https://github.com/scalar/scalar/pull/7368) [`0486728`](https://github.com/scalar/scalar/commit/04867286af9156c4d8ffb688c2d200f1b5a7d752) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(api-client): use timeouts instead of interval in `use-document-watcher`
+
+- [#7304](https://github.com/scalar/scalar/pull/7304) [`cc9d90b`](https://github.com/scalar/scalar/commit/cc9d90b1a268a6c294adcb32f7ae8559c1dcc77e) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(api-client): handle `onBeforeRequest` hook error
+
+- Updated dependencies [[`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332), [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`dd5c518`](https://github.com/scalar/scalar/commit/dd5c518a422dddc7948c0253861101cf741b6af0), [`0519a33`](https://github.com/scalar/scalar/commit/0519a33c7d3f3cf65b93b37392c51d3c0586cbab), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc)]:
+  - @scalar/workspace-store@0.21.0
+  - @scalar/sidebar@0.4.0
+  - @scalar/types@0.4.1
+  - @scalar/oas-utils@0.6.4
+  - @scalar/object-utils@1.2.12
+  - @scalar/components@0.16.4
+  - @scalar/themes@0.13.24
+  - @scalar/helpers@0.1.2
+  - @scalar/openapi-parser@0.23.3
+  - @scalar/snippetz@0.5.3
+  - @scalar/analytics-client@1.0.0
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+  - @scalar/import@0.4.35
+  - @scalar/json-magic@0.8.2
+  - @scalar/openapi-types@0.5.1
+  - @scalar/postman-to-openapi@0.3.45
+  - @scalar/use-codemirror@0.12.48
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+
 ## 2.11.0
 
 ### Minor Changes

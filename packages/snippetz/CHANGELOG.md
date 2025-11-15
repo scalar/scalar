@@ -1,5 +1,12 @@
 # @scalar/snippetz
 
+## 0.5.3
+
+### Patch Changes
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d)]:
+  - @scalar/types@0.4.1
+
 ## 0.5.2
 
 ### Patch Changes

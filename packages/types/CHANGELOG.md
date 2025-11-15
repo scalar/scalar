@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.4.1
+
+### Patch Changes
+
+- [#7320](https://github.com/scalar/scalar/pull/7320) [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: rename showToolbar to showDeveloperTools
+
+- Updated dependencies []:
+  - @scalar/openapi-types@0.5.1
+
 ## 0.4.0
 
 ### Minor Changes

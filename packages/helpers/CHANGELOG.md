@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.1.2
+
+### Patch Changes
+
+- [#7348](https://github.com/scalar/scalar/pull/7348) [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarWrappingText component
+
 ## 0.1.1
 
 ### Patch Changes
