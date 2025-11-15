@@ -93,9 +93,6 @@ onBeforeMount(() => addScalarClassesToHeadless())
 onBeforeUnmount(() => {
   cleanUpListeners()
 })
-
-/** Controls the visibility of the sidebar */
-const isSidebarOpen = ref(true)
 </script>
 
 <template>
