@@ -21,9 +21,13 @@ const { sidebarState, layout } = defineProps<{
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
   layout: ClientLayout
+  /** The currently active workspace */
   activeWorkspace: Workspace
+  /** The list of all available workspaces */
   workspaces: Workspace[]
+  /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
+  /** The documents belonging to the workspace */
   documents: WorkspaceDocument[]
   /**
    * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
@@ -38,9 +42,11 @@ const { sidebarState, layout } = defineProps<{
 const emit = defineEmits<{
   /** Emitted when an item is selected */
   (e: 'selectItem', id: string): void
+  /** Emitted when a workspace is selected by optional ID */
   (e: 'select:workspace', id?: string): void
   /** Emitted when the user wants to create a new workspace */
   (e: 'create:workspace'): void
+  /** Emitted when sidebar items are reordered via drag and drop */
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 

@@ -24,7 +24,6 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
@@ -220,11 +219,6 @@ const routerViewProps = computed(
 )
 
 const createWorkspaceModalState = useModal()
-
-const { handleDragEnd, isDroppable } = dragHandleFactory({
-  store,
-  sidebarState,
-})
 </script>
 
 <template>
@@ -249,16 +243,13 @@ const { handleDragEnd, isDroppable } = dragHandleFactory({
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
-          :documents="Object.values(store.workspace.documents)"
+          :store="store"
           :eventBus="eventBus"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
           :sidebarState="sidebarState"
           :sidebarWidth="sidebarWidth"
           :workspaces="workspaces"
-          :handleDragEnd="handleDragEnd"
-          :isDroppable="isDroppable"
-          @reorder="handleDragEnd"
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"

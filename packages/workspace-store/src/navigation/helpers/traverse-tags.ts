@@ -1,10 +1,12 @@
+import { sortByOrder } from '@scalar/object-utils/arrays'
+
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
 type Options = Pick<TraverseSpecOptions, 'tagsSorter' | 'operationsSorter' | 'generateId'>
 
@@ -102,17 +104,7 @@ const getSortedTagEntries = ({
 
     const sortOrder = tag['x-scalar-order']
 
-    if (sortOrder !== undefined) {
-      // Sort the entries by the sort order if it is provided
-      entries.sort((a, b) => {
-        const idxA = sortOrder.indexOf(a.id)
-        const idxB = sortOrder.indexOf(b.id)
-        // Items not found in sortOrder should come last (after all found items)
-        const safeIdxA = idxA === -1 ? Number.POSITIVE_INFINITY : idxA
-        const safeIdxB = idxB === -1 ? Number.POSITIVE_INFINITY : idxB
-        return safeIdxA - safeIdxB
-      })
-    } else {
+    if (sortOrder === undefined) {
       // Alpha sort
       if (operationsSorter === 'alpha') {
         entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.title.localeCompare(b.title) : 0))
@@ -147,24 +139,16 @@ const getSortedTagEntries = ({
       ? createTagEntry({
           tag,
           generateId,
-          children: entries,
+          children: sortOrder ? sortByOrder(entries, sortOrder, 'id') : entries,
           parentId: documentId,
           isGroup: false,
         })
       : []
   })
 
-  // If sort order is provided, use it to sort the entries
+  // If a custom 'x-scalar-order' is specified in the tag, sort the entries by this order using sortByOrder
   if (sortOrder) {
-    entries.sort((a, b) => {
-      const indexA = sortOrder.indexOf(a.id)
-      const indexB = sortOrder.indexOf(b.id)
-      // If an id is not found, treat it as "infinity" so those items go last.
-      const safeIndexA = indexA === -1 ? Number.POSITIVE_INFINITY : indexA
-      const safeIndexB = indexB === -1 ? Number.POSITIVE_INFINITY : indexB
-      return safeIndexA - safeIndexB
-    })
-    return entries
+    return sortByOrder(entries, sortOrder, 'id')
   }
 
   // Alpha sort

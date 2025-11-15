@@ -16,7 +16,7 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
  * Keep in sync with the persisted workspace structure.
  */
 const DEFAULT_WORKSPACE: Workspace = {
-  name: 'Default',
+  name: 'Default Workspace',
   id: 'default',
 }
 

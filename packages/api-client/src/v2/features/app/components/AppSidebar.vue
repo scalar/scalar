@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconGlobe } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { capitalize, computed } from 'vue'
 
@@ -12,10 +11,11 @@ import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { sidebarState, layout, activeWorkspace } = defineProps<{
+const { sidebarState, layout, activeWorkspace, store } = defineProps<{
   /**
    * The current layout of the app (e.g., 'desktop', 'web')
    */
@@ -40,16 +40,16 @@ const { sidebarState, layout, activeWorkspace } = defineProps<{
    * Used to render options for workspace switching and selection.
    */
   workspaces: Workspace[]
-  eventBus: WorkspaceEventBus
-  documents: WorkspaceDocument[]
   /**
-   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
-   *
-   * @default true
+   * The workspace event bus for handling workspace-level events.
+   * Used for triggering and responding to workspace changes and actions.
    */
-  isDroppable?:
-    | boolean
-    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
+  eventBus: WorkspaceEventBus
+  /**
+   * The WorkspaceStore instance for managing workspace state and actions.
+   * Provides methods and state for interacting with the current workspace.
+   */
+  store: WorkspaceStore
 }>()
 
 const emit = defineEmits<{
@@ -63,13 +63,10 @@ const emit = defineEmits<{
   (e: 'select:workspace', id?: string): void
   /** Emitted when the user requests to create a new workspace */
   (e: 'create:workspace'): void
-  (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 /** The label for the workspace button in the sidebar */
-const workspaceLabel = computed(
-  () => capitalize(activeWorkspace.name) + ' Workspace',
-)
+const workspaceLabel = computed(() => capitalize(activeWorkspace.name))
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -84,6 +81,16 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 
 /** Calculate if we should show the getting started section */
 const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
+
+/*
+ * Setup drag and drop handlers for sidebar items.
+ * The dragHandleFactory takes the current workspace store and sidebar state,
+ * and returns the appropriate handlers for drag ending and droppability.
+ */
+const { handleDragEnd, isDroppable } = dragHandleFactory({
+  store,
+  sidebarState,
+})
 </script>
 
 <template>
@@ -92,7 +99,7 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     :activeWorkspace="activeWorkspace"
-    :documents="documents"
+    :documents="Object.values(store.workspace.documents)"
     :eventBus="eventBus"
     :layout="layout"
     :sidebarState="sidebarState"
@@ -101,7 +108,7 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
     @select:workspace="(id) => emit('select:workspace', id)"
     @selectItem="(id) => emit('selectItem', id)"
     @reorder="
-      (draggingItem, hoveredItem) => emit('reorder', draggingItem, hoveredItem)
+      (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
     ">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
