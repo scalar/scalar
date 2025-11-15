@@ -21,6 +21,7 @@
     "format": "node scripts/format.js",
     "lint:check": "node scripts/lint-check.js",
     "lint:fix": "node scripts/lint-fix.js",
+    "test": "vitest",
     "types:build": "node scripts/types-build.js",
     "types:check": "node scripts/types-check.js"
   },
@@ -68,7 +69,7 @@
     "ansis": "catalog:*",
     "chokidar": "catalog:*",
     "esbuild": "catalog:*",
-    "glob": "^10.3.10",
+    "fast-glob": "^3.3.2",
     "picomatch": "^4.0.2",
     "rollup": "catalog:*",
     "rollup-plugin-copy": "^3.5.0",

@@ -4,19 +4,19 @@ import path from 'node:path'
 import as from 'ansis'
 import chokidar from 'chokidar'
 import * as esbuild from 'esbuild'
-import { glob } from 'glob'
+import { sync as fgSync } from 'fast-glob'
 
 import { addPackageFileExports, findEntryPoints } from '../helpers'
 import { runCommand } from './helpers'
 
-function makeEntryPoints(allowJs?: boolean) {
+function makeEntryPoints(allowJs?: boolean): Array<string> {
   const entryPoints = ['src/**/*.ts']
 
   if (allowJs) {
     entryPoints.push('src/**/*.js')
   }
 
-  const entryPointsWithoutTests = glob.sync(entryPoints, {
+  const entryPointsWithoutTests = fgSync(entryPoints, {
     ignore: ['**/*.@(test|spec).@(ts|js)'],
   })
 
@@ -82,7 +82,7 @@ export async function build({
    */
   onSuccess?: () => Promise<void> | void
   onBeforeBuild?: () => Promise<void> | void
-}) {
+}): Promise<unknown> {
   await fs.rm('dist', { recursive: true, force: true })
 
   /**
@@ -92,10 +92,7 @@ export async function build({
   if (entries === 'auto') {
     await findEntryPoints({ allowCss })
   } else {
-    await addPackageFileExports({
-      entries,
-      allowCss,
-    })
+    await addPackageFileExports({ entries, allowCss })
   }
 
   const buildOptions =

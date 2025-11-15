@@ -34,20 +34,40 @@
   },
   "type": "module",
   "exports": {
-    "./events": {
-      "import": "./dist/events/index.js",
-      "types": "./dist/events/index.d.ts",
-      "default": "./dist/events/index.js"
-    },
     "./client": {
       "import": "./dist/client.js",
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./events": {
+      "import": "./dist/events/index.js",
+      "types": "./dist/events/index.d.ts",
+      "default": "./dist/events/index.js"
+    },
+    "./helpers/*": {
+      "import": "./dist/helpers/*.js",
+      "types": "./dist/helpers/*.d.ts",
+      "default": "./dist/helpers/*.js"
+    },
+    "./mutators": {
+      "import": "./dist/mutators/index.js",
+      "types": "./dist/mutators/index.d.ts",
+      "default": "./dist/mutators/index.js"
+    },
+    "./navigation": {
+      "import": "./dist/navigation/index.js",
+      "types": "./dist/navigation/index.d.ts",
+      "default": "./dist/navigation/index.js"
+    },
     "./persistence": {
       "import": "./dist/persistence/index.js",
       "types": "./dist/persistence/index.d.ts",
       "default": "./dist/persistence/index.js"
+    },
+    "./plugins/bundler": {
+      "import": "./dist/plugins/bundler/index.js",
+      "types": "./dist/plugins/bundler/index.d.ts",
+      "default": "./dist/plugins/bundler/index.js"
     },
     "./plugins/client": {
       "import": "./dist/plugins/client/index.js",
@@ -64,35 +84,20 @@
       "types": "./dist/schemas/*.d.ts",
       "default": "./dist/schemas/*.js"
     },
-    "./helpers/*": {
-      "import": "./dist/helpers/*.js",
-      "types": "./dist/helpers/*.d.ts",
-      "default": "./dist/helpers/*.js"
-    },
-    "./mutators": {
-      "import": "./dist/mutators/index.js",
-      "types": "./dist/mutators/index.d.ts",
-      "default": "./dist/mutators/index.js"
-    },
     "./schemas/extensions/operation": {
       "import": "./dist/schemas/extensions/operation/index.js",
       "types": "./dist/schemas/extensions/operation/index.d.ts",
       "default": "./dist/schemas/extensions/operation/index.js"
     },
-    "./schemas/v3.1/*": {
-      "import": "./dist/schemas/v3.1/*.js",
-      "types": "./dist/schemas/v3.1/*.d.ts",
-      "default": "./dist/schemas/v3.1/*.js"
+    "./schemas/v3.1/strict/openapi-document": {
+      "import": "./dist/schemas/v3.1/strict/openapi-document.js",
+      "types": "./dist/schemas/v3.1/strict/openapi-document.d.ts",
+      "default": "./dist/schemas/v3.1/strict/openapi-document.js"
     },
     "./server": {
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
-    },
-    "./navigation": {
-      "import": "./dist/navigation/index.js",
-      "types": "./dist/navigation/index.d.ts",
-      "default": "./dist/navigation/index.js"
     }
   },
   "files": [

@@ -60,18 +60,6 @@
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
     "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
-  "exports": {
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
-    }
-  },
   "remarkConfig": {
     "plugins": [
       "remark-validate-links",

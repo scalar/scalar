@@ -13,7 +13,10 @@ export default defineConfig({
     port: 5064,
   },
   build: createViteBuildOptions({
-    entry: await findEntryPoints({ allowCss: true }),
+    entry: await findEntryPoints({
+      baseDir: import.meta.dirname,
+      allowCss: true,
+    }),
     options: {
       ssr: false,
     },

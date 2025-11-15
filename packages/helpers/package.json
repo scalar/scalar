@@ -35,6 +35,11 @@
       "types": "./dist/array/*.d.ts",
       "default": "./dist/array/*.js"
     },
+    "./crypto/*": {
+      "import": "./dist/crypto/*.js",
+      "types": "./dist/crypto/*.d.ts",
+      "default": "./dist/crypto/*.js"
+    },
     "./dom/*": {
       "import": "./dist/dom/*.js",
       "types": "./dist/dom/*.d.ts",
@@ -84,11 +89,6 @@
       "import": "./dist/url/*.js",
       "types": "./dist/url/*.d.ts",
       "default": "./dist/url/*.js"
-    },
-    "./crypto/*": {
-      "import": "./dist/crypto/*.js",
-      "types": "./dist/crypto/*.d.ts",
-      "default": "./dist/crypto/*.js"
     }
   },
   "files": [
