@@ -14,7 +14,7 @@ import { useSearchIndex } from '@/v2/features/search/hooks/use-search-index'
 
 import SearchResult from './SearchResult.vue'
 
-const props = defineProps<{
+const { modalState, documents, eventBus } = defineProps<{
   modalState: ModalState
   documents: WorkspaceDocument[]
   eventBus: WorkspaceEventBus
@@ -27,13 +27,13 @@ const listboxId = `${id}-search-result`
 /** An id for the results instructions */
 const instructionsId = `${id}-search-instructions`
 
-const { query, results } = useSearchIndex(() => props.documents)
+const { query, results } = useSearchIndex(() => documents)
 
 const selectedIndex = ref<number | undefined>(undefined)
 
 /** Clear the query value when the modal is opened */
 watch(
-  () => props.modalState.open,
+  () => modalState.open,
   (open) => {
     if (open) {
       query.value = ''
@@ -51,7 +51,6 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
     selectedIndex.value = (selectedIndex.value + offset + length) % length
   } else {
     // If no index is selected, we select the first or last item depending on the direction
-
     selectedIndex.value = offset === -1 ? length - 1 : 0
   }
 }
@@ -63,8 +62,8 @@ function handleSelect(idx: number | undefined) {
   }
 
   const result = results.value[idx]
-  props.modalState.hide()
-  props.eventBus.emit('scroll-to:nav-item', { id: result.item.id })
+  modalState.hide()
+  eventBus.emit('scroll-to:nav-item', { id: result.item.id })
 }
 
 /**
@@ -73,7 +72,6 @@ function handleSelect(idx: number | undefined) {
  */
 const activeDescendantId = computed(() => {
   const selectedResult = results.value[selectedIndex.value ?? -1]
-
   return selectedResult ? `search-result-${selectedResult.item.id}` : undefined
 })
 </script>
