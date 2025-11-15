@@ -1,5 +1,25 @@
 # @scalar/build-tooling
 
+## 0.3.0
+
+### Minor Changes
+
+- [#7275](https://github.com/scalar/scalar/pull/7275) [`3fd8752`](https://github.com/scalar/scalar/commit/3fd87526e4baa11d5ef8cc1b09e07b89af5c3b20) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(build-tooling): export vite plugin from /vite
+
+- [#7275](https://github.com/scalar/scalar/pull/7275) [`3fd8752`](https://github.com/scalar/scalar/commit/3fd87526e4baa11d5ef8cc1b09e07b89af5c3b20) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(build-tooling): remove deprecated exports
+  - `alias` - now exported by `@scalar/build-tooling/vite`
+  - `createViteBuildOptions` - now exported by `@scalar/build-tooling/vite`
+  - `ViteWatchWorkspace` - now exported by `@scalar/build-tooling/vite`
+  - `createRollupConfig` - now exported by `@scalar/build-tooling/rollup`
+
+- [#7275](https://github.com/scalar/scalar/pull/7275) [`3fd8752`](https://github.com/scalar/scalar/commit/3fd87526e4baa11d5ef8cc1b09e07b89af5c3b20) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(build-tooling): remove `autoCSSInject`
+
+- [#7275](https://github.com/scalar/scalar/pull/7275) [`3fd8752`](https://github.com/scalar/scalar/commit/3fd87526e4baa11d5ef8cc1b09e07b89af5c3b20) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(build-tooling): move `alias` inside vite exports
+
+### Patch Changes
+
+- [#7275](https://github.com/scalar/scalar/pull/7275) [`3fd8752`](https://github.com/scalar/scalar/commit/3fd87526e4baa11d5ef8cc1b09e07b89af5c3b20) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(build-tooling): remove `@rollup/plugin-swc` dependency
+
 ## 0.2.8
 
 ### Patch Changes

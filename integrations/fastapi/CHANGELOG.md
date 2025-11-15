@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.4.4
+
+### Patch Changes
+
+- [#7332](https://github.com/scalar/scalar/pull/7332) [`93a466e`](https://github.com/scalar/scalar/commit/93a466e79b8a9f0475f36fe7b4254f4bbeaea616) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: use support@scalar.com as the email address
+
 ## 1.4.3
 
 ### Patch Changes

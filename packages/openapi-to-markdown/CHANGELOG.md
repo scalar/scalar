@@ -1,5 +1,24 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.4
+
+### Patch Changes
+
+- [#7337](https://github.com/scalar/scalar/pull/7337) [`0b881ee`](https://github.com/scalar/scalar/commit/0b881eec7ae5d43c80b00d9ee05ee0bb9d745acf) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(openapi-to-markdown): remove unused dependencies
+  - `@scalar/snippetz`
+  - `rehype-stringify`
+
+- [#7337](https://github.com/scalar/scalar/pull/7337) [`0b881ee`](https://github.com/scalar/scalar/commit/0b881eec7ae5d43c80b00d9ee05ee0bb9d745acf) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(openapi-to-markdown): remove css exports pointing to non-existing files
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`0519a33`](https://github.com/scalar/scalar/commit/0519a33c7d3f3cf65b93b37392c51d3c0586cbab), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74)]:
+  - @scalar/types@0.4.1
+  - @scalar/oas-utils@0.6.4
+  - @scalar/components@0.16.4
+  - @scalar/helpers@0.1.2
+  - @scalar/openapi-parser@0.23.3
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/openapi-types@0.5.1
+
 ## 0.3.3
 
 ### Patch Changes

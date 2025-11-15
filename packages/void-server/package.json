@@ -15,7 +15,7 @@
     "http testing",
     "hono"
   ],
-  "version": "2.2.9",
+  "version": "2.2.10",
   "engines": {
     "node": ">=20"
   },

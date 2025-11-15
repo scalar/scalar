@@ -1,5 +1,28 @@
 # @scalar/workspace-store
 
+## 0.21.0
+
+### Minor Changes
+
+- [#7310](https://github.com/scalar/scalar/pull/7310) [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: workspace selector
+
+### Patch Changes
+
+- [#7287](https://github.com/scalar/scalar/pull/7287) [`dd5c518`](https://github.com/scalar/scalar/commit/dd5c518a422dddc7948c0253861101cf741b6af0) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: correctly update the parameter examples
+
+- [#7329](https://github.com/scalar/scalar/pull/7329) [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: setting nested proxies directly cases problems
+
+- [#7365](https://github.com/scalar/scalar/pull/7365) [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc) Thanks [@amritk](https://github.com/amritk)! - feat: added hot keys to client v2
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74)]:
+  - @scalar/types@0.4.1
+  - @scalar/themes@0.13.24
+  - @scalar/helpers@0.1.2
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.3
+  - @scalar/code-highlight@0.2.0
+  - @scalar/json-magic@0.8.2
+
 ## 0.20.0
 
 ### Minor Changes
