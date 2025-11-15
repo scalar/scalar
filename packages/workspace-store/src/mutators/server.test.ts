@@ -597,7 +597,7 @@ describe('syncVariablesForUrlChange', () => {
 })
 
 describe('updateSelectedServer', () => {
-  it('updates the selected server by index', () => {
+  it('updates the selected server by url', () => {
     const document = createDocument({
       servers: [
         { url: 'https://api.example.com' },
@@ -606,7 +606,7 @@ describe('updateSelectedServer', () => {
       ],
     })
 
-    const result = updateSelectedServer(document, { index: 1 })
+    const result = updateSelectedServer(document, { url: 'https://dev.example.com' })
 
     expect(result).toBe('https://dev.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://dev.example.com')
@@ -618,7 +618,7 @@ describe('updateSelectedServer', () => {
       'x-scalar-selected-server': 'https://dev.example.com',
     })
 
-    const result = updateSelectedServer(document, { index: 0 })
+    const result = updateSelectedServer(document, { url: 'https://api.example.com' })
 
     expect(result).toBe('https://api.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
@@ -629,27 +629,10 @@ describe('updateSelectedServer', () => {
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    const result = updateSelectedServer(document, { index: 5 })
+    const result = updateSelectedServer(document, { url: 'abc' })
 
     expect(result).toBeUndefined()
     expect(document['x-scalar-selected-server']).toBeUndefined()
-  })
-
-  it('returns undefined when document has no servers', () => {
-    const document = createDocument({
-      servers: [],
-    })
-
-    const result = updateSelectedServer(document, { index: 0 })
-
-    expect(result).toBeUndefined()
-    expect(document['x-scalar-selected-server']).toBeUndefined()
-  })
-
-  it('returns undefined when document is null', () => {
-    const result = updateSelectedServer(null, { index: 0 })
-
-    expect(result).toBeUndefined()
   })
 
   it('handles selecting a server with variables', () => {
@@ -667,7 +650,7 @@ describe('updateSelectedServer', () => {
       ],
     })
 
-    const result = updateSelectedServer(document, { index: 0 })
+    const result = updateSelectedServer(document, { url: 'https://{environment}.example.com' })
 
     expect(result).toBe('https://{environment}.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://{environment}.example.com')

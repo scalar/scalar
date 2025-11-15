@@ -24,6 +24,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
@@ -122,7 +123,9 @@ useWorkspaceClientEvents({
   document,
   workspaceStore: store,
   navigateTo: handleSelectItem,
+  isSidebarOpen,
 })
+useGlobalHotKeys(eventBus, layout)
 
 /**
  * Merged environment variables from workspace and document levels.

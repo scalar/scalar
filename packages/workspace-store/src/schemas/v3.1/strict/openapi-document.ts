@@ -3,14 +3,14 @@ import { type TSchema, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
-  type XScalarDocumentSecurity,
-  XScalarDocumentSecuritySchema,
-} from '@/schemas/extensions/document/x-scalar-document-security'
-import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
+import {
+  type XScalarSetOperationSecurity,
+  XScalarSetOperationSecuritySchema,
+} from '@/schemas/extensions/document/x-scalar-set-operation-security'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarSelectedSecurity,
@@ -91,7 +91,7 @@ const OpenApiExtensionsSchema = compose(
   xScalarEnvironmentsSchema,
   XScalarSelectedSecuritySchema,
   XScalarSelectedServerSchema,
-  XScalarDocumentSecuritySchema,
+  XScalarSetOperationSecuritySchema,
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
@@ -114,7 +114,7 @@ export type OpenAPIExtensions = Partial<{
   XScalarEnvironments &
   XScalarSelectedSecurity &
   XScalarSelectedServer &
-  XScalarDocumentSecurity &
+  XScalarSetOperationSecurity &
   XScalarIcon &
   XScalarOrder
 
