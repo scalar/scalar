@@ -89,6 +89,7 @@ describe('Operation', () => {
         selectedIndex: 0,
         selectedSchemes: [{ bearerAuth: [] }],
       },
+      'x-scalar-set-operation-security': true,
       paths: {
         '/pets': {
           get: {

@@ -23,7 +23,7 @@ const DEFAULT_WORKSPACE: Workspace = {
 const defaultDocument = {
   openapi: '3.1.0',
   info: {
-    title: 'Draft',
+    title: 'Drafts',
     version: '1.0.0',
   },
   paths: {
@@ -31,7 +31,7 @@ const defaultDocument = {
       get: {},
     },
   },
-  'x-scalar-original-document-hash': 'draft',
+  'x-scalar-original-document-hash': 'drafts',
 } satisfies OpenApiDocument
 
 /**
@@ -93,7 +93,7 @@ export const useWorkspaceSelector = ({
   const createAndPersistWorkspace = async ({ id, name }: { id: string; name: string }): Promise<void> => {
     const draftStore = createWorkspaceStore()
     await draftStore.addDocument({
-      name: 'draft',
+      name: 'drafts',
       document: defaultDocument,
     })
 

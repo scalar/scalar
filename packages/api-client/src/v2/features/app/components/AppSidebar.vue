@@ -76,12 +76,12 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
   <Sidebar
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
-    :activeWorkspace="activeWorkspace"
-    :layout="layout"
-    :sidebarState="sidebarState"
-    :workspaces="workspaces"
-    @select:workspace="(id) => emit('select:workspace', id)"
+    :activeWorkspace
+    :layout
+    :sidebarState
+    :workspaces
     @createWorkspace="emit('create:workspace')"
+    @select:workspace="(id) => emit('select:workspace', id)"
     @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
