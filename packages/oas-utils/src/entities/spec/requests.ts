@@ -3,8 +3,8 @@ import {
   XCodeSamplesSchema,
   XPostResponseSchema,
 } from '@scalar/openapi-types/schemas/extensions'
-import { XScalarStability } from '@scalar/types'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
+import { XScalarStability } from '@scalar/types/legacy'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { type ZodSchema, z } from 'zod'
 

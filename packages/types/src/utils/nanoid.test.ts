@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { nanoidSchema, type Nanoid } from './nanoid'
+import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
+
+import { type Nanoid, nanoidSchema } from './nanoid'
 
 describe('nanoidSchema', () => {
   it('should generate a string with minimum length of 7 characters when no value is provided', () => {

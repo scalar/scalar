@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ThemeId } from '@scalar/types'
+import type { ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfigurationWithMultipleSources } from '@scalar/types/api-reference'
 
 import { sources } from '../content/sources'

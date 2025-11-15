@@ -1,7 +1,7 @@
 import type { AnyApiReferenceConfiguration, CreateApiReference } from '@scalar/types'
+import Layout from '@theme/Layout'
 import React, { useEffect, useRef } from 'react'
 
-import Layout from '@theme/Layout'
 import './theme.css'
 
 type Props = {

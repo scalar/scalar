@@ -20,7 +20,7 @@ const extendedSecuritySchema = z.object({
 // ---------------------------------------------------------------------------
 // API KEY
 
-export const securitySchemeApiKeyIn = ['query', 'header', 'cookie'] as const
+const securitySchemeApiKeyIn = ['query', 'header', 'cookie'] as const
 
 const oasSecuritySchemeApiKey = commonProps.extend({
   type: z.literal('apiKey'),

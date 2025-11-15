@@ -1,6 +1,6 @@
 import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'

@@ -1,4 +1,4 @@
-import type { Heading } from '@scalar/types'
+import type { Heading } from '@scalar/types/legacy'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'

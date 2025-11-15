@@ -245,6 +245,10 @@
                   {
                     "group": ["@test/*", "**/test/**"],
                     "message": "Do not import test helpers inside source files"
+                  },
+                  {
+                    "group": ["@scalar/types"],
+                    "message": "Import from specific entry points (`/api-reference`, ...)"
                   }
                 ]
               }

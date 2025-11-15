@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { useTemplateRef } from 'vue'
 

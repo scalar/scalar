@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const openApiExtensionSchema = z.object({
+const openApiExtensionSchema = z.object({
   /**
    * Name of specification extension property. Has to start with `x-`.
    *

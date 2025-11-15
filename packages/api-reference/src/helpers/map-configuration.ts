@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { DocumentConfiguration } from '@scalar/workspace-store/schemas/workspace-specification/config'
 
 /**

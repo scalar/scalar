@@ -26,7 +26,6 @@
     "packages/snippetz/**",
     "packages/themes/**",
     "packages/ts-to-openapi/**",
-    "packages/types/**",
     "packages/use-codemirror/**",
     "packages/use-hooks/**",
     "packages/use-toasts/**",
@@ -92,6 +91,16 @@
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts", "src/schemas/extensions/index.ts", "src/schemas/3.1/*/index.ts"]
+    },
+    "packages/types": {
+      "entry": [
+        "src/index.ts",
+        "src/api-reference/index.ts",
+        "src/entities/index.ts",
+        "src/legacy/index.ts",
+        "src/snippetz/index.ts",
+        "src/utils/index.ts"
+      ]
     },
     "integrations/docusaurus": {
       "ignoreFiles": [

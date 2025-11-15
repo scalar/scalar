@@ -1,9 +1,9 @@
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfigurationWithSource,
   CreateApiReference,
 } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 

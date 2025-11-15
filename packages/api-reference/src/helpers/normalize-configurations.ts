@@ -5,7 +5,7 @@ import {
   type ApiReferenceConfigurationWithSource,
   apiReferenceConfigurationWithSourceSchema,
   isConfigurationWithSources,
-} from '@scalar/types'
+} from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
 
 /** Processed API Reference Configuration
