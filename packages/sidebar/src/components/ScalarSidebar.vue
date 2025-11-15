@@ -38,7 +38,7 @@ const {
   /**
    * The indentation in pixels to apply to nested items/groups in the sidebar.
    */
-  indent: number
+  indent?: number
   /**
    * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
    *
