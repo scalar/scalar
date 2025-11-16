@@ -16,6 +16,9 @@ const handleUpdateWatchMode = (watchMode: boolean) => {
 const handleUpdateThemeId = (themeId: ThemeId) => {
   workspaceStore.update('x-scalar-theme', themeId)
 }
+const handleUpdateActiveProxy = (proxy: string | null) => {
+  workspaceStore.update('x-scalar-active-proxy', proxy ?? undefined)
+}
 
 const router = useRouter()
 
@@ -38,11 +41,16 @@ const handleDeleteDocument = () => {
     :documentUrl="document?.['x-scalar-original-source-url']"
     :title="document?.info.title ?? ''"
     :watchMode="document?.['x-scalar-watch-mode'] ?? true"
-    @update:watchMode="handleUpdateWatchMode"
-    @delete:document="handleDeleteDocument" />
+    @delete:document="handleDeleteDocument"
+    @update:watchMode="handleUpdateWatchMode" />
   <CollectionSettings
     v-else
+    :activeProxyUrl="workspaceStore.workspace['x-scalar-active-proxy']"
     :activeThemeId="workspaceStore.workspace['x-scalar-theme'] ?? 'default'"
     :colorMode="'system'"
+    :customProxyUrl="
+      workspaceStore.config['x-scalar-reference-config'].settings.proxyUrl
+    "
+    @update:proxyUrl="handleUpdateActiveProxy"
     @update:themeId="handleUpdateThemeId" />
 </template>

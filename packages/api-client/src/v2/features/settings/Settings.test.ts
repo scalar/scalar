@@ -9,7 +9,7 @@ describe('Settings', () => {
   it('renders the component', () => {
     const wrapper = mount(Settings, {
       props: {
-        proxyUrl: DEFAULT_PROXY_URL,
+        activeProxyUrl: DEFAULT_PROXY_URL,
         activeThemeId: 'default',
         colorMode: 'system',
       },
@@ -21,7 +21,7 @@ describe('Settings', () => {
   it('displays the settings heading', () => {
     const wrapper = mount(Settings, {
       props: {
-        proxyUrl: DEFAULT_PROXY_URL,
+        activeProxyUrl: DEFAULT_PROXY_URL,
         activeThemeId: 'default',
         colorMode: 'system',
       },
@@ -34,7 +34,7 @@ describe('Settings', () => {
     it('renders the CORS Proxy section', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -47,7 +47,7 @@ describe('Settings', () => {
     it('shows default proxy button as active when default proxy is selected', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -60,7 +60,7 @@ describe('Settings', () => {
     it('shows no proxy button as active when proxy is disabled', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: null,
+          activeProxyUrl: null,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -73,7 +73,7 @@ describe('Settings', () => {
     it('emits update:proxyUrl event when clicking default proxy button', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: null,
+          activeProxyUrl: null,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -92,7 +92,7 @@ describe('Settings', () => {
     it('emits update:proxyUrl event with null when clicking skip proxy button', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -112,7 +112,7 @@ describe('Settings', () => {
       const customProxy = 'https://my-custom-proxy.com'
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: customProxy,
+          activeProxyUrl: customProxy,
           customProxyUrl: customProxy,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -127,7 +127,7 @@ describe('Settings', () => {
     it('does not show custom proxy button when customProxyUrl is same as default', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           customProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -141,7 +141,7 @@ describe('Settings', () => {
     it('does not show custom proxy button when customProxyUrl is not provided', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -155,7 +155,7 @@ describe('Settings', () => {
       const customProxy = 'https://my-custom-proxy.com'
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           customProxyUrl: customProxy,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -177,7 +177,7 @@ describe('Settings', () => {
     it('renders the Themes section', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -190,7 +190,7 @@ describe('Settings', () => {
     it('renders all standard theme buttons', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -207,7 +207,7 @@ describe('Settings', () => {
     it('highlights the active theme', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'purple',
           colorMode: 'system',
         },
@@ -223,7 +223,7 @@ describe('Settings', () => {
     it('emits update:themeId event when clicking a theme button', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -242,7 +242,7 @@ describe('Settings', () => {
     it('displays theme color circles for each theme', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -267,7 +267,7 @@ describe('Settings', () => {
       for (const theme of themes) {
         const wrapper = mount(Settings, {
           props: {
-            proxyUrl: DEFAULT_PROXY_URL,
+            activeProxyUrl: DEFAULT_PROXY_URL,
             activeThemeId: 'default',
             colorMode: 'system',
           },
@@ -288,7 +288,7 @@ describe('Settings', () => {
     it('renders the Framework Themes section', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -301,7 +301,7 @@ describe('Settings', () => {
     it('renders all integration theme buttons', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -318,7 +318,7 @@ describe('Settings', () => {
     it('highlights the active integration theme', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'elysiajs',
           colorMode: 'system',
         },
@@ -334,7 +334,7 @@ describe('Settings', () => {
     it('emits update:themeId event when clicking an integration theme button', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -353,7 +353,7 @@ describe('Settings', () => {
     it('renders IntegrationLogo component for each integration theme', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -369,7 +369,7 @@ describe('Settings', () => {
     it('renders the Appearance section', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -382,7 +382,7 @@ describe('Settings', () => {
     it('renders the Appearance component', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -395,7 +395,7 @@ describe('Settings', () => {
     it('passes colorMode prop to Appearance component', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'dark',
         },
@@ -408,7 +408,7 @@ describe('Settings', () => {
     it('forwards update:colorMode event from Appearance component', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -426,7 +426,7 @@ describe('Settings', () => {
     it('renders all Section components', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -440,7 +440,7 @@ describe('Settings', () => {
     it('renders section titles correctly', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -457,7 +457,7 @@ describe('Settings', () => {
     it('renders section descriptions correctly', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -481,7 +481,7 @@ describe('Settings', () => {
     it('renders CORS explanation link', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -497,7 +497,7 @@ describe('Settings', () => {
     it('renders GitHub source code link', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -513,7 +513,7 @@ describe('Settings', () => {
     it('opens links in new tab', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -531,7 +531,7 @@ describe('Settings', () => {
     it('handles undefined customProxyUrl', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           customProxyUrl: undefined,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -545,7 +545,7 @@ describe('Settings', () => {
     it('handles null customProxyUrl', () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           customProxyUrl: null,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -562,7 +562,7 @@ describe('Settings', () => {
       colorModes.forEach((mode) => {
         const wrapper = mount(Settings, {
           props: {
-            proxyUrl: DEFAULT_PROXY_URL,
+            activeProxyUrl: DEFAULT_PROXY_URL,
             activeThemeId: 'default',
             colorMode: mode,
           },
@@ -577,7 +577,7 @@ describe('Settings', () => {
       const customProxy = 'https://custom.proxy.com'
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           customProxyUrl: customProxy,
           activeThemeId: 'default',
           colorMode: 'system',
@@ -605,7 +605,7 @@ describe('Settings', () => {
     it('handles switching between multiple themes', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },
@@ -632,7 +632,7 @@ describe('Settings', () => {
     it('handles switching between color modes', async () => {
       const wrapper = mount(Settings, {
         props: {
-          proxyUrl: DEFAULT_PROXY_URL,
+          activeProxyUrl: DEFAULT_PROXY_URL,
           activeThemeId: 'default',
           colorMode: 'system',
         },

@@ -12,6 +12,7 @@ import {
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
 } from '@/schemas/extensions/workspace/x-scalar-active-environment'
+import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
 import {
   type XScalarClientConfigCookies,
   xScalarClientConfigCookiesSchema,
@@ -71,6 +72,7 @@ export const WorkspaceExtensionsSchema = compose(
       'x-scalar-client-config-security-schemes': Type.Record(Type.String(), SecuritySchemeObjectSchema),
     }),
   ),
+  XScalarActiveProxySchema,
 )
 
 export type WorkspaceExtensions = {
@@ -78,7 +80,8 @@ export type WorkspaceExtensions = {
   'x-scalar-client-config-servers'?: ServerObject[]
   'x-scalar-client-config-security-schemes'?: Record<string, SecuritySchemeObject>
 } & XScalarEnvironments &
-  XScalarActiveEnvironment
+  XScalarActiveEnvironment &
+  XScalarActiveProxy
 
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,

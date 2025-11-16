@@ -6,7 +6,9 @@ import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
 export const SettingsSchema = Type.Partial(
   Type.Object({
+    /** Custom proxy configuration */
     proxyUrl: Type.String(),
+    /** Hotkey used to open the search menu */
     searchKey: Type.String(),
     /** Array of server configurations */
     servers: Type.Array(ServerObjectSchema),

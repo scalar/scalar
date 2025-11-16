@@ -30,7 +30,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
@@ -166,7 +166,10 @@ export type WorkspaceStore = {
    * // Update the workspace title
    * update('x-scalar-active-document', 'document-name')
    */
-  update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]): void
+  update<K extends keyof WorkspaceMeta | keyof WorkspaceExtensions>(
+    key: K,
+    value: (WorkspaceMeta & WorkspaceExtensions)[K],
+  ): void
   /**
    * Updates a specific metadata field in a document
    * @param name - The name of the document to update ('active' or a specific document name)
@@ -232,7 +235,7 @@ export type WorkspaceStore = {
    * })
    */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
-    /**
+  /**
    * Deletes a document from the workspace
    * @param documentName - The name of the document to delete
    * @example
@@ -893,7 +896,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get workspace() {
       return workspace
     },
-    update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
+    update(key, value) {
       // @ts-expect-error
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         throw new Error('Invalid key: cannot modify prototype')

@@ -14,7 +14,7 @@ import { getThemeColors } from './helpers/get-theme-colors'
 
 defineProps<{
   /** Currently active proxy URL, when set to null means no proxy */
-  proxyUrl?: string | null
+  activeProxyUrl?: string | null
   /** Custom proxy url, when set to null means no custom proxy */
   customProxyUrl?: string | null
   /** Currently active theme ID */
@@ -82,7 +82,7 @@ const buttonStyles = cva({
           :class="
             cx(
               buttonStyles({
-                active: proxyUrl === DEFAULT_PROXY_URL,
+                active: activeProxyUrl === DEFAULT_PROXY_URL,
               }),
             )
           "
@@ -91,10 +91,10 @@ const buttonStyles = cva({
             class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
             :class="{
               'bg-c-accent text-b-1 border-transparent':
-                proxyUrl === DEFAULT_PROXY_URL,
+                activeProxyUrl === DEFAULT_PROXY_URL,
             }">
             <ScalarIcon
-              v-if="proxyUrl === DEFAULT_PROXY_URL"
+              v-if="activeProxyUrl === DEFAULT_PROXY_URL"
               icon="Checkmark"
               size="xs"
               thickness="3.5" />
@@ -108,7 +108,7 @@ const buttonStyles = cva({
           :class="
             cx(
               buttonStyles({
-                active: proxyUrl === customProxyUrl,
+                active: activeProxyUrl === customProxyUrl,
               }),
             )
           "
@@ -116,7 +116,7 @@ const buttonStyles = cva({
           <div
             class="bg-c-accent text-b-1 flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-transparent p-1">
             <ScalarIcon
-              v-if="customProxyUrl === proxyUrl"
+              v-if="customProxyUrl === activeProxyUrl"
               icon="Checkmark"
               size="xs"
               thickness="3.5" />
@@ -126,13 +126,15 @@ const buttonStyles = cva({
 
         <!-- No proxy -->
         <ScalarButton
-          :class="cx(buttonStyles({ active: !proxyUrl }))"
+          :class="cx(buttonStyles({ active: !activeProxyUrl }))"
           @click="emit('update:proxyUrl', null)">
           <div
             class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
-            :class="!proxyUrl && 'bg-c-accent text-b-1 border-transparent'">
+            :class="
+              !activeProxyUrl && 'bg-c-accent text-b-1 border-transparent'
+            ">
             <ScalarIcon
-              v-if="!proxyUrl"
+              v-if="!activeProxyUrl"
               icon="Checkmark"
               size="xs"
               thickness="3.5" />

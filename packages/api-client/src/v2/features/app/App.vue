@@ -180,7 +180,7 @@ const handleSidebarWidthUpdate = (width: number) =>
 /** Handler for workspace navigation. */
 const handleWorkspaceClick = () =>
   router.push({
-    name: 'workspace',
+    name: 'workspace.environment',
     params: { workspaceSlug: workspaceSlug.value },
   })
 

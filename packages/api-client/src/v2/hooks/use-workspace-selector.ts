@@ -168,7 +168,7 @@ export const useWorkspaceSelector = ({
    * @param id - The unique identifier (slug) of the workspace to navigate to.
    */
   const setWorkspaceId = (id: string): void => {
-    router.push({ name: 'workspace', params: { workspaceSlug: id } })
+    router.push({ name: 'workspace.environment', params: { workspaceSlug: id } })
   }
 
   /**
