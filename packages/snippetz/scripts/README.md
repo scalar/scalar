@@ -1,6 +1,6 @@
-# Enum Generation Scripts
+# Generation Scripts
 
-Automatically generates language-specific enums from TypeScript clients configuration. These scripts directly import the clients array, ensuring the generated enums stay in perfect sync with the TypeScript source of truth.
+Automatically generates language-specific enums and documentation from TypeScript clients configuration. These scripts directly import the clients array, ensuring the generated files stay in perfect sync with the TypeScript source of truth.
 
 ## Usage
 
@@ -34,6 +34,23 @@ Generates Java enums for the Java integration packages.
 - `ScalarClient.java` - HTTP clients (OkHttp, AsyncHttp, etc.)
 
 Generated in: `integrations/java/webjar/src/main/java/com/scalar/maven/webjar/enums/`
+
+### Markdown Documentation Generation
+
+```bash
+pnpm generate:markdown-docs
+```
+
+Automatically updates the `hiddenClients` property documentation in `configuration.md` with the current list of available clients, grouped by target/language.
+
+#### Generated Content
+
+Updates the `hiddenClients` section in `documentation/configuration.md` with:
+- All available clients grouped by target/language
+- Comments indicating which language each target represents
+- Automatically kept in sync with the TypeScript source
+
+The generated section is marked with HTML comments (`<!-- AUTO-GENERATED:CLIENTS START -->` and `<!-- AUTO-GENERATED:CLIENTS END -->`) to prevent manual edits.
 
 ## Customization
 
