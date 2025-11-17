@@ -535,7 +535,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             const { activeDocument: _a, documents: _d, ...meta } = workspace
             const event = {
               type: 'meta',
-              value: unpackProxyObject(meta),
+              value: unpackProxyObject(meta, { depth: 1 }),
             } satisfies WorkspaceStateChangeEvent
 
             fireWorkspaceChange(event)
