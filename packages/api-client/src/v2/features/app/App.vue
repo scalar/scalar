@@ -24,6 +24,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
+import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
@@ -118,6 +119,7 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
+/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientEvents({
   eventBus,
   document,
@@ -125,7 +127,18 @@ useWorkspaceClientEvents({
   navigateTo: handleSelectItem,
   isSidebarOpen,
 })
+
+/** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(eventBus, layout)
+
+const DEFAULT_DOCUMENT_WATCH_TIMEOUT = 5000
+
+/** Watch the active document for changes and rebase it with its remote source */
+useDocumentWatcher({
+  documentName: documentSlug,
+  store,
+  initialTimeout: DEFAULT_DOCUMENT_WATCH_TIMEOUT,
+})
 
 /**
  * Merged environment variables from workspace and document levels.
