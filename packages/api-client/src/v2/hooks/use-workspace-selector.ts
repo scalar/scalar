@@ -174,7 +174,7 @@ export const useWorkspaceSelector = ({
   /**
    * Creates a new workspace with the provided name.
    * - Generates a unique ID for the workspace (sluggified from the name and guaranteed unique).
-   * - Adds a default blank document ("draft") to the workspace.
+   * - Adds a default blank document ("drafts") to the workspace.
    * - Persists the workspace and navigates to it.
    *
    * Example usage:
