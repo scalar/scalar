@@ -9,13 +9,20 @@ import {
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
-defineProps<{
+const {
+  documentUrl,
+  watchMode,
+  title,
+  isDraftDocument = false,
+} = defineProps<{
   /** Document source url if available */
   documentUrl?: string
   /** Watch mode status if also document url is provided */
   watchMode?: boolean
   /** Document title */
   title: string
+  /** Whether the document is a draft document */
+  isDraftDocument?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -26,6 +33,17 @@ const emit = defineEmits<{
 }>()
 
 const deleteModal = useModal()
+
+/**
+ * Handles the delete button click.
+ * Prevents opening the modal if the document is a draft.
+ */
+const handleDeleteClick = () => {
+  if (isDraftDocument) {
+    return
+  }
+  deleteModal.show()
+}
 
 const handleDocumentDelete = () => {
   emit('delete:document')
@@ -101,7 +119,8 @@ const handleDocumentDelete = () => {
         <ScalarButton
           class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
           :variant="'danger'"
-          @click="deleteModal.show()">
+          :disabled="isDraftDocument"
+          @click="handleDeleteClick">
           Delete Collection
         </ScalarButton>
       </div>
