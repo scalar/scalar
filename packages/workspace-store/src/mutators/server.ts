@@ -222,7 +222,10 @@ export const updateSelectedServer = (
     return
   }
 
-  // [un]set it and return the url
-  document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === url ? undefined : url
+  /**
+   * [un]set it and return the url,
+   * we specifically use en empty string to indicate that the user has unset the selected server
+   */
+  document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === url ? '' : url
   return document['x-scalar-selected-server']
 }

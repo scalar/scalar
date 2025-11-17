@@ -13,7 +13,7 @@ export default {}
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
@@ -41,6 +41,20 @@ const selectedServer = computed(
       ({ url }) => url === document?.['x-scalar-selected-server'],
     ) ?? null,
 )
+
+onMounted(() => {
+  /** Select the first server if the user has not specifically unselected it */
+  if (
+    typeof document?.['x-scalar-selected-server'] === 'undefined' &&
+    document?.servers?.[0]?.url
+  ) {
+    console.log(
+      'selecting first server',
+      typeof document?.['x-scalar-selected-server'],
+    )
+    eventBus.emit('server:update:selected', { url: document.servers[0].url })
+  }
+})
 
 /** Select the selected security for the operation or document */
 const selectedSecurity = computed(() => {
