@@ -246,6 +246,16 @@ export const createWorkspaceStorePersistence = async () => {
         ])
       },
 
+      deleteDocument: async (workspaceId: string, documentName: string): Promise<void> => {
+        await Promise.all([
+          documentsTable.deleteItem({ workspaceId, documentName }),
+          intermediateDocumentTable.deleteItem({ workspaceId, documentName }),
+          originalDocumentTable.deleteItem({ workspaceId, documentName }),
+          overridesTable.deleteItem({ workspaceId, documentName }),
+          documentConfigsTable.deleteItem({ workspaceId, documentName }),
+        ])
+      },
+
       /**
        * Checks if a workspace with the given ID exists in the store.
        */

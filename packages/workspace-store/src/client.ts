@@ -236,11 +236,32 @@ export type WorkspaceStore = {
    */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
   /**
-   * Deletes a document from the workspace
+   * Deletes a document from the workspace and all associated data.
+   *
+   * This method removes the document from the workspace along with all related data including:
+   * - The document itself from the workspace documents map
+   * - Original document data
+   * - Intermediate document data (saved local versions)
+   * - Document-specific configuration
+   * - Document overrides
+   * - Extra document configurations
+   *
+   * If the deleted document was the active document, the active document is automatically
+   * reset to the first remaining document in the workspace, or undefined if no documents remain.
+   *
+   * The deletion is automatically tracked by the workspace change detection system,
+   * and appropriate events will be fired to notify registered plugins.
+   *
    * @param documentName - The name of the document to delete
+   * @returns void
+   *
    * @example
    * // Delete the document named 'api'
    * store.deleteDocument('api')
+   *
+   * @example
+   * // Delete multiple documents
+   * ['api', 'petstore'].forEach(name => store.deleteDocument(name))
    */
   deleteDocument(documentName: string): void
   /**
@@ -483,8 +504,25 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
       {
         hooks: {
-          onAfterChange(path) {
+          onAfterChange({ path, type: changeType }) {
             const type = path[0]
+
+            // Delete document changes
+            if (changeType === 'delete') {
+              // Only emit when we are deleting a document
+              if (path.length < 2 || type !== 'documents') {
+                return
+              }
+
+              const documentName = path[1] as string
+              const event = {
+                type: 'deleteDocument',
+                documentName,
+              } satisfies WorkspaceStateChangeEvent
+
+              fireWorkspaceChange(event)
+              return
+            }
 
             /** Document changes */
             if (type === 'documents') {
@@ -595,10 +633,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     {
       hooks: {
-        onAfterChange(path) {
+        onAfterChange({ path, type: changeType }) {
           const type = path[0]
 
-          if (!type) {
+          // Do not trigger hooks for delete operations
+          // We only trigger the deleteDocument event in the onAfterChange hook for the documents object
+          if (!type || changeType === 'delete') {
             return
           }
 
@@ -960,19 +1000,36 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       })
     },
     addDocument,
-    deleteDocument: (documentName) => {
-      // Reset the active document to the first one if the deleted document was the active one
-      if (workspace['x-scalar-active-document'] === documentName) {
-        workspace['x-scalar-active-document'] = Object.keys(workspace.documents)[0] ?? undefined
+    /**
+     * Deletes a document from the workspace and all associated data.
+     *
+     * This function removes the document and all related data structures.
+     * If the deleted document was active, it automatically selects the first remaining document.
+     */
+    deleteDocument: (documentName: string): void => {
+      // Check if the document exists before attempting deletion
+      if (!workspace.documents[documentName]) {
+        return
       }
 
-      // Delete the document from the workspace
+      // Delete the document from the workspace (this will trigger change detection events)
       delete workspace.documents[documentName]
+
+      // Clean up all associated data structures
       delete originalDocuments[documentName]
       delete intermediateDocuments[documentName]
       delete documentConfigs[documentName]
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
+
+      // Get remaining documents before deletion to properly set the active document
+      const remainingDocuments = Object.keys(workspace.documents)
+      const wasActiveDocument = workspace['x-scalar-active-document'] === documentName
+
+      // Reset the active document to the first remaining one if the deleted document was the active one
+      if (wasActiveDocument) {
+        workspace['x-scalar-active-document'] = remainingDocuments[0] ?? undefined
+      }
     },
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())

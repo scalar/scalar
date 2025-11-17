@@ -6,8 +6,14 @@ import { useRouter } from 'vue-router'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
 
-const { eventBus, document, activeWorkspace, workspaceStore, collectionType } =
-  defineProps<CollectionProps>()
+const {
+  eventBus,
+  documentSlug,
+  document,
+  activeWorkspace,
+  workspaceStore,
+  collectionType,
+} = defineProps<CollectionProps>()
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
   eventBus.emit('document:update:watch-mode', watchMode)
@@ -27,9 +33,7 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
 const router = useRouter()
 
 const handleDeleteDocument = () => {
-  console.log('delete document')
-  // TODO: perform deletion of the document from the workspace store
-  // workspaceStore.deleteDocument(document?.name ?? '')
+  workspaceStore.deleteDocument(documentSlug)
 
   router.push({
     name: 'workspace.environment',

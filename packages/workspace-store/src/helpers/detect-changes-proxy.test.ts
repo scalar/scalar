@@ -308,6 +308,36 @@ describe('createDetectChangesProxy', () => {
       expect('foo' in obj).toBe(false)
     })
 
+    it('should trigger hooks when deleting properties', () => {
+      const obj: any = { foo: 1, bar: 2 }
+      const onBeforeChange = vi.fn()
+      const onAfterChange = vi.fn()
+      const proxy = createDetectChangesProxy(obj, {
+        hooks: { onBeforeChange, onAfterChange },
+      })
+
+      delete proxy.foo
+
+      expect(onBeforeChange).toHaveBeenCalledWith(['foo'], undefined)
+      expect(onAfterChange).toHaveBeenCalledWith(['foo'], undefined)
+      expect(proxy.foo).toBeUndefined()
+      expect('foo' in obj).toBe(false)
+    })
+
+    it('should trigger hooks with correct path when deleting nested properties', () => {
+      const obj: any = { foo: { bar: 1, baz: 2 } }
+      const onAfterChange = vi.fn()
+      const proxy = createDetectChangesProxy(obj, {
+        hooks: { onAfterChange },
+      })
+
+      delete proxy.foo.bar
+
+      expect(onAfterChange).toHaveBeenCalledWith(['foo', 'bar'], undefined)
+      expect(proxy.foo.bar).toBeUndefined()
+      expect('bar' in obj.foo).toBe(false)
+    })
+
     it('should handle objects with numeric keys', () => {
       const obj: any = { 0: 'zero', 1: 'one', 2: 'two' }
       const onAfterChange = vi.fn()

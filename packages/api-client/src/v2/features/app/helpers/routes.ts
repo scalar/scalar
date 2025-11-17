@@ -11,6 +11,7 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
 export type RouteProps = {
+  documentSlug: string
   document: WorkspaceDocument | null
   eventBus: WorkspaceEventBus
   layout: ClientLayout

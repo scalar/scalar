@@ -199,6 +199,7 @@ const handleSelectWorkspace = (id?: string) => {
 const routerViewProps = computed(
   () =>
     ({
+      documentSlug: documentSlug.value ?? '',
       document: document.value,
       environment: environment.value,
       eventBus,
