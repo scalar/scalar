@@ -1,443 +1,237 @@
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { DataTableRow } from '@/components/DataTable'
+import { CodeInput } from '@/v2/components/code-input'
+import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import CookiesTable from './CookiesTable.vue'
 
-const mockEnvironment = {
-  uid: '' as any,
-  name: '',
-  value: '',
-  color: '',
-}
+const createMockCookies = (cookies: XScalarCookie[] = []): XScalarCookie[] => cookies
 
 describe('CookiesTable', () => {
-  it('renders headers correctly', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    expect(wrapper.text()).toContain('Enabled')
-    expect(wrapper.text()).toContain('Name')
-    expect(wrapper.text()).toContain('Value')
-    expect(wrapper.text()).toContain('Domain')
-    expect(wrapper.text()).toContain('Actions')
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('renders existing cookie data', () => {
+  it('emits event when adding a new cookie in the empty row', async () => {
+    const cookies = createMockCookies([{ name: 'sessionId', value: 'abc123', domain: 'example.com' }])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** Check the cookie's values are passed as props to CodeInput components */
-    expect(codeInputs[0]?.props('modelValue')).toBe('session_id')
-    expect(codeInputs[1]?.props('modelValue')).toBe('abc123')
-    expect(codeInputs[2]?.props('modelValue')).toBe('.example.com')
+    /**
+     * The component should have 4 CodeInput components for the existing cookie
+     * (name, value, domain) and 3 for the empty row (name, value, domain).
+     * When we update the name in the empty row, it should emit an event.
+     */
+    const codeInputs = wrapper.findAllComponents(CodeInput)
+    expect(codeInputs).toHaveLength(6)
+
+    const emptyRowNameInput = codeInputs.at(3)!
+    await emptyRowNameInput.vm.$emit('update:modelValue', 'NEW_COOKIE')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
+      payload: { name: 'NEW_COOKIE', value: '', domain: '', isDisabled: true },
+      collectionType: 'document',
+    })
   })
 
-  it('renders multiple cookies', () => {
+  it('emits event when updating an existing cookie', async () => {
+    const cookies = createMockCookies([
+      { name: 'sessionId', value: 'abc123', domain: 'example.com' },
+      { name: 'authToken', value: 'token456', domain: 'api.example.com' },
+    ])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-          {
-            name: 'auth_token',
-            value: 'xyz789',
-            domain: '.api.example.com',
-            isDisabled: true,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'workspace',
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** We should have 3 CodeInputs per row (name, value, domain) plus the empty row = 9 total */
-    expect(codeInputs.length).toBeGreaterThanOrEqual(6)
+    /**
+     * When changing the value of the first cookie,
+     * it should emit an update event with the index.
+     * CodeInput index 1 is the value input for the first cookie row.
+     */
+    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const firstValueInput = codeInputs.at(1)!
+    await firstValueInput.vm.$emit('update:modelValue', 'updated-value-123')
 
-    /** Check the first cookie's values are passed as props */
-    expect(codeInputs[0]?.props('modelValue')).toBe('session_id')
-    expect(codeInputs[1]?.props('modelValue')).toBe('abc123')
-    expect(codeInputs[2]?.props('modelValue')).toBe('.example.com')
-
-    /** Check the second cookie's values are passed as props */
-    expect(codeInputs[3]?.props('modelValue')).toBe('auth_token')
-    expect(codeInputs[4]?.props('modelValue')).toBe('xyz789')
-    expect(codeInputs[5]?.props('modelValue')).toBe('.api.example.com')
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
+      payload: {
+        name: 'sessionId',
+        value: 'updated-value-123',
+        domain: 'example.com',
+        isDisabled: false,
+      },
+      index: 0,
+      collectionType: 'workspace',
+    })
   })
 
-  it('adds an empty row when last row has data', () => {
+  it('emits event when clicking delete button on an existing cookie', async () => {
+    const cookies = createMockCookies([
+      { name: 'sessionId', value: 'abc123', domain: 'example.com' },
+      { name: 'authToken', value: 'token456', domain: 'api.example.com' },
+    ])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    /** The displayData computed should add one extra row for UI purposes */
-    const rows = wrapper.findAllComponents(DataTableRow)
-    /** +1 for the header row, +1 for the data row, +1 for the empty row */
-    expect(rows.length).toBe(3)
+    /**
+     * Delete buttons should only appear for existing cookies.
+     * Clicking the delete button on the second cookie (index 1)
+     * should emit a delete event with that index.
+     */
+    const deleteButtons = wrapper.findAll('button')
+    expect(deleteButtons.length).toBeGreaterThanOrEqual(2)
+
+    await deleteButtons.at(1)!.trigger('click')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:delete:cookie', {
+      cookieName: 'authToken',
+      index: 1,
+      collectionType: 'document',
+    })
   })
 
-  it('does not add an empty row when last row is already empty', () => {
+  it('does not add a new cookie when name is empty in the last row', async () => {
+    const cookies = createMockCookies([{ name: 'sessionId', value: 'abc123', domain: 'example.com' }])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-          { name: '', value: '', domain: '', isDisabled: false },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const rows = wrapper.findAllComponents(DataTableRow)
-    /** +1 for the header row, +2 for the data rows */
-    expect(rows.length).toBe(3)
+    /**
+     * When updating only the value (not the name) in the empty row,
+     * no event should be emitted because we require a name to create
+     * a new cookie. CodeInput index 4 is the value input for the empty row.
+     */
+    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const emptyRowValueInput = codeInputs.at(4)!
+    await emptyRowValueInput.vm.$emit('update:modelValue', 'some-value')
+
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
-  it('emits updateRow event when updating an existing cookie name', () => {
-    const wrapper = mount(CookiesTable, {
+  it('always displays an empty row at the end for adding new cookies', () => {
+    const cookiesWithData = createMockCookies([
+      { name: 'sessionId', value: 'abc123', domain: 'example.com' },
+      { name: 'authToken', value: 'token456', domain: 'api.example.com' },
+    ])
+
+    const wrapperWithCookies = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies: cookiesWithData,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** First CodeInput is for the name field */
-    codeInputs[0]?.vm.$emit('update:modelValue', 'new_session_id')
+    /**
+     * With 2 existing cookies, there should be 9 CodeInput components:
+     * 2 cookies × 3 inputs (name + value + domain) + 1 empty row × 3 inputs.
+     */
+    const codeInputsWithCookies = wrapperWithCookies.findAllComponents(CodeInput)
+    expect(codeInputsWithCookies).toHaveLength(9)
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { name: 'new_session_id' }])
+    const emptyCookies = createMockCookies([])
+
+    const wrapperEmpty = mount(CookiesTable, {
+      props: {
+        cookies: emptyCookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
+      },
+    })
+
+    /**
+     * With no existing cookies, there should still be 3 CodeInput components
+     * for the empty row (name + value + domain).
+     */
+    const codeInputsEmpty = wrapperEmpty.findAllComponents(CodeInput)
+    expect(codeInputsEmpty).toHaveLength(3)
   })
 
-  it('emits updateRow event when updating an existing cookie value', async () => {
+  it('emits event when toggling checkbox to disable a cookie', async () => {
+    const cookies = createMockCookies([
+      { name: 'sessionId', value: 'abc123', domain: 'example.com', isDisabled: false },
+    ])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** Second CodeInput is for the value field */
-    await codeInputs[1]?.vm.$emit('update:modelValue', 'new_value')
+    /**
+     * When unchecking the checkbox (disabling the cookie),
+     * it should emit an update event with isDisabled: true.
+     */
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    const firstCheckbox = checkboxes.at(0)!
+    await firstCheckbox.setValue(false)
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { value: 'new_value' }])
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
+      payload: {
+        name: 'sessionId',
+        value: 'abc123',
+        domain: 'example.com',
+        isDisabled: true,
+      },
+      index: 0,
+      collectionType: 'document',
+    })
   })
 
-  it('emits updateRow event when updating an existing cookie domain', async () => {
+  it('emits event when updating domain field', async () => {
+    const cookies = createMockCookies([{ name: 'sessionId', value: 'abc123', domain: 'example.com' }])
+
     const wrapper = mount(CookiesTable, {
       props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+        cookies,
+        eventBus: mockEventBus,
+        collectionType: 'document',
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** Third CodeInput is for the domain field */
-    await codeInputs[2]?.vm.$emit('update:modelValue', '.newdomain.com')
+    /**
+     * When changing the domain of the first cookie,
+     * it should emit an update event with the new domain.
+     * CodeInput index 2 is the domain input for the first cookie row.
+     */
+    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const firstDomainInput = codeInputs.at(2)!
+    await firstDomainInput.vm.$emit('update:modelValue', 'newdomain.com')
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { domain: '.newdomain.com' }])
-  })
-
-  it('emits addRow event when updating the empty row', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
+      payload: {
+        name: 'sessionId',
+        value: 'abc123',
+        domain: 'newdomain.com',
+        isDisabled: false,
       },
+      index: 0,
+      collectionType: 'document',
     })
-
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** The last set of CodeInputs corresponds to the empty row */
-    const lastNameInput = codeInputs[codeInputs.length - 3]
-    await lastNameInput?.vm.$emit('update:modelValue', 'new_cookie')
-
-    expect(wrapper.emitted('addRow')).toBeTruthy()
-    expect(wrapper.emitted('addRow')?.[0]).toEqual([{ name: 'new_cookie' }])
-  })
-
-  it('emits updateRow event when toggling checkbox for existing cookie', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const checkboxes = wrapper.findAllComponents({ name: 'DataTableCheckbox' })
-    /** First checkbox is for the first data row */
-    await checkboxes[0]?.vm.$emit('update:modelValue', false)
-
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { isDisabled: true }])
-  })
-
-  it('emits addRow event when toggling checkbox for empty row', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const checkboxes = wrapper.findAllComponents({ name: 'DataTableCheckbox' })
-    /** First checkbox corresponds to the empty row when data is empty */
-    await checkboxes[0]?.vm.$emit('update:modelValue', true)
-
-    expect(wrapper.emitted('addRow')).toBeTruthy()
-    expect(wrapper.emitted('addRow')?.[0]).toEqual([{ isDisabled: false }])
-  })
-
-  it('emits deleteRow event when delete button is clicked', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const deleteButtons = wrapper.findAllComponents({ name: 'ScalarButton' })
-    /** First delete button corresponds to the first row */
-    await deleteButtons[0]?.vm.$emit('click')
-
-    expect(wrapper.emitted('deleteRow')).toBeTruthy()
-    expect(wrapper.emitted('deleteRow')?.[0]).toEqual([0])
-  })
-
-  it('handles disabled cookies correctly', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'disabled_cookie',
-            value: 'test',
-            domain: '.example.com',
-            isDisabled: true,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const checkboxes = wrapper.findAllComponents({ name: 'DataTableCheckbox' })
-    /** Check that the checkbox reflects the disabled state */
-    expect(checkboxes[0]?.props('modelValue')).toBe(false)
-  })
-
-  it('handles enabled cookies correctly', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'enabled_cookie',
-            value: 'test',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const checkboxes = wrapper.findAllComponents({ name: 'DataTableCheckbox' })
-    /** Check that the checkbox reflects the enabled state */
-    expect(checkboxes[0]?.props('modelValue')).toBe(true)
-  })
-
-  it('renders placeholders for empty fields', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    /** Check that placeholders are set correctly */
-    expect(codeInputs[0]?.props('placeholder')).toBe('Name')
-    expect(codeInputs[1]?.props('placeholder')).toBe('Value')
-    expect(codeInputs[2]?.props('placeholder')).toBe('Domain')
-  })
-
-  it('handles edge case with only empty row in data', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [{ name: '', value: '', domain: '', isDisabled: false }],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const rows = wrapper.findAllComponents(DataTableRow)
-    /** Should only render header + the existing empty row (no additional empty row) */
-    expect(rows.length).toBe(2)
-  })
-
-  it('handles partially filled last row', () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [{ name: 'partial', value: '', domain: '', isDisabled: false }],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const rows = wrapper.findAllComponents(DataTableRow)
-    /** Should add an empty row because the last row has a name */
-    expect(rows.length).toBe(3)
-  })
-
-  it('updates multiple fields in the same row', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'session_id',
-            value: 'abc123',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-
-    /** Update name */
-    await codeInputs[0]?.vm.$emit('update:modelValue', 'new_name')
-    /** Update value */
-    await codeInputs[1]?.vm.$emit('update:modelValue', 'new_value')
-    /** Update domain */
-    await codeInputs[2]?.vm.$emit('update:modelValue', 'new_domain')
-
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.length).toBe(3)
-  })
-
-  it('handles delete operations on different rows', async () => {
-    const wrapper = mount(CookiesTable, {
-      props: {
-        data: [
-          {
-            name: 'cookie1',
-            value: 'value1',
-            domain: '.example.com',
-            isDisabled: false,
-          },
-          {
-            name: 'cookie2',
-            value: 'value2',
-            domain: '.test.com',
-            isDisabled: false,
-          },
-        ],
-        environment: mockEnvironment,
-        envVariables: [],
-      },
-    })
-
-    const deleteButtons = wrapper.findAllComponents({ name: 'ScalarButton' })
-
-    /** Delete second row */
-    await deleteButtons[1]?.vm.$emit('click')
-
-    expect(wrapper.emitted('deleteRow')).toBeTruthy()
-    expect(wrapper.emitted('deleteRow')?.[0]).toEqual([1])
   })
 })

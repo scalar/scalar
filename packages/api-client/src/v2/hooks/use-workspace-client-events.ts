@@ -6,6 +6,7 @@ import {
   addOperationRequestBodyFormRow,
   addServer,
   deleteAllOperationParameters,
+  deleteCookie,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
@@ -27,6 +28,7 @@ import {
   updateServer,
   updateServerVariables,
   updateWatchMode,
+  upsertCookie,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -96,6 +98,18 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('environment:delete:environment-variable', ({ environmentName, index, collectionType }) =>
     getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
   )
+
+  //------------------------------------------------------------------------------------
+  // Cookie Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('cookie:upsert:cookie', (payload) => {
+    const collection = getCollection(document, payload.collectionType)
+    upsertCookie(collection, payload)
+  })
+  eventBus.on('cookie:delete:cookie', (payload) => {
+    const collection = getCollection(document, payload.collectionType)
+    deleteCookie(collection, payload)
+  })
 
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers

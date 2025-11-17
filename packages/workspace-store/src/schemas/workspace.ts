@@ -8,16 +8,13 @@ import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
 } from '@/schemas/extensions/workspace/x-scalar-active-environment'
 import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
-import {
-  type XScalarClientConfigCookies,
-  xScalarClientConfigCookiesSchema,
-} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
@@ -70,23 +67,23 @@ export const WorkspaceExtensionsSchema = compose(
   XScalarActiveEnvironmentSchema,
   Type.Partial(
     Type.Object({
-      'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-scalar-client-config-servers': Type.Array(ServerObjectSchema),
       'x-scalar-client-config-security-schemes': Type.Record(Type.String(), SecuritySchemeObjectSchema),
     }),
   ),
   XScalarActiveProxySchema,
   XScalarOrderSchema,
+  xScalarCookiesSchema,
 )
 
 export type WorkspaceExtensions = {
-  'x-scalar-client-config-cookies'?: XScalarClientConfigCookies
   'x-scalar-client-config-servers'?: ServerObject[]
   'x-scalar-client-config-security-schemes'?: Record<string, SecuritySchemeObject>
 } & XScalarEnvironments &
   XScalarActiveEnvironment &
   XScalarActiveProxy &
-  XScalarOrder
+  XScalarOrder &
+  XScalarCookies
 
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,
