@@ -10,4 +10,9 @@ export {
   createSidebarState,
 } from './helpers/create-sidebar-state'
 export { generateReverseIndex } from './helpers/generate-reverse-index'
+export {
+  type DraggingItem,
+  type HoveredItem,
+  useDraggable,
+} from './hooks/use-draggable'
 export type { Item } from './types.ts'
