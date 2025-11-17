@@ -835,7 +835,9 @@ You can use our hosted proxy:
 }
 ```
 
-If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com). Please note: you may not use any reverse proxy, but need to use a proxy that adheres to the 'Scalar proxy' API. See the example for more.
+If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
+
+Please note: You may not use just any reverse proxy, but need to use a proxy that adheres to the Scalar Proxy API. See the example to learn more.
 
 #### searchHotKey
 
