@@ -2692,6 +2692,9 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/object-utils':
+        specifier: workspace:*
+        version: link:../object-utils
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader

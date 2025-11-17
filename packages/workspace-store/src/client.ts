@@ -30,7 +30,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
@@ -166,7 +166,10 @@ export type WorkspaceStore = {
    * // Update the workspace title
    * update('x-scalar-active-document', 'document-name')
    */
-  update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]): void
+  update<K extends keyof WorkspaceMeta | keyof WorkspaceExtensions>(
+    key: K,
+    value: (WorkspaceMeta & WorkspaceExtensions)[K],
+  ): void
   /**
    * Updates a specific metadata field in a document
    * @param name - The name of the document to update ('active' or a specific document name)
@@ -303,6 +306,13 @@ export type WorkspaceStore = {
    * const excludedDiffs = store.saveDocument('api')
    */
   saveDocument(documentName: string): Promise<unknown[] | undefined>
+  /**
+   * Builds the sidebar for the specified document.
+   *
+   * @param documentName - The name of the document to build the sidebar for
+   * @returns boolean indicating if the sidebar was built successfully
+   */
+  buildSidebar: (documentName: string) => boolean
   /**
    * Restores the specified document to its last locally saved state.
    *
@@ -524,7 +534,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             const { activeDocument: _a, documents: _d, ...meta } = workspace
             const event = {
               type: 'meta',
-              value: unpackProxyObject(meta),
+              value: unpackProxyObject(meta, { depth: 1 }),
             } satisfies WorkspaceStateChangeEvent
 
             fireWorkspaceChange(event)
@@ -868,6 +878,37 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  /**
+   * Builds (or updates) the navigation sidebar for the specified document.
+   *
+   * This method generates the sidebar navigation structure for a workspace document,
+   * and attaches it to the document's metadata under the navigation extension key.
+   * The document is unpacked to avoid assigning proxy objects as direct property references.
+   *
+   * - Only the top-level object is proxied; all child objects should be unproxied.
+   * - This approach enables safe unpacking of the proxy object without recursively traversing the full object tree.
+   *
+   * @param documentName - The name/key of the document whose sidebar should be built.
+   * @returns {boolean} True if the sidebar was built successfully, false if the document does not exist.
+   */
+  const buildSidebar = (documentName: string): boolean => {
+    const document = workspace.documents[documentName]
+
+    if (!document) {
+      // Log and exit if the document does not exist in the workspace
+      console.error(`Document '${documentName}' does not exist in the workspace.`)
+      return false
+    }
+
+    // Generate the navigation structure for the sidebar.
+    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
+
+    // Set the computed navigation structure on the document metadata.
+    document[extensions.document.navigation] = navigation
+
+    return true
+  }
+
   // Returns the effective document configuration for a given document name,
   // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
   const getDocumentConfiguration = (name: string) => {
@@ -885,7 +926,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get workspace() {
       return workspace
     },
-    update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
+    update(key, value) {
       // @ts-expect-error
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         throw new Error('Invalid key: cannot modify prototype')
@@ -954,6 +995,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
+    buildSidebar,
     saveDocument,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]

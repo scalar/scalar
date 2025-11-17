@@ -30,6 +30,7 @@ export const TraversedDocumentSchemaDefinition = compose(
     type: Type.Literal('document'),
     name: Type.String(),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+    icon: Type.Optional(Type.String()),
   }),
 )
 
@@ -44,6 +45,7 @@ export type TraversedDocument = BaseSchema & {
   name: string
   /** Child entries under the document */
   children?: TraversedEntry[]
+  icon?: string
 }
 
 export const TraversedDescriptionSchemaDefinition = compose(
@@ -239,7 +241,7 @@ type OperationProps = {
   path: string
   method: string
   type: 'operation'
-  parentTag: ParentTag
+  parentTag?: ParentTag
 }
 
 type WebhookProps = {

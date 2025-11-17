@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ScalarIconButton, ScalarSidebarSearchInput } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components'
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { ScalarSidebar, type SidebarState } from '@scalar/sidebar'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import { SearchButton } from '@/v2/features/search'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -17,16 +21,33 @@ const { sidebarState, layout } = defineProps<{
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
   layout: ClientLayout
+  /** The currently active workspace */
   activeWorkspace: Workspace
+  /** The list of all available workspaces */
   workspaces: Workspace[]
+  /** The workspace event bus for handling workspace-level events */
+  eventBus: WorkspaceEventBus
+  /** The documents belonging to the workspace */
+  documents: WorkspaceDocument[]
+  /**
+   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emit = defineEmits<{
   /** Emitted when an item is selected */
   (e: 'selectItem', id: string): void
+  /** Emitted when a workspace is selected by optional ID */
   (e: 'select:workspace', id?: string): void
   /** Emitted when the user wants to create a new workspace */
   (e: 'create:workspace'): void
+  /** Emitted when sidebar items are reordered via drag and drop */
+  (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 defineSlots<{
@@ -35,11 +56,6 @@ defineSlots<{
   /** Slot to add additional content to the footer */
   footer?(): unknown
 }>()
-
-const log = (name: string, ...args: any[]) => {
-  console.log('[LOG] event name: ', name)
-  console.log('[LOG]', ...args)
-}
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -62,11 +78,16 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     <template #default>
       <ScalarSidebar
         class="flex w-auto flex-1 pt-2"
+        :indent="15"
+        :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
         :items="sidebarState.items.value"
         layout="client"
-        @reorder="(...args) => log('reorder', ...args)"
+        @reorder="
+          (draggingItem, hoveredItem) =>
+            emit('reorder', draggingItem, hoveredItem)
+        "
         @selectItem="(id) => emit('selectItem', id)">
         <template #header>
           <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
@@ -76,8 +97,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 v-if="layout === 'desktop'"
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
-                @select:workspace="(id) => emit('select:workspace', id)"
-                @createWorkspace="emit('create:workspace')" />
+                @createWorkspace="emit('create:workspace')"
+                @select:workspace="(id) => emit('select:workspace', id)" />
 
               <!-- Toggle the sidebar -->
               <SidebarToggle
@@ -92,10 +113,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <!-- Search input, always visible on web -->
-            <ScalarSidebarSearchInput
+            <SearchButton
               v-if="isSearchVisible || layout === 'web'"
-              :autofocus="layout !== 'web'" />
+              :documents="documents"
+              :eventBus="eventBus" />
           </div>
         </template>
 

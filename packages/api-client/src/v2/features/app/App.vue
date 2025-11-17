@@ -38,15 +38,11 @@ const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
 }>()
 
-const route = useRoute()
-const router = useRouter()
-
-/** Extracts a string parameter from the route */
-const getRouteParam = (paramName: string): string | undefined => {
-  const param = route.params[paramName]
-  return typeof param === 'string' ? param : undefined
+/** Expose workspace store to window for debugging purposes. */
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => store.value
 }
-
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 
@@ -66,6 +62,15 @@ const eventBus = createWorkspaceEventBus({
 
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(true)
+
+const route = useRoute()
+const router = useRouter()
+
+/** Extracts a string parameter from the route */
+const getRouteParam = (paramName: string): string | undefined => {
+  const param = route.params[paramName]
+  return typeof param === 'string' ? param : undefined
+}
 
 /** Current workspace slug from the route, defaults to 'default'. */
 const workspaceSlug = computed(() => getRouteParam('workspaceSlug'))
@@ -113,7 +118,13 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
-useWorkspaceClientEvents(eventBus, document, store, isSidebarOpen)
+useWorkspaceClientEvents({
+  eventBus,
+  document,
+  workspaceStore: store,
+  navigateTo: handleSelectItem,
+  isSidebarOpen,
+})
 useGlobalHotKeys(eventBus, layout)
 
 /**
@@ -235,6 +246,8 @@ const createWorkspaceModalState = useModal()
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
+          :store="store"
+          :eventBus="eventBus"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
           :sidebarState="sidebarState"
