@@ -2,7 +2,8 @@
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/spec'
-import type { ApiReferenceConfiguration, Heading } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import type {

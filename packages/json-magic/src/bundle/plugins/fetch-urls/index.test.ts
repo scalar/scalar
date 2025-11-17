@@ -1,5 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -16,7 +14,6 @@ describe('fetchUrl', () => {
 
     return async () => {
       await server.close()
-      await setTimeout(100)
     }
   })
 

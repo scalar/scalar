@@ -1,5 +1,6 @@
-import { sortByOrder } from '../arrays/sort'
 import { describe, expect, it } from 'vitest'
+
+import { sortByOrder } from '../arrays/sort'
 
 describe('Sort arrays by an order list', () => {
   it('Sorts basic by list', () => {
@@ -22,6 +23,18 @@ describe('Sort arrays by an order list', () => {
       { id: '3' },
       { id: '4' },
       { id: '1' },
+      { id: '2' },
+    ])
+  })
+
+  it('handles extra items in the order list', () => {
+    const list = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }]
+
+    expect(sortByOrder(list, ['5', '1', '3', '6', '4', '2'], 'id')).toEqual([
+      { id: '5' },
+      { id: '1' },
+      { id: '3' },
+      { id: '4' },
       { id: '2' },
     ])
   })

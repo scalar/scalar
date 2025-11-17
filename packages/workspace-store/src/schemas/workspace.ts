@@ -8,6 +8,7 @@ import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
@@ -75,6 +76,7 @@ export const WorkspaceExtensionsSchema = compose(
     }),
   ),
   XScalarActiveProxySchema,
+  XScalarOrderSchema,
 )
 
 export type WorkspaceExtensions = {
@@ -83,7 +85,8 @@ export type WorkspaceExtensions = {
   'x-scalar-client-config-security-schemes'?: Record<string, SecuritySchemeObject>
 } & XScalarEnvironments &
   XScalarActiveEnvironment &
-  XScalarActiveProxy
+  XScalarActiveProxy &
+  XScalarOrder
 
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,

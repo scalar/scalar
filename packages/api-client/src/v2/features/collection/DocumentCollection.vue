@@ -31,9 +31,7 @@ const title = computed(() => props.document?.info?.title || 'Untitled Document')
 
 /** Default to the folder icon */
 const icon = computed(
-  () =>
-    props.document?.['x-scalar-client-config-icon'] ||
-    'interface-content-folder',
+  () => document?.['x-scalar-icon'] || 'interface-content-folder',
 )
 </script>
 

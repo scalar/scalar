@@ -1,5 +1,5 @@
 import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 /** All of the sources */
 export type Sources = typeof sources

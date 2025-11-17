@@ -1,5 +1,5 @@
 import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { describe, expect, it, vi } from 'vitest'
 
 describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {

@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
-import { setTimeout } from 'node:timers/promises'
 
 import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
@@ -35,7 +34,6 @@ describe('bundle', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 
@@ -1992,7 +1990,6 @@ describe('bundle', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 
@@ -2071,7 +2068,6 @@ describe('bundle', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 

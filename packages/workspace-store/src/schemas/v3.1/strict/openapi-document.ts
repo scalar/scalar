@@ -6,10 +6,12 @@ import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import {
   type XScalarSetOperationSecurity,
   XScalarSetOperationSecuritySchema,
 } from '@/schemas/extensions/document/x-scalar-set-operation-security'
+import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarSelectedSecurity,
   XScalarSelectedSecuritySchema,
@@ -78,8 +80,6 @@ const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),
-      /** A custom icon representing the collection */
-      'x-scalar-client-config-icon': Type.String(),
       'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
       'x-scalar-original-source-url': Type.String(),
@@ -95,12 +95,12 @@ const OpenApiExtensionsSchema = compose(
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
+  XScalarIconSchema,
+  XScalarOrderSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
   'x-scalar-client-config-active-environment': string
-  /** A custom icon representing the collection */
-  'x-scalar-client-config-icon': string
   'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
   /** Original document source url / when loading a document from an external source */
@@ -114,7 +114,9 @@ export type OpenAPIExtensions = Partial<{
   XScalarEnvironments &
   XScalarSelectedSecurity &
   XScalarSelectedServer &
-  XScalarSetOperationSecurity
+  XScalarSetOperationSecurity &
+  XScalarIcon &
+  XScalarOrder
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

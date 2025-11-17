@@ -41,7 +41,7 @@ const createOperationEntry = ({
   operation: OperationObject
   method: HttpMethod
   path: string
-  parentTag: ParentTag
+  parentTag?: ParentTag
   generateId: TraverseSpecOptions['generateId']
   parentId: string
 }): TraversedOperation => {
@@ -88,7 +88,7 @@ const createOperationEntry = ({
  * This function processes each path and its operations to:
  * - Filter out internal operations (marked with x-internal) and operations to ignore (marked with x-scalar-ignore)
  * - Group operations by their tags
- * - Create a default tag group for untagged operations
+ * - Collect operations without tags to be added at the document level
  * - Generate unique references and IDs for each operation
  *
  * TODO: filter out internal and scalar-ignore tags
@@ -97,7 +97,7 @@ const createOperationEntry = ({
  * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
  * @param entitiesMap - Map to store operation IDs and titles for mobile header navigation
  * @param getOperationId - Function to generate unique IDs for operations
- * @returns Map of tag names to arrays of traversed operations
+ * @returns Object containing the tagsMap and an array of untagged operations
  */
 export const traversePaths = ({
   document,
@@ -112,7 +112,9 @@ export const traversePaths = ({
   generateId: TraverseSpecOptions['generateId']
   /** Document ID */
   documentId: string
-}) => {
+}): { untaggedOperations: TraversedOperation[] } => {
+  const untaggedOperations: TraversedOperation[] = []
+
   // Traverse paths
   Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
     const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
@@ -152,27 +154,21 @@ export const traversePaths = ({
             }),
           )
         })
-      }
-      // Add to default tag
-      else {
-        const { tag, id: tagId } = getTag({
-          tagsMap,
-          name: 'default',
-          documentId,
-          generateId,
-        })
-        tagsMap.get('default')?.entries.push(
+      } else {
+        // Collect operations without tags (no parentTag)
+        untaggedOperations.push(
           createOperationEntry({
             ref,
             operation,
             method,
             path,
-            parentTag: { tag, id: tagId },
             generateId,
-            parentId: tagId,
+            parentId: documentId,
           }),
         )
       }
     })
   })
+
+  return { untaggedOperations }
 }

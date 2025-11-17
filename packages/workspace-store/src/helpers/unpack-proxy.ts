@@ -51,6 +51,7 @@ export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number |
         'color: inherit;',
         value,
         input,
+        value,
       )
 
       // Collapsed trace group for cleaner output

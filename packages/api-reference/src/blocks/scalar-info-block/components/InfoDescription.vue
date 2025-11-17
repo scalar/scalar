@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
-import type { Heading } from '@scalar/types'
+import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'

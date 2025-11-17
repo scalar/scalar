@@ -6,7 +6,7 @@ import {
 } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type ThemeId } from '@scalar/themes'
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
 import ApiReferenceToolbarConfigLayout from '@/features/toolbar/ApiReferenceToolbarConfigLayout.vue'

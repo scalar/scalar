@@ -11,6 +11,7 @@ import {
   deleteSecurityScheme,
   deleteServer,
   toggleSecurity,
+  updateDocumentIcon,
   updateOperationMethod,
   updateOperationParameter,
   updateOperationPath,
@@ -35,12 +36,19 @@ import { type ComputedRef, type Ref, toValue } from 'vue'
 /**
  * Top level state mutation handling for the workspace store in the client
  */
-export const useWorkspaceClientEvents = (
-  eventBus: WorkspaceEventBus,
-  document: ComputedRef<WorkspaceDocument | null>,
-  workspaceStore: Ref<WorkspaceStore | null>,
-  isSidebarOpen: Ref<boolean>,
-) => {
+export const useWorkspaceClientEvents = ({
+  eventBus,
+  document,
+  workspaceStore,
+  navigateTo,
+  isSidebarOpen,
+}: {
+  eventBus: WorkspaceEventBus
+  document: ComputedRef<WorkspaceDocument | null>
+  workspaceStore: Ref<WorkspaceStore | null>
+  navigateTo: (id: string) => Promise<unknown> | undefined
+  isSidebarOpen: Ref<boolean>
+}) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
     document: ComputedRef<WorkspaceDocument | null>,
@@ -58,13 +66,11 @@ export const useWorkspaceClientEvents = (
   //------------------------------------------------------------------------------------
   // Document Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on(
-    'document:update:icon',
-    (icon) => document.value && (document.value['x-scalar-client-config-icon'] = icon),
-  )
+  eventBus.on('document:update:icon', (icon) => updateDocumentIcon(document.value, icon))
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
   eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
+  eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers

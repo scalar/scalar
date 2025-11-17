@@ -103,7 +103,9 @@ describe('traverseDocument', () => {
         'title': 'test',
         isWebhooks: false,
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/test/get/test'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/test/get/test',
@@ -283,7 +285,9 @@ describe('traverseDocument', () => {
         isWebhooks: false,
         'title': 'tag1',
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/tag1/get/test1'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/tag1/get/test1',
@@ -304,7 +308,9 @@ describe('traverseDocument', () => {
         isWebhooks: false,
         'title': 'tag2',
         'type': 'tag',
-        xKeys: {},
+        xKeys: {
+          'x-scalar-order': ['doc-1/tag/tag2/post/test2'],
+        },
         'children': [
           {
             'id': 'doc-1/tag/tag2/post/test2',
@@ -320,7 +326,7 @@ describe('traverseDocument', () => {
     ])
   })
 
-  it('should handle operations without tags', () => {
+  it('should add operations without tags at the same level as tag entries', () => {
     const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
@@ -344,18 +350,14 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument('doc-1', doc, mockOptions)
     expect(result.id).toBe('doc-1')
-    expect(result.children).toHaveLength(1) // One tag group for untagged operations
-    expect(result.children).toEqual([
-      {
-        'id': 'doc-1/tag/default/get/test',
-        'isDeprecated': false,
-        'method': 'get',
-        'path': '/test',
-        'ref': '#/paths/~1test/get',
-        'title': 'Untagged Operation',
-        'type': 'operation',
-      },
-    ])
+    // Operations without tags are added at the same level as tag entries
+    expect(result.children).toHaveLength(1)
+    expect(result.children[0]).toMatchObject({
+      type: 'operation',
+      title: 'Untagged Operation',
+      path: '/test',
+      method: 'get',
+    })
   })
 
   it('should respect tag sorting configuration', () => {

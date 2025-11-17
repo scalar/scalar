@@ -336,6 +336,13 @@ export type WorkspaceStore = {
    */
   saveDocument(documentName: string): Promise<unknown[] | undefined>
   /**
+   * Builds the sidebar for the specified document.
+   *
+   * @param documentName - The name of the document to build the sidebar for
+   * @returns boolean indicating if the sidebar was built successfully
+   */
+  buildSidebar: (documentName: string) => boolean
+  /**
    * Restores the specified document to its last locally saved state.
    *
    * This method updates the current reactive document (in the workspace) with the contents of the
@@ -919,6 +926,37 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  /**
+   * Builds (or updates) the navigation sidebar for the specified document.
+   *
+   * This method generates the sidebar navigation structure for a workspace document,
+   * and attaches it to the document's metadata under the navigation extension key.
+   * The document is unpacked to avoid assigning proxy objects as direct property references.
+   *
+   * - Only the top-level object is proxied; all child objects should be unproxied.
+   * - This approach enables safe unpacking of the proxy object without recursively traversing the full object tree.
+   *
+   * @param documentName - The name/key of the document whose sidebar should be built.
+   * @returns {boolean} True if the sidebar was built successfully, false if the document does not exist.
+   */
+  const buildSidebar = (documentName: string): boolean => {
+    const document = workspace.documents[documentName]
+
+    if (!document) {
+      // Log and exit if the document does not exist in the workspace
+      console.error(`Document '${documentName}' does not exist in the workspace.`)
+      return false
+    }
+
+    // Generate the navigation structure for the sidebar.
+    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
+
+    // Set the computed navigation structure on the document metadata.
+    document[extensions.document.navigation] = navigation
+
+    return true
+  }
+
   // Returns the effective document configuration for a given document name,
   // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
   const getDocumentConfiguration = (name: string) => {
@@ -1036,6 +1074,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
+    buildSidebar,
     saveDocument,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
