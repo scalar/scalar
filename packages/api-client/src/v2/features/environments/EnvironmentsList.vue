@@ -76,7 +76,7 @@ const openUpsertModal = (name?: string) => {
 
   <!-- Upsert Modal -->
   <EnvironmentCreateModal
-    :collectionType
+    :collectionType="collectionType"
     :environments
     :eventBus
     :selectedEnvironmentName

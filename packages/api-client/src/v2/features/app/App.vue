@@ -11,7 +11,6 @@ export default {}
 import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
-import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   xScalarEnvironmentSchema,
@@ -24,6 +23,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
@@ -49,9 +49,6 @@ const getRouteParam = (paramName: string): string | undefined => {
 
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -102,6 +99,9 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
   useWorkspaceSelector({
     workspaceId: workspaceSlug,
   })
+
+/** Initialize color mode to ensure it is set on mount. */
+useColorMode({ workspaceStore: store })
 
 /** Sidebar state and selection handling. */
 const { handleSelectItem, sidebarState } = useSidebarState({

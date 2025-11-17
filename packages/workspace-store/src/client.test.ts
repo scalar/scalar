@@ -77,14 +77,14 @@ describe('create-workspace-store', () => {
     const store = createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
-        'x-scalar-dark-mode': false,
+        'x-scalar-color-mode': 'light',
       },
     })
 
-    store.update('x-scalar-dark-mode', true)
+    store.update('x-scalar-color-mode', 'dark')
     store.update('x-scalar-theme', 'saturn')
 
-    expect(store.workspace['x-scalar-dark-mode']).toBe(true)
+    expect(store.workspace['x-scalar-color-mode']).toBe('dark')
     expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
@@ -1831,7 +1831,7 @@ describe('create-workspace-store', () => {
       const store = createWorkspaceStore({
         meta: {
           'x-scalar-active-document': 'default',
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-default-client': 'c/libcurl',
           'x-scalar-theme': 'saturn',
         },
@@ -1877,7 +1877,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(JSON.stringify(store.exportWorkspace())).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-scalar-active-server":"server-1","x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-dark-mode":true,"x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-scalar-active-server":"server-1","x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"b2f2728d23486d96","x-ext-urls":{},"x-scalar-navigation":{"id":"default","type":"document","title":"My API","name":"default","children":[]}},"pet-store":{"openapi":"3.1.1","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"e9a0e8d0b5c5bdd2","x-ext-urls":{},"x-scalar-navigation":{"id":"pet-store","type":"document","title":"Pet Store API","name":"pet-store","children":[{"id":"pet-store/tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{"x-scalar-active-document":"default","x-scalar-color-mode":"dark","x-scalar-default-client":"c/libcurl","x-scalar-theme":"saturn"},"documentConfigs":{"default":{"x-scalar-reference-config":{"features":{"showModels":false,"showDownload":false}}},"pet-store":{}},"originalDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"intermediateDocuments":{"default":{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"}},"pet-store":{"openapi":"3.0.0","info":{"title":"Pet Store API","version":"1.0.0"},"paths":{"/users":{"get":{"description":"Get all users"}}}}},"overrides":{"default":{},"pet-store":{}}}',
       )
     })
   })
@@ -1927,7 +1927,7 @@ describe('create-workspace-store', () => {
         },
         meta: {
           'x-scalar-active-document': 'default',
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': true,
           'x-scalar-default-client': 'c/libcurl',
           'x-scalar-theme': 'saturn',
         },
@@ -2019,7 +2019,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.workspace['x-scalar-theme']).toBe('saturn')
-      expect(store.workspace['x-scalar-dark-mode']).toBe(true)
+      expect(store.workspace['x-scalar-color-mode']).toBe(true)
       expect(store.workspace['x-scalar-active-document']).toBe('default')
       expect(store.workspace['x-scalar-default-client']).toBe('c/libcurl')
     })

@@ -46,7 +46,7 @@ export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
 
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
-    [extensions.workspace.darkMode]: Type.Boolean(),
+    [extensions.workspace.colorMode]: Type.Union([Type.Literal('system'), Type.Literal('light'), Type.Literal('dark')]),
     [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
     [extensions.workspace.activeDocument]: Type.String(),
     [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
@@ -54,8 +54,10 @@ export const WorkspaceMetaSchema = Type.Partial(
   }),
 )
 
+export type ColorMode = 'system' | 'light' | 'dark'
+
 export type WorkspaceMeta = {
-  [extensions.workspace.darkMode]?: boolean
+  [extensions.workspace.colorMode]?: ColorMode
   [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string
   [extensions.workspace.theme]?: ThemeId

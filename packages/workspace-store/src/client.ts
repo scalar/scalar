@@ -383,7 +383,7 @@ export type WorkspaceStore = {
    *   },
    *   info: { title: 'My Workspace' },
    *   workspace: 'v1',
-   *   "x-scalar-dark-mode": true
+   *   "x-scalar-color-mode": true
    * })
    * ```
    *

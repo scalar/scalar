@@ -64,7 +64,7 @@ describe('create-server-store', () => {
         ],
         meta: {
           'x-scalar-active-document': 'api-1',
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
         },
       })
 
@@ -112,7 +112,7 @@ describe('create-server-store', () => {
 
       expect(store.getWorkspace()).toEqual({
         'x-scalar-active-document': 'api-1',
-        'x-scalar-dark-mode': true,
+        'x-scalar-color-mode': 'dark',
         documents: {
           'api-1': workspaceDocument('api-1'),
           'api-2': workspaceDocument('api-2'),
@@ -269,7 +269,7 @@ describe('create-server-store', () => {
         ],
         meta: {
           'x-scalar-active-document': 'test',
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-default-client': 'node/fetch',
           'x-scalar-theme': 'default',
         },
@@ -368,7 +368,7 @@ describe('create-server-store', () => {
           },
         },
         'x-scalar-active-document': 'test',
-        'x-scalar-dark-mode': true,
+        'x-scalar-color-mode': 'dark',
         'x-scalar-default-client': 'node/fetch',
         'x-scalar-theme': 'default',
       })

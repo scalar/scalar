@@ -860,7 +860,8 @@ useIntersection(documentStartRef, () => {
                     <ScalarColorModeToggleButton
                       v-if="!mergedConfig.hideDarkModeToggle"
                       :modelValue="
-                        !!workspaceStore.workspace['x-scalar-dark-mode']
+                        workspaceStore.workspace['x-scalar-color-mode'] ===
+                        'dark'
                       "
                       @update:modelValue="() => toggleColorMode()" />
                     <span v-else />
@@ -936,9 +937,9 @@ useIntersection(documentStartRef, () => {
                   v-if="!mergedConfig.hideDarkModeToggle"
                   class="text-c-2 hover:text-c-1"
                   :mode="
-                    !!workspaceStore.workspace['x-scalar-dark-mode']
-                      ? 'dark'
-                      : 'light'
+                    workspaceStore.workspace['x-scalar-color-mode'] === 'system'
+                      ? 'light'
+                      : workspaceStore.workspace['x-scalar-color-mode']
                   "
                   style="transform: scale(1.4)"
                   variant="icon"

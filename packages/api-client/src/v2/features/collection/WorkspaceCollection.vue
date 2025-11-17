@@ -40,7 +40,9 @@ const props = defineProps<RouteProps>()
 
       <!-- Router views -->
       <div class="px-1.5 py-8">
-        <RouterView v-bind="{ ...props, type: 'workspace' }" />
+        <RouterView
+          v-bind="props"
+          collectionType="workspace" />
       </div>
     </div>
   </div>

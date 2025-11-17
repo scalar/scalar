@@ -84,7 +84,7 @@ const icon = computed(
           <component
             :is="Component"
             v-bind="props"
-            type="document" />
+            collectionType="document" />
         </RouterView>
       </div>
     </div>

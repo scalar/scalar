@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { ThemeId } from '@scalar/themes'
+import type { ColorMode } from '@scalar/workspace-store/schemas/workspace'
 import { useRouter } from 'vue-router'
 
-import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
 
-const { eventBus, document, activeWorkspace, workspaceStore } = defineProps<
-  RouteProps & { type: 'document' | 'collection' }
->()
+const { eventBus, document, activeWorkspace, workspaceStore, collectionType } =
+  defineProps<CollectionProps>()
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
   eventBus.emit('document:update:watch-mode', watchMode)
@@ -18,6 +18,10 @@ const handleUpdateThemeId = (themeId: ThemeId) => {
 }
 const handleUpdateActiveProxy = (proxy: string | null) => {
   workspaceStore.update('x-scalar-active-proxy', proxy ?? undefined)
+}
+
+const handleUpdateColorMode = (colorMode: ColorMode) => {
+  workspaceStore.update('x-scalar-color-mode', colorMode)
 }
 
 const router = useRouter()
@@ -37,7 +41,7 @@ const handleDeleteDocument = () => {
 </script>
 <template>
   <DocumentSettings
-    v-if="type === 'document'"
+    v-if="collectionType === 'document'"
     :documentUrl="document?.['x-scalar-original-source-url']"
     :title="document?.info.title ?? ''"
     :watchMode="document?.['x-scalar-watch-mode'] ?? true"
@@ -47,10 +51,11 @@ const handleDeleteDocument = () => {
     v-else
     :activeProxyUrl="workspaceStore.workspace['x-scalar-active-proxy']"
     :activeThemeId="workspaceStore.workspace['x-scalar-theme'] ?? 'default'"
-    :colorMode="'system'"
+    :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
     :customProxyUrl="
       workspaceStore.config['x-scalar-reference-config'].settings.proxyUrl
     "
+    @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
     @update:themeId="handleUpdateThemeId" />
 </template>

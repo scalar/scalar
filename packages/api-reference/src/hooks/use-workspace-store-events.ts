@@ -10,7 +10,7 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
   // Document Meta Related Event Handlers
   //------------------------------------------------------------------------------------
   onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
-    store.update('x-scalar-dark-mode', event.detail.value)
+    store.update('x-scalar-color-mode', event.detail.value ? 'dark' : 'light')
   })
 
   onCustomEvent(root, 'scalar-update-active-document', (event) => {
