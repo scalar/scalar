@@ -1,10 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
-import { setTimeout } from 'node:timers/promises'
 
 import { type FastifyInstance, fastify } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
@@ -403,11 +402,10 @@ describe('create-server-store', () => {
 
       beforeEach(() => {
         server = fastify({ logger: false })
-      })
 
-      afterEach(async () => {
-        await server.close()
-        await setTimeout(100)
+        return async () => {
+          await server.close()
+        }
       })
 
       it('should load a document on the workspace from an external url', async () => {

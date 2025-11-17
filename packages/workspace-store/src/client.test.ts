@@ -1,5 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
@@ -69,7 +67,6 @@ describe('create-workspace-store', () => {
 
     return async () => {
       await server.close()
-      await setTimeout(100)
     }
   })
 
@@ -2241,7 +2238,6 @@ describe('create-workspace-store', () => {
 
       return async () => {
         await server.close()
-        await setTimeout(100)
       }
     })
 

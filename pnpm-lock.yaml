@@ -2504,9 +2504,6 @@ importers:
 
   packages/types:
     dependencies:
-      '@scalar/openapi-types':
-        specifier: workspace:*
-        version: link:../openapi-types
       nanoid:
         specifier: catalog:*
         version: 5.1.5

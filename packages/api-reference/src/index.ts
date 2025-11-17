@@ -1,8 +1,8 @@
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 export type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
-// biome-ignore lint/performance/noBarrelFile: <ignore>
 export { default as ApiReference } from '@/components/ApiReference.vue'
 export { default as GettingStarted } from '@/components/GettingStarted.vue'
 export { SearchButton, SearchModal } from '@/features/Search'
