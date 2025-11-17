@@ -511,25 +511,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
       {
         hooks: {
-          onAfterChange({ path, type: changeType }) {
+          onAfterChange(path) {
             const type = path[0]
-
-            // Delete document changes
-            if (changeType === 'delete') {
-              // Only emit when we are deleting a document
-              if (path.length < 2 || type !== 'documents') {
-                return
-              }
-
-              const documentName = path[1] as string
-              const event = {
-                type: 'deleteDocument',
-                documentName,
-              } satisfies WorkspaceStateChangeEvent
-
-              fireWorkspaceChange(event)
-              return
-            }
 
             /** Document changes */
             if (type === 'documents') {
@@ -640,12 +623,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     {
       hooks: {
-        onAfterChange({ path, type: changeType }) {
+        onAfterChange(path) {
           const type = path[0]
 
-          // Do not trigger hooks for delete operations
-          // We only trigger the deleteDocument event in the onAfterChange hook for the documents object
-          if (!type || changeType === 'delete') {
+          if (!type) {
             return
           }
 
@@ -1068,6 +1049,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (wasActiveDocument) {
         workspace['x-scalar-active-document'] = remainingDocuments[0] ?? undefined
       }
+
+      // Fire the deleteDocument event
+      fireWorkspaceChange({
+        type: 'deleteDocument',
+        documentName,
+      })
     },
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())

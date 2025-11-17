@@ -13,18 +13,11 @@ const isPropsVue = (prop: string | Symbol) => {
   )
 }
 
-export type ChangeEvent = {
-  type: 'upsert' | 'delete'
-  path: string[]
-  value: unknown
-}
-
 /**
  * createDetectChangesProxy - Creates a proxy for an object or array that detects and triggers hooks on changes.
  *
- * This proxy enables detection of set and delete operations, triggering optional hooks (onBeforeChange, onAfterChange)
- * with the path and value changed. The proxy can be applied recursively to all nested objects/arrays, and caches
- * proxies to prevent creating multiple proxies for the same object.
+ * This proxy enables detection of set operations, triggering optional hooks (onBeforeChange, onAfterChange) with the path and value changed.
+ * The proxy can be applied recursively to all nested objects/arrays, and caches proxies to prevent creating multiple proxies for the same object.
  *
  * Example usage:
  *
@@ -37,7 +30,6 @@ export type ChangeEvent = {
  * });
  * proxy.foo = 42; // Console: Before ['foo'] '42', After ['foo'] '42'
  * proxy.bar.baz = 99; // Console: Before ['bar', 'baz'] '99', After ['bar', 'baz'] '99'
- * delete proxy.foo; // Console: Before ['foo'] undefined, After ['foo'] undefined
  *
  * @param target The target object or array to wrap in a proxy
  * @param options Optional: hooks for change detection
@@ -48,8 +40,8 @@ export const createDetectChangesProxy = <T>(
   target: T,
   options?: {
     hooks: Partial<{
-      onBeforeChange: (event: ChangeEvent) => void
-      onAfterChange: (event: ChangeEvent) => void
+      onBeforeChange: (path: string[], value: unknown) => void
+      onAfterChange: (path: string[], value: unknown) => void
     }>
   },
   args: {
@@ -95,25 +87,10 @@ export const createDetectChangesProxy = <T>(
     set(target, prop, value, receiver) {
       const path = [...args.path, String(prop)]
       // Call before-change hook if provided
-      options?.hooks?.onBeforeChange?.({ type: 'upsert', path, value })
+      options?.hooks?.onBeforeChange?.(path, value)
       const result = Reflect.set(target, prop, value, receiver)
       // Call after-change hook if provided
-      options?.hooks?.onAfterChange?.({ type: 'upsert', path, value })
-      return result
-    },
-    deleteProperty(target, prop) {
-      // Skip Vue internal properties
-      if (isPropsVue(prop)) {
-        return Reflect.deleteProperty(target, prop)
-      }
-
-      const path = [...args.path, String(prop)]
-
-      // Call before-change hook if provided (value is undefined to indicate deletion)
-      options?.hooks?.onBeforeChange?.({ type: 'delete', path, value: undefined })
-      const result = Reflect.deleteProperty(target, prop)
-      // Call after-change hook if provided (value is undefined to indicate deletion)
-      options?.hooks?.onAfterChange?.({ type: 'delete', path, value: undefined })
+      options?.hooks?.onAfterChange?.(path, value)
       return result
     },
   })
