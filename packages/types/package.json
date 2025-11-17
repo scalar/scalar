@@ -72,7 +72,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/openapi-types": "workspace:*",
     "nanoid": "catalog:*",
     "type-fest": "catalog:*",
     "zod": "catalog:*"

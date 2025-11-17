@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { DiscriminatorObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 

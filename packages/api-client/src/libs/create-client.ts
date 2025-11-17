@@ -4,8 +4,8 @@ import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/work
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { OpenAPI } from '@scalar/types/legacy'
 import { type Component, createApp, ref, watch } from 'vue'
 import type { Router } from 'vue-router'
 
