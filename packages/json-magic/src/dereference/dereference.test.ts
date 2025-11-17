@@ -1,7 +1,5 @@
-import { setTimeout } from 'node:timers/promises'
-
 import { type FastifyInstance, fastify } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { dereference } from '@/dereference/dereference'
 
@@ -68,11 +66,10 @@ describe('dereference', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+      }
     })
 
     it('should dereference JSON pointers asynchronously', async () => {
