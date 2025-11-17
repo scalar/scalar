@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
+import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -199,6 +200,7 @@ export const updateOperationSummary = (
  */
 export const updateOperationMethod = (
   document: WorkspaceDocument | null,
+  store: WorkspaceStore | null,
   { meta, payload: { method } }: OperationEvents['operation:update:method'],
 ) => {
   const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
@@ -216,6 +218,14 @@ export const updateOperationMethod = (
 
   path[method] = unpackProxyObject(operation)
   delete path[meta.method]
+
+  if (!document['x-scalar-navigation'] || !store) {
+    console.error('Document name or store not found', { document })
+    return
+  }
+
+  // Now we gotta rebuild the sidebar
+  store.buildSidebar(document['x-scalar-navigation'].name)
 }
 
 /**

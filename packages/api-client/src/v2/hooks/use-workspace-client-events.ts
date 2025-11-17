@@ -149,7 +149,9 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('operation:update:method', (payload) => updateOperationMethod(document.value, payload))
+  eventBus.on('operation:update:method', (payload) =>
+    updateOperationMethod(document.value, workspaceStore.value, payload),
+  )
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
   eventBus.on('operation:add:parameter', (payload) => addOperationParameter(document.value, payload))
