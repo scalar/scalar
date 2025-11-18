@@ -1,12 +1,13 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
+import type { Entries } from 'type-fest'
 
 import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
-import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, PathItemObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -203,12 +204,6 @@ export const updateOperationMethod = (
   store: WorkspaceStore | null,
   { meta, payload: { method }, callback }: OperationEvents['operation:update:method'],
 ) => {
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    console.error('Operation not found', { meta, document })
-    return
-  }
-
   /** Ensure the path exists */
   const path = document?.paths?.[meta.path]
   if (!path) {
@@ -216,8 +211,29 @@ export const updateOperationMethod = (
     return
   }
 
-  path[method] = unpackProxyObject(operation)
-  delete path[meta.method]
+  /** Helper function to maintain type relationship between key and value */
+  const assignPathEntry = <K extends keyof PathItemObject>(
+    target: PathItemObject,
+    key: K,
+    value: PathItemObject[K],
+  ): void => {
+    target[key] = value
+  }
+
+  // Maintain the order of methods by rebuilding the path object
+  const entries = Object.entries(path).map(([key, value]) =>
+    key === meta.method ? [method, value] : [key, value],
+  ) as Entries<PathItemObject>
+
+  // Clear existing properties
+  for (const key of Object.keys(path)) {
+    delete path[key as keyof typeof path]
+  }
+
+  // Reassign in the correct order
+  for (const [key, value] of entries) {
+    assignPathEntry(path, key, unpackProxyObject(value))
+  }
 
   if (!document['x-scalar-navigation'] || !store) {
     console.error('Document name or store not found', { document })

@@ -48,10 +48,6 @@ onMounted(() => {
     typeof document?.['x-scalar-selected-server'] === 'undefined' &&
     document?.servers?.[0]?.url
   ) {
-    console.log(
-      'selecting first server',
-      typeof document?.['x-scalar-selected-server'],
-    )
     eventBus.emit('server:update:selected', { url: document.servers[0].url })
   }
 })
