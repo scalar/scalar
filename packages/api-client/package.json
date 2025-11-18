@@ -260,6 +260,11 @@
       "types": "./dist/v2/features/operation/index.d.ts",
       "default": "./dist/v2/features/operation/index.js"
     },
+    "./v2/features/search": {
+      "import": "./dist/v2/features/search/index.js",
+      "types": "./dist/v2/features/search/index.d.ts",
+      "default": "./dist/v2/features/search/index.js"
+    },
     "./v2/features/settings": {
       "import": "./dist/v2/features/settings/index.js",
       "types": "./dist/v2/features/settings/index.d.ts",
