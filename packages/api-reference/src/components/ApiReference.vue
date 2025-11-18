@@ -53,6 +53,7 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
+import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import {
@@ -763,6 +764,16 @@ const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
 useIntersection(documentStartRef, () => {
   eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
 })
+
+const colorMode = computed(() => {
+  const mode = workspaceStore.workspace['x-scalar-color-mode']
+
+  if (mode === 'system') {
+    return getSystemModePreference()
+  }
+
+  return mode
+})
 </script>
 
 <template>
@@ -859,9 +870,7 @@ useIntersection(documentStartRef, () => {
                   <template #toggle>
                     <ScalarColorModeToggleButton
                       v-if="!mergedConfig.hideDarkModeToggle"
-                      :modelValue="
-                        !!workspaceStore.workspace['x-scalar-dark-mode']
-                      "
+                      :modelValue="colorMode === 'dark'"
                       @update:modelValue="() => toggleColorMode()" />
                     <span v-else />
                   </template>
@@ -935,11 +944,7 @@ useIntersection(documentStartRef, () => {
                 <ScalarColorModeToggleIcon
                   v-if="!mergedConfig.hideDarkModeToggle"
                   class="text-c-2 hover:text-c-1"
-                  :mode="
-                    !!workspaceStore.workspace['x-scalar-dark-mode']
-                      ? 'dark'
-                      : 'light'
-                  "
+                  :mode="colorMode"
                   style="transform: scale(1.4)"
                   variant="icon"
                   @click="() => toggleColorMode()" />

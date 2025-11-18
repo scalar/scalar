@@ -1,8 +1,10 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
 import type { TabEvents } from '@/events/definitions/tabs'
+import type { WorkspaceEvents } from '@/events/definitions/workspace'
 
 import type { AnalyticsEvents } from './analytics'
 import type { AuthEvents } from './auth'
+import type { CookieEvents } from './cookie'
 import type { DocumentEvents } from './document'
 import type { MetaEvents } from './meta'
 import type { OperationEvents } from './operation'
@@ -11,6 +13,8 @@ import type { UIEvents } from './ui'
 
 export type ApiReferenceEvents = AuthEvents &
   AnalyticsEvents &
+  CookieEvents &
+  WorkspaceEvents &
   DocumentEvents &
   EnvironmentEvents &
   MetaEvents &

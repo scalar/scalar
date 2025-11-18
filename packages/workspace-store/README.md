@@ -213,7 +213,7 @@ store.workspace.activeDocument
 store.workspace.documents['document']
 
 // Update global workspace settings
-store.update('x-scalar-dark-mode', true)
+store.update('x-scalar-color-mode', true)
 
 // Update settings for the active document
 store.updateDocument('active', "x-scalar-active-auth", '<value>')
@@ -431,7 +431,7 @@ await store.importWorkspaceFromSpecification({
       ],
     },
   },
-  'x-scalar-dark-mode': true,
+  'x-scalar-color-mode': true,
 })
 ```
 

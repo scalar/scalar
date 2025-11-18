@@ -11,6 +11,7 @@ import {
   type XScalarSetOperationSecurity,
   XScalarSetOperationSecuritySchema,
 } from '@/schemas/extensions/document/x-scalar-set-operation-security'
+import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarSelectedSecurity,
@@ -33,10 +34,6 @@ import {
 } from '@/schemas/navigation'
 
 import { CallbackObjectSchemaDefinition } from './callback'
-import {
-  type XScalarClientConfigCookies,
-  xScalarClientConfigCookiesSchema,
-} from './client-config-extensions/x-scalar-client-config-cookies'
 import { type ComponentsObject, ComponentsObjectSchemaDefinition } from './components'
 import { ContactObjectSchemaDefinition } from './contact'
 import { DiscriminatorObjectSchemaDefinition } from './discriminator'
@@ -80,7 +77,6 @@ const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),
-      'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
       'x-original-oas-version': Type.String(),
       'x-scalar-original-source-url': Type.String(),
       'x-scalar-watch-mode': Type.Boolean(),
@@ -92,16 +88,16 @@ const OpenApiExtensionsSchema = compose(
   XScalarSelectedSecuritySchema,
   XScalarSelectedServerSchema,
   XScalarSetOperationSecuritySchema,
+  XScalarIconSchema,
+  XScalarOrderSchema,
+  xScalarCookiesSchema,
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
-  XScalarIconSchema,
-  XScalarOrderSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
   'x-scalar-client-config-active-environment': string
-  'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
@@ -116,7 +112,8 @@ export type OpenAPIExtensions = Partial<{
   XScalarSelectedServer &
   XScalarSetOperationSecurity &
   XScalarIcon &
-  XScalarOrder
+  XScalarOrder &
+  XScalarCookies
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

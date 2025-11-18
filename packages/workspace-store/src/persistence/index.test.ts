@@ -247,7 +247,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           },
           meta: {
             'x-scalar-active-document': 'doc-1',
-            'x-scalar-dark-mode': true,
+            'x-scalar-color-mode': 'dark',
           },
           documentConfigs: {
             'doc-1': {},
@@ -376,7 +376,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
     it('returns false if only chunks exist without a workspace record', async () => {
       const orphanId = 'orphan-workspace'
       // Write chunks without creating the workspace record
-      await persistence.meta.setItem(orphanId, { 'x-scalar-dark-mode': true })
+      await persistence.meta.setItem(orphanId, { 'x-scalar-color-mode': 'dark' })
       await persistence.documents.setItem(orphanId, 'doc-1', {
         openapi: '3.1.0',
         info: { title: 'Doc', version: '1.0.0' },
@@ -413,13 +413,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         })
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-active-document': 'api-doc',
         })
 
         const workspace = await persistence.workspace.getItem(workspaceId)
         expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-active-document': 'api-doc',
         })
       })
@@ -441,17 +441,17 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         })
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-dark-mode': false,
+          'x-scalar-color-mode': 'dark',
         })
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-theme': 'moon',
         })
 
         const workspace = await persistence.workspace.getItem(workspaceId)
         expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-dark-mode': true,
+          'x-scalar-color-mode': 'dark',
           'x-scalar-theme': 'moon',
         })
       })

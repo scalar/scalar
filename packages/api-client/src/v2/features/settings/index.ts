@@ -1,2 +1,2 @@
-// biome-ignore lint/performance/noBarrelFile: It's a feature
-export { default as Settings } from './Settings.vue'
+export { default as CollectionSettings } from './CollectionSettings.vue'
+export { default as DocumentSettings } from './DocumentSettings.vue'

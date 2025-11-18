@@ -74,7 +74,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // check that the route is the default route
-    expect(push).toHaveBeenCalledWith({ name: 'workspace', params: { workspaceSlug: 'default' } })
+    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'default' } })
   })
 
   it('should load the first workspace when the default workspace is selected and no workspaces exist', async () => {
@@ -119,7 +119,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     await new Promise((resolve) => setTimeout(resolve, 10_000))
 
     // this will set the active workspace to the new workspace
-    expect(push).toHaveBeenCalledWith({ name: 'workspace', params: { workspaceSlug: 'new-workspace' } })
+    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'new-workspace' } })
 
     // check that a workspace was created
     expect(await persistence.workspace.getAll()).toHaveLength(2)
@@ -153,6 +153,6 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     await flushPromises()
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(push).toHaveBeenCalledWith({ name: 'workspace', params: { workspaceSlug: 'some-workspace' } })
+    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'some-workspace' } })
   })
 })

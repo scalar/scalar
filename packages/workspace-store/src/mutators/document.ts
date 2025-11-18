@@ -11,6 +11,14 @@ export const toggleSecurity = (document: WorkspaceDocument | null) => {
   document['x-scalar-set-operation-security'] = !document['x-scalar-set-operation-security']
 }
 
+export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: boolean) => {
+  if (!document) {
+    return
+  }
+
+  document['x-scalar-watch-mode'] = watchMode
+}
+
 /**
  * Update the document icon and also update the corresponding sidebar entry
  *

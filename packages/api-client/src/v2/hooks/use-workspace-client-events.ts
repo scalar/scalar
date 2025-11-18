@@ -6,11 +6,14 @@ import {
   addOperationRequestBodyFormRow,
   addServer,
   deleteAllOperationParameters,
+  deleteCookie,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
   toggleSecurity,
+  updateActiveProxy,
+  updateColorMode,
   updateDocumentIcon,
   updateOperationMethod,
   updateOperationParameter,
@@ -26,6 +29,9 @@ import {
   updateSelectedServer,
   updateServer,
   updateServerVariables,
+  updateTheme,
+  updateWatchMode,
+  upsertCookie,
   upsertEnvironment,
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
@@ -63,11 +69,23 @@ export const useWorkspaceClientEvents = ({
   }
 
   //------------------------------------------------------------------------------------
+  // Workspace Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('workspace:update:active-proxy', (payload) =>
+    updateActiveProxy(workspaceStore.value?.workspace ?? null, payload),
+  )
+  eventBus.on('workspace:update:color-mode', (payload) =>
+    updateColorMode(workspaceStore.value?.workspace ?? null, payload),
+  )
+  eventBus.on('workspace:update:theme', (payload) => updateTheme(workspaceStore.value?.workspace ?? null, payload))
+
+  //------------------------------------------------------------------------------------
   // Document Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('document:update:icon', (icon) => updateDocumentIcon(document.value, icon))
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
+  eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
   eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
 
   //------------------------------------------------------------------------------------
@@ -94,6 +112,18 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('environment:delete:environment-variable', ({ environmentName, index, collectionType }) =>
     getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
   )
+
+  //------------------------------------------------------------------------------------
+  // Cookie Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('cookie:upsert:cookie', (payload) => {
+    const collection = getCollection(document, payload.collectionType)
+    upsertCookie(collection, payload)
+  })
+  eventBus.on('cookie:delete:cookie', (payload) => {
+    const collection = getCollection(document, payload.collectionType)
+    deleteCookie(collection, payload)
+  })
 
   //------------------------------------------------------------------------------------
   // Auth Related Event Handlers

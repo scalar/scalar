@@ -5,7 +5,7 @@ export const extensions = {
     activeServer: 'x-scalar-active-server',
   },
   workspace: {
-    darkMode: 'x-scalar-dark-mode',
+    colorMode: 'x-scalar-color-mode',
     sidebarWidth: 'x-scalar-sidebar-width',
     defaultClient: 'x-scalar-default-client',
     activeDocument: 'x-scalar-active-document',

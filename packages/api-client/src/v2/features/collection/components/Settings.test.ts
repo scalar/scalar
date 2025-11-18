@@ -1,510 +1,287 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Settings from './Settings.vue'
 
-describe('Settings', () => {
-  const mountWithProps = (
-    custom: Partial<{
-      documentUrl: string
-      watchMode: boolean
-      title: string
-    }> = {},
-  ) => {
-    const defaultProps = {
-      title: 'Test Document',
-      documentUrl: undefined,
-      watchMode: false,
-    }
+const push = vi.fn()
 
-    return mount(Settings, {
-      props: {
-        ...defaultProps,
-        ...custom,
+// Mock vue-router
+vi.mock('vue-router', () => ({
+  useRouter: vi.fn(() => ({
+    push,
+  })),
+}))
+
+describe('Settings', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const baseEnvironment = coerceValue(xScalarEnvironmentSchema, {
+    color: '#FFFFFF',
+    variables: [],
+  })
+
+  const createWorkspaceStoreInstance = () => {
+    const store = createWorkspaceStore()
+    store.workspace['x-scalar-theme'] = 'default'
+    store.workspace['x-scalar-color-mode'] = 'system'
+    store.workspace['x-scalar-active-proxy'] = undefined
+    return store
+  }
+
+  const createDocumentProps = (overrides: Partial<CollectionProps> = {}) => {
+    const document = coerceValue(OpenAPIDocumentSchema, {
+      info: {
+        title: 'Test API',
+        description: 'Test description',
       },
+      'x-scalar-original-source-url': 'https://example.com/openapi.json',
+      'x-scalar-watch-mode': true,
     })
+
+    return {
+      documentSlug: 'test-document',
+      document,
+      eventBus: mockEventBus,
+      layout: 'desktop',
+      environment: baseEnvironment,
+      workspaceStore: createWorkspaceStoreInstance(),
+      activeWorkspace: {
+        id: 'test-workspace',
+        name: 'Test Workspace',
+      },
+      collectionType: 'document' as const,
+      ...overrides,
+    } as CollectionProps & { collectionType: 'document' }
+  }
+
+  const createWorkspaceProps = (overrides: Partial<CollectionProps> = {}) => {
+    return {
+      documentSlug: '',
+      document: null,
+      eventBus: mockEventBus,
+      layout: 'desktop',
+      environment: baseEnvironment,
+      workspaceStore: createWorkspaceStoreInstance(),
+      activeWorkspace: {
+        id: 'test-workspace',
+        name: 'Test Workspace',
+      },
+      collectionType: 'workspace' as const,
+      ...overrides,
+    } as CollectionProps & { collectionType: 'workspace' }
   }
 
   describe('rendering', () => {
-    it('renders the component', () => {
-      const wrapper = mountWithProps()
+    it('renders DocumentSettings when collectionType is document', () => {
+      const props = createDocumentProps()
+      const wrapper = mount(Settings, { props })
 
-      expect(wrapper.exists()).toBe(true)
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      expect(documentSettings.exists()).toBe(true)
     })
 
-    it('renders the Features section title', () => {
-      const wrapper = mountWithProps()
+    it('renders CollectionSettings when collectionType is workspace', () => {
+      const props = createWorkspaceProps()
+      const wrapper = mount(Settings, { props })
 
-      expect(wrapper.text()).toContain('Features')
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      expect(collectionSettings.exists()).toBe(true)
     })
 
-    it('renders the Watch Mode section', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('Watch Mode')
-    })
-
-    it('renders the Watch Mode description', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('When enabled, the OpenAPI document will be polled for changes')
-      expect(wrapper.text()).toContain('The collection will be updated automatically')
-    })
-
-    it('renders the Danger Zone section', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('Danger Zone')
-    })
-
-    it('renders the Delete Collection section', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('Delete Collection')
-    })
-
-    it('renders the danger zone warning message', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('Be careful, my friend')
-      expect(wrapper.text()).toContain('Once deleted, there is no way to recover the collection')
-    })
-
-    it('renders the Delete Collection button', () => {
-      const wrapper = mountWithProps()
-
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      expect(deleteButton?.exists()).toBe(true)
-    })
-
-    it('renders ScalarToggle for watch mode', () => {
-      const wrapper = mountWithProps()
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.exists()).toBe(true)
-    })
-  })
-
-  describe('Watch Mode section with documentUrl', () => {
-    it('displays source URL when documentUrl is provided', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
+    it('passes correct props to DocumentSettings', () => {
+      const document = coerceValue(OpenAPIDocumentSchema, {
+        info: {
+          title: 'My API',
+          description: 'Test description',
+        },
+        'x-scalar-original-source-url': 'https://api.example.com/spec.json',
+        'x-scalar-watch-mode': false,
       })
 
-      expect(wrapper.text()).toContain('Source')
-      expect(wrapper.text()).toContain('https://api.example.com/openapi.yaml')
-    })
-
-    it('renders URL as a clickable link', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
+      const props = createDocumentProps({
+        document,
+        documentSlug: 'my-document',
       })
+      const wrapper = mount(Settings, { props })
 
-      const link = wrapper.find('a[href="https://api.example.com/openapi.yaml"]')
-      expect(link.exists()).toBe(true)
-      expect(link.attributes('target')).toBe('_blank')
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      expect(documentSettings.props('documentUrl')).toBe('https://api.example.com/spec.json')
+      expect(documentSettings.props('title')).toBe('My API')
+      expect(documentSettings.props('watchMode')).toBe(false)
+      expect(documentSettings.props('isDraftDocument')).toBe(false)
     })
 
-    it('renders ExternalLink icon next to URL', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
+    it('marks DocumentSettings as draft when documentSlug is drafts', () => {
+      const props = createDocumentProps({
+        documentSlug: 'drafts',
       })
+      const wrapper = mount(Settings, { props })
 
-      const externalLinkIcon = wrapper.findComponent({ name: 'ScalarIcon' })
-      expect(externalLinkIcon.props('icon')).toBe('ExternalLink')
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      expect(documentSettings.props('isDraftDocument')).toBe(true)
     })
 
-    it('enables toggle when documentUrl is provided', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
+    it('passes correct props to CollectionSettings', () => {
+      const workspaceStore = createWorkspaceStoreInstance()
+      workspaceStore.workspace['x-scalar-theme'] = 'purple'
+      workspaceStore.workspace['x-scalar-color-mode'] = 'dark'
+      workspaceStore.workspace['x-scalar-active-proxy'] = 'https://proxy.example.com'
+
+      const props = createWorkspaceProps({
+        workspaceStore,
       })
+      const wrapper = mount(Settings, { props })
 
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('disabled')).toBe(false)
-    })
-  })
-
-  describe('Watch Mode section without documentUrl', () => {
-    it('displays warning message when no documentUrl', () => {
-      const wrapper = mountWithProps()
-
-      expect(wrapper.text()).toContain('No URL configured')
-      expect(wrapper.text()).toContain('Try importing an OpenAPI document from an URL')
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      expect(collectionSettings.props('activeThemeId')).toBe('purple')
+      expect(collectionSettings.props('colorMode')).toBe('dark')
+      expect(collectionSettings.props('activeProxyUrl')).toBe('https://proxy.example.com')
     })
 
-    it('renders NotAllowed icon when no documentUrl', () => {
-      const wrapper = mountWithProps()
+    it('uses default values when workspace properties are undefined', () => {
+      const workspaceStore = createWorkspaceStoreInstance()
+      delete workspaceStore.workspace['x-scalar-theme']
+      delete workspaceStore.workspace['x-scalar-color-mode']
+      delete workspaceStore.workspace['x-scalar-active-proxy']
 
-      const icons = wrapper.findAllComponents({ name: 'ScalarIcon' })
-      const notAllowedIcon = icons.find((icon) => icon.props('icon') === 'NotAllowed')
-      expect(notAllowedIcon?.exists()).toBe(true)
-    })
-
-    it('disables toggle when documentUrl is not provided', () => {
-      const wrapper = mountWithProps()
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('disabled')).toBe(true)
-    })
-
-    it('does not render Source label when no documentUrl', () => {
-      const wrapper = mountWithProps()
-
-      const sourceLabel = wrapper.findAll('span').find((span) => span.text() === 'Source')
-      expect(sourceLabel).toBeUndefined()
-    })
-
-    it('does not render any links when no documentUrl', () => {
-      const wrapper = mountWithProps()
-
-      const links = wrapper.findAll('a')
-      expect(links.length).toBe(0)
-    })
-  })
-
-  describe('Watch Mode toggle', () => {
-    it('reflects the watchMode prop value', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: true,
+      const props = createWorkspaceProps({
+        workspaceStore,
       })
+      const wrapper = mount(Settings, { props })
 
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('modelValue')).toBe(true)
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      expect(collectionSettings.props('activeThemeId')).toBe('default')
+      expect(collectionSettings.props('colorMode')).toBe('system')
+      expect(collectionSettings.props('activeProxyUrl')).toBeUndefined()
     })
 
-    it('sets toggle to false when watchMode is false', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: false,
-      })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('modelValue')).toBe(false)
-    })
-
-    it('defaults to false when watchMode is undefined', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-      })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('modelValue')).toBe(false)
-    })
-
-    it('emits update:watchMode when toggle is activated', async () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: false,
-      })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      await toggle.vm.$emit('update:modelValue', true)
-      await nextTick()
-
-      expect(wrapper.emitted('update:watchMode')).toBeTruthy()
-      expect(wrapper.emitted('update:watchMode')?.[0]).toEqual([true])
-    })
-
-    it('emits update:watchMode when toggle is deactivated', async () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: true,
-      })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      await toggle.vm.$emit('update:modelValue', false)
-      await nextTick()
-
-      expect(wrapper.emitted('update:watchMode')).toBeTruthy()
-      expect(wrapper.emitted('update:watchMode')?.[0]).toEqual([false])
-    })
-  })
-
-  describe('Delete Collection button', () => {
-    it('shows delete modal when Delete Collection button is clicked', async () => {
-      const wrapper = mountWithProps()
-
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.exists()).toBe(true)
-    })
-
-    it('renders danger variant button', () => {
-      const wrapper = mountWithProps()
-
-      const deleteButton = wrapper
-        .findAllComponents({ name: 'ScalarButton' })
-        .find((btn) => btn.text().includes('Delete Collection'))
-      expect(deleteButton?.props('variant')).toBe('danger')
-    })
-  })
-
-  describe('Delete Modal', () => {
-    it('renders modal with correct title', () => {
-      const wrapper = mountWithProps({ title: 'My API Collection' })
-
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete My API Collection')
-    })
-
-    it('uses default title when title prop is not provided', () => {
-      const wrapper = mount(Settings, {
-        props: {
-          title: 'Untitled Document',
+    it('handles missing document properties gracefully', () => {
+      const document = coerceValue(OpenAPIDocumentSchema, {
+        info: {
+          title: 'Test API',
         },
       })
 
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete Untitled Document')
-    })
+      const props = createDocumentProps({
+        document,
+      })
+      const wrapper = mount(Settings, { props })
 
-    it('renders DeleteSidebarListElement component', async () => {
-      const wrapper = mountWithProps({ title: 'Test Document' })
-
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      expect(deleteElement.exists()).toBe(true)
-    })
-
-    it('passes correct variableName to DeleteSidebarListElement', async () => {
-      const wrapper = mountWithProps({ title: 'Test Document' })
-
-      // Open the modal first to ensure component is fully mounted
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      expect(deleteElement.props('variableName')).toBe('Test Document')
-    })
-
-    it('passes warning message to DeleteSidebarListElement', async () => {
-      const wrapper = mountWithProps()
-
-      // Open the modal first to ensure component is fully mounted
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      expect(deleteElement.props('warningMessage')).toBe('This action cannot be undone.')
-    })
-
-    it('closes modal when DeleteSidebarListElement emits close', async () => {
-      const wrapper = mountWithProps()
-
-      // Open the modal first
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      await deleteElement.vm.$emit('close')
-      await nextTick()
-
-      // Modal should be hidden, but we cannot easily verify internal state
-      // We can verify the component still exists but state changed
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.exists()).toBe(true)
-    })
-
-    it('emits deleteDocument when DeleteSidebarListElement emits delete', async () => {
-      const wrapper = mountWithProps()
-
-      // Open the modal first to ensure component is fully mounted
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      await deleteElement.vm.$emit('delete')
-      await nextTick()
-
-      expect(wrapper.emitted('deleteDocument')).toBeTruthy()
-      expect(wrapper.emitted('deleteDocument')?.[0]).toEqual([])
-    })
-
-    it('modal has size xxs', () => {
-      const wrapper = mountWithProps()
-
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('size')).toBe('xxs')
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      expect(documentSettings.props('documentUrl')).toBeUndefined()
+      expect(documentSettings.props('title')).toBe('Test API')
+      expect(documentSettings.props('watchMode')).toBe(true)
     })
   })
 
-  describe('edge cases', () => {
-    it('handles empty title gracefully', () => {
-      const wrapper = mountWithProps({ title: '' })
+  describe('event handling', () => {
+    it('emits document:update:watch-mode when DocumentSettings emits update:watchMode', async () => {
+      const props = createDocumentProps()
+      const wrapper = mount(Settings, { props })
 
-      expect(wrapper.exists()).toBe(true)
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete ')
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      await documentSettings.vm.$emit('update:watchMode', false)
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:watch-mode', false)
     })
 
-    it('handles very long document URL', () => {
-      const longUrl =
-        'https://very-long-subdomain.example.com/api/v1/documentation/openapi.yaml?version=latest&format=json'
-      const wrapper = mountWithProps({ documentUrl: longUrl })
+    it('emits workspace:update:theme when CollectionSettings emits update:themeId', async () => {
+      const props = createWorkspaceProps()
+      const wrapper = mount(Settings, { props })
 
-      expect(wrapper.text()).toContain(longUrl)
-      const link = wrapper.find(`a[href="${longUrl}"]`)
-      expect(link.exists()).toBe(true)
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      await collectionSettings.vm.$emit('update:themeId', 'purple')
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('workspace:update:theme', 'purple')
     })
 
-    it('handles special characters in title', () => {
-      const wrapper = mountWithProps({ title: 'Test & Document <API>' })
+    it('emits workspace:update:active-proxy when CollectionSettings emits update:proxyUrl', async () => {
+      const props = createWorkspaceProps()
+      const wrapper = mount(Settings, { props })
 
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete Test & Document <API>')
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      await collectionSettings.vm.$emit('update:proxyUrl', 'https://proxy.example.com')
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('workspace:update:active-proxy', 'https://proxy.example.com')
     })
 
-    it('handles watchMode as undefined', () => {
-      const wrapper = mount(Settings, {
-        props: {
-          title: 'Test Document',
-          documentUrl: 'https://api.example.com/openapi.yaml',
-        },
-      })
+    it('emits workspace:update:active-proxy with null when proxy is cleared', async () => {
+      const props = createWorkspaceProps()
+      const wrapper = mount(Settings, { props })
 
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('modelValue')).toBe(false)
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      await collectionSettings.vm.$emit('update:proxyUrl', null)
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('workspace:update:active-proxy', null)
     })
 
-    it('handles documentUrl with special characters', () => {
-      const specialUrl = 'https://api.example.com/openapi.yaml?key=value&foo=bar#section'
-      const wrapper = mountWithProps({ documentUrl: specialUrl })
+    it('emits workspace:update:color-mode when CollectionSettings emits update:colorMode', async () => {
+      const props = createWorkspaceProps()
+      const wrapper = mount(Settings, { props })
 
-      const link = wrapper.find(`a[href="${specialUrl}"]`)
-      expect(link.exists()).toBe(true)
-    })
+      const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
+      await collectionSettings.vm.$emit('update:colorMode', 'dark')
 
-    it('renders correctly when all optional props are provided', () => {
-      const wrapper = mountWithProps({
-        title: 'Complete Document',
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: true,
-      })
-
-      expect(wrapper.exists()).toBe(true)
-      expect(wrapper.text()).toContain('https://api.example.com/openapi.yaml')
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('modelValue')).toBe(true)
-      expect(toggle.props('disabled')).toBe(false)
-
-      // Title is used in the modal, not displayed in the main component text
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete Complete Document')
-    })
-
-    it('renders correctly when only required props are provided', () => {
-      const wrapper = mount(Settings, {
-        props: {
-          title: 'Minimal Document',
-        },
-      })
-
-      expect(wrapper.exists()).toBe(true)
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-      expect(toggle.props('disabled')).toBe(true)
-
-      // Title is used in the modal, not displayed in the main component text
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.props('title')).toBe('Delete Minimal Document')
-    })
-
-    it('handles multiple rapid toggle changes', async () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
-        watchMode: false,
-      })
-
-      const toggle = wrapper.findComponent({ name: 'ScalarToggle' })
-
-      await toggle.vm.$emit('update:modelValue', true)
-      await nextTick()
-      await toggle.vm.$emit('update:modelValue', false)
-      await nextTick()
-      await toggle.vm.$emit('update:modelValue', true)
-      await nextTick()
-
-      expect(wrapper.emitted('update:watchMode')).toHaveLength(3)
-      expect(wrapper.emitted('update:watchMode')?.[0]).toEqual([true])
-      expect(wrapper.emitted('update:watchMode')?.[1]).toEqual([false])
-      expect(wrapper.emitted('update:watchMode')?.[2]).toEqual([true])
-    })
-
-    it('handles rapid delete button clicks', async () => {
-      const wrapper = mountWithProps()
-
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-
-      await deleteButton?.trigger('click')
-      await nextTick()
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      // Modal should still exist and component should not crash
-      const modal = wrapper.findComponent({ name: 'ScalarModal' })
-      expect(modal.exists()).toBe(true)
-    })
-
-    it('handles delete confirmation after multiple modal open/close cycles', async () => {
-      const wrapper = mountWithProps({ title: 'Test Document' })
-
-      // Open and close modal multiple times
-      for (let i = 0; i < 3; i++) {
-        const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-        await deleteButton?.trigger('click')
-        await nextTick()
-
-        const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-        await deleteElement.vm.$emit('close')
-        await nextTick()
-      }
-
-      // Final deletion
-      const deleteButton = wrapper.findAll('button').find((btn) => btn.text().includes('Delete Collection'))
-      await deleteButton?.trigger('click')
-      await nextTick()
-
-      const deleteElement = wrapper.findComponent({ name: 'DeleteSidebarListElement' })
-      await deleteElement.vm.$emit('delete')
-      await nextTick()
-
-      expect(wrapper.emitted('deleteDocument')).toBeTruthy()
-      expect(wrapper.emitted('deleteDocument')).toHaveLength(1)
+      expect(mockEventBus.emit).toHaveBeenCalledWith('workspace:update:color-mode', 'dark')
     })
   })
 
-  describe('props validation', () => {
-    it('accepts valid documentUrl', () => {
-      const wrapper = mountWithProps({
-        documentUrl: 'https://api.example.com/openapi.yaml',
+  describe('delete document', () => {
+    it('calls workspaceStore.deleteDocument and navigates when DocumentSettings emits delete:document', async () => {
+      const workspaceStore = createWorkspaceStoreInstance()
+      const deleteDocumentSpy = vi.spyOn(workspaceStore, 'deleteDocument')
+
+      const props = createDocumentProps({
+        documentSlug: 'test-document',
+        workspaceStore,
       })
+      const wrapper = mount(Settings, { props })
 
-      expect(wrapper.exists()).toBe(true)
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      await documentSettings.vm.$emit('delete:document')
+
+      expect(deleteDocumentSpy).toHaveBeenCalledWith('test-document')
+      expect(push).toHaveBeenCalledWith({
+        name: 'workspace.environment',
+        params: {
+          workspaceSlug: 'test-workspace',
+        },
+      })
     })
 
-    it('accepts boolean watchMode', () => {
-      const wrapper = mountWithProps({ watchMode: true })
+    it('uses correct workspace ID when navigating after delete', async () => {
+      const workspaceStore = createWorkspaceStoreInstance()
+      const deleteDocumentSpy = vi.spyOn(workspaceStore, 'deleteDocument')
 
-      expect(wrapper.exists()).toBe(true)
-    })
+      const props = createDocumentProps({
+        documentSlug: 'my-doc',
+        workspaceStore,
+        activeWorkspace: {
+          id: 'custom-workspace',
+          name: 'Custom Workspace',
+        },
+      })
+      const wrapper = mount(Settings, { props })
 
-    it('accepts string title', () => {
-      const wrapper = mountWithProps({ title: 'Valid Title' })
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      await documentSettings.vm.$emit('delete:document')
 
-      expect(wrapper.exists()).toBe(true)
+      expect(deleteDocumentSpy).toHaveBeenCalledWith('my-doc')
+      expect(push).toHaveBeenCalledWith({
+        name: 'workspace.environment',
+        params: {
+          workspaceSlug: 'custom-workspace',
+        },
+      })
     })
   })
 })

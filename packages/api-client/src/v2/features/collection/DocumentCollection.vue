@@ -24,14 +24,14 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'
 
-const { document, layout, eventBus, environment } = defineProps<RouteProps>()
+const props = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
-const title = computed(() => document?.info?.title || 'Untitled Document')
+const title = computed(() => props.document?.info?.title || 'Untitled Document')
 
 /** Default to the folder icon */
 const icon = computed(
-  () => document?.['x-scalar-icon'] || 'interface-content-folder',
+  () => props.document?.['x-scalar-icon'] || 'interface-content-folder',
 )
 </script>
 
@@ -79,16 +79,10 @@ const icon = computed(
       <!-- Router views -->
       <div class="px-1.5 py-8">
         <RouterView v-slot="{ Component }">
-          <keep-alive>
-            <component
-              :is="Component"
-              collectionType="document"
-              :document
-              :environment
-              :eventBus
-              :layout
-              :workspaceStore />
-          </keep-alive>
+          <component
+            :is="Component"
+            v-bind="props"
+            collectionType="document" />
         </RouterView>
       </div>
     </div>

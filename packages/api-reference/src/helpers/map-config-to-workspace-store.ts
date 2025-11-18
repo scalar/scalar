@@ -42,13 +42,13 @@ export const mapConfigToWorkspaceStore = ({
   /** Update the dark mode state when props change */
   watch(
     () => toValue(config).darkMode,
-    (isDark) => store.update('x-scalar-dark-mode', !!isDark),
+    (isDark) => store.update('x-scalar-color-mode', isDark ? 'dark' : 'light'),
   )
 
   // Temporary mapping of isDarkMode until we update the standalone component
   watch(
     () => isDarkMode.value,
-    (newValue) => store.update('x-scalar-dark-mode', newValue),
+    (newIsDark) => store.update('x-scalar-color-mode', newIsDark ? 'dark' : 'light'),
     { immediate: true },
   )
 

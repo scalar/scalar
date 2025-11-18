@@ -60,6 +60,11 @@ describe('DocumentCollection', () => {
         layout: 'desktop' as any,
         environment: {} as any,
         workspaceStore,
+        documentSlug: 'test-document',
+        activeWorkspace: {
+          id: 'test-workspace',
+          name: 'Test Workspace',
+        },
       },
       global: {
         plugins: [router],

@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/performance/noBarrelFile: Mutators entry point */
 import type { WorkspaceStore } from '@/client'
-import { cookieMutators } from '@/mutators/cookie'
 import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
@@ -84,7 +83,6 @@ export function generateClientMutators(store: WorkspaceStore) {
     return {
       requestMutators: requestMutators(document),
       securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
-      cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(document?.servers),
     }
   }
@@ -108,7 +106,6 @@ export function generateClientMutators(store: WorkspaceStore) {
     }
 
     return {
-      cookieMutators: cookieMutators(store.workspace),
       serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
       securitySchemeMutators: securitySchemeMutators(store.workspace['x-scalar-client-config-security-schemes']),
     }
@@ -142,7 +139,8 @@ export {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from './auth'
-export { toggleSecurity, updateDocumentIcon } from './document'
+export { deleteCookie, upsertCookie } from './cookie'
+export { toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
 export {
   upsertEnvironment,
   upsertEnvironmentVariable,
@@ -170,3 +168,4 @@ export {
   updateServer,
   updateServerVariables,
 } from './server'
+export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'

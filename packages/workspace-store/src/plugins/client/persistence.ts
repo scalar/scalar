@@ -72,6 +72,13 @@ export const persistencePlugin = async ({
           )
         }
 
+        // Delete document
+        if (event.type === 'deleteDocument') {
+          return execute(`deleteDocument-${workspaceId}-${event.documentName}`, () =>
+            persistence.workspace.deleteDocument(workspaceId, event.documentName),
+          )
+        }
+
         // No action for other event types
         return
       },

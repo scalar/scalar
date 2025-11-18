@@ -11,7 +11,6 @@ export default {}
 import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
-import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   xScalarEnvironmentSchema,
@@ -24,6 +23,8 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
+import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
@@ -37,17 +38,6 @@ import WebTopNav from './components/WebTopNav.vue'
 const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
 }>()
-
-/** Expose workspace store to window for debugging purposes. */
-if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => store.value
-}
-/** Default sidebar width in pixels. */
-const DEFAULT_SIDEBAR_WIDTH = 288
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -108,6 +98,9 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
     workspaceId: workspaceSlug,
   })
 
+/** Initialize color mode to ensure it is set on mount. */
+useColorMode({ workspaceStore: store })
+
 /** Sidebar state and selection handling. */
 const { handleSelectItem, sidebarState } = useSidebarState({
   workspaceStore: store,
@@ -118,6 +111,7 @@ const { handleSelectItem, sidebarState } = useSidebarState({
   exampleName,
 })
 
+/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientEvents({
   eventBus,
   document,
@@ -125,7 +119,18 @@ useWorkspaceClientEvents({
   navigateTo: handleSelectItem,
   isSidebarOpen,
 })
+
+/** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(eventBus, layout)
+
+const DEFAULT_DOCUMENT_WATCH_TIMEOUT = 5000
+
+/** Watch the active document for changes and rebase it with its remote source */
+useDocumentWatcher({
+  documentName: documentSlug,
+  store,
+  initialTimeout: DEFAULT_DOCUMENT_WATCH_TIMEOUT,
+})
 
 /**
  * Merged environment variables from workspace and document levels.
@@ -173,6 +178,9 @@ const themeStyleTag = computed(() => {
   return `<style>${getThemeStyles(themeId)}</style>`
 })
 
+/** Default sidebar width in pixels. */
+const DEFAULT_SIDEBAR_WIDTH = 288
+
 /** Width of the sidebar, with fallback to default. */
 const sidebarWidth = computed(
   () =>
@@ -191,7 +199,7 @@ const handleSidebarWidthUpdate = (width: number) =>
 /** Handler for workspace navigation. */
 const handleWorkspaceClick = () =>
   router.push({
-    name: 'workspace',
+    name: 'workspace.environment',
     params: { workspaceSlug: workspaceSlug.value },
   })
 
@@ -210,6 +218,7 @@ const handleSelectWorkspace = (id?: string) => {
 const routerViewProps = computed(
   () =>
     ({
+      documentSlug: documentSlug.value ?? '',
       document: document.value,
       environment: environment.value,
       eventBus,
@@ -218,6 +227,7 @@ const routerViewProps = computed(
       method: method.value,
       path: path.value,
       workspaceStore: store.value!,
+      activeWorkspace: activeWorkspace.value!,
     }) satisfies RouteProps,
 )
 
@@ -246,12 +256,12 @@ const createWorkspaceModalState = useModal()
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
-          :store="store"
           :eventBus="eventBus"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
           :sidebarState="sidebarState"
           :sidebarWidth="sidebarWidth"
+          :store="store"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"

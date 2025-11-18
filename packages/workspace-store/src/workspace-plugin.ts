@@ -39,6 +39,10 @@ export type WorkspaceStateChangeEvent =
       type: 'meta'
       value: InMemoryWorkspace['meta']
     }
+  | {
+      type: 'deleteDocument'
+      documentName: string
+    }
 
 /**
  * Plugin type for extending workspace-store behavior with hooks.

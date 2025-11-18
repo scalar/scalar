@@ -169,13 +169,13 @@ export const useWorkspaceSelector = ({
    * @param id - The unique identifier (slug) of the workspace to navigate to.
    */
   const setWorkspaceId = (id: string): void => {
-    router.push({ name: 'workspace', params: { workspaceSlug: id } })
+    router.push({ name: 'workspace.environment', params: { workspaceSlug: id } })
   }
 
   /**
    * Creates a new workspace with the provided name.
    * - Generates a unique ID for the workspace (sluggified from the name and guaranteed unique).
-   * - Adds a default blank document ("draft") to the workspace.
+   * - Adds a default blank document ("drafts") to the workspace.
    * - Persists the workspace and navigates to it.
    *
    * Example usage:

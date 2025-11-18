@@ -54,6 +54,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop',
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -70,6 +75,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -89,6 +99,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -107,6 +122,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore({ workspace: {} }),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -130,6 +150,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(workspaceEnvironments),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -146,6 +171,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 
@@ -169,6 +199,11 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
           environment: {} as any,
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       })
 

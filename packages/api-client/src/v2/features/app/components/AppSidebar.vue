@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconGlobe } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -86,11 +87,30 @@ const showGettingStarted = computed(() => sidebarState.items.value.length <= 1)
  * Setup drag and drop handlers for sidebar items.
  * The dragHandleFactory takes the current workspace store and sidebar state,
  * and returns the appropriate handlers for drag ending and droppability.
+ *
+ * We use computed to ensure the handlers are recreated when the store or sidebarState changes,
+ * so they always have access to the latest values.
  */
-const { handleDragEnd, isDroppable } = dragHandleFactory({
-  store,
-  sidebarState,
-})
+const dragHandlers = computed(() =>
+  dragHandleFactory({
+    store,
+    sidebarState,
+  }),
+)
+
+const handleDragEnd = (
+  draggingItem: DraggingItem,
+  hoveredItem: HoveredItem,
+): boolean => {
+  return dragHandlers.value.handleDragEnd(draggingItem, hoveredItem)
+}
+
+const isDroppable = (
+  draggingItem: DraggingItem,
+  hoveredItem: HoveredItem,
+): boolean => {
+  return dragHandlers.value.isDroppable(draggingItem, hoveredItem)
+}
 </script>
 
 <template>
