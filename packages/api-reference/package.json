@@ -25,11 +25,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",
+    "build": "pnpm build:default && pnpm build:standalone && pnpm build:custom-element && pnpm types:build",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:custom-element": "vite build -c vite.custom-element.config.ts",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
+    "dev:custom-element": "vite -c vite.custom-element.config.ts",
     "playground:components": "vite ./playground/components -c ./playground/components/vite.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "playground:ssr": "cd ./playground/ssr && pnpm dev",

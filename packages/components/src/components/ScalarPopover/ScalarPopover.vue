@@ -29,7 +29,9 @@ const { cx } = useBindCx()
       <PopoverButton as="template">
         <slot :open="open" />
       </PopoverButton>
-      <template #floating="{ width, height }">
+      <template
+        v-if="open"
+        #floating="{ width, height }">
         <PopoverPanel
           v-slot="{ close }"
           :focus="focus"

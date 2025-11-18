@@ -18,7 +18,7 @@ export default {}
 <script setup lang="ts">
 import { useProvideTeleport } from './useTeleport'
 
-const props = defineProps<{
+defineProps<{
   /**
    * Override the default teleport target id
    */
@@ -32,11 +32,12 @@ defineSlots<{
 
 defineOptions({ inheritAttrs: false })
 
-const id = useProvideTeleport(props.id)
+const wrapper = useProvideTeleport()
 </script>
 <template>
   <slot />
   <div
-    :id="id"
+    ref="wrapper"
+    :id
     class="scalar-teleport-root contents" />
 </template>

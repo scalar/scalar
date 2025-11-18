@@ -1,10 +1,10 @@
-import { nanoid } from 'nanoid'
-import { type InjectionKey, inject, provide } from 'vue'
+import type { MaybeElementRef } from '@vueuse/core'
+import { type InjectionKey, inject, provide, ref } from 'vue'
 
 /**
  * The teleport target
  */
-export const TELEPORT_SYMBOL = Symbol() as InjectionKey<string>
+export const TELEPORT_SYMBOL = Symbol() as InjectionKey<MaybeElementRef>
 
 /**
  * Get the nearest teleport target id from `useProvideTeleport`
@@ -13,15 +13,15 @@ export const TELEPORT_SYMBOL = Symbol() as InjectionKey<string>
  *
  * @see {@link useProvideTeleport}
  */
-export const useTeleport = () => inject(TELEPORT_SYMBOL, 'body')
+export const useTeleport = () => inject(TELEPORT_SYMBOL, undefined)
 
 /**
  * Provides a teleport target id using Vue's `provide`
  *
  * @see https://vuejs.org/guide/components/provide-inject.html#provide-inject
  */
-export const useProvideTeleport = (id?: string) => {
-  const targetId = id ?? `scalar-teleport-${nanoid()}`
-  provide(TELEPORT_SYMBOL, `#${targetId}`)
-  return targetId
+export const useProvideTeleport = (targetRef?: MaybeElementRef) => {
+  const target = targetRef ?? ref<HTMLElement>()
+  provide(TELEPORT_SYMBOL, target)
+  return target
 }

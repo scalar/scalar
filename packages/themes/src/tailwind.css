@@ -31,3 +31,12 @@
  * @see https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities
  */
 @import "./tailwind/utilities.css";
+
+/*
+ * Tailwind Shadow DOM Preflight
+ *
+ * This initializes the Tailwind variables for the shadow DOM because @property is not supported in shadow DOM.
+ *
+ * @see https://github.com/tailwindlabs/tailwindcss/pull/15975#issuecomment-2650130010
+ */
+@import "./tailwind/shadow-dom.css" layer(scalar-base);

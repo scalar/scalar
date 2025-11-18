@@ -15,7 +15,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type { TeleportProps } from 'vue'
+import { type TeleportProps } from 'vue'
 
 import { useTeleport } from './useTeleport'
 
@@ -43,14 +43,17 @@ defineSlots<{
 
 defineOptions({ inheritAttrs: false })
 
-const root = useTeleport()
+/** The nearest ScalarTeleportRoot if it exists */
+const teleportRoot = useTeleport()
 </script>
 <template>
   <Teleport
     :defer="!immediate"
     :disabled="disabled"
-    :to="to || root">
+    :to="to || teleportRoot || 'body'">
+    <slot v-if="disabled" />
     <div
+      v-else
       class="scalar-app"
       style="display: contents"
       v-bind="$attrs">

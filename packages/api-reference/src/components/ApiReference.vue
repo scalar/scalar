@@ -7,6 +7,7 @@ import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
+  useProvideTeleport,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { dereference, upgrade } from '@scalar/openapi-parser'
@@ -127,6 +128,9 @@ watch(
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
 provideUseId(() => useId())
+
+/** Provide a reference to the root element for teleportation */
+useProvideTeleport(root)
 
 // Provide the client layout
 provide(LAYOUT_SYMBOL, 'modal')
@@ -778,7 +782,9 @@ const colorMode = computed(() => {
 
 <template>
   <!-- SingleApiReference -->
-  <div ref="root">
+  <div
+    ref="root"
+    :class="isDarkMode ? 'dark-mode' : 'light-mode'">
     <!-- Inject any custom CSS directly into a style tag -->
     <component :is="'style'">
       {{ mergedConfig.customCss }}
@@ -994,8 +1000,10 @@ const colorMode = computed(() => {
     background-color: var(--scalar-background-1);
   }
 }
+
 /** Used to check if css is loaded */
-:root {
+:root,
+:host {
   --scalar-loaded-api-reference: true;
 }
 </style>

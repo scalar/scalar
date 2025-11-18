@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+      }
+      button {
+        background: red !important;
+        border-radius: 6px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <scalar-api-reference></scalar-api-reference>
+
+    <!-- Our Script -->
+    <script
+      src="src/custom-element.ts"
+      type="module"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script type="module">
+      import { sources } from './test/utils/sources.ts'
+
+      document.querySelector('scalar-api-reference').configuration = {
+        sources,
+        persistAuth: true,
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      }
+    </script>
+  </body>
+</html>
