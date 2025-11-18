@@ -67,6 +67,11 @@ describe('Authentication', () => {
           layout: 'web',
           workspaceStore: createWorkspaceStore(),
           collectionType: 'document',
+          documentSlug: 'test-document',
+          activeWorkspace: {
+            id: 'test-workspace',
+            name: 'Test Workspace',
+          },
         },
       }),
       eventBus,

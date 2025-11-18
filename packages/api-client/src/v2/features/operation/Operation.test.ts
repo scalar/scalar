@@ -37,6 +37,11 @@ describe('Operation', () => {
       description: 'Test Environment',
     },
     workspaceStore: createWorkspaceStore(),
+    documentSlug: 'test-document',
+    activeWorkspace: {
+      id: 'test-workspace',
+      name: 'Test Workspace',
+    },
   }
 
   const render = (overrides: Partial<RouteProps> = {}) => {

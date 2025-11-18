@@ -45,6 +45,11 @@ describe('Overview', () => {
         environment: baseEnvironment,
         collectionType: 'document' as const,
         workspaceStore: createWorkspaceStore(),
+        documentSlug: 'test-document',
+        activeWorkspace: {
+          id: 'test-workspace',
+          name: 'Test Workspace',
+        },
       },
     })
   }
