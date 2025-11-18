@@ -67,7 +67,6 @@ export const useColorMode = ({ workspaceStore }: { workspaceStore: MaybeRefOrGet
    * Only updates the color mode if the current mode is set to 'system'.
    */
   const handleSystemPreferenceChange = (): void => {
-    console.log('handleSystemPreferenceChange', colorMode.value)
     if (colorMode.value === 'system') {
       applyColorMode(getSystemModePreference())
     }
