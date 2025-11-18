@@ -76,7 +76,6 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
 
   const paths = Array.isArray(entries) ? entries : [entries]
 
-  console.log(paths)
   paths.forEach((entry) => {
     // Get the nested path that will be transpiled to dist with preserved modules
     // Always use forward slashes for paths in package.json regardless of OS
@@ -117,7 +116,6 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
 
-  // console.log(packageFile)
   packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
 
   // Sort the keys in the exports object to ensure consistent order across OS
