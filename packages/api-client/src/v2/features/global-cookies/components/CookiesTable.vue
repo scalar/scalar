@@ -83,7 +83,7 @@ const handleCookieChange = (
   // Adding a new cookie
   if (index >= cookies.length) {
     eventBus.emit('cookie:upsert:cookie', {
-      payload: { name, value, domain, isDisabled },
+      payload: { name, value, domain, isDisabled: false },
       collectionType,
     })
     return
