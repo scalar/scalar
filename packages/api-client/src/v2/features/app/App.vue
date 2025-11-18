@@ -44,14 +44,6 @@ if (typeof window !== 'undefined') {
   // @ts-expect-error - For debugging purposes expose the store
   window.dataDumpWorkspace = () => store.value
 }
-/** Default sidebar width in pixels. */
-const DEFAULT_SIDEBAR_WIDTH = 288
-
-/** Expose workspace store to window for debugging purposes. */
-if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => store.value
-}
 
 /** Workspace event bus for handling workspace-level events. */
 const eventBus = createWorkspaceEventBus({
@@ -186,6 +178,9 @@ const themeStyleTag = computed(() => {
   return `<style>${getThemeStyles(themeId)}</style>`
 })
 
+/** Default sidebar width in pixels. */
+const DEFAULT_SIDEBAR_WIDTH = 288
+
 /** Width of the sidebar, with fallback to default. */
 const sidebarWidth = computed(
   () =>
@@ -261,12 +256,12 @@ const createWorkspaceModalState = useModal()
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
-          :store="store"
           :eventBus="eventBus"
           :isWorkspaceOpen="isWorkspaceOpen"
           :layout="layout"
           :sidebarState="sidebarState"
           :sidebarWidth="sidebarWidth"
+          :store="store"
           :workspaces="workspaces"
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
