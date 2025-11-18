@@ -19,6 +19,7 @@ COPY tsconfig.json .
 COPY turbo.json .
 COPY packages ./packages
 COPY integrations ./integrations
+COPY documentation ./documentation
 RUN pnpm install
 RUN pnpm turbo \
   run build \
