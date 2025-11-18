@@ -98,7 +98,8 @@ export default defineConfig({
   build: createViteBuildOptions({
     entry: await findEntryPoints({ 
       baseDir: import.meta.dirname,
-      allowCss: true }),
+      allowCss: true 
+    }),
   }),
 })
 ```
