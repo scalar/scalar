@@ -11,30 +11,68 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import { ScalarIconFolder } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 
 import type { Item } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
 const { item, layout, isSelected, isExpanded } = defineProps<{
+  /**
+   * The sidebar item to render.
+   */
   item: Item
+  /**
+   * The layout mode for the sidebar ('client' or 'reference').
+   */
   layout: 'client' | 'reference'
+  /**
+   * Function to determine if an item is currently selected by id.
+   */
   isSelected: (id: string) => boolean
+  /**
+   * Function to determine if an item is currently expanded (showing its children) by id.
+   */
   isExpanded: (id: string) => boolean
+  /**
+   * Sidebar configuration options.
+   * - operationTitleSource: sets whether operations show their path or summary as the display title.
+   */
   options:
     | {
         operationTitleSource: 'path' | 'summary' | undefined
       }
     | undefined
+
+  /**
+   * Prevents items from being hovered and dropped into. Can be either a function or a boolean
+   *
+   * @default true
+   */
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
 }>()
 
 const emits = defineEmits<{
+  /**
+   * Emitted when the item is selected
+   * @param id - The id of the selected item
+   */
   (e: 'selectItem', id: string): void
+  /**
+   * Emitted when a drag operation ends for this item
+   * @param draggingItem - The item being dragged
+   * @param hoveredItem - The item currently being hovered over
+   */
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 defineSlots<{
+  /**
+   * Adds an optional decorator for each item, such as an edit menu.
+   * The slot receives an object with the current item.
+   */
   decorator?(props: { item: Item }): unknown
 }>()
 
@@ -80,6 +118,7 @@ const handleDragEnd = (
     :id="item.id"
     class="flex flex-1 flex-col"
     :isDraggable="layout === 'client'"
+    :isDroppable="isDroppable"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
     <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
@@ -88,6 +127,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="child"
@@ -117,8 +157,9 @@ const handleDragEnd = (
       <template
         v-if="item.type === 'document'"
         #icon="{ open }">
-        <ScalarIconFolder
-          class="text-c-3 block group-hover/group-button:hidden" />
+        <LibraryIcon
+          class="text-c-3 block group-hover/group-button:hidden"
+          :src="item.icon ?? 'interface-content-folder'" />
         <ScalarSidebarGroupToggle
           class="text-c-3 hidden group-hover/group-button:block"
           :open="open" />
@@ -142,6 +183,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
+          :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"
           :item="child"
@@ -166,8 +208,8 @@ const handleDragEnd = (
       @click="() => emits('selectItem', item.id)">
       <template v-if="item.type === 'model'">
         <ScalarWrappingText
-          :text="item.title"
-          preset="property" />
+          preset="property"
+          :text="item.title" />
       </template>
       <template v-else>
         <ScalarWrappingText

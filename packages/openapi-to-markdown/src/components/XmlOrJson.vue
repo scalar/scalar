@@ -14,9 +14,9 @@ withDefaults(
 </script>
 <template>
   <template v-if="xml">
-    <pre><code>{{ json2xml(modelValue) }}</code></pre>
+    <pre><code class="language-xml">{{ json2xml(modelValue) }}</code></pre>
   </template>
   <template v-else>
-    <pre><code>{{ JSON.stringify(modelValue, null, 2) }}</code></pre>
+    <pre><code class="language-json">{{ JSON.stringify(modelValue, null, 2) }}</code></pre>
   </template>
 </template>

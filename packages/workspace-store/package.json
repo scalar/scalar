@@ -108,6 +108,7 @@
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",

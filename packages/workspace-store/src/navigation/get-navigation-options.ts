@@ -39,14 +39,16 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
 
     // -------- Default operation id generation logic --------
     if (props.type === 'operation') {
-      const tagId = `${generateId({
-        type: 'tag',
-        tag: props.parentTag.tag,
-        parentId: props.parentTag.id,
-      })}`
+      const prefixTag = props.parentTag
+        ? `${generateId({
+            type: 'tag',
+            tag: props.parentTag.tag,
+            parentId: props.parentTag.id,
+          })}/`
+        : `${documentId}/`
 
       if (referenceConfig?.generateOperationSlug) {
-        return `${tagId}/${referenceConfig.generateOperationSlug({
+        return `${prefixTag}${referenceConfig.generateOperationSlug({
           path: props.path,
           operationId: props.operation.operationId,
           method: props.method,
@@ -54,7 +56,7 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
         })}`
       }
 
-      return `${tagId}/${props.method}${props.path}`
+      return `${prefixTag}${props.method}/${slug(props.path)}`
     }
 
     // -------- Default webhook id generation logic --------

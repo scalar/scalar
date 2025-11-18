@@ -142,7 +142,7 @@ export {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from './auth'
-export { toggleSecurity } from './document'
+export { toggleSecurity, updateDocumentIcon } from './document'
 export {
   upsertEnvironment,
   upsertEnvironmentVariable,

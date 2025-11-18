@@ -20,6 +20,7 @@ minimumReleaseAgeExclude:
   - vite-node
   - vitest
   - hono
+  - astro
 
 catalogs:
   '*':
@@ -46,7 +47,7 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     ansis: 4.1.0
-    astro: 5.15.3
+    astro: 5.15.6
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2

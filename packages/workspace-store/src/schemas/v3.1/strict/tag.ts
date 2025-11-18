@@ -3,6 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import { type XDisplayName, XDisplayNameSchema } from '@/schemas/extensions/tag/x-display-name'
 
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -21,6 +22,7 @@ export const TagObjectSchemaDefinition = compose(
   XDisplayNameSchema,
   XInternalSchema,
   XScalarIgnoreSchema,
+  XScalarOrderSchema,
 )
 
 /** Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag Object per tag defined in the Operation Object instances. */
@@ -33,4 +35,5 @@ export type TagObject = {
   externalDocs?: ExternalDocumentationObject
 } & XDisplayName &
   XInternal &
-  XScalarIgnore
+  XScalarIgnore &
+  XScalarOrder
