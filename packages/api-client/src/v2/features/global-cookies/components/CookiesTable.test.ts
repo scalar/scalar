@@ -37,7 +37,7 @@ describe('CookiesTable', () => {
     await emptyRowNameInput.vm.$emit('update:modelValue', 'NEW_COOKIE')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
-      payload: { name: 'NEW_COOKIE', value: '', domain: '', isDisabled: true },
+      payload: { name: 'NEW_COOKIE', value: '', domain: '', isDisabled: false },
       collectionType: 'document',
     })
   })
