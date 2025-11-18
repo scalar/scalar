@@ -37,12 +37,6 @@ export const upsertCookie = (
       ...payload,
     })
 
-    // Delete the row if the name is empty
-    if (parsed.name === '') {
-      collection['x-scalar-cookies'].splice(index, 1)
-      return
-    }
-
     // Update
     collection['x-scalar-cookies'][index] = parsed
     return parsed

@@ -12,6 +12,8 @@ import {
   deleteSecurityScheme,
   deleteServer,
   toggleSecurity,
+  updateActiveProxy,
+  updateColorMode,
   updateDocumentIcon,
   updateOperationMethod,
   updateOperationParameter,
@@ -27,6 +29,7 @@ import {
   updateSelectedServer,
   updateServer,
   updateServerVariables,
+  updateTheme,
   updateWatchMode,
   upsertCookie,
   upsertEnvironment,
@@ -64,6 +67,17 @@ export const useWorkspaceClientEvents = ({
 
     return collectionType === 'document' ? document.value : store.workspace
   }
+
+  //------------------------------------------------------------------------------------
+  // Workspace Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('workspace:update:active-proxy', (payload) =>
+    updateActiveProxy(workspaceStore.value?.workspace ?? null, payload),
+  )
+  eventBus.on('workspace:update:color-mode', (payload) =>
+    updateColorMode(workspaceStore.value?.workspace ?? null, payload),
+  )
+  eventBus.on('workspace:update:theme', (payload) => updateTheme(workspaceStore.value?.workspace ?? null, payload))
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers

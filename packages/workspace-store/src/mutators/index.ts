@@ -168,3 +168,4 @@ export {
   updateServer,
   updateServerVariables,
 } from './server'
+export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'

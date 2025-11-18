@@ -20,14 +20,14 @@ const handleUpdateWatchMode = (watchMode: boolean) => {
 }
 
 const handleUpdateThemeId = (themeId: ThemeId) => {
-  workspaceStore.update('x-scalar-theme', themeId)
+  eventBus.emit('workspace:update:theme', themeId)
 }
 const handleUpdateActiveProxy = (proxy: string | null) => {
-  workspaceStore.update('x-scalar-active-proxy', proxy ?? undefined)
+  eventBus.emit('workspace:update:active-proxy', proxy)
 }
 
 const handleUpdateColorMode = (colorMode: ColorMode) => {
-  workspaceStore.update('x-scalar-color-mode', colorMode)
+  eventBus.emit('workspace:update:color-mode', colorMode)
 }
 
 const router = useRouter()
