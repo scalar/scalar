@@ -76,6 +76,7 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
 
   const paths = Array.isArray(entries) ? entries : [entries]
 
+  console.log(paths)
   paths.forEach((entry) => {
     // Get the nested path that will be transpiled to dist with preserved modules
     // Always use forward slashes for paths in package.json regardless of OS
@@ -97,7 +98,7 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
     const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
 
     // Add support for wildcard exports
-    packageExports[formatEntry(filepath, namespacePath)] = {
+    packageExports[formatEntry(filename, namespacePath)] = {
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,
       default: `./dist/${filepath}.js`,
@@ -105,12 +106,18 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
   })
 
   // don't touch the package.json in ./dist
-  if (import.meta.dirname.endsWith('dist')) {
+  if (process.cwd().endsWith('dist')) {
     return
+  }
+
+  if (!(await fs.stat('./package.json'))) {
+    throw new Error(`package.json not found in ${process.cwd()}`)
   }
 
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
+
+  // console.log(packageFile)
   packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
 
   // Sort the keys in the exports object to ensure consistent order across OS
