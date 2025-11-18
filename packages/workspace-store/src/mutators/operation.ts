@@ -201,7 +201,7 @@ export const updateOperationSummary = (
 export const updateOperationMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method } }: OperationEvents['operation:update:method'],
+  { meta, payload: { method }, callback }: OperationEvents['operation:update:method'],
 ) => {
   const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
@@ -225,7 +225,8 @@ export const updateOperationMethod = (
   }
 
   // Now we gotta rebuild the sidebar
-  store.buildSidebar(document['x-scalar-navigation'].name)
+  const success = store.buildSidebar(document['x-scalar-navigation'].name)
+  callback?.(success)
 }
 
 /**

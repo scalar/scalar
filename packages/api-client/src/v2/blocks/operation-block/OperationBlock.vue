@@ -25,6 +25,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { useRouter } from 'vue-router'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -107,7 +108,9 @@ const handleExecute = () =>
     meta: { path, method, exampleKey },
   })
 
-/** Update the HTTP method for the operation in its draft state */
+const router = useRouter()
+
+/** Update the HTTP method for the operation, also recreates sidebar navigation */
 const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
   eventBus.emit('operation:update:method', {
     meta: {
@@ -116,6 +119,19 @@ const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
     },
     payload: {
       method: payload.value,
+    },
+    /** We need to redirect to the new path */
+    callback: (success) => {
+      if (success) {
+        router.replace({
+          name: 'example',
+          params: {
+            method: payload.value,
+            pathEncoded: encodeURIComponent(path),
+            exampleName: exampleKey,
+          },
+        })
+      }
     },
   })
 
