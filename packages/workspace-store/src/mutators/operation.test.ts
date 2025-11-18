@@ -87,7 +87,7 @@ describe('updateOperationMethod', () => {
       },
     })
 
-    updateOperationMethod(document, {
+    updateOperationMethod(document, null, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'post' },
     })
@@ -137,7 +137,7 @@ describe('updateOperationMethod', () => {
       },
     })
 
-    updateOperationMethod(document, {
+    updateOperationMethod(document, null, {
       meta: { method: 'put', path: '/posts/{id}' },
       payload: { method: 'patch' },
     })
@@ -179,7 +179,7 @@ describe('updateOperationMethod', () => {
       },
     })
 
-    const result = updateOperationMethod(document, {
+    const result = updateOperationMethod(document, null, {
       meta: { method: 'get', path: '/nonexistent' },
       payload: { method: 'post' },
     })
@@ -195,6 +195,43 @@ describe('updateOperationMethod', () => {
     })
 
     consoleErrorSpy.mockRestore()
+  })
+
+  it('maintains property order when changing method', () => {
+    const document = createDocument({
+      paths: {
+        '/items': {
+          get: {
+            summary: 'Get items',
+            operationId: 'getItems',
+            description: 'Retrieve all items',
+            tags: ['items'],
+            parameters: [{ name: 'limit', in: 'query' }],
+            responses: {
+              '200': { description: 'Success' },
+            },
+          },
+          put: {
+            summary: 'Put items',
+            operationId: 'putItems',
+            description: 'Update all items',
+            tags: ['items'],
+            parameters: [{ name: 'limit', in: 'query' }],
+            responses: {
+              '200': { description: 'Success' },
+            },
+          },
+        },
+      },
+    })
+
+    updateOperationMethod(document, null, {
+      meta: { method: 'get', path: '/items' },
+      payload: { method: 'post' },
+    })
+
+    const keys = Object.keys(document.paths?.['/items']!)
+    expect(keys).toEqual(['post', 'put'])
   })
 })
 

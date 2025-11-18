@@ -246,13 +246,13 @@ const createWorkspaceModalState = useModal()
           v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace="activeWorkspace"
-          :store="store"
-          :eventBus="eventBus"
-          :isWorkspaceOpen="isWorkspaceOpen"
+          :eventBus
+          :isWorkspaceOpen
           :layout="layout"
-          :sidebarState="sidebarState"
-          :sidebarWidth="sidebarWidth"
-          :workspaces="workspaces"
+          :sidebarState
+          :sidebarWidth
+          :store
+          :workspaces
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
