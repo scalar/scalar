@@ -12,6 +12,8 @@ const entries = [
   './src/navigation/index.ts',
   './src/persistence/index.ts',
   './src/mutators/index.ts',
+  './src/plugins/bundler/index.ts',
+  './src/plugins/client/index.ts',
 ]
 
 await build({
