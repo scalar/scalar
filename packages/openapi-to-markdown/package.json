@@ -69,6 +69,7 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "vite": "catalog:*",
+    "vitest": "catalog:*",
     "vue": "catalog:*"
   }
 }

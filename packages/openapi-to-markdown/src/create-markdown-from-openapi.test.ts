@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
@@ -165,5 +166,126 @@ Test description`
     expect(result).toContain('Responses')
     expect(result).toContain('201')
     expect(result).toContain('id')
+  })
+
+  it('renders response schemas with language identifiers (JSON and XML)', async () => {
+    const content = (contentType: 'application/json' | 'application/xml') => ({
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          get: {
+            summary: 'Get items',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  [contentType]: {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          name: { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const resultJson = await createMarkdownFromOpenApi(content('application/json'))
+    const resultXml = await createMarkdownFromOpenApi(content('application/xml'))
+
+    expect(resultJson).toMatchInlineSnapshot(`
+      "# Test API
+
+      - **OpenAPI Version:** \`3.1.1\`
+      - **API Version:** \`1.0.0\`
+
+      ## Operations
+
+      ### Get items
+
+      - **Method:** \`GET\`
+      - **Path:** \`/items\`
+
+      #### Responses
+
+      ##### Status: 200 Successful response
+
+      ###### Content-Type: application/json
+
+      **Array of:**
+
+      - **\`id\`**
+
+        \`string\`
+
+      - **\`name\`**
+
+        \`string\`
+
+      **Example:**
+
+      \`\`\`json
+      [
+        {
+          "id": "",
+          "name": ""
+        }
+      ]
+      \`\`\`
+      "
+    `)
+    expect(resultXml).toMatchInlineSnapshot(`
+      "# Test API
+
+      - **OpenAPI Version:** \`3.1.1\`
+      - **API Version:** \`1.0.0\`
+
+      ## Operations
+
+      ### Get items
+
+      - **Method:** \`GET\`
+      - **Path:** \`/items\`
+
+      #### Responses
+
+      ##### Status: 200 Successful response
+
+      ###### Content-Type: application/xml
+
+      **Array of:**
+
+      - **\`id\`**
+
+        \`string\`
+
+      - **\`name\`**
+
+        \`string\`
+
+      **Example:**
+
+      \`\`\`xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <0>
+        <id></id>
+        <name></name>
+      </0>
+      \`\`\`
+      "
+    `)
   })
 })
