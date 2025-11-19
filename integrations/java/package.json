@@ -19,9 +19,23 @@
     "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean package -Dgpg.skip=true || echo '⚠️ Maven is not available or the build failed, ignoring it.'",
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./scalar-core/src/main/resources/META-INF/resources/webjars/scalar/scalar.js",
     "mvn:install": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean install -Dgpg.skip=true || echo '⚠️ Maven is not available or the build failed, ignoring it.'",
-    "mvn:run:webmvc": "cd scalar-playground-webmvc && mvn spring-boot:run",
     "mvn:run:webflux": "cd scalar-playground-webflux && mvn spring-boot:run",
+    "mvn:run:webmvc": "cd scalar-playground-webmvc && mvn spring-boot:run",
     "update:version": "mvn versions:set -DnewVersion=$npm_package_version -DgenerateBackupPoms=false"
+  },
+  "readme": {
+    "title": "Scalar API Reference for Java",
+    "badges": [
+      {
+        "type": "maven-central-version",
+        "package": "com.scalar.maven/scalar-core"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/java",
+    "extraContent": {
+      "headline": "Available Packages",
+      "content": "This integration provides three Maven packages:\n\n- `com.scalar.maven:scalar-core` - Core framework-agnostic module for Scalar API Reference\n- `com.scalar.maven:scalar-webmvc` - Spring Boot WebMVC integration for Scalar API Reference\n- `com.scalar.maven:scalar-webflux` - Spring Boot WebFlux integration for Scalar API Reference"
+    }
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"

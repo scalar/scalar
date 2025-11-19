@@ -952,19 +952,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/snippetz
 
-  integrations/java/webjar:
-    dependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../../../packages/api-reference
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/build-tooling
-      '@scalar/snippetz':
-        specifier: workspace:*
-        version: link:../../../packages/snippetz
-
   integrations/nestjs:
     dependencies:
       '@scalar/core':
