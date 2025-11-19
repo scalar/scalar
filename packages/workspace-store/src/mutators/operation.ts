@@ -225,6 +225,8 @@ export const updateOperationMethod = (
     key === meta.method ? [method, value] : [key, value],
   ) as Entries<PathItemObject>
 
+  console.log('entries', entries)
+
   // Clear existing properties
   for (const key of Object.keys(path)) {
     delete path[key as keyof typeof path]

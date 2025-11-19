@@ -110,6 +110,11 @@ export const useWorkspaceSelector = ({
         name: 'swagger-petstore-3-0',
         url: 'https://petstore3.swagger.io/api/v3/openapi.json',
       })
+
+      await draftStore.addDocument({
+        name: 'stripe',
+        url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+      })
     }
 
     const persistence = await persistencePromise
