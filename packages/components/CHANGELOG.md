@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.16.4
+
+### Patch Changes
+
+- [#7306](https://github.com/scalar/scalar/pull/7306) [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarThemeSwatches component
+
+- [#7348](https://github.com/scalar/scalar/pull/7348) [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarWrappingText component
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`0519a33`](https://github.com/scalar/scalar/commit/0519a33c7d3f3cf65b93b37392c51d3c0586cbab), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74)]:
+  - @scalar/helpers@0.1.2
+  - @scalar/oas-utils@0.6.4
+  - @scalar/themes@0.13.24
+  - @scalar/code-highlight@0.2.0
+  - @scalar/icons@0.5.0
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+
 ## 0.16.3
 
 ### Patch Changes

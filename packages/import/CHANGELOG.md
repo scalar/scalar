@@ -1,5 +1,13 @@
 # @scalar/import
 
+## 0.4.35
+
+### Patch Changes
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74)]:
+  - @scalar/helpers@0.1.2
+  - @scalar/openapi-parser@0.23.3
+
 ## 0.4.34
 
 ### Patch Changes

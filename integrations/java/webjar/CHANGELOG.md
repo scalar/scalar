@@ -1,5 +1,18 @@
 # @scalar/webjar
 
+## 0.4.4
+
+### Patch Changes
+
+- [#7340](https://github.com/scalar/scalar/pull/7340) [`631e26a`](https://github.com/scalar/scalar/commit/631e26a2b1ea353904179315dcf84183cbedfa5b) Thanks [@xC0dex](https://github.com/xC0dex)! - feat(webjar): allow setting the title of the HTML document
+
+- [#7313](https://github.com/scalar/scalar/pull/7313) [`64a33a4`](https://github.com/scalar/scalar/commit/64a33a4a08755f48e4839a7e7e20187f14de8ab2) Thanks [@xC0dex](https://github.com/xC0dex)! - feat: add support for showDeveloperTools configuration
+
+- [#7312](https://github.com/scalar/scalar/pull/7312) [`fe58c16`](https://github.com/scalar/scalar/commit/fe58c16460a7ee46aa8bbc4a74211abcfdb66509) Thanks [@xC0dex](https://github.com/xC0dex)! - feat: add telemetry option
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755)]:
+  - @scalar/api-reference@1.40.0
+
 ## 0.4.3
 
 ### Patch Changes
