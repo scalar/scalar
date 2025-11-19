@@ -47,20 +47,20 @@
       "types": "./dist/diff/index.d.ts",
       "default": "./dist/diff/index.js"
     },
-    "./magic-proxy": {
-      "import": "./dist/magic-proxy/index.js",
-      "types": "./dist/magic-proxy/index.d.ts",
-      "default": "./dist/magic-proxy/index.js"
-    },
     "./helpers/escape-json-pointer": {
       "import": "./dist/helpers/escape-json-pointer.js",
-      "types": "./dist/helpers/escape-json-pointer.ts",
+      "types": "./dist/helpers/escape-json-pointer.d.ts",
       "default": "./dist/helpers/escape-json-pointer.js"
     },
     "./helpers/generate-hash": {
       "import": "./dist/helpers/generate-hash.js",
-      "types": "./dist/helpers/generate-hash.ts",
+      "types": "./dist/helpers/generate-hash.d.ts",
       "default": "./dist/helpers/generate-hash.js"
+    },
+    "./magic-proxy": {
+      "import": "./dist/magic-proxy/index.js",
+      "types": "./dist/magic-proxy/index.d.ts",
+      "default": "./dist/magic-proxy/index.js"
     }
   },
   "dependencies": {
