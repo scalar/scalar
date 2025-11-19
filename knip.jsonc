@@ -3,7 +3,6 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
-    "packages/analytics-client/**",
     "packages/api-client/**",
     "packages/api-client-react/**",
     "packages/api-reference/**",
@@ -17,7 +16,6 @@
     "packages/import/**",
     "packages/json-magic/**",
     "packages/nextjs-openapi/**",
-    "packages/openapi-parser/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
     "packages/pre-post-request-scripts/**",
@@ -88,6 +86,9 @@
     },
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
+    },
+    "packages/openapi-parser": {
+      "entry": ["src/index.ts", "src/plugins/fetch-urls/index.ts", "src/plugins/read-files/index.ts"]
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts", "src/schemas/extensions/index.ts", "src/schemas/3.1/*/index.ts"]

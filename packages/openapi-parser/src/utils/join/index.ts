@@ -1,3 +1,2 @@
-// biome-ignore lint/performance/noBarrelFile: <explanation>
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
 export { join } from './join'
-export type { Conflicts } from './join'

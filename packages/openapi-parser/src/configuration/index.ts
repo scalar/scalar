@@ -30,5 +30,3 @@ export const ERRORS = {
   FILE_DOES_NOT_EXIST: 'File does not exist: %s',
   NO_CONTENT: 'No content found',
 } as const
-
-export type ValidationError = keyof typeof ERRORS

@@ -6,7 +6,7 @@ import type { ERRORS, OpenApiVersion } from '@/configuration'
 /**
  * Merge types with each other
  */
-export type Merge<A, B> = A & Omit<B, keyof A>
+type Merge<A, B> = A & Omit<B, keyof A>
 
 export type AnyObject = Record<string, any>
 
@@ -56,10 +56,6 @@ export type DereferenceResult = {
 export type ErrorObject = {
   message: string
   code?: keyof typeof ERRORS | string
-}
-
-export type AjvOptions = {
-  strict?: boolean | 'log'
 }
 
 /**
@@ -119,7 +115,7 @@ export type Queue<T extends readonly Task[] = readonly Task[]> = {
  */
 export type Task = Commands[keyof Commands]['task']
 
-export type EmptyCommandChainResult = {
+type EmptyCommandChainResult = {
   filesystem: Filesystem
   specification: AnyObject
 }

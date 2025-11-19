@@ -18,7 +18,7 @@ import { makeFilesystem } from './make-filesystem'
 //   '$schema',
 // ])
 
-export type ResolveReferencesResult = {
+type ResolveReferencesResult = {
   valid: boolean
   errors: ErrorObject[]
   schema: OpenAPI.Document
