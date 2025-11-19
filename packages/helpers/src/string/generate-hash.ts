@@ -94,13 +94,13 @@ export const generateHash = (input: string): string => {
     let k4 = 0
 
     if (remainder >= 15) {
-      k4 ^= input.charCodeAt(bytes + 14) << 16
+      k4 ^= (input.charCodeAt(bytes + 14) & 0xff) << 16
     }
     if (remainder >= 14) {
-      k4 ^= input.charCodeAt(bytes + 13) << 8
+      k4 ^= (input.charCodeAt(bytes + 13) & 0xff) << 8
     }
     if (remainder >= 13) {
-      k4 ^= input.charCodeAt(bytes + 12)
+      k4 ^= input.charCodeAt(bytes + 12) & 0xff
       k4 = Math.imul(k4, c4)
       k4 = (k4 << 18) | (k4 >>> 14)
       k4 = Math.imul(k4, c1)
@@ -108,16 +108,16 @@ export const generateHash = (input: string): string => {
     }
 
     if (remainder >= 12) {
-      k3 ^= input.charCodeAt(bytes + 11) << 24
+      k3 ^= (input.charCodeAt(bytes + 11) & 0xff) << 24
     }
     if (remainder >= 11) {
-      k3 ^= input.charCodeAt(bytes + 10) << 16
+      k3 ^= (input.charCodeAt(bytes + 10) & 0xff) << 16
     }
     if (remainder >= 10) {
-      k3 ^= input.charCodeAt(bytes + 9) << 8
+      k3 ^= (input.charCodeAt(bytes + 9) & 0xff) << 8
     }
     if (remainder >= 9) {
-      k3 ^= input.charCodeAt(bytes + 8)
+      k3 ^= input.charCodeAt(bytes + 8) & 0xff
       k3 = Math.imul(k3, c3)
       k3 = (k3 << 17) | (k3 >>> 15)
       k3 = Math.imul(k3, c4)
@@ -125,16 +125,16 @@ export const generateHash = (input: string): string => {
     }
 
     if (remainder >= 8) {
-      k2 ^= input.charCodeAt(bytes + 7) << 24
+      k2 ^= (input.charCodeAt(bytes + 7) & 0xff) << 24
     }
     if (remainder >= 7) {
-      k2 ^= input.charCodeAt(bytes + 6) << 16
+      k2 ^= (input.charCodeAt(bytes + 6) & 0xff) << 16
     }
     if (remainder >= 6) {
-      k2 ^= input.charCodeAt(bytes + 5) << 8
+      k2 ^= (input.charCodeAt(bytes + 5) & 0xff) << 8
     }
     if (remainder >= 5) {
-      k2 ^= input.charCodeAt(bytes + 4)
+      k2 ^= input.charCodeAt(bytes + 4) & 0xff
       k2 = Math.imul(k2, c2)
       k2 = (k2 << 16) | (k2 >>> 16)
       k2 = Math.imul(k2, c3)
@@ -142,16 +142,16 @@ export const generateHash = (input: string): string => {
     }
 
     if (remainder >= 4) {
-      k1 ^= input.charCodeAt(bytes + 3) << 24
+      k1 ^= (input.charCodeAt(bytes + 3) & 0xff) << 24
     }
     if (remainder >= 3) {
-      k1 ^= input.charCodeAt(bytes + 2) << 16
+      k1 ^= (input.charCodeAt(bytes + 2) & 0xff) << 16
     }
     if (remainder >= 2) {
-      k1 ^= input.charCodeAt(bytes + 1) << 8
+      k1 ^= (input.charCodeAt(bytes + 1) & 0xff) << 8
     }
     if (remainder >= 1) {
-      k1 ^= input.charCodeAt(bytes)
+      k1 ^= input.charCodeAt(bytes) & 0xff
       k1 = Math.imul(k1, c1)
       k1 = (k1 << 15) | (k1 >>> 17)
       k1 = Math.imul(k1, c2)

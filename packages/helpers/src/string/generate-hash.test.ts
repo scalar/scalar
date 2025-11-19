@@ -348,4 +348,38 @@ describe('generateHash', () => {
     expect(originalHash).toMatch(/^[0-9a-f]{16}$/)
     expect(modifiedHash).toMatch(/^[0-9a-f]{16}$/)
   })
+
+  it('consistently masks charCodeAt values above 255 in both main loop and remainder', () => {
+    // Verifies that the & 0xff mask is applied consistently to charCodeAt results
+    // in both the main loop and remainder sections, ensuring characters with code
+    // points above 255 are treated as their lower 8 bits regardless of position
+
+    // Character with code point 256: should be masked to 0 with & 0xff
+    const char256 = String.fromCharCode(256) // 'Ā'
+    expect(char256.charCodeAt(0)).toBe(256)
+    expect(char256.charCodeAt(0) & 0xff).toBe(0) // Should be masked to 0
+
+    // Test string sequences with char256
+    const testSequence = char256 + 'test'
+
+    // Version 1: char256 at position 0 (processed in main loop)
+    const version1 = testSequence
+
+    // Version 2: char256 at position 16 (processed in remainder section)
+    const version2 = 'x'.repeat(16) + testSequence
+
+    const hash1 = generateHash(version1)
+    const hash2 = generateHash(version2)
+
+    // With consistent & 0xff masking, these should produce stable hash values
+    // hash1: character 256 masked to 0, then 'test'
+    // hash2: 16 x's, then character 256 masked to 0, then 'test'
+
+    // Expected hash values with fix applied (consistent & 0xff masking everywhere)
+    const expectedHash1 = 'e73c7e761366649f'
+    const expectedHash2 = 'dec9f1d0dbb9a70a'
+
+    expect(hash1).toBe(expectedHash1)
+    expect(hash2).toBe(expectedHash2)
+  })
 })
