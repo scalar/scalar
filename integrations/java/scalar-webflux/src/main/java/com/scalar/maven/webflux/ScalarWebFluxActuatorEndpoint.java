@@ -63,11 +63,11 @@ public class ScalarWebFluxActuatorEndpoint {
     @ReadOperation(produces = MediaType.TEXT_HTML_VALUE)
     public final Mono<Resource> scalarUi(ServerHttpRequest request) {
         return Mono.fromCallable(() -> {
-            ScalarProperties configuredProperties = configureProperties(properties, request);
-            String html = ScalarHtmlRenderer.render(configuredProperties);
-            Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
-            return resource;
-        })
+                    ScalarProperties configuredProperties = configureProperties(properties, request);
+                    String html = ScalarHtmlRenderer.render(configuredProperties);
+                    Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
+                    return resource;
+                })
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(IOException.class, e -> new RuntimeException("Failed to render HTML", e));
     }
@@ -85,10 +85,10 @@ public class ScalarWebFluxActuatorEndpoint {
     @ReadOperation(produces = "application/javascript")
     public final Mono<Resource> scalarJs() {
         return Mono.fromCallable(() -> {
-            byte[] jsContent = ScalarHtmlRenderer.getScalarJsContent();
-            Resource resource = new ByteArrayResource(jsContent);
-            return resource;
-        })
+                    byte[] jsContent = ScalarHtmlRenderer.getScalarJsContent();
+                    Resource resource = new ByteArrayResource(jsContent);
+                    return resource;
+                })
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(IOException.class, e -> new RuntimeException("Failed to load JavaScript bundle", e));
     }

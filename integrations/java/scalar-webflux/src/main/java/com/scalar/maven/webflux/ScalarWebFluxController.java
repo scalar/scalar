@@ -69,11 +69,11 @@ public class ScalarWebFluxController {
     @GetMapping(value = "${scalar.path:/scalar}", produces = MediaType.TEXT_HTML_VALUE)
     public final Mono<Resource> getDocs(ServerHttpRequest request) {
         return Mono.fromCallable(() -> {
-            ScalarProperties configuredProperties = configureProperties(properties, request);
-            String html = ScalarHtmlRenderer.render(configuredProperties);
-            Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
-            return resource;
-        })
+                    ScalarProperties configuredProperties = configureProperties(properties, request);
+                    String html = ScalarHtmlRenderer.render(configuredProperties);
+                    Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
+                    return resource;
+                })
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(IOException.class, e -> new RuntimeException("Failed to render HTML", e));
     }
@@ -91,10 +91,10 @@ public class ScalarWebFluxController {
     @GetMapping(value = "${scalar.path:/scalar}/" + ScalarConstants.JS_FILENAME, produces = "application/javascript")
     public final Mono<Resource> getScalarJs() {
         return Mono.fromCallable(() -> {
-            byte[] jsContent = ScalarHtmlRenderer.getScalarJsContent();
-            Resource resource = new ByteArrayResource(jsContent);
-            return resource;
-        })
+                    byte[] jsContent = ScalarHtmlRenderer.getScalarJsContent();
+                    Resource resource = new ByteArrayResource(jsContent);
+                    return resource;
+                })
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(IOException.class, e -> new RuntimeException("Failed to load JavaScript bundle", e));
     }
