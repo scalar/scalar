@@ -98,7 +98,7 @@ describe('dereference', () => {
         success: true,
         data: {
           profile: {
-            '$ref': '#/x-ext/f87db7e',
+            '$ref': '#/x-ext/f053c6d',
             '$ref-value': {
               name: 'Jane Doe',
               age: 25,
@@ -109,17 +109,17 @@ describe('dereference', () => {
             },
           },
           address: {
-            '$ref': '#/x-ext/f87db7e/address',
+            '$ref': '#/x-ext/f053c6d/address',
             '$ref-value': {
               city: 'Los Angeles',
               street: 'Sunset Boulevard',
             },
           },
           'x-ext': {
-            'f87db7e': userProfile,
+            'f053c6d': userProfile,
           },
           'x-ext-urls': {
-            'f87db7e': `${url}/users`,
+            'f053c6d': `${url}/users`,
           },
         },
       })

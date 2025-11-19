@@ -1,7 +1,7 @@
 /**
  * Simple 32 bit non-secure hash from a string input
  *
- * @deprecated Use generateHash from @scalar/json-magic/helpers/generate-hash instead
+ * @deprecated Please use generateHash from ./generate-hash.ts instead
  *
  * @see https://stackoverflow.com/a/7616484/1624255
  */

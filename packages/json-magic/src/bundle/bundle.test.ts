@@ -67,7 +67,7 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             ...external,
           },
         },
@@ -77,7 +77,7 @@ describe('bundle', () => {
           },
         },
         d: {
-          $ref: `#/x-ext/${await getHash(url)}/prop`,
+          $ref: `#/x-ext/${getHash(url)}/prop`,
         },
       })
     })
@@ -124,13 +124,13 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             ...chunk1,
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk2`)}`,
             },
           },
-          [await getHash(`${url}/chunk2`)]: {
+          [getHash(`${url}/chunk2`)]: {
             ...chunk2,
             internal: '#/nested/key',
           },
@@ -138,7 +138,7 @@ describe('bundle', () => {
         a: {
           b: {
             c: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
             },
           },
         },
@@ -168,13 +168,13 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             a: 'a',
           },
         },
         a: {
           b: {
-            $ref: `#/x-ext/${await getHash(url)}`,
+            $ref: `#/x-ext/${getHash(url)}`,
           },
         },
       })
@@ -207,16 +207,16 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             a: 'a',
             b: 'b',
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(url)}/a`,
+          $ref: `#/x-ext/${getHash(url)}/a`,
         },
         b: {
-          $ref: `#/x-ext/${await getHash(url)}/b`,
+          $ref: `#/x-ext/${getHash(url)}/b`,
         },
       })
 
@@ -253,17 +253,17 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(`${url}/nested/another-file.json`)]: {
+          [getHash(`${url}/nested/another-file.json`)]: {
             c: 'c',
           },
-          [await getHash(`${url}/nested/chunk1.json`)]: {
+          [getHash(`${url}/nested/chunk1.json`)]: {
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/nested/another-file.json`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/nested/another-file.json`)}`,
             },
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
         },
       })
     })
@@ -297,17 +297,17 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(`${url}/top-level`)]: {
+          [getHash(`${url}/top-level`)]: {
             c: 'c',
           },
-          [await getHash(`${url}/nested/chunk1.json`)]: {
+          [getHash(`${url}/nested/chunk1.json`)]: {
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/top-level`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
             },
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
         },
       })
     })
@@ -343,17 +343,17 @@ describe('bundle', () => {
 
       expect(output).toEqual({
         'x-ext': {
-          [await getHash(`${url}/top-level`)]: {
+          [getHash(`${url}/top-level`)]: {
             c: 'c',
           },
-          [await getHash(`${url}/nested/chunk1.json`)]: {
+          [getHash(`${url}/nested/chunk1.json`)]: {
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/top-level`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
             },
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
         },
       })
     })
@@ -393,21 +393,21 @@ describe('bundle', () => {
 
       expect(output).toEqual({
         'x-ext': {
-          [await getHash(`${url}/top-level`)]: {
+          [getHash(`${url}/top-level`)]: {
             c: 'c',
           },
-          [await getHash(`${url}/nested/chunk1.json`)]: {
+          [getHash(`${url}/nested/chunk1.json`)]: {
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/top-level`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
             },
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/top-level`)]: `${url}/top-level`,
-          [await getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
+          [getHash(`${url}/top-level`)]: `${url}/top-level`,
+          [getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
         },
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
         },
       })
     })
@@ -464,13 +464,13 @@ describe('bundle', () => {
         a: {
           b: {
             c: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
             },
             d: {
               e: {
                 f: {
                   g: {
-                    $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+                    $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
                   },
                 },
               },
@@ -478,18 +478,18 @@ describe('bundle', () => {
           },
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk2`)}`,
             },
           },
-          [await getHash(`${url}/chunk2`)]: {
+          [getHash(`${url}/chunk2`)]: {
             a: 'a',
             b: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
             },
           },
         },
@@ -526,11 +526,11 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: [
           {
-            $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+            $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
           },
         ],
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
@@ -584,20 +584,20 @@ describe('bundle', () => {
           $ref: `${url}/chunk1#`,
         },
         b: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         c: {
           $ref: `${url}/chunk1#`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
         },
       })
 
@@ -614,20 +614,20 @@ describe('bundle', () => {
           $ref: `${url}/chunk1#`,
         },
         b: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         c: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
         },
       })
 
@@ -677,13 +677,13 @@ describe('bundle', () => {
           $ref: `${url}/chunk1#`,
         },
         b: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         c: {
           $ref: `${url}/chunk1#`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
@@ -691,7 +691,7 @@ describe('bundle', () => {
         },
         // It should still inject the mappings on the output document
         'x-ext-urls': {
-          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
         },
       })
     })
@@ -731,14 +731,14 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/a/b`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/a/b`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               b: {
                 g: {
-                  $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/d/e`,
+                  $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/d/e`,
                 },
                 hello: 'hello',
               },
@@ -802,20 +802,20 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/a`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/a`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               b: {
                 g: {
-                  $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/d/e`,
+                  $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/d/e`,
                 },
                 hello: 'hello',
               },
               c: 'c',
               'external': {
-                $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}/a/b`,
+                $ref: `#/x-ext/${getHash(`${url}/chunk2`)}/a/b`,
               },
             },
             d: {
@@ -824,7 +824,7 @@ describe('bundle', () => {
               },
             },
           },
-          [await getHash(`${url}/chunk2`)]: {
+          [getHash(`${url}/chunk2`)]: {
             a: {
               b: {
                 hello: 'hello',
@@ -869,20 +869,20 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/a`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/a`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               b: {
                 g: {
-                  $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/a/external`,
+                  $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/a/external`,
                 },
                 hello: 'hello',
               },
               c: 'c',
               external: {
-                $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}/a/b`,
+                $ref: `#/x-ext/${getHash(`${url}/chunk1`)}/a/b`,
               },
             },
           },
@@ -949,11 +949,11 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: {
           $global: true,
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         b: {
           $global: true,
-          $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk2`)}`,
         },
         c: {
           $global: true,
@@ -971,19 +971,19 @@ describe('bundle', () => {
           },
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             description: 'Chunk 1',
             someRef: {
               $ref: '#/components/User',
             },
           },
-          [await getHash(`${url}/chunk2`)]: {
+          [getHash(`${url}/chunk2`)]: {
             description: 'Chunk 2',
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/chunk2`)]: `${url}/chunk2`,
-          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [getHash(`${url}/chunk2`)]: `${url}/chunk2`,
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
         },
       })
     })
@@ -1029,7 +1029,7 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         b: {
           a: 'a',
@@ -1041,14 +1041,14 @@ describe('bundle', () => {
           $ref: `${url}/chunk2#`,
         },
         'x-ext': {
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/chunk1`)]: 'http://localhost:7289/chunk1',
+          [getHash(`${url}/chunk1`)]: 'http://localhost:7289/chunk1',
         },
       })
     })
@@ -1132,14 +1132,14 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: {
           $global: true,
-          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk1`)}`,
         },
         b: {
           $global: true,
-          $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/chunk2`)}`,
         },
         c: {
-          $ref: `#/x-ext/${await getHash(`${url}/external/document.json`)}`,
+          $ref: `#/x-ext/${getHash(`${url}/external/document.json`)}`,
         },
 
         entry: {
@@ -1149,34 +1149,34 @@ describe('bundle', () => {
           $ref: `http://localhost:${port}/chunk1`,
         },
         'x-ext': {
-          [await getHash(`${url}/external/document.json`)]: {
+          [getHash(`${url}/external/document.json`)]: {
             external: 'external',
             someChunk: {
-              $ref: `#/x-ext/${await getHash(`${url}/chunk3`)}`,
+              $ref: `#/x-ext/${getHash(`${url}/chunk3`)}`,
               $global: true,
             },
           },
-          [await getHash(`${url}/chunk1`)]: {
+          [getHash(`${url}/chunk1`)]: {
             chunk1: 'chunk1',
             someRef: {
               $ref: '#/b',
             },
           },
-          [await getHash(`${url}/chunk2`)]: {
+          [getHash(`${url}/chunk2`)]: {
             chunk2: 'chunk2',
             someRef: {
               $ref: '#/c',
             },
           },
-          [await getHash(`${url}/chunk3`)]: {
+          [getHash(`${url}/chunk3`)]: {
             chunk3: 'chunk3',
           },
         },
         'x-ext-urls': {
-          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
-          [await getHash(`${url}/chunk2`)]: `${url}/chunk2`,
-          [await getHash(`${url}/chunk3`)]: `${url}/chunk3`,
-          [await getHash(`${url}/external/document.json`)]: `${url}/external/document.json`,
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [getHash(`${url}/chunk2`)]: `${url}/chunk2`,
+          [getHash(`${url}/chunk3`)]: `${url}/chunk3`,
+          [getHash(`${url}/external/document.json`)]: `${url}/external/document.json`,
         },
       })
     })
@@ -1294,10 +1294,10 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'a': {
-          '$ref': '#/x-ext/8706c8f',
+          '$ref': '#/x-ext/814f1d7',
         },
         'x-ext': {
-          '8706c8f': {
+          '814f1d7': {
             'message': 'some resolved external reference',
           },
         },
@@ -1322,8 +1322,8 @@ describe('bundle', () => {
       })
 
       expect(result).toEqual({
-        a: { '$ref': '#/x-ext/6b07652' },
-        'x-ext': { '6b07652': { message: 'some resolved external reference' } },
+        a: { '$ref': '#/x-ext/220f104' },
+        'x-ext': { '220f104': { message: 'some resolved external reference' } },
       })
     })
 
@@ -1541,12 +1541,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/1c26e20',
+              '$ref': '#/x-ext/ce08d76',
             },
           },
         },
         'x-ext': {
-          '1c26e20': {
+          'ce08d76': {
             'message': 'resolved value',
           },
         },
@@ -1597,12 +1597,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/19ac1c5',
+              '$ref': '#/x-ext/b9d44e3',
             },
           },
         },
         'x-ext': {
-          '19ac1c5': {
+          'b9d44e3': {
             'message': 'resolved value',
           },
         },
@@ -1663,12 +1663,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/8f7df4f',
+              '$ref': '#/x-ext/c3654f1',
             },
           },
         },
         'x-ext': {
-          '8f7df4f': {
+          'c3654f1': {
             'message': 'resolved value',
           },
         },
@@ -1742,16 +1742,16 @@ describe('bundle', () => {
             '$ref': '#my-anchor',
           },
           'g': {
-            '$ref': '#/x-ext/0a9e8c9',
+            '$ref': '#/x-ext/e71bf65',
           },
         },
         'x-ext': {
-          '0a9e8c9': {
+          'e71bf65': {
             'message': 'resolved value',
           },
         },
         'x-ext-urls': {
-          '0a9e8c9': 'http://example.com',
+          'e71bf65': 'http://example.com',
         },
       })
     })
@@ -1796,12 +1796,12 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(chunk1Path)]: {
+          [getHash(chunk1Path)]: {
             ...chunk1,
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
+          $ref: `#/x-ext/${getHash(chunk1Path)}/a`,
         },
       })
     })
@@ -1829,15 +1829,15 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(chunk1Path)]: {
+          [getHash(chunk1Path)]: {
             ...chunk1,
           },
-          [await getHash(chunk2Path)]: {
-            a: { $ref: `#/x-ext/${await getHash(chunk1Path)}` },
+          [getHash(chunk2Path)]: {
+            a: { $ref: `#/x-ext/${getHash(chunk1Path)}` },
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(chunk2Path)}`,
+          $ref: `#/x-ext/${getHash(chunk2Path)}`,
         },
       })
     })
@@ -1875,15 +1875,15 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(`nested/${cName}`)]: {
+          [getHash(`nested/${cName}`)]: {
             c: 'c',
           },
-          [await getHash(`nested/${bName}`)]: {
-            b: { $ref: `#/x-ext/${await getHash(`nested/${cName}`)}` },
+          [getHash(`nested/${bName}`)]: {
+            b: { $ref: `#/x-ext/${getHash(`nested/${cName}`)}` },
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(`nested/${bName}`)}`,
+          $ref: `#/x-ext/${getHash(`nested/${bName}`)}`,
         },
       })
     })
@@ -1924,10 +1924,10 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'b': {
-          '$ref': `#/x-ext/${await getHash(`nested/${cName}`)}`,
+          '$ref': `#/x-ext/${getHash(`nested/${cName}`)}`,
         },
         'x-ext': {
-          [await getHash(`nested/${cName}`)]: {
+          [getHash(`nested/${cName}`)]: {
             'c': 'c',
           },
         },
@@ -1969,12 +1969,12 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'x-ext': {
-          [await getHash(chunk1Path)]: {
+          [getHash(chunk1Path)]: {
             ...chunk1,
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
+          $ref: `#/x-ext/${getHash(chunk1Path)}/a`,
         },
       })
     })
@@ -2026,12 +2026,12 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'x-ext': {
-          [await getHash(chunk1Path)]: {
+          [getHash(chunk1Path)]: {
             ...chunk1,
           },
         },
         a: {
-          $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
+          $ref: `#/x-ext/${getHash(chunk1Path)}/a`,
         },
       })
     })
@@ -2109,12 +2109,12 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             ...external,
           },
         },
         'x-ext-urls': {
-          [await getHash(url)]: url,
+          [getHash(url)]: url,
         },
         a: {
           b: {
@@ -2129,7 +2129,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            $ref: `#/x-ext/${await getHash(url)}/prop`,
+            $ref: `#/x-ext/${getHash(url)}/prop`,
           },
         },
       })
@@ -2176,12 +2176,12 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             ...external,
           },
         },
         'x-ext-urls': {
-          [await getHash(url)]: url,
+          [getHash(url)]: url,
         },
         a: {
           b: {
@@ -2196,7 +2196,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            $ref: `#/x-ext/${await getHash(url)}/prop`,
+            $ref: `#/x-ext/${getHash(url)}/prop`,
           },
         },
       })
@@ -2213,12 +2213,12 @@ describe('bundle', () => {
       // because we are reusing the same hash set
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             ...external,
           },
         },
         'x-ext-urls': {
-          [await getHash(url)]: url,
+          [getHash(url)]: url,
         },
         a: {
           b: {
@@ -2233,7 +2233,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            $ref: `#/x-ext/${await getHash(url)}/prop`,
+            $ref: `#/x-ext/${getHash(url)}/prop`,
           },
         },
       })
@@ -2247,19 +2247,19 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-ext': {
-          [await getHash(url)]: {
+          [getHash(url)]: {
             ...external,
           },
         },
         'x-ext-urls': {
-          [await getHash(url)]: url,
+          [getHash(url)]: url,
         },
         a: {
           b: {
             c: {
               d: {
                 e: {
-                  $ref: `#/x-ext/${await getHash(url)}/prop`,
+                  $ref: `#/x-ext/${getHash(url)}/prop`,
                 },
               },
             },
@@ -2267,7 +2267,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            $ref: `#/x-ext/${await getHash(url)}/prop`,
+            $ref: `#/x-ext/${getHash(url)}/prop`,
           },
         },
       })
@@ -2435,9 +2435,9 @@ describe('bundle', () => {
       expect(exec).toHaveBeenLastCalledWith('hello')
 
       expect(result).toEqual({
-        $ref: '#/x-ext/26c7827',
+        $ref: '#/x-ext/f265832',
         'x-ext': {
-          '26c7827': {
+          'f265832': {
             message: 'Resolved document',
           },
         },
@@ -2634,13 +2634,13 @@ describe('bundle', () => {
 
       expect(onResolveStart).toHaveBeenCalledTimes(2)
       expect(onResolveStart).nthCalledWith(1, { $ref: 'some-value' })
-      expect(onResolveStart).nthCalledWith(2, { $ref: '#/x-ext/2a57507' })
+      expect(onResolveStart).nthCalledWith(2, { $ref: '#/x-ext/908a515' })
 
       expect(onResolveError).toHaveBeenCalledTimes(1)
       expect(onResolveError).lastCalledWith({ $ref: 'some-value' })
 
       expect(onResolveSuccess).toHaveBeenCalledTimes(1)
-      expect(onResolveSuccess).lastCalledWith({ $ref: '#/x-ext/2a57507' })
+      expect(onResolveSuccess).lastCalledWith({ $ref: '#/x-ext/908a515' })
     })
 
     it('correctly provides the parent node in different levels', async () => {

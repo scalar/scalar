@@ -1,4 +1,4 @@
-import { generateHash } from '@/helpers/generate-hash'
+import { generateHash } from '@scalar/helpers/string/generate-hash'
 
 /**
  * Generates a short hash from a string value using xxhash.
@@ -13,11 +13,11 @@ import { generateHash } from '@/helpers/generate-hash'
  * @returns A Promise that resolves to a 7-character hexadecimal hash with at least one letter
  * @example
  * // Returns "2ae91d7"
- * await getHash("https://example.com/schema.json")
+ * getHash("https://example.com/schema.json")
  */
-export async function getHash(value: string): Promise<string> {
+export function getHash(value: string): string {
   // Hash the data using xxhash
-  const hashHex = await generateHash(value)
+  const hashHex = generateHash(value)
 
   // Return first 7 characters of the hash, ensuring at least one letter
   const hash = hashHex.substring(0, 7)
