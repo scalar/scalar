@@ -1,4 +1,4 @@
-import { generateHash } from '@/helpers/generate-hash'
+import { generateHash } from '@scalar/helpers/string/generate-hash'
 
 /**
  * Generates a short hash from a string value using xxhash.
