@@ -1,5 +1,26 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.4
+
+### Patch Changes
+
+- [#7337](https://github.com/scalar/scalar/pull/7337) [`0b881ee`](https://github.com/scalar/scalar/commit/0b881eec7ae5d43c80b00d9ee05ee0bb9d745acf) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(openapi-to-markdown): remove unused dependencies
+  - `@scalar/snippetz`
+  - `rehype-stringify`
+
+- [#7385](https://github.com/scalar/scalar/pull/7385) [`8f26496`](https://github.com/scalar/scalar/commit/8f26496829285a56622b977b002a39ac7cea5ce5) Thanks [@inyourtime](https://github.com/inyourtime)! - feat(openapi-to-markdown): add language classes to code blocks
+
+- [#7337](https://github.com/scalar/scalar/pull/7337) [`0b881ee`](https://github.com/scalar/scalar/commit/0b881eec7ae5d43c80b00d9ee05ee0bb9d745acf) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(openapi-to-markdown): remove css exports pointing to non-existing files
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`0519a33`](https://github.com/scalar/scalar/commit/0519a33c7d3f3cf65b93b37392c51d3c0586cbab), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47)]:
+  - @scalar/helpers@0.1.2
+  - @scalar/types@0.5.0
+  - @scalar/oas-utils@0.6.4
+  - @scalar/components@0.16.4
+  - @scalar/openapi-parser@0.23.3
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/openapi-types@0.5.1
+
 ## 0.3.3
 
 ### Patch Changes

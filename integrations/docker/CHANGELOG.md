@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.8
+
+### Patch Changes
+
+- [#7321](https://github.com/scalar/scalar/pull/7321) [`6e084d1`](https://github.com/scalar/scalar/commit/6e084d1511a1d4318cb517d6c3c25f23ab0a2f78) Thanks [@xC0dex](https://github.com/xC0dex)! - ci: separate build and publish jobs
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755)]:
+  - @scalar/api-reference@1.40.0
+
 ## 0.4.7
 
 ### Patch Changes

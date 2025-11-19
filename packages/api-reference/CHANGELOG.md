@@ -1,5 +1,39 @@
 # @scalar/api-reference
 
+## 1.40.0
+
+### Minor Changes
+
+- [#7384](https://github.com/scalar/scalar/pull/7384) [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: collection and document settings and cookies page
+
+### Patch Changes
+
+- [#7320](https://github.com/scalar/scalar/pull/7320) [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: rename showToolbar to showDeveloperTools
+
+- [#7306](https://github.com/scalar/scalar/pull/7306) [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarThemeSwatches component
+
+- [#7348](https://github.com/scalar/scalar/pull/7348) [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarWrappingText component
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332), [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7), [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`dd5c518`](https://github.com/scalar/scalar/commit/dd5c518a422dddc7948c0253861101cf741b6af0), [`0519a33`](https://github.com/scalar/scalar/commit/0519a33c7d3f3cf65b93b37392c51d3c0586cbab), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c), [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47), [`a35f5cf`](https://github.com/scalar/scalar/commit/a35f5cf3bce49b0ffda758e95bd31c77109e3c5b), [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755), [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc), [`0486728`](https://github.com/scalar/scalar/commit/04867286af9156c4d8ffb688c2d200f1b5a7d752), [`cc9d90b`](https://github.com/scalar/scalar/commit/cc9d90b1a268a6c294adcb32f7ae8559c1dcc77e)]:
+  - @scalar/workspace-store@0.21.0
+  - @scalar/json-magic@0.8.2
+  - @scalar/helpers@0.1.2
+  - @scalar/api-client@2.12.0
+  - @scalar/sidebar@0.4.0
+  - @scalar/types@0.5.0
+  - @scalar/oas-utils@0.6.4
+  - @scalar/object-utils@1.2.12
+  - @scalar/components@0.16.4
+  - @scalar/themes@0.13.24
+  - @scalar/openapi-parser@0.23.3
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.3
+  - @scalar/code-highlight@0.2.0
+  - @scalar/icons@0.5.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+
 ## 1.39.3
 
 ### Patch Changes

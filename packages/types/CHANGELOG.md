@@ -1,5 +1,17 @@
 # @scalar/types
 
+## 0.5.0
+
+### Minor Changes
+
+- [#7373](https://github.com/scalar/scalar/pull/7373) [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(types): legacy - remove unused types
+
+- [#7373](https://github.com/scalar/scalar/pull/7373) [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat(types): removes `export *` from non-index exports
+
+### Patch Changes
+
+- [#7320](https://github.com/scalar/scalar/pull/7320) [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: rename showToolbar to showDeveloperTools
+
 ## 0.4.0
 
 ### Minor Changes

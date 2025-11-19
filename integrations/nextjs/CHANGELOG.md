@@ -1,5 +1,14 @@
 # @scalar/nextjs-api-reference
 
+## 0.9.2
+
+### Patch Changes
+
+- [#7375](https://github.com/scalar/scalar/pull/7375) [`55bb334`](https://github.com/scalar/scalar/commit/55bb3346d1f9ac964770acc90aa810266a972d96) Thanks [@stefanprobst](https://github.com/stefanprobst)! - relax peerDependency range for nextjs to support v16
+
+- Updated dependencies []:
+  - @scalar/core@0.3.23
+
 ## 0.9.1
 
 ### Patch Changes

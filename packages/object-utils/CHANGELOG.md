@@ -1,5 +1,16 @@
 # @scalar/object-utils
 
+## 1.2.12
+
+### Patch Changes
+
+- [#7274](https://github.com/scalar/scalar/pull/7274) [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(object-utils): remove empty index export
+
+- [#7274](https://github.com/scalar/scalar/pull/7274) [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(object-utils): remove `type-fest` unused dependency
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74)]:
+  - @scalar/helpers@0.1.2
+
 ## 1.2.11
 
 ### Patch Changes

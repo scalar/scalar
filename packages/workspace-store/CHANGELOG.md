@@ -1,5 +1,35 @@
 # @scalar/workspace-store
 
+## 0.21.0
+
+### Minor Changes
+
+- [#7310](https://github.com/scalar/scalar/pull/7310) [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: workspace selector
+
+- [#7366](https://github.com/scalar/scalar/pull/7366) [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: support sidebar rebuild and remove the 'default' tag concept
+
+- [#7384](https://github.com/scalar/scalar/pull/7384) [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: collection and document settings and cookies page
+
+### Patch Changes
+
+- [#7392](https://github.com/scalar/scalar/pull/7392) [`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb) Thanks [@amritk](https://github.com/amritk)! - fix: move away from wasm hashing algo
+
+- [#7287](https://github.com/scalar/scalar/pull/7287) [`dd5c518`](https://github.com/scalar/scalar/commit/dd5c518a422dddc7948c0253861101cf741b6af0) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: correctly update the parameter examples
+
+- [#7329](https://github.com/scalar/scalar/pull/7329) [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: setting nested proxies directly cases problems
+
+- [#7365](https://github.com/scalar/scalar/pull/7365) [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc) Thanks [@amritk](https://github.com/amritk)! - feat: added hot keys to client v2
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47), [`a68b1af`](https://github.com/scalar/scalar/commit/a68b1afc54b2aa95a224fee89c3266bffed57215), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47)]:
+  - @scalar/json-magic@0.8.2
+  - @scalar/helpers@0.1.2
+  - @scalar/types@0.5.0
+  - @scalar/object-utils@1.2.12
+  - @scalar/themes@0.13.24
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.3
+  - @scalar/code-highlight@0.2.0
+
 ## 0.20.0
 
 ### Minor Changes

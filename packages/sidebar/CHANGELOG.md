@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.4.0
+
+### Minor Changes
+
+- [#7310](https://github.com/scalar/scalar/pull/7310) [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: workspace selector
+
+- [#7366](https://github.com/scalar/scalar/pull/7366) [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: support custom indent
+
+### Patch Changes
+
+- [#7348](https://github.com/scalar/scalar/pull/7348) [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add ScalarWrappingText component
+
+- Updated dependencies [[`d86f1d6`](https://github.com/scalar/scalar/commit/d86f1d6911ecbca70b011a2a0efb6d6e0eca59bb), [`6e1cb89`](https://github.com/scalar/scalar/commit/6e1cb89f71770601a5059449d68b409ffc87d332), [`1fbd809`](https://github.com/scalar/scalar/commit/1fbd809197bfaef77d7d3cb8cf7b657f397232a7), [`dd5c518`](https://github.com/scalar/scalar/commit/dd5c518a422dddc7948c0253861101cf741b6af0), [`5a108fc`](https://github.com/scalar/scalar/commit/5a108fcbc52ae7957731c23689896ba353b83d3b), [`4cda566`](https://github.com/scalar/scalar/commit/4cda566c2dc2cf306e4e3597e292ae1c2dadd78c), [`cded2d6`](https://github.com/scalar/scalar/commit/cded2d6c087418c3c44731d344d0827a87b78b74), [`3ebff92`](https://github.com/scalar/scalar/commit/3ebff92f29d8d03d626d4000e8323528e794e755), [`4059e68`](https://github.com/scalar/scalar/commit/4059e68375d31ec0142a8019b385bc3ac82055fc)]:
+  - @scalar/workspace-store@0.21.0
+  - @scalar/helpers@0.1.2
+  - @scalar/components@0.16.4
+  - @scalar/themes@0.13.24
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.7.22
+
+### Patch Changes
+
+- Updated dependencies [[`44aeef0`](https://github.com/scalar/scalar/commit/44aeef01073801165e339163462378b7b62ff68d), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47), [`cbedfab`](https://github.com/scalar/scalar/commit/cbedfab576502069be27ceacbea145a917214e47)]:
+  - @scalar/types@0.5.0
+
 ## 0.7.21
 
 ### Patch Changes
