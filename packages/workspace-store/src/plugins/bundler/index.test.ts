@@ -210,11 +210,11 @@ describe('plugins', () => {
       expect(result).toEqual({
         someProp: {
           info: {
-            '$ref': '#/x-ext/64537e7',
+            '$ref': '#/x-ext/44fe49b',
           },
         },
         'x-ext': {
-          '64537e7': {
+          '44fe49b': {
             description: 'Some description',
           },
         },
@@ -263,12 +263,12 @@ describe('plugins', () => {
       expect(input).toEqual({
         ...originalInput,
         'x-ext': {
-          '2a91049': {
+          'ad870b6': {
             'description': 'Some resolved value',
           },
         },
         'x-ext-urls': {
-          '2a91049': 'http://localhost:9088',
+          'ad870b6': 'http://localhost:9088',
         },
       })
     })
