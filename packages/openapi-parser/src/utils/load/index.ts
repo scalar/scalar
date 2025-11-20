@@ -1,1 +1,2 @@
-export { load, type LoadPlugin, type LoadOptions } from './load'
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
+export { load } from './load'

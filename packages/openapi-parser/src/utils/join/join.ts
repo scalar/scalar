@@ -1,8 +1,9 @@
+import { bundle } from '@scalar/json-magic/bundle'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+
 import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'
 import { upgrade } from '@/utils/upgrade'
-import { bundle } from '@scalar/json-magic/bundle'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Returns the intersection of two sets as an array.
@@ -233,7 +234,7 @@ const prefixComponents = async (inputs: OpenAPIV3_1.Document[], prefixes: string
   }
 }
 
-export type Conflicts =
+type Conflicts =
   | { type: 'path'; path: string; method: string }
   | { type: 'webhook'; path: string; method: string }
   | { type: 'component'; componentType: string; name: string }

@@ -20,7 +20,7 @@ import {
 const JSON_POINTERS_REGEX = /\/[\w_-]+(\/\d+)?/g
 
 // Make a tree of errors from ajv errors array
-export function makeTree(ajvErrors = []) {
+function makeTree(ajvErrors = []) {
   const root = { children: {} }
   ajvErrors.forEach((ajvError) => {
     const instancePath = typeof ajvError.instancePath !== 'undefined' ? ajvError.instancePath : ajvError.dataPath
@@ -40,7 +40,7 @@ export function makeTree(ajvErrors = []) {
   return root
 }
 
-export function filterRedundantErrors(root, parent, key) {
+function filterRedundantErrors(root, parent, key) {
   /**
    * If there is a `required` error then we can just skip everythig else.
    * And, also `required` should have more priority than `anyOf`. @see #8
@@ -87,7 +87,7 @@ export function filterRedundantErrors(root, parent, key) {
   Object.entries(root.children).forEach(([k, child]) => filterRedundantErrors(child, root, k))
 }
 
-export function createErrorInstances(root, options) {
+function createErrorInstances(root, options): Array<EnumValidationError> {
   const errors = getErrors(root)
   if (errors.length && errors.every(isEnumError)) {
     const uniqueValues = new Set(concatAll([])(errors.map((e) => e.params.allowedValues)))
