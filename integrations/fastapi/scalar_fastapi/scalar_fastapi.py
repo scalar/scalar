@@ -5,7 +5,7 @@ from enum import Enum
 from typing_extensions import Annotated, Doc
 from fastapi.responses import HTMLResponse
 from typing import List, Dict, Any, Union, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Layout(Enum):
@@ -67,33 +67,32 @@ class DocumentDownloadType(Enum):
 class OpenAPISource(BaseModel):
     """Configuration for a single OpenAPI source"""
 
+    model_config = ConfigDict(extra="forbid")
+
     title: Optional[str] = Field(
         default=None,
-        description="Display name for the API. If not provided, will fallback to 'API #1', 'API #2', etc."
+        description="Display name for the API. If not provided, will fallback to 'API #1', 'API #2', etc.",
     )
 
     slug: Optional[str] = Field(
         default=None,
-        description="URL identifier for the API. If not provided, will be auto-generated from the title or index."
+        description="URL identifier for the API. If not provided, will be auto-generated from the title or index.",
     )
 
     url: Optional[str] = Field(
         default=None,
-        description="URL to the OpenAPI document (JSON or YAML). Mutually exclusive with content."
+        description="URL to the OpenAPI document (JSON or YAML). Mutually exclusive with content.",
     )
 
     content: Optional[Union[str, Dict[str, Any]]] = Field(
         default=None,
-        description="Direct OpenAPI content as string (JSON/YAML) or dictionary. Mutually exclusive with url."
+        description="Direct OpenAPI content as string (JSON/YAML) or dictionary. Mutually exclusive with url.",
     )
 
     default: bool = Field(
         default=False,
-        description="Whether this source should be the default when multiple sources are provided."
+        description="Whether this source should be the default when multiple sources are provided.",
     )
-
-    class Config:
-        extra = "forbid"  # Don't allow extra fields
 
 
 scalar_theme = """
@@ -192,6 +191,7 @@ scalar_theme = """
 .scalar-card:nth-of-type(3) {
   display: none;
 }"""
+
 
 def get_scalar_api_reference(
     *,
@@ -477,7 +477,7 @@ def get_scalar_api_reference(
             Set to None or a different value to override.
             """
         ),
-    ] = 'fastapi',
+    ] = "fastapi",
     theme: Annotated[
         Theme,
         Doc(
@@ -518,7 +518,9 @@ def get_scalar_api_reference(
         config["showSidebar"] = show_sidebar
 
     # Handle download button configuration
-    if hide_download_button:  # Deprecated, but still supported for backwards compatibility
+    if (
+        hide_download_button
+    ):  # Deprecated, but still supported for backwards compatibility
         config["hideDownloadButton"] = hide_download_button
     elif document_download_type != DocumentDownloadType.BOTH:  # Default is BOTH
         config["documentDownloadType"] = document_download_type.value
@@ -590,7 +592,7 @@ def get_scalar_api_reference(
 <!doctype html>
 <html>
     <head>
-        {f'<title>{title if title else "Scalar"}</title>'}
+        {f"<title>{title if title else 'Scalar'}</title>"}
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{scalar_favicon_url}">
