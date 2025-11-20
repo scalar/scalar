@@ -114,7 +114,9 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
     return
   }
 
-  if (!(await fs.stat('./package.json'))) {
+  try {
+    await fs.stat('./package.json')
+  } catch {
     throw new Error(`package.json not found in ${process.cwd()}`)
   }
 
