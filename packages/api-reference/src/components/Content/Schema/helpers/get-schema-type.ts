@@ -40,9 +40,9 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
  * Computes the human-readable type for a schema.
  *
  * Priority order:
- * 1. const values
+ * 1. title property.
  * 2. Array types (with special handling for items)
- * 3. title property
+ * 3. const values
  * 4. xml.name property
  * 5. type with contentEncoding
  * 6. $ref names
@@ -56,7 +56,12 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
 
   const value = getResolvedRef(valueOrRef)
 
-  // Handle const values first (highest priority)
+  // Handle named schemas (title has highest priority for display)
+  if (value.title) {
+    return value.title
+  }
+
+  // Handle const values
   if (value.const !== undefined) {
     return 'const'
   }
@@ -79,11 +84,6 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
   // Handle single array type
   if (isArraySchema(value)) {
     return processArrayType(value, false)
-  }
-
-  // Handle named schemas (title has highest priority)
-  if (value.title) {
-    return value.title
   }
 
   // Handle XML-named schemas
