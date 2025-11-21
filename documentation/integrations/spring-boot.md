@@ -73,7 +73,7 @@ Add the [WebJar dependency](https://central.sonatype.com/artifact/com.scalar.mav
 <dependency>
     <groupId>com.scalar.maven</groupId>
     <artifactId>scalar</artifactId>
-    <version>0.1.0</version>
+    <version>0.4.4</version>
 </dependency>
 ```
 
@@ -83,7 +83,7 @@ Add the dependency to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'com.scalar.maven:scalar:0.1.0'
+    implementation 'com.scalar.maven:scalar:0.4.4'
 }
 ```
 
@@ -91,7 +91,7 @@ Or if using Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("com.scalar.maven:scalar:0.1.0")
+    implementation("com.scalar.maven:scalar:0.4.4")
 }
 ```
 
