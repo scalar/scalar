@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.1.3
+
+### Patch Changes
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
 ## 0.1.2
 
 ### Patch Changes

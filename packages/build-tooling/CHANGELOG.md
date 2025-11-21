@@ -1,5 +1,13 @@
 # @scalar/build-tooling
 
+## 0.3.1
+
+### Patch Changes
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- [#7397](https://github.com/scalar/scalar/pull/7397) [`ec33023`](https://github.com/scalar/scalar/commit/ec33023f8995395dd7dce04e98c9f35053aa482e) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(build-tooling): addPackageFileExports - handle fs.stat error using try-catch
+
 ## 0.3.0
 
 ### Minor Changes

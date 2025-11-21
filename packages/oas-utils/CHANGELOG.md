@@ -1,5 +1,18 @@
 # @scalar/oas-utils
 
+## 0.6.5
+
+### Patch Changes
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/workspace-store@0.21.1
+  - @scalar/json-magic@0.8.3
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/object-utils@1.2.13
+  - @scalar/openapi-types@0.5.1
+  - @scalar/themes@0.13.25
+
 ## 0.6.4
 
 ### Patch Changes

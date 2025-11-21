@@ -1,5 +1,12 @@
 # @scalar/webjar
 
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @scalar/api-reference@1.40.1
+
 ## 0.4.4
 
 ### Patch Changes
