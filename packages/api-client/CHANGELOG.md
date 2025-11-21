@@ -1,5 +1,33 @@
 # @scalar/api-client
 
+## 2.12.1
+
+### Patch Changes
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/workspace-store@0.21.1
+  - @scalar/json-magic@0.8.3
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/oas-utils@0.6.5
+  - @scalar/sidebar@0.4.1
+  - @scalar/analytics-client@1.0.0
+  - @scalar/components@0.16.5
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+  - @scalar/import@0.4.36
+  - @scalar/object-utils@1.2.13
+  - @scalar/openapi-parser@0.23.4
+  - @scalar/openapi-types@0.5.1
+  - @scalar/postman-to-openapi@0.3.46
+  - @scalar/snippetz@0.5.4
+  - @scalar/themes@0.13.25
+  - @scalar/use-codemirror@0.12.49
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+
 ## 2.12.0
 
 ### Minor Changes

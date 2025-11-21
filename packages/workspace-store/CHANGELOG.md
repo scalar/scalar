@@ -1,5 +1,21 @@
 # @scalar/workspace-store
 
+## 0.21.1
+
+### Patch Changes
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/json-magic@0.8.3
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/code-highlight@0.2.0
+  - @scalar/object-utils@1.2.13
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.4
+  - @scalar/themes@0.13.25
+
 ## 0.21.0
 
 ### Minor Changes

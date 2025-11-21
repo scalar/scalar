@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.16.5
+
+### Patch Changes
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/helpers@0.1.3
+  - @scalar/oas-utils@0.6.5
+  - @scalar/code-highlight@0.2.0
+  - @scalar/icons@0.5.0
+  - @scalar/themes@0.13.25
+  - @scalar/use-hooks@0.3.0
+  - @scalar/use-toasts@0.9.0
+
 ## 0.16.4
 
 ### Patch Changes

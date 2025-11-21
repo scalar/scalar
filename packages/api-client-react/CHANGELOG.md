@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 1.3.52
+
+### Patch Changes
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/api-client@2.12.1
+  - @scalar/types@0.5.1
+
 ## 1.3.51
 
 ### Patch Changes
