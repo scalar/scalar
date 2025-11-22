@@ -30,7 +30,10 @@ export async function findEntryPoints({ allowCss }: { allowCss?: boolean } = {})
   const entries: string[] = []
   fg.globSync('./src/**/index.ts').forEach((e) => entries.push(e))
 
-  // When running in test mode the Vite configs are still loaded. We want to ensure that we don't add exports to the package.json
+  // If running under test / lint tools (e.g. `vitest` or `knip`),
+  // skip modifying this package’s exports.
+  // These tools execute from the root package.json
+  // and shouldn’t trigger export generation.
   if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') {
     return entries
   }

@@ -51,7 +51,7 @@
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
     "lint:markdown": "remark --frail .",
-    "lint:knip": "knip",
+    "lint:knip": "NODE_ENV=test knip",
     "lint:fix": "biome lint --write && pnpm eslint '**/*.vue' --fix",
     "test": "vitest",
     "types:check": "turbo types:check",
