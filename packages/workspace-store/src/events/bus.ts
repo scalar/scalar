@@ -113,9 +113,7 @@ export type EventBusOptions = {
  * // Clean up
  * unsubscribe()
  */
-export const createWorkspaceEventBus = (options: EventBusOptions = {}): WorkspaceEventBus => {
-  const { debug = false } = options
-
+export const createWorkspaceEventBus = ({ debug = false }: EventBusOptions = {}): WorkspaceEventBus => {
   /**
    * Map of event names to their listener sets
    * Using Map for O(1) lookups and Set for O(1) add/remove operations
