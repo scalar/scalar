@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.scalar.maven</groupId>
+    <artifactId>scalar-parent</artifactId>
+    <version>0.0.0</version>
+  </parent>
+
+  <artifactId>scalar-playground-webmvc</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Scalar API Reference Playground (WebMVC)</name>
+  <description>Example Spring Boot application demonstrating Scalar API Reference usage with WebMVC</description>
+
+  <dependencies>
+    <!-- Scalar WebMVC integration -->
+    <dependency>
+      <groupId>com.scalar.maven</groupId>
+      <artifactId>scalar-webmvc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Spring Boot Web -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>com.scalar.maven.playground.PlaygroundApplication</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

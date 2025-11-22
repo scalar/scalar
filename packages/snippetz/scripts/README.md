@@ -33,7 +33,7 @@ Generates Java enums for the Java integration packages.
 - `ScalarTarget.java` - Programming language targets (Java, JavaScript, etc.)
 - `ScalarClient.java` - HTTP clients (OkHttp, AsyncHttp, etc.)
 
-Generated in: `integrations/java/webjar/src/main/java/com/scalar/maven/webjar/enums/`
+Generated in: `integrations/java/scalar-core/src/main/java/com/scalar/maven/core/enums/`
 
 ### Markdown Documentation Generation
 
