@@ -212,6 +212,9 @@ importers:
       '@types/node':
         specifier: catalog:*
         version: 22.15.3
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       eslint:
         specifier: ^9.15.0
         version: 9.20.1(jiti@2.6.1)
