@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+
+import { globSync } from 'fast-glob'
+
 import { executeCommand } from './utils/utils.js'
-import { globSync } from 'glob'
 
 // Run Biome lint with error diagnostic level
 executeCommand('biome lint --diagnostic-level=error', 'Error during linting check')

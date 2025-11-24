@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+import { globSync } from 'fast-glob'
+
 import { executeCommand } from './utils/utils.js'
-import { globSync } from 'glob'
 
 // Run Biome lint
 executeCommand('biome lint --fix', 'Error during linting check')
