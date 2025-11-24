@@ -4,10 +4,11 @@
  * project and update the exports field of the package.json as needed
  *
  */
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { glob } from 'fast-glob'
+import fg from 'fast-glob'
 
 const cssExports = {
   /** Adds provisions for a css folder in the built output */
@@ -27,7 +28,7 @@ const cssExports = {
 /** Search for ALL index.ts files in the repo and export them as nested exports */
 export async function findEntryPoints({ allowCss }: { allowCss?: boolean } = {}) {
   const entries: string[] = []
-  glob.sync('./src/**/index.ts').forEach((e) => entries.push(e))
+  fg.globSync('./src/**/index.ts').forEach((e) => entries.push(e))
 
   // When running in test mode the Vite configs are still loaded. We want to ensure that we don't add exports to the package.json
   if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') {
