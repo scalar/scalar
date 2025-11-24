@@ -21,6 +21,7 @@ minimumReleaseAgeExclude:
   - vitest
   - hono
   - astro
+  - '@astrojs/*'
 
 catalogs:
   '*':
