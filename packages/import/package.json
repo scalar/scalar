@@ -45,7 +45,6 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {

@@ -2,20 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resolve } from './resolve'
 
-global.fetch = vi.fn()
-
-function createFetchResponse(data: string, headers: Record<string, string> = {}) {
-  return {
-    ok: true,
-    text: () => new Promise((r) => r(data)),
+function createFetchResponse(data: string, headers: Record<string, string> = {}): Response {
+  return new Response(data, {
     headers: new Headers(headers),
-  }
+  })
 }
+
+const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
 
 describe('resolve', () => {
   beforeEach(() => {
-    // @ts-expect-error
-    global.fetch.mockReset()
+    globalFetchSpy.mockClear()
   })
 
   it('returns JSON urls', async () => {
@@ -62,8 +59,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -88,8 +84,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -115,8 +110,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -142,8 +136,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(
+    globalFetchSpy.mockResolvedValueOnce(
       createFetchResponse(html, {
         'X-Forwarded-Host': 'https://example.com/somewhere/else/',
       }),
@@ -177,8 +170,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -200,8 +192,7 @@ describe('resolve', () => {
   </body>
 </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -222,8 +213,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -264,8 +254,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -307,8 +296,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -329,8 +317,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -351,8 +338,7 @@ describe('resolve', () => {
         </body>
       </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -384,8 +370,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -410,8 +395,7 @@ describe('resolve', () => {
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -443,8 +427,7 @@ info:
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -466,8 +449,7 @@ info:
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -495,8 +477,7 @@ info:
 </html>
     `
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(html))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
 
     const result = await resolve('https://example.com/reference')
 
@@ -513,8 +494,7 @@ info:
       paths: {},
     }
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(createFetchResponse(JSON.stringify(openApiDoc)))
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(JSON.stringify(openApiDoc)))
 
     const result = await resolve('https://example.com/swagger/json')
 
@@ -522,8 +502,7 @@ info:
   })
 
   it('finds the URL in an escaped JS object', async () => {
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(
+    globalFetchSpy.mockResolvedValueOnce(
       createFetchResponse(
         `<html>\\"$L8e\\",null,{\\"configuration\\":{\\"spec\\":{\\"url\\":\\"https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json\\"}},\\"initialRequest`,
       ),

@@ -294,7 +294,7 @@ export function getConfigurationAttribute(html: string): string | undefined {
 }
 
 /** Grab the URL from the configuration data attribute */
-export const getConfigurationAttributeUrl = (html: string): string | undefined => {
+const getConfigurationAttributeUrl = (html: string): string | undefined => {
   const configString = getConfigurationAttribute(html)
   if (!configString) {
     return undefined

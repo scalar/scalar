@@ -13,7 +13,6 @@
     "packages/draggable/**",
     "packages/galaxy/**",
     "packages/icons/**",
-    "packages/import/**",
     "packages/json-magic/**",
     "packages/nextjs-openapi/**",
     "packages/openapi-upgrader/**",
