@@ -1,0 +1,76 @@
+import type { WorkspaceStore } from '@/client'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { WorkspaceDocument } from '@/schemas'
+import type { TraversedDocument, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import type { OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
+import { getParentEntry } from './get-parent-entry'
+
+type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | TraversedOperation> =
+  Entry extends TraversedDocument
+    ? WorkspaceDocument
+    : Entry extends TraversedTag
+      ? TagObject
+      : Entry extends TraversedOperation
+        ? OperationObject
+        : never
+
+/**
+ * Retrieves the corresponding OpenAPI object (document, tag, or operation) from the workspace store based on the provided entry.
+ *
+ * This helper abstracts the common lookup logic for working with sidebar/drag-and-drop entries and their associated OpenAPI objects.
+ * Returns `null` when the lookup cannot be completed (e.g., document/tag/operation not found).
+ *
+ * @template Entry Either TraversedDocument, TraversedTag, or TraversedOperation.
+ * @param store - The workspace store containing loaded documents.
+ * @param entry - The sidebar entry (document, tag, or operation).
+ * @returns The corresponding OpenAPI object (WorkspaceDocument, TagObject, or OperationObject) or `null` if not found.
+ *
+ * @example
+ * // For a Document entry:
+ * const document = getOpenapiObject({ store, entry: documentEntry })
+ *
+ * // For a Tag entry:
+ * const tag = getOpenapiObject({ store, entry: tagEntry })
+ *
+ * // For an Operation entry:
+ * const operation = getOpenapiObject({ store, entry: operationEntry })
+ */
+export const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | TraversedOperation>({
+  store,
+  entry,
+}: {
+  store: WorkspaceStore
+  entry: Entry
+}): GetOpenapiObject<Entry> | null => {
+  const documentEntry = getParentEntry('document', entry)
+
+  if (!documentEntry) {
+    // If document parent is not found, cannot resolve OpenAPI object
+    return null
+  }
+
+  const document = store.workspace.documents[documentEntry.name]
+
+  if (!document) {
+    // Document is not loaded in the store
+    return null
+  }
+
+  if (entry.type === 'document') {
+    return document as GetOpenapiObject<Entry>
+  }
+
+  if (entry.type === 'tag') {
+    // Find the tag by name in the document's tags array
+    return (document.tags?.find((tag) => tag.name === entry.name) as GetOpenapiObject<Entry> | undefined) ?? null
+  }
+
+  if (entry.type === 'operation') {
+    // Fetch and resolve the referenced operation object at the given path/method
+    return (getResolvedRef(document.paths?.[entry.path]?.[entry.method]) as GetOpenapiObject<Entry> | undefined) ?? null
+  }
+
+  // If entry type is unknown, return null
+  return null
+}

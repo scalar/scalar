@@ -1,10 +1,10 @@
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { dereference } from '@scalar/openapi-parser'
-import { type SidebarState, getParentEntry } from '@scalar/sidebar'
+import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type {
   TraversedDocument,
@@ -135,75 +135,6 @@ const itemsShareParent = (
     return false
   }
   return draggingItem.parent.id === hoveredItem.parent.id
-}
-
-type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | TraversedOperation> =
-  Entry extends TraversedDocument
-    ? WorkspaceDocument
-    : Entry extends TraversedTag
-      ? TagObject
-      : Entry extends TraversedOperation
-        ? OperationObject
-        : never
-
-/**
- * Retrieves the corresponding OpenAPI object (document, tag, or operation) from the workspace store based on the provided entry.
- *
- * This helper abstracts the common lookup logic for working with sidebar/drag-and-drop entries and their associated OpenAPI objects.
- * Returns `null` when the lookup cannot be completed (e.g., document/tag/operation not found).
- *
- * @template Entry Either TraversedDocument, TraversedTag, or TraversedOperation.
- * @param store - The workspace store containing loaded documents.
- * @param entry - The sidebar entry (document, tag, or operation).
- * @returns The corresponding OpenAPI object (WorkspaceDocument, TagObject, or OperationObject) or `null` if not found.
- *
- * @example
- * // For a Document entry:
- * const document = getOpenapiObject({ store, entry: documentEntry })
- *
- * // For a Tag entry:
- * const tag = getOpenapiObject({ store, entry: tagEntry })
- *
- * // For an Operation entry:
- * const operation = getOpenapiObject({ store, entry: operationEntry })
- */
-const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | TraversedOperation>({
-  store,
-  entry,
-}: {
-  store: WorkspaceStore
-  entry: Entry
-}): GetOpenapiObject<Entry> | null => {
-  const documentEntry = getParentEntry('document', entry)
-
-  if (!documentEntry) {
-    // If document parent is not found, cannot resolve OpenAPI object
-    return null
-  }
-
-  const document = store.workspace.documents[documentEntry.name]
-
-  if (!document) {
-    // Document is not loaded in the store
-    return null
-  }
-
-  if (entry.type === 'document') {
-    return document as GetOpenapiObject<Entry>
-  }
-
-  if (entry.type === 'tag') {
-    // Find the tag by name in the document's tags array
-    return (document.tags?.find((tag) => tag.name === entry.name) as GetOpenapiObject<Entry> | undefined) ?? null
-  }
-
-  if (entry.type === 'operation') {
-    // Fetch and resolve the referenced operation object at the given path/method
-    return (getResolvedRef(document.paths?.[entry.path]?.[entry.method]) as GetOpenapiObject<Entry> | undefined) ?? null
-  }
-
-  // If entry type is unknown, return null
-  return null
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry } from '@/schemas/navigation'
 
 /**
  * Traverses up the tree to find and return the closest parent node (including self) of a specified type.

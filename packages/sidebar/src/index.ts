@@ -11,5 +11,4 @@ export {
 } from './helpers/create-sidebar-state'
 export { generateReverseIndex } from './helpers/generate-reverse-index'
 export { getChildEntry } from './helpers/get-child-entry'
-export { getParentEntry } from './helpers/get-parent-entry'
 export type { Item } from './types.ts'
