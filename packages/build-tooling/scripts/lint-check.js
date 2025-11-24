@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { globSync } from 'fast-glob'
+import fg from 'fast-glob'
 
 import { executeCommand } from './utils/utils.js'
 
@@ -8,7 +8,7 @@ import { executeCommand } from './utils/utils.js'
 executeCommand('biome lint --diagnostic-level=error', 'Error during linting check')
 
 // Check if Vue files exist and run ESLint on them if they do
-const vueFiles = globSync('**/*.vue', { ignore: 'node_modules/**' })
+const vueFiles = fg.sync('**/*.vue', { ignore: ['node_modules/**'] })
 if (vueFiles.length > 0) {
   executeCommand("pnpm eslint '**/*.vue'", 'Error during Vue files linting')
 }
