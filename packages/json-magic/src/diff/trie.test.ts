@@ -1,5 +1,6 @@
-import { Trie } from '@/diff/trie'
 import { describe, expect, test, vi } from 'vitest'
+
+import { Trie } from '@/diff/trie'
 
 describe('trie', () => {
   test('should correctly find matched', () => {

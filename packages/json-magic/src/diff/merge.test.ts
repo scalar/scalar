@@ -1,6 +1,7 @@
-import { merge } from '@/diff/merge'
-import { diff } from '@/diff/diff'
 import { describe, expect, test } from 'vitest'
+
+import { diff } from '@/diff/diff'
+import { merge } from '@/diff/merge'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
 

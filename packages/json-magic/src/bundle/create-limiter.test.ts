@@ -1,28 +1,32 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { createLimiter } from './create-limiter'
 
-describe('createLimiter', { timeout: 10000 }, () => {
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+describe('createLimiter', () => {
+  beforeEach(() => {
+    vi.useRealTimers()
+  })
 
   it('run in order and no more than the specified number of concurrent requests', async () => {
+    vi.useFakeTimers()
+
     const limiter = createLimiter(2)
 
     let active = 0
-    const maxObserved: number[] = []
+    const maxObserved: Array<number> = []
 
     const makeTask = (id: number) =>
       limiter(async () => {
         active++
         maxObserved.push(active)
-        await sleep(100)
+        await vi.advanceTimersByTimeAsync(100)
         active--
         return id
       })
 
     const tasks = [1, 2, 3, 4, 5].map(makeTask)
-    const results = await Promise.all(tasks)
 
-    expect(results).toEqual([1, 2, 3, 4, 5])
-    expect(Math.max(...maxObserved)).toBeLessThanOrEqual(2)
+    await expect(Promise.all(tasks)).resolves.toEqual([1, 2, 3, 4, 5])
+    expect(Math.max(...maxObserved)).toBe(2)
   })
 })
