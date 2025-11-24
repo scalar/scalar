@@ -209,6 +209,9 @@ export type TraversedEntry =
   | TraversedDocument
   | TraversedModels
 
+/** Type helper for when we are storing the parent entry in the entry itself */
+export type WithParent<Entry extends TraversedEntry> = Entry & { parent: TraversedEntry }
+
 export type DocumentIdProps = {
   name: string
   info: InfoObject

@@ -1,4 +1,12 @@
-import type { TraversedDocument, TraversedEntry, TraversedOperation, TraversedWebhook } from '@/schemas/navigation'
+import type {
+  TraversedDocument,
+  TraversedEntry,
+  TraversedOperation,
+  TraversedWebhook,
+  WithParent,
+} from '@/schemas/navigation'
+
+type EntriesMap = Map<string, (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]>
 
 /**
  * Builds a map of all operations and webhooks in a document, indexed by path/name and method.
@@ -19,19 +27,17 @@ import type { TraversedDocument, TraversedEntry, TraversedOperation, TraversedWe
  * const entries = getOperationEntries(document)
  * const getUsers = entries.get('/users|get') // Array of all GET /users operations
  */
-export const getOperationEntries = (
-  document: TraversedDocument,
-): Map<string, (TraversedOperation | TraversedWebhook)[]> => {
-  const map = new Map<string, (TraversedOperation | TraversedWebhook)[]>()
+export const getOperationEntries = (document: TraversedDocument): EntriesMap => {
+  const map: EntriesMap = new Map()
 
   /**
    * Helper function to add an entry to the map under the specified key.
    * If the key already exists, appends to the array; otherwise creates a new array.
    *
    * @param key - The composite key (path|method or name|method)
-   * @param entry - The operation or webhook entry to add
+   * @param entry - The operation or webhook entry to add (with parent information)
    */
-  const addToMap = (key: string, entry: TraversedOperation | TraversedWebhook): void => {
+  const addToMap = (key: string, entry: WithParent<TraversedOperation> | WithParent<TraversedWebhook>): void => {
     const existing = map.get(key)
     if (existing) {
       existing.push(entry)
@@ -48,8 +54,9 @@ export const getOperationEntries = (
    * - containers (tags, groups): recursively traversed for their children
    *
    * @param entries - Array of entries to traverse (may be undefined for empty sections)
+   * @param parent - The parent entry of the current entries (if any)
    */
-  const traverse = (entries: TraversedEntry[] | undefined): void => {
+  const traverse = (entries: TraversedEntry[] | undefined, parent: TraversedEntry): void => {
     if (!entries) {
       return
     }
@@ -58,22 +65,22 @@ export const getOperationEntries = (
       // Handle operations - use path and method to create unique key
       if (entry.type === 'operation') {
         const key = `${entry.path}|${entry.method}`
-        addToMap(key, entry)
+        addToMap(key, { ...entry, parent })
       }
       // Handle webhooks - use name and method to create unique key
       else if (entry.type === 'webhook') {
         const key = `${entry.name}|${entry.method}`
-        addToMap(key, entry)
+        addToMap(key, { ...entry, parent })
       }
-      // Handle containers - recursively traverse children
+      // Handle containers - recursively traverse children, passing current entry as parent
       else if ('children' in entry && entry.children) {
-        traverse(entry.children)
+        traverse(entry.children, entry)
       }
     }
   }
 
   // Start traversal from document root
-  traverse(document.children)
+  traverse(document.children, document)
 
   return map
 }
