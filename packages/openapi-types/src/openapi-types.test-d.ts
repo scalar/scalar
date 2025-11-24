@@ -83,4 +83,12 @@ describe('OpenAPI', () => {
     // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
   })
+
+  it('OpenAPI 3.1 ReferenceObject has $ref', () => {
+    const document: OpenAPIV3_1.ReferenceObject = {
+      $ref: '#/components/schemas/Example',
+    }
+
+    expectTypeOf(document.$ref).toEqualTypeOf<string | undefined>()
+  })
 })

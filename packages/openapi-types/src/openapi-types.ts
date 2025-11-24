@@ -500,13 +500,11 @@ export namespace OpenAPIV3_1 {
 
   export type XMLObject = OpenAPIV3.XMLObject
 
-  export type ReferenceObject = Modify<
-    OpenAPIV3.ReferenceObject,
-    {
-      summary?: string
-      description?: string
-    }
-  >
+  export type ReferenceObject = {
+    $ref?: string
+    summary?: string
+    description?: string
+  }
 
   export type ExampleObject = OpenAPIV3.ExampleObject
 
