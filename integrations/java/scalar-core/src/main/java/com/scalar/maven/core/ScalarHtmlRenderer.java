@@ -56,16 +56,14 @@ public final class ScalarHtmlRenderer {
         String basePath = normalizeBasePath(properties.getPath());
 
         // Load the template HTML
-        InputStream inputStream = ScalarHtmlRenderer.class.getResourceAsStream(HTML_TEMPLATE_PATH);
-        if (inputStream == null) {
+        InputStream templateStream = ScalarHtmlRenderer.class.getResourceAsStream(HTML_TEMPLATE_PATH);
+        if (templateStream == null) {
             throw new IOException("HTML template not found at: " + HTML_TEMPLATE_PATH);
         }
 
         String html;
-        try {
+        try (InputStream inputStream = templateStream) {
             html = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        } finally {
-            inputStream.close();
         }
 
         // Build the JS bundle URL from the base path
@@ -120,15 +118,13 @@ public final class ScalarHtmlRenderer {
      * @throws IOException if the JavaScript file cannot be loaded
      */
     public static byte[] getScalarJsContent() throws IOException {
-        InputStream inputStream = ScalarHtmlRenderer.class.getResourceAsStream(JS_BUNDLE_PATH);
-        if (inputStream == null) {
+        InputStream jsStream = ScalarHtmlRenderer.class.getResourceAsStream(JS_BUNDLE_PATH);
+        if (jsStream == null) {
             throw new IOException("JavaScript bundle not found at: " + JS_BUNDLE_PATH);
         }
 
-        try {
+        try (InputStream inputStream = jsStream) {
             return inputStream.readAllBytes();
-        } finally {
-            inputStream.close();
         }
     }
 }
