@@ -69,7 +69,7 @@
     "ansis": "catalog:*",
     "chokidar": "catalog:*",
     "esbuild": "catalog:*",
-    "glob": "^10.3.10",
+    "glob": "^10.5.0",
     "picomatch": "^4.0.2",
     "rollup": "catalog:*",
     "rollup-plugin-copy": "^3.5.0",
