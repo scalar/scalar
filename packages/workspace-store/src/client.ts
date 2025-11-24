@@ -277,6 +277,18 @@ export type WorkspaceStore = {
    */
   readonly config: typeof defaultConfig
   /**
+   * Returns the merged configuration for a specific document.
+   *
+   * This method merges configurations in the following order of precedence:
+   * 1. Document-specific configuration (highest priority)
+   * 2. Workspace-level configuration
+   * 3. Default configuration (lowest priority)
+   *
+   * @param documentName - The name of the document to get the configuration for
+   * @returns The merged configuration for the specified document
+   */
+  getDocumentConfiguration(documentName: string): typeof defaultConfig
+  /**
    * Exports the specified document in the requested format.
    *
    * This method serializes the most recently saved local version of the document (from the intermediateDocuments map)
@@ -1059,6 +1071,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
     },
+    getDocumentConfiguration,
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
