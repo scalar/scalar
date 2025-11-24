@@ -15,6 +15,7 @@ test-*.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+playwright-results.json
 
 # Temporary Vite/Vitest config files
 *.config.ts.timestamp-*.mjs

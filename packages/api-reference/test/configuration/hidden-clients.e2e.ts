@@ -1,9 +1,14 @@
 import { expect, test } from '@playwright/test'
+import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('hiddenClients', () => {
   test('default value shows all clients', async ({ page }) => {
-    const example = await serveExample()
+    const example = await serveExample({
+      // Use a local copy because the registry contains `x-codeSamples` property
+      // which modifies the request to use custom `csharp` / `typescript` snippets.
+      content: galaxy,
+    })
 
     await page.goto(example)
 
