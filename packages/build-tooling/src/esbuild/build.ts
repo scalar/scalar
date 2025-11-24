@@ -4,7 +4,7 @@ import path from 'node:path'
 import as from 'ansis'
 import chokidar from 'chokidar'
 import * as esbuild from 'esbuild'
-import { glob } from 'glob'
+import { glob } from 'fast-glob'
 
 import { addPackageFileExports, findEntryPoints } from '../helpers'
 import { runCommand } from './helpers'
