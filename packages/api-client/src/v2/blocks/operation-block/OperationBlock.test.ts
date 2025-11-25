@@ -61,7 +61,7 @@ describe('OperationContainer', () => {
     expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex1' } })
   })
 
-  it('emits operpackages/api-client/src/v2/blocks/operation-block/OperationBlock.test.tsation:update:method with new value when method is updated', () => {
+  it('emits operation:update:method with new value when method is updated', () => {
     const fn = vi.fn()
     eventBus.on('operation:update:method', fn)
 
