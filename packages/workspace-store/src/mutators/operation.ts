@@ -215,11 +215,11 @@ export const updateOperationMethod = (
     return
   }
 
-  if (!document || !document['x-scalar-navigation'] || !store) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!document?.['x-scalar-navigation'] || !documentName || !store) {
     console.error('Document or workspace not found', { document })
     return
   }
-  const documentName = document['x-scalar-navigation']?.name
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   if (!operation) {

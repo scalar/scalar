@@ -25,7 +25,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import { useRouter } from 'vue-router'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
