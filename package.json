@@ -8,7 +8,7 @@
   },
   "packageManager": "pnpm@10.16.1",
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
+    "@biomejs/biome": "2.3.6",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.27.10",
     "@eslint/js": "^9.33.0",

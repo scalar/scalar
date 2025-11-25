@@ -14,31 +14,31 @@
       "!**/vite.config.ts.timestamp-*",
       "!**/package.json",
       "!**/scalar.config.json",
-      "!**/test-results/**",
-      "!**/build/**",
-      "!**/cdn/**",
+      "!**/test-results",
+      "!**/build",
+      "!**/cdn",
       "!**/cloudbuild.json",
-      "!**/fixtures/**",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/playwright-report/**",
+      "!**/fixtures",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/playwright-report",
       "!**/playwright-results.json",
       "!**/pnpm-lock.yaml",
-      "!**/.pnpm-store/**",
-      "!**/.docusaurus/**",
-      "!**/examples/nestjs-api-reference-fastify/**",
-      "!**/examples/nestjs-api-reference-express/**",
+      "!**/.pnpm-store",
+      "!**/.docusaurus",
+      "!**/examples/nestjs-api-reference-fastify",
+      "!**/examples/nestjs-api-reference-express",
       "!**/*/storybook-static/**/*",
-      "!**/httpsnippet-lite/**",
-      "!**/.next/**",
+      "!**/httpsnippet-lite",
+      "!**/.next",
       "!**/.svelte-kit",
-      "!**/obj/**",
-      "!**/bin/**",
+      "!**/obj",
+      "!**/bin",
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
       "!**/packages/openapi-parser/tests/openapi3-examples/**/*.{yml,yaml,json}",
       "!integrations/**/scalar.js",
       "!integrations/**/standalone.js",
-      "!**/target/**"
+      "!**/target"
     ]
   },
   "assist": {
@@ -95,6 +95,9 @@
     }
   },
   "linter": {
+    "domains": {
+      "vue": "all"
+    },
     "enabled": true,
     "rules": {
       "recommended": false,
@@ -201,28 +204,25 @@
       }
     }
   },
+  "html": {
+    "experimentalFullSupportEnabled": true
+  },
   "overrides": [
     {
-      "includes": ["**/*.vue"],
+      "includes": ["**/*.vue", "**/*.html"],
       "formatter": {
-        "enabled": false
+        "enabled": true
       },
       "linter": {
         "rules": {
           "style": {
             "useShorthandFunctionType": "off",
-            "useImportType": "off"
+            "useImportType": "off",
+            "useConst": "off"
           },
           "correctness": {
             "noUnusedVariables": "off",
             "noUnusedImports": "off"
-          }
-        }
-      },
-      "assist": {
-        "actions": {
-          "source": {
-            "organizeImports": "off"
           }
         }
       }
