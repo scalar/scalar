@@ -98,6 +98,7 @@ describe('updateOperationMethod', () => {
     })
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
+    expect(document['x-scalar-order']).toStrictEqual(['test/get/users', 'test/post/users'])
 
     updateOperationMethod(document, store, {
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
