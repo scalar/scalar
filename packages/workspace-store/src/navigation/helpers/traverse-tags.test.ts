@@ -58,6 +58,55 @@ describe('traverseTags', () => {
     expect(result).toEqual([])
   })
 
+  it('should return empty tags', () => {
+    const document = createMockDocument()
+    const tagsMap: TagsMap = new Map([
+      [
+        'empty-tag',
+        {
+          id: 'tag/empty-tag',
+          parentId: 'doc-1',
+          tag: createMockTag('empty-tag'),
+          entries: [],
+        },
+      ],
+      [
+        'tag-with-entries',
+        {
+          id: 'tag/tag-with-entries',
+          parentId: 'doc-1',
+          tag: createMockTag('tag-with-entries'),
+          entries: [createMockEntry('Test Operation')],
+        },
+      ],
+    ])
+
+    const result = traverseTags({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      options: {
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+      },
+    })
+
+    expect(result).toHaveLength(2)
+    assert(result[0]?.type === 'tag')
+    expect(result[0]?.name).toBe('empty-tag')
+    expect(result[0]?.children).toEqual([])
+    assert(result[1]?.type === 'tag')
+    expect(result[1]?.name).toBe('tag-with-entries')
+    expect(result[1]?.children).toHaveLength(1)
+  })
+
   it('should handle single default tag', () => {
     const document = createMockDocument()
     const tagsMap: TagsMap = new Map([

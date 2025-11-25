@@ -135,15 +135,13 @@ const getSortedTagEntries = ({
       }
     }
 
-    return entries.length
-      ? createTagEntry({
-          tag,
-          generateId,
-          children: sortOrder ? sortByOrder(entries, sortOrder, 'id') : entries,
-          parentId: documentId,
-          isGroup: false,
-        })
-      : []
+    return createTagEntry({
+      tag,
+      generateId,
+      children: sortOrder ? sortByOrder(entries, sortOrder, 'id') : entries,
+      parentId: documentId,
+      isGroup: false,
+    })
   })
 
   // If a custom 'x-scalar-order' is specified in the tag, sort the entries by this order using sortByOrder
