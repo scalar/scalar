@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TraversedDocument } from '@/schemas/navigation'
+import type { TraversedDocument, TraversedTag, WithParent } from '@/schemas/navigation'
 
 import { getOperationEntries } from './get-operation-entries'
 
@@ -191,6 +191,7 @@ describe('getOperationEntries', () => {
     expect(result.has('/health|get')).toBe(true)
     expect(result.get('/users|get')?.[0]?.id).toBe('op-1')
     expect(result.get('/users|get')?.[0]?.parent?.id).toBe('tag-1')
+    expect(result.get('/users|get')?.[0]?.parent).toMatchObject({ parent: { id: 'doc-1' } })
     expect(result.get('/admin/users|get')?.[0]?.id).toBe('op-2')
     expect(result.get('/admin/users|get')?.[0]?.parent?.id).toBe('tag-2')
     expect(result.get('/admin/users|delete')?.[0]?.id).toBe('op-3')

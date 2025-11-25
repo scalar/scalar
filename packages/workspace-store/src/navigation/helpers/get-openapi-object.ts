@@ -49,16 +49,12 @@ export const getOpenapiObject = <Entry extends TraversedOrderable>({
   entry: Entry
 }): GetOpenapiObject<Entry> | null => {
   const documentEntry = getParentEntry('document', entry)
-
   if (!documentEntry) {
-    // If document parent is not found, cannot resolve OpenAPI object
     return null
   }
 
   const document = store.workspace.documents[documentEntry.name]
-
   if (!document) {
-    // Document is not loaded in the store
     return null
   }
 

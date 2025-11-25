@@ -56,7 +56,10 @@ export const getOperationEntries = (document: TraversedDocument): EntriesMap => 
    * @param entries - Array of entries to traverse (may be undefined for empty sections)
    * @param parent - The parent entry of the current entries (if any)
    */
-  const traverse = (entries: TraversedEntry[] | undefined, parent: TraversedEntry): void => {
+  const traverse = (
+    entries: TraversedEntry[] | undefined,
+    parent: WithParent<TraversedEntry> | TraversedDocument,
+  ): void => {
     if (!entries) {
       return
     }
@@ -74,7 +77,7 @@ export const getOperationEntries = (document: TraversedDocument): EntriesMap => 
       }
       // Handle containers - recursively traverse children, passing current entry as parent
       else if ('children' in entry && entry.children) {
-        traverse(entry.children, entry)
+        traverse(entry.children, { ...entry, parent })
       }
     }
   }

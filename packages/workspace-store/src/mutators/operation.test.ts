@@ -159,15 +159,20 @@ describe('updateOperationMethod', () => {
     })
     await store.buildSidebar('test2')
     const document = store.workspace.documents.test2!
+    expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
+      'test2/tag/products/get/products',
+      'test2/tag/products/delete/products',
+    ])
 
     updateOperationMethod(document, store, {
       meta: { method: 'get', path: '/products' },
       payload: { method: 'patch' },
     })
 
-    console.log('document', document['x-scalar-navigation'])
-
-    expect(document['x-scalar-order']).toStrictEqual(['test2/patch/products', 'test2/delete/products'])
+    expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
+      'test2/tag/products/patch/products',
+      'test2/tag/products/delete/products',
+    ])
 
     // The operation should now be under 'patch' with all properties preserved
     expect(document.paths?.['/products']).toStrictEqual({

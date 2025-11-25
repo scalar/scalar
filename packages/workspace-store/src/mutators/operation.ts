@@ -243,12 +243,13 @@ export const updateOperationMethod = (
 
     // Ensure we have an x-scalar-order property
     const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
-    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject && parentOpenAPIObject['x-scalar-order'])) {
+    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject)) {
       return
     }
 
-    const index = parentOpenAPIObject['x-scalar-order'].indexOf(entry.id)
-    if (index < 0) {
+    const order = parentOpenAPIObject['x-scalar-order']
+    const index = order?.indexOf(entry.id)
+    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
       return
     }
 
@@ -256,7 +257,7 @@ export const updateOperationMethod = (
       entry.parent.type === 'tag' ? { tag: parentOpenAPIObject as TagObject, id: entry.parent.id } : undefined
 
     // Generate the new ID based on whether this is an operation or webhook
-    const newId = generateId({
+    order[index] = generateId({
       type: 'operation',
       path: meta.path,
       method: method,
@@ -264,8 +265,6 @@ export const updateOperationMethod = (
       parentId: entry.parent.id,
       parentTag,
     })
-
-    parentOpenAPIObject['x-scalar-order'][index] = newId
   })
 
   // Now ensure we replace the actual operation in the document
