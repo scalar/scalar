@@ -66,5 +66,9 @@
     "language_server": {
       "name": "biome"
     }
+  },
+  "auto_install_extensions": {
+    "biome": true,
+    "vue": true
   }
 }
