@@ -44,9 +44,10 @@ export type OperationEvents = {
       method: HttpMethod
     }
     /** Identifies the target operation by original method and path */
-    meta: OperationMeta
-    /** A callback to be called when the mutation is complete */
-    callback?: (success: boolean) => void
+    meta: OperationMeta & {
+      /** Example name is used for routing after */
+      exampleKey?: string
+    }
   }
 
   /**

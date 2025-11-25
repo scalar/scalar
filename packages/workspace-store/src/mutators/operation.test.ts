@@ -190,6 +190,42 @@ describe('updateOperationMethod', () => {
       },
     })
   })
+
+  it('calls callback with success status after updating method', async () => {
+    await store.addDocument({
+      name: 'test3',
+      document: createDocument({
+        paths: {
+          '/items': {
+            get: {
+              summary: 'Get items',
+              description: 'Retrieve items',
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test3')
+    const document = store.workspace.documents.test3!
+
+    let callbackResult: boolean | undefined
+
+    updateOperationMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/items' },
+        payload: { method: 'post' },
+      },
+      (success) => {
+        callbackResult = success
+      },
+    )
+
+    expect(callbackResult).toBe(true)
+    expect(document.paths?.['/items']?.post).toBeDefined()
+    expect(document.paths?.['/items']?.get).toBeUndefined()
+  })
 })
 
 describe('updateOperationPath', () => {

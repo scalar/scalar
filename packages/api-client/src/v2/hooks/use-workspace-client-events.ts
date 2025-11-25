@@ -37,6 +37,7 @@ import {
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type ComputedRef, type Ref, toValue } from 'vue'
+import { useRouter } from 'vue-router'
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -67,6 +68,9 @@ export const useWorkspaceClientEvents = ({
 
     return collectionType === 'document' ? document.value : store.workspace
   }
+
+  /** Use router for some redirects */
+  const router = useRouter()
 
   //------------------------------------------------------------------------------------
   // Workspace Event Handlers
@@ -150,7 +154,19 @@ export const useWorkspaceClientEvents = ({
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('operation:update:method', (payload) =>
-    updateOperationMethod(document.value, workspaceStore.value, payload),
+    updateOperationMethod(document.value, workspaceStore.value, payload, (success) => {
+      // Lets redirect to the new example if the mutation was successful
+      if (success) {
+        router.replace({
+          name: 'example',
+          params: {
+            method: payload.payload.method,
+            pathEncoded: encodeURIComponent(payload.meta.path),
+            exampleName: payload.meta.exampleKey,
+          },
+        })
+      }
+    }),
   )
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))

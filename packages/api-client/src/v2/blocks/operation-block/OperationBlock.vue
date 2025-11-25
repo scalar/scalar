@@ -108,30 +108,16 @@ const handleExecute = () =>
     meta: { path, method, exampleKey },
   })
 
-const router = useRouter()
-
 /** Update the HTTP method for the operation, also recreates sidebar navigation */
 const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
   eventBus.emit('operation:update:method', {
     meta: {
       method,
       path,
+      exampleKey,
     },
     payload: {
       method: payload.value,
-    },
-    /** We need to redirect to the new path */
-    callback: (success) => {
-      if (success) {
-        router.replace({
-          name: 'example',
-          params: {
-            method: payload.value,
-            pathEncoded: encodeURIComponent(path),
-            exampleName: exampleKey,
-          },
-        })
-      }
     },
   })
 

@@ -207,7 +207,8 @@ export const updateOperationSummary = (
 export const updateOperationMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method }, callback }: OperationEvents['operation:update:method'],
+  { meta, payload: { method } }: OperationEvents['operation:update:method'],
+  callback?: (success: boolean) => void,
 ) => {
   // If the method has not changed, no need to do anything
   if (meta.method === method || !isHttpMethod(method)) {
