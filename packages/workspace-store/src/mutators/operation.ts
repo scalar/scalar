@@ -12,7 +12,7 @@ import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import { getOperationEntries } from '@/navigation/helpers/get-operation-entries'
 import type { WorkspaceDocument } from '@/schemas'
-import type { ParameterObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
