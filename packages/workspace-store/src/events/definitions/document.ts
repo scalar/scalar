@@ -22,4 +22,13 @@ export type DocumentEvents = {
    * Makes sense for the doucments that have been loaded from a remote source
    */
   'document:update:watch-mode': boolean
+  /**
+   * Create a new empty document in the workspace
+   */
+  'document:create:empty-document': {
+    /** The name of the empty document to create */
+    name: string
+    /** The icon of the empty document to create */
+    icon: string
+  }
 }

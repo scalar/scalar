@@ -21,6 +21,23 @@ export type OperationEvents = {
   //------------------------------------------------------------------------------------
 
   /**
+   * Create a new operation at a specific path and method in the document.
+   * Triggers when the user creates a new endpoint via the command palette or other UI.
+   */
+  'operation:create': {
+    payload: {
+      /** The document ID where the operation should be created */
+      documentId: string
+      /** The path for the new operation (will be normalized to start with /) */
+      path: string
+      /** The HTTP method for the operation */
+      method: HttpMethod
+      /** Optional tags to assign to the operation */
+      tags?: string[]
+    }
+  }
+
+  /**
    * Update the summary for the operation.
    * Triggers when the user edits the summary/description for an endpoint.
    * The new summary is provided in the payload, and meta identifies the operation by HTTP method and path.

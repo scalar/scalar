@@ -153,6 +153,53 @@ const syncParametersForPathChange = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
+ * Creates a new operation at a specific path and method in the document.
+ * Automatically normalizes the path to ensure it starts with a slash.
+ *
+ * Returns the normalized path if successful, undefined otherwise.
+ *
+ * Example:
+ * ```ts
+ * createOperation(
+ *   document,
+ *   'users',
+ *   'get',
+ *   { tags: ['Users'] },
+ * )
+ * ```
+ */
+export const createOperation = (
+  document: WorkspaceDocument | null,
+  path: string,
+  method: HttpMethod,
+  options?: {
+    tags?: string[]
+  },
+): string | undefined => {
+  if (!document) {
+    return
+  }
+
+  /** Ensure the path starts with a slash */
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  /** Create the operation in the document */
+  if (!document.paths) {
+    document.paths = {}
+  }
+
+  if (!document.paths[normalizedPath]) {
+    document.paths[normalizedPath] = {}
+  }
+
+  document.paths[normalizedPath][method] = {
+    tags: options?.tags,
+  }
+
+  return normalizedPath
+}
+
+/**
  * Updates the `summary` of an operation.
  * Safely no-ops if the document or operation does not exist.
  *

@@ -16,7 +16,16 @@ import ScalarAsciiArt from './ScalarAsciiArt.vue'
         class="text-c-3 !leading-[6px]" />
     </div>
     <div class="relative -ml-12">
-      <div class="keycap-hotkey right-16 text-xl">K</div>
+      <ScalarHotkey
+        class="keycap-hotkey right-14 border-transparent py-0 text-xl"
+        hotkey=""
+        :modifier="['Shift']" />
+      <ScalarAsciiArt
+        :art="Keycap"
+        class="keycap-n !leading-[6px]" />
+    </div>
+    <div class="relative -ml-12">
+      <div class="keycap-hotkey right-16 text-xl">P</div>
       <ScalarAsciiArt
         :art="Keycap"
         class="keycap-n !leading-[6px]" />
@@ -31,6 +40,7 @@ import ScalarAsciiArt from './ScalarAsciiArt.vue'
     var(--scalar-color-3) 50%
   );
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

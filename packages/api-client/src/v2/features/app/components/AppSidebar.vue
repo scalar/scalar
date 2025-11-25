@@ -115,21 +115,21 @@ const isDroppable = (
 
 <template>
   <Sidebar
-    :isDroppable="isDroppable"
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     :activeWorkspace="activeWorkspace"
     :documents="Object.values(store.workspace.documents)"
     :eventBus="eventBus"
+    :isDroppable="isDroppable"
     :layout="layout"
     :sidebarState="sidebarState"
     :workspaces="workspaces"
     @createWorkspace="emit('create:workspace')"
-    @select:workspace="(id) => emit('select:workspace', id)"
-    @selectItem="(id) => emit('selectItem', id)"
     @reorder="
       (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
-    ">
+    "
+    @select:workspace="(id) => emit('select:workspace', id)"
+    @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
       <ScalarSidebarItem

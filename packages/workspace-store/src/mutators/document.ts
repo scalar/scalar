@@ -1,3 +1,5 @@
+import type { WorkspaceStore } from '@/client'
+import type { DocumentEvents } from '@/events/definitions/document'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
@@ -33,4 +35,33 @@ export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: str
   document['x-scalar-icon'] = icon
   // Update the sidebar document icon
   document['x-scalar-navigation'].icon = icon
+}
+
+export const createEmptyDocument = (
+  store: WorkspaceStore | null,
+  payload: DocumentEvents['document:create:empty-document'],
+) => {
+  if (!store) {
+    return
+  }
+
+  // Check if the document already exists
+  // name should be unique
+  if (store.workspace.documents[payload.name]) {
+    return
+  }
+
+  store.addDocument({
+    name: payload.name,
+    document: {
+      openapi: '3.1.0',
+      info: { title: payload.name, version: '1.0.0' },
+      paths: {
+        '/': {
+          get: {},
+        },
+      },
+      'x-scalar-icon': payload.icon,
+    },
+  })
 }
