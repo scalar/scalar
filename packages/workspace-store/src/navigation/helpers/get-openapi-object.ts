@@ -1,19 +1,24 @@
 import type { WorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
-import type { TraversedDocument, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import type { TraversedDocument, TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
 import type { OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getParentEntry } from './get-parent-entry'
 
-type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | TraversedOperation> =
-  Entry extends TraversedDocument
-    ? WorkspaceDocument
-    : Entry extends TraversedTag
-      ? TagObject
-      : Entry extends TraversedOperation
-        ? OperationObject
-        : never
+type TraversedOrderable = TraversedDocument | TraversedTag | TraversedOperation
+
+type GetOpenapiObject<Entry extends TraversedOrderable> = Entry extends TraversedDocument
+  ? WorkspaceDocument
+  : Entry extends TraversedTag
+    ? TagObject
+    : Entry extends TraversedOperation
+      ? OperationObject
+      : never
+
+/** Type guard which checks if the entry has an x-scalar-order property */
+export const canHaveOrder = (entry: TraversedEntry): entry is TraversedOrderable =>
+  entry.type === 'document' || entry.type === 'tag' || entry.type === 'operation'
 
 /**
  * Retrieves the corresponding OpenAPI object (document, tag, or operation) from the workspace store based on the provided entry.
@@ -36,7 +41,7 @@ type GetOpenapiObject<Entry extends TraversedDocument | TraversedTag | Traversed
  * // For an Operation entry:
  * const operation = getOpenapiObject({ store, entry: operationEntry })
  */
-export const getOpenapiObject = <Entry extends TraversedDocument | TraversedTag | TraversedOperation>({
+export const getOpenapiObject = <Entry extends TraversedOrderable>({
   store,
   entry,
 }: {

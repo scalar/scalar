@@ -1,13 +1,16 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
-import type { Entries } from 'type-fest'
 
 import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { getOpenapiObject } from '@/navigation'
+import { getNavigationOptions } from '@/navigation/get-navigation-options'
+import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
+import { getOperationEntries } from '@/navigation/helpers/get-operation-entries'
 import type { WorkspaceDocument } from '@/schemas'
-import type { ParameterObject, PathItemObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -150,10 +153,6 @@ const syncParametersForPathChange = (
   return [...syncedPathParameters, ...nonPathParameters]
 }
 
-/** ------------------------------------------------------------------------------------------------
- * Operation Draft Mutators
- * ------------------------------------------------------------------------------------------------ */
-
 /**
  * Updates the `summary` of an operation.
  * Safely no-ops if the document or operation does not exist.
@@ -185,15 +184,19 @@ export const updateOperationSummary = (
 }
 
 /**
- * Stores the chosen HTTP method under `x-scalar-method` on the operation.
- * This does not move the operation to a different method slot under `paths`;
- * it records the desired method as an extension for downstream consumers.
+ * Updates the HTTP method of an operation and moves it to the new method slot.
+ * This function:
+ * 1. Moves the operation from the old method to the new method under paths
+ * 2. Updates x-scalar-order to maintain the operation's position in the sidebar
+ * 3. Rebuilds the sidebar to reflect the changes
+ *
  * Safely no-ops if the document or operation does not exist.
  *
  * Example:
  * ```ts
- * updateOperationMethodDraft({
+ * updateOperationMethod({
  *   document,
+ *   store,
  *   meta: { method: 'get', path: '/users' },
  *   payload: { method: 'post' },
  * })
@@ -204,47 +207,78 @@ export const updateOperationMethod = (
   store: WorkspaceStore | null,
   { meta, payload: { method }, callback }: OperationEvents['operation:update:method'],
 ) => {
-  /** Ensure the path exists */
-  const path = document?.paths?.[meta.path]
-  if (!path) {
-    console.error('Path not found', { meta, document })
+  // If the method has not changed, no need to do anything
+  if (meta.method === method) {
     return
   }
 
-  /** Helper function to maintain type relationship between key and value */
-  const assignPathEntry = <K extends keyof PathItemObject>(
-    target: PathItemObject,
-    key: K,
-    value: PathItemObject[K],
-  ): void => {
-    target[key] = value
+  if (!document || !document['x-scalar-navigation'] || !store) {
+    console.error('Document or workspace not found', { document })
+    return
   }
+  const documentName = document['x-scalar-navigation']?.name
 
-  // Maintain the order of methods by rebuilding the path object
-  const entries = Object.entries(path).map(([key, value]) =>
-    key === meta.method ? [method, value] : [key, value],
-  ) as Entries<PathItemObject>
-
-  console.log('entries', entries)
-
-  // Clear existing properties
-  for (const key of Object.keys(path)) {
-    delete path[key as keyof typeof path]
-  }
-
-  // Reassign in the correct order
-  for (const [key, value] of entries) {
-    assignPathEntry(path, key, unpackProxyObject(value))
-  }
-
-  if (!document['x-scalar-navigation'] || !store) {
-    console.error('Document name or store not found', { document })
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  // Now we gotta rebuild the sidebar
-  const success = store.buildSidebar(document['x-scalar-navigation'].name)
-  callback?.(success)
+  // Get the document configuration to generate IDs consistently
+  // If no store is provided (e.g., in tests), use default configuration
+  const documentConfig = store?.getDocumentConfiguration(documentName)
+  const { generateId } = getNavigationOptions(documentName, documentConfig)
+
+  /** Generate an operations map of the document */
+  const operationsMap = getOperationEntries(document['x-scalar-navigation'])
+
+  /** Grabs all of the current operation entries for the given path and method */
+  const entries = operationsMap.get(`${meta.path}|${meta.method}`)
+
+  // Loop over the entries and replace the ID in the x-scalar-order with the new ID
+  entries?.forEach((entry) => {
+    if (!canHaveOrder(entry.parent)) {
+      return
+    }
+
+    // Ensure we have an x-scalar-order property
+    const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
+    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject && parentOpenAPIObject['x-scalar-order'])) {
+      return
+    }
+
+    const index = parentOpenAPIObject['x-scalar-order'].indexOf(entry.id)
+    if (index < 0) {
+      return
+    }
+
+    const parentTag =
+      entry.parent.type === 'tag' ? { tag: parentOpenAPIObject as TagObject, id: entry.parent.id } : undefined
+
+    // Generate the new ID based on whether this is an operation or webhook
+    const newId = generateId({
+      type: 'operation',
+      path: meta.path,
+      method: method,
+      operation: operation,
+      parentId: entry.parent.id,
+      parentTag,
+    })
+
+    parentOpenAPIObject['x-scalar-order'][index] = newId
+  })
+
+  // Now ensure we replace the actual operation in the document
+  document.paths![meta.path]![method] = unpackProxyObject(operation)
+  delete document.paths![meta.path]![meta.method]
+
+  // Rebuild the sidebar with the updated order (if store is available)
+  if (store) {
+    const success = store.buildSidebar(documentName)
+    callback?.(success)
+  } else {
+    callback?.(true)
+  }
 }
 
 /**
