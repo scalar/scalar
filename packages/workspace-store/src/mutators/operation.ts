@@ -252,12 +252,11 @@ export const updateOperationMethod = (
 
     const order = parentOpenAPIObject['x-scalar-order']
     const index = order?.indexOf(entry.id)
-    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
+    if (!Array.isArray(order) || typeof index !== 'number' || index < 0 || !('name' in parentOpenAPIObject)) {
       return
     }
 
-    const parentTag =
-      entry.parent.type === 'tag' ? { tag: parentOpenAPIObject as TagObject, id: entry.parent.id } : undefined
+    const parentTag = entry.parent.type === 'tag' ? { tag: parentOpenAPIObject, id: entry.parent.id } : undefined
 
     // Generate the new ID based on whether this is an operation or webhook
     order[index] = generateId({

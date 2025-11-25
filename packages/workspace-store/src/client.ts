@@ -969,7 +969,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return workspace
     },
     update(key, value) {
-      // Prevent assigning dangerous keys to the path items object
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
@@ -984,6 +983,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         throw 'Please select a valid document'
       }
 
+      preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
