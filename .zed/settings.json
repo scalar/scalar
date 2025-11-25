@@ -69,6 +69,7 @@
   },
   "auto_install_extensions": {
     "biome": true,
+    "html": true,
     "vue": true
   }
 }
