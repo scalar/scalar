@@ -96,11 +96,11 @@ describe('updateOperationMethod', () => {
         },
       }),
     })
-    await store.buildSidebar('test')
+    store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
     updateOperationMethod(document, store, {
-      meta: { method: 'get', path: '/users' },
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { method: 'put' },
     })
 
@@ -157,7 +157,7 @@ describe('updateOperationMethod', () => {
         },
       }),
     })
-    await store.buildSidebar('test2')
+    store.buildSidebar('test2')
     const document = store.workspace.documents.test2!
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
       'test2/tag/products/get/products',
@@ -165,7 +165,7 @@ describe('updateOperationMethod', () => {
     ])
 
     updateOperationMethod(document, store, {
-      meta: { method: 'get', path: '/products' },
+      meta: { method: 'get', path: '/products', exampleKey: 'default' },
       payload: { method: 'patch' },
     })
 
@@ -214,7 +214,7 @@ describe('updateOperationMethod', () => {
       document,
       store,
       {
-        meta: { method: 'get', path: '/items' },
+        meta: { method: 'get', path: '/items', exampleKey: 'default' },
         payload: { method: 'post' },
       },
       (success) => {
