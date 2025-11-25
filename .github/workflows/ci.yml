@@ -30,6 +30,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: './{packages,integrations}/**'
+          always-save: 'true'
       - name: Copy and rename standalone.js to scalar.js
         run: |
           mkdir -p temp-artifacts
@@ -190,6 +191,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: './{packages,integrations}/**'
+          always-save: 'true'
       - name: Check types
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 

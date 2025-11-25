@@ -7,6 +7,10 @@ inputs:
   packages:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
+  always-save:
+    description: 'Always save turbo cache'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -26,12 +30,18 @@ runs:
       with:
         node-version: ${{ steps.node-version.outputs.version }}
         cache: 'pnpm'
-    - if: startsWith(runner.name, 'blacksmith')
-      name: Setup persistent turbo cache
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+    # - if: startsWith(runner.name, 'blacksmith')
+    #   name: Setup persistent turbo cache
+    #   uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+    #   with:
+    #     key: ${{ github.repository }}-${{ steps.node-version.outputs.version }}-turbo-cache
+    #     path: ${{ env.TURBO_CACHE_DIR }}
+    - name: Save turbo cache
+      uses: xC0dex/cache@528b82ec34a65937e170ae68e6a68d892d2030cb
       with:
         key: ${{ github.repository }}-${{ steps.node-version.outputs.version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
+        always-save: ${{ inputs.always-save }}
     - name: Install dependencies
       shell: bash
       run: pnpm install
