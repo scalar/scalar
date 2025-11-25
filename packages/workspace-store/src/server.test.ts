@@ -106,6 +106,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-order': [`${name}/get/planets`],
         'x-scalar-original-document-hash': '',
       })
 
@@ -204,6 +205,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-order': ['doc-1/get/planets'],
         'x-scalar-original-document-hash': '',
       })
 
@@ -244,6 +246,7 @@ describe('create-server-store', () => {
             },
           ],
         },
+        'x-scalar-order': ['doc-3/get/planets'],
         'x-scalar-original-document-hash': '',
       })
     })
@@ -326,6 +329,7 @@ describe('create-server-store', () => {
                 },
               ],
             },
+            'x-scalar-order': ['doc-1/get/planets'],
             'x-scalar-original-document-hash': '',
           },
           'doc-2': {
@@ -346,6 +350,7 @@ describe('create-server-store', () => {
                 planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
+            'x-scalar-order': ['doc-2/get/planets'],
             'x-scalar-navigation': {
               type: 'document',
               id: 'doc-2',

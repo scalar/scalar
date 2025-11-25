@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TraversedDocument, TraversedTag, WithParent } from '@/schemas/navigation'
+import type { TraversedDocument } from '@/schemas/navigation'
 
 import { getOperationEntries } from './get-operation-entries'
 
