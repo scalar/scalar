@@ -1,3 +1,4 @@
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
@@ -968,10 +969,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return workspace
     },
     update(key, value) {
-      // @ts-expect-error
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-        throw new Error('Invalid key: cannot modify prototype')
-      }
+      // Prevent assigning dangerous keys to the path items object
+      preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
     updateDocument<K extends keyof WorkspaceDocumentMeta>(

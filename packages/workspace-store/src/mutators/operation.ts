@@ -1,4 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { WorkspaceStore } from '@/client'
@@ -208,7 +210,7 @@ export const updateOperationMethod = (
   { meta, payload: { method }, callback }: OperationEvents['operation:update:method'],
 ) => {
   // If the method has not changed, no need to do anything
-  if (meta.method === method) {
+  if (meta.method === method || !isHttpMethod(method)) {
     return
   }
 
@@ -267,9 +269,17 @@ export const updateOperationMethod = (
     })
   })
 
+  // Prevent assigning dangerous keys to the path items object
+  preventPollution(meta.path)
+
   // Now ensure we replace the actual operation in the document
-  document.paths![meta.path]![method] = unpackProxyObject(operation)
-  delete document.paths![meta.path]![meta.method]
+  const pathItems = document.paths?.[meta.path]
+  if (!pathItems) {
+    return
+  }
+
+  pathItems[method] = unpackProxyObject(operation)
+  delete pathItems[meta.method]
 
   // Rebuild the sidebar with the updated order (if store is available)
   if (store) {
