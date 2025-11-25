@@ -55,7 +55,13 @@ export type UIEvents = {
    */
   'ui:open:command-palette':
     | {
-        action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
+        action?:
+          | 'import-from-openapi-swagger-postman-curl'
+          | 'create-document'
+          | 'add-tag'
+          | 'create-request'
+          | 'add-example'
+          | undefined
         event?: KeyboardEvent
       }
     | undefined

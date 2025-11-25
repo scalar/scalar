@@ -75,6 +75,13 @@ export const useWorkspaceClientEvents = ({
     return collectionType === 'document' ? document.value : store.workspace
   }
 
+  const buildSidebar = (documentId: string) => {
+    if (!workspaceStore.value) {
+      return
+    }
+    workspaceStore.value.buildSidebar(documentId)
+  }
+
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers
   //------------------------------------------------------------------------------------
@@ -163,13 +170,14 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   eventBus.on('operation:create', (payload) => {
     const doc = workspaceStore.value?.workspace.documents[payload.payload.documentId]
-    if (doc) {
-      createOperation(doc, payload.payload.path, payload.payload.method, {
-        tags: payload.payload.tags,
-      })
-      /** Rebuild the sidebar to reflect the new operation */
-      workspaceStore.value?.buildSidebar(payload.payload.documentId)
+    if (!doc) {
+      return
     }
+    createOperation(doc, payload.payload.path, payload.payload.method, {
+      tags: payload.payload.tags,
+    })
+    /** Rebuild the sidebar to reflect the new operation */
+    buildSidebar(payload.payload.documentId)
   })
   eventBus.on('operation:update:method', (payload) => updateOperationMethod(document.value, payload))
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
@@ -205,5 +213,5 @@ export const useWorkspaceClientEvents = ({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
-  eventBus.on('ui:open:command-palette', () => commandPaletteState.open())
+  eventBus.on('ui:open:command-palette', (payload) => commandPaletteState.open(payload?.action))
 }

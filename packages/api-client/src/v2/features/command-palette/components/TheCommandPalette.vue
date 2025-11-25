@@ -3,7 +3,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref, watch, type Component } from 'vue'
+import { computed, nextTick, ref, watch, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
@@ -113,6 +113,9 @@ const handleCommandClick = (command: Command): void => {
 
 const handleBackEvent = (): void => {
   paletteState.setActiveCommand(null)
+
+  // Focus on the command input
+  nextTick(() => commandInputRef.value?.focus())
 }
 
 const handleCloseEvent = (): void => {

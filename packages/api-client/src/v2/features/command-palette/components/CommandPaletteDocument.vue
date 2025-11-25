@@ -23,23 +23,23 @@ const emits = defineEmits<{
 
 const router = useRouter()
 
-const collectionName = ref('')
-const collectionIcon = ref('interface-content-folder')
+const documentName = ref('')
+const documentIcon = ref('interface-content-folder')
 
 const handleSubmit = () => {
-  if (!collectionName.value) {
+  if (!documentName.value) {
     return
   }
 
   eventBus.emit('document:create:empty-document', {
-    name: collectionName.value,
-    icon: collectionIcon.value,
+    name: documentName.value,
+    icon: documentIcon.value,
   })
 
   router.push({
     name: 'document.overview',
     params: {
-      documentSlug: collectionName.value,
+      documentSlug: documentName.value,
     },
   })
 
@@ -47,11 +47,11 @@ const handleSubmit = () => {
 }
 
 const isDisabled = computed(() => {
-  if (!collectionName.value.trim()) {
+  if (!documentName.value.trim()) {
     return true
   }
 
-  if (workspaceStore.workspace.documents[collectionName.value] !== undefined) {
+  if (workspaceStore.workspace.documents[documentName.value] !== undefined) {
     return true
   }
 
@@ -63,23 +63,23 @@ const isDisabled = computed(() => {
     :disabled="isDisabled"
     @submit="handleSubmit">
     <CommandActionInput
-      v-model="collectionName"
-      label="Collection Name"
-      placeholder="Collection Name"
+      v-model="documentName"
+      label="Document Name"
+      placeholder="Document Name"
       @onDelete="(event) => emits('back', event)" />
     <template #options>
       <IconSelector
-        v-model="collectionIcon"
+        v-model="documentIcon"
         placement="bottom-start">
         <ScalarButton
           class="aspect-square h-auto px-0"
           variant="outlined">
           <LibraryIcon
             class="text-c-2 size-4 stroke-[1.75]"
-            :src="collectionIcon" />
+            :src="documentIcon" />
         </ScalarButton>
       </IconSelector>
     </template>
-    <template #submit> Create Collection </template>
+    <template #submit> Create Document </template>
   </CommandActionForm>
 </template>
