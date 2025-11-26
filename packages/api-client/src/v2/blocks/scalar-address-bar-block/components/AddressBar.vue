@@ -103,7 +103,7 @@ const handleFocusAddressBar = ({
 }
 
 /** Handles error state for http method conflicts */
-const methodPathConflict = ref(false)
+const methodPathConflict = ref(true)
 
 /** Ensure we only update the method if it doesn't conflict, else enter error state */
 const handleMethodChange = (newMethod: HttpMethodType) => {
@@ -136,7 +136,7 @@ onBeforeUnmount(() => {
     <!-- Address Bar -->
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
-      :class="{ 'border-red border': true }">
+      :class="{ 'border-red border': methodPathConflict }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
