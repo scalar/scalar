@@ -108,15 +108,15 @@ const handleFocusAddressBar = ({
 }
 
 /** Handles error state for http method + path conflicts */
-const methodPathConflict = ref(true)
+const methodPathConflict = ref<{ method: string; path: string } | null>(null)
 
 /** Ensure we only update the method if it doesn't conflict, else enter error state */
 const handleMethodChange = (newMethod: HttpMethodType) => {
-  methodPathConflict.value = false
+  methodPathConflict.value = null
 
   // Checks our map to see if the conflict exists
-  if (operationEntriesMap.get(`${path}|${newMethod}`)) {
-    methodPathConflict.value = true
+  if (operationEntriesMap.get(`${path}|${newMethod}`) && method !== newMethod) {
+    methodPathConflict.value = { path, method: newMethod }
     return
   }
 
@@ -126,11 +126,11 @@ const handleMethodChange = (newMethod: HttpMethodType) => {
 
 /** Ensure we only update the path if it doesn't conflict, else enter error state */
 const handlePathUpdate = (newPath: string) => {
-  methodPathConflict.value = false
+  methodPathConflict.value = null
 
   // Checks our map to see if the conflict exists
   if (operationEntriesMap.get(`${newPath}|${method}`)) {
-    methodPathConflict.value = true
+    methodPathConflict.value = { path: newPath, method }
     return
   }
 
@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="method"
+          :method="methodPathConflict?.method ?? method"
           teleport
           @change="handleMethodChange" />
       </div>
@@ -229,8 +229,8 @@ onBeforeUnmount(() => {
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
-            A <em>{{ method.toUpperCase() }}</em> request to
-            <ScalarWrappingText :text="path" />
+            A <em>{{ methodPathConflict.method.toUpperCase() }}</em> request to
+            <ScalarWrappingText :text="methodPathConflict.path" />
             already exists in this document
           </div>
         </div>
