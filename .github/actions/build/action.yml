@@ -30,8 +30,8 @@ runs:
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
       with:
-        key: ${{ github.repository }}-${{ steps.node-version.outputs.version }}-turbo-cache
-        path: ${{ env.TURBO_CACHE_DIR }}
+        key: ${{ github.repository }}-turbo-cache-${{ steps.node-version.outputs.version }}
+        path: .turbo
     - name: Install dependencies
       shell: bash
       run: pnpm install
