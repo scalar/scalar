@@ -102,7 +102,7 @@ const handleFocusAddressBar = ({
   event.preventDefault()
 }
 
-/** Handles error state for http method conflicts */
+/** Handles error state for http method + path conflicts */
 const methodPathConflict = ref(true)
 
 /** Ensure we only update the method if it doesn't conflict, else enter error state */
@@ -110,13 +110,27 @@ const handleMethodChange = (newMethod: HttpMethodType) => {
   methodPathConflict.value = false
 
   // Checks our map to see if the conflict exists
-  if (operationEntriesMap.get(newMethod)) {
+  if (operationEntriesMap.get(`${path}|${newMethod}`)) {
     methodPathConflict.value = true
     return
   }
 
   // Update the method in the store or perform any other necessary actions
   emit('update:method', { value: newMethod })
+}
+
+/** Ensure we only update the path if it doesn't conflict, else enter error state */
+const handlePathUpdate = (newPath: string) => {
+  methodPathConflict.value = false
+
+  // Checks our map to see if the conflict exists
+  if (operationEntriesMap.get(`${newPath}|${method}`)) {
+    methodPathConflict.value = true
+    return
+  }
+
+  // Update the path in the store or perform any other necessary actions
+  emit('update:path', { value: newPath })
 }
 
 onMounted(() => {
@@ -195,9 +209,7 @@ onBeforeUnmount(() => {
               })
           "
           @submit="emit('execute')"
-          @update:modelValue="
-            (payload) => emit('update:path', { value: payload })
-          " />
+          @update:modelValue="handlePathUpdate" />
         <div class="fade-right" />
       </div>
 
