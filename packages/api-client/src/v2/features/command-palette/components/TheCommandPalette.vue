@@ -28,7 +28,15 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, nextTick, ref, watch, type Component } from 'vue'
+import {
+  computed,
+  nextTick,
+  ref,
+  watch,
+  type AllowedComponentProps,
+  type Component,
+  type VNodeProps,
+} from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
@@ -39,6 +47,7 @@ import CommandPaletteRequest from '@/v2/features/command-palette/components/Comm
 import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
   Command,
+  CommandPropsMap,
   UiCommandIds,
   UseCommandPaletteStateReturn,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
@@ -56,14 +65,88 @@ const { paletteState, workspaceStore, eventBus } = defineProps<{
 const NO_SELECTION_INDEX = -1
 
 /** Map of command IDs to their corresponding Vue components */
-const COMMAND_COMPONENTS: Record<UiCommandIds, Component> = {
+const COMMAND_COMPONENTS = {
   'import-from-openapi-swagger-postman-curl': CommandPaletteImport,
   'create-document': CommandPaletteDocument,
   'create-request': CommandPaletteRequest,
   'add-tag': CommandPaletteTag,
   'add-example': CommandPaletteExample,
   'import-curl-command': CommandPaletteImportCurl,
+} as const
+
+/**
+ * Type-level validation that COMMAND_COMPONENTS match CommandPropsMap.
+ * Ensures each component accepts the correct props from CommandPropsMap plus default props.
+ */
+type DefaultCommandProps = {
+  workspaceStore: WorkspaceStore
+  eventBus: WorkspaceEventBus
 }
+
+type Writable<T> = { -readonly [K in keyof T]: T[K] }
+
+type ComponentProps<C extends Component> = C extends new (...args: any) => {
+  $props: infer P
+}
+  ? Omit<P, keyof VNodeProps | keyof AllowedComponentProps>
+  : never
+
+type CommandComponentPropsMap = {
+  [K in keyof typeof COMMAND_COMPONENTS]: ComponentProps<
+    (typeof COMMAND_COMPONENTS)[K]
+  >
+}
+
+type ExpectedCommandComponentPropsMap = {
+  [K in UiCommandIds]: DefaultCommandProps &
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    (CommandPropsMap[K] extends undefined ? {} : CommandPropsMap[K])
+}
+
+/**
+ * Type-level assertion helper that returns detailed debug info.
+ * Using literals prevents union collapse (true | never = true, but 'valid' | object stays distinct).
+ */
+type AssertPropsMatch<Actual, Expected> = [Actual] extends [Expected]
+  ? 'valid'
+  : {
+      status: 'invalid'
+      actual: Prettify<Actual>
+      expected: Prettify<Expected>
+      missingProps: Prettify<Exclude<keyof Expected, keyof Actual>>
+    }
+
+type Prettify<T> = { [K in keyof T]: T[K] } & {}
+
+type CommandComponentPropsCheck = {
+  [K in UiCommandIds]: AssertPropsMatch<
+    Writable<CommandComponentPropsMap[K]>,
+    Partial<ExpectedCommandComponentPropsMap[K]>
+  >
+}
+
+type PropsCheckResults =
+  CommandComponentPropsCheck[keyof CommandComponentPropsCheck]
+
+/** Filter to show only invalid components for better error messages */
+type InvalidComponents = {
+  [K in keyof CommandComponentPropsCheck as CommandComponentPropsCheck[K] extends 'valid'
+    ? never
+    : K]: CommandComponentPropsCheck[K]
+}
+
+type AssertAllValid = PropsCheckResults extends 'valid'
+  ? PropsCheckResults extends { status: 'invalid' }
+    ? Prettify<InvalidComponents>
+    : PropsCheckResults
+  : Prettify<InvalidComponents>
+
+/**
+ * Type-level assertion: ensures all command components have correct props.
+ * If any component is missing required props, this will cause a type error.
+ */
+const _assertCommandProps: AssertAllValid = 'valid'
+void _assertCommandProps
 
 const router = useRouter()
 
@@ -72,11 +155,11 @@ const commandInputRef = ref<HTMLInputElement | null>(null)
 
 /**
  * Flattens the filtered commands into a single array for keyboard navigation.
- * This makes it easier to track the selected index across all groups.
+ * Makes it easier to track the selected index across all groups.
  */
-const flattenedCommands = computed<Command[]>(() => {
-  return paletteState.filteredCommands.value.flatMap((group) => group.commands)
-})
+const flattenedCommands = computed<Command[]>(() =>
+  paletteState.filteredCommands.value.flatMap((group) => group.commands),
+)
 
 /** The currently selected command based on keyboard navigation */
 const selectedCommand = computed<Command | undefined>(
@@ -90,32 +173,26 @@ const selectedCommand = computed<Command | undefined>(
 watch(
   () => paletteState.filterQuery.value,
   (newQuery: string) => {
-    if (newQuery && flattenedCommands.value.length > 0) {
-      selectedSearchResult.value = 0
-    } else {
-      selectedSearchResult.value = NO_SELECTION_INDEX
-    }
+    selectedSearchResult.value =
+      newQuery && flattenedCommands.value.length > 0 ? 0 : NO_SELECTION_INDEX
   },
 )
 
 /**
  * Handle input changes in the search field.
- * Updates the filter query to trigger search filtering.
+ * Updates the filter query and redirects to cURL import if detected.
  */
 const handleInput = (value: string): void => {
   paletteState.setFilterQuery(value)
 
-  /** Redirect to cURL import command if input starts with 'curl' */
   if (value.trim().toLowerCase().startsWith('curl')) {
-    paletteState.open('import-curl-command', {
-      curl: value,
-    })
+    paletteState.open('import-curl-command', { curl: value })
   }
 }
 
 /**
- * Handle up and down arrow key navigation in the command list.
- * Loops around to the beginning/end when reaching boundaries.
+ * Handle arrow key navigation in the command list.
+ * Loops around to the beginning or end when reaching boundaries.
  */
 const handleArrowKey = (
   direction: 'up' | 'down',
@@ -129,7 +206,6 @@ const handleArrowKey = (
   const offset = direction === 'up' ? -1 : 1
   const length = flattenedCommands.value.length
 
-  /** Loop around the array using modulo arithmetic */
   selectedSearchResult.value =
     (selectedSearchResult.value + offset + length) % length
 }
@@ -187,7 +263,6 @@ const handleOpenCommand = (
   id: UiCommandIds,
   props: Record<string, unknown>,
 ): void => {
-  console.log('handleOpenCommand', id, props)
   paletteState.open(id, props)
 }
 

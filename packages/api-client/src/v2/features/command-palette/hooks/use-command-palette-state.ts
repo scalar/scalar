@@ -33,6 +33,7 @@ export type Command =
   | (CommandBase & {
       /** Hidden folder for commands accessible via code but not shown in UI */
       type: 'hidden-folder'
+      props?: Record<string, unknown>
     })
 
 /**
@@ -45,6 +46,8 @@ export type CommandGroup = {
   /** List of commands in this group */
   commands: Command[]
 }
+
+const getProps = <T extends Record<string, unknown>>() => null as unknown as T
 
 /**
  * Available commands in the command palette.
@@ -89,6 +92,7 @@ export const commands = [
         type: 'hidden-folder',
         id: 'import-curl-command',
         name: 'Import cURL Command',
+        props: getProps<{ curl: string; dummy: string }>(),
       },
     ],
   },
@@ -140,6 +144,17 @@ type GetIdsFromType<T extends Command['type']> = keyof {
 
 /** Command IDs that map to UI components (folder and hidden-folder types) */
 export type UiCommandIds = GetIdsFromType<'folder' | 'hidden-folder'>
+
+/** Helper type to extract command by ID from the commands array */
+type GetCommandById<T extends string> = Extract<(typeof commands)[number]['commands'][number], { id: T }>
+
+/**
+ * Maps each command ID to its respective props type.
+ * If a command has no props defined, it maps to undefined.
+ */
+export type CommandPropsMap = {
+  [K in UiCommandIds]: GetCommandById<K> extends { props: infer P } ? P : undefined
+}
 
 /**
  * Return type for the useCommandPaletteState composable.
