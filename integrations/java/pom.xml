@@ -97,7 +97,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.5.4</version>
           <configuration>
-            <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+            <argLine>-XX:+EnableDynamicAgentLoading</argLine>
           </configuration>
         </plugin>
 
