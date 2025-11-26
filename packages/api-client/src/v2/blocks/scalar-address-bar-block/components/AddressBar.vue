@@ -90,24 +90,6 @@ const style = computed(() => ({
   transform: `translate3d(-${percentage}%,0,0)`,
 }))
 
-/** Handle focus events */
-const sendButtonRef = useTemplateRef('sendButtonRef')
-const addressBarRef = useTemplateRef('addressBarRef')
-const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
-
-/** Focus the addressbar */
-const handleFocusAddressBar = ({
-  event,
-}: ApiReferenceEvents['ui:focus:address-bar']) => {
-  // if its already has focus we just propagate native behaviour which should focus the browser address bar
-  if (addressBarRef.value?.isFocused && layout !== 'desktop') {
-    return
-  }
-
-  addressBarRef.value?.focus()
-  event.preventDefault()
-}
-
 // Ensure we clear the errors when the state changes
 watch(
   () => [method, path],
@@ -140,13 +122,31 @@ const handlePathUpdate = (newPath: string) => {
   conflictingPath.value = null
 
   // Checks our map to see if the conflict exists
-  if (operationEntriesMap.get(`${newPath}|${method}`)) {
+  if (operationEntriesMap.get(`${newPath}|${method}`) && newPath !== path) {
     conflictingPath.value = newPath
     return
   }
 
   // Update the path in the store or perform any other necessary actions
   emit('update:path', { value: newPath })
+}
+
+/** Handle focus events */
+const sendButtonRef = useTemplateRef('sendButtonRef')
+const addressBarRef = useTemplateRef('addressBarRef')
+const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
+
+/** Focus the addressbar */
+const handleFocusAddressBar = ({
+  event,
+}: ApiReferenceEvents['ui:focus:address-bar']) => {
+  // if its already has focus we just propagate native behaviour which should focus the browser address bar
+  if (addressBarRef.value?.isFocused && layout !== 'desktop') {
+    return
+  }
+
+  addressBarRef.value?.focus()
+  event.preventDefault()
 }
 
 onMounted(() => {
