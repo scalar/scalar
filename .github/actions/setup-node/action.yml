@@ -1,0 +1,31 @@
+name: 'Setup Node'
+description: 'Setup pnpm, Node.js, and persistent turbo cache (stickydisk)'
+inputs:
+  node-version:
+    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
+    - name: Read Node.js version from .nvmrc
+      id: node-version
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.node-version }}" ]; then
+          echo "version=${{ inputs.node-version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=$(cat .nvmrc | tr -d 'v')" >> $GITHUB_OUTPUT
+        fi
+    - name: Setup Node.js
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+      with:
+        node-version: ${{ steps.node-version.outputs.version }}
+        cache: 'pnpm'
+    - if: startsWith(runner.name, 'blacksmith')
+      name: Setup persistent turbo cache
+      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+      with:
+        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}
+        path: .turbo
