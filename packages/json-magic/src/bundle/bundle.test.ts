@@ -38,8 +38,6 @@ describe('bundle', () => {
     })
 
     it('bundles external urls', async () => {
-      const url = `http://localhost:${port}`
-
       const external = {
         prop: 'I am external json prop',
       }
@@ -83,7 +81,6 @@ describe('bundle', () => {
     })
 
     it('bundles external urls from resolved external piece', async () => {
-      const url = `http://localhost:${port}`
       const chunk2 = {
         hey: 'hey',
         nested: {
@@ -146,8 +143,6 @@ describe('bundle', () => {
     })
 
     it('should correctly handle only urls without a pointer', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/', (_, reply) => {
         reply.send({
           a: 'a',
@@ -182,7 +177,6 @@ describe('bundle', () => {
 
     it('caches results for same resource', async () => {
       const fn = vi.fn()
-      const url = `http://localhost:${port}`
 
       server.get('/', (_, reply) => {
         fn()
@@ -221,12 +215,10 @@ describe('bundle', () => {
       })
 
       // We expect the bundler to cache the result for the same url
-      expect(fn.mock.calls.length).toBe(1)
+      expect(fn).toHaveBeenCalledOnce()
     })
 
     it('handles correctly external nested refs', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/nested/another-file.json', (_, reply) => {
         reply.send({
           c: 'c',
@@ -269,8 +261,6 @@ describe('bundle', () => {
     })
 
     it('does not merge paths when we use absolute urls', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/top-level', (_, reply) => {
         reply.send({
           c: 'c',
@@ -313,8 +303,6 @@ describe('bundle', () => {
     })
 
     it('bundles from a url input', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/top-level', (_, reply) => {
         reply.send({
           c: 'c',
@@ -359,8 +347,6 @@ describe('bundle', () => {
     })
 
     it('generated a map when we turn the urlMap on', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/top-level', (_, reply) => {
         reply.send({
           c: 'c',
@@ -413,8 +399,6 @@ describe('bundle', () => {
     })
 
     it('prefixes the refs only once', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk2 = {
         a: 'a',
         b: {
@@ -497,8 +481,6 @@ describe('bundle', () => {
     })
 
     it('bundles array references', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           hello: 'hello',
@@ -540,8 +522,6 @@ describe('bundle', () => {
     })
 
     it('bundles subpart of the document', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           hello: 'hello',
@@ -635,8 +615,6 @@ describe('bundle', () => {
     })
 
     it('always emits the url mappings when doing partial bundle', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           hello: 'hello',
@@ -697,8 +675,6 @@ describe('bundle', () => {
     })
 
     it('tree shakes the external documents correctly', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           b: {
@@ -752,8 +728,6 @@ describe('bundle', () => {
     })
 
     it('tree shakes correctly when working with nested external refs', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk2 = {
         a: {
           b: {
@@ -836,8 +810,6 @@ describe('bundle', () => {
     })
 
     it('handles circular references when we treeshake', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           b: {
@@ -891,8 +863,6 @@ describe('bundle', () => {
     })
 
     it('handles chunks', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         description: 'Chunk 1',
         someRef: {
@@ -989,8 +959,6 @@ describe('bundle', () => {
     })
 
     it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         a: {
           hello: 'hello',
@@ -1054,8 +1022,6 @@ describe('bundle', () => {
     })
 
     it('should correctly handle nested chunk urls', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         chunk1: 'chunk1',
         someRef: {
@@ -1182,8 +1148,6 @@ describe('bundle', () => {
     })
 
     it('run success hook', async () => {
-      const url = `http://localhost:${port}`
-
       const chunk1 = {
         description: 'Chunk 1',
       }
@@ -1230,8 +1194,6 @@ describe('bundle', () => {
     })
 
     it('run error hook', async () => {
-      const url = `http://localhost:${port}`
-
       server.get('/chunk1', (_, reply) => {
         reply.code(404).send()
       })
@@ -1328,8 +1290,6 @@ describe('bundle', () => {
     })
 
     it('does not modify external URLs when already defined by $id property', async () => {
-      const url = `http://localhost:${port}`
-
       const input = {
         $id: 'https://example.com/root',
         components: {
@@ -1447,8 +1407,6 @@ describe('bundle', () => {
     })
 
     it('does not modify external URLs when prefix is already defined by $id', async () => {
-      const url = `http://localhost:${port}`
-
       const input = {
         $id: `${url}/schema`,
         components: {
@@ -1557,8 +1515,6 @@ describe('bundle', () => {
     })
 
     it('prioritizes $id when resolving refs with origin #1', async () => {
-      const url = `http://localhost:${port}`
-
       const input = {
         $id: '/root',
         a: {
@@ -1608,13 +1564,11 @@ describe('bundle', () => {
         },
       })
 
-      expect(exec).toHaveBeenCalled()
+      expect(exec).toHaveBeenCalledOnce()
       expect(exec).toHaveBeenCalledWith('/b')
     })
 
     it('prioritizes $id when resolving refs with origin #2', async () => {
-      const url = `http://localhost:${port}`
-
       const input = {
         $id: 'http://example.com/root',
         a: {

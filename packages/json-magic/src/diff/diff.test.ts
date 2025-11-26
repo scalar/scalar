@@ -1,5 +1,6 @@
-import { diff } from '@/diff'
 import { describe, expect, test } from 'vitest'
+
+import { diff } from '@/diff'
 
 describe('diff', () => {
   describe('Should correctly detect `add` type diff', () => {

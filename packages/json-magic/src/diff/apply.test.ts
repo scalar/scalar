@@ -1,5 +1,6 @@
-import { apply, InvalidChangesDetectedError } from '@/diff/apply'
 import { describe, expect, test } from 'vitest'
+
+import { InvalidChangesDetectedError, apply } from '@/diff/apply'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
 

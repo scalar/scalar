@@ -84,7 +84,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     schemas: getSchemas(target),
     currentContext: '',
   },
-) => {
+): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
@@ -296,7 +296,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   return proxied
 }
 
-export const isMagicProxyObject = (obj: unknown): boolean => {
+const isMagicProxyObject = (obj: unknown): boolean => {
   return typeof obj === 'object' && obj !== null && (obj as { [isMagicProxy]: boolean })[isMagicProxy] === true
 }
 
