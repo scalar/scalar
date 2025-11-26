@@ -1,3 +1,25 @@
+<script lang="ts">
+/**
+ * Command Palette Import Component
+ *
+ * Provides a form for importing API specifications from various sources:
+ * - OpenAPI/Swagger documents (URL, file, or pasted JSON/YAML)
+ * - Postman collections (URL, file, or pasted JSON)
+ * - cURL commands (automatically redirects to cURL import command)
+ *
+ * Supports watch mode for URL imports to automatically update when content changes.
+ *
+ * @example
+ * <CommandPaletteImport
+ *   :workspaceStore="workspaceStore"
+ *   @close="handleClose"
+ *   @back="handleBack"
+ *   @open-command="handleOpenCommand"
+ * />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -26,13 +48,20 @@ import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 import WatchModeToggle from './WatchModeToggle.vue'
 
+/** Result type for import operations */
+type ImportResult = { success: true; name: string } | { success: false }
+
 const { workspaceStore } = defineProps<{
+  /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
+  /** Emitted when the import is complete or cancelled */
   (event: 'close'): void
-  (event: 'back', e: KeyboardEvent): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
+  /** Emitted when switching to another command (e.g., cURL import) */
   (
     event: 'open-command',
     id: UiCommandIds,
@@ -40,15 +69,25 @@ const emits = defineEmits<{
   ): void
 }>()
 
-const router = useRouter()
+/** Maximum number of attempts to generate a unique document name */
+const MAX_NAME_RETRIES = 100
 
+/** Default document name when none can be extracted */
+const DEFAULT_DOCUMENT_NAME = 'document'
+
+/** Duration to show error state in milliseconds */
+const ERROR_DISPLAY_DURATION = 2000
+
+const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
 const watchMode = ref(true)
 
-const isUrlInput = computed(() => isUrl(inputContent.value))
+/** Check if the input content is a URL */
+const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
 
+/** Get document details based on the content type (Postman or OpenAPI) */
 const documentDetails = computed(() => {
   if (isPostmanCollection(inputContent.value)) {
     return getPostmanDocumentDetails(inputContent.value)
@@ -56,39 +95,79 @@ const documentDetails = computed(() => {
   return getOpenApiDocumentDetails(inputContent.value)
 })
 
-const documentType = computed(() =>
+/** Get the document type for syntax highlighting */
+const documentType = computed<string>(() =>
   documentDetails.value ? documentDetails.value.type : 'json',
 )
 
-/** Watch for changes to isUrlInput and toggle watchMode accordingly */
-watch(isUrlInput, (newVal) => {
-  if (!newVal) {
-    watchMode.value = false
-    return
-  }
-  watchMode.value = true
+/** Check if the form should be disabled (when input is empty) */
+const isDisabled = computed<boolean>(() => {
+  return !inputContent.value.trim()
 })
 
-const importContents = async (
-  content: string,
-): Promise<{ success: true; name: string } | { success: false }> => {
-  const validate = (value: string) => {
-    return !Object.keys(workspaceStore.workspace.documents).includes(value)
-  }
+/**
+ * Watch for changes to isUrlInput and toggle watchMode accordingly.
+ * Watch mode is only available for URL imports, not file or pasted content.
+ */
+watch(isUrlInput, (isUrl: boolean) => {
+  watchMode.value = isUrl
+})
 
+/**
+ * Validate that a document name does not already exist in the workspace.
+ * Used to ensure unique document names during import.
+ */
+const isDocumentNameUnique = (name: string): boolean => {
+  return !Object.keys(workspaceStore.workspace.documents).includes(name)
+}
+
+/**
+ * Generate a unique document name based on a default value.
+ * Uses slugification and retries to ensure uniqueness.
+ * Returns undefined if no unique name could be generated after max retries.
+ */
+const generateUniqueDocumentName = async (
+  defaultValue: string,
+): Promise<string | undefined> => {
+  return await generateUniqueValue({
+    defaultValue,
+    validation: isDocumentNameUnique,
+    maxRetries: MAX_NAME_RETRIES,
+    transformation: slugify,
+  })
+}
+
+/**
+ * Extract the title from an OpenAPI document object.
+ * Returns the default document name if title cannot be found or is not a string.
+ */
+const extractDocumentTitle = (document: UnknownObject): string => {
+  if (
+    typeof document.info === 'object' &&
+    document.info !== null &&
+    'title' in document.info &&
+    typeof document.info.title === 'string'
+  ) {
+    return document.info.title
+  }
+  return DEFAULT_DOCUMENT_NAME
+}
+
+/**
+ * Import content from a URL, Postman collection, or OpenAPI document.
+ * Handles three types of imports:
+ * 1. URL - Creates a document with watch mode support
+ * 2. Postman collection - Converts to OpenAPI first
+ * 3. OpenAPI document - Imports directly
+ */
+const importContents = async (content: string): Promise<ImportResult> => {
+  /** Import from URL with optional watch mode */
   if (isUrl(content)) {
-    const name = await generateUniqueValue({
-      defaultValue: 'document',
-      validation: validate,
-      maxRetries: 100,
-      transformation: slugify,
-    })
+    const name = await generateUniqueDocumentName(DEFAULT_DOCUMENT_NAME)
 
     if (!name) {
       console.error('Failed to generate a unique name')
-      return {
-        success: false,
-      }
+      return { success: false }
     }
 
     const success = await workspaceStore.addDocument({
@@ -99,27 +178,18 @@ const importContents = async (
       },
     })
 
-    return {
-      success,
-      name,
-    }
+    return { success, name }
   }
 
-  // Import from postman collection
+  /** Import from Postman collection (convert to OpenAPI first) */
   if (isPostmanCollection(content)) {
     const document = getOpenapiFromPostman(content)
-    const name = await generateUniqueValue({
-      defaultValue: document.info?.title ?? 'document',
-      validation: validate,
-      maxRetries: 100,
-      transformation: slugify,
-    })
+    const defaultName = document.info?.title ?? DEFAULT_DOCUMENT_NAME
+    const name = await generateUniqueDocumentName(defaultName)
 
     if (!name) {
       console.error('Failed to generate a unique name')
-      return {
-        success: false,
-      }
+      return { success: false }
     }
 
     const success = await workspaceStore.addDocument({
@@ -127,54 +197,39 @@ const importContents = async (
       document,
     })
 
-    return {
-      success,
-      name,
-    }
+    return { success, name }
   }
 
+  /** Import from OpenAPI document (JSON or YAML) */
   const document = normalize(content) as UnknownObject
-
-  const title =
-    typeof document.info === 'object' &&
-    document.info !== null &&
-    'title' in document.info
-      ? document.info.title
-      : undefined
-
-  const name = await generateUniqueValue({
-    defaultValue: typeof title === 'string' ? title : 'document',
-    validation: validate,
-    maxRetries: 100,
-    transformation: slugify,
-  })
+  const defaultName = extractDocumentTitle(document)
+  const name = await generateUniqueDocumentName(defaultName)
 
   if (!name) {
     console.error('Failed to generate a unique name')
-    return {
-      success: false,
-    }
+    return { success: false }
   }
 
-  // Import from openapi document
   const success = await workspaceStore.addDocument({
     name,
     document,
   })
 
-  return {
-    success,
-    name,
-  }
+  return { success, name }
 }
 
-const navigateToDocument = (documentName: string) => {
+/** Navigate to the document overview page after successful import */
+const navigateToDocument = (documentName: string): void => {
   router.push({
     name: 'document.overview',
     params: { documentSlug: documentName },
   })
 }
 
+/**
+ * Handle file selection and import from file dialog.
+ * Reads the file as text and imports it as OpenAPI or Postman collection.
+ */
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: (files) => {
     const [file] = files ?? []
@@ -183,14 +238,15 @@ const { open: openSpecFileDialog } = useFileDialog({
       return
     }
 
-    const onLoad = async (e: ProgressEvent<FileReader>) => {
-      const text = e.target?.result as string
+    const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
+      const text = event.target?.result as string
       const result = await importContents(text)
+
       if (result.success) {
         navigateToDocument(result.name)
       }
 
-      emits('close')
+      emit('close')
     }
 
     const reader = new FileReader()
@@ -201,64 +257,63 @@ const { open: openSpecFileDialog } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
-async function handleImport() {
+/**
+ * Handle the import submission.
+ * Shows loading state during import and navigates on success.
+ */
+const handleImport = async (): Promise<void> => {
   loader.startLoading()
 
-  const clear = async (success: boolean) => {
-    if (success) {
-      await loader.clear()
-      // Nagivate to the new document
-      return
-    }
-
-    await loader.invalidate(2000, true)
-  }
-
   const result = await importContents(inputContent.value)
-  await clear(result.success)
 
-  // If the import was successful, navigate to the new document
+  /** Clear loading state or show error */
   if (result.success) {
+    await loader.clear()
     navigateToDocument(result.name)
+  } else {
+    await loader.invalidate(ERROR_DISPLAY_DURATION, true)
   }
 
-  emits('close')
+  emit('close')
 }
 
-const handleInput = (value: string) => {
-  if (isDisabled.value) {
-    return
-  }
-
+/**
+ * Handle input changes.
+ * Detects cURL commands and redirects to the cURL import command.
+ */
+const handleInput = (value: string): void => {
+  /** Redirect to cURL import command if input starts with 'curl' */
   if (value.trim().toLowerCase().startsWith('curl')) {
-    // Import from cURL
-    return emits('open-command', 'import-curl-command', {
+    return emit('open-command', 'import-curl-command', {
       curl: value,
     })
   }
+
   inputContent.value = value
 }
 
-const isDisabled = computed(() => {
-  return !inputContent.value.trim()
-})
+/** Handle back navigation when user presses backspace on empty input */
+const handleBack = (event: KeyboardEvent): void => {
+  emit('back', event)
+}
 </script>
 <template>
   <CommandActionForm
     :disabled="isDisabled"
     :loading="loader"
     @submit="handleImport">
-    <!-- URL input -->
+    <!-- URL or cURL input mode -->
     <template v-if="!documentDetails || isUrlInput">
       <CommandActionInput
         :modelValue="inputContent"
         placeholder="OpenAPI/Swagger/Postman URL or cURL"
-        @onDelete="emits('back', $event)"
+        @delete="handleBack"
         @update:modelValue="handleInput" />
     </template>
-    <!-- File input -->
+
+    <!-- Preview mode for pasted content -->
     <template v-else>
-      <!-- OpenAPI document preview -->
+      <!-- Preview header with clear button -->
       <div class="flex justify-between">
         <div class="text-c-2 min-h-8 w-full py-2 pl-12 text-center text-xs">
           Preview
@@ -270,6 +325,8 @@ const isDisabled = computed(() => {
           Clear
         </ScalarButton>
       </div>
+
+      <!-- Code preview with syntax highlighting -->
       <ScalarCodeBlock
         v-if="documentDetails && !isUrlInput"
         class="bg-b-2 mt-1 max-h-[40dvh] rounded border px-2 py-1 text-sm"
@@ -277,9 +334,11 @@ const isDisabled = computed(() => {
         :copy="false"
         :lang="documentType" />
     </template>
+
+    <!-- Actions: File upload and watch mode toggle -->
     <template #options>
       <div class="flex w-full flex-row items-center justify-between gap-3">
-        <!-- Upload -->
+        <!-- File upload button -->
         <ScalarButton
           class="hover:bg-b-2 relative max-h-8 gap-1.5 p-2 text-xs"
           variant="outlined"
@@ -291,7 +350,7 @@ const isDisabled = computed(() => {
             size="md" />
         </ScalarButton>
 
-        <!-- Watch -->
+        <!-- Watch mode toggle (only enabled for URL imports) -->
         <ScalarTooltip
           :content="
             isUrlInput
@@ -305,9 +364,11 @@ const isDisabled = computed(() => {
         </ScalarTooltip>
       </div>
     </template>
+
+    <!-- Dynamic submit button text based on import type -->
     <template #submit>
       Import
-      <template v-if="isUrlInput"> from URL </template>
+      <template v-if="isUrlInput">from URL</template>
       <template v-else-if="documentDetails && documentType">
         <template v-if="documentDetails.title">
           "{{ documentDetails.title }}"
@@ -316,7 +377,7 @@ const isDisabled = computed(() => {
           {{ documentDetails.version }}
         </template>
       </template>
-      <template v-else> Collection </template>
+      <template v-else>Collection</template>
     </template>
   </CommandActionForm>
 </template>

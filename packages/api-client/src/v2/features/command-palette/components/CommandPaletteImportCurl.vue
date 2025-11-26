@@ -1,3 +1,25 @@
+<script lang="ts">
+/**
+ * Command Palette Import cURL Component
+ *
+ * Provides a form for importing API requests from cURL commands.
+ * Parses the cURL command to extract the HTTP method, URL, path, headers,
+ * and body, then creates a new operation in the selected document.
+ *
+ * Validates that no conflicting operation exists at the same path/method.
+ *
+ * @example
+ * <CommandPaletteImportCurl
+ *   :workspaceStore="workspaceStore"
+ *   :eventBus="eventBus"
+ *   :curl="curlCommand"
+ *   @close="handleClose"
+ *   @back="handleBack"
+ * />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -15,21 +37,30 @@ import CommandActionInput from '@/v2/features/command-palette/components/Command
 import { getOperationFromCurl } from '@/v2/features/command-palette/helpers/get-operation-from-curl'
 
 const { workspaceStore, curl, eventBus } = defineProps<{
+  /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
+  /** The cURL command string to parse and import */
   curl: string
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
+  /** Emitted when the import is complete */
   (event: 'close'): void
-  (event: 'back', e: KeyboardEvent): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
 const exampleKey = ref('')
-const exampleKeyTrimmed = computed(() => exampleKey.value.trim())
 
+/** Trimmed version of the example key for validation and submission */
+const exampleKeyTrimmed = computed<string>(() => exampleKey.value.trim())
+
+/** Parse the cURL command to extract path, method, and operation details */
 const { path, method, operation } = getOperationFromCurl(curl)
 
+/** List of all available documents (collections) in the workspace */
 const documents = computed(() =>
   Object.keys(workspaceStore.workspace.documents).map((document) => ({
     id: document,
@@ -41,16 +72,21 @@ const selectedDocument = ref<ScalarComboboxOption | undefined>(
   documents.value[0],
 )
 
-const isDisabled = computed(() => {
-  if (!exampleKey.value.trim()) {
+/**
+ * Check if the form should be disabled.
+ * Disabled when:
+ * - Example key is empty
+ * - No document is selected
+ * - An operation with the same path and method already exists in the selected document
+ */
+const isDisabled = computed<boolean>(() => {
+  const trimmedKey = exampleKey.value.trim()
+
+  if (!trimmedKey || !selectedDocument.value) {
     return true
   }
 
-  if (!selectedDocument.value) {
-    return true
-  }
-
-  // Disable if there is a conflict within the document
+  /** Prevent creating duplicate operations at the same path/method */
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
   if (document?.paths?.[path]?.[method]) {
     return true
@@ -59,16 +95,20 @@ const isDisabled = computed(() => {
   return false
 })
 
-const handleImportClick = () => {
+/**
+ * Handle the import submission.
+ * Creates a new operation in the selected document from the parsed cURL command.
+ */
+const handleImportClick = (): void => {
   const documentName = selectedDocument.value
 
-  if (!isDisabled.value || !documentName) {
+  if (isDisabled.value || !documentName) {
     return
   }
 
+  /** Re-parse with the example key to include it in the operation */
   const result = getOperationFromCurl(curl, exampleKeyTrimmed.value)
 
-  // Create the new operation
   eventBus.emit('operation:create:operation', {
     documentName: documentName.id,
     path: result.path,
@@ -77,20 +117,26 @@ const handleImportClick = () => {
     exampleKey: exampleKeyTrimmed.value,
   })
 
-  emits('close')
+  emit('close')
+}
+
+/** Handle back navigation when user presses backspace on empty input */
+const handleBack = (event: KeyboardEvent): void => {
+  emit('back', event)
 }
 </script>
 <template>
   <CommandActionForm
     :disabled="isDisabled"
     @submit="handleImportClick">
+    <!-- Example key input -->
     <CommandActionInput
-      :modelValue="exampleKey"
+      v-model="exampleKey"
       placeholder="Curl example key (e.g., example-1)"
-      @update:modelValue="(event) => (exampleKey = event)" />
-    <div
-      class="flex flex-1 flex-col gap-2"
-      @update:modelValue="exampleKey = $event">
+      @delete="handleBack" />
+
+    <!-- Preview of the parsed cURL request (method + URL + path) -->
+    <div class="flex flex-1 flex-col gap-2">
       <div
         class="flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
         <div class="flex h-full">
@@ -100,11 +146,12 @@ const handleImportClick = () => {
             :method="method" />
         </div>
         <span class="scroll-timeline-x whitespace-nowrap">
-          <!-- Url + path from the parsed curl -->
           {{ operation.servers?.[0]?.url || '' }}{{ path }}
         </span>
       </div>
     </div>
+
+    <!-- Document selector -->
     <template #options>
       <div class="flex items-center gap-2">
         <ScalarListbox
@@ -129,18 +176,27 @@ const handleImportClick = () => {
       </div>
     </template>
 
-    <template #submit>
-      <span @click="handleImportClick">Import Request</span>
-    </template>
+    <template #submit>Import Request</template>
   </CommandActionForm>
 </template>
 <style scoped>
+/**
+ * Custom horizontal scroll for the URL preview.
+ * Hides scrollbar for a cleaner appearance while maintaining scroll functionality.
+ */
 .scroll-timeline-x {
   overflow: auto;
   scroll-timeline: --scroll-timeline x;
-  /* Firefox supports */
+  /* Firefox support */
   scroll-timeline: --scroll-timeline horizontal;
-  -ms-overflow-style: none; /* IE and Edge */
+  /* Hide scrollbar in IE and Edge */
+  -ms-overflow-style: none;
+  /* Hide scrollbar in Firefox */
   scrollbar-width: none;
+}
+
+/* Hide scrollbar in Chrome, Safari, and Opera */
+.scroll-timeline-x::-webkit-scrollbar {
+  display: none;
 }
 </style>

@@ -3,49 +3,52 @@ import { useModal } from '@scalar/components'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
+/** Base properties shared by all command types */
 type CommandBase = {
-  /** Unique identifier for the command. */
+  /** Unique identifier for the command */
   id: string
-  /** Display name shown in the command palette. */
+  /** Display name shown in the command palette */
   name: string
 }
 
 /**
  * Represents a single command in the command palette.
- * Each command has a unique ID, display name, and icon.
+ * Commands can be folders (open sub-actions), routes (navigate), or hidden folders.
  */
 export type Command =
   | (CommandBase & {
+      /** Folder command that opens a specific action form */
       type: 'folder'
-      /** Icon to display next to the command name. */
+      /** Icon to display next to the command name */
       icon: IconType
     })
   | (CommandBase & {
+      /** Route command that navigates to a page */
       type: 'route'
-      /** Route to navigate to when the command is selected. */
+      /** Route to navigate to when the command is selected */
       to: RouteLocationRaw
-      /** Icon to display next to the command name. */
+      /** Icon to display next to the command name */
       icon: IconType
     })
   | (CommandBase & {
-      /** Hidden folder to group commands that are not visible in the command palette but can still be selected (just not from the ui). */
+      /** Hidden folder for commands accessible via code but not shown in UI */
       type: 'hidden-folder'
     })
 
 /**
- * A group of related commands with an optional label.
+ * A group of related commands with a label.
  * Used to organize commands into categories in the palette.
  */
 export type CommandGroup = {
-  /** Optional label for the command group. Empty string means no label. */
+  /** Label for the command group (empty string for unlabeled groups) */
   label: string
-  /** List of commands in this group. */
+  /** List of commands in this group */
   commands: Command[]
 }
 
 /**
  * Available commands in the command palette.
- * Organized into groups for better UX.
+ * Organized into groups for better UX and discoverability.
  */
 export const commands = [
   {
@@ -81,9 +84,7 @@ export const commands = [
         name: 'Add Example',
         icon: 'Example',
       },
-      //--------------------------------
-      // Hidden commands
-      //--------------------------------
+      /** Hidden commands accessible programmatically but not shown in UI */
       {
         type: 'hidden-folder',
         id: 'import-curl-command',
@@ -125,13 +126,19 @@ export const commands = [
   },
 ] as const satisfies CommandGroup[]
 
-/** All valid command IDs derived from the commands array. */
+/** All valid command IDs derived from the commands array */
 export type CommandIds = (typeof commands)[number]['commands'][number]['id']
 
+/** Helper type to extract command IDs by command type */
 type GetIdsFromType<T extends Command['type']> = keyof {
-  [K in (typeof commands)[number]['commands'][number] as K extends { type: T } ? K['id'] : never]: K
+  [K in (typeof commands)[number]['commands'][number] as K extends {
+    type: T
+  }
+    ? K['id']
+    : never]: K
 }
 
+/** Command IDs that map to UI components (folder and hidden-folder types) */
 export type UiCommandIds = GetIdsFromType<'folder' | 'hidden-folder'>
 
 /**
@@ -139,25 +146,25 @@ export type UiCommandIds = GetIdsFromType<'folder' | 'hidden-folder'>
  * Provides reactive state and methods to control the command palette.
  */
 export type UseCommandPaletteStateReturn = {
-  /** Whether the command palette is currently open. */
+  /** Whether the command palette is currently open */
   isOpen: Ref<boolean>
-  /** The currently active command, or null if showing the main list. */
+  /** The currently active command, or null if showing the main list */
   activeCommand: Ref<UiCommandIds | null>
-  /** The properties of the currently active command, or null if no command is active. */
+  /** Properties passed to the active command component */
   activeCommandProps: Ref<Record<string, unknown> | null>
-  /** Current filter/search query for filtering commands. */
+  /** Current filter/search query for filtering commands */
   filterQuery: Ref<string>
-  /** Filtered commands based on the current search query. */
+  /** Filtered commands based on the current search query */
   filteredCommands: ComputedRef<readonly CommandGroup[]>
-  /** Whether theommand palette, optionally with a specific command active. */
+  /** Opens the command palette, optionally with a specific command active */
   open: (commandId?: UiCommandIds, props?: Record<string, unknown>) => void
-  /** Closes the command palette and resets state. */
+  /** Closes the command palette and resets state */
   close: () => void
-  /** Sets the active command without opening/closing the palette. */
+  /** Sets the active command without opening or closing the palette */
   setActiveCommand: (commandId: UiCommandIds | null) => void
-  /** Updates the filter query for searching commands. */
+  /** Updates the filter query for searching commands */
   setFilterQuery: (query: string) => void
-  /** Resets all state to initial values. */
+  /** Resets all state to initial values */
   reset: () => void
 }
 
@@ -170,67 +177,36 @@ export type UseCommandPaletteStateReturn = {
  * - Filter/search query
  * - Command filtering logic
  *
- * @returns Reactive state and methods to control the command palette
- *
  * @example
- * ```ts
  * const palette = useCommandPaletteState()
  *
  * // Open the palette
  * palette.open()
  *
  * // Open with a specific command
- * palette.open('create-collection')
+ * palette.open('create-document')
+ *
+ * // Open with command props
+ * palette.open('import-curl-command', { curl: 'curl https://api.example.com' })
  *
  * // Update filter query (automatically filters commands)
  * palette.setFilterQuery('import')
  *
  * // Access filtered results
  * console.log(palette.filteredCommands.value)
- * console.log(palette.hasResults.value)
  *
  * // Close and reset
  * palette.close()
- * ```
  */
 export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
   const modalState = useModal()
-  const filterQuery = ref<string>('')
+
+  const filterQuery = ref('')
   const activeCommand = ref<UiCommandIds | null>(null)
   const activeCommandProps = ref<Record<string, unknown> | null>(null)
 
-  /** Opens the command palette, optionally with a specific command active. */
-  const open = (commandId?: UiCommandIds, props?: Record<string, unknown>): void => {
-    if (commandId) {
-      activeCommand.value = commandId
-      activeCommandProps.value = props ?? null
-    }
-    modalState.show()
-  }
-
-  /** Closes the command palette and resets all state. */
-  const close = (): void => {
-    modalState.hide()
-    reset()
-  }
-
-  /** Sets the active command without affecting open/closed state. */
-  const setActiveCommand = (commandId: UiCommandIds | null): void => {
-    activeCommand.value = commandId
-  }
-
-  /** Updates the filter query for searching commands. */
-  const setFilterQuery = (query: string): void => {
-    filterQuery.value = query
-  }
-
-  /** Resets all internal state to initial values. */
-  const reset = (): void => {
-    filterQuery.value = ''
-    activeCommand.value = null
-  }
-
-  const isOpen = computed(() => modalState.open)
+  /** Whether the command palette is currently open */
+  const isOpen = computed<boolean>(() => modalState.open)
 
   /**
    * Filtered commands based on the current search query.
@@ -241,10 +217,12 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
   const filteredCommands = computed<CommandGroup[]>(() => {
     const query = filterQuery.value.toLowerCase().trim()
 
+    /** No filtering when query is empty */
     if (!query) {
       return commands as unknown as CommandGroup[]
     }
 
+    /** Filter commands by name and exclude empty groups */
     return commands
       .map((group) => ({
         label: group.label,
@@ -252,6 +230,41 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
       }))
       .filter((group) => group.commands.length > 0)
   })
+
+  /**
+   * Opens the command palette, optionally with a specific command active.
+   * If a commandId is provided, that command will be opened immediately.
+   */
+  const open = (commandId?: UiCommandIds, props?: Record<string, unknown>): void => {
+    if (commandId) {
+      activeCommand.value = commandId
+      activeCommandProps.value = props ?? null
+    }
+    modalState.show()
+  }
+
+  /** Closes the command palette and resets all state */
+  const close = (): void => {
+    modalState.hide()
+    reset()
+  }
+
+  /** Sets the active command without affecting open or closed state */
+  const setActiveCommand = (commandId: UiCommandIds | null): void => {
+    activeCommand.value = commandId
+  }
+
+  /** Updates the filter query for searching commands */
+  const setFilterQuery = (query: string): void => {
+    filterQuery.value = query
+  }
+
+  /** Resets all internal state to initial values */
+  const reset = (): void => {
+    filterQuery.value = ''
+    activeCommand.value = null
+    activeCommandProps.value = null
+  }
 
   return {
     isOpen,

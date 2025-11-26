@@ -1,3 +1,25 @@
+<script lang="ts">
+/**
+ * Command Palette Request Component
+ *
+ * Provides a form for creating a new API request (operation) in a document.
+ * Users can specify the request path, HTTP method, document (collection),
+ * and optionally assign it to a tag.
+ *
+ * Validates that no operation with the same path and method already exists
+ * in the selected document to prevent duplicates.
+ *
+ * @example
+ * <CommandPaletteRequest
+ *   :workspaceStore="workspaceStore"
+ *   :eventBus="eventBus"
+ *   @close="handleClose"
+ *   @back="handleBack"
+ * />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -12,7 +34,10 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedEntry,
+  TraversedTag,
+} from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
@@ -20,15 +45,35 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
+/** HTTP method option type for selectors */
+type MethodOption = {
+  id: string
+  label: string
+  method: HttpMethod
+}
+
+/** Tag option type for selectors */
+type TagOption = {
+  id: string
+  label: string
+  name: string
+}
+
 const { workspaceStore, eventBus } = defineProps<{
+  /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
+  /** Emitted when the request is created successfully */
   (event: 'close'): void
-  (event: 'back', e: KeyboardEvent): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
+
+const requestPath = ref('/')
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -40,17 +85,28 @@ const availableDocuments = computed(() =>
   ),
 )
 
-/** Available HTTP methods for the dropdown */
-const availableMethods = HTTP_METHODS.map((method) => ({
+/** Available HTTP methods for the dropdown (GET, POST, PUT, etc.) */
+const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
   id: method,
   label: method.toUpperCase(),
   method,
 }))
 
+const selectedDocument = ref<{ id: string; label: string } | undefined>(
+  availableDocuments.value[0] ?? undefined,
+)
+
+const selectedMethod = ref<MethodOption | undefined>(
+  availableMethods.find((method) => method.method === 'get'),
+)
+
+const selectedTag = ref<TagOption | undefined>(undefined)
+
 /**
  * Recursively traverse navigation entries to find all tags.
+ * Tags can be nested within the navigation structure.
  */
-const getAllTags = (entries: any[]): TraversedTag[] => {
+const getAllTags = (entries: TraversedEntry[]): TraversedTag[] => {
   const tags: TraversedTag[] = []
 
   for (const entry of entries) {
@@ -58,7 +114,8 @@ const getAllTags = (entries: any[]): TraversedTag[] => {
       tags.push(entry)
     }
 
-    if (entry.children) {
+    /** Recursively traverse child entries if they exist */
+    if ('children' in entry && entry.children) {
       tags.push(...getAllTags(entry.children))
     }
   }
@@ -66,8 +123,11 @@ const getAllTags = (entries: any[]): TraversedTag[] => {
   return tags
 }
 
-/** All available tags for the selected document */
-const availableTags = computed(() => {
+/**
+ * All available tags for the selected document.
+ * Includes a "No Tag" option for operations without a tag assignment.
+ */
+const availableTags = computed<TagOption[]>(() => {
   if (!selectedDocument.value) {
     return []
   }
@@ -90,46 +150,67 @@ const availableTags = computed(() => {
   ]
 })
 
-const requestPath = ref('/')
-const selectedDocument = ref(availableDocuments.value[0] ?? undefined)
-const selectedMethod = ref<
-  | {
-      id: string
-      label: string
-      method: HttpMethod
-    }
-  | undefined
->(availableMethods.find((method) => method.method === 'get'))
-const selectedTag = ref<
-  { id: string; label: string; name: string } | undefined
->(undefined)
+/**
+ * Check if an operation with the same path and method already exists.
+ * Used to prevent creating duplicate operations.
+ */
+const operationExists = computed<boolean>(() => {
+  if (
+    !selectedDocument.value ||
+    !selectedMethod.value ||
+    !requestPath.value.trim()
+  ) {
+    return false
+  }
+
+  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+
+  /** Ensure path starts with '/' for consistent lookup */
+  const normalizedPath = requestPath.value.startsWith('/')
+    ? requestPath.value
+    : `/${requestPath.value}`
+
+  return !!document?.paths?.[normalizedPath]?.[selectedMethod.value.method]
+})
+
+/**
+ * Check if the form should be disabled.
+ * Disabled when any required field is missing or operation already exists.
+ */
+const isDisabled = computed<boolean>(() => {
+  const trimmedPath = requestPath.value.trim()
+
+  if (!trimmedPath || !selectedDocument.value || !selectedMethod.value) {
+    return true
+  }
+
+  /** Prevent creating duplicate operations */
+  if (operationExists.value) {
+    return true
+  }
+
+  return false
+})
 
 /** Handle HTTP method selection from dropdown */
-const handleSelectMethod = (
-  method:
-    | {
-        id: string
-        label: string
-        method: HttpMethod
-      }
-    | undefined,
-) => {
+const handleSelectMethod = (method: MethodOption | undefined): void => {
   if (method) {
     selectedMethod.value = method
   }
 }
 
 /** Handle tag selection from dropdown */
-const handleSelectTag = (
-  tag: { id: string; label: string; name: string } | undefined,
-) => {
+const handleSelectTag = (tag: TagOption | undefined): void => {
   if (tag) {
     selectedTag.value = tag
   }
 }
 
-/** Create the request and navigate to it */
-const handleSubmit = () => {
+/**
+ * Create the request and close the command palette.
+ * Emits an event to create a new operation with the specified details.
+ */
+const handleSubmit = (): void => {
   if (isDisabled.value || !selectedDocument.value || !selectedMethod.value) {
     return
   }
@@ -140,7 +221,6 @@ const handleSubmit = () => {
     return
   }
 
-  /** Emit the event to create the operation */
   eventBus.emit('operation:create:operation', {
     documentName: selectedDocument.value.id,
     path: requestPath.value,
@@ -150,62 +230,29 @@ const handleSubmit = () => {
     },
   })
 
-  // Close the command palette
-  emits('close')
+  emit('close')
 }
 
-/** Check if the operation already exists in the document */
-const operationExists = computed(() => {
-  if (
-    !selectedDocument.value ||
-    !selectedMethod.value ||
-    !requestPath.value.trim()
-  ) {
-    return false
-  }
-
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-  const normalizedPath = requestPath.value.startsWith('/')
-    ? requestPath.value
-    : `/${requestPath.value}`
-
-  return !!document?.paths?.[normalizedPath]?.[selectedMethod.value.method]
-})
-
-/** Disable submit if any required field is missing or operation already exists */
-const isDisabled = computed(() => {
-  if (!requestPath.value.trim()) {
-    return true
-  }
-
-  if (!selectedDocument.value) {
-    return true
-  }
-
-  if (!selectedMethod.value) {
-    return true
-  }
-
-  /** Disable if the path/method combination already exists */
-  if (operationExists.value) {
-    return true
-  }
-
-  return false
-})
+/** Handle back navigation when user presses backspace on empty input */
+const handleBack = (event: KeyboardEvent): void => {
+  emit('back', event)
+}
 </script>
 <template>
   <CommandActionForm
     :disabled="isDisabled"
     @submit="handleSubmit">
+    <!-- Request path input -->
     <CommandActionInput
       v-model="requestPath"
       label="Request Path"
       placeholder="/users"
-      @onDelete="emits('back', $event)" />
+      @delete="handleBack" />
+
+    <!-- Selectors for document, method, and tag -->
     <template #options>
       <div class="flex flex-1 gap-1">
-        <!-- Document selector -->
+        <!-- Document (collection) selector -->
         <ScalarListbox
           v-model="selectedDocument"
           :options="availableDocuments">
@@ -224,7 +271,7 @@ const isDisabled = computed(() => {
           </ScalarButton>
         </ScalarListbox>
 
-        <!-- HTTP Method selector -->
+        <!-- HTTP method selector (GET, POST, PUT, etc.) -->
         <ScalarDropdown
           placement="bottom"
           resize>
@@ -241,6 +288,8 @@ const isDisabled = computed(() => {
                 size="md" />
             </div>
           </ScalarButton>
+
+          <!-- Dropdown list of all HTTP methods -->
           <template #items>
             <div class="custom-scroll max-h-40">
               <ScalarDropdownItem
@@ -254,7 +303,7 @@ const isDisabled = computed(() => {
           </template>
         </ScalarDropdown>
 
-        <!-- Tag selector -->
+        <!-- Tag selector (optional) for organizing operations -->
         <ScalarDropdown
           placement="bottom"
           resize>
@@ -270,6 +319,8 @@ const isDisabled = computed(() => {
               icon="ChevronDown"
               size="md" />
           </ScalarButton>
+
+          <!-- Dropdown list of available tags -->
           <template #items>
             <div class="custom-scroll max-h-40">
               <ScalarDropdownItem
@@ -284,6 +335,7 @@ const isDisabled = computed(() => {
         </ScalarDropdown>
       </div>
     </template>
-    <template #submit> Create Request </template>
+
+    <template #submit>Create Request</template>
   </CommandActionForm>
 </template>

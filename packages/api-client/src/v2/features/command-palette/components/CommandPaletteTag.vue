@@ -1,3 +1,24 @@
+<script lang="ts">
+/**
+ * Command Palette Tag Component
+ *
+ * Provides a form for creating a new tag in a document (collection).
+ * Tags are used to organize and group related API operations.
+ *
+ * Validates that the tag name does not already exist in the selected document
+ * to prevent duplicates.
+ *
+ * @example
+ * <CommandPaletteTag
+ *   :workspaceStore="workspaceStore"
+ *   :eventBus="eventBus"
+ *   @close="handleClose"
+ *   @back="handleBack"
+ * />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -8,15 +29,22 @@ import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
 const { workspaceStore, eventBus } = defineProps<{
+  /** The workspace store for accessing documents and tags */
   workspaceStore: WorkspaceStore
+  /** Event bus for emitting tag creation events */
   eventBus: WorkspaceEventBus
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
+  /** Emitted when the tag is created successfully */
   (event: 'close'): void
-  (event: 'back', e: KeyboardEvent): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
+const name = ref('')
+
+/** All available documents (collections) in the workspace */
 const availableCollections = computed(() =>
   Object.entries(workspaceStore.workspace.documents).map(
     ([name, document]) => ({
@@ -26,10 +54,46 @@ const availableCollections = computed(() =>
   ),
 )
 
-const name = ref('')
-const selectedCollection = ref(availableCollections.value[0] ?? undefined)
+const selectedCollection = ref<{ id: string; label: string } | undefined>(
+  availableCollections.value[0] ?? undefined,
+)
 
-const handleSubmit = () => {
+/**
+ * Check if the form should be disabled.
+ * Disabled when:
+ * - Tag name is empty
+ * - No collection is selected
+ * - The selected document does not exist
+ * - A tag with the same name already exists in the selected document
+ */
+const isDisabled = computed<boolean>(() => {
+  const trimmedName = name.value.trim()
+
+  if (!trimmedName || !selectedCollection.value) {
+    return true
+  }
+
+  const document =
+    workspaceStore.workspace.documents[selectedCollection.value.id]
+
+  /** Prevent submission if the document does not exist */
+  if (!document) {
+    return true
+  }
+
+  /** Prevent creating duplicate tags with the same name */
+  if (document.tags?.some((tag) => tag.name === trimmedName)) {
+    return true
+  }
+
+  return false
+})
+
+/**
+ * Create the tag and close the command palette.
+ * Emits an event to create a new tag in the selected document.
+ */
+const handleSubmit = (): void => {
   if (isDisabled.value || !selectedCollection.value) {
     return
   }
@@ -39,43 +103,26 @@ const handleSubmit = () => {
     documentName: selectedCollection.value.id,
   })
 
-  emits('close')
+  emit('close')
 }
 
-const isDisabled = computed(() => {
-  if (!name.value.trim()) {
-    return true
-  }
-
-  if (!selectedCollection.value) {
-    return true
-  }
-
-  const document =
-    workspaceStore.workspace.documents[selectedCollection.value.id]
-
-  // Disable if the document does not exist
-  if (!document) {
-    return true
-  }
-
-  // Disable if the tag name is already taken
-  if (document.tags?.some((tag) => tag.name === name.value.trim())) {
-    return true
-  }
-
-  return false
-})
+/** Handle back navigation when user presses backspace on empty input */
+const handleBack = (event: KeyboardEvent): void => {
+  emit('back', event)
+}
 </script>
 <template>
   <CommandActionForm
     :disabled="isDisabled"
     @submit="handleSubmit">
+    <!-- Tag name input -->
     <CommandActionInput
       v-model="name"
       label="Tag Name"
       placeholder="Tag Name"
-      @onDelete="emits('back', $event)" />
+      @delete="handleBack" />
+
+    <!-- Collection selector -->
     <template #options>
       <ScalarListbox
         v-model="selectedCollection"
@@ -83,9 +130,13 @@ const isDisabled = computed(() => {
         <ScalarButton
           class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
           variant="outlined">
-          <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
-            selectedCollection ? selectedCollection.label : 'Select Collection'
-          }}</span>
+          <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">
+            {{
+              selectedCollection
+                ? selectedCollection.label
+                : 'Select Collection'
+            }}
+          </span>
           <ScalarIcon
             class="text-c-3"
             icon="ChevronDown"
@@ -93,6 +144,7 @@ const isDisabled = computed(() => {
         </ScalarButton>
       </ScalarListbox>
     </template>
-    <template #submit> Create Tag </template>
+
+    <template #submit>Create Tag</template>
   </CommandActionForm>
 </template>

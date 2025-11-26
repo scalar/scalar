@@ -1,3 +1,21 @@
+<script lang="ts">
+/**
+ * Command Palette Example Component
+ *
+ * Provides a form for creating a new example for an API operation.
+ * Users can name the example, select a document (collection), and choose an operation.
+ * Automatically navigates to the example route which creates the example.
+ *
+ * @example
+ * <CommandPaletteExample
+ *   :workspaceStore="workspaceStore"
+ *   @close="handleClose"
+ *   @back="handleBack"
+ * />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -8,7 +26,10 @@ import {
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { TraversedOperation } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+} from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -17,16 +38,29 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
+/** Operation option type for selectors */
+type OperationOption = {
+  id: string
+  label: string
+  path: string
+  method: HttpMethod
+}
+
 const { workspaceStore } = defineProps<{
+  /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
+  /** Emitted when the example is created successfully */
   (event: 'close'): void
-  (event: 'back', e: KeyboardEvent): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
 const router = useRouter()
+
+const exampleName = ref('')
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -38,23 +72,17 @@ const availableDocuments = computed(() =>
   ),
 )
 
-const exampleName = ref('')
-const selectedDocument = ref(availableDocuments.value[0] ?? undefined)
-const selectedOperation = ref<
-  | {
-      id: string
-      label: string
-      path: string
-      method: HttpMethod
-    }
-  | undefined
->(undefined)
+const selectedDocument = ref<{ id: string; label: string } | undefined>(
+  availableDocuments.value[0] ?? undefined,
+)
+
+const selectedOperation = ref<OperationOption | undefined>(undefined)
 
 /**
  * Recursively traverse navigation entries to find all operations.
  * Operations can be nested under tags or at the document level.
  */
-const getAllOperations = (entries: any[]): TraversedOperation[] => {
+const getAllOperations = (entries: TraversedEntry[]): TraversedOperation[] => {
   const operations: TraversedOperation[] = []
 
   for (const entry of entries) {
@@ -62,7 +90,8 @@ const getAllOperations = (entries: any[]): TraversedOperation[] => {
       operations.push(entry)
     }
 
-    if (entry.children) {
+    /** Recursively traverse child entries if they exist */
+    if ('children' in entry && entry.children) {
       operations.push(...getAllOperations(entry.children))
     }
   }
@@ -102,23 +131,31 @@ watch(
 )
 
 /** Handle operation selection from dropdown */
-const handleSelect = (
-  operation:
-    | {
-        id: string
-        label: string
-        path: string
-        method: HttpMethod
-      }
-    | undefined,
-) => {
+const handleSelect = (operation: OperationOption | undefined): void => {
   if (operation) {
     selectedOperation.value = operation
   }
 }
 
-/** Navigate to the example route which will create it automatically */
-const createExample = () => {
+/**
+ * Check if the form should be disabled.
+ * Disabled when any required field is missing or empty.
+ */
+const isDisabled = computed<boolean>(() => {
+  const trimmedName = exampleName.value.trim()
+
+  if (!trimmedName || !selectedDocument.value || !selectedOperation.value) {
+    return true
+  }
+
+  return false
+})
+
+/**
+ * Navigate to the example route which will create it automatically.
+ * The route handler will create the example with the provided details.
+ */
+const createExample = (): void => {
   if (isDisabled.value || !selectedDocument.value || !selectedOperation.value) {
     return
   }
@@ -133,25 +170,13 @@ const createExample = () => {
     },
   })
 
-  emits('close')
+  emit('close')
 }
 
-/** Disable submit if any required field is missing */
-const isDisabled = computed(() => {
-  if (!exampleName.value.trim()) {
-    return true
-  }
-
-  if (!selectedDocument.value) {
-    return true
-  }
-
-  if (!selectedOperation.value) {
-    return true
-  }
-
-  return false
-})
+/** Handle back navigation when user presses backspace on empty input */
+const handleBack = (event: KeyboardEvent): void => {
+  emit('back', event)
+}
 </script>
 <template>
   <CommandActionForm
@@ -161,10 +186,12 @@ const isDisabled = computed(() => {
       v-model="exampleName"
       label="Example Name"
       placeholder="Example Name"
-      @onDelete="emits('back', $event)" />
+      @delete="handleBack" />
+
+    <!-- Selectors for document and operation -->
     <template #options>
       <div class="flex flex-1 gap-1">
-        <!-- Document selector -->
+        <!-- Document (collection) selector -->
         <ScalarListbox
           v-model="selectedDocument"
           :options="availableDocuments">
@@ -183,7 +210,7 @@ const isDisabled = computed(() => {
           </ScalarButton>
         </ScalarListbox>
 
-        <!-- Operation selector -->
+        <!-- Operation selector (path + method) -->
         <ScalarDropdown
           placement="bottom"
           resize>
@@ -211,6 +238,8 @@ const isDisabled = computed(() => {
                 size="md" />
             </div>
           </ScalarButton>
+
+          <!-- Dropdown list of all operations -->
           <template #items>
             <div class="custom-scroll max-h-40">
               <ScalarDropdownItem
@@ -226,6 +255,7 @@ const isDisabled = computed(() => {
         </ScalarDropdown>
       </div>
     </template>
-    <template #submit> Create Example </template>
+
+    <template #submit>Create Example</template>
   </CommandActionForm>
 </template>
