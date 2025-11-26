@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarWrappingText,
+} from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconWarningCircle } from '@scalar/icons'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
@@ -150,7 +155,7 @@ onBeforeUnmount(() => {
     <!-- Address Bar -->
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
-      :class="{ 'border-red border': methodPathConflict }">
+      :class="{ 'outline-c-danger outline': methodPathConflict }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
@@ -216,6 +221,20 @@ onBeforeUnmount(() => {
       <AddressBarHistory
         :history="history"
         :target="id" />
+      <!-- Error message -->
+      <div
+        v-if="methodPathConflict"
+        class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
+        <div
+          class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
+          <ScalarIconWarningCircle size="sm" />
+          <div class="min-w-0 flex-1">
+            A <em>{{ method.toUpperCase() }}</em> request to
+            <ScalarWrappingText :text="path" />
+            already exists in this document
+          </div>
+        </div>
+      </div>
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
@@ -347,7 +366,8 @@ onBeforeUnmount(() => {
 .address-bar-bg-states:has(.cm-focused) {
   --scalar-address-bar-bg: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
-  outline: 1px solid var(--scalar-color-accent);
+  outline-width: 1px;
+  outline-style: solid;
 }
 .address-bar-bg-states:has(.cm-focused) .fade-left,
 .address-bar-bg-states:has(.cm-focused) .fade-right {
