@@ -4,6 +4,8 @@ import com.scalar.maven.core.ScalarConstants;
 import com.scalar.maven.core.ScalarHtmlRenderer;
 import com.scalar.maven.core.ScalarProperties;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,16 +40,8 @@ import java.io.IOException;
 @ConditionalOnMissingBean(ScalarWebMvcController.class)
 public class ScalarWebMvcController {
 
-    protected final ScalarProperties properties;
-
-    /**
-     * Creates a new ScalarWebMvcController with the specified properties.
-     *
-     * @param properties the configuration properties for the Scalar integration
-     */
-    public ScalarWebMvcController(SpringBootScalarProperties properties) {
-        this.properties = properties;
-    }
+    @Autowired
+    private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
 
     /**
      * Serves the main API Reference interface.
@@ -65,6 +59,7 @@ public class ScalarWebMvcController {
      */
     @GetMapping("${scalar.path:/scalar}")
     public final ResponseEntity<String> getDocs(HttpServletRequest request) throws IOException {
+        ScalarProperties properties = propertiesProvider.getObject();
         ScalarProperties configuredProperties = configureProperties(properties, request);
 
         String html = ScalarHtmlRenderer.render(configuredProperties);
@@ -100,7 +95,7 @@ public class ScalarWebMvcController {
      *
      * @param properties the properties to configure
      * @param request    the HTTP request
-     * @return the configured properties (may be the same instance or a modified copy)
+     * @return the configured properties
      */
     protected ScalarProperties configureProperties(ScalarProperties properties, HttpServletRequest request) {
         return properties;

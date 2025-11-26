@@ -37,29 +37,27 @@ import org.springframework.context.annotation.Configuration;
 public class ScalarWebFluxAutoConfiguration {
 
     /**
-     * Creates a ScalarWebFluxController bean configured with the SpringBootScalarProperties.
+     * Creates a ScalarWebFluxController bean.
      *
-     * @param properties the configuration properties for the Scalar integration
      * @return a configured ScalarWebFluxController instance
      */
     @Bean
     @ConditionalOnMissingBean(ScalarWebFluxController.class)
-    public ScalarWebFluxController scalarWebFluxController(SpringBootScalarProperties properties) {
-        return new ScalarWebFluxController(properties);
+    public ScalarWebFluxController scalarWebFluxController() {
+        return new ScalarWebFluxController();
     }
 
     /**
      * Creates a ScalarWebFluxActuatorEndpoint bean when actuator support is enabled.
      * This endpoint exposes the Scalar UI at /actuator/scalar.
      *
-     * @param properties the configuration properties for the Scalar integration
      * @return a configured ScalarWebFluxActuatorEndpoint instance
      */
     @Bean
     @ConditionalOnProperty(prefix = "scalar", name = "actuatorEnabled", havingValue = "true")
     @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.annotation.Endpoint")
     @ConditionalOnAvailableEndpoint(endpoint = ScalarWebFluxActuatorEndpoint.class)
-    public ScalarWebFluxActuatorEndpoint scalarWebFluxActuatorEndpoint(SpringBootScalarProperties properties) {
-        return new ScalarWebFluxActuatorEndpoint(properties);
+    public ScalarWebFluxActuatorEndpoint scalarWebFluxActuatorEndpoint() {
+        return new ScalarWebFluxActuatorEndpoint();
     }
 }

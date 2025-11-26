@@ -3,6 +3,8 @@ package com.scalar.maven.webmvc;
 import com.scalar.maven.core.ScalarHtmlRenderer;
 import com.scalar.maven.core.ScalarProperties;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
@@ -33,16 +35,8 @@ import java.io.IOException;
 @WebEndpoint(id = "scalar")
 public class ScalarWebMvcActuatorEndpoint {
 
-    protected final ScalarProperties properties;
-
-    /**
-     * Creates a new ScalarWebMvcActuatorEndpoint with the specified properties.
-     *
-     * @param properties the configuration properties for the Scalar integration
-     */
-    public ScalarWebMvcActuatorEndpoint(SpringBootScalarProperties properties) {
-        this.properties = properties;
-    }
+    @Autowired
+    private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
 
     /**
      * Serves the Scalar API Reference interface as an actuator endpoint.
@@ -59,6 +53,7 @@ public class ScalarWebMvcActuatorEndpoint {
      */
     @ReadOperation(produces = MediaType.TEXT_HTML_VALUE)
     public final ResponseEntity<String> scalarUi(HttpServletRequest request) throws IOException {
+        ScalarProperties properties = propertiesProvider.getObject();
         ScalarProperties configuredProperties = configureProperties(properties, request);
 
         String html = ScalarHtmlRenderer.render(configuredProperties);
@@ -94,7 +89,7 @@ public class ScalarWebMvcActuatorEndpoint {
      *
      * @param properties the properties to configure
      * @param request    the HTTP request
-     * @return the configured properties (may be the same instance or a modified copy)
+     * @return the configured properties
      */
     protected ScalarProperties configureProperties(ScalarProperties properties, HttpServletRequest request) {
         return properties;

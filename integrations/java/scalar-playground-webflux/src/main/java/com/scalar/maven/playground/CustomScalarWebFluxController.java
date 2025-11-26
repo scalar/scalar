@@ -2,7 +2,6 @@ package com.scalar.maven.playground;
 
 import com.scalar.maven.core.ScalarProperties;
 import com.scalar.maven.webflux.ScalarWebFluxController;
-import com.scalar.maven.webflux.SpringBootScalarProperties;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,15 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class CustomScalarWebFluxController extends ScalarWebFluxController {
-
-    /**
-     * Creates a new CustomScalarWebFluxController with the specified properties.
-     *
-     * @param properties the configuration properties for the Scalar integration
-     */
-    public CustomScalarWebFluxController(SpringBootScalarProperties properties) {
-        super(properties);
-    }
 
     /**
      * Configures the Scalar properties before rendering.

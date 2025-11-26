@@ -2,6 +2,7 @@ package com.scalar.maven.webflux;
 
 import com.scalar.maven.core.ScalarProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Scope;
 
 /**
  * Spring Boot configuration properties wrapper for Scalar API Reference integration.
@@ -34,7 +35,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </pre>
  */
 @ConfigurationProperties(prefix = "scalar")
-public final class SpringBootScalarProperties extends ScalarProperties {
+@Scope("prototype")
+public class SpringBootScalarProperties extends ScalarProperties {
     // All functionality is inherited from ScalarProperties
     // This class only adds the @ConfigurationProperties annotation
 }

@@ -2,7 +2,6 @@ package com.scalar.maven.playground;
 
 import com.scalar.maven.core.ScalarProperties;
 import com.scalar.maven.webmvc.ScalarWebMvcController;
-import com.scalar.maven.webmvc.SpringBootScalarProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,15 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class CustomScalarWebMvcController extends ScalarWebMvcController {
-
-    /**
-     * Creates a new CustomScalarWebMvcController with the specified properties.
-     *
-     * @param properties the configuration properties for the Scalar integration
-     */
-    public CustomScalarWebMvcController(SpringBootScalarProperties properties) {
-        super(properties);
-    }
 
     /**
      * Configures the Scalar properties before rendering.

@@ -8,11 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,13 +26,18 @@ class ScalarWebMvcControllerTest {
     private SpringBootScalarProperties properties;
 
     @Mock
+    private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
+
+    @Mock
     private HttpServletRequest request;
 
     private ScalarWebMvcController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ScalarWebMvcController(properties);
+        lenient().when(propertiesProvider.getObject()).thenReturn(properties);
+        controller = new ScalarWebMvcController();
+        ReflectionTestUtils.setField(controller, "propertiesProvider", propertiesProvider);
     }
 
     @Nested

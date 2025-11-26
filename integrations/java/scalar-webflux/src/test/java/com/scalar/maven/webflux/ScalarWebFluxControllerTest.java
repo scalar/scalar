@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.Resource;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,13 +29,18 @@ class ScalarWebFluxControllerTest {
     private SpringBootScalarProperties properties;
 
     @Mock
+    private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
+
+    @Mock
     private ServerHttpRequest request;
 
     private ScalarWebFluxController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ScalarWebFluxController(properties);
+        lenient().when(propertiesProvider.getObject()).thenReturn(properties);
+        controller = new ScalarWebFluxController();
+        ReflectionTestUtils.setField(controller, "propertiesProvider", propertiesProvider);
     }
 
     @Nested

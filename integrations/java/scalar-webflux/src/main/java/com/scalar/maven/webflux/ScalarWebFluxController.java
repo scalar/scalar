@@ -3,6 +3,8 @@ package com.scalar.maven.webflux;
 import com.scalar.maven.core.ScalarConstants;
 import com.scalar.maven.core.ScalarHtmlRenderer;
 import com.scalar.maven.core.ScalarProperties;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -42,16 +44,8 @@ import java.nio.charset.StandardCharsets;
 @ConditionalOnMissingBean(ScalarWebFluxController.class)
 public class ScalarWebFluxController {
 
-    protected final ScalarProperties properties;
-
-    /**
-     * Creates a new ScalarWebFluxController with the specified properties.
-     *
-     * @param properties the configuration properties for the Scalar integration
-     */
-    public ScalarWebFluxController(SpringBootScalarProperties properties) {
-        this.properties = properties;
-    }
+    @Autowired
+    private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
 
     /**
      * Serves the main API Reference interface.
@@ -69,6 +63,7 @@ public class ScalarWebFluxController {
     @GetMapping(value = "${scalar.path:/scalar}", produces = MediaType.TEXT_HTML_VALUE)
     public final Mono<Resource> getDocs(ServerHttpRequest request) {
         return Mono.fromCallable(() -> {
+                    ScalarProperties properties = propertiesProvider.getObject();
                     ScalarProperties configuredProperties = configureProperties(properties, request);
                     String html = ScalarHtmlRenderer.render(configuredProperties);
                     Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
@@ -106,7 +101,7 @@ public class ScalarWebFluxController {
      *
      * @param properties the properties to configure
      * @param request    the HTTP request
-     * @return the configured properties (may be the same instance or a modified copy)
+     * @return the configured properties
      */
     protected ScalarProperties configureProperties(ScalarProperties properties, ServerHttpRequest request) {
         return properties;
