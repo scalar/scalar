@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { OperationExampleMeta, OperationMeta } from '@/mutators'
+import type { OperationEntriesMap } from '@/navigation/helpers/get-operation-entries'
 
 /** Event definitions for the operation */
 export type OperationEvents = {
@@ -45,6 +46,8 @@ export type OperationEvents = {
     }
     /** Identifies the target operation by original method and path */
     meta: OperationExampleMeta
+    /** Map of operation entries */
+    operationEntriesMap: OperationEntriesMap
   }
 
   /**
@@ -59,7 +62,9 @@ export type OperationEvents = {
       path: string
     }
     /** Identifies the target operation by original method and path */
-    meta: OperationMeta
+    meta: OperationExampleMeta
+    /** Map of operation entries */
+    operationEntriesMap: OperationEntriesMap
   }
 
   /** ------------------------------------------------------------------------------------------------
