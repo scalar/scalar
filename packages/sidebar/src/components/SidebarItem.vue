@@ -115,7 +115,7 @@ const filterItems = (items: Item[]) => {
 const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   emits('onDragEnd', draggingItem, hoveredItem)
 }
-const { draggableProps, draggableEvents } = useDraggable({
+const { draggableAttrs, draggableEvents } = useDraggable({
   id: item.id,
   isDraggable,
   isDroppable,
@@ -125,7 +125,7 @@ const { draggableProps, draggableEvents } = useDraggable({
 <template>
   <ScalarSidebarSection
     v-if="hasChildren(item) && isGroup(item)"
-    v-bind="draggableProps"
+    v-bind="draggableAttrs"
     v-on="draggableEvents">
     {{ item.title }}
     <template #items>
@@ -158,7 +158,7 @@ const { draggableProps, draggableEvents } = useDraggable({
     :active="isSelected(item.id)"
     controlled
     :open="isExpanded(item.id)"
-    v-bind="draggableProps"
+    v-bind="draggableAttrs"
     v-on="draggableEvents"
     @click="() => emits('selectItem', item.id)">
     <template
@@ -210,7 +210,7 @@ const { draggableProps, draggableEvents } = useDraggable({
   <ScalarSidebarItem
     v-else
     is="button"
-    v-bind="draggableProps"
+    v-bind="draggableAttrs"
     v-on="draggableEvents"
     :selected="isSelected(item.id)"
     @click="() => emits('selectItem', item.id)">

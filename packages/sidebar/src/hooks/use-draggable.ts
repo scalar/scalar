@@ -118,9 +118,6 @@ export function useDraggable(options: UseDraggableOptions) {
   // The latest parentId in the arr should be the current parent
   const parentId = computed(() => parentIds.at(-1) ?? null)
 
-  // Make enabled reactive
-  const isEnabled = computed(() => toValue(isDraggable))
-
   /** Check if isDroppable guard */
   const _isDroppable = (offset: number): boolean =>
     typeof isDroppable === 'function'
@@ -133,7 +130,7 @@ export function useDraggable(options: UseDraggableOptions) {
 
   // Start dragging, we want to store the uid + parentUid
   const handleDragStart = (ev: DragEvent) => {
-    if (!ev.dataTransfer || !(ev.target instanceof HTMLElement) || !isEnabled.value) {
+    if (!toValue(isDraggable) || !ev.dataTransfer || !(ev.target instanceof HTMLElement)) {
       return
     }
 
@@ -222,9 +219,10 @@ export function useDraggable(options: UseDraggableOptions) {
    * Props object to bind to the draggable element.
    * Contains the class and draggable attribute.
    */
-  const draggableProps = computed(() => ({
-    class: draggableClass.value,
-    draggable: isEnabled.value,
+  const draggableAttrs = computed(() => ({
+    class: draggableClass.value || undefined,
+    // Only set the draggable attribute if isDraggable is true
+    draggable: toValue(isDraggable) ? true : undefined,
   }))
 
   return {
@@ -232,7 +230,7 @@ export function useDraggable(options: UseDraggableOptions) {
      * Props object to bind to the draggable element.
      * Contains the class and draggable attribute.
      */
-    draggableProps,
+    draggableAttrs,
     /**
      * Event handlers object to bind to the draggable element.
      * Contains dragend, dragover, and dragstart handlers with proper event prevention.
