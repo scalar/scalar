@@ -185,10 +185,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: './{packages,integrations}/**'
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+      - name: Install dependencies
+        run: pnpm install
       - name: Check types
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
