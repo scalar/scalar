@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
-import { Button, ClientWrapper } from '../client/components'
+import { Button } from '../client/components/Button'
+import { ClientWrapper } from '../client/components/ClientWrapper'
 
 const Page = () => {
   return (
