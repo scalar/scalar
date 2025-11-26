@@ -4,7 +4,6 @@ import { LibraryIcon } from '@scalar/icons/library'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
 
@@ -21,26 +20,17 @@ const emits = defineEmits<{
   (event: 'back', e: KeyboardEvent): void
 }>()
 
-const router = useRouter()
-
 const documentName = ref('')
 const documentIcon = ref('interface-content-folder')
 
 const handleSubmit = () => {
-  if (!documentName.value) {
+  if (isDisabled.value) {
     return
   }
 
   eventBus.emit('document:create:empty-document', {
     name: documentName.value,
     icon: documentIcon.value,
-  })
-
-  router.push({
-    name: 'document.overview',
-    params: {
-      documentSlug: documentName.value,
-    },
   })
 
   emits('close')

@@ -41,10 +41,28 @@ const selectedDocument = ref<ScalarComboboxOption | undefined>(
   documents.value[0],
 )
 
+const isDisabled = computed(() => {
+  if (!exampleKey.value.trim()) {
+    return true
+  }
+
+  if (!selectedDocument.value) {
+    return true
+  }
+
+  // Disable if there is a conflict within the document
+  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  if (document?.paths?.[path]?.[method]) {
+    return true
+  }
+
+  return false
+})
+
 const handleImportClick = () => {
   const documentName = selectedDocument.value
 
-  if (!documentName || !exampleKeyTrimmed.value) {
+  if (!isDisabled.value || !documentName) {
     return
   }
 
@@ -61,18 +79,6 @@ const handleImportClick = () => {
 
   emits('close')
 }
-
-const isDisabled = computed(() => {
-  if (!exampleKey.value.trim()) {
-    return true
-  }
-
-  if (!selectedDocument.value) {
-    return true
-  }
-
-  return false
-})
 </script>
 <template>
   <CommandActionForm

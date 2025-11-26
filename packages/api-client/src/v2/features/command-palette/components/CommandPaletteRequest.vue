@@ -130,12 +130,7 @@ const handleSelectTag = (
 
 /** Create the request and navigate to it */
 const handleSubmit = () => {
-  if (
-    !requestPath.value.trim() ||
-    !selectedDocument.value ||
-    !selectedMethod.value ||
-    operationExists.value
-  ) {
+  if (isDisabled.value || !selectedDocument.value || !selectedMethod.value) {
     return
   }
 

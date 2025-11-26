@@ -108,7 +108,15 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
   eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
-  eventBus.on('document:create:empty-document', (payload) => createEmptyDocument(workspaceStore.value, payload))
+  eventBus.on('document:create:empty-document', (payload) => {
+    createEmptyDocument(workspaceStore.value, payload)
+    router.push({
+      name: 'document.overview',
+      params: {
+        documentSlug: payload.name,
+      },
+    })
+  })
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers

@@ -30,15 +30,10 @@ const name = ref('')
 const selectedCollection = ref(availableCollections.value[0] ?? undefined)
 
 const handleSubmit = () => {
-  if (!name.value) {
+  if (isDisabled.value || !selectedCollection.value) {
     return
   }
 
-  if (!name.value || !selectedCollection.value) {
-    return
-  }
-
-  // TODO: make sure the tag name is not already taken
   eventBus.emit('tag:create:tag', {
     name: name.value,
     documentName: selectedCollection.value.id,
@@ -59,10 +54,12 @@ const isDisabled = computed(() => {
   const document =
     workspaceStore.workspace.documents[selectedCollection.value.id]
 
+  // Disable if the document does not exist
   if (!document) {
     return true
   }
 
+  // Disable if the tag name is already taken
   if (document.tags?.some((tag) => tag.name === name.value.trim())) {
     return true
   }

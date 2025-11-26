@@ -226,6 +226,10 @@ async function handleImport() {
 }
 
 const handleInput = (value: string) => {
+  if (isDisabled.value) {
+    return
+  }
+
   if (value.trim().toLowerCase().startsWith('curl')) {
     // Import from cURL
     return emits('open-command', 'import-curl-command', {
@@ -234,10 +238,14 @@ const handleInput = (value: string) => {
   }
   inputContent.value = value
 }
+
+const isDisabled = computed(() => {
+  return !inputContent.value.trim()
+})
 </script>
 <template>
   <CommandActionForm
-    :disabled="!inputContent.trim()"
+    :disabled="isDisabled"
     :loading="loader"
     @submit="handleImport">
     <!-- URL input -->

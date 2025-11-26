@@ -118,12 +118,8 @@ const handleSelect = (
 }
 
 /** Navigate to the example route which will create it automatically */
-const handleSubmit = () => {
-  if (
-    !exampleName.value ||
-    !selectedDocument.value ||
-    !selectedOperation.value
-  ) {
+const createExample = () => {
+  if (isDisabled.value || !selectedDocument.value || !selectedOperation.value) {
     return
   }
 
@@ -160,7 +156,7 @@ const isDisabled = computed(() => {
 <template>
   <CommandActionForm
     :disabled="isDisabled"
-    @submit="handleSubmit">
+    @submit="createExample">
     <CommandActionInput
       v-model="exampleName"
       label="Example Name"
