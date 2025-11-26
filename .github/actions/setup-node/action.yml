@@ -27,5 +27,5 @@ runs:
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
       with:
-        key: ${{ github.repository }}-turbo-cache-${{ steps.node-version.outputs.version }}
+        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}
         path: .turbo

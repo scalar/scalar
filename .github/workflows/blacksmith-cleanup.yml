@@ -17,4 +17,4 @@ jobs:
       - name: Attach sticky disk
         uses: useblacksmith/stickydisk-delete@b41313d28b8647d72114c9ba3c96bb04061562b6 # v1
         with:
-          delete-key: ${{ github.repository }}-turbo-cache-${{ matrix.node-version }}
+          delete-key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ matrix.node-version }}
