@@ -11,7 +11,7 @@ import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls
  */
 export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) {
   const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject> =
-    schema?.components?.securitySchemes || {}
+    typeof schema === 'object' && 'components' in schema ? (schema?.components?.securitySchemes ?? {}) : {}
 
   // Set up authentication routes for OAuth 2.0 flows
   getOpenAuthTokenUrls(schema).forEach((tokenUrl) => {

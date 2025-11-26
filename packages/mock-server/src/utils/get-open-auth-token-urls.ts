@@ -33,7 +33,7 @@ function isValidTokenUrl(url: string): boolean {
 }
 
 export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
-  if (!schema?.components?.securitySchemes) {
+  if (typeof schema !== 'object' || !('components' in schema) || !schema.components?.securitySchemes) {
     return []
   }
 

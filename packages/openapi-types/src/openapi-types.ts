@@ -8,22 +8,17 @@
  */
 
 /** any other attribute, for example x-* extensions */
-type SpecificationExtension = {
-  /** OpenAPI extension */
-  [_specificationExtensionKey: `x-${string}`]: any
+type SpecificationExtensions = {
   /**
-   * Unknown attribute
+   * Specification Extensions
    *
-   * @deprecated We don't actually want to allow any attribute. This will be removed in a future version.
+   * Allows extensions to the OpenAPI Schema. The field name MUST begin with x-, for example, x-internal-id. Field
+   * names beginning x-oai- and x-oas- are reserved for uses defined by the OpenAPI Initiative. The value can be any
+   * valid JSON value (null, a primitive, an array, or an object.)
+   *
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#specification-extensions
    **/
-  [key: string]: any
-}
-
-// biome-ignore lint/style/noNamespace: We want it to be a module here.
-export namespace Base {
-  export type ReferenceObject = {
-    $ref?: string
-  }
+  [_specificationExtensionsKey: `x-${string}`]: any
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
@@ -33,7 +28,7 @@ export namespace OpenAPI {
   // OpenAPI.Document<{
   //   'x-foobar': Foobar
   // }>
-  export type Document<T extends SpecificationExtension = {}> =
+  export type Document<T extends SpecificationExtensions = {}> =
     | OpenAPIV2.Document<T>
     | OpenAPIV3.Document<T>
     | OpenAPIV3_1.Document<T>
@@ -127,7 +122,7 @@ export namespace OpenAPIV3_2 {
       | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
     ) &
       T &
-      SpecificationExtension
+      SpecificationExtensions
   >
 
   export type ServerObject = Modify<
@@ -195,7 +190,7 @@ export namespace OpenAPIV3_2 {
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
   export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -230,7 +225,7 @@ export namespace OpenAPIV3_2 {
     nodeType?: XMLNodeType
   }
 
-  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
+  export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 
   export type ExampleObject = OpenAPIV3_1.ExampleObject & {
     dataValue?: any
@@ -320,7 +315,7 @@ export namespace OpenAPIV3_2 {
   export type ApiKeySecurityScheme = OpenAPIV3_1.ApiKeySecurityScheme
 
   export type OAuthFlows = OpenAPIV3_1.OAuthFlows & {
-    deviceAuthorization?: SpecificationExtension &
+    deviceAuthorization?: SpecificationExtensions &
       OpenAPIV3.OAuthFlowBase &
       OpenAPIV3.OAuthFlowTokenUrlTrait & {
         deviceAuthorizationUrl?: string
@@ -371,7 +366,7 @@ export namespace OpenAPIV3_1 {
       | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
     ) &
       T &
-      SpecificationExtension
+      SpecificationExtensions
   >
 
   export type InfoObject = Modify<
@@ -465,7 +460,7 @@ export namespace OpenAPIV3_1 {
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
   export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -512,13 +507,12 @@ export namespace OpenAPIV3_1 {
   export type XMLObject = OpenAPIV3.XMLObject
 
   export type ReferenceObject = Modify<
-    Base.ReferenceObject,
+    OpenAPIV3.ReferenceObject,
     {
       summary?: string
       description?: string
     }
-  > &
-    SpecificationExtension
+  >
 
   export type ExampleObject = OpenAPIV3.ExampleObject
 
@@ -609,7 +603,7 @@ export namespace OpenAPIV3 {
     tags?: TagObject[]
     externalDocs?: ExternalDocumentationObject
   } & T &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type InfoObject = {
     title?: string
@@ -662,7 +656,7 @@ export namespace OpenAPIV3 {
   } & {
     [method in HttpMethods]?: OperationObject<T>
   } & T &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type OperationObject<T = {}> = {
     tags?: string[]
@@ -678,7 +672,7 @@ export namespace OpenAPIV3 {
     security?: SecurityRequirementObject[]
     servers?: ServerObject[]
   } & T &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type ExternalDocumentationObject = {
     description?: string
@@ -718,7 +712,7 @@ export namespace OpenAPIV3 {
   }
   export type NonArraySchemaObjectType = 'boolean' | 'object' | 'number' | 'string' | 'integer'
   export type ArraySchemaObjectType = 'array'
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject) & SpecificationExtension
+  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject) & SpecificationExtensions
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -786,7 +780,9 @@ export namespace OpenAPIV3 {
     wrapped?: boolean
   }
 
-  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
+  export type ReferenceObject = {
+    $ref?: string
+  } & SpecificationExtensions
 
   export type ExampleObject = {
     summary?: string
@@ -825,7 +821,7 @@ export namespace OpenAPIV3 {
     headers?: { [header: string]: ReferenceObject | HeaderObject }
     content?: { [media: string]: MediaTypeObject }
     links?: { [link: string]: ReferenceObject | LinkObject }
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type LinkObject = {
     operationRef?: string
@@ -867,14 +863,14 @@ export namespace OpenAPIV3 {
     description?: string
     scheme?: string
     bearerFormat?: string
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type ApiKeySecurityScheme = {
     type?: 'apiKey'
     description?: string
     name?: string
     in?: string
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type OAuthFlowBase = {
     scopes?: { [scope: string]: string }
@@ -890,10 +886,13 @@ export namespace OpenAPIV3 {
   }
 
   export type OAuthFlows = {
-    implicit?: SpecificationExtension & OAuthFlowBase & OAuthFlowAuthorizationUrlTrait
-    password?: SpecificationExtension & OAuthFlowBase & OAuthFlowTokenUrlTrait
-    clientCredentials?: SpecificationExtension & OAuthFlowBase & OAuthFlowTokenUrlTrait
-    authorizationCode?: SpecificationExtension & OAuthFlowBase & OAuthFlowAuthorizationUrlTrait & OAuthFlowTokenUrlTrait
+    implicit?: SpecificationExtensions & OAuthFlowBase & OAuthFlowAuthorizationUrlTrait
+    password?: SpecificationExtensions & OAuthFlowBase & OAuthFlowTokenUrlTrait
+    clientCredentials?: SpecificationExtensions & OAuthFlowBase & OAuthFlowTokenUrlTrait
+    authorizationCode?: SpecificationExtensions &
+      OAuthFlowBase &
+      OAuthFlowAuthorizationUrlTrait &
+      OAuthFlowTokenUrlTrait
   }
 
   export type OAuth2SecurityScheme = {
@@ -906,13 +905,13 @@ export namespace OpenAPIV3 {
     type?: 'openIdConnect'
     description?: string
     openIdConnectUrl?: string
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type TagObject = {
     name?: string
     description?: string
     externalDocs?: ExternalDocumentationObject
-  } & SpecificationExtension
+  } & SpecificationExtensions
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
@@ -939,13 +938,13 @@ export namespace OpenAPIV2 {
     securityDefinitions?: SecurityDefinitionsObject
     tags?: TagObject[]
   } & T &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type TagObject = {
     name?: string
     description?: string
     externalDocs?: ExternalDocumentationObject
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type SecuritySchemeObjectBase = {
     type?: 'basic' | 'apiKey' | 'oauth2'
@@ -1009,7 +1008,9 @@ export namespace OpenAPIV2 {
     [index: string]: string[]
   }
 
-  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
+  export type ReferenceObject = {
+    $ref: string
+  }
 
   export type Response = ResponseObject | ReferenceObject
 
@@ -1024,7 +1025,7 @@ export namespace OpenAPIV2 {
     schema?: Schema
     headers?: HeadersObject
     examples?: ExampleObject
-  } & SpecificationExtension
+  } & SpecificationExtensions
 
   export type HeadersObject = {
     [index: string]: HeaderObject
@@ -1052,7 +1053,7 @@ export namespace OpenAPIV2 {
     deprecated?: boolean
     security?: SecurityRequirementObject[]
   } & T &
-    SpecificationExtension
+    SpecificationExtensions
 
   export type ResponsesObject = {
     [index: string]: Response | undefined
@@ -1221,4 +1222,4 @@ export type IJsonSchema = {
   oneOf?: IJsonSchema[]
   not?: IJsonSchema
   $ref?: string
-} & SpecificationExtension
+} & SpecificationExtensions

@@ -1,6 +1,6 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -38,9 +38,13 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
   ) as StatusCode
 
   // Headers
-  const headers = preferredResponse?.headers ?? {}
+  const headers =
+    typeof preferredResponse === 'object' && 'headers' in preferredResponse ? (preferredResponse.headers ?? {}) : {}
   Object.keys(headers).forEach((header) => {
-    const value = headers[header].schema ? getExampleFromSchema(headers[header].schema) : null
+    const value =
+      typeof headers[header] === 'object' && 'schema' in headers[header]
+        ? getExampleFromSchema(headers[header].schema as OpenAPIV3_1.SchemaObject)
+        : null
     if (value !== null) {
       c.header(header, value)
     }
@@ -52,7 +56,10 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
     return c.body(null)
   }
 
-  const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
+  const supportedContentTypes =
+    typeof preferredResponse === 'object' && 'content' in preferredResponse
+      ? Object.keys(preferredResponse.content ?? {})
+      : []
 
   // If no content types are defined, return the status with no body
   if (supportedContentTypes.length === 0) {
@@ -71,13 +78,26 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
 
   c.header('Content-Type', acceptedContentType)
 
-  const acceptedResponse = preferredResponse?.content?.[acceptedContentType]
+  const acceptedResponse =
+    typeof preferredResponse === 'object' && 'content' in preferredResponse
+      ? preferredResponse.content?.[acceptedContentType]
+      : null
+
+  const example =
+    typeof acceptedResponse === 'object' && acceptedResponse && 'example' in acceptedResponse
+      ? acceptedResponse?.example
+      : null
+
+  const schema =
+    typeof acceptedResponse === 'object' && acceptedResponse && 'schema' in acceptedResponse
+      ? acceptedResponse.schema
+      : null
 
   // Body
-  const body = acceptedResponse?.example
-    ? acceptedResponse.example
-    : acceptedResponse?.schema
-      ? getExampleFromSchema(acceptedResponse.schema, {
+  const body = example
+    ? example
+    : schema
+      ? getExampleFromSchema(schema, {
           emptyString: 'string',
           variables: c.req.param(),
           mode: 'read',

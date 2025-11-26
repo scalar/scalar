@@ -201,7 +201,7 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
+  const security = schema.components?.securitySchemes ?? {}
 
   // @ts-expect-error - Toss out a deprecated warning for the old authentication state
   if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
@@ -357,7 +357,7 @@ export async function importSpecToWorkspace(
       operation.tags?.forEach((t: string) => tagNames.add(t))
 
       // Remove security here and add it correctly below
-      const { security: operationSecurity, ...operationWithoutSecurity } = operation
+      const { security: operationSecurity, externalDocs, callbacks, ...operationWithoutSecurity } = operation
 
       const securityRequirements: (string | string[])[] = (operationSecurity ?? schema.security ?? [])
         .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
@@ -394,6 +394,16 @@ export async function importSpecToWorkspace(
         // Merge path and operation level parameters
         parameters: [...(path?.parameters ?? []), ...(operation.parameters ?? [])] as RequestParameterPayload[],
         servers: [...pathServers, ...operationLevelServers].map((s) => s.uid),
+        // Convert callbacks to a record of records
+        callbacks: callbacks
+          ? Object.entries(callbacks)
+              .map(([key, value]) => ({ [key]: value as Record<string, Record<string, any>> }))
+              .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+          : undefined,
+        // Only include externalDocs if it has a required url
+        ...(externalDocs?.url
+          ? { externalDocs: { url: externalDocs.url, description: externalDocs.description } }
+          : {}),
       }
 
       // Remove any examples from the request payload as they conflict with our examples property and are not valid
@@ -480,7 +490,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   // Grab the security requirements for this operation
-  const securityRequirements: SelectedSecuritySchemeUids = (schema.security ?? [])
+  const securityRequirements: (string | string[])[] = (schema.security ?? [])
     .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
       const keys = Object.keys(s)
       return keys.length > 1 ? keys : keys[0]

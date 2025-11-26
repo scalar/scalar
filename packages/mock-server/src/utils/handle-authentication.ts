@@ -17,9 +17,12 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
         let securitySchemeAuthenticated = true
 
         for (const [schemeName] of Object.entries(securityRequirement)) {
-          const scheme = schema?.components?.securitySchemes?.[schemeName]
+          const scheme =
+            typeof schema === 'object' && 'components' in schema
+              ? (schema?.components?.securitySchemes?.[schemeName] ?? {})
+              : {}
 
-          if (scheme) {
+          if (scheme && 'type' in scheme) {
             switch (scheme.type) {
               case 'http':
                 if (scheme.scheme === 'basic') {
@@ -41,18 +44,18 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
               case 'apiKey':
                 authScheme = `ApiKey ${scheme.name}`
 
-                if (scheme.in === 'header') {
+                if (scheme.in === 'header' && scheme.name) {
                   const apiKey = c.req.header(scheme.name)
                   if (apiKey) {
                     isAuthenticated = true
                   }
-                } else if (scheme.in === 'query') {
+                } else if (scheme.in === 'query' && scheme.name) {
                   const apiKey = c.req.query(scheme.name)
 
                   if (apiKey) {
                     isAuthenticated = true
                   }
-                } else if (scheme.in === 'cookie') {
+                } else if (scheme.in === 'cookie' && scheme.name) {
                   const apiKey = getCookie(c, scheme.name)
 
                   if (apiKey) {

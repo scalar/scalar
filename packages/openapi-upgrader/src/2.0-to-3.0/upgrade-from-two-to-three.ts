@@ -330,7 +330,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   return document as OpenAPIV3.Document
 }
 
-function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
+function transformItemsObject<T extends UnknownObject>(obj: T): OpenAPIV3.SchemaObject {
   const schemaProperties = [
     'type',
     'format',
@@ -349,6 +349,10 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'multipleOf',
   ]
 
+  if (typeof obj !== 'object' || obj === null) {
+    return {}
+  }
+
   return schemaProperties.reduce((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
@@ -356,7 +360,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     }
 
     return acc
-  }, {} as OpenAPIV3.SchemaObject)
+  }, {} as UnknownObject)
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
@@ -382,10 +386,20 @@ function transformParameterObject(
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
 
-  delete parameter.collectionFormat
-  delete parameter.default
+  if (
+    typeof parameter === 'object' &&
+    parameter !== null &&
+    'collectionFormat' in parameter &&
+    'default' in parameter &&
+    'in' in parameter
+  ) {
+    delete parameter.collectionFormat
+  }
+  if (typeof parameter === 'object' && parameter !== null && 'default' in parameter) {
+    delete parameter.default
+  }
 
-  if (!parameter.in) {
+  if (typeof parameter === 'object' && parameter !== null && 'in' in parameter && !parameter.in) {
     throw new Error('Parameter object must have an "in" property')
   }
 
@@ -393,7 +407,9 @@ function transformParameterObject(
     schema,
     ...serializationStyle,
     ...parameter,
-    in: getParameterLocation(parameter.in),
+    ...(typeof parameter === 'object' && parameter !== null && 'in' in parameter && parameter.in
+      ? { in: getParameterLocation(parameter.in) }
+      : {}),
   }
 }
 

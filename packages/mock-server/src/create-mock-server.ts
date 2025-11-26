@@ -1,5 +1,5 @@
 import { dereference } from '@scalar/openapi-parser'
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -30,7 +30,7 @@ export function createMockServer(configuration: MockServerOptions): Promise<Hono
   setUpAuthenticationRoutes(app, schema)
 
   logAuthenticationInstructions(
-    schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
+    typeof schema === 'object' && 'components' in schema ? (schema?.components?.securitySchemes ?? {}) : {},
   )
 
   /** Paths specified in the OpenAPI document */

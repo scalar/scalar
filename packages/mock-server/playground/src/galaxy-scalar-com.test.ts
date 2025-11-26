@@ -102,10 +102,7 @@ describe('galaxy-scalar-com', () => {
       // Call the callback
       onRequestCallback?.({
         context: mockContext,
-        operation: {
-          path: '/api/test',
-          method: 'GET',
-        },
+        operation: {},
       })
 
       expect(console.log).toHaveBeenCalledWith('GET http://localhost:5052/api/test')

@@ -47,8 +47,8 @@ const { content } = defineProps<{
     </header>
 
     <ScalarMarkdown
-      :value="content?.info?.description"
-      v-if="content?.info?.description" />
+      v-if="content?.info?.description"
+      :value="content?.info?.description" />
 
     <section v-if="content?.servers?.length">
       <h2>Servers</h2>
@@ -75,8 +75,8 @@ const { content } = defineProps<{
                       <li>
                         <code>{{ name }}</code> (default:
                         <code>{{ variable.default }}</code
-                        >)<template v-if="variable.description"
-                          >: {{ variable.description }}
+                        >)<template v-if="variable.description">
+                          : {{ variable.description }}
                         </template>
                       </li>
                     </template>
@@ -161,12 +161,12 @@ const { content } = defineProps<{
                     <Schema :schema="content.schema" />
                     <p><strong>Example:</strong></p>
                     <XmlOrJson
-                      :xml="mediaType?.toString().includes('xml')"
-                      :model-value="
+                      :modelValue="
                         getExampleFromSchema(content.schema, {
                           xml: mediaType?.toString().includes('xml'),
                         })
-                      " />
+                      "
+                      :xml="mediaType?.toString().includes('xml')" />
                   </template>
                 </template>
               </section>
@@ -197,12 +197,12 @@ const { content } = defineProps<{
                           <Schema :schema="content.schema" />
                           <p><strong>Example:</strong></p>
                           <XmlOrJson
-                            :xml="mediaType?.toString().includes('xml')"
-                            :model-value="
+                            :modelValue="
                               getExampleFromSchema(content.schema, {
                                 xml: mediaType?.toString().includes('xml'),
                               })
-                            " />
+                            "
+                            :xml="mediaType?.toString().includes('xml')" />
                         </template>
                       </section>
                     </template>
@@ -288,23 +288,45 @@ const { content } = defineProps<{
         :key="name">
         <section>
           <header>
-            <h3>{{ schema.title ?? name }}</h3>
+            <h3>
+              {{
+                (typeof schema === 'object' && 'title' in schema
+                  ? schema.title
+                  : null) ?? name
+              }}
+            </h3>
           </header>
           <ul>
             <li>
               <strong>Type:</strong>
-              <code>{{ schema.type }}</code>
+              <code>{{
+                (typeof schema === 'object' && 'type' in schema
+                  ? schema.type
+                  : null) ?? 'unknown'
+              }}</code>
             </li>
           </ul>
-          <template v-if="schema.description">
+          <template
+            v-if="typeof schema === 'object' && 'description' in schema">
             <ScalarMarkdown :value="schema.description" />
           </template>
           <Schema
-            v-if="schema.type === 'object'"
+            v-if="
+              (typeof schema === 'object' &&
+                'type' in schema &&
+                schema.type === 'object') ??
+              false
+            "
             :schema="schema" />
           <p><strong>Example:</strong></p>
-          <template v-if="schema.type === 'object'">
-            <XmlOrJson :model-value="getExampleFromSchema(schema)" />
+          <template
+            v-if="
+              (typeof schema === 'object' &&
+                'type' in schema &&
+                schema.type === 'object') ??
+              false
+            ">
+            <XmlOrJson :modelValue="getExampleFromSchema(schema)" />
           </template>
         </section>
       </template>

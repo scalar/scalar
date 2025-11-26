@@ -61,9 +61,10 @@ function extractHeaders(
   if (Array.isArray(headers)) {
     headers.forEach((header) => {
       openapiHeaders[header.key] = {
-        schema: {
-          type: 'string',
-          examples: [header.value],
+        examples: {
+          default: {
+            value: header.value,
+          },
         },
       }
     })

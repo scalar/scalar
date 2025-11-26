@@ -8,12 +8,12 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
  */
 export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
   let output = key
-  const isRequired = obj.required?.includes(key)
+  const isRequired = 'required' in obj && obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
-  const property = getResolvedRef(obj.properties?.[key])
+  const property = 'properties' in obj && obj.properties?.[key] ? getResolvedRef(obj.properties?.[key]) : undefined
 
   // Check existence before accessing
-  if (property) {
+  if (property && 'type' in property) {
     output += property.type
     if (property.description) {
       output += ' ' + property.description
@@ -30,20 +30,29 @@ function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
   const results: string[] = ['Body']
   const schema = getResolvedRef(obj?.schema)
 
-  const properties = schema?.properties
+  const properties =
+    typeof schema === 'object' && 'properties' in schema && schema?.properties ? schema.properties : undefined
+
   if (properties) {
     Object.keys(properties).forEach((key) => {
-      if (!obj.schema) {
+      if (!obj.schema || typeof schema !== 'object') {
         return
       }
 
       results.push(formatProperty(key, schema))
 
       const property = getResolvedRef(properties[key])
-      const isNestedObject = property.type === 'object' && Boolean(property.properties)
+      const isNestedObject =
+        property && 'type' in property && property.type === 'object' && Boolean(property.properties)
       if (isNestedObject && property.properties) {
         Object.keys(property.properties).forEach((subKey) => {
-          results.push(`${subKey} ${getResolvedRef(property.properties?.[subKey])?.type}`)
+          const resolvedRef = getResolvedRef(property.properties?.[subKey])
+
+          if (typeof resolvedRef !== 'object' || !('type' in resolvedRef)) {
+            return
+          }
+
+          results.push(`${subKey} ${resolvedRef?.type}`)
         })
       }
     })

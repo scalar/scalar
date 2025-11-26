@@ -13,8 +13,12 @@ const sortProperties = (
   const sorted = Object.entries(properties).sort(([a], [b]) => {
     const aRequired = required?.includes(a)
     const bRequired = required?.includes(b)
-    if (aRequired && !bRequired) return -1
-    if (!aRequired && bRequired) return 1
+    if (aRequired && !bRequired) {
+      return -1
+    }
+    if (!aRequired && bRequired) {
+      return 1
+    }
     return a.localeCompare(b)
   })
   return Object.fromEntries(sorted)
@@ -22,7 +26,7 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="schema">
+  <section v-if="schema && typeof schema === 'object' && !('$ref' in schema)">
     <!-- Composition keywords -->
     <template v-if="schema.allOf">
       <section>
@@ -84,7 +88,10 @@ const sortProperties = (
               schema.required,
             )"
             :key="propName">
-            <li>
+            <li
+              v-if="
+                typeof propName === 'string' && typeof propSchema === 'object'
+              ">
               <strong>
                 <code>{{ propName }}</code>
                 <span v-if="schema.required?.includes(propName)">
@@ -94,12 +101,16 @@ const sortProperties = (
               <p>
                 <code>
                   {{
-                    Array.isArray(propSchema.type)
-                      ? propSchema.type.join(' | ')
+                    Array.isArray(
+                      typeof propSchema === 'object' && 'type' in propSchema
+                        ? propSchema.type
+                        : null,
+                    )
+                      ? (propSchema.type as string[])?.join(' | ')
                       : propSchema.type || 'object'
                   }}
                 </code>
-                <template v-if="propSchema.format">
+                <template v-if="propSchema">
                   <span
                     >, format: <code>{{ propSchema.format }}</code></span
                   >

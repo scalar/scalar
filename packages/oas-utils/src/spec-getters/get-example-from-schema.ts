@@ -130,7 +130,12 @@ const cache = (schema: OpenAPIV3_1.SchemaObject, result: unknown) => {
  * Check if a schema uses composition keywords (allOf, oneOf, anyOf).
  * These require special handling for merging or selecting schemas.
  */
-const isComposed = (schema: OpenAPIV3_1.SchemaObject): boolean => !!(schema.allOf || schema.oneOf || schema.anyOf)
+const isComposed = (schema: OpenAPIV3_1.SchemaObject): boolean =>
+  Boolean(
+    ('allOf' in schema && Array.isArray(schema.allOf) && schema.allOf?.length > 0) ||
+      ('oneOf' in schema && Array.isArray(schema.oneOf) && schema.oneOf?.length > 0) ||
+      ('anyOf' in schema && Array.isArray(schema.anyOf) && schema.anyOf?.length > 0),
+  )
 
 /**
  * Determine if a property should be omitted based on the options.
@@ -164,7 +169,7 @@ const shouldOmitProperty = (
   }
 
   // Check if the property is required
-  const name = propertyName ?? schema.title ?? ''
+  const name = propertyName ?? ('title' in schema && typeof schema.title === 'string' ? schema.title : '') ?? ''
   const requiredNames = getRequiredNames(parentSchema)
   const isRequired = requiredNames ? requiredNames.has(name) : false
 
@@ -270,7 +275,7 @@ const handleObjectSchema = (
   }
 
   // onOf
-  if (schema.oneOf?.[0]) {
+  if ('oneOf' in schema && Array.isArray(schema.oneOf) && schema.oneOf?.[0]) {
     Object.assign(
       response,
       getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, {
@@ -280,7 +285,7 @@ const handleObjectSchema = (
     )
   }
   // anyOf
-  else if (schema.anyOf?.[0]) {
+  else if ('anyOf' in schema && Array.isArray(schema.anyOf) && schema.anyOf?.[0]) {
     Object.assign(
       response,
       getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, {
@@ -290,7 +295,7 @@ const handleObjectSchema = (
     )
   }
   // allOf
-  else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
+  else if ('allOf' in schema && Array.isArray(schema.allOf) && schema.allOf?.length > 0) {
     let merged: unknown = response
     for (const item of schema.allOf) {
       const ex = getExampleFromSchema(getResolvedRef(item), options, {
@@ -325,12 +330,12 @@ const handleArraySchema = (
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
-  if (schema.example !== undefined) {
+  if ('example' in schema && schema.example !== undefined) {
     return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
   }
 
   if (items && typeof items === 'object') {
-    if (Array.isArray(items.allOf) && items.allOf.length > 0) {
+    if ('allOf' in items && Array.isArray(items.allOf) && items.allOf?.length > 0) {
       const allOf = items.allOf.filter(isDefined)
       const first = getResolvedRef(allOf[0])
 
@@ -359,7 +364,11 @@ const handleArraySchema = (
       )
     }
 
-    const union = items.anyOf || items.oneOf
+    const union =
+      ('anyOf' in items && Array.isArray(items.anyOf) && items.anyOf?.length > 0) ||
+      ('oneOf' in items && Array.isArray(items.oneOf) && items.oneOf?.length > 0)
+        ? items.anyOf || items.oneOf
+        : undefined
     if (union && union.length > 0) {
       const first = union[0] as OpenAPIV3_1.SchemaObject
       const ex = getExampleFromSchema(getResolvedRef(first), options, {
@@ -514,9 +523,9 @@ export const getExampleFromSchema = (
 
   // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (
-    _schema.deprecated ||
-    (options?.mode === 'write' && _schema.readOnly) ||
-    (options?.mode === 'read' && _schema.writeOnly) ||
+    ('deprecated' in _schema && _schema.deprecated) ||
+    (options?.mode === 'write' && 'readOnly' in _schema && _schema.readOnly) ||
+    (options?.mode === 'read' && 'writeOnly' in _schema && _schema.writeOnly) ||
     shouldOmitProperty(_schema, parentSchema, name, options)
   ) {
     seen.delete(targetValue)
@@ -538,23 +547,23 @@ export const getExampleFromSchema = (
   }
 
   // Priority order: examples > example > default > const > enum
-  if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
+  if ('examples' in _schema && Array.isArray(_schema.examples) && _schema.examples?.length > 0) {
     seen.delete(targetValue)
     return cache(_schema, _schema.examples[0])
   }
-  if (_schema.example !== undefined) {
+  if ('example' in _schema && _schema.example !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, _schema.example)
   }
-  if (_schema.default !== undefined) {
+  if ('default' in _schema && _schema.default !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, _schema.default)
   }
-  if (_schema.const !== undefined) {
+  if ('const' in _schema && _schema.const !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, _schema.const)
   }
-  if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
+  if ('enum' in _schema && Array.isArray(_schema.enum) && _schema.enum?.length > 0) {
     seen.delete(targetValue)
     return cache(_schema, _schema.enum[0])
   }
@@ -581,7 +590,11 @@ export const getExampleFromSchema = (
   }
 
   // Handle composition schemas (oneOf, anyOf) at root level
-  const discriminate = _schema.oneOf || _schema.anyOf
+  const discriminate =
+    ('oneOf' in _schema && Array.isArray(_schema.oneOf) && _schema.oneOf?.length > 0) ||
+    ('anyOf' in _schema && Array.isArray(_schema.anyOf) && _schema.anyOf?.length > 0)
+      ? _schema.oneOf || _schema.anyOf
+      : undefined
   if (Array.isArray(discriminate) && discriminate.length > 0) {
     // Find the first non-null type without allocating intermediate arrays
     for (const item of discriminate) {
@@ -602,7 +615,7 @@ export const getExampleFromSchema = (
   }
 
   // Handle allOf at root level (non-object/array schemas)
-  if (Array.isArray(_schema.allOf) && _schema.allOf.length > 0) {
+  if ('allOf' in _schema && Array.isArray(_schema.allOf) && _schema.allOf?.length > 0) {
     let merged: unknown = undefined
     const items = _schema.allOf
     for (const item of items) {
