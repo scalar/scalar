@@ -1,4 +1,4 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,13 +23,8 @@ builder.Services.AddOpenApi(options =>
         };
 
         document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes.Add("oauth2", securityScheme);
-
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-            [securityScheme] = []
-        };
-        document.SecurityRequirements = [securityRequirement];
 
         return Task.CompletedTask;
     });
