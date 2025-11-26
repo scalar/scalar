@@ -1,6 +1,6 @@
-import { consoleErrorSpy } from '@scalar/helpers/testing/console-spies'
 import { assert, describe, expect, it } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 
@@ -19,7 +19,7 @@ import {
   updateOperationSummary,
 } from './operation'
 
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
+const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
@@ -74,127 +74,158 @@ describe('updateOperationSummary', () => {
 })
 
 describe('updateOperationMethod', () => {
-  it('moves operation from one HTTP method to another on same path', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            description: 'Retrieve list of users',
-            parameters: [{ name: 'limit', in: 'query' }],
+  const store = createWorkspaceStore()
+
+  it('replaces the x-scalar-order with the new ID', async () => {
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              description: 'Retrieve list of users',
+              parameters: [{ name: 'limit', in: 'query' }],
+            },
+            post: {
+              summary: 'Post users',
+              description: 'Create a new user',
+              parameters: [{ name: 'name', in: 'query' }],
+            },
           },
         },
+      }),
+    })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
+    expect(document['x-scalar-order']).toStrictEqual(['test/get/users', 'test/post/users'])
+
+    updateOperationMethod(document, store, {
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      payload: { method: 'put' },
+    })
+
+    expect(document['x-scalar-order']).toStrictEqual(['test/put/users', 'test/post/users'])
+
+    // The operation should now be under 'put'
+    expect(document.paths?.['/users']).toStrictEqual({
+      post: {
+        summary: 'Post users',
+        description: 'Create a new user',
+        parameters: [{ name: 'name', in: 'query' }],
       },
-    })
-
-    updateOperationMethod(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { method: 'post' },
-    })
-
-    // The operation should now be under 'post'
-    expect(document.paths).toStrictEqual({
-      '/users': {
-        post: {
-          description: 'Retrieve list of users',
-          parameters: [
-            {
-              in: 'query',
-              name: 'limit',
-            },
-          ],
-          summary: 'Get users',
-        },
+      put: {
+        summary: 'Get users',
+        description: 'Retrieve list of users',
+        parameters: [{ name: 'limit', in: 'query' }],
       },
     })
   })
 
-  it('preserves all operation properties when changing method', () => {
-    const document = createDocument({
-      paths: {
-        '/posts/{id}': {
-          put: {
-            summary: 'Update post',
-            description: 'Updates an existing post',
-            operationId: 'updatePost',
-            tags: ['posts'],
-            parameters: [
-              { name: 'id', in: 'path', required: true },
-              { name: 'X-Api-Key', in: 'header' },
-            ],
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: { type: 'object' },
-                },
-              },
+  it('updates all operations in all tags while preserving the order', async () => {
+    await store.addDocument({
+      name: 'test2',
+      document: createDocument({
+        tags: [
+          {
+            name: 'products',
+            description: 'Products',
+          },
+          {
+            name: 'catalog',
+            description: 'Catalog',
+          },
+          {
+            name: 'admin',
+            description: 'Admin',
+          },
+        ],
+        paths: {
+          '/products': {
+            get: {
+              summary: 'Get products',
+              description: 'Retrieve list of products',
+              tags: ['products', 'catalog'],
+              parameters: [{ name: 'limit', in: 'query' }],
             },
-            responses: {
-              '200': { description: 'Success' },
+            delete: {
+              summary: 'Delete product',
+              description: 'Remove a product',
+              tags: ['products', 'admin'],
+              parameters: [{ name: 'id', in: 'path' }],
             },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test2')
+    const document = store.workspace.documents.test2!
+    expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
+      'test2/tag/products/get/products',
+      'test2/tag/products/delete/products',
+    ])
 
-    updateOperationMethod(document, {
-      meta: { method: 'put', path: '/posts/{id}' },
+    updateOperationMethod(document, store, {
+      meta: { method: 'get', path: '/products', exampleKey: 'default' },
       payload: { method: 'patch' },
     })
 
-    expect(document.paths).toStrictEqual({
-      '/posts/{id}': {
-        patch: {
-          summary: 'Update post',
-          description: 'Updates an existing post',
-          operationId: 'updatePost',
-          tags: ['posts'],
-          parameters: [
-            { name: 'id', in: 'path', required: true },
-            { name: 'X-Api-Key', in: 'header' },
-          ],
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: { type: 'object' },
-              },
-            },
-          },
-          responses: {
-            '200': { description: 'Success' },
-          },
-        },
+    expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
+      'test2/tag/products/patch/products',
+      'test2/tag/products/delete/products',
+    ])
+
+    // The operation should now be under 'patch' with all properties preserved
+    expect(document.paths?.['/products']).toStrictEqual({
+      delete: {
+        summary: 'Delete product',
+        description: 'Remove a product',
+        tags: ['products', 'admin'],
+        parameters: [{ name: 'id', in: 'path' }],
+      },
+      patch: {
+        summary: 'Get products',
+        description: 'Retrieve list of products',
+        tags: ['products', 'catalog'],
+        parameters: [{ name: 'limit', in: 'query' }],
       },
     })
   })
 
-  it('returns undefined and logs error when path does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
+  it('calls callback with success status after updating method', async () => {
+    await store.addDocument({
+      name: 'test3',
+      document: createDocument({
+        paths: {
+          '/items': {
+            get: {
+              summary: 'Get items',
+              description: 'Retrieve items',
+            },
           },
         },
+      }),
+    })
+    store.buildSidebar('test3')
+    const document = store.workspace.documents.test3!
+
+    let callbackResult: boolean | undefined
+
+    updateOperationMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/items', exampleKey: 'default' },
+        payload: { method: 'post' },
       },
-    })
-
-    const result = updateOperationMethod(document, {
-      meta: { method: 'get', path: '/nonexistent' },
-      payload: { method: 'post' },
-    })
-
-    expect(result).toBeUndefined()
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Operation not found', expect.any(Object))
-    expect(document.paths).toStrictEqual({
-      '/users': {
-        get: {
-          summary: 'Get users',
-        },
+      (success) => {
+        callbackResult = success
       },
-    })
+    )
 
-    consoleErrorSpy.mockRestore()
+    expect(callbackResult).toBe(true)
+    expect(document.paths?.['/items']?.post).toBeDefined()
+    expect(document.paths?.['/items']?.get).toBeUndefined()
   })
 })
 

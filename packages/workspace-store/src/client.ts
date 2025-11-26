@@ -1,3 +1,4 @@
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
@@ -276,6 +277,18 @@ export type WorkspaceStore = {
    * falling back to the first document if none is specified.
    */
   readonly config: typeof defaultConfig
+  /**
+   * Returns the merged configuration for a specific document.
+   *
+   * This method merges configurations in the following order of precedence:
+   * 1. Document-specific configuration (highest priority)
+   * 2. Workspace-level configuration
+   * 3. Default configuration (lowest priority)
+   *
+   * @param documentName - The name of the document to get the configuration for
+   * @returns The merged configuration for the specified document
+   */
+  getDocumentConfiguration(documentName: string): typeof defaultConfig
   /**
    * Exports the specified document in the requested format.
    *
@@ -956,10 +969,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return workspace
     },
     update(key, value) {
-      // @ts-expect-error
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-        throw new Error('Invalid key: cannot modify prototype')
-      }
+      preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
     updateDocument<K extends keyof WorkspaceDocumentMeta>(
@@ -973,6 +983,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         throw 'Please select a valid document'
       }
 
+      preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
@@ -1059,6 +1070,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
     },
+    getDocumentConfiguration,
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,

@@ -44,7 +44,7 @@ export type OperationEvents = {
       method: HttpMethod
     }
     /** Identifies the target operation by original method and path */
-    meta: OperationMeta
+    meta: OperationExampleMeta
   }
 
   /**

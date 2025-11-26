@@ -72,7 +72,7 @@ describe('OperationContainer', () => {
     expect(fn).toHaveBeenCalledTimes(1)
 
     expect(fn).toHaveBeenCalledWith({
-      meta: { method: 'get', path: '/pets' },
+      meta: { method: 'get', path: '/pets', exampleKey: 'default' },
       payload: { method: 'put' },
     })
   })
