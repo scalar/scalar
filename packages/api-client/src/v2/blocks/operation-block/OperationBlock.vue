@@ -144,7 +144,7 @@ const handleUpdatePath = (payload: { value: string }) =>
       },
       operationEntriesMap,
     },
-    { debounceKey: 'operation-update-path' },
+    { debounceKey: `operation:update:path-${path}-${method}` },
   )
 </script>
 <template>
