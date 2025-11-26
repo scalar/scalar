@@ -6,12 +6,14 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
   onBeforeUnmount,
   onMounted,
+  ref,
   useId,
   useTemplateRef,
 } from 'vue'
@@ -29,6 +31,7 @@ const {
   layout,
   eventBus,
   history,
+  operationEntriesMap,
   server,
   environment,
   percentage = 100,
@@ -37,6 +40,8 @@ const {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Operation entries map to keep track of conflicts */
+  operationEntriesMap: OperationEntriesMap
   /** Currently selected server */
   server: ServerObject | null
   /** Server list available for operation/document */
@@ -97,6 +102,23 @@ const handleFocusAddressBar = ({
   event.preventDefault()
 }
 
+/** Handles error state for http method conflicts */
+const methodPathConflict = ref(false)
+
+/** Ensure we only update the method if it doesn't conflict, else enter error state */
+const handleMethodChange = (newMethod: HttpMethodType) => {
+  methodPathConflict.value = false
+
+  // Checks our map to see if the conflict exists
+  if (operationEntriesMap.get(newMethod)) {
+    methodPathConflict.value = true
+    return
+  }
+
+  // Update the method in the store or perform any other necessary actions
+  emit('update:method', { value: newMethod })
+}
+
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
@@ -113,7 +135,8 @@ onBeforeUnmount(() => {
     class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
     <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]">
+      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
+      :class="{ 'border-red border': true }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
@@ -126,7 +149,7 @@ onBeforeUnmount(() => {
           isSquare
           :method="method"
           teleport
-          @change="(payload) => emit('update:method', { value: payload })" />
+          @change="handleMethodChange" />
       </div>
 
       <div

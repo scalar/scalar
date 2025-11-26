@@ -6,7 +6,7 @@ import type {
   WithParent,
 } from '@/schemas/navigation'
 
-type EntriesMap = Map<string, (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]>
+export type OperationEntriesMap = Map<string, (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]>
 
 /**
  * Builds a map of all operations and webhooks in a document, indexed by path/name and method.
@@ -15,8 +15,9 @@ type EntriesMap = Map<string, (WithParent<TraversedOperation> | WithParent<Trave
  * entries. Multiple entries can share the same path|method key (for example, when operations are
  * duplicated across different tags or groups).
  *
- * Performance note: If this function is called frequently, consider generating this map once when
- * creating the sidebar state rather than recalculating it in mutators.
+ * ~Performance note: If this function is called frequently, consider generating this map once when
+ * creating the sidebar state rather than recalculating it in mutators.~
+ * Update: we are now generating it features/operation and its drilled down from there
  *
  * @param document - The traversed OpenAPI document to extract operations from
  * @returns A map where keys are `path|method` (for operations) or `name|method` (for webhooks),
@@ -27,8 +28,8 @@ type EntriesMap = Map<string, (WithParent<TraversedOperation> | WithParent<Trave
  * const entries = getOperationEntries(document)
  * const getUsers = entries.get('/users|get') // Array of all GET /users operations
  */
-export const getOperationEntries = (document: TraversedDocument): EntriesMap => {
-  const map: EntriesMap = new Map()
+export const getOperationEntries = (document: TraversedDocument): OperationEntriesMap => {
+  const map: OperationEntriesMap = new Map()
 
   /**
    * Helper function to add an entry to the map under the specified key.
