@@ -59,8 +59,7 @@
 
   <properties>
     <java.version>17</java.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.skip>false</gpg.skip>
   </properties>
@@ -87,8 +86,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.1</version>
           <configuration>
-            <source>17</source>
-            <target>17</target>
+            <release>17</release>
             <encoding>UTF-8</encoding>
           </configuration>
         </plugin>
@@ -141,7 +139,7 @@
             </execution>
           </executions>
           <configuration>
-            <source>17</source>
+            <release>17</release>
             <encoding>UTF-8</encoding>
             <doclint>none</doclint>
             <failOnError>true</failOnError>

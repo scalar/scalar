@@ -444,14 +444,10 @@ Both `ScalarWebMvcController` and `ScalarWebFluxController` can be extended to c
 import com.scalar.maven.webmvc.ScalarWebMvcController;
 import com.scalar.maven.core.ScalarProperties;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class CustomScalarController extends ScalarWebMvcController {
-    
-    public CustomScalarController(SpringBootScalarProperties properties) {
-        super(properties);
-    }
     
     @Override
     protected ScalarProperties configureProperties(
@@ -476,14 +472,10 @@ public class CustomScalarController extends ScalarWebMvcController {
 import com.scalar.maven.webflux.ScalarWebFluxController;
 import com.scalar.maven.core.ScalarProperties;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class CustomScalarController extends ScalarWebFluxController {
-    
-    public CustomScalarController(SpringBootScalarProperties properties) {
-        super(properties);
-    }
     
     @Override
     protected ScalarProperties configureProperties(
@@ -503,7 +495,7 @@ public class CustomScalarController extends ScalarWebFluxController {
 }
 ```
 
-The `configureProperties` method is called before the `ScalarProperties` are serialized to JSON and rendered. This allows you to dynamically modify the configuration based on the incoming request.
+The `configureProperties` method is called before the `ScalarProperties` are serialized to JSON and rendered. This allows you to dynamically modify the configuration based on the incoming request. Each request receives a fresh instance of `ScalarProperties`, so you can safely modify it without affecting other concurrent requests.
 
 ## Actuator Support
 
