@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router'
 
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
 import CommandPaletteExample from '@/v2/features/command-palette/components/CommandPaletteExample.vue'
+import CommandPaletteImport from '@/v2/features/command-palette/components/CommandPaletteImport.vue'
 import CommandPaletteRequest from '@/v2/features/command-palette/components/CommandPaletteRequest.vue'
 import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
@@ -23,7 +24,7 @@ const { paletteState } = defineProps<{
 }>()
 
 const ComamandsComponents: Record<FolderCommandIds, Component> = {
-  'import-from-openapi-swagger-postman-curl': CommandPaletteTag,
+  'import-from-openapi-swagger-postman-curl': CommandPaletteImport,
   'create-document': CommandPaletteDocument,
   'create-request': CommandPaletteRequest,
   'add-tag': CommandPaletteTag,

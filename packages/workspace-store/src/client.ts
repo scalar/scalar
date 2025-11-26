@@ -234,7 +234,7 @@ export type WorkspaceStore = {
    *   }
    * })
    */
-  addDocument(input: WorkspaceDocumentInput): Promise<void>
+  addDocument(input: WorkspaceDocumentInput): Promise<boolean>
   /**
    * Deletes a document from the workspace and all associated data.
    *
@@ -417,7 +417,7 @@ export type WorkspaceStore = {
    *
    * @param specification - The workspace specification to import.
    */
-  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
+  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<boolean[]>
   /**
    * Rebases a document in the workspace by refetching its origin and merging with local edits.
    *
@@ -865,7 +865,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     )
 
     // Log the time taken to add a document
-    await measureAsync('addDocument', async () => {
+    return await measureAsync('addDocument', async () => {
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
@@ -879,7 +879,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'x-scalar-original-document-hash': 'not-a-hash',
         }
 
-        return
+        return false
       }
 
       if (!isObject(resolve.data)) {
@@ -895,7 +895,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'x-scalar-original-document-hash': 'not-a-hash',
         }
 
-        return
+        return false
       }
 
       await addInMemoryDocument({
@@ -904,6 +904,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: getDocumentSource(input),
         documentHash: generateHash(resolve.raw),
       })
+
+      return true
     })
   }
 

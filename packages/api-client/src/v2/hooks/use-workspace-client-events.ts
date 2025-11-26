@@ -207,7 +207,10 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   // Tag Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('tag:create:tag', (payload) => createTag(workspaceStore.value, payload))
+  eventBus.on('tag:create:tag', (payload) => {
+    createTag(workspaceStore.value, payload)
+    buildSidebar(payload.documentName)
+  })
 
   //------------------------------------------------------------------------------------
   // UI Related Event Handlers
