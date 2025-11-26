@@ -2,6 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -24,6 +25,8 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   hideClientButton?: boolean
   /** Client integration  */
   integration?: string | null
+  /** Operation entries map */
+  operationEntriesMap: OperationEntriesMap
   /** Openapi document url for `modal` mode to open the client app */
   documentUrl?: string
   /** Client source */
@@ -70,7 +73,7 @@ const emit = defineEmits<{
     <div
       class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <!--
-          Holds space for the sidebar toggle 
+          Holds space for the sidebar toggle
 
           Hidden for `modal` layout
       -->
@@ -85,6 +88,7 @@ const emit = defineEmits<{
       :history
       :layout
       :method
+      :operationEntriesMap
       :path
       :percentage="requestLoadingPercentage"
       :server
@@ -96,7 +100,7 @@ const emit = defineEmits<{
 
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
-      <!-- 
+      <!--
           Open API Client Button
 
           Only shown in `modal` layout
@@ -109,7 +113,7 @@ const emit = defineEmits<{
         :source="source ?? 'api-reference'"
         :url="documentUrl" />
 
-      <!-- 
+      <!--
           Close Button
 
           Only shown in `modal` layout and hidden for GitBook Integration
@@ -126,7 +130,7 @@ const emit = defineEmits<{
         <span class="sr-only">Close Client</span>
       </button>
 
-      <!-- 
+      <!--
           Close Button for GitBook Integration
 
           Hidden by default and visible for GitBook Integration in `modal` layout

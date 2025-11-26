@@ -10,7 +10,6 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getOpenapiObject } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
-import { getOperationEntries } from '@/navigation/helpers/get-operation-entries'
 import type { WorkspaceDocument } from '@/schemas'
 import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
@@ -258,7 +257,7 @@ export const updateOperationSummary = (
 export const updateOperationMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method } }: OperationEvents['operation:update:method'],
+  { meta, payload: { method }, operationEntriesMap }: OperationEvents['operation:update:method'],
   callback?: (success: boolean) => void,
 ) => {
   // If the method has not changed, no need to do anything
@@ -283,11 +282,8 @@ export const updateOperationMethod = (
   const documentConfig = store?.getDocumentConfiguration(documentName)
   const { generateId } = getNavigationOptions(documentName, documentConfig)
 
-  /** Generate an operations map of the document */
-  const operationsMap = getOperationEntries(document['x-scalar-navigation'])
-
   /** Grabs all of the current operation entries for the given path and method */
-  const entries = operationsMap.get(`${meta.path}|${meta.method}`)
+  const entries = operationEntriesMap.get(`${meta.path}|${meta.method}`)
 
   // Loop over the entries and replace the ID in the x-scalar-order with the new ID
   entries?.forEach((entry) => {

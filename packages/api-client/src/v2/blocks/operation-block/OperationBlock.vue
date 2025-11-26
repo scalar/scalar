@@ -21,6 +21,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   OpenApiDocument,
@@ -39,64 +40,69 @@ import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
 
-const { eventBus, path, method, exampleKey, operation } = defineProps<{
-  eventBus: WorkspaceEventBus
-  /** Application version */
-  appVersion: string
-  /** Current request path */
-  path: string
-  /** Current request method */
-  method: HttpMethodType
-  /** Client layout */
-  layout: ClientLayout
-  /** Currently selected server */
-  server: ServerObject | null
-  /** Server list available for operation/document */
-  servers: ServerObject[]
-  /** List of request history */
-  history: History[]
-  /**
-   * When the request is sent from the modal, this indicates the progress percentage
-   * of the request being sent.
-   *
-   * The amount remaining to load from 100 -> 0
-   */
-  requestLoadingPercentage?: number
-  /** Preprocessed response */
-  response?: ResponseInstance
-  /** Original request instance */
-  request?: Request
-  /** Total number of performed requests */
-  totalPerformedRequests: number
-  /** Sidebar open state */
-  isSidebarOpen?: boolean
-  /** Controls sidebar visibility */
-  showSidebar?: boolean
-  /** Hides the client button on the header */
-  hideClientButton?: boolean
-  /** Client integration  */
-  integration?: string | null
-  /** Openapi document url for `modal` mode to open the client app */
-  documentUrl?: string
-  /** Client source */
-  source?: 'gitbook' | 'api-reference'
-  /** Operation object */
-  operation: OperationObject
-  /** Currently selected example key for the current operation */
-  exampleKey: string
-  /** Meta information for the auth update */
-  authMeta?: AuthMeta
-  /** Document defined security schemes */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** Currently selected security for the current operation */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
-  /** Required security for the operation/document */
-  security: OpenApiDocument['security']
-  /** Client plugins */
-  plugins?: ClientPlugin[]
-  /** For environment variables in the inputs */
-  environment: XScalarEnvironment
-}>()
+const { eventBus, path, method, exampleKey, operation, operationEntriesMap } =
+  defineProps<{
+    eventBus: WorkspaceEventBus
+    /** Application version */
+    appVersion: string
+    /** Current request path */
+    path: string
+    /** Current request method */
+    method: HttpMethodType
+    /** Client layout */
+    layout: ClientLayout
+    /** Currently selected server */
+    server: ServerObject | null
+    /** Server list available for operation/document */
+    servers: ServerObject[]
+    /** List of request history */
+    history: History[]
+    /**
+     * When the request is sent from the modal, this indicates the progress percentage
+     * of the request being sent.
+     *
+     * The amount remaining to load from 100 -> 0
+     */
+    requestLoadingPercentage?: number
+    /** Preprocessed response */
+    response?: ResponseInstance
+    /** Original request instance */
+    request?: Request
+    /** Total number of performed requests */
+    totalPerformedRequests: number
+    /** Sidebar open state */
+    isSidebarOpen?: boolean
+    /** Controls sidebar visibility */
+    showSidebar?: boolean
+    /** Hides the client button on the header */
+    hideClientButton?: boolean
+    /** Client integration  */
+    integration?: string | null
+    /** Openapi document url for `modal` mode to open the client app */
+    documentUrl?: string
+    /** Client source */
+    source?: 'gitbook' | 'api-reference'
+    /** Operation object */
+    operation: OperationObject
+    /** Operation entries map, required when updating path and method */
+    operationEntriesMap: OperationEntriesMap
+    /** Currently selected example key for the current operation */
+    exampleKey: string
+    /** Meta information for the auth update */
+    authMeta?: AuthMeta
+    /** Document defined security schemes */
+    securitySchemes: NonNullable<
+      OpenApiDocument['components']
+    >['securitySchemes']
+    /** Currently selected security for the current operation */
+    selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+    /** Required security for the operation/document */
+    security: OpenApiDocument['security']
+    /** Client plugins */
+    plugins?: ClientPlugin[]
+    /** For environment variables in the inputs */
+    environment: XScalarEnvironment
+  }>()
 
 const emit = defineEmits<{
   /** Route to the appropriate server page */
@@ -120,6 +126,7 @@ const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
     payload: {
       method: payload.value,
     },
+    operationEntriesMap,
   })
 
 /** Update the path for the operation in its draft state */
@@ -130,10 +137,12 @@ const handleUpdatePath = (payload: { value: string }) =>
       meta: {
         method,
         path,
+        exampleKey,
       },
       payload: {
         path: payload.value,
       },
+      operationEntriesMap,
     },
     { debounceKey: 'operation-update-path' },
   )
@@ -153,6 +162,7 @@ const handleUpdatePath = (payload: { value: string }) =>
         :isSidebarOpen
         :layout
         :method
+        :operationEntriesMap
         :path
         :percentage="requestLoadingPercentage"
         :server
