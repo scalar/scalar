@@ -1,18 +1,37 @@
-**Problem**
+## Problem
 
-Currently, …
+<!--
+  What problem does the PR solve?
+  WHY did you submit the PR?
 
-**Solution**
+  We are interested in the WHY (LLMs won't know).
+-->
 
-With this PR …
+## Solution
 
-**Checklist**
+<!--
+  How did you solve it?
+  What alternative solutions did you consider?
 
-I've gone through the following:
+  Cursor Bugbot (LLM) will summarize the code changes for you.
+-->
 
-- [ ] I've added an explanation _why_ this change is needed.
-- [ ] I've added a changeset (`pnpm changeset`).
-- [ ] I've added tests for the regression or new feature.
-- [ ] I've updated the documentation.
+## Checklist
 
-<!-- See the [contributing guide](https://github.com/scalar/scalar/blob/main/CONTRIBUTING.md) for more information. -->
+- [ ] I explained why the change is needed.
+- [ ] I added a changeset. <!-- pnpm changeset -->
+- [ ] I added tests.
+- [ ] I updated the documentation.
+
+<!--
+  Use semantic PR titles:
+
+    fix(api-client): crashes when API returns null
+    ^   ^            ^
+    |   |            |
+    |   |            |____ subject
+    |   |_________________ package
+    |_____________________ type of change
+
+  Read more: https://github.com/scalar/scalar/blob/main/CONTRIBUTING.md
+-->

@@ -14,10 +14,11 @@ This should give you a nice start page with entrypoints to the various previews 
 ### Quick start Development Scripts
 
 From the root:
+
 ```bash
 pnpm build:packages
 
-cd packages/package_name
+cd packages/$PACKAGE_NAME
 pnpm dev
 ```
 
@@ -31,7 +32,7 @@ To set up a Codespace, click the green "Code" button on the repository page and 
 
 To work with devcontainers in VS Code, open the repository folder and select "Reopen in Container" from the command palette (requires the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) to be installed).
 
-**Note:** Codespaces may incur costs depending on your usage and GitHub plan.  
+**Note:** Codespaces may incur costs depending on your usage and GitHub plan.
 **Current limitation:** Only the Node.js stack is supported in our devcontainer setup.
 
 For more details, see the `.devcontainer` folder in the repository.
@@ -79,10 +80,12 @@ Don't worry, we'll help you to get your PR in. But here is how you can help us:
 We require a semantic PR title, here is an example:
 
 ```text
-docs: Add information about semantic commits
-^     ^
-|     |__ Subject
-|________ Prefix
+fix(api-client): crashes when API returns null
+^   ^            ^
+|   |            |
+|   |            |____ subject
+|   |_________________ package
+|_____________________ type of change
 ```
 
 Here are all the prefixes you need to know:
