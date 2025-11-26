@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -28,6 +29,15 @@ describe('AddressBar', () => {
     description: 'Production Server',
   }
 
+  /** Creates an operation entries map for testing conflicts */
+  const createOperationEntriesMap = (entries: Array<{ path: string; method: string }> = []): OperationEntriesMap => {
+    const map: OperationEntriesMap = new Map()
+    entries.forEach(({ path, method }) => {
+      map.set(`${path}|${method}`, { path, method })
+    })
+    return map
+  }
+
   const mountWithProps = (
     custom: Partial<{
       path: string
@@ -37,6 +47,7 @@ describe('AddressBar', () => {
       history: any[]
       layout: string
       percentage: number
+      operationEntriesMap: OperationEntriesMap
     }> = {},
   ) => {
     const eventBus = createWorkspaceEventBus()
@@ -50,6 +61,7 @@ describe('AddressBar', () => {
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
         percentage: custom.percentage ?? 100,
+        operationEntriesMap: custom.operationEntriesMap ?? createOperationEntriesMap(),
         eventBus,
         environment: baseEnvironment,
       },
@@ -269,5 +281,199 @@ describe('AddressBar', () => {
      * Verify preventDefault was called to stop the default browser behavior.
      */
     expect(mockEvent.preventDefault).toHaveBeenCalled()
+  })
+
+  describe('path and method conflict error state', () => {
+    it('shows error state when there is a conflict with path and method', async () => {
+      /**
+       * Create an operation entries map with an existing POST /api/test endpoint.
+       * When the user tries to change the method to POST, a conflict should be detected.
+       */
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      /**
+       * Select POST which conflicts with the existing POST /api/test operation.
+       */
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * The error message should be displayed when a conflict is detected.
+       * The component shows a warning with the conflicting method and path.
+       */
+      const errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(true)
+      expect(errorMessage.text()).toContain('POST')
+      expect(errorMessage.text()).toContain('/api/test')
+      expect(errorMessage.text()).toContain('already exists')
+
+      /**
+       * The address bar should have an error outline when there is a conflict.
+       */
+      const addressBar = wrapper.find('.address-bar-bg-states')
+      expect(addressBar.classes()).toContain('outline-c-danger')
+
+      /**
+       * The update:method event should NOT be emitted when there is a conflict.
+       */
+      const emitted = wrapper.emitted('update:method')
+      expect(emitted).toBeFalsy()
+    })
+
+    it('clears error state when selecting a non-conflicting method', async () => {
+      /**
+       * Create an operation entries map with an existing POST /api/test endpoint.
+       */
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+
+      /**
+       * First, select POST which conflicts with the existing operation.
+       */
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * Verify the error state is shown.
+       */
+      let errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(true)
+
+      /**
+       * Now select PUT which does not conflict with any existing operation.
+       */
+      await button.trigger('click')
+      await nextTick()
+
+      const putOption = { id: 'put', label: 'PUT', color: 'text-method-put' }
+      await listbox.vm.$emit('update:modelValue', putOption)
+      await nextTick()
+
+      /**
+       * The error state should be cleared and the update:method event should be emitted.
+       */
+      errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(false)
+
+      const emitted = wrapper.emitted('update:method')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.[0]).toEqual([{ value: 'put' }])
+    })
+
+    it('clears error state when props for path and method change externally', async () => {
+      /**
+       * Create an operation entries map with an existing POST /api/test endpoint.
+       */
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      /**
+       * Select POST which conflicts with the existing operation.
+       */
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * Verify the error state is shown.
+       */
+      let errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(true)
+
+      /**
+       * Simulate an external prop change (e.g., user navigates to a different request).
+       * The watcher on [method, path] should clear the error state.
+       */
+      await wrapper.setProps({ method: 'delete' })
+      await nextTick()
+
+      /**
+       * The error state should be cleared after the prop change.
+       */
+      errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(false)
+    })
+
+    it('clears error state when path prop changes externally', async () => {
+      /**
+       * Create an operation entries map with an existing POST /api/test endpoint.
+       */
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      /**
+       * Select POST which conflicts with the existing operation.
+       */
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * Verify the error state is shown.
+       */
+      let errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(true)
+
+      /**
+       * Simulate an external path prop change.
+       * The watcher on [method, path] should clear the error state.
+       */
+      await wrapper.setProps({ path: '/api/users' })
+      await nextTick()
+
+      /**
+       * The error state should be cleared after the path prop change.
+       */
+      errorMessage = wrapper.find('.text-c-danger')
+      expect(errorMessage.exists()).toBe(false)
+    })
   })
 })

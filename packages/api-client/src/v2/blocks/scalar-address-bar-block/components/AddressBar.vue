@@ -21,6 +21,7 @@ import {
   ref,
   useId,
   useTemplateRef,
+  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -107,16 +108,26 @@ const handleFocusAddressBar = ({
   event.preventDefault()
 }
 
+// Ensure we clear the errors when the state changes
+watch(
+  () => [method, path],
+  () => {
+    conflictingMethod.value = null
+    conflictingPath.value = null
+  },
+)
+
 /** Handles error state for http method + path conflicts */
-const methodPathConflict = ref<{ method: string; path: string } | null>(null)
+const conflictingMethod = ref<HttpMethodType | null>(null)
+const conflictingPath = ref<string | null>(null)
 
 /** Ensure we only update the method if it doesn't conflict, else enter error state */
 const handleMethodChange = (newMethod: HttpMethodType) => {
-  methodPathConflict.value = null
+  conflictingMethod.value = null
 
   // Checks our map to see if the conflict exists
   if (operationEntriesMap.get(`${path}|${newMethod}`) && method !== newMethod) {
-    methodPathConflict.value = { path, method: newMethod }
+    conflictingMethod.value = newMethod
     return
   }
 
@@ -126,11 +137,11 @@ const handleMethodChange = (newMethod: HttpMethodType) => {
 
 /** Ensure we only update the path if it doesn't conflict, else enter error state */
 const handlePathUpdate = (newPath: string) => {
-  methodPathConflict.value = null
+  conflictingPath.value = null
 
   // Checks our map to see if the conflict exists
   if (operationEntriesMap.get(`${newPath}|${method}`)) {
-    methodPathConflict.value = { path: newPath, method }
+    conflictingPath.value = newPath
     return
   }
 
@@ -155,7 +166,9 @@ onBeforeUnmount(() => {
     <!-- Address Bar -->
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
-      :class="{ 'outline-c-danger outline': methodPathConflict }">
+      :class="{
+        'outline-c-danger outline': conflictingMethod || conflictingPath,
+      }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
@@ -166,7 +179,7 @@ onBeforeUnmount(() => {
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="methodPathConflict?.method ?? method"
+          :method="conflictingMethod ?? method"
           teleport
           @change="handleMethodChange" />
       </div>
@@ -223,14 +236,16 @@ onBeforeUnmount(() => {
         :target="id" />
       <!-- Error message -->
       <div
-        v-if="methodPathConflict"
+        v-if="conflictingMethod || conflictingPath"
         class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
-            A <em>{{ methodPathConflict.method.toUpperCase() }}</em> request to
-            <ScalarWrappingText :text="methodPathConflict.path" />
+            A
+            <em>{{ (conflictingMethod ?? method)?.toUpperCase() }}</em> request
+            to
+            <ScalarWrappingText :text="conflictingPath ?? path" />
             already exists in this document
           </div>
         </div>
