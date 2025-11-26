@@ -20,6 +20,13 @@ type SpecificationExtension = {
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
+export namespace Base {
+  export type ReferenceObject = {
+    $ref?: string
+  }
+}
+
+// biome-ignore lint/style/noNamespace: We want it to be a module here.
 export namespace OpenAPI {
   // OpenAPI extensions can be declared using generics
   // e.g.:
@@ -223,7 +230,7 @@ export namespace OpenAPIV3_2 {
     nodeType?: XMLNodeType
   }
 
-  export type ReferenceObject = OpenAPIV3_1.ReferenceObject
+  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
 
   export type ExampleObject = OpenAPIV3_1.ExampleObject & {
     dataValue?: any
@@ -504,11 +511,14 @@ export namespace OpenAPIV3_1 {
 
   export type XMLObject = OpenAPIV3.XMLObject
 
-  export type ReferenceObject = {
-    $ref?: string
-    summary?: string
-    description?: string
-  } & SpecificationExtension
+  export type ReferenceObject = Modify<
+    Base.ReferenceObject,
+    {
+      summary?: string
+      description?: string
+    }
+  > &
+    SpecificationExtension
 
   export type ExampleObject = OpenAPIV3.ExampleObject
 
@@ -776,9 +786,7 @@ export namespace OpenAPIV3 {
     wrapped?: boolean
   }
 
-  export type ReferenceObject = {
-    $ref?: string
-  } & SpecificationExtension
+  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
 
   export type ExampleObject = {
     summary?: string
@@ -1001,9 +1009,7 @@ export namespace OpenAPIV2 {
     [index: string]: string[]
   }
 
-  export type ReferenceObject = {
-    $ref: string
-  } & SpecificationExtension
+  export type ReferenceObject = Base.ReferenceObject & SpecificationExtension
 
   export type Response = ResponseObject | ReferenceObject
 
