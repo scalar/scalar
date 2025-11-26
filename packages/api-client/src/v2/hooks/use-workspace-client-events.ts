@@ -40,6 +40,7 @@ import {
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type ComputedRef, type Ref, toValue } from 'vue'
+import { useRouter } from 'vue-router'
 
 import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 
@@ -61,6 +62,8 @@ export const useWorkspaceClientEvents = ({
   isSidebarOpen: Ref<boolean>
   commandPaletteState: UseCommandPaletteStateReturn
 }) => {
+  const router = useRouter()
+
   /** Selects between the workspace or document based on the type */
   const getCollection = (
     document: ComputedRef<WorkspaceDocument | null>,
@@ -168,16 +171,25 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('operation:create', (payload) => {
-    const doc = workspaceStore.value?.workspace.documents[payload.payload.documentId]
-    if (!doc) {
-      return
-    }
-    createOperation(doc, payload.payload.path, payload.payload.method, {
-      tags: payload.payload.tags,
-    })
+  eventBus.on('operation:create:operation', (payload) => {
+    /** Create the operation in the document */
+    createOperation(workspaceStore.value, payload)
     /** Rebuild the sidebar to reflect the new operation */
-    buildSidebar(payload.payload.documentId)
+    buildSidebar(payload.documentName)
+
+    /** Normalize the path for navigation */
+    const path = payload.path.startsWith('/') ? payload.path : `/${payload.path}`
+
+    /** Navigate to the new operation */
+    router.push({
+      name: 'example',
+      params: {
+        documentSlug: payload.documentName,
+        pathEncoded: encodeURIComponent(path),
+        method: payload.method,
+        exampleName: payload.exampleKey ?? 'default',
+      },
+    })
   })
   eventBus.on('operation:update:method', (payload) => updateOperationMethod(document.value, payload))
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))

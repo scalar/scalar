@@ -5,30 +5,19 @@ import {
   ScalarListbox,
   type ScalarComboboxOption,
 } from '@scalar/components'
-import type {
-  RequestMethod,
-  RequestPayload,
-} from '@scalar/oas-utils/entities/spec'
-import { REGEX } from '@scalar/oas-utils/helpers'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { computed, ref, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { computed, ref } from 'vue'
 
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { PathId } from '@/routes'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
+import CommandActionInput from '@/v2/features/command-palette/components/CommandActionInput.vue'
+import { getOperationFromCurl } from '@/v2/features/command-palette/helpers/get-operation-from-curl'
 
-type ExtendedRequestPayload = RequestPayload & {
-  url?: string
-}
-
-const { metaData } = defineProps<{
-  metaData: {
-    parsedCurl: ExtendedRequestPayload
-    collectionUid: string
-  }
+const { workspaceStore, curl, eventBus } = defineProps<{
+  workspaceStore: WorkspaceStore
+  eventBus: WorkspaceEventBus
+  curl: string
 }>()
 
 const emits = defineEmits<{
@@ -36,142 +25,93 @@ const emits = defineEmits<{
   (event: 'back', e: KeyboardEvent): void
 }>()
 
-const workspaceContext = useWorkspace()
+const exampleKey = ref('')
+const exampleKeyTrimmed = computed(() => exampleKey.value.trim())
 
-const { activeWorkspaceCollections, activeCollection, activeWorkspace } =
-  useActiveEntities()
-const { requestMutators, serverMutators, servers } = workspaceContext
+const { path, method, operation } = getOperationFromCurl(curl)
 
-const selectedServerUid = ref('')
-const router = useRouter()
-
-const collections = computed(() =>
-  activeWorkspaceCollections.value.map((collection) => ({
-    id: collection.uid,
-    label: collection.info?.title ?? 'Unititled Collection',
+const documents = computed(() =>
+  Object.keys(workspaceStore.workspace.documents).map((document) => ({
+    id: document,
+    label: document,
   })),
 )
 
-const selectedCollection = ref<ScalarComboboxOption | undefined>(
-  metaData.collectionUid
-    ? collections.value.find(
-        (collection) => collection.id === metaData.collectionUid,
-      )
-    : collections.value.find(
-        (collection) => collection.id === activeCollection.value?.uid,
-      ),
+const selectedDocument = ref<ScalarComboboxOption | undefined>(
+  documents.value[0],
 )
 
-function createRequestFromCurl({ collectionUid }: { collectionUid: string }) {
-  if (!metaData.parsedCurl) {
+const handleImportClick = () => {
+  const documentName = selectedDocument.value
+
+  if (!documentName || !exampleKeyTrimmed.value) {
     return
   }
 
-  const collection = activeWorkspaceCollections.value.find(
-    (c) => c.uid === collectionUid,
-  )
+  const result = getOperationFromCurl(curl, exampleKeyTrimmed.value)
 
-  if (!collection) {
-    return
-  }
-
-  const isDrafts = collection?.info?.title === 'Drafts'
-
-  // Prevent adding servers to drafts
-  if (!isDrafts && metaData.parsedCurl.servers) {
-    // Find existing server to avoid duplication
-    const existingServer = Object.values(servers).find(
-      (s) => s.url === metaData.parsedCurl?.servers?.[0],
-    )
-    if (existingServer) {
-      selectedServerUid.value = existingServer.uid
-    } else {
-      selectedServerUid.value = serverMutators.add(
-        { url: metaData.parsedCurl.servers[0] ?? '/' },
-        collection.uid,
-      ).uid
-
-      emitCustomEvent(wrapper.value?.$el, 'scalar-add-server', {
-        server: { url: metaData.parsedCurl.servers[0] ?? '/' },
-        options: {
-          disableOldStoreUpdate: true,
-        },
-      })
-    }
-  }
-
-  // Add the request and use the url if it's a draft as a path
-  const newRequest = requestMutators.add(
-    {
-      summary: isDrafts
-        ? metaData.parsedCurl?.url?.replace(REGEX.PROTOCOL, '')
-        : metaData.parsedCurl?.path,
-      path: isDrafts ? metaData.parsedCurl?.url : metaData.parsedCurl?.path,
-      method: metaData.parsedCurl?.method,
-      parameters: metaData.parsedCurl?.parameters,
-      selectedServerUid: isDrafts ? undefined : selectedServerUid.value,
-      requestBody: metaData.parsedCurl?.requestBody,
-    },
-    collection.uid,
-  )
-
-  if (newRequest && activeWorkspace.value?.uid) {
-    router.push({
-      name: 'request',
-      params: {
-        [PathId.Workspace]: activeWorkspace.value.uid,
-        [PathId.Collection]: collection.uid,
-        [PathId.Request]: newRequest.uid,
-      },
-    })
-  }
+  // Create the new operation
+  eventBus.emit('operation:create:operation', {
+    documentName: documentName.id,
+    path: result.path,
+    method: result.method,
+    operation: result.operation,
+    exampleKey: exampleKeyTrimmed.value,
+  })
 
   emits('close')
 }
 
-const handleImportClick = () => {
-  createRequestFromCurl({
-    collectionUid: selectedCollection.value?.id ?? '',
-  })
-}
+const isDisabled = computed(() => {
+  if (!exampleKey.value.trim()) {
+    return true
+  }
 
-const wrapper = useTemplateRef('wrapper-ref')
+  if (!selectedDocument.value) {
+    return true
+  }
+
+  return false
+})
 </script>
 <template>
-  <div class="text-c-2 flex-center py-1.5 text-sm">Import cURL</div>
   <CommandActionForm
-    ref="wrapper-ref"
-    class="mt-1.5 min-h-fit"
+    :disabled="isDisabled"
     @submit="handleImportClick">
+    <CommandActionInput
+      :modelValue="exampleKey"
+      placeholder="Curl example key (e.g., example-1)"
+      @update:modelValue="(event) => (exampleKey = event)" />
     <div
-      class="flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
-      <div class="flex h-full">
-        <HttpMethod
-          :isEditable="false"
-          isSquare
-          :method="(metaData.parsedCurl?.method as RequestMethod) || 'get'" />
+      class="flex flex-1 flex-col gap-2"
+      @update:modelValue="exampleKey = $event">
+      <div
+        class="flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
+        <div class="flex h-full">
+          <HttpMethod
+            :isEditable="false"
+            isSquare
+            :method="method" />
+        </div>
+        <span class="scroll-timeline-x whitespace-nowrap">
+          <!-- Url + path from the parsed curl -->
+          {{ operation.servers?.[0]?.url || '' }}{{ path }}
+        </span>
       </div>
-      <span class="scroll-timeline-x whitespace-nowrap">
-        {{ metaData.parsedCurl?.servers?.[0] || ''
-        }}{{ metaData.parsedCurl?.path || '' }}
-      </span>
     </div>
-
     <template #options>
-      <div class="flex">
+      <div class="flex items-center gap-2">
         <ScalarListbox
-          v-model="selectedCollection"
-          :options="collections">
+          v-model="selectedDocument"
+          :options="documents">
           <ScalarButton
             class="hover:bg-b-2 max-h-8 w-full justify-between gap-1 p-2 text-xs"
             variant="outlined">
             <span
               class="whitespace-nowrap"
-              :class="selectedCollection ? 'text-c-1' : 'text-c-3'">
+              :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
               {{
-                selectedCollection
-                  ? selectedCollection.label
-                  : 'Select Collection'
+                selectedDocument ? selectedDocument.label : 'Select Collection'
               }}
             </span>
             <ScalarIcon

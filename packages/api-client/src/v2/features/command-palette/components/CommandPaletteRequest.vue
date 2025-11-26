@@ -14,7 +14,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -30,8 +29,6 @@ const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
 }>()
-
-const router = useRouter()
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -149,31 +146,16 @@ const handleSubmit = () => {
   }
 
   /** Emit the event to create the operation */
-  eventBus.emit('operation:create', {
-    payload: {
-      documentId: selectedDocument.value.id,
-      path: requestPath.value,
-      method: selectedMethod.value.method,
+  eventBus.emit('operation:create:operation', {
+    documentName: selectedDocument.value.id,
+    path: requestPath.value,
+    method: selectedMethod.value.method,
+    operation: {
       tags: selectedTag.value?.name ? [selectedTag.value.name] : undefined,
     },
   })
 
-  /** Normalize the path for navigation */
-  const normalizedPath = requestPath.value.startsWith('/')
-    ? requestPath.value
-    : `/${requestPath.value}`
-
-  /** Navigate to the new operation */
-  router.push({
-    name: 'example',
-    params: {
-      documentSlug: selectedDocument.value.id,
-      pathEncoded: encodeURIComponent(normalizedPath),
-      method: selectedMethod.value.method,
-      exampleName: 'default',
-    },
-  })
-
+  // Close the command palette
   emits('close')
 }
 

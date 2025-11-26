@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { OperationExampleMeta, OperationMeta } from '@/mutators'
+import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 /** Event definitions for the operation */
 export type OperationEvents = {
@@ -24,17 +25,17 @@ export type OperationEvents = {
    * Create a new operation at a specific path and method in the document.
    * Triggers when the user creates a new endpoint via the command palette or other UI.
    */
-  'operation:create': {
-    payload: {
-      /** The document ID where the operation should be created */
-      documentId: string
-      /** The path for the new operation (will be normalized to start with /) */
-      path: string
-      /** The HTTP method for the operation */
-      method: HttpMethod
-      /** Optional tags to assign to the operation */
-      tags?: string[]
-    }
+  'operation:create:operation': {
+    /** The document name where the operation should be created */
+    documentName: string
+    /** The example key for the new operation */
+    exampleKey?: string
+    /** The path for the new operation (will be normalized to start with /) */
+    path: string
+    /** The HTTP method for the operation */
+    method: HttpMethod
+    /** The operation object to create */
+    operation: OperationObject
   }
 
   /**

@@ -18,6 +18,7 @@ import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers
 import { getOpenapiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-collection-details'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
+import type { UiCommandIds } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { isUrl } from '@/v2/helpers/is-url'
 import { slugify } from '@/v2/helpers/slugify'
 
@@ -32,6 +33,11 @@ const { workspaceStore } = defineProps<{
 const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
+  (
+    event: 'open-command',
+    id: UiCommandIds,
+    props: Record<string, unknown>,
+  ): void
 }>()
 
 const router = useRouter()
@@ -222,8 +228,9 @@ async function handleImport() {
 const handleInput = (value: string) => {
   if (value.trim().toLowerCase().startsWith('curl')) {
     // Import from cURL
-    console.log('Import from cURL', value)
-    return
+    return emits('open-command', 'import-curl-command', {
+      curl: value,
+    })
   }
   inputContent.value = value
 }

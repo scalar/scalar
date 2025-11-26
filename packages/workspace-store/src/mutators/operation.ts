@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
+import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -169,16 +170,15 @@ const syncParametersForPathChange = (
  * ```
  */
 export const createOperation = (
-  document: WorkspaceDocument | null,
-  path: string,
-  method: HttpMethod,
-  options?: {
-    tags?: string[]
-  },
+  workspaceStore: WorkspaceStore | null,
+  payload: OperationEvents['operation:create:operation'],
 ): string | undefined => {
+  const document = workspaceStore?.workspace.documents[payload.documentName]
   if (!document) {
     return
   }
+
+  const { path, method, operation } = payload
 
   /** Ensure the path starts with a slash */
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
@@ -192,9 +192,7 @@ export const createOperation = (
     document.paths[normalizedPath] = {}
   }
 
-  document.paths[normalizedPath][method] = {
-    tags: options?.tags,
-  }
+  document.paths[normalizedPath][method] = operation
 
   return normalizedPath
 }

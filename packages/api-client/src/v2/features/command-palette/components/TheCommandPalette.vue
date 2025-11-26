@@ -9,11 +9,12 @@ import { useRouter } from 'vue-router'
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
 import CommandPaletteExample from '@/v2/features/command-palette/components/CommandPaletteExample.vue'
 import CommandPaletteImport from '@/v2/features/command-palette/components/CommandPaletteImport.vue'
+import CommandPaletteImportCurl from '@/v2/features/command-palette/components/CommandPaletteImportCurl.vue'
 import CommandPaletteRequest from '@/v2/features/command-palette/components/CommandPaletteRequest.vue'
 import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
   Command,
-  FolderCommandIds,
+  UiCommandIds,
   UseCommandPaletteStateReturn,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 
@@ -23,12 +24,13 @@ const { paletteState } = defineProps<{
   eventBus: WorkspaceEventBus
 }>()
 
-const ComamandsComponents: Record<FolderCommandIds, Component> = {
+const CommandsComponents: Record<UiCommandIds, Component> = {
   'import-from-openapi-swagger-postman-curl': CommandPaletteImport,
   'create-document': CommandPaletteDocument,
   'create-request': CommandPaletteRequest,
   'add-tag': CommandPaletteTag,
   'add-example': CommandPaletteExample,
+  'import-curl-command': CommandPaletteImportCurl,
 }
 
 const selectedSearchResult = ref<number>(-1)
@@ -108,7 +110,7 @@ const handleCommandClick = (command: Command): void => {
 
   // Set the active command to the folder
   if (command.type === 'folder') {
-    paletteState.setActiveCommand(command.id as FolderCommandIds)
+    return paletteState.setActiveCommand(command.id as UiCommandIds)
   }
 }
 
@@ -121,6 +123,13 @@ const handleBackEvent = (): void => {
 
 const handleCloseEvent = (): void => {
   paletteState.close()
+}
+
+const handleOpenCommand = (
+  id: UiCommandIds,
+  props: Record<string, unknown>,
+): void => {
+  paletteState.open(id, props)
 }
 </script>
 <template>
@@ -167,23 +176,26 @@ const handleCloseEvent = (): void => {
             class="text-c-3 mt-2 mb-1 px-2 text-xs font-medium">
             {{ group.label }}
           </div>
-          <button
+          <template
             v-for="command in group.commands"
-            :id="command.id"
-            :key="command.id"
-            class="commandmenu-item hover:bg-b-2 flex w-full cursor-pointer items-center rounded px-2 py-1.5 text-left text-sm"
-            :class="{
-              'bg-b-2': command.id === selectedCommand?.id,
-            }"
-            type="button"
-            @click="handleCommandClick(command)">
-            <ScalarIcon
-              class="text-c-2 mr-2.5"
-              :icon="command.icon"
-              size="md"
-              thickness="1.5" />
-            {{ command.name }}
-          </button>
+            :key="command.id">
+            <button
+              v-if="command.type !== 'hidden-folder'"
+              :id="command.id"
+              class="commandmenu-item hover:bg-b-2 flex w-full cursor-pointer items-center rounded px-2 py-1.5 text-left text-sm"
+              :class="{
+                'bg-b-2': command.id === selectedCommand?.id,
+              }"
+              type="button"
+              @click="handleCommandClick(command)">
+              <ScalarIcon
+                class="text-c-2 mr-2.5"
+                :icon="command.icon"
+                size="md"
+                thickness="1.5" />
+              {{ command.name }}
+            </button>
+          </template>
         </template>
 
         <div
@@ -207,11 +219,16 @@ const handleCloseEvent = (): void => {
             thickness="1.5" />
         </button>
         <component
-          :is="ComamandsComponents[paletteState.activeCommand.value]"
+          :is="CommandsComponents[paletteState.activeCommand.value]"
           v-if="paletteState.activeCommand.value"
-          v-bind="{ workspaceStore, eventBus }"
+          v-bind="{
+            workspaceStore,
+            eventBus,
+            ...paletteState.activeCommandProps.value,
+          }"
           @back="handleBackEvent"
-          @close="handleCloseEvent" />
+          @close="handleCloseEvent"
+          @openCommand="handleOpenCommand" />
       </div>
     </DialogPanel>
   </Dialog>
