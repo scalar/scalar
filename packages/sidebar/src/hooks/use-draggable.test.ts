@@ -5,14 +5,18 @@ import { useDraggable } from './use-draggable'
 
 describe('useDraggable', () => {
   it('initializes with default values', () => {
-    const { draggableProps, draggingItem, hoveredItem } = useDraggable({
+    const {
+      draggableAttrs: draggableProps,
+      draggingItem,
+      hoveredItem,
+    } = useDraggable({
       id: 'test-1',
       parentIds: [],
     })
 
     expect(draggingItem.value).toBeNull()
     expect(hoveredItem.value).toBeNull()
-    expect(draggableProps.value.class).toBe('')
+    expect(draggableProps.value.class).toBeUndefined()
     expect(draggableProps.value.draggable).toBe(true)
   })
 
@@ -69,7 +73,7 @@ describe('useDraggable', () => {
   })
 
   it('returns draggableProps with correct structure', () => {
-    const { draggableProps } = useDraggable({
+    const { draggableAttrs: draggableProps } = useDraggable({
       id: 'test-1',
       parentIds: [],
       isDraggable: true,
@@ -96,7 +100,7 @@ describe('useDraggable', () => {
 
   it('updates draggable prop when enabled changes', () => {
     const isDraggable = ref(true)
-    const { draggableProps } = useDraggable({
+    const { draggableAttrs: draggableProps } = useDraggable({
       id: 'test-1',
       parentIds: [],
       isDraggable,
@@ -105,6 +109,38 @@ describe('useDraggable', () => {
     expect(draggableProps.value.draggable).toBe(true)
 
     isDraggable.value = false
-    expect(draggableProps.value.draggable).toBe(false)
+    expect(draggableProps.value.draggable).toBeUndefined()
+  })
+
+  it('does not set draggable attribute when isDraggable is false', () => {
+    const { draggableAttrs: draggableProps } = useDraggable({
+      id: 'test-1',
+      parentIds: [],
+      isDraggable: false,
+    })
+
+    // When isDraggable is false, draggable should be undefined (not set)
+    expect(draggableProps.value.draggable).toBeUndefined()
+  })
+
+  it('does not set class attribute when draggableClass is empty', () => {
+    const { draggableAttrs: draggableProps } = useDraggable({
+      id: 'test-1',
+      parentIds: [],
+    })
+
+    // When there's no hover, draggableClass returns empty string, which becomes undefined
+    expect(draggableProps.value.class).toBeUndefined()
+  })
+
+  it('does not set class attribute when draggableClass is falsy', () => {
+    const { draggableAttrs: draggableProps } = useDraggable({
+      id: 'test-1',
+      parentIds: [],
+      isDraggable: false,
+    })
+
+    // When there's no hover and isDraggable is false, class should still be undefined
+    expect(draggableProps.value.class).toBeUndefined()
   })
 })
