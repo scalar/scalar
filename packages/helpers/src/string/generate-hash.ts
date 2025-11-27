@@ -1,15 +1,15 @@
 /**
- * MurmurHash3 64-bit (x64_128) implementation
+ * MurmurHash3 implementation
  *
  * Generate a hash from a string using the MurmurHash3 algorithm
- * Provides 128-bit hash output with excellent speed and distribution
+ * Provides 64-bit hash output with excellent speed and distribution
  *
  * We had to move away from xxhash-wasm since it was causing issues with content security policy (CSP) violations.
  *
  * We cannot use crypto.subtle because it is only available in secure contexts (HTTPS) or on localhost.
  *
  * @param input - The string to hash
- * @returns The hash of the input string
+ * @returns The 64-bit hash of the input string as a 16-character hex string
  */
 export const generateHash = (input: string): string => {
   const seed = 0
@@ -181,6 +181,6 @@ export const generateHash = (input: string): string => {
   h1 += h2
   h2 += h1
 
-  // Return 128-bit hash as hex string
+  // Return 64-bit hash as hex string (two 32-bit values concatenated)
   return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')
 }
