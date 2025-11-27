@@ -522,4 +522,18 @@ describe('shellCurl', () => {
 
     expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
   })
+
+  it('escapes single quotes in JSON body', () => {
+    const result = shellCurl.generate({
+      url: 'https://editor.scalar.com/test',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: '"hell\'o"',
+      },
+    })
+
+    expect(result).toContain(`--data '"hell'\\''o"'`)
+  })
 })
