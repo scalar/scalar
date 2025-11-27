@@ -360,18 +360,16 @@ export const updateOperationMethod = (
 export const updateOperationPath = (
   document: WorkspaceDocument | null,
   { meta, payload: { path } }: OperationEvents['operation:update:path'],
+  callback?: (success: boolean) => void,
 ) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
   // If the path has not changed, no need to move the operation
   if (meta.path === path) {
+    return
+  }
+
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!operation || !document) {
+    console.error('Operation or document not found', { meta, document })
     return
   }
 
