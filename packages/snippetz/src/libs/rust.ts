@@ -6,7 +6,7 @@
  * Escapes a string for use in Rust string literals
  * Handles quotes, backslashes, newlines, and other special characters
  */
-function escapeRustString(str: string): string {
+function escapeString(str: string): string {
   return str
     .replace(/\\/g, '\\\\') // Escape backslashes first
     .replace(/"/g, '\\"') // Escape double quotes
@@ -20,6 +20,6 @@ function escapeRustString(str: string): string {
  * Safely formats a string for use in Rust string literals
  * Returns the escaped string wrapped in double quotes
  */
-export function toRustString(str: string): string {
-  return `"${escapeRustString(str)}"`
+export function wrapInDoubleQuotes(str: string): string {
+  return `"${escapeString(str)}"`
 }

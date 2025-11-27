@@ -59,7 +59,7 @@ export const phpGuzzle: Plugin = {
       if (request.postData.mimeType === 'application/json') {
         try {
           options.json = JSON.parse(request.postData.text || '{}')
-        } catch (e) {
+        } catch (_e) {
           // If JSON parsing fails, use the raw text
           options.body = request.postData.text
         }
@@ -72,7 +72,7 @@ export const phpGuzzle: Plugin = {
         } else if (request.postData.text) {
           try {
             options.form_params = JSON.parse(request.postData.text)
-          } catch (e) {
+          } catch (_e) {
             options.body = request.postData.text
           }
         }
@@ -118,7 +118,9 @@ export const phpGuzzle: Plugin = {
  * Helper function to format the PHP options array with proper indentation
  */
 function formatOptionsArray(options: Record<string, any>, indent = 0): string {
-  if (Object.keys(options).length === 0) return '[]'
+  if (Object.keys(options).length === 0) {
+    return '[]'
+  }
 
   const spaces = ' '.repeat(4)
   let result = '[\n'
@@ -136,13 +138,25 @@ function formatOptionsArray(options: Record<string, any>, indent = 0): string {
  * Helper function to format values in the PHP array
  */
 function formatValue(value: any, indent: number): string {
-  if (value === null) return 'null'
-  if (typeof value === 'boolean') return value ? 'true' : 'false'
-  if (typeof value === 'string' && value.startsWith('fopen(')) return value
-  if (typeof value === 'string') return `'${value}'`
-  if (typeof value === 'number') return value.toString()
+  if (value === null) {
+    return 'null'
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false'
+  }
+  if (typeof value === 'string' && value.startsWith('fopen(')) {
+    return value
+  }
+  if (typeof value === 'string') {
+    return `'${value}'`
+  }
+  if (typeof value === 'number') {
+    return value.toString()
+  }
   if (Array.isArray(value)) {
-    if (value.length === 0) return '[]'
+    if (value.length === 0) {
+      return '[]'
+    }
     const spaces = ' '.repeat(4)
     let result = '[\n'
     value.forEach((item) => {

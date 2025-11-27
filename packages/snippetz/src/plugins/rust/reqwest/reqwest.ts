@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
-import { toRustString } from '../rustString'
+
+import { wrapInDoubleQuotes } from '@/libs/rust'
 
 /**
  * rust/reqwest plugin for generating Rust reqwest HTTP client code
@@ -63,13 +64,13 @@ const createChainedCall = (method: string, ...args: string[]): string => {
 const createMultipartPart = (param: { name: string; value?: string; fileName?: string }): string => {
   if (param.fileName) {
     return [
-      indent(2, `let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})`),
-      indent(3, `.file_name(${toRustString(param.fileName)});`),
-      indent(2, `form = form.part(${toRustString(param.name)}, part);`),
+      indent(2, `let part = reqwest::multipart::Part::text(${wrapInDoubleQuotes(param.value || '')})`),
+      indent(3, `.file_name(${wrapInDoubleQuotes(param.fileName)});`),
+      indent(2, `form = form.part(${wrapInDoubleQuotes(param.name)}, part);`),
     ].join('\n')
   }
 
-  return indent(2, `form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`)
+  return indent(2, `form = form.text(${wrapInDoubleQuotes(param.name)}, ${wrapInDoubleQuotes(param.value || '')});`)
 }
 
 /**
@@ -165,7 +166,7 @@ const createAuthCall = (auth?: { username: string; password: string }): string |
     return null
   }
 
-  return createChainedCall('basic_auth', toRustString(auth.username), toRustString(auth.password))
+  return createChainedCall('basic_auth', wrapInDoubleQuotes(auth.username), wrapInDoubleQuotes(auth.password))
 }
 
 /**
@@ -173,7 +174,7 @@ const createAuthCall = (auth?: { username: string; password: string }): string |
  */
 const createHeaderCalls = (headers: Record<string, string>): string[] => {
   return Object.entries(headers).map(([key, value]) =>
-    createChainedCall('header', toRustString(key), toRustString(value)),
+    createChainedCall('header', wrapInDoubleQuotes(key), wrapInDoubleQuotes(value)),
   )
 }
 
@@ -195,8 +196,9 @@ const createBodyCall = (postData: any): string | null => {
 
     case 'application/x-www-form-urlencoded': {
       const formData =
-        params?.map((param: any) => `(${toRustString(param.name)}, ${toRustString(param.value || '')})`).join(', ') ||
-        ''
+        params
+          ?.map((param: any) => `(${wrapInDoubleQuotes(param.name)}, ${wrapInDoubleQuotes(param.value || '')})`)
+          .join(', ') || ''
       return createChainedCall('form', `&[${formData}]`)
     }
 
@@ -213,7 +215,7 @@ const createBodyCall = (postData: any): string | null => {
     }
 
     default:
-      return createChainedCall('body', toRustString(text || ''))
+      return createChainedCall('body', wrapInDoubleQuotes(text || ''))
   }
 }
 
@@ -226,12 +228,12 @@ const buildRustCode = (url: string, method: string, chainedCalls: string[]): str
   // Add chained calls with proper formatting
   if (chainedCalls.length > 0) {
     code.push('let request = client')
-    code.push(indent(1, `.${method.toLowerCase()}(${toRustString(url)})`))
+    code.push(indent(1, `.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`))
 
     // Add a newline before the first chained call
     code.push(...chainedCalls)
   } else {
-    code.push(`let request = client.${method.toLowerCase()}(${toRustString(url)})`)
+    code.push(`let request = client.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`)
   }
 
   // Add semicolon to the last chained call

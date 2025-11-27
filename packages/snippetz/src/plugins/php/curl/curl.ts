@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { objectToString } from '@/libs/php'
+
 /**
  * php/curl
  */
@@ -77,7 +79,7 @@ export const phpCurl: Plugin = {
         if (normalizedRequest.postData.text) {
           try {
             const jsonData = JSON.parse(normalizedRequest.postData.text)
-            const phpArray = convertToPhpArray(jsonData)
+            const phpArray = objectToString(jsonData)
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
           } catch {
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
@@ -117,7 +119,7 @@ export const phpCurl: Plugin = {
         // Try to parse as JSON and convert to PHP array, otherwise use raw text
         try {
           const jsonData = JSON.parse(normalizedRequest.postData.text)
-          const phpArray = convertToPhpArray(jsonData)
+          const phpArray = objectToString(jsonData)
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
         } catch {
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
@@ -133,51 +135,4 @@ export const phpCurl: Plugin = {
 
     return parts.join('\n').replace(/\n\n\n/g, '\n\n')
   },
-}
-
-/**
- * Helper function to create consistent indentation
- */
-function indent(level: number): string {
-  return ' '.repeat(level * 2)
-}
-
-/**
- * Converts a JavaScript object to a PHP array string representation
- */
-function convertToPhpArray(data: unknown, indentLevel = 0): string {
-  if (data === null || data === undefined) {
-    return 'null'
-  }
-
-  if (typeof data === 'string') {
-    return `'${data.replace(/'/g, "\\'")}'`
-  }
-
-  if (typeof data === 'number' || typeof data === 'boolean') {
-    return String(data)
-  }
-
-  if (Array.isArray(data)) {
-    if (data.length === 0) {
-      return '[]'
-    }
-
-    const items = data.map((item) => convertToPhpArray(item, indentLevel + 1)).join(',\n' + indent(indentLevel + 1))
-    return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
-  }
-
-  if (typeof data === 'object') {
-    const entries = Object.entries(data)
-    if (entries.length === 0) {
-      return '[]'
-    }
-
-    const items = entries
-      .map(([key, value]) => `'${key}' => ${convertToPhpArray(value, indentLevel + 1)}`)
-      .join(',\n' + indent(indentLevel + 1))
-    return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
-  }
-
-  return 'null'
 }

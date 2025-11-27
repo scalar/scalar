@@ -1,6 +1,7 @@
+import type { Plugin } from '@scalar/types/snippetz'
+
 import { axios } from '@/httpsnippet-lite/esm/targets/node/axios/client'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * node/axios
