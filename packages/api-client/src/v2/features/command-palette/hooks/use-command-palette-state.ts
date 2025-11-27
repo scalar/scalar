@@ -3,38 +3,42 @@ import { useModal } from '@scalar/components'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
-/** Base properties shared by all command types */
+/**
+ * Internal helper for type inference in command props.
+ * Used to extract prop types from command definitions.
+ */
+const getProps = <T extends Record<string, unknown>>() => null as unknown as T
+
+/** Base properties shared by all command types (internal) */
 type CommandBase = {
   /** Unique identifier for the command */
   id: string
   /** Display name shown in the command palette */
   name: string
+  /** Props for the command */
+  props?: Record<string, unknown>
 }
 
+type FolderCommand = CommandBase & {
+  type: 'folder'
+  icon: IconType
+}
+
+type RouteCommand = CommandBase & {
+  type: 'route'
+  to: RouteLocationRaw
+  icon: IconType
+}
+
+type HiddenFolderCommand = CommandBase & {
+  type: 'hidden-folder'
+  props?: Record<string, unknown>
+}
 /**
  * Represents a single command in the command palette.
  * Commands can be folders (open sub-actions), routes (navigate), or hidden folders.
  */
-export type Command =
-  | (CommandBase & {
-      /** Folder command that opens a specific action form */
-      type: 'folder'
-      /** Icon to display next to the command name */
-      icon: IconType
-    })
-  | (CommandBase & {
-      /** Route command that navigates to a page */
-      type: 'route'
-      /** Route to navigate to when the command is selected */
-      to: RouteLocationRaw
-      /** Icon to display next to the command name */
-      icon: IconType
-    })
-  | (CommandBase & {
-      /** Hidden folder for commands accessible via code but not shown in UI */
-      type: 'hidden-folder'
-      props?: Record<string, unknown>
-    })
+export type Command = FolderCommand | RouteCommand | HiddenFolderCommand
 
 /**
  * A group of related commands with a label.
@@ -46,8 +50,6 @@ export type CommandGroup = {
   /** List of commands in this group */
   commands: Command[]
 }
-
-const getProps = <T extends Record<string, unknown>>() => null as unknown as T
 
 /**
  * Available commands in the command palette.
@@ -92,7 +94,7 @@ export const commands = [
         type: 'hidden-folder',
         id: 'import-curl-command',
         name: 'Import cURL Command',
-        props: getProps<{ curl: string; dummy: string }>(),
+        props: getProps<{ curl: string }>(),
       },
     ],
   },
@@ -130,31 +132,36 @@ export const commands = [
   },
 ] as const satisfies CommandGroup[]
 
-/** All valid command IDs derived from the commands array */
-export type CommandIds = (typeof commands)[number]['commands'][number]['id']
-
-/** Helper type to extract command IDs by command type */
-type GetIdsFromType<T extends Command['type']> = keyof {
-  [K in (typeof commands)[number]['commands'][number] as K extends {
-    type: T
-  }
-    ? K['id']
-    : never]: K
-}
+type FlatCommand = (typeof commands)[number]['commands'][number]
 
 /** Command IDs that map to UI components (folder and hidden-folder types) */
-export type UiCommandIds = GetIdsFromType<'folder' | 'hidden-folder'>
-
-/** Helper type to extract command by ID from the commands array */
-type GetCommandById<T extends string> = Extract<(typeof commands)[number]['commands'][number], { id: T }>
+export type UiCommandIds = Extract<FlatCommand, { type: 'folder' | 'hidden-folder' }>['id']
 
 /**
  * Maps each command ID to its respective props type.
  * If a command has no props defined, it maps to undefined.
+ *
+ * This is used by the type system to validate that command components
+ * accept the correct props for their respective command IDs.
  */
 export type CommandPropsMap = {
-  [K in UiCommandIds]: GetCommandById<K> extends { props: infer P } ? P : undefined
+  [K in UiCommandIds]: Extract<FlatCommand, { id: K }> extends { props: infer P } ? P : undefined
 }
+
+export type OpenCommand = <T extends UiCommandIds>(
+  commandId: T,
+  ...args: CommandPropsMap[T] extends undefined
+    ? [] // no props argument
+    : [props: CommandPropsMap[T]] // required props
+) => void
+
+export type OpenCommandEvent = <T extends UiCommandIds>(
+  event: 'open-command',
+  commandId: T,
+  ...args: CommandPropsMap[T] extends undefined
+    ? [] // no props argument
+    : [props: CommandPropsMap[T]] // required props
+) => void
 
 /**
  * Return type for the useCommandPaletteState composable.
@@ -171,8 +178,11 @@ export type UseCommandPaletteStateReturn = {
   filterQuery: Ref<string>
   /** Filtered commands based on the current search query */
   filteredCommands: ComputedRef<readonly CommandGroup[]>
-  /** Opens the command palette, optionally with a specific command active */
-  open: (commandId?: UiCommandIds, props?: Record<string, unknown>) => void
+  /**
+   * Opens the command palette, optionally with a specific command active.
+   * Props parameter is required only when the command has defined props.
+   */
+  open: OpenCommand
   /** Closes the command palette and resets state */
   close: () => void
   /** Sets the active command without opening or closing the palette */
@@ -249,11 +259,12 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
   /**
    * Opens the command palette, optionally with a specific command active.
    * If a commandId is provided, that command will be opened immediately.
+   * Props are type-safe and checked against the command's expected props.
    */
-  const open = (commandId?: UiCommandIds, props?: Record<string, unknown>): void => {
+  const open: OpenCommand = (commandId, ...args): void => {
     if (commandId) {
       activeCommand.value = commandId
-      activeCommandProps.value = props ?? null
+      activeCommandProps.value = (args[0] as Record<string, unknown>) ?? null
     }
     modalState.show()
   }

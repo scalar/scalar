@@ -28,15 +28,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  computed,
-  nextTick,
-  ref,
-  watch,
-  type AllowedComponentProps,
-  type Component,
-  type VNodeProps,
-} from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
@@ -47,10 +39,11 @@ import CommandPaletteRequest from '@/v2/features/command-palette/components/Comm
 import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
   Command,
-  CommandPropsMap,
+  OpenCommand,
   UiCommandIds,
   UseCommandPaletteStateReturn,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import type { AssertAllValid } from '@/v2/features/command-palette/types'
 
 const { paletteState, workspaceStore, eventBus } = defineProps<{
   /** The command palette state management hook */
@@ -75,77 +68,10 @@ const COMMAND_COMPONENTS = {
 } as const
 
 /**
- * Type-level validation that COMMAND_COMPONENTS match CommandPropsMap.
- * Ensures each component accepts the correct props from CommandPropsMap plus default props.
- */
-type DefaultCommandProps = {
-  workspaceStore: WorkspaceStore
-  eventBus: WorkspaceEventBus
-}
-
-type Writable<T> = { -readonly [K in keyof T]: T[K] }
-
-type ComponentProps<C extends Component> = C extends new (...args: any) => {
-  $props: infer P
-}
-  ? Omit<P, keyof VNodeProps | keyof AllowedComponentProps>
-  : never
-
-type CommandComponentPropsMap = {
-  [K in keyof typeof COMMAND_COMPONENTS]: ComponentProps<
-    (typeof COMMAND_COMPONENTS)[K]
-  >
-}
-
-type ExpectedCommandComponentPropsMap = {
-  [K in UiCommandIds]: DefaultCommandProps &
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    (CommandPropsMap[K] extends undefined ? {} : CommandPropsMap[K])
-}
-
-/**
- * Type-level assertion helper that returns detailed debug info.
- * Using literals prevents union collapse (true | never = true, but 'valid' | object stays distinct).
- */
-type AssertPropsMatch<Actual, Expected> = [Actual] extends [Expected]
-  ? 'valid'
-  : {
-      status: 'invalid'
-      actual: Prettify<Actual>
-      expected: Prettify<Expected>
-      missingProps: Prettify<Exclude<keyof Expected, keyof Actual>>
-    }
-
-type Prettify<T> = { [K in keyof T]: T[K] } & {}
-
-type CommandComponentPropsCheck = {
-  [K in UiCommandIds]: AssertPropsMatch<
-    Writable<CommandComponentPropsMap[K]>,
-    Partial<ExpectedCommandComponentPropsMap[K]>
-  >
-}
-
-type PropsCheckResults =
-  CommandComponentPropsCheck[keyof CommandComponentPropsCheck]
-
-/** Filter to show only invalid components for better error messages */
-type InvalidComponents = {
-  [K in keyof CommandComponentPropsCheck as CommandComponentPropsCheck[K] extends 'valid'
-    ? never
-    : K]: CommandComponentPropsCheck[K]
-}
-
-type AssertAllValid = PropsCheckResults extends 'valid'
-  ? PropsCheckResults extends { status: 'invalid' }
-    ? Prettify<InvalidComponents>
-    : PropsCheckResults
-  : Prettify<InvalidComponents>
-
-/**
  * Type-level assertion: ensures all command components have correct props.
  * If any component is missing required props, this will cause a type error.
  */
-const _assertCommandProps: AssertAllValid = 'valid'
+const _assertCommandProps: AssertAllValid<typeof COMMAND_COMPONENTS> = 'valid'
 void _assertCommandProps
 
 const router = useRouter()
@@ -259,11 +185,8 @@ const handleCloseEvent = (): void => {
  * Handle opening a command with props from another command component.
  * Used for command-to-command transitions (e.g., cURL detection).
  */
-const handleOpenCommand = (
-  id: UiCommandIds,
-  props: Record<string, unknown>,
-): void => {
-  paletteState.open(id, props)
+const handleOpenCommand: OpenCommand = (id, ...args) => {
+  paletteState.open(id, ...args)
 }
 
 /**

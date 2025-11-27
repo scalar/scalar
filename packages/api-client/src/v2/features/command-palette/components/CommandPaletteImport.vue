@@ -40,7 +40,7 @@ import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers
 import { getOpenapiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-collection-details'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
-import type { UiCommandIds } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import type { OpenCommandEvent } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { isUrl } from '@/v2/helpers/is-url'
 import { slugify } from '@/v2/helpers/slugify'
 
@@ -56,18 +56,14 @@ const { workspaceStore } = defineProps<{
   workspaceStore: WorkspaceStore
 }>()
 
-const emit = defineEmits<{
-  /** Emitted when the import is complete or cancelled */
-  (event: 'close'): void
-  /** Emitted when user navigates back (e.g., backspace on empty input) */
-  (event: 'back', keyboardEvent: KeyboardEvent): void
-  /** Emitted when switching to another command (e.g., cURL import) */
-  (
-    event: 'open-command',
-    id: UiCommandIds,
-    props: Record<string, unknown>,
-  ): void
-}>()
+const emit = defineEmits<
+  {
+    /** Emitted when the import is complete or cancelled */
+    (event: 'close'): void
+    /** Emitted when user navigates back (e.g., backspace on empty input) */
+    (event: 'back', keyboardEvent: KeyboardEvent): void
+  } & OpenCommandEvent
+>()
 
 /** Maximum number of attempts to generate a unique document name */
 const MAX_NAME_RETRIES = 100
@@ -284,9 +280,7 @@ const handleImport = async (): Promise<void> => {
 const handleInput = (value: string): void => {
   /** Redirect to cURL import command if input starts with 'curl' */
   if (value.trim().toLowerCase().startsWith('curl')) {
-    return emit('open-command', 'import-curl-command', {
-      curl: value,
-    })
+    return emit('open-command', 'import-curl-command', { curl: value })
   }
 
   inputContent.value = value
