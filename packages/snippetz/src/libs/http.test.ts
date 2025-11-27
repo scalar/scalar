@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { createSearchParams } from './http'
 import type { HarRequest } from '@scalar/types/snippetz'
+import { describe, expect, it } from 'vitest'
+
+import { createSearchParams } from './http'
 
 describe('createSearchParams', () => {
   it('creates search params from empty query array', () => {
