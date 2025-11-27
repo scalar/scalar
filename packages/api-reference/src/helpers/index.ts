@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: package entrypoint
 export { useLegacyStoreEvents } from '@/hooks/use-legacy-store-events'
 export { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
 

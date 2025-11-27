@@ -194,7 +194,7 @@
       "performance": {
         "noDelete": "off",
         "noReExportAll": "warn",
-        "noBarrelFile": "warn"
+        "noBarrelFile": "error"
       },
       "nursery": {
         "noFloatingPromises": "warn"
@@ -258,21 +258,21 @@
       }
     },
     {
-      "includes": ["**/packages/api-reference/**/*.ts", "**/packages/openapi-parser/**/*.ts"],
+      "includes": ["packages/*/src/**/index.{js,ts}", "integrations/*/index.ts", "integrations/*/src/**/index.ts"],
       "linter": {
         "rules": {
           "performance": {
-            "noReExportAll": "error"
+            "noBarrelFile": "off"
           }
         }
       }
     },
     {
-      "includes": ["**/components/**/index.ts", "**/features/*/index.ts", "**/blocks/*/index.ts"],
+      "includes": ["**/packages/api-reference/**/*.ts", "**/packages/openapi-parser/**/*.ts"],
       "linter": {
         "rules": {
           "performance": {
-            "noBarrelFile": "off"
+            "noReExportAll": "error"
           }
         }
       }
