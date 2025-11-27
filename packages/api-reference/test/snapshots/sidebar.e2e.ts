@@ -23,15 +23,25 @@ toTest.forEach((source) => {
     await expect(nav.getByRole('button', { name: 'Models' })).toBeVisible()
     await expect(nav).toHaveScreenshot(`${slug}-sidebar.png`)
 
-    // Open all the sections
+    // Open all the sections - wait for each expansion to complete
     const closedTag = nav.getByRole('button', { name: 'Open Group', expanded: false })
-    do {
-      await closedTag.first().click()
-    } while ((await closedTag.count()) > 0)
+    while ((await closedTag.count()) > 0) {
+      const button = closedTag.first()
+      await button.click()
+      // Wait for this button to become expanded (ensures expansion completes)
+      await expect(button).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 })
+    }
 
-    const sections = await nav
+    // Wait for expanded sections to be visible and stable
+    const sections = nav
       .getByRole('listitem')
       .filter({ has: page.getByRole('button', { name: 'Close Group', expanded: true }) })
+
+    // Ensure sections are visible before taking screenshots
+    await expect(sections.first()).toBeVisible()
+
+    // Playwright's toHaveScreenshot already waits for stability and fonts,
+    // but we ensure the DOM is ready by waiting for visibility above
     await expect(await sections.count()).toBeGreaterThan(0)
     for (const [index, section] of (await sections.all()).entries()) {
       await expect(section).toHaveScreenshot(`${slug}-section-${index + 1}.png`)
