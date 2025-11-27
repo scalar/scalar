@@ -682,7 +682,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    concurrency: ${{ github.workflow }}-${{ github.ref }}
+    concurrency: deploy-api-reference-${{ github.ref }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
@@ -721,7 +721,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    concurrency: ${{ github.workflow }}-${{ github.ref }}
+    concurrency: deploy-components-${{ github.ref }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
@@ -737,9 +737,7 @@ jobs:
         run: pnpm install -g netlify
 
       - name: Build storybook
-        run: |
-          echo ${{ env.DEPLOY_ID }}
-          pnpm --filter components build:storybook
+        run: pnpm --filter components build:storybook
 
       - name: Deploy Storybook to Netlify (Preview)
         if: github.event_name == 'pull_request'
