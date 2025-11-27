@@ -682,7 +682,9 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    concurrency: deploy-api-reference-${{ github.ref }}
+    concurrency:
+      group: deploy-api-reference-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}
     permissions:
@@ -723,7 +725,9 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    concurrency: deploy-components-${{ github.ref }}
+    concurrency:
+      group: deploy-components-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}
     permissions:
