@@ -12,7 +12,7 @@ on:
 
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
-  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker}/**" --filter "!./projects/proxy-scalar-com/**"'
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
   # Initial build.
@@ -682,19 +682,27 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    concurrency: ${{ github.workflow }}-${{ github.ref }}
+    concurrency:
+      group: deploy-api-reference-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+
       - name: Build
         uses: ./.github/actions/build
         with:
           packages: '@scalar-examples/web...'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+
       - name: Install Netlify CLI
         run: pnpm install -g netlify
+
       - name: Deploy to Netlify
         run: |
           netlify deploy --dir "./examples/web/dist" \
@@ -703,34 +711,37 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
-      - name: Add Netlify Preview URL to the PR
-        if: github.event_name == 'pull_request'
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
-        with:
-          message: |
-            **Preview Examples**
 
-            https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
-          comment-tag: 'netlify-preview'
+      - name: Set output
+        id: set-output
+        if: github.event_name == 'pull_request'
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
 
   deploy-components:
-    # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    # Run for PRs (preview) or main branch (production)
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')) ||
+      github.ref == 'refs/heads/main'
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
+    concurrency:
+      group: deploy-components-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
 
       - name: Build
         uses: ./.github/actions/build
         with:
           packages: './packages/**'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
 
       - name: Install Netlify CLI
         run: pnpm install -g netlify
@@ -739,6 +750,7 @@ jobs:
         run: pnpm --filter components build:storybook
 
       - name: Deploy Storybook to Netlify (Preview)
+        if: github.event_name == 'pull_request'
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
@@ -747,14 +759,44 @@ jobs:
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
 
-      - name: Add Netlify Preview URL to the PR
+      - name: Deploy Storybook to Netlify (Production)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          netlify deploy --dir "./packages/components/storybook-static" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --prod
+
+      - name: Set output
+        id: set-output
+        if: github.event_name == 'pull_request'
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
+
+  deploy-preview-comment:
+    # Only run for PRs from the same repository
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    needs: [deploy-api-reference, deploy-components]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Add combined preview URLs to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |
+            **Preview Examples**
+
+            ${{ needs.deploy-api-reference.outputs.preview-url }}
+
             **Preview Storybook**
 
-            https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
-          comment-tag: 'storybook-preview'
+            ${{ needs.deploy-components.outputs.preview-url }}
+          comment-tag: 'deployment-preview'
 
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
