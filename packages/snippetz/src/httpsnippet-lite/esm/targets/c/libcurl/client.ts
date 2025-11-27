@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createSearchParams } from '../../../../../utils/create-search-params.js'
+import { createSearchParams } from '../../../../../libs/http.js'
 import { CodeBuilder } from '../../../helpers/code-builder.js'
 import { escapeForDoubleQuotes } from '../../../helpers/escape.js'
 

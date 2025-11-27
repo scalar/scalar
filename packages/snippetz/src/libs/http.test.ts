@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSearchParams } from './create-search-params'
+import { createSearchParams } from './http'
 import type { HarRequest } from '@scalar/types/snippetz'
 
 describe('createSearchParams', () => {

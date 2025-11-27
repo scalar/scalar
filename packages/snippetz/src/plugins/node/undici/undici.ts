@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { Raw, objectToString } from '@/libs/javascript'
-import { createSearchParams } from '@/utils/create-search-params'
+import { createSearchParams } from '@/libs/http'
 
 /**
  * node/undici
