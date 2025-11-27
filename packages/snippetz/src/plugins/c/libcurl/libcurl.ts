@@ -1,6 +1,7 @@
+import type { Plugin } from '@scalar/types/snippetz'
+
 import { libcurl } from '@/httpsnippet-lite/esm/targets/c/libcurl/client'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * c/libcurl

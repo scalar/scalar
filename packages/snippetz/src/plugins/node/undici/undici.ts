@@ -1,6 +1,7 @@
-import { createSearchParams } from '@/utils/create-search-params'
-import { objectToString, Unquoted } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { Raw, objectToString } from '@/libs/javascript'
+import { createSearchParams } from '@/libs/http'
 
 /**
  * node/undici
@@ -62,7 +63,7 @@ export const nodeUndici: Plugin = {
 
       // JSON
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        options.body = new Unquoted(`JSON.stringify(${objectToString(JSON.parse(options.body))})`)
+        options.body = new Raw(`JSON.stringify(${objectToString(JSON.parse(options.body))})`)
       }
     }
 

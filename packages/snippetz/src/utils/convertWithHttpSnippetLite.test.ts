@@ -1,6 +1,6 @@
+import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import type { HarRequest } from '@scalar/types/snippetz'
 import { convertWithHttpSnippetLite } from './convertWithHttpSnippetLite'
 
 describe('convertWithHttpSnippetLite', () => {
