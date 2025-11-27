@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { objectToString } from './objectToString'
+import { objectToString } from './javascript'
 
 describe('objectToString', () => {
   it('formats an empty object', () => {
