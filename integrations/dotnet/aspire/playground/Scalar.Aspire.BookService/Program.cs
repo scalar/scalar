@@ -25,6 +25,13 @@ builder.Services.AddOpenApi(options =>
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes.Add("oauth2", securityScheme);
+        
+        var schemeReference = new OpenApiSecuritySchemeReference("oauth", document);
+        var securityRequirement = new OpenApiSecurityRequirement
+        {
+            [schemeReference] = []
+        };
+        document.Security = [securityRequirement];
 
         return Task.CompletedTask;
     });
