@@ -685,18 +685,22 @@ jobs:
     concurrency: deploy-api-reference-${{ github.ref }}
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+
       - name: Build
         uses: ./.github/actions/build
         with:
           packages: '@scalar-examples/web...'
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+
       - name: Install Netlify CLI
         run: pnpm install -g netlify
+
       - name: Deploy to Netlify
         run: |
           netlify deploy --dir "./examples/web/dist" \
@@ -705,6 +709,7 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
+
       - name: Set output
         id: set-output
         if: github.event_name == 'pull_request'
@@ -721,6 +726,8 @@ jobs:
     concurrency: deploy-components-${{ github.ref }}
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
