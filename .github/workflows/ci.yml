@@ -683,6 +683,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency: deploy-api-reference-${{ github.ref }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
@@ -703,15 +705,10 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
-      - name: Add Netlify Preview URL to the PR
+      - name: Set output
+        id: set-output
         if: github.event_name == 'pull_request'
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
-        with:
-          message: |
-            **Preview Examples**
-
-            https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
-          comment-tag: 'netlify-preview'
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
 
   deploy-components:
     # Run for PRs (preview) or main branch (production)
@@ -722,6 +719,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency: deploy-components-${{ github.ref }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
@@ -759,15 +758,34 @@ jobs:
             --filter @scalar/components \
             --prod
 
-      - name: Add Netlify Preview URL to the PR
+      - name: Set output
+        id: set-output
         if: github.event_name == 'pull_request'
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
+
+  deploy-preview-comment:
+    # Only run for PRs from the same repository
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    needs: [deploy-api-reference, deploy-components]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Add combined preview URLs to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |
+            **Preview Examples**
+
+            ${{ needs.deploy-api-reference.outputs.preview-url }}
+
             **Preview Storybook**
 
-            https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
-          comment-tag: 'storybook-preview'
+            ${{ needs.deploy-components.outputs.preview-url }}
+          comment-tag: 'deployment-preview'
 
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
