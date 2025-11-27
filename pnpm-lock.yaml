@@ -939,18 +939,18 @@ importers:
         specifier: catalog:*
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
-  integrations/java/webjar:
+  integrations/java:
     dependencies:
       '@scalar/api-reference':
         specifier: workspace:*
-        version: link:../../../packages/api-reference
+        version: link:../../packages/api-reference
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
-        version: link:../../../packages/build-tooling
+        version: link:../../packages/build-tooling
       '@scalar/snippetz':
         specifier: workspace:*
-        version: link:../../../packages/snippetz
+        version: link:../../packages/snippetz
 
   integrations/nestjs:
     dependencies:

@@ -64,7 +64,7 @@ jobs:
       fastapi_package_changed: ${{ steps.set-outputs.outputs.fastapi_package_changed }}
       django_ninja_package_changed: ${{ steps.set-outputs.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ steps.set-outputs.outputs.rust_package_changed }}
-      java_webjar_package_changed: ${{ steps.set-outputs.outputs.java_webjar_package_changed }}
+      java_package_changed: ${{ steps.set-outputs.outputs.java_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
     steps:
@@ -112,8 +112,8 @@ jobs:
               - integrations/django-ninja/package.json
             rust_package:
               - integrations/rust/package.json
-            java_webjar_package:
-              - integrations/java/webjar/package.json
+            java_package:
+              - integrations/java/package.json
             docker_package:
               - integrations/docker/package.json
 
@@ -131,7 +131,7 @@ jobs:
           echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "django_ninja_package_changed=${{ steps.changed-package-files.outputs.django_ninja_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
-          echo "java_webjar_package_changed=${{ steps.changed-package-files.outputs.java_webjar_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "java_package_changed=${{ steps.changed-package-files.outputs.java_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
 
@@ -1336,7 +1336,7 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-  java-webjar-build-test:
+  java-build-test:
     if: needs.check-changes.outputs.java_changed == 'true'
     needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -1349,24 +1349,24 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
-          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
+          path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-          cache-dependency-path: '**/webjar/pom.xml'
+          cache-dependency-path: 'integrations/java/**/pom.xml'
       - name: Run Maven tests
-        working-directory: integrations/java/webjar
+        working-directory: integrations/java
         run: mvn clean test
 
-  java-webjar-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_webjar_package_changed == 'true'
-    needs: [required-jobs-main, java-webjar-build-test, check-changes]
+  java-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_package_changed == 'true'
+    needs: [required-jobs-main, java-build-test, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
-      group: java-webjar-publish
+      group: java-publish
       cancel-in-progress: false
     permissions:
       contents: read
@@ -1377,14 +1377,14 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: scalar-js
-          path: integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar
+          path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-          cache-dependency-path: '**/webjar/pom.xml'
+          cache-dependency-path: '**/java/pom.xml'
           server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
@@ -1392,20 +1392,19 @@ jobs:
           gpg-passphrase: GPG_PASSPHRASE
 
       - name: Extract version from package.json
-        working-directory: integrations/java/webjar
+        working-directory: integrations/java
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Set version in pom.xml (using the version from package.json)
-        working-directory: integrations/java/webjar
+      - name: Set version in parent POM
+        working-directory: integrations/java
         run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
-      - name: Build Java WebJar
-        working-directory: integrations/java/webjar
-        run: mvn clean package
-      - name: Release Java WebJar
-        working-directory: integrations/java/webjar
-        run: mvn deploy
+      - name: Build all Java modules
+        working-directory: integrations/java
+        run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
+      - name: Publish all Java modules to Maven Central
+        working-directory: integrations/java
+        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux
         env:
           # Create an account on Sonatype and add the credentials to the repository secrets.
           # Generate User Token: https://central.sonatype.com/account
@@ -1413,7 +1412,6 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           GPG_KEYNAME: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
   # ---------------------------------------------------------------------------------------------------------
   # Other jobs
 

@@ -1,5 +1,9 @@
 # Scalar API Reference for Java Spring Boot
 
+:::scalar-callout{ type=warning }
+**This documentation is obsolete.** The Scalar Java integration has been restructured into a modular approach with separate modules for different Spring Boot variants. Please refer to the [Java integration documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/java) for the current documentation.
+:::
+
 The Scalar WebJar provides automatic integration with Spring Boot applications. It includes auto-configuration that automatically sets up the API reference endpoint with comprehensive configuration options, type-safe enums, and authentication support.
 
 ## Requirements
