@@ -42,7 +42,7 @@ export function objectToString(data: unknown, level = 0): string {
   }
 
   if (typeof data === 'string') {
-    return `'${data.replace(/'/g, "\\'")}'`
+    return `'${data.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
   }
 
   if (typeof data === 'number' || typeof data === 'boolean') {

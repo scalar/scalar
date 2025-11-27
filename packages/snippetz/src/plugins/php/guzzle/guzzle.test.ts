@@ -526,7 +526,7 @@ $response = $client->request('POST', 'https://example.com', [
     'Content-Type' => 'application/json'
   ],
   'json' => [
-    'key' => '"quotes" and \\backslashes\\',
+    'key' => '"quotes" and \\\\backslashes\\\\',
     'nested' => [
       'array' => [
         'item1',
