@@ -6,6 +6,13 @@ function indent(level: number): string {
 }
 
 /**
+ * Represents a raw PHP code that should not be quoted, e.g. `fopen('test.txt', 'r')`.
+ * If it consists of multiple lines, they will be indented properly.
+ */
+export class Raw {
+  constructor(public value: string) {}
+}
+
 /**
  * Converts a JavaScript object or value into a PHP array or scalar string representation.
  * Handles nested arrays and objects, proper string escaping, and preserves indentation for readability.
@@ -16,6 +23,22 @@ function indent(level: number): string {
 export function objectToString(data: unknown, level = 0): string {
   if (data === null || data === undefined) {
     return 'null'
+  }
+
+  if (data instanceof Raw) {
+    const lines = data.value.split('\n')
+    if (lines.length > 1) {
+      const innerIndentation = indent(level + 1)
+      return lines
+        .map((line, index) => {
+          if (index === 0) {
+            return line
+          }
+          return `${innerIndentation}${line}`
+        })
+        .join('\n')
+    }
+    return data.value
   }
 
   if (typeof data === 'string') {

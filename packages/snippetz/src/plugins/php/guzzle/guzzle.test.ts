@@ -38,9 +38,9 @@ $response = $client->request('POST', 'https://example.com');`)
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'headers' => [
-        'Content-Type' => 'application/json',
-    ],
+  'headers' => [
+    'Content-Type' => 'application/json'
+  ]
 ]);`)
   })
 
@@ -76,12 +76,12 @@ $response = $client->request('GET', 'https://example.com');`)
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'headers' => [
-        'Content-Type' => 'application/json',
-    ],
-    'json' => [
-        'hello' => 'world',
-    ],
+  'headers' => [
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'hello' => 'world'
+  ]
 ]);`)
   })
 
@@ -103,10 +103,10 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'query' => [
-        'foo' => 'bar',
-        'bar' => 'foo',
-    ],
+  'query' => [
+    'foo' => 'bar',
+    'bar' => 'foo'
+  ]
 ]);`)
   })
 
@@ -128,10 +128,10 @@ $response = $client->request('GET', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'cookies' => [
-        'foo' => 'bar',
-        'bar' => 'foo',
-    ],
+  'cookies' => [
+    'foo' => 'bar',
+    'bar' => 'foo'
+  ]
 ]);`)
   })
 
@@ -162,10 +162,10 @@ $response = $client->request('GET', 'https://example.com');`)
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'auth' => [
-        'user',
-        'pass',
-    ],
+  'auth' => [
+    'user',
+    'pass'
+  ]
 ]);`)
   })
 
@@ -231,10 +231,10 @@ $response = $client->request('GET', 'https://example.com');`)
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'auth' => [
-        'user@example.com',
-        'pass:word!',
-    ],
+  'auth' => [
+    'user@example.com',
+    'pass:word!'
+  ]
 ]);`)
   })
 
@@ -275,16 +275,16 @@ $response = $client->request('GET', 'https://example.com');`)
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'multipart' => [
-        [
-            'name' => 'file',
-            'contents' => fopen('test.txt', 'r'),
-        ],
-        [
-            'name' => 'field',
-            'contents' => 'value',
-        ],
+  'multipart' => [
+    [
+      'name' => 'file',
+      'contents' => fopen('test.txt', 'r')
     ],
+    [
+      'name' => 'field',
+      'contents' => 'value'
+    ]
+  ]
 ]);`)
   })
 
@@ -309,12 +309,12 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'headers' => [
-        'Content-Type' => 'multipart/form-data',
-    ],
-    'form_params' => [
-        'foo' => 'bar',
-    ],
+  'headers' => [
+    'Content-Type' => 'multipart/form-data'
+  ],
+  'form_params' => [
+    'foo' => 'bar'
+  ]
 ]);`)
   })
 
@@ -336,9 +336,9 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'form_params' => [
-        'special chars!@#' => 'value',
-    ],
+  'form_params' => [
+    'special chars!@#' => 'value'
+  ]
 ]);`)
   })
 
@@ -355,7 +355,7 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'body' => 'binary content',
+  'body' => 'binary content'
 ]);`)
   })
 
@@ -373,10 +373,10 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'headers' => [
-        'Accept-Encoding' => 'gzip, deflate',
-    ],
-    'decode_content' => true,
+  'headers' => [
+    'Accept-Encoding' => 'gzip, deflate'
+  ],
+  'decode_content' => true
 ]);`)
   })
 
@@ -408,10 +408,10 @@ $response = $client->request('GET', 'https://example.com/path with spaces/[brack
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'query' => [
-        'q' => 'hello world & more',
-        'special' => '!@#$%^&*()',
-    ],
+  'query' => [
+    'q' => 'hello world & more',
+    'special' => '!@#$%^&*()'
+  ]
 ]);`)
   })
 
@@ -447,12 +447,12 @@ $response = $client->request('GET', 'https://example.com/${'a'.repeat(2000)}');`
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'headers' => [
-        'X-Custom' => [
-            'value1',
-            'value2',
-        ],
-    ],
+  'headers' => [
+    'X-Custom' => [
+      'value1',
+      'value2'
+    ]
+  ]
 ]);`)
   })
 
@@ -465,9 +465,9 @@ $response = $client->request('GET', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'headers' => [
-        'X-Empty' => '',
-    ],
+  'headers' => [
+    'X-Empty' => ''
+  ]
 ]);`)
   })
 
@@ -489,12 +489,12 @@ $response = $client->request('GET', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'multipart' => [
-        [
-            'name' => 'file',
-            'contents' => '',
-        ],
-    ],
+  'multipart' => [
+    [
+      'name' => 'file',
+      'contents' => ''
+    ]
+  ]
 ]);`)
   })
 
@@ -522,19 +522,19 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'headers' => [
-        'Content-Type' => 'application/json',
-    ],
-    'json' => [
-        'key' => '"quotes" and \\backslashes\\',
-        'nested' => [
-            'array' => [
-                'item1',
-                null,
-                null,
-            ],
-        ],
-    ],
+  'headers' => [
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'key' => '"quotes" and \\backslashes\\',
+    'nested' => [
+      'array' => [
+        'item1',
+        null,
+        null
+      ]
+    ]
+  ]
 ]);`)
   })
 
@@ -552,9 +552,9 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com', [
-    'cookies' => [
-        'special;cookie' => 'value with spaces',
-    ],
+  'cookies' => [
+    'special;cookie' => 'value with spaces'
+  ]
 ]);`)
   })
 
@@ -583,22 +583,22 @@ $response = $client->request('GET', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-    'headers' => [
-        'Content-Type' => 'application/json',
+  'headers' => [
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'nested' => [
+      'array' => [
+        1,
+        2,
+        3
+      ],
+      'object' => [
+        'foo' => 'bar'
+      ]
     ],
-    'json' => [
-        'nested' => [
-            'array' => [
-                1,
-                2,
-                3,
-            ],
-            'object' => [
-                'foo' => 'bar',
-            ],
-        ],
-        'simple' => 'value',
-    ],
+    'simple' => 'value'
+  ]
 ]);`)
   })
 })

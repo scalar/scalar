@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { objectToString } from './php'
+import { Raw, objectToString } from './php'
 
 describe('php', () => {
   describe('objectToString', () => {
@@ -154,6 +154,34 @@ describe('php', () => {
       expect(objectToString({ empty: {}, filled: { key: 'value' } })).toBe(
         "[\n  'empty' => [],\n  'filled' => [\n    'key' => 'value'\n  ]\n]",
       )
+    })
+
+    it('handles Raw values without quotes', () => {
+      expect(objectToString({ file: new Raw("fopen('test.txt', 'r')") })).toBe(
+        "[\n  'file' => fopen('test.txt', 'r')\n]",
+      )
+    })
+
+    it('handles Raw values in arrays', () => {
+      expect(objectToString([new Raw("fopen('file1.txt', 'r')"), new Raw("fopen('file2.txt', 'r')")])).toBe(
+        "[\n  fopen('file1.txt', 'r'),\n  fopen('file2.txt', 'r')\n]",
+      )
+    })
+
+    it('handles Raw values with multi-line content', () => {
+      const rawValue = new Raw('function() {\n  return true;\n}')
+      expect(objectToString({ func: rawValue })).toBe("[\n  'func' => function() {\n      return true;\n    }\n]")
+    })
+
+    it('handles nested Raw values', () => {
+      expect(
+        objectToString({
+          options: {
+            file: new Raw("fopen('test.txt', 'r')"),
+            mode: 'read',
+          },
+        }),
+      ).toBe("[\n  'options' => [\n    'file' => fopen('test.txt', 'r'),\n    'mode' => 'read'\n  ]\n]")
     })
   })
 })
