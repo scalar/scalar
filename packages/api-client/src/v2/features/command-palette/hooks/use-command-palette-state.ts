@@ -15,13 +15,19 @@ type CommandBase = {
   id: string
   /** Display name shown in the command palette */
   name: string
-  /** Props for the command */
-  props?: Record<string, unknown>
 }
 
 type FolderCommand = CommandBase & {
   type: 'folder'
   icon: IconType
+  /** Props for the command */
+  props?: Record<string, unknown>
+}
+
+type HiddenFolderCommand = CommandBase & {
+  type: 'hidden-folder'
+  /** Props for the command */
+  props?: Record<string, unknown>
 }
 
 type RouteCommand = CommandBase & {
@@ -30,10 +36,6 @@ type RouteCommand = CommandBase & {
   icon: IconType
 }
 
-type HiddenFolderCommand = CommandBase & {
-  type: 'hidden-folder'
-  props?: Record<string, unknown>
-}
 /**
  * Represents a single command in the command palette.
  * Commands can be folders (open sub-actions), routes (navigate), or hidden folders.
@@ -134,8 +136,11 @@ export const commands = [
 
 type FlatCommand = (typeof commands)[number]['commands'][number]
 
+export type FolderCommandIds = Extract<FlatCommand, { type: 'folder' }>['id']
+export type HiddenFolderCommandIds = Extract<FlatCommand, { type: 'hidden-folder' }>['id']
+
 /** Command IDs that map to UI components (folder and hidden-folder types) */
-export type UiCommandIds = Extract<FlatCommand, { type: 'folder' | 'hidden-folder' }>['id']
+export type UiCommandIds = FolderCommandIds | HiddenFolderCommandIds
 
 /**
  * Maps each command ID to its respective props type.
@@ -148,12 +153,17 @@ export type CommandPropsMap = {
   [K in UiCommandIds]: Extract<FlatCommand, { id: K }> extends { props: infer P } ? P : undefined
 }
 
-export type OpenCommand = <T extends UiCommandIds>(
-  commandId: T,
-  ...args: CommandPropsMap[T] extends undefined
-    ? [] // no props argument
-    : [props: CommandPropsMap[T]] // required props
-) => void
+/**
+ * Type for the open function in the command palette.
+ * Supports two usage patterns:
+ * - open() - Opens the palette without a specific command
+ * - open(commandId) - Opens a command that does not require props
+ * - open(commandId, props) - Opens a command with required props
+ */
+export type OpenCommand = {
+  (): void
+  <T extends UiCommandIds>(commandId: T, props: CommandPropsMap[T]): void
+}
 
 export type OpenCommandEvent = <T extends UiCommandIds>(
   event: 'open-command',
@@ -180,13 +190,11 @@ export type UseCommandPaletteStateReturn = {
   filteredCommands: ComputedRef<readonly CommandGroup[]>
   /**
    * Opens the command palette, optionally with a specific command active.
-   * Props parameter is required only when the command has defined props.
+   * When opening a command, props are required only if the command defines them.
    */
   open: OpenCommand
   /** Closes the command palette and resets state */
   close: () => void
-  /** Sets the active command without opening or closing the palette */
-  setActiveCommand: (commandId: UiCommandIds | null) => void
   /** Updates the filter query for searching commands */
   setFilterQuery: (query: string) => void
   /** Resets all state to initial values */
@@ -198,7 +206,6 @@ export type UseCommandPaletteStateReturn = {
  *
  * Centralizes all state management for the command palette including:
  * - Open/closed state
- * - Active command selection
  * - Filter/search query
  * - Command filtering logic
  *
@@ -261,7 +268,7 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
    * If a commandId is provided, that command will be opened immediately.
    * Props are type-safe and checked against the command's expected props.
    */
-  const open: OpenCommand = (commandId, ...args): void => {
+  const open: OpenCommand = (commandId?: UiCommandIds, ...args: unknown[]): void => {
     if (commandId) {
       activeCommand.value = commandId
       activeCommandProps.value = (args[0] as Record<string, unknown>) ?? null
@@ -273,11 +280,6 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
   const close = (): void => {
     modalState.hide()
     reset()
-  }
-
-  /** Sets the active command without affecting open or closed state */
-  const setActiveCommand = (commandId: UiCommandIds | null): void => {
-    activeCommand.value = commandId
   }
 
   /** Updates the filter query for searching commands */
@@ -300,7 +302,6 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
     filteredCommands,
     open,
     close,
-    setActiveCommand,
     setFilterQuery,
     reset,
   }

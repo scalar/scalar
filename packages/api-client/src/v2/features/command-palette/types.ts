@@ -4,7 +4,7 @@ import type { AllowedComponentProps, Component, VNodeProps } from 'vue'
 
 import type {
   CommandPropsMap,
-  OpenCommand,
+  OpenCommandEvent,
   UiCommandIds,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 
@@ -18,7 +18,7 @@ export type DefaultCommandProps = {
   /** Event bus for emitting workspace events */
   eventBus: WorkspaceEventBus
   /** Function to open a command */
-  'onOpen-command': OpenCommand
+  'onOpen-command': OpenCommandEvent
 }
 
 /** Helper type to make all properties writable */

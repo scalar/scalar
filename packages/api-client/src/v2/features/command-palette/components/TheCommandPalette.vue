@@ -39,8 +39,8 @@ import CommandPaletteRequest from '@/v2/features/command-palette/components/Comm
 import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
   Command,
+  FolderCommandIds,
   OpenCommand,
-  UiCommandIds,
   UseCommandPaletteStateReturn,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import type { AssertAllValid } from '@/v2/features/command-palette/types'
@@ -163,7 +163,8 @@ const handleCommandClick = (command: Command): void => {
 
   /** Open folder commands to show sub-commands */
   if (command.type === 'folder') {
-    paletteState.setActiveCommand(command.id as UiCommandIds)
+    // We are sure that the ids are of type FolderCommandIds because of the type assertion
+    paletteState.open(command.id as FolderCommandIds, undefined)
   }
 }
 
@@ -172,7 +173,7 @@ const handleCommandClick = (command: Command): void => {
  * Returns to the main command list and refocuses the search input.
  */
 const handleBackEvent = (): void => {
-  paletteState.setActiveCommand(null)
+  paletteState.reset()
   nextTick(() => commandInputRef.value?.focus())
 }
 
@@ -185,8 +186,8 @@ const handleCloseEvent = (): void => {
  * Handle opening a command with props from another command component.
  * Used for command-to-command transitions (e.g., cURL detection).
  */
-const handleOpenCommand: OpenCommand = (id, ...args) => {
-  paletteState.open(id, ...args)
+const handleOpenCommand = (...args: Parameters<OpenCommand>) => {
+  paletteState.open(...args)
 }
 
 /**
@@ -287,7 +288,7 @@ const closeHandler = (): void => {
         <button
           class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 mt-[0.5px] rounded p-1.5"
           type="button"
-          @click="paletteState.setActiveCommand(null)">
+          @click="handleBackEvent">
           <ScalarIcon
             icon="ChevronLeft"
             size="md"

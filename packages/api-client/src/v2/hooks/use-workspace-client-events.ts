@@ -236,5 +236,11 @@ export const useWorkspaceClientEvents = ({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
-  eventBus.on('ui:open:command-palette', (payload) => commandPaletteState.open(payload?.action))
+  eventBus.on('ui:open:command-palette', (payload) => {
+    if (payload) {
+      commandPaletteState.open(payload.action, payload.payload)
+    } else {
+      commandPaletteState.open()
+    }
+  })
 }

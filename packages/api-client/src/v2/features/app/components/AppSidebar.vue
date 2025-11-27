@@ -174,6 +174,7 @@ const isDroppable = (
             @click="
               eventBus.emit('ui:open:command-palette', {
                 action: 'import-from-openapi-swagger-postman-curl',
+                payload: undefined,
               })
             ">
             Import Collection

@@ -179,6 +179,7 @@ defineExpose({
           @addRequest="
             eventBus.emit('ui:open:command-palette', {
               action: 'create-request',
+              payload: undefined,
             })
           "
           @openCommandPalette="eventBus.emit('ui:open:command-palette')"
