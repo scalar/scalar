@@ -107,12 +107,13 @@ const handleExecute = () =>
     meta: { path, method, exampleKey },
   })
 
-/** Update the HTTP method for the operation in its draft state */
+/** Update the HTTP method for the operation, also recreates sidebar navigation */
 const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
   eventBus.emit('operation:update:method', {
     meta: {
       method,
       path,
+      exampleKey,
     },
     payload: {
       method: payload.value,

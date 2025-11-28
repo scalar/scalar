@@ -209,6 +209,15 @@ export type TraversedEntry =
   | TraversedDocument
   | TraversedModels
 
+/**
+ * Type helper for when we are storing the parent entry in the entry itself.
+ * The parent is recursively defined to also include its own parent, except for
+ * TraversedDocument which can be a terminal parent without requiring its own parent.
+ */
+export type WithParent<Entry extends TraversedEntry> = Entry & {
+  parent: WithParent<TraversedEntry> | TraversedDocument
+}
+
 export type DocumentIdProps = {
   name: string
   info: InfoObject

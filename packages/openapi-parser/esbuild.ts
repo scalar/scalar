@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+
 import { build } from '@scalar/build-tooling/esbuild'
 
 async function convertSchema(version: string) {

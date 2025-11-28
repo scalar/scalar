@@ -1,8 +1,7 @@
-// biome-ignore lint/performance/noBarrelFile: <explanation>
-export * from './store'
 export {
   ACTIVE_ENTITIES_SYMBOL,
+  type EnvVariable,
   createActiveEntitiesStore,
   useActiveEntities,
-  type EnvVariable,
 } from './active-entities'
+export * from './store'

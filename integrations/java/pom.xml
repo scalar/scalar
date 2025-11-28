@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Don't touch this, this is our verified namespace in the Maven Central Repository. -->
+  <groupId>com.scalar.maven</groupId>
+  <artifactId>scalar-parent</artifactId>
+  <!-- This will replaced with the version from the package.json right before release. -->
+  <!-- Just keep it 0.0.0, don't touch it. -->
+  <version>0.0.0</version>
+  <packaging>pom</packaging>
+
+  <name>Scalar API Reference Parent</name>
+  <description>Parent POM for Scalar API Reference Java integrations</description>
+  <url>https://github.com/scalar/scalar</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>scalar</id>
+      <!-- Don't touch this, it needs to match the GPG Key (Scalar <support@scalar.com>) -->
+      <name>Scalar</name>
+      <!-- Don't touch this, it needs to match the GPG Key (Scalar <support@scalar.com>) -->
+      <email>support@scalar.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/scalar/scalar</url>
+    <connection>scm:git:https://github.com/scalar/scalar.git</connection>
+    <developerConnection>scm:git:git@github.com/scalar/scalar.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <name>Maven Central Release Repository</name>
+      <url>https://central.sonatype.com/api/v1/publish</url>
+    </repository>
+  </distributionManagement>
+
+  <modules>
+    <module>scalar-core</module>
+    <module>scalar-webmvc</module>
+    <module>scalar-webflux</module>
+    <module>scalar-playground-webmvc</module>
+    <module>scalar-playground-webflux</module>
+  </modules>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <gpg.skip>false</gpg.skip>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Spring Boot BOM -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>3.5.7</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Maven Compiler Plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.14.1</version>
+          <configuration>
+            <release>17</release>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+
+        <!-- Surefire plugin for running tests -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.4</version>
+          <configuration>
+            <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+          </configuration>
+        </plugin>
+
+        <!-- Source JAR -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.3.1</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Javadoc JAR -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.12.0</version>
+          <executions>
+            <execution>
+              <id>generate-javadoc</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>javadoc</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>attach-javadocs</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <release>17</release>
+            <encoding>UTF-8</encoding>
+            <doclint>none</doclint>
+            <failOnError>true</failOnError>
+          </configuration>
+        </plugin>
+
+        <!-- GPG Signing -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.2.8</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Required for Maven Central publishing -->
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.9.0</version>
+          <extensions>true</extensions>
+          <configuration>
+            <publishingServerId>central</publishingServerId>
+            <autoPublish>true</autoPublish>
+          </configuration>
+        </plugin>
+
+        <!-- Maven Clean Plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>${project.build.directory}</directory>
+                <includes>
+                  <include>**/*</include>
+                </includes>
+                <followSymlinks>false</followSymlinks>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
+
+        <!-- Spring Boot Maven Plugin -->
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>3.5.7</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
+

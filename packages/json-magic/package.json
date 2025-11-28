@@ -52,17 +52,16 @@
       "types": "./dist/helpers/escape-json-pointer.d.ts",
       "default": "./dist/helpers/escape-json-pointer.js"
     },
-    "./helpers/generate-hash": {
-      "import": "./dist/helpers/generate-hash.js",
-      "types": "./dist/helpers/generate-hash.d.ts",
-      "default": "./dist/helpers/generate-hash.js"
-    },
     "./magic-proxy": {
       "import": "./dist/magic-proxy/index.js",
       "types": "./dist/magic-proxy/index.d.ts",
       "default": "./dist/magic-proxy/index.js"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
     "yaml": "catalog:*"

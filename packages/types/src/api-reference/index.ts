@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: exporting from a block
 export {
   type ApiClientConfiguration,
   apiClientConfigurationSchema,

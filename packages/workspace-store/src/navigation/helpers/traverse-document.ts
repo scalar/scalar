@@ -121,10 +121,10 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
       const safeIndexB = indexB === -1 ? Number.POSITIVE_INFINITY : indexB
       return safeIndexA - safeIndexB
     })
-
-    // Now update the sort order of the entries
-    document['x-scalar-order'] = unpackProxyObject(entries.map((entry) => entry.id))
   }
+
+  // Now update the sort order of the entries
+  document['x-scalar-order'] = unpackProxyObject(entries.map((entry) => entry.id))
 
   return {
     id: documentId,

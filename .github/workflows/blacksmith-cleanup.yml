@@ -4,7 +4,8 @@ permissions:
 on:
   workflow_dispatch: null
   schedule:
-    - cron: '0 5 * * *'
+    # Run every Sunday at 20:00 UTC
+    - cron: '0 20 * * 0'
 jobs:
   cleanup-turbo-cache:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -16,4 +17,4 @@ jobs:
       - name: Attach sticky disk
         uses: useblacksmith/stickydisk-delete@b41313d28b8647d72114c9ba3c96bb04061562b6 # v1
         with:
-          delete-key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
+          delete-key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ matrix.node-version }}

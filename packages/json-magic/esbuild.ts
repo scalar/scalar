@@ -10,6 +10,5 @@ await build({
     'src/bundle/plugins/node.ts',
     'src/bundle/plugins/browser.ts',
     'src/helpers/escape-json-pointer.ts',
-    'src/helpers/generate-hash.ts',
   ],
 })

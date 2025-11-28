@@ -1,5 +1,5 @@
-// biome-ignore lint/performance/noBarrelFile: <explanation>
+// biome-ignore lint/performance/noBarrelFile: entrypoint
 export { fetchUrls } from './fetch-urls'
-export { readFiles } from './read-files'
 export { parseJson } from './parse-json'
 export { parseYaml } from './parse-yaml'
+export { readFiles } from './read-files'

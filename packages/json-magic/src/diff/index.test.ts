@@ -1,6 +1,7 @@
+import { describe, expect, test } from 'vitest'
+
 import { apply } from '@/diff/apply'
 import { diff } from '@/diff/diff'
-import { describe, expect, test } from 'vitest'
 
 describe('if we get list of operations we need to perform A -> B, when we apply them on A it should give us B', () => {
   test.each([

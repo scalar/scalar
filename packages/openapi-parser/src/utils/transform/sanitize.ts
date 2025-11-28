@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noBarrelFile: re-exports utilities */
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { AnyObject } from '@/types/index'

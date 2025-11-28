@@ -1,5 +1,6 @@
-import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
 import { describe, expect, test } from 'vitest'
+
+import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
 
 describe('isKeyCollisions', () => {
   test.each([

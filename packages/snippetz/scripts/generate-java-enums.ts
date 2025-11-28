@@ -56,8 +56,8 @@ const OBSOLETE_CLIENT_ENTRIES: { name: string; description: string; reason: stri
  */
 const PACKAGE_CONFIGS: JavaPackageConfig[] = [
   {
-    name: 'webjar',
-    enumsDir: '../../../integrations/java/webjar/src/main/java/com/scalar/maven/webjar/enums',
+    name: 'scalar-core',
+    enumsDir: '../../../integrations/java/scalar-core/src/main/java/com/scalar/maven/core/enums',
   },
 ]
 
@@ -132,7 +132,7 @@ function generateScalarTargetEnum(targets: Target[]): string {
 
   return `${header}
 
-package com.scalar.maven.webjar.enums;
+package com.scalar.maven.core.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -203,7 +203,7 @@ function generateScalarClientEnum(clients: Array<{ target: string; client: strin
 
   return `${header}
 
-package com.scalar.maven.webjar.enums;
+package com.scalar.maven.core.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
