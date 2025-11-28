@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.5.0
+
+### Minor Changes
+
+- [#7401](https://github.com/scalar/scalar/pull/7401) [`dee0dcc`](https://github.com/scalar/scalar/commit/dee0dccf8f4b05b7bbf7e329a38e7ee24b67db81) Thanks [@horpto](https://github.com/horpto)! - fix(fastapi): fix PydanticDeprecatedSince20 for Config class field
+
 ## 1.4.4
 
 ### Patch Changes
