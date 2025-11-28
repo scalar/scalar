@@ -50,13 +50,27 @@ const parseRequestBodyData = (data: string): ParsedData => {
 
 /**
  * Determines the content type based on the request body structure.
- * Returns form-encoded if the body looks like form data, otherwise uses the header value.
+ * Returns form-encoded if the body looks like form data, JSON if the body looks like JSON,
+ * otherwise uses the header value.
  */
 const detectContentType = (body: string, headers: Record<string, string>): string => {
-  // Check if body looks like form-encoded data (contains = but does not start with {)
-  const isFormEncoded = body.includes('=') && !body.startsWith('{')
+  // If Content-Type header is explicitly provided, use it
+  if (headers['Content-Type']) {
+    return headers['Content-Type']
+  }
 
-  return isFormEncoded ? 'application/x-www-form-urlencoded' : headers['Content-Type'] || ''
+  // Check if body looks like JSON (starts with { or [)
+  const trimmedBody = body.trim()
+  const isJson = trimmedBody.startsWith('{') || trimmedBody.startsWith('[')
+
+  if (isJson) {
+    return 'application/json'
+  }
+
+  // Check if body looks like form-encoded data (contains = but does not start with {)
+  const isFormEncoded = body.includes('=') && !trimmedBody.startsWith('{')
+
+  return isFormEncoded ? 'application/x-www-form-urlencoded' : ''
 }
 
 /**

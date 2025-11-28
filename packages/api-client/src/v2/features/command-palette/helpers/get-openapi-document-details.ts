@@ -1,5 +1,6 @@
-import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { json, yaml } from '@scalar/oas-utils/helpers'
+
+import { isUrl } from '@/v2/helpers/is-url'
 
 /**
  * Represents parsed details from an OpenAPI or Swagger specification.
@@ -89,7 +90,7 @@ const tryParse = (
  * - Document does not contain OpenAPI or Swagger version information
  */
 export const getOpenApiDocumentDetails = (input: string | null): OpenApiDocumentDetails | undefined => {
-  if (!input || isValidUrl(input)) {
+  if (!input || isUrl(input)) {
     return undefined
   }
 
