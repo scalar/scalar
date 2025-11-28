@@ -195,6 +195,11 @@ export const createOperation = (
     document.paths[normalizedPath] = {}
   }
 
+  /** Prevent pollution of the path and method */
+  preventPollution(normalizedPath)
+  preventPollution(method)
+
+  /** Create the operation in the document */
   document.paths[normalizedPath][method] = operation
 
   payload.callback?.(true)
