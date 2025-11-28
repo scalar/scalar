@@ -134,7 +134,7 @@ export function useDraggable(options: UseDraggableOptions) {
       return
     }
 
-    ev.target.classList.add('dragging')
+    ev.target.setAttribute('data-dragging', 'true')
     ev.dataTransfer.dropEffect = 'move'
     ev.dataTransfer.effectAllowed = 'move'
 
@@ -193,7 +193,7 @@ export function useDraggable(options: UseDraggableOptions) {
     // Remove hover and dragging
     draggingItem.value = null
     hoveredItem.value = null
-    document.querySelectorAll('div.dragging').forEach((el) => el.classList.remove('dragging'))
+    document.querySelectorAll('[data-dragging]').forEach((el) => el.removeAttribute('data-dragging'))
 
     if (_draggingItem.id === _hoveredItem.id) {
       return
