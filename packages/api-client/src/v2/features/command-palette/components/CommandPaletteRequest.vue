@@ -17,7 +17,9 @@
  *   @back="handleBack"
  * />
  */
-export default {}
+export default {
+  name: 'CommandPaletteRequest',
+}
 </script>
 
 <script setup lang="ts">
@@ -77,6 +79,7 @@ type TagOption = {
 const router = useRouter()
 
 const requestPath = ref('/')
+const requestPathTrimmed = computed(() => requestPath.value.trim())
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -181,9 +184,11 @@ const operationExists = computed<boolean>(() => {
  * Disabled when any required field is missing or operation already exists.
  */
 const isDisabled = computed<boolean>(() => {
-  const trimmedPath = requestPath.value.trim()
-
-  if (!trimmedPath || !selectedDocument.value || !selectedMethod.value) {
+  if (
+    !requestPathTrimmed.value ||
+    !selectedDocument.value ||
+    !selectedMethod.value
+  ) {
     return true
   }
 
@@ -226,7 +231,7 @@ const handleSubmit = (): void => {
 
   eventBus.emit('operation:create:operation', {
     documentName: selectedDocument.value.id,
-    path: requestPath.value,
+    path: requestPathTrimmed.value,
     method: selectedMethod.value.method,
     operation: {
       tags: selectedTag.value?.name ? [selectedTag.value.name] : undefined,
@@ -236,7 +241,7 @@ const handleSubmit = (): void => {
         /** Build the sidebar */
         workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
 
-        const path = requestPath.value.startsWith('/')
+        const path = requestPathTrimmed.value.startsWith('/')
           ? requestPath.value
           : `/${requestPath.value}`
 

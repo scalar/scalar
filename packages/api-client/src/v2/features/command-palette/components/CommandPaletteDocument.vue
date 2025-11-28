@@ -47,6 +47,7 @@ const emit = defineEmits<{
 const router = useRouter()
 
 const documentName = ref('')
+const documentNameTrimmed = computed(() => documentName.value.trim())
 
 /** Default icon for new documents (folder icon) */
 const documentIcon = ref('interface-content-folder')
@@ -56,14 +57,14 @@ const documentIcon = ref('interface-content-folder')
  * Disabled when the name is empty or when a document with that name already exists.
  */
 const isDisabled = computed<boolean>(() => {
-  const trimmedName = documentName.value.trim()
-
-  if (!trimmedName) {
+  if (!documentNameTrimmed.value) {
     return true
   }
 
   /** Prevent duplicate document names in the workspace */
-  if (workspaceStore.workspace.documents[trimmedName] !== undefined) {
+  if (
+    workspaceStore.workspace.documents[documentNameTrimmed.value] !== undefined
+  ) {
     return true
   }
 
@@ -77,14 +78,14 @@ const handleSubmit = (): void => {
   }
 
   eventBus.emit('document:create:empty-document', {
-    name: documentName.value,
+    name: documentNameTrimmed.value,
     icon: documentIcon.value,
     callback: (success) => {
       if (success) {
         router.push({
           name: 'document.overview',
           params: {
-            documentSlug: documentName.value,
+            documentSlug: documentNameTrimmed.value,
           },
         })
       }

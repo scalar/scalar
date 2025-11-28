@@ -15,7 +15,9 @@
  *   @delete="handleBack"
  * />
  */
-export default {}
+export default {
+  name: 'CommandActionInput',
+}
 </script>
 
 <script setup lang="ts">

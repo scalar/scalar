@@ -17,7 +17,9 @@
  *   @back="handleBack"
  * />
  */
-export default {}
+export default {
+  name: 'CommandPaletteImportCurl',
+}
 </script>
 
 <script setup lang="ts">
@@ -83,9 +85,7 @@ const selectedDocument = ref<ScalarComboboxOption | undefined>(
  * - An operation with the same path and method already exists in the selected document
  */
 const isDisabled = computed<boolean>(() => {
-  const trimmedKey = exampleKey.value.trim()
-
-  if (!trimmedKey || !selectedDocument.value) {
+  if (!exampleKeyTrimmed.value || !selectedDocument.value) {
     return true
   }
 

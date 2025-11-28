@@ -13,7 +13,9 @@
  *   @back="handleBack"
  * />
  */
-export default {}
+export default {
+  name: 'CommandPaletteExample',
+}
 </script>
 
 <script setup lang="ts">
@@ -38,14 +40,6 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-/** Operation option type for selectors */
-type OperationOption = {
-  id: string
-  label: string
-  path: string
-  method: HttpMethod
-}
-
 const { workspaceStore } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
@@ -58,9 +52,18 @@ const emit = defineEmits<{
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
+/** Operation option type for selectors */
+type OperationOption = {
+  id: string
+  label: string
+  path: string
+  method: HttpMethod
+}
+
 const router = useRouter()
 
 const exampleName = ref('')
+const exampleNameTrimmed = computed(() => exampleName.value.trim())
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -142,9 +145,11 @@ const handleSelect = (operation: OperationOption | undefined): void => {
  * Disabled when any required field is missing or empty.
  */
 const isDisabled = computed<boolean>(() => {
-  const trimmedName = exampleName.value.trim()
-
-  if (!trimmedName || !selectedDocument.value || !selectedOperation.value) {
+  if (
+    !exampleNameTrimmed.value ||
+    !selectedDocument.value ||
+    !selectedOperation.value
+  ) {
     return true
   }
 
@@ -166,7 +171,7 @@ const createExample = (): void => {
       documentSlug: selectedDocument.value.id,
       pathEncoded: encodeURIComponent(selectedOperation.value.path),
       method: selectedOperation.value.method,
-      exampleName: exampleName.value,
+      exampleName: exampleNameTrimmed.value,
     },
   })
 

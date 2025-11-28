@@ -26,7 +26,9 @@
  *   <template #submit>Create</template>
  * </CommandActionForm>
  */
-export default {}
+export default {
+  name: 'CommandActionForm',
+}
 </script>
 
 <script setup lang="ts">

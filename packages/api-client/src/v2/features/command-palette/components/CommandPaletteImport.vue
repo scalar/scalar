@@ -17,7 +17,9 @@
  *   @open-command="handleOpenCommand"
  * />
  */
-export default {}
+export default {
+  name: 'CommandPaletteImport',
+}
 </script>
 
 <script setup lang="ts">

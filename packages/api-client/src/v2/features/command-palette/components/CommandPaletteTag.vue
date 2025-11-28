@@ -16,7 +16,9 @@
  *   @back="handleBack"
  * />
  */
-export default {}
+export default {
+  name: 'CommandPaletteTag',
+}
 </script>
 
 <script setup lang="ts">
@@ -43,6 +45,7 @@ const emit = defineEmits<{
 }>()
 
 const name = ref('')
+const nameTrimmed = computed(() => name.value.trim())
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -67,9 +70,7 @@ const selectedDocument = ref<{ id: string; label: string } | undefined>(
  * - A tag with the same name already exists in the selected document
  */
 const isDisabled = computed<boolean>(() => {
-  const trimmedName = name.value.trim()
-
-  if (!trimmedName || !selectedDocument.value) {
+  if (!nameTrimmed.value || !selectedDocument.value) {
     return true
   }
 
@@ -81,7 +82,7 @@ const isDisabled = computed<boolean>(() => {
   }
 
   /** Prevent creating duplicate tags with the same name */
-  if (document.tags?.some((tag) => tag.name === trimmedName)) {
+  if (document.tags?.some((tag) => tag.name === nameTrimmed.value)) {
     return true
   }
 
@@ -98,7 +99,7 @@ const handleSubmit = (): void => {
   }
 
   eventBus.emit('tag:create:tag', {
-    name: name.value,
+    name: nameTrimmed.value,
     documentName: selectedDocument.value.id,
     callback: (success) => {
       if (success) {
