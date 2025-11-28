@@ -30,5 +30,7 @@ export type DocumentEvents = {
     name: string
     /** The icon of the empty document to create */
     icon: string
+    /** The callback to call when the document is created */
+    callback?: (success: boolean) => void
   }
 }

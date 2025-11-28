@@ -36,6 +36,8 @@ export type OperationEvents = {
     method: HttpMethod
     /** The operation object to create */
     operation: OperationObject
+    /** The callback to call when the operation is created */
+    callback?: (success: boolean) => void
   }
 
   /**

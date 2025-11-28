@@ -45,7 +45,7 @@ const emit = defineEmits<{
 const name = ref('')
 
 /** All available documents (collections) in the workspace */
-const availableCollections = computed(() =>
+const availableDocuments = computed(() =>
   Object.entries(workspaceStore.workspace.documents).map(
     ([name, document]) => ({
       id: name,
@@ -54,8 +54,8 @@ const availableCollections = computed(() =>
   ),
 )
 
-const selectedCollection = ref<{ id: string; label: string } | undefined>(
-  availableCollections.value[0] ?? undefined,
+const selectedDocument = ref<{ id: string; label: string } | undefined>(
+  availableDocuments.value[0] ?? undefined,
 )
 
 /**
@@ -69,12 +69,11 @@ const selectedCollection = ref<{ id: string; label: string } | undefined>(
 const isDisabled = computed<boolean>(() => {
   const trimmedName = name.value.trim()
 
-  if (!trimmedName || !selectedCollection.value) {
+  if (!trimmedName || !selectedDocument.value) {
     return true
   }
 
-  const document =
-    workspaceStore.workspace.documents[selectedCollection.value.id]
+  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
 
   /** Prevent submission if the document does not exist */
   if (!document) {
@@ -94,13 +93,18 @@ const isDisabled = computed<boolean>(() => {
  * Emits an event to create a new tag in the selected document.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedCollection.value) {
+  if (isDisabled.value || !selectedDocument.value) {
     return
   }
 
   eventBus.emit('tag:create:tag', {
     name: name.value,
-    documentName: selectedCollection.value.id,
+    documentName: selectedDocument.value.id,
+    callback: (success) => {
+      if (success) {
+        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
+      }
+    },
   })
 
   emit('close')
@@ -125,16 +129,14 @@ const handleBack = (event: KeyboardEvent): void => {
     <!-- Collection selector -->
     <template #options>
       <ScalarListbox
-        v-model="selectedCollection"
-        :options="availableCollections">
+        v-model="selectedDocument"
+        :options="availableDocuments">
         <ScalarButton
           class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
           variant="outlined">
-          <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">
+          <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
             {{
-              selectedCollection
-                ? selectedCollection.label
-                : 'Select Collection'
+              selectedDocument ? selectedDocument.label : 'Select Collection'
             }}
           </span>
           <ScalarIcon

@@ -39,11 +39,26 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+
+const { workspaceStore, eventBus } = defineProps<{
+  /** The workspace store for accessing documents and operations */
+  workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
+  eventBus: WorkspaceEventBus
+}>()
+
+const emit = defineEmits<{
+  /** Emitted when the request is created successfully */
+  (event: 'close'): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
+}>()
 
 /** HTTP method option type for selectors */
 type MethodOption = {
@@ -59,19 +74,7 @@ type TagOption = {
   name: string
 }
 
-const { workspaceStore, eventBus } = defineProps<{
-  /** The workspace store for accessing documents and operations */
-  workspaceStore: WorkspaceStore
-  /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
-}>()
-
-const emit = defineEmits<{
-  /** Emitted when the request is created successfully */
-  (event: 'close'): void
-  /** Emitted when user navigates back (e.g., backspace on empty input) */
-  (event: 'back', keyboardEvent: KeyboardEvent): void
-}>()
+const router = useRouter()
 
 const requestPath = ref('/')
 
@@ -227,6 +230,27 @@ const handleSubmit = (): void => {
     method: selectedMethod.value.method,
     operation: {
       tags: selectedTag.value?.name ? [selectedTag.value.name] : undefined,
+    },
+    callback: (success) => {
+      if (success) {
+        /** Build the sidebar */
+        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
+
+        const path = requestPath.value.startsWith('/')
+          ? requestPath.value
+          : `/${requestPath.value}`
+
+        /** Navigate to the example */
+        router.push({
+          name: 'example',
+          params: {
+            documentSlug: selectedDocument.value?.id,
+            pathEncoded: encodeURIComponent(path),
+            method: selectedMethod.value?.method,
+            exampleName: 'default',
+          },
+        })
+      }
     },
   })
 

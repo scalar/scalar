@@ -37,7 +37,7 @@ export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: str
   document['x-scalar-navigation'].icon = icon
 }
 
-export const createEmptyDocument = (
+export const createEmptyDocument = async (
   store: WorkspaceStore | null,
   payload: DocumentEvents['document:create:empty-document'],
 ) => {
@@ -48,10 +48,11 @@ export const createEmptyDocument = (
   // Check if the document already exists
   // name should be unique
   if (store.workspace.documents[payload.name]) {
+    payload.callback?.(false)
     return
   }
 
-  store.addDocument({
+  await store.addDocument({
     name: payload.name,
     document: {
       openapi: '3.1.0',
@@ -64,4 +65,6 @@ export const createEmptyDocument = (
       'x-scalar-icon': payload.icon,
     },
   })
+
+  payload.callback?.(true)
 }

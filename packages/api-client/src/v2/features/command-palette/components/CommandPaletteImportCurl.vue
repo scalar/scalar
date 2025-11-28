@@ -30,6 +30,7 @@ import {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
@@ -51,6 +52,8 @@ const emit = defineEmits<{
   /** Emitted when user navigates back (e.g., backspace on empty input) */
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
+
+const router = useRouter()
 
 const exampleKey = ref('')
 
@@ -115,6 +118,27 @@ const handleImportClick = (): void => {
     method: result.method,
     operation: result.operation,
     exampleKey: exampleKeyTrimmed.value,
+    callback: (success) => {
+      if (success) {
+        // build the sidebar
+        workspaceStore.buildSidebar(documentName.id)
+
+        const path = result.path.startsWith('/')
+          ? result.path
+          : `/${result.path}`
+
+        // navigate to the operation
+        router.push({
+          name: 'example',
+          params: {
+            documentSlug: documentName.id,
+            pathEncoded: encodeURIComponent(path),
+            method: result.method,
+            exampleName: exampleKeyTrimmed.value,
+          },
+        })
+      }
+    },
   })
 
   emit('close')
