@@ -132,6 +132,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       <SidebarItem
         v-for="child in filterItems(item.children)"
         :key="child.id"
+        :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
         :isSelected="isSelected"
@@ -190,6 +191,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       <SidebarItem
         v-for="child in filterItems(item.children)"
         :key="child.id"
+        :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
         :isSelected="isSelected"
