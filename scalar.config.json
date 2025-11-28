@@ -390,6 +390,11 @@
                   "type": "page"
                 },
                 {
+                  "name": "Java",
+                  "path": "documentation/integrations/java.md",
+                  "type": "page"
+                },
+                {
                   "name": "Laravel",
                   "path": "documentation/integrations/laravel.md",
                   "type": "page"
