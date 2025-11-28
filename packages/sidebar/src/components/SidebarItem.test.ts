@@ -577,7 +577,8 @@ describe('SidebarItem', () => {
 
       const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
       // Check that draggable prop respects explicit value
-      expect(sidebarItem.vm.$attrs.draggable).toBe(false)
+      // When isDraggable is false, draggable attribute should be undefined (not set)
+      expect(sidebarItem.vm.$attrs.draggable).toBeUndefined()
     })
 
     it('emits onDragEnd event when drag ends', async () => {
@@ -634,6 +635,71 @@ describe('SidebarItem', () => {
 
       expect(wrapper.emitted('onDragEnd')).toBeTruthy()
       expect(wrapper.emitted('onDragEnd')?.[0]).toEqual([draggingItem, hoveredItem])
+    })
+
+    it('inherits isDraggable prop from parent to child items when false', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Parent',
+        type: 'tag',
+        name: 'parent',
+        isGroup: true,
+        children: [
+          { id: '2', title: 'Child 1', type: 'operation', ref: 'ref-2', method: 'get', path: '/child1' },
+          { id: '3', title: 'Child 2', type: 'operation', ref: 'ref-3', method: 'post', path: '/child2' },
+        ],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+          isDraggable: false,
+        },
+      })
+
+      const childItems = wrapper.findAllComponents(SidebarItem)
+      // Filter out the parent component (which has id '1')
+      const childComponents = childItems.filter((w) => w.props('item').id !== '1')
+
+      // Verify all child components received isDraggable: false
+      expect(childComponents.length).toBeGreaterThan(0)
+      childComponents.forEach((childComponent) => {
+        expect(childComponent.props('isDraggable')).toBe(false)
+      })
+    })
+
+    it('inherits isDraggable prop from parent to child items when true', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Parent',
+        type: 'document',
+        name: 'parent',
+        children: [
+          { id: '2', title: 'Child 1', type: 'operation', ref: 'ref-2', method: 'get', path: '/child1' },
+          { id: '3', title: 'Child 2', type: 'operation', ref: 'ref-3', method: 'post', path: '/child2' },
+        ],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+          isDraggable: true,
+          // Ensure the group is expanded so children are rendered
+          isExpanded: (id) => id === '1',
+        },
+      })
+
+      const childItems = wrapper.findAllComponents(SidebarItem)
+      // Filter out the parent component (which has id '1')
+      const childComponents = childItems.filter((w) => w.props('item').id !== '1')
+
+      // Verify all child components received isDraggable: true
+      expect(childComponents.length).toBeGreaterThan(0)
+      childComponents.forEach((childComponent) => {
+        expect(childComponent.props('isDraggable')).toBe(true)
+      })
     })
   })
 
