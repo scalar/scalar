@@ -1,5 +1,18 @@
 # @scalar/json-magic
 
+## 0.8.3
+
+### Patch Changes
+
+- [#7417](https://github.com/scalar/scalar/pull/7417) [`e04879c`](https://github.com/scalar/scalar/commit/e04879c65602dfb65393876754f5344751b8953d) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(json-margic): remove `helpers/generate-hash` invalid entrypoint
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- [#7422](https://github.com/scalar/scalar/pull/7422) [`af54a80`](https://github.com/scalar/scalar/commit/af54a80349269a4269a68f6a372f837177a3537c) Thanks [@inyourtime](https://github.com/inyourtime)! - build(json-magic): prevent src folder from being published
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d)]:
+  - @scalar/helpers@0.1.3
+
 ## 0.8.2
 
 ### Patch Changes

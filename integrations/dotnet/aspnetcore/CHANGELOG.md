@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 2.11.1
+
+### Patch Changes
+
+- Updated dependencies [[`294f9fc`](https://github.com/scalar/scalar/commit/294f9fc6cfd43cdab110deb1c851883509bc2b84)]:
+  - @scalar/api-reference@1.40.1
+  - @scalar/dotnet-shared@0.1.1
+
 ## 2.11.0
 
 ### Minor Changes
