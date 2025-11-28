@@ -242,8 +242,8 @@ const handleSubmit = (): void => {
         workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
 
         const path = requestPathTrimmed.value.startsWith('/')
-          ? requestPath.value
-          : `/${requestPath.value}`
+          ? requestPathTrimmed.value
+          : `/${requestPathTrimmed.value}`
 
         /** Navigate to the example */
         router.push({
