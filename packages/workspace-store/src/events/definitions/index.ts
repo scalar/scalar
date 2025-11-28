@@ -26,3 +26,4 @@ export type ApiReferenceEvents = AuthEvents &
   TagEvents
 
 export type { CollectionType } from './common'
+export type { CommandPalettePayload } from './ui'
