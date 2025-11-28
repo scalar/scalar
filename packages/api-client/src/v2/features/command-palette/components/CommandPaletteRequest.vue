@@ -36,10 +36,6 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type {
-  TraversedEntry,
-  TraversedTag,
-} from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -73,7 +69,6 @@ type MethodOption = {
 type TagOption = {
   id: string
   label: string
-  name: string
 }
 
 const router = useRouter()
@@ -109,27 +104,6 @@ const selectedMethod = ref<MethodOption | undefined>(
 const selectedTag = ref<TagOption | undefined>(undefined)
 
 /**
- * Recursively traverse navigation entries to find all tags.
- * Tags can be nested within the navigation structure.
- */
-const getAllTags = (entries: TraversedEntry[]): TraversedTag[] => {
-  const tags: TraversedTag[] = []
-
-  for (const entry of entries) {
-    if (entry.type === 'tag') {
-      tags.push(entry)
-    }
-
-    /** Recursively traverse child entries if they exist */
-    if ('children' in entry && entry.children) {
-      tags.push(...getAllTags(entry.children))
-    }
-  }
-
-  return tags
-}
-
-/**
  * All available tags for the selected document.
  * Includes a "No Tag" option for operations without a tag assignment.
  */
@@ -139,20 +113,16 @@ const availableTags = computed<TagOption[]>(() => {
   }
 
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-  if (!document || !document['x-scalar-navigation']) {
+  if (!document) {
     return []
   }
 
-  const navigation = document['x-scalar-navigation']
-  const tags = getAllTags(navigation.children ?? [])
-
   return [
-    { id: '', label: 'No Tag', name: '' },
-    ...tags.map((tag) => ({
-      id: tag.id,
+    { id: '', label: 'No Tag' },
+    ...(document.tags?.map((tag) => ({
+      id: tag.name,
       label: tag.name,
-      name: tag.name,
-    })),
+    })) ?? []),
   ]
 })
 
@@ -234,7 +204,7 @@ const handleSubmit = (): void => {
     path: requestPathTrimmed.value,
     method: selectedMethod.value.method,
     operation: {
-      tags: selectedTag.value?.name ? [selectedTag.value.name] : undefined,
+      tags: selectedTag.value?.id ? [selectedTag.value.id] : undefined,
     },
     callback: (success) => {
       if (success) {

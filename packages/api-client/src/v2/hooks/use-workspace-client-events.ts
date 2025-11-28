@@ -1,5 +1,5 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { CollectionType, CommandPalettePayload, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { CollectionType, CommandPaletteAction, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   addOperationParameter,
@@ -214,23 +214,14 @@ export const useWorkspaceClientEvents = ({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
-  eventBus.on('ui:open:command-palette', (payload) => {
-    /**
-     * We use a generic helper function to maintain type safety between command IDs and their payloads.
-     * This ensures that each command receives the correct payload type at compile time,
-     * preventing runtime errors from mismatched command arguments.
-     */
-    const openCommand = <T extends keyof CommandPalettePayload>(
-      commandId: T,
-      props: CommandPalettePayload[T],
-    ): void => {
-      commandPaletteState.open(commandId, props)
-    }
-
-    if (payload) {
-      openCommand(payload.action, payload.payload)
-    } else {
-      commandPaletteState.open()
-    }
-  })
+  eventBus.on(
+    'ui:open:command-palette',
+    <P extends CommandPaletteAction['action']>(payload: CommandPaletteAction<P> | undefined) => {
+      if (payload) {
+        commandPaletteState.open(payload.action, payload.payload)
+      } else {
+        commandPaletteState.open()
+      }
+    },
+  )
 }

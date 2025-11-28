@@ -242,23 +242,31 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
 
   /**
    * Filtered commands based on the current search query.
-   * When no query is present, returns all commands.
-   * When a query exists, filters commands by name (case-insensitive).
+   * When no query is present, returns all visible commands (excluding hidden-folder).
+   * When a query exists, filters commands by name (case-insensitive) and excludes hidden-folder.
    * Empty groups are excluded from the results.
    */
   const filteredCommands = computed<CommandGroup[]>(() => {
     const query = filterQuery.value.toLowerCase().trim()
 
-    /** No filtering when query is empty */
-    if (!query) {
-      return commands as unknown as CommandGroup[]
-    }
-
-    /** Filter commands by name and exclude empty groups */
+    /** Filter commands by name when query exists, always exclude hidden folders */
     return commands
       .map((group) => ({
         label: group.label,
-        commands: group.commands.filter((command) => command.name.toLowerCase().includes(query)),
+        commands: group.commands.filter((command) => {
+          // Always exclude hidden folders
+          if (command.type === 'hidden-folder') {
+            return false
+          }
+
+          // If there is a query, filter by name
+          if (query) {
+            return command.name.toLowerCase().includes(query)
+          }
+
+          // No query means show all visible commands
+          return true
+        }),
       }))
       .filter((group) => group.commands.length > 0)
   })

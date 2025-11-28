@@ -49,9 +49,7 @@ export type CommandComponentPropsMap<T extends Record<string, Component>> = {
  * This is what each command component should accept.
  */
 export type ExpectedCommandComponentPropsMap = {
-  [K in UiCommandIds]: DefaultCommandProps &
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    (CommandPropsMap[K] extends undefined ? {} : CommandPropsMap[K])
+  [K in UiCommandIds]: DefaultCommandProps & (CommandPropsMap[K] extends undefined ? unknown : CommandPropsMap[K])
 }
 
 /** Helper type to flatten and display complex types in IDE tooltips */

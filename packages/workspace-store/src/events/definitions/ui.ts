@@ -4,7 +4,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
  * Available actions that can be triggered from the command palette.
  * Each action may have an associated payload type.
  */
-export type CommandPalettePayload = {
+type CommandPalettePayload = {
   /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
   'import-from-openapi-swagger-postman-curl': undefined
   /** Create a new document in the workspace */
@@ -30,7 +30,7 @@ export type CommandPalettePayload = {
  * - { action: 'create-document', payload: undefined }
  * - { action: 'import-curl-command', payload: { curl: 'curl ...' } }
  */
-type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {
+export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {
   /** The action to perform */
   action: K
   /** The payload for this action, typed based on the action */

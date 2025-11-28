@@ -41,6 +41,7 @@ import type {
   Command,
   FolderCommandIds,
   OpenCommand,
+  UiCommandIds,
   UseCommandPaletteStateReturn,
 } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import type { AssertAllValid } from '@/v2/features/command-palette/types'
@@ -65,7 +66,7 @@ const COMMAND_COMPONENTS = {
   'add-tag': CommandPaletteTag,
   'add-example': CommandPaletteExample,
   'import-curl-command': CommandPaletteImportCurl,
-} as const
+} as const satisfies Record<UiCommandIds, unknown>
 
 /**
  * Type-level assertion: ensures all command components have correct props.
@@ -250,26 +251,25 @@ const closeHandler = (): void => {
           </div>
 
           <!-- Command items in the group -->
-          <template
+
+          <button
             v-for="command in group.commands"
-            :key="command.id">
-            <button
-              v-if="command.type !== 'hidden-folder'"
-              :id="command.id"
-              class="commandmenu-item hover:bg-b-2 flex w-full cursor-pointer items-center rounded px-2 py-1.5 text-left text-sm"
-              :class="{
-                'bg-b-2': command.id === selectedCommand?.id,
-              }"
-              type="button"
-              @click="handleCommandClick(command)">
-              <ScalarIcon
-                class="text-c-2 mr-2.5"
-                :icon="command.icon"
-                size="md"
-                thickness="1.5" />
-              {{ command.name }}
-            </button>
-          </template>
+            :id="command.id"
+            :key="command.id"
+            class="commandmenu-item hover:bg-b-2 flex w-full cursor-pointer items-center rounded px-2 py-1.5 text-left text-sm"
+            :class="{
+              'bg-b-2': command.id === selectedCommand?.id,
+            }"
+            type="button"
+            @click="handleCommandClick(command)">
+            <ScalarIcon
+              v-if="'icon' in command"
+              class="text-c-2 mr-2.5"
+              :icon="command.icon"
+              size="md"
+              thickness="1.5" />
+            {{ command.name }}
+          </button>
         </template>
 
         <!-- Empty state when no commands match search -->
