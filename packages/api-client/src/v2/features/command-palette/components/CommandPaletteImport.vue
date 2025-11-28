@@ -37,8 +37,8 @@ import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
-import { getOpenapiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
-import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-collection-details'
+import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
+import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 import type { OpenCommandEvent } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { isUrl } from '@/v2/helpers/is-url'
@@ -179,7 +179,7 @@ const importContents = async (content: string): Promise<ImportResult> => {
 
   /** Import from Postman collection (convert to OpenAPI first) */
   if (isPostmanCollection(content)) {
-    const document = getOpenapiFromPostman(content)
+    const document = getOpenApiFromPostman(content)
     const defaultName = document.info?.title ?? DEFAULT_DOCUMENT_NAME
     const name = await generateUniqueDocumentName(defaultName)
 
