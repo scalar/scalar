@@ -224,7 +224,7 @@ describe('handle-hotkey-down', () => {
   it('opens command palette with correct payload for addOperation', () => {
     vi.mocked(isMacOS).mockReturnValue(false)
 
-    const event = createKeyboardEvent('k', { ctrlKey: true })
+    const event = createKeyboardEvent('p', { ctrlKey: true, shiftKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:command-palette', { event }, { skipUnpackProxy: true })

@@ -98,17 +98,18 @@ describe('Settings', () => {
     })
 
     it('passes correct props to DocumentSettings', () => {
-      const document = coerceValue(OpenAPIDocumentSchema, {
-        info: {
-          title: 'My API',
-          description: 'Test description',
-        },
-        'x-scalar-original-source-url': 'https://api.example.com/spec.json',
-        'x-scalar-watch-mode': false,
-      })
-
       const props = createDocumentProps({
-        document,
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'My API',
+            description: 'Test description',
+            version: '1.0.0',
+          },
+          'x-scalar-original-source-url': 'https://api.example.com/spec.json',
+          'x-scalar-watch-mode': false,
+          'x-scalar-original-document-hash': '123',
+        },
         documentSlug: 'my-document',
       })
       const wrapper = mount(Settings, { props })

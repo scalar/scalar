@@ -162,7 +162,15 @@ onBeforeUnmount(() => {
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL or cURL command'"
           server
-          @curl="(payload) => eventBus.emit('import:curl', { value: payload })"
+          @curl="
+            (payload) =>
+              eventBus.emit('ui:open:command-palette', {
+                action: 'import-curl-command',
+                payload: {
+                  curl: payload,
+                },
+              })
+          "
           @submit="emit('execute')"
           @update:modelValue="
             (payload) => emit('update:path', { value: payload })

@@ -79,7 +79,6 @@ const OpenApiExtensionsSchema = compose(
       'x-scalar-client-config-active-environment': Type.String(),
       'x-original-oas-version': Type.String(),
       'x-scalar-original-source-url': Type.String(),
-      'x-scalar-watch-mode': Type.Boolean(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
   ),
@@ -101,7 +100,6 @@ export type OpenAPIExtensions = Partial<{
   'x-original-oas-version': string
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
-  'x-scalar-watch-mode': boolean
   [extensions.document.navigation]: TraversedDocument
 }> & {
   /** Original input document hash */

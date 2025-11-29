@@ -7,8 +7,8 @@ import { ScalarIcon } from '@scalar/components'
     class="splash-screen bg-b-1 fixed inset-0 z-50 flex items-center justify-center">
     <div class="flex flex-col items-center gap-4">
       <ScalarIcon
-        icon="Logo"
-        class="logo-icon text-c-1 h-16 w-16" />
+        class="logo-icon text-c-1 h-16 w-16"
+        icon="Logo" />
     </div>
   </div>
 </template>

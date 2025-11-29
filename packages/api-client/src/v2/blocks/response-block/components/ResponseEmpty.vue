@@ -80,7 +80,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="emits('openCommandPalette')">
         Get Started
-        <ScalarHotkey hotkey="k" />
+        <ScalarHotkey
+          hotkey="p"
+          :modifier="['default', 'Shift']" />
       </button>
       <button
         v-if="layout === 'desktop'"

@@ -54,8 +54,6 @@ const { sidebarState, layout, activeWorkspace, store } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  /** Emitted when the command palette is opened, possibly with a specific action (e.g., 'import') */
-  (e: 'open:commandPalette', action?: 'import'): void
   /** Emitted when the workspace button in the sidebar is clicked */
   (e: 'click:workspace'): void
   /** Emitted when a navigation or sidebar item is selected by ID */
@@ -115,21 +113,21 @@ const isDroppable = (
 
 <template>
   <Sidebar
-    :isDroppable="isDroppable"
     v-model:isSidebarOpen="isSidebarOpen"
     v-model:sidebarWidth="sidebarWidth"
     :activeWorkspace="activeWorkspace"
     :documents="Object.values(store.workspace.documents)"
     :eventBus="eventBus"
+    :isDroppable="isDroppable"
     :layout="layout"
     :sidebarState="sidebarState"
     :workspaces="workspaces"
     @createWorkspace="emit('create:workspace')"
-    @select:workspace="(id) => emit('select:workspace', id)"
-    @selectItem="(id) => emit('selectItem', id)"
     @reorder="
       (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
-    ">
+    "
+    @select:workspace="(id) => emit('select:workspace', id)"
+    @selectItem="(id) => emit('selectItem', id)">
     <!-- Workspace Identifier -->
     <template #workspaceButton>
       <ScalarSidebarItem
@@ -173,7 +171,12 @@ const isDroppable = (
             v-if="showGettingStarted"
             class="w-full"
             size="sm"
-            @click="emit('open:commandPalette', 'import')">
+            @click="
+              eventBus.emit('ui:open:command-palette', {
+                action: 'import-from-openapi-swagger-postman-curl',
+                payload: undefined,
+              })
+            ">
             Import Collection
           </ScalarButton>
 
@@ -182,7 +185,7 @@ const isDroppable = (
             hotkey="K"
             size="sm"
             variant="outlined"
-            @click="emit('open:commandPalette')">
+            @click="eventBus.emit('ui:open:command-palette')">
             Add Item
           </ScalarButton>
         </div>

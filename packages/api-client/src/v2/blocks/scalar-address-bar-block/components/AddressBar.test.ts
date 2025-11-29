@@ -117,8 +117,11 @@ describe('AddressBar', () => {
     await codeInput.vm.$emit('curl', 'curl https://example.com')
     await nextTick()
 
-    expect(emitSpy).toHaveBeenCalledWith('import:curl', {
-      value: 'curl https://example.com',
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
+      action: 'import-curl-command',
+      payload: {
+        curl: 'curl https://example.com',
+      },
     })
   })
 
