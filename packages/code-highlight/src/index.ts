@@ -1,5 +1,5 @@
-export { rehypeHighlight } from './rehype-highlight'
-export { lowlightLanguageMappings } from './constants'
-export { htmlFromMarkdown } from './markdown'
 export { syntaxHighlight } from './code'
+export { lowlightLanguageMappings } from './constants'
 export * from './languages'
+export { htmlFromMarkdown } from './markdown'
+export { rehypeHighlight } from './rehype-highlight'

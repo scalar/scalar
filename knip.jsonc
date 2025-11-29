@@ -7,7 +7,6 @@
     "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/code-highlight/**",
     "packages/components/**",
     "packages/core/**",
     "packages/draggable/**",
@@ -73,6 +72,18 @@
         "src/esbuild/index.ts",
         "src/rollup/index.ts",
         "src/vite/index.ts"
+      ]
+    },
+    "packages/code-highlight": {
+      "entry": [
+        "src/index.ts",
+        "src/code/index.ts",
+        "src/languages/index.ts",
+        "src/markdown/index.ts",
+        "src/rehype-alert/index.ts",
+        "src/rehype-highlight/index.ts",
+        //
+        "playground/main.ts"
       ]
     },
     "packages/helpers": {
