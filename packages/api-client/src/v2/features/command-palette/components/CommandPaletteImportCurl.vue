@@ -34,8 +34,8 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
+import CommandActionForm from '@/v2/features/command-palette/components/CommandActionForm.vue'
 import CommandActionInput from '@/v2/features/command-palette/components/CommandActionInput.vue'
 import { getOperationFromCurl } from '@/v2/features/command-palette/helpers/get-operation-from-curl'
 
@@ -163,12 +163,9 @@ const handleBack = (event: KeyboardEvent): void => {
     <div class="flex flex-1 flex-col gap-2">
       <div
         class="flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
-        <div class="flex h-full">
-          <HttpMethod
-            :isEditable="false"
-            isSquare
-            :method="method" />
-        </div>
+        <HttpMethod
+          class="border-r-1 px-1"
+          :method="method" />
         <span class="scroll-timeline-x whitespace-nowrap">
           {{ operation.servers?.[0]?.url || '' }}{{ path }}
         </span>
