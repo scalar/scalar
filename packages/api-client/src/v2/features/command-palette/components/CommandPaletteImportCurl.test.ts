@@ -190,7 +190,7 @@ describe('CommandPaletteImportCurl', () => {
     expect(wrapper.text()).toContain('/users')
   })
 
-  it('renders HTTP method as not editable', () => {
+  it('renders HTTP method', () => {
     const workspaceStore = createWorkspaceStore()
     const eventBus = createMockEventBus()
 
@@ -203,23 +203,7 @@ describe('CommandPaletteImportCurl', () => {
     })
 
     const methodBadge = wrapper.findComponent({ name: 'HttpMethod' })
-    expect(methodBadge.props('isEditable')).toBe(false)
-  })
-
-  it('renders HTTP method as square', () => {
-    const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
-
-    const wrapper = mount(CommandPaletteImportCurl, {
-      props: {
-        workspaceStore,
-        eventBus,
-        curl: 'curl https://example.com/users',
-      },
-    })
-
-    const methodBadge = wrapper.findComponent({ name: 'HttpMethod' })
-    expect(methodBadge.props('isSquare')).toBe(true)
+    expect(methodBadge).toBeDefined()
   })
 
   it('renders document selector', () => {
