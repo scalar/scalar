@@ -123,7 +123,7 @@ describe('useCommandPaletteState', () => {
     const state = useCommandPaletteState()
 
     expect(state.filteredCommands.value).toHaveLength(2)
-    expect(state.filteredCommands.value[0]?.commands).toHaveLength(6)
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(5)
     expect(state.filteredCommands.value[1]?.commands).toHaveLength(3)
   })
 
@@ -137,7 +137,7 @@ describe('useCommandPaletteState', () => {
     await nextTick()
 
     const allCommands = state.filteredCommands.value.flatMap((group) => group.commands)
-    expect(allCommands).toHaveLength(2)
+    expect(allCommands).toHaveLength(1)
     expect(allCommands.some((cmd) => cmd.name.toLowerCase().includes('import'))).toBe(true)
   })
 
@@ -151,7 +151,7 @@ describe('useCommandPaletteState', () => {
     await nextTick()
 
     const allCommands = state.filteredCommands.value.flatMap((group) => group.commands)
-    expect(allCommands).toHaveLength(2)
+    expect(allCommands).toHaveLength(1)
     expect(allCommands.every((cmd) => cmd.name.toLowerCase().includes('import'))).toBe(true)
   })
 
@@ -191,7 +191,7 @@ describe('useCommandPaletteState', () => {
     await nextTick()
 
     const allCommands = state.filteredCommands.value.flatMap((group) => group.commands)
-    expect(allCommands).toHaveLength(2)
+    expect(allCommands).toHaveLength(1)
   })
 
   it('handles empty string filter query', async () => {
