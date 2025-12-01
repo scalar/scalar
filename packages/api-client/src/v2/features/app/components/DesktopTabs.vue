@@ -11,15 +11,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarContextMenu,
-  ScalarDropdownButton,
-  ScalarDropdownMenu,
-  ScalarFloating,
-  ScalarHotkey,
-  ScalarIcon,
-} from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons/library'
+import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarTabs } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 
@@ -60,66 +52,19 @@ const handleCloseOtherTabs = (index: number): void => {
 <template>
   <!-- Navigation bar containing all desktop tabs -->
   <nav class="flex h-10 items-center gap-2 px-2">
-    <!-- When there's only one tab, show it as a simple header without tab styling -->
-    <template v-if="tabs.length === 1">
-      <div class="h-full w-full overflow-hidden">
-        <ScalarContextMenu
-          triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
-          <template #trigger>
-            <LibraryIcon
-              v-if="tabs[activeTabIndex]?.icon"
-              class="text-c-2 size-5"
-              :src="tabs[activeTabIndex].icon"
-              stroke-width="2" />
-            <span>{{ tabs[activeTabIndex]?.title ?? 'Workspace' }}</span>
-          </template>
-          <template #content>
-            <ScalarFloating placement="right-start">
-              <template #floating>
-                <ScalarDropdownMenu class="scalar-app scalar-client">
-                  <ScalarDropdownButton
-                    class="flex items-center gap-1.5"
-                    @click="handleAddTab">
-                    <ScalarIcon
-                      icon="AddTab"
-                      size="sm"
-                      thickness="1.5" />
-                    New Tab
-                    <ScalarHotkey
-                      class="bg-b-2 ml-auto"
-                      hotkey="T" />
-                  </ScalarDropdownButton>
-                  <ScalarDropdownButton
-                    class="flex items-center gap-1.5"
-                    @click="copyTabUrl(activeTabIndex)">
-                    <ScalarIcon
-                      icon="Link"
-                      size="sm"
-                      thickness="1.5" />
-                    Copy URL
-                  </ScalarDropdownButton>
-                </ScalarDropdownMenu>
-              </template>
-            </ScalarFloating>
-          </template>
-        </ScalarContextMenu>
-      </div>
-    </template>
-
-    <!-- When there are multiple tabs, render them as tabs -->
-    <template v-else>
-      <DesktopTab
-        v-for="(tab, index) in tabs"
-        :key="index"
-        :active="index === activeTabIndex"
-        :hotkey="index < 9 ? String(index + 1) : undefined"
-        :tab="tab"
-        @click="switchTab(index)"
-        @close="handleCloseTab(index)"
-        @closeOtherTabs="handleCloseOtherTabs(index)"
-        @copyUrl="copyTabUrl(index)"
-        @newTab="handleAddTab" />
-    </template>
+    <!-- Render tabs using the DesktopTab component -->
+    <DesktopTab
+      v-for="(tab, index) in tabs"
+      :key="index"
+      :active="index === activeTabIndex"
+      :hotkey="tabs.length > 1 && index < 9 ? String(index + 1) : undefined"
+      :isSingleTab="tabs.length === 1"
+      :tab="tab"
+      @click="switchTab(index)"
+      @close="handleCloseTab(index)"
+      @closeOtherTabs="handleCloseOtherTabs(index)"
+      @copyUrl="copyTabUrl(index)"
+      @newTab="handleAddTab" />
 
     <!-- Add new tab button -->
     <button

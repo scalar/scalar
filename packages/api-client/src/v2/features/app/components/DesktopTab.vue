@@ -14,12 +14,18 @@ import { LibraryIcon } from '@scalar/icons/library'
 import type { XScalarTabs } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 import { computed } from 'vue'
 
-const { hotkey, active, tab } = defineProps<{
+const {
+  hotkey,
+  active,
+  tab,
+  isSingleTab = false,
+} = defineProps<{
   /** Optional keyboard shortcut number for the tab */
   hotkey?: string
   /** Whether this tab is currently active */
   active: boolean
-
+  /** Whether this is the only tab (changes styling to header-like appearance) */
+  isSingleTab?: boolean
   tab: NonNullable<XScalarTabs['x-scalar-tabs']>[number]
 }>()
 
@@ -64,24 +70,38 @@ const handleClose = (event: MouseEvent): void => {
         placement="bottom">
         <!-- Main tab container - clickable area to activate the tab -->
         <div
-          class="nav-item app-no-drag-region"
-          :class="{ 'nav-item__active': active }"
-          @click="emit('click')">
+          class="app-no-drag-region"
+          :class="[
+            isSingleTab ? 'nav-single-tab' : 'nav-item',
+            { 'nav-item__active': active && !isSingleTab },
+          ]"
+          @click="!isSingleTab && emit('click')">
           <!-- Icon and label container with gradient mask for text overflow -->
           <div
-            class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
+            :class="[
+              'flex items-center justify-center gap-1.5',
+              isSingleTab
+                ? 'custom-scroll h-full w-full whitespace-nowrap'
+                : 'nav-item-icon-copy flex-1',
+            ]">
             <LibraryIcon
               v-if="tab.icon"
               class="text-c-2 size-5"
               :src="tab.icon"
               stroke-width="2" />
-            <span class="custom-scroll nav-item-copy text-sm">{{
-              tab.title
-            }}</span>
+            <span
+              :class="[
+                isSingleTab ? '' : 'custom-scroll nav-item-copy',
+                'text-sm',
+              ]">
+              {{ tab.title }}
+            </span>
           </div>
 
           <!-- Close button - appears on hover, stops propagation to prevent tab activation -->
+          <!-- Hidden for single tabs -->
           <button
+            v-if="!isSingleTab"
             class="nav-item-close"
             type="button"
             @click="handleClose">
@@ -157,6 +177,17 @@ const handleClose = (event: MouseEvent): void => {
 </template>
 
 <style scoped>
+/** Single tab styling - appears as a header without tab-like appearance */
+.nav-single-tab {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--scalar-color-1);
+}
+
 /** Base tab styling with subtle background and border */
 .nav-item {
   padding: 4.5px 1rem;

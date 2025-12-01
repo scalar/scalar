@@ -128,7 +128,6 @@ export const useTabs = ({
         return
       }
 
-      // Load from session only when the loading state is true
       const shouldLoadFromSession = route.query.loadFromSession === 'true'
 
       /**
@@ -141,7 +140,7 @@ export const useTabs = ({
        * Only navigate to the saved tab path if we are loading from session
        * and the saved path differs from the current route.
        */
-      if ((!isLoading.value || shouldLoadFromSession) && currentActiveTab.path !== route.path) {
+      if (shouldLoadFromSession && currentActiveTab.path !== route.path) {
         await router.replace(currentActiveTab.path)
       }
 
