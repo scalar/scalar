@@ -673,12 +673,8 @@ jobs:
         run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-api-reference:
-    # Main Branch or PR from the same repository
-    if: |
-      github.ref == 'refs/heads/main' || (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-      )
+    # Run only for PRs from the same repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
