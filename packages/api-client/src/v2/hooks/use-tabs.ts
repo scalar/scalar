@@ -8,11 +8,26 @@ import { useRoute, useRouter } from 'vue-router'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
 
+/** Constants for workspace store keys */
+const TABS_KEY = 'x-scalar-tabs' as const
+const ACTIVE_TAB_KEY = 'x-scalar-active-tab' as const
+const LOAD_FROM_SESSION_QUERY = 'loadFromSession' as const
+
 export type UseTabsReturn = {
   tabs: Ref<Tab[]>
   activeTabIndex: Ref<number>
-  copyTabUrl: (index: number) => void
+  copyTabUrl: (index: number) => Promise<void>
   isLoading: Ref<boolean>
+}
+
+type UseTabsParams = {
+  workspaceStore: Ref<WorkspaceStore | null>
+  eventBus: WorkspaceEventBus
+  workspaceSlug: MaybeRefOrGetter<string | undefined>
+  documentSlug: MaybeRefOrGetter<string | undefined>
+  path: MaybeRefOrGetter<string | undefined>
+  method: MaybeRefOrGetter<HttpMethod | undefined>
+  getEntryByLocation: GetEntryByLocation
 }
 
 /**
@@ -29,19 +44,11 @@ export const useTabs = ({
   path,
   method,
   eventBus,
-}: {
-  workspaceStore: Ref<WorkspaceStore | null>
-  eventBus: WorkspaceEventBus
-  workspaceSlug: MaybeRefOrGetter<string | undefined>
-  documentSlug: MaybeRefOrGetter<string | undefined>
-  path: MaybeRefOrGetter<string | undefined>
-  method: MaybeRefOrGetter<HttpMethod | undefined>
-  getEntryByLocation: GetEntryByLocation
-}): UseTabsReturn => {
+}: UseTabsParams): UseTabsReturn => {
   const router = useRouter()
   const route = useRoute()
 
-  const isLoading = ref(true)
+  const isLoading = ref(false)
 
   /**
    * Creates a tab object based on the current route and workspace state.
@@ -60,131 +67,137 @@ export const useTabs = ({
     }
   }
 
-  /**
-   * Array of tabs stored in the workspace.
-   * Falls back to a single tab based on the current route if no tabs exist.
-   */
-  const tabs = computed((): Tab[] => {
-    return workspaceStore.value?.workspace['x-scalar-tabs'] ?? [createTabFromCurrentRoute()]
+  const tabs = computed(() => {
+    return workspaceStore.value?.workspace[TABS_KEY] ?? [createTabFromCurrentRoute()]
   })
 
-  /**
-   * Index of the currently active tab.
-   * Defaults to 0 if not set in the store.
-   */
-  const activeTabIndex = computed((): number => {
-    return workspaceStore.value?.workspace['x-scalar-active-tab'] ?? 0
-  })
-
-  /**
-   * The currently active tab object.
-   * Falls back to creating a tab from the current route if not found.
-   */
-  const activeTab = computed((): Tab => {
-    return tabs.value[activeTabIndex.value] ?? createTabFromCurrentRoute()
+  const activeTabIndex = computed(() => {
+    return workspaceStore.value?.workspace[ACTIVE_TAB_KEY] ?? 0
   })
 
   /**
    * Copies the URL of the tab at the given index to the clipboard.
    * Constructs the full URL using the current origin and the tab path.
+   *
+   * @throws Will silently fail if clipboard API is unavailable or the tab does not exist.
    */
-  const copyTabUrl = (index: number): void => {
+  const copyTabUrl = async (index: number): Promise<void> => {
     const tab = tabs.value[index]
 
     if (!tab) {
+      console.warn(`Cannot copy URL: tab at index ${index} does not exist`)
       return
     }
 
     const url = `${window.location.origin}${tab.path}`
-    navigator.clipboard.writeText(url)
+
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch (error) {
+      console.error('Failed to copy URL to clipboard:', error)
+    }
   }
 
-  watch(
-    () => workspaceStore.value,
-    (store) => {
-      if (!store) {
-        return
-      }
+  /**
+   * Updates the tab at the active index with the new route path.
+   */
+  const updateActiveTabPath = (newPath: string): void => {
+    const updatedTabs = [...tabs.value]
+    updatedTabs[workspaceStore.value?.workspace[ACTIVE_TAB_KEY] ?? 0] = {
+      ...createTabFromCurrentRoute(),
+      path: newPath,
+    }
 
-      // Initialize the tabs of the store if none exist
-      if (!store.workspace['x-scalar-tabs']) {
-        eventBus.emit('tabs:update:tabs', {
-          'x-scalar-tabs': tabs.value,
-        })
-      }
-    },
-    { immediate: true },
-  )
+    eventBus.emit('tabs:update:tabs', {
+      [TABS_KEY]: updatedTabs,
+    })
+  }
 
   /**
-   * Synchronizes the route with the active tab when loading from a saved session.
-   * This ensures users return to the tab they were last viewing.
+   * Checks if we should load the workspace from the saved session.
    */
-  watch(
-    [
-      () => workspaceStore.value?.workspace['x-scalar-tabs'],
-      () => workspaceStore.value?.workspace['x-scalar-active-tab'],
-    ],
-    async () => {
-      const store = workspaceStore.value
+  const shouldLoadFromSession = (): boolean => {
+    return route.query[LOAD_FROM_SESSION_QUERY] === 'true'
+  }
 
+  // Initialize the tabs
+  watch(
+    [() => workspaceStore.value, () => workspaceStore.value?.workspace[TABS_KEY]],
+    ([store, tabs]) => {
       if (!store) {
         isLoading.value = true
         return
       }
 
-      const shouldLoadFromSession = route.query.loadFromSession === 'true'
-
-      /**
-       * Get the active tab from the updated store.
-       * Since we are watching the nested properties directly, this will have the latest values.
-       */
-      const currentActiveTab = activeTab.value
-
-      /**
-       * Only navigate to the saved tab path if we are loading from session
-       * and the saved path differs from the current route.
-       */
-      if (shouldLoadFromSession && currentActiveTab.path !== route.path) {
-        await router.replace(currentActiveTab.path)
+      // Initialize the tabs
+      if (!tabs) {
+        eventBus.emit('tabs:update:tabs', {
+          [TABS_KEY]: [createTabFromCurrentRoute()],
+        })
       }
 
-      isLoading.value = false
+      if (tabs) {
+        isLoading.value = false
+      }
     },
     { immediate: true },
   )
 
-  /**
-   * Updates the active tab when the route changes.
-   * This ensures the tab state stays in sync with navigation events.
-   */
+  // Navigate correctly when the active tab changes
   watch(
-    [() => route.path, () => workspaceStore.value, () => isLoading.value],
-    ([newPath, store]) => {
-      if (!store) {
-        return
-      }
-
+    [
+      () => workspaceStore.value?.workspace[TABS_KEY],
+      () => workspaceStore.value?.workspace[ACTIVE_TAB_KEY],
+      () => isLoading.value,
+      () => toValue(workspaceSlug),
+    ],
+    async ([tabs, activeTabIndex, , newWorkspaceSlug], [, , , oldWorkspaceSlug]) => {
       if (isLoading.value) {
         return
       }
 
-      const currentActiveTab = activeTab.value
+      // Do not navigate if we are switching workspaces (but allow initial load when oldWorkspaceSlug is undefined)
+      if (oldWorkspaceSlug !== undefined && newWorkspaceSlug !== oldWorkspaceSlug) {
+        return
+      }
 
-      /**
-       * Update the active tab to reflect the new path if it has changed.
-       * This happens during manual navigation (not loading from session).
-       */
-      if (currentActiveTab && currentActiveTab.path !== newPath) {
-        const updatedTabs = [...tabs.value]
-        updatedTabs[activeTabIndex.value] = {
-          ...createTabFromCurrentRoute(),
-          path: newPath,
-        }
+      const activeTab = tabs?.[activeTabIndex ?? 0]
 
-        eventBus.emit('tabs:update:tabs', {
-          'x-scalar-tabs': updatedTabs,
-        })
+      if (!activeTab) {
+        return
+      }
+
+      // If the current path is not the path of the active tab, navigate to it
+      if (route.path !== activeTab.path) {
+        await router.push(activeTab.path)
+      }
+    },
+    { immediate: true },
+  )
+
+  // When the route path changes, update the store with the new path
+  watch(
+    [() => route.path, () => isLoading.value, () => toValue(workspaceSlug)],
+    ([newPath, , newWorkspaceSlug], [, , oldWorkspaceSlug]) => {
+      if (isLoading.value) {
+        return
+      }
+
+      const activeTab =
+        workspaceStore.value?.workspace[TABS_KEY]?.[workspaceStore.value?.workspace[ACTIVE_TAB_KEY] ?? 0]
+
+      if (!activeTab) {
+        return
+      }
+
+      // Do not update the tab if we are switching workspaces (but allow initial load when oldWorkspaceSlug is undefined)
+      if (oldWorkspaceSlug !== undefined && newWorkspaceSlug !== oldWorkspaceSlug) {
+        return
+      }
+
+      // If the current path is not the path of the active tab, update the active tab path
+      if (newPath !== activeTab.path && !shouldLoadFromSession()) {
+        updateActiveTabPath(newPath)
       }
     },
     { immediate: true },

@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 
 import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
 
@@ -14,14 +15,14 @@ export const getTabDetails = ({
   path?: string
   method?: HttpMethod
   getEntryByLocation: GetEntryByLocation
-}): { title: string; icon?: string } => {
+}): { title: string; icon?: Tab['icon'] } => {
   if (!workspace) {
     return {
       title: 'Untitled Tab',
     }
   }
 
-  if (document && path && method) {
+  if (document) {
     const entry = getEntryByLocation({
       document,
       path,
@@ -37,13 +38,13 @@ export const getTabDetails = ({
     if (entry.type === 'document') {
       return {
         title: entry.title,
-        icon: 'interface-content-folder',
+        icon: 'document',
       }
     }
 
     return {
       title: entry.title,
-      // TODO: add the icon for request/example entries
+      icon: 'request',
     }
   }
 

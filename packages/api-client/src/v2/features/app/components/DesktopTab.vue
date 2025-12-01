@@ -6,12 +6,20 @@ import {
   ScalarDropdownMenu,
   ScalarFloating,
   ScalarHotkey,
-  ScalarIcon,
   ScalarTooltip,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import { LibraryIcon } from '@scalar/icons/library'
-import type { XScalarTabs } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
+import {
+  ScalarIconArrowUpRight,
+  ScalarIconFolderSimple,
+  ScalarIconLinkSimple,
+  ScalarIconPlusSquare,
+  ScalarIconTabs,
+  ScalarIconX,
+  ScalarIconXSquare,
+} from '@scalar/icons'
+import type { ScalarIconComponent } from '@scalar/icons/types'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 import { computed } from 'vue'
 
 const {
@@ -26,7 +34,8 @@ const {
   active: boolean
   /** Whether this is the only tab (changes styling to header-like appearance) */
   isSingleTab?: boolean
-  tab: NonNullable<XScalarTabs['x-scalar-tabs']>[number]
+  /** The tab data */
+  tab: Tab
 }>()
 
 const emit = defineEmits<{
@@ -41,6 +50,11 @@ const emit = defineEmits<{
   /** Fired when "Close Other Tabs" is selected from context menu */
   (e: 'closeOtherTabs'): void
 }>()
+
+const ICONS: Record<NonNullable<Tab['icon']>, ScalarIconComponent> = {
+  request: ScalarIconArrowUpRight,
+  document: ScalarIconFolderSimple,
+}
 
 /** Display the appropriate modifier key based on the operating system */
 const modifierKey = computed(() => (isMacOS() ? '⌘' : '^'))
@@ -62,10 +76,13 @@ const handleClose = (event: MouseEvent): void => {
 
 <template>
   <!-- Context menu wrapper provides right-click menu functionality -->
-  <ScalarContextMenu triggerClass="overflow-hidden w-full flex-1">
+  <ScalarContextMenu
+    triggerClass="overflow-hidden w-full flex-1 select-none
+">
     <!-- Tab button trigger with tooltip showing keyboard shortcut -->
     <template #trigger>
-      <ScalarTooltip
+      <component
+        :is="isSingleTab ? 'div' : ScalarTooltip"
         :content="tooltipContent"
         placement="bottom">
         <!-- Main tab container - clickable area to activate the tab -->
@@ -84,11 +101,9 @@ const handleClose = (event: MouseEvent): void => {
                 ? 'custom-scroll h-full w-full whitespace-nowrap'
                 : 'nav-item-icon-copy flex-1',
             ]">
-            <LibraryIcon
-              v-if="tab.icon"
-              class="text-c-2 size-5"
-              :src="tab.icon"
-              stroke-width="2" />
+            <component
+              :is="ICONS[tab.icon]"
+              v-if="tab.icon && ICONS[tab.icon]" />
             <span
               :class="[
                 isSingleTab ? '' : 'custom-scroll nav-item-copy',
@@ -105,12 +120,13 @@ const handleClose = (event: MouseEvent): void => {
             class="nav-item-close"
             type="button"
             @click="handleClose">
-            <ScalarIcon
+            <!-- <ScalarIcon
               icon="Close"
-              thickness="1.75" />
+              thickness="1.75" /> -->
+            <component :is="ScalarIconX" />
           </button>
         </div>
-      </ScalarTooltip>
+      </component>
     </template>
 
     <!-- Context menu content shown on right-click -->
@@ -122,10 +138,7 @@ const handleClose = (event: MouseEvent): void => {
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="emit('newTab')">
-              <ScalarIcon
-                icon="AddTab"
-                size="sm"
-                thickness="1.5" />
+              <component :is="ScalarIconPlusSquare" />
               New Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -136,10 +149,7 @@ const handleClose = (event: MouseEvent): void => {
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="emit('copyUrl')">
-              <ScalarIcon
-                icon="Link"
-                size="sm"
-                thickness="1.5" />
+              <component :is="ScalarIconLinkSimple" />
               Copy URL
             </ScalarDropdownButton>
 
@@ -149,10 +159,7 @@ const handleClose = (event: MouseEvent): void => {
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="emit('close')">
-              <ScalarIcon
-                icon="CloseTab"
-                size="sm"
-                thickness="1.5" />
+              <component :is="ScalarIconXSquare" />
               Close Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -163,10 +170,7 @@ const handleClose = (event: MouseEvent): void => {
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="emit('closeOtherTabs')">
-              <ScalarIcon
-                icon="CloseTabs"
-                size="sm"
-                thickness="1.5" />
+              <component :is="ScalarIconTabs" />
               Close Other Tabs
             </ScalarDropdownButton>
           </ScalarDropdownMenu>

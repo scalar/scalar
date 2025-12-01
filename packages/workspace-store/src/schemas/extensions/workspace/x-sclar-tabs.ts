@@ -1,5 +1,7 @@
 import { Type } from '@scalar/typebox'
 
+type TabIcon = 'request' | 'document'
+
 const TabSchema = Type.Object({
   path: Type.String(),
   title: Type.String(),
@@ -9,7 +11,7 @@ const TabSchema = Type.Object({
 export type Tab = {
   path: string
   title: string
-  icon?: string
+  icon?: TabIcon
 }
 
 /**
