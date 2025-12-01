@@ -20,39 +20,20 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
-import type { SidebarState } from '@scalar/sidebar'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarTabs } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { computed } from 'vue'
 
 import DesktopTab from '@/v2/features/app/components/DesktopTab.vue'
 
-const {
-  tabs,
-  activeTab,
-  addTab,
-  switchTab,
-  closeTab,
-  closeOtherTabs,
-  copyTabUrl,
-  sidebarState,
-} = defineProps<{
+const { tabs, activeTabIndex, eventBus, copyTabUrl } = defineProps<{
   /** Array of tab paths */
   tabs: NonNullable<XScalarTabs['x-scalar-tabs']>
-  /** Index of the currently active tab */
-  activeTab: NonNullable<XScalarTabs['x-scalar-active-tab']>
-  /** Add a new tab with the given path */
-  addTab: (path: string) => void
-  /** Switch to the tab at the given index */
-  switchTab: (index: number) => void
-  /** Close the tab at the given index */
-  closeTab: (index: number) => void
-  /** Close all tabs except the one at the given index */
-  closeOtherTabs: (index: number) => void
-  /** Copy the URL of the tab at the given index */
+  /** Index of the active tab */
+  activeTabIndex: number
+  /** Function to copy the URL of a tab */
   copyTabUrl: (index: number) => void
-  /** The sidebar state, holding navigation items and state */
-  sidebarState: SidebarState<TraversedEntry>
+  /** Worksapce event bus */
+  eventBus: WorkspaceEventBus
 }>()
 
 /**
@@ -60,15 +41,19 @@ const {
  * Extracts the workspace path from the current tab and creates a new tab there.
  */
 const handleAddTab = (): void => {
-  const currentTab = tabs[activeTab]
+  eventBus.emit('tabs:add:tab', undefined)
+}
 
-  if (!currentTab) {
-    // Fallback to root path if no current tab
-    addTab('/')
-    return
-  }
+const switchTab = (index: number): void => {
+  eventBus.emit('tabs:focus:tab', { index })
+}
 
-  addTab(currentTab.path)
+const handleCloseTab = (index: number): void => {
+  eventBus.emit('tabs:close:tab', { index })
+}
+
+const handleCloseOtherTabs = (index: number): void => {
+  eventBus.emit('tabs:close:other-tabs', { index })
 }
 </script>
 
@@ -82,11 +67,11 @@ const handleAddTab = (): void => {
           triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
           <template #trigger>
             <LibraryIcon
-              v-if="tabs[activeTab]?.icon"
+              v-if="tabs[activeTabIndex]?.icon"
               class="text-c-2 size-5"
-              :src="tabs[activeTab]?.icon"
+              :src="tabs[activeTabIndex].icon"
               stroke-width="2" />
-            <span>{{ tabs[activeTab]?.title ?? 'Workspace' }}</span>
+            <span>{{ tabs[activeTabIndex]?.title ?? 'Workspace' }}</span>
           </template>
           <template #content>
             <ScalarFloating placement="right-start">
@@ -106,7 +91,7 @@ const handleAddTab = (): void => {
                   </ScalarDropdownButton>
                   <ScalarDropdownButton
                     class="flex items-center gap-1.5"
-                    @click="copyTabUrl(activeTab)">
+                    @click="copyTabUrl(activeTabIndex)">
                     <ScalarIcon
                       icon="Link"
                       size="sm"
@@ -126,12 +111,12 @@ const handleAddTab = (): void => {
       <DesktopTab
         v-for="(tab, index) in tabs"
         :key="index"
-        :active="index === activeTab"
+        :active="index === activeTabIndex"
         :hotkey="index < 9 ? String(index + 1) : undefined"
         :tab="tab"
         @click="switchTab(index)"
-        @close="closeTab(index)"
-        @closeOtherTabs="closeOtherTabs(index)"
+        @close="handleCloseTab(index)"
+        @closeOtherTabs="handleCloseOtherTabs(index)"
         @copyUrl="copyTabUrl(index)"
         @newTab="handleAddTab" />
     </template>

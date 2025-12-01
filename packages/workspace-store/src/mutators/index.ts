@@ -168,4 +168,14 @@ export {
   updateServer,
   updateServerVariables,
 } from './server'
-export { updateActiveProxy, updateColorMode, updateTabs, updateTheme } from './workspace'
+export {
+  addTab,
+  closeOtherTabs,
+  closeTab,
+  focusLastTab,
+  focusTab,
+  navigateNextTab,
+  navigatePreviousTab,
+  updateTabs,
+} from './tabs'
+export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'

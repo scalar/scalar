@@ -27,11 +27,3 @@ export const updateTheme = (workspace: Workspace | null, payload: WorkspaceEvent
   }
   workspace['x-scalar-theme'] = payload
 }
-
-export const updateTabs = (workspace: Workspace | null, payload: WorkspaceEvents['workspace:update:tabs']) => {
-  if (!workspace) {
-    return
-  }
-  workspace['x-scalar-tabs'] = payload['x-scalar-tabs']
-  workspace['x-scalar-active-tab'] = payload['x-scalar-active-tab']
-}

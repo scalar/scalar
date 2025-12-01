@@ -136,9 +136,17 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: () => {
-      console.log('redirecting to draft overview')
-      return `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/drafts/overview`
+    redirect: (to) => {
+      const redirectPath = `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/drafts/overview`
+
+      const pathMatch = to.params.pathMatch
+
+      // When we're at root `/`, pathMatch is undefined, null, or empty string
+      if (!pathMatch) {
+        return `${redirectPath}?loadFromSession=true`
+      }
+
+      return redirectPath
     },
   },
 ] satisfies RouteRecordRaw[]

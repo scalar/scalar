@@ -6,7 +6,7 @@ const TabSchema = Type.Object({
   icon: Type.Optional(Type.String()),
 })
 
-type Tab = {
+export type Tab = {
   path: string
   title: string
   icon?: string

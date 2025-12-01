@@ -5,12 +5,19 @@ import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
   addServer,
+  addTab,
+  closeOtherTabs,
+  closeTab,
   deleteAllOperationParameters,
   deleteCookie,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
+  focusLastTab,
+  focusTab,
+  navigateNextTab,
+  navigatePreviousTab,
   toggleSecurity,
   updateActiveProxy,
   updateColorMode,
@@ -29,6 +36,7 @@ import {
   updateSelectedServer,
   updateServer,
   updateServerVariables,
+  updateTabs,
   updateTheme,
   updateWatchMode,
   upsertCookie,
@@ -196,4 +204,18 @@ export const useWorkspaceClientEvents = ({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
+
+  //------------------------------------------------------------------------------------
+  // Tabs Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('tabs:add:tab', (payload) => addTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:close:tab', (payload) => closeTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:close:other-tabs', (payload) => closeOtherTabs(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:focus:tab', (payload) => focusTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:focus:tab-last', (payload) => focusLastTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:navigate:previous', (payload) =>
+    navigatePreviousTab(workspaceStore.value?.workspace ?? null, payload),
+  )
+  eventBus.on('tabs:navigate:next', (payload) => navigateNextTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:update:tabs', (payload) => updateTabs(workspaceStore.value?.workspace ?? null, payload))
 }
