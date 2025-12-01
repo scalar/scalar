@@ -32,7 +32,6 @@ export function indent(level: number, text: string): string {
 }
 
 /**
-/**
  * Formats a Rust chained method call with standard 4-space indentation.
  * Useful for fluent API or builder patterns in generated Rust code.
  */
@@ -40,7 +39,6 @@ export function createChain(method: string, ...args: string[]): string {
   return indent(1, `.${method}(${args.join(', ')})`)
 }
 
-/**
 /**
  * Properly formats a JSON snippet for Rust's `serde_json::json!` macro,
  * applying idiomatic 4-space indentation to each line for improved readability.
