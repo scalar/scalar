@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
-import { unified } from 'unified'
+import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import rehypeStringify from 'rehype-stringify'
+import { unified } from 'unified'
+import { describe, expect, it } from 'vitest'
+
 import { rehypeAlert } from './rehype-alert'
 
 describe('rehype-alert', () => {
