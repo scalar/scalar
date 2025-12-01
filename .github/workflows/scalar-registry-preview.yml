@@ -33,7 +33,7 @@ jobs:
 
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Build @scalar/galaxy
-        uses: ./.github/actions/build-blacksmith
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/galaxy...'
