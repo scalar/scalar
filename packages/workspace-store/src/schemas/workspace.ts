@@ -15,6 +15,7 @@ import {
   XScalarActiveEnvironmentSchema,
 } from '@/schemas/extensions/workspace/x-scalar-active-environment'
 import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
+import { type XScalarTabs, XScalarTabsSchema } from '@/schemas/extensions/workspace/x-sclar-tabs'
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
@@ -74,6 +75,7 @@ export const WorkspaceExtensionsSchema = compose(
   XScalarActiveProxySchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
+  XScalarTabsSchema,
 )
 
 export type WorkspaceExtensions = {
@@ -83,7 +85,8 @@ export type WorkspaceExtensions = {
   XScalarActiveEnvironment &
   XScalarActiveProxy &
   XScalarOrder &
-  XScalarCookies
+  XScalarCookies &
+  XScalarTabs
 
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,

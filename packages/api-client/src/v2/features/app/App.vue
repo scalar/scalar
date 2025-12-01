@@ -31,6 +31,7 @@ import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
+import { useTabs } from '../../hooks/use-tabs'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
@@ -102,7 +103,7 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
 useColorMode({ workspaceStore: store })
 
 /** Sidebar state and selection handling. */
-const { handleSelectItem, sidebarState } = useSidebarState({
+const { handleSelectItem, sidebarState, getEntryByLocation } = useSidebarState({
   workspaceStore: store,
   workspaceSlug,
   documentSlug,
@@ -122,6 +123,17 @@ useWorkspaceClientEvents({
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(eventBus, layout)
+
+/** Desktop tabs state and actions (only used in desktop layout) */
+const desktopTabs = useTabs({
+  workspaceStore: store,
+  eventBus,
+  workspaceSlug,
+  documentSlug,
+  path,
+  method,
+  getEntryByLocation,
+})
 
 const DEFAULT_DOCUMENT_WATCH_TIMEOUT = 5000
 
@@ -235,11 +247,23 @@ const createWorkspaceModalState = useModal()
 </script>
 
 <template>
-  <template v-if="store !== null && activeWorkspace !== null">
+  <template
+    v-if="
+      store !== null && activeWorkspace !== null && !desktopTabs.isLoading.value
+    ">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
       <!-- Desktop App Tabs -->
-      <DesktopTabs v-if="layout === 'desktop'" />
+      <DesktopTabs
+        v-if="layout === 'desktop'"
+        :activeTab="desktopTabs.activeTab.value"
+        :addTab="desktopTabs.addTab"
+        :closeOtherTabs="desktopTabs.closeOtherTabs"
+        :closeTab="desktopTabs.closeTab"
+        :copyTabUrl="desktopTabs.copyTabUrl"
+        :sidebarState="sidebarState"
+        :switchTab="desktopTabs.switchTab"
+        :tabs="desktopTabs.tabs.value" />
 
       <!-- Web App Top Nav -->
       <WebTopNav

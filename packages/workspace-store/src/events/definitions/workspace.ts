@@ -1,5 +1,6 @@
 import type { ThemeId } from '@scalar/themes'
 
+import type { XScalarTabs } from '@/schemas/extensions/workspace/x-sclar-tabs'
 import type { ColorMode } from '@/schemas/workspace'
 
 /** Event definitions for the openapi document */
@@ -16,4 +17,8 @@ export type WorkspaceEvents = {
    * Update the theme of the workspace
    */
   'workspace:update:theme': ThemeId
+  /**
+   * Update the tabs of the workspace
+   */
+  'workspace:update:tabs': XScalarTabs
 }

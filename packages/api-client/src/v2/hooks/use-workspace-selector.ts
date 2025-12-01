@@ -188,6 +188,9 @@ export const useWorkspaceSelector = ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ name }: { name: string }): Promise<void> => {
+    // Clear up the current store, in order to show the loading state
+    store.value = null
+
     const persistence = await persistencePromise
 
     // Generate a unique slug/id for the workspace, based on the name.

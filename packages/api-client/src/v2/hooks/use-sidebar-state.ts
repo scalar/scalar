@@ -7,6 +7,17 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
+export type GetEntryByLocation = (location: {
+  document: string
+  path?: string
+  method?: HttpMethod
+  example?: string
+}) =>
+  | (TraversedEntry & {
+      parent?: TraversedEntry | undefined
+    })
+  | undefined
+
 /**
  * useSidebarState - Custom hook to manage the sidebar state and navigation logic in the Scalar API client
  *
@@ -133,7 +144,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation = (location: { document: string; path?: string; method?: HttpMethod; example?: string }) => {
+  const getEntryByLocation: GetEntryByLocation = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(generateId(location))
 
@@ -263,5 +274,6 @@ export const useSidebarState = ({
   return {
     handleSelectItem,
     sidebarState: state,
+    getEntryByLocation,
   }
 }

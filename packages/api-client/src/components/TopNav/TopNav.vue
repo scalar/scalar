@@ -148,7 +148,7 @@ const copyUrl = (idx: number) => {
 
   const fullUrl = new URL(window.location.href)
   fullUrl.pathname = topNavItems[idx].path
-  copyToClipboard(fullUrl.toString())
+  await copyToClipboard(fullUrl.toString())
 }
 
 const closeOtherTabs = (idx: number) => {

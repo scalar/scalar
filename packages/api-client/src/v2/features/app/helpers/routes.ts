@@ -136,6 +136,9 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: () => `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/drafts/overview`,
+    redirect: () => {
+      console.log('redirecting to draft overview')
+      return `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/drafts/overview`
+    },
   },
 ] satisfies RouteRecordRaw[]
