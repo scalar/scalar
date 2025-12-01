@@ -193,11 +193,11 @@ const NumericProperties = Type.Object({
   /** Maximum value (inclusive). */
   maximum: Type.Optional(Type.Number()),
   /** Maximum value (exclusive). */
-  exclusiveMaximum: Type.Optional(Type.Union([Type.Boolean(), Type.Number()])),
+  exclusiveMaximum: Type.Optional(Type.Number({ minimum: 0 })),
   /** Minimum value (inclusive). */
   minimum: Type.Optional(Type.Number()),
   /** Minimum value (exclusive). */
-  exclusiveMinimum: Type.Optional(Type.Union([Type.Boolean(), Type.Number()])),
+  exclusiveMinimum: Type.Optional(Type.Number({ minimum: 0 })),
 })
 
 type NumericObject = CoreProperties & {
@@ -225,11 +225,11 @@ type NumericObject = CoreProperties & {
   /** Maximum value (inclusive). */
   maximum?: number
   /** Maximum value (exclusive). */
-  exclusiveMaximum?: boolean | number
+  exclusiveMaximum?: number
   /** Minimum value (inclusive). */
   minimum?: number
   /** Minimum value (exclusive). */
-  exclusiveMinimum?: boolean | number
+  exclusiveMinimum?: number
 } & Extensions
 
 /**
