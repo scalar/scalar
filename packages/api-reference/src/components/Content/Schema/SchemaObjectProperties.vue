@@ -8,6 +8,7 @@ import type {
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getResolvedRefWithSchemaName } from '@/components/Content/Schema/helpers/schema-name'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
@@ -84,6 +85,8 @@ const getAdditionalPropertiesValue = (
 
   return additionalProperties
 }
+
+// console.info('SchemaObjectProperties', JSON.stringify(schema, null, 2))
 </script>
 
 <template>
@@ -102,7 +105,7 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="getResolvedRef(schema.properties[property])" />
+      :schema="getResolvedRefWithSchemaName(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->

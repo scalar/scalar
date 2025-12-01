@@ -1,9 +1,19 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
+
+export const getResolvedRefWithSchemaName = <Node extends SchemaObject>(
+  node: NodeInput<Node>,
+): Node & { __schemaName?: string } => {
+  const output = getResolvedRef(node, (_node) => {
+    return { ..._node['$ref-value'], __schemaName: getRefName(_node) }
+  })
+  console.warn('getResolvedRefWithSchemaName', node, output.__schemaName)
+  return output
+}
 
 /**
  * Extract schema name from various schema formats
@@ -50,6 +60,10 @@ export const formatTypeWithModel = (type: Extract<SchemaObject, { type: any }>['
 export const getModelName = (value: SchemaObject, hideModelNames = false): string | null => {
   if (!('type' in value) || hideModelNames) {
     return null
+  }
+
+  if ('__schemaName' in value) {
+    return value.__schemaName as string
   }
 
   const valueType = value.type

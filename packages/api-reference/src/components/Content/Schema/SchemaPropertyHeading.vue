@@ -184,15 +184,6 @@ const validationProperties = computed(() => {
   return properties
 })
 
-/** Gets the model name */
-const modelName = computed(() => {
-  if (!props.value) {
-    return null
-  }
-
-  return getModelName(props.value, props.hideModelNames)
-})
-
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
   if (!props.value || !('type' in props.value)) {
@@ -213,7 +204,11 @@ const displayType = computed(() => {
   if (!props.value) {
     return ''
   }
-  return modelName.value || getSchemaType(props.value)
+
+  return (
+    getModelName(props.value, props.hideModelNames) ||
+    getSchemaType(props.value)
+  )
 })
 
 /**

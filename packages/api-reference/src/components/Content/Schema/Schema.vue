@@ -98,6 +98,8 @@ const schemaDescription = computed(() => {
   return schema.description
 })
 
+// console.info('Schema', JSON.stringify(schema, null, 2))
+
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
 </script>

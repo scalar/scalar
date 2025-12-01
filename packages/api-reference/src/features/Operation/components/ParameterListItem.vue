@@ -84,6 +84,13 @@ const value = computed(() => {
   } as SchemaObject
 })
 
+// console.info('list parameter', JSON.stringify(parameter, null, 2), value.value)
+// console.info(
+//   'list parameter __schemaName',
+
+//   value.value?.__schemaName,
+// )
+
 /**
  * Determines whether this parameter item should be rendered as a collapsible disclosure.
  * Only collapses when collapsableItems is enabled and the parameter has additional
@@ -110,8 +117,8 @@ const shouldCollapse = computed<boolean>(() =>
             weight="bold" />
           <div>
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
+              preset="property"
+              :text="name" />
           </div>
         </div>
         <ScalarMarkdownSummary

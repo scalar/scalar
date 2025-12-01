@@ -60,23 +60,89 @@ export const sources = [
     title: 'Hello World (string)',
     slug: 'hello-world-string',
     content: JSON.stringify({
-      openapi: '3.0.0',
-      info: {
-        title: 'Hello World',
-        version: '1.0.0',
+      'openapi': '3.1.0',
+      'info': {
+        'title': 'SampleApi',
+        'version': '1.0.1',
       },
-      paths: {
-        '/hello': {
-          get: {
-            summary: 'Hello World',
-            description: 'Hello World',
-            responses: {
-              200: {
-                description: 'Hello World',
-                content: {
+      'components': {
+        'schemas': {
+          'UserIdInput': {
+            'description': 'User identifier',
+            'example': 'U234',
+            'default': 'J1',
+            'type': 'string',
+          },
+          'User': {
+            'description': 'User Data',
+            'example': {
+              'name': 'Someone',
+            },
+            'type': 'object',
+            'properties': {
+              'name': {
+                'default': 'Unknown',
+                'type': 'string',
+              },
+            },
+            'required': ['name'],
+            'additionalProperties': false,
+          },
+        },
+      },
+      'paths': {
+        '/login': {
+          'post': {
+            'requestBody': {
+              'content': {
+                'application/json': {
+                  'schema': {
+                    'type': 'object',
+                    'properties': {
+                      'userId': {
+                        '$ref': '#/components/schemas/UserIdInput',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            // 'parameters': [
+            //   {
+            //     'schema': {
+            //       'example': 'wiiiiiiiiii',
+            //       'type': 'string',
+            //     },
+            //     'in': 'query',
+            //     'name': 'baz',
+            //     'required': true,
+            //     'description': 'query string example',
+            //   },
+            // ],
+            'responses': {
+              '200': {
+                'description': 'Default Response',
+                'content': {
                   'application/json': {
-                    schema: {
-                      type: 'string',
+                    'schema': {
+                      'type': 'object',
+                      'properties': {
+                        'user': {
+                          '$ref': '#/components/schemas/User',
+                        },
+                        // 'users': {
+                        //   'type': 'array',
+                        //   'items': {
+                        //     '$ref': '#/components/schemas/User',
+                        //   },
+                        // },
+                      },
+                      'required': [
+                        'user',
+                        //
+                        // 'users',
+                      ],
+                      'additionalProperties': false,
                     },
                   },
                 },
@@ -85,6 +151,7 @@ export const sources = [
           },
         },
       },
+      'servers': [],
     }),
   },
   {

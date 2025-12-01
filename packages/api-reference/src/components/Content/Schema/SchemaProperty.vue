@@ -12,6 +12,7 @@ import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getResolvedRefWithSchemaName } from '@/components/Content/Schema/helpers/schema-name'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -257,6 +258,12 @@ const compositionsToRender = computed(() => {
     })
     .filter(isDefined)
 })
+
+// console.info(
+//   'SchemaProperty',
+//   JSON.stringify(props.schema, null, 2),
+//   optimizedValue.value.__schemaName,
+// )
 </script>
 <template>
   <component
@@ -286,21 +293,21 @@ const compositionsToRender = computed(() => {
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               <ScalarWrappingText
-                :text="name"
-                preset="property" />
+                preset="property"
+                :text="name" />
             </span>
           </template>
           <template v-else-if="variant === 'additionalProperties'">
             <span class="property-name-additional-properties">
               <ScalarWrappingText
-                :text="name"
-                preset="property" />
+                preset="property"
+                :text="name" />
             </span>
           </template>
           <template v-else>
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
+              preset="property"
+              :text="name" />
           </template>
         </WithBreadcrumb>
       </template>
@@ -370,7 +377,7 @@ const compositionsToRender = computed(() => {
           :name="name"
           :noncollapsible="noncollapsible"
           :options="options"
-          :schema="getResolvedRef(optimizedValue.items)" />
+          :schema="getResolvedRefWithSchemaName(optimizedValue.items)" />
       </div>
     </template>
 
@@ -388,7 +395,7 @@ const compositionsToRender = computed(() => {
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="getResolvedRef(props.schema)!" />
+      :schema="getResolvedRefWithSchemaName(props.schema)!" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
