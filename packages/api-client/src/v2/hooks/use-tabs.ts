@@ -1,14 +1,19 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarTabs } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
 
-type Tab = NonNullable<XScalarTabs['x-scalar-tabs']>[number]
+export type UseTabsReturn = {
+  tabs: Ref<Tab[]>
+  activeTabIndex: Ref<number>
+  copyTabUrl: (index: number) => void
+  isLoading: Ref<boolean>
+}
 
 /**
  * Composable for managing desktop tabs functionality.
@@ -32,7 +37,7 @@ export const useTabs = ({
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
   getEntryByLocation: GetEntryByLocation
-}) => {
+}): UseTabsReturn => {
   const router = useRouter()
   const route = useRoute()
 
@@ -132,7 +137,7 @@ export const useTabs = ({
 
       /**
        * Get the active tab from the updated store.
-       * Since we're watching the nested properties directly, this will have the latest values.
+       * Since we are watching the nested properties directly, this will have the latest values.
        */
       const currentActiveTab = activeTab.value
 
@@ -154,9 +159,13 @@ export const useTabs = ({
    * This ensures the tab state stays in sync with navigation events.
    */
   watch(
-    [() => route.path, () => workspaceStore.value],
+    [() => route.path, () => workspaceStore.value, () => isLoading.value],
     ([newPath, store]) => {
       if (!store) {
+        return
+      }
+
+      if (isLoading.value) {
         return
       }
 

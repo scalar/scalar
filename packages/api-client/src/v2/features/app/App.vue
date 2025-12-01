@@ -125,7 +125,7 @@ useWorkspaceClientEvents({
 useGlobalHotKeys(eventBus, layout)
 
 /** Desktop tabs state and actions (only used in desktop layout) */
-const tabs = useTabs({
+const tabsState = useTabs({
   workspaceStore: store,
   eventBus,
   workspaceSlug,
@@ -248,16 +248,16 @@ const createWorkspaceModalState = useModal()
 
 <template>
   <template
-    v-if="store !== null && activeWorkspace !== null && !tabs.isLoading.value">
+    v-if="
+      store !== null && activeWorkspace !== null && !tabsState.isLoading.value
+    ">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
       <!-- Desktop App Tabs -->
       <DesktopTabs
         v-if="layout === 'desktop'"
-        :activeTabIndex="tabs.activeTabIndex.value"
-        :copyTabUrl="tabs.copyTabUrl"
         :eventBus="eventBus"
-        :tabs="tabs.tabs.value" />
+        :tabsState="tabsState" />
 
       <!-- Web App Top Nav -->
       <WebTopNav
