@@ -85,6 +85,7 @@ describe('App', () => {
       },
       useRoute: () => ({
         params: { workspaceSlug: 'default', documentSlug: 'doc1' },
+        query: {},
       }),
       useRouter: () => ({
         push: vi.fn(),

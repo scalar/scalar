@@ -7,6 +7,7 @@ import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persist
 import { flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 
+import { ROUTE_QUERIES } from '@/v2/features/app/helpers/routes'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 
 const push = vi.fn()
@@ -101,7 +102,11 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
 
     await setWorkspaceId('some-workspace')
 
-    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'some-workspace' } })
+    expect(push).toHaveBeenCalledWith({
+      name: 'workspace.environment',
+      params: { workspaceSlug: 'some-workspace' },
+      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: 'true' },
+    })
   })
 
   it('creates a new workspace with a drafts document', async () => {
@@ -118,7 +123,11 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     await flushPromises()
 
     // Check that router navigation was called
-    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'new-workspace' } })
+    expect(push).toHaveBeenCalledWith({
+      name: 'workspace.environment',
+      params: { workspaceSlug: 'new-workspace' },
+      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: undefined },
+    })
 
     // Check that the workspace was persisted
     const allWorkspaces = await persistence.workspace.getAll()
