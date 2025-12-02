@@ -141,7 +141,7 @@ function removeNavItem(idx: number) {
   handleNavRoute()
 }
 
-const copyUrl = (idx: number) => {
+const copyUrl = async (idx: number) => {
   if (!topNavItems[idx]?.path) {
     return
   }

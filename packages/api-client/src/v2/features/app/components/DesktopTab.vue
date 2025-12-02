@@ -120,9 +120,6 @@ const handleClose = (event: MouseEvent): void => {
             class="nav-item-close"
             type="button"
             @click="handleClose">
-            <!-- <ScalarIcon
-              icon="Close"
-              thickness="1.75" /> -->
             <component :is="ScalarIconX" />
           </button>
         </div>
@@ -153,26 +150,30 @@ const handleClose = (event: MouseEvent): void => {
               Copy URL
             </ScalarDropdownButton>
 
-            <ScalarDropdownDivider />
+            <template v-if="!isSingleTab">
+              <ScalarDropdownDivider />
 
-            <!-- Close Tab action (Cmd/Ctrl + W) -->
-            <ScalarDropdownButton
-              class="flex items-center gap-1.5"
-              @click="emit('close')">
-              <component :is="ScalarIconXSquare" />
-              Close Tab
-              <ScalarHotkey
-                class="bg-b-2 ml-auto"
-                hotkey="W" />
-            </ScalarDropdownButton>
+              <!-- Close Tab action (Cmd/Ctrl + W) -->
+              <!-- Hidden for single tabs -->
+              <ScalarDropdownButton
+                class="flex items-center gap-1.5"
+                @click="emit('close')">
+                <component :is="ScalarIconXSquare" />
+                Close Tab
+                <ScalarHotkey
+                  class="bg-b-2 ml-auto"
+                  hotkey="W" />
+              </ScalarDropdownButton>
 
-            <!-- Close Other Tabs action -->
-            <ScalarDropdownButton
-              class="flex items-center gap-1.5"
-              @click="emit('closeOtherTabs')">
-              <component :is="ScalarIconTabs" />
-              Close Other Tabs
-            </ScalarDropdownButton>
+              <!-- Close Other Tabs action -->
+              <!-- Hidden for single tabs -->
+              <ScalarDropdownButton
+                class="flex items-center gap-1.5"
+                @click="emit('closeOtherTabs')">
+                <component :is="ScalarIconTabs" />
+                Close Other Tabs
+              </ScalarDropdownButton>
+            </template>
           </ScalarDropdownMenu>
         </template>
       </ScalarFloating>

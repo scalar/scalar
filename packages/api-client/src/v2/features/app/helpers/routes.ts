@@ -38,6 +38,10 @@ export type CollectionProps = RouteProps &
       }
   )
 
+export const ROUTE_QUERIES = {
+  LOAD_FROM_SESSION: 'loadFromSession' as const,
+} as const
+
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
@@ -143,7 +147,7 @@ export const ROUTES = [
 
       // When we're at root `/`, pathMatch is undefined, null, or empty string
       if (!pathMatch) {
-        return `${redirectPath}?loadFromSession=true`
+        return `${redirectPath}?${ROUTE_QUERIES.LOAD_FROM_SESSION}=true`
       }
 
       return redirectPath

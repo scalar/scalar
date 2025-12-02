@@ -18,7 +18,6 @@ export type UseTabsReturn = {
   copyTabUrl: (index: number) => Promise<void>
   isLoading: Ref<boolean>
   createTabFromCurrentRoute: () => Tab
-
 }
 
 type UseTabsParams = {
@@ -121,6 +120,6 @@ export const useTabs = ({
     activeTabIndex,
     copyTabUrl,
     isLoading,
-    createTabFromCurrentRoute
+    createTabFromCurrentRoute,
   }
 }

@@ -3,6 +3,35 @@ import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x
 
 import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
 
+/**
+ * Returns display details for a tab in the API client UI.
+ * Determines the title and icon to use based on workspace, document, path, and method.
+ *
+ * - If no workspace is provided, returns { title: 'Untitled Tab' }.
+ * - If document is present, attempts to fetch an entry using getEntryByLocation, and returns:
+ *    - { title: entry.title, icon: 'document' } for document entry types,
+ *    - { title: entry.title, icon: 'request' } for all other types,
+ *    - If no entry found, returns { title: 'Untitled Tab' }.
+ * - If neither document nor entry is available, returns { title: 'Workspace' }.
+ *
+ * Example:
+ * ```
+ * const result = getTabDetails({
+ *   workspace: "main",
+ *   document: "doc1",
+ *   path: "/users",
+ *   method: "get",
+ *   getEntryByLocation: ({ document, path, method }) => {
+ *     // Mock lookup:
+ *     if (document === "doc1" && path === "/users") {
+ *       return { type: "document", title: "Users" }
+ *     }
+ *     return null
+ *   }
+ * })
+ * // result: { title: "Users", icon: "document" }
+ * ```
+ */
 export const getTabDetails = ({
   workspace,
   document,

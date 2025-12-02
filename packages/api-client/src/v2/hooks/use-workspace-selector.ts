@@ -6,6 +6,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { type Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { ROUTE_QUERIES } from '@/v2/features/app/helpers/routes'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
@@ -54,7 +55,7 @@ export type UseWorkspaceSelectorReturn = {
   workspaces: Ref<Workspace[]>
   store: Ref<WorkspaceStore | null>
   setWorkspaceId: (id: string) => Promise<void>
-  createWorkspace: (props: { name: string }) => Promise<void>
+  createWorkspace: (props: { name: string }) => Promise<Workspace | undefined>
   loadWorkspace: (id: string) => Promise<boolean>
 }
 
@@ -127,13 +128,19 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
   }
 
   /**
-   * Navigates to the workspace route for the given workspace ID.
-   * Updates the URL to reflect the selected workspace.
+   * Updates the route to reflect the currently selected workspace.
+   * Navigates to the workspace's main environment view, with an option to control
+   * whether the previous route path should be loaded via a query parameter.
    *
-   * @param id - The unique identifier (slug) of the workspace to navigate to.
+   * @param id - The workspace slug (unique identifier) to navigate to.
+   * @param loadFromSession - If true, includes "loadFromSession=true" in the query to indicate state/session should be restored.
    */
-  const setWorkspaceId = async (id: string): Promise<void> => {
-    await router.push({ name: 'workspace.environment', params: { workspaceSlug: id } })
+  const setWorkspaceId = async (id: string, loadFromSession: boolean = true): Promise<void> => {
+    await router.push({
+      name: 'workspace.environment',
+      params: { workspaceSlug: id },
+      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: loadFromSession ? 'true' : undefined },
+    })
   }
 
   /**
@@ -146,7 +153,7 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
    *   await createWorkspace({ name: 'My Awesome API' })
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
-  const createWorkspace = async ({ name }: { name: string }): Promise<void> => {
+  const createWorkspace = async ({ id, name }: { id?: string; name: string }): Promise<Workspace | undefined> => {
     // Clear up the current store, in order to show the loading state
     store.value = null
 
@@ -154,7 +161,7 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
 
     // Generate a unique slug/id for the workspace, based on the name.
     const newWorkspaceId = await generateUniqueValue({
-      defaultValue: name,
+      defaultValue: id ?? name, // Use the provided id if it exists, otherwise use the name
       validation: async (value) => !(await persistence.workspace.has(value)),
       maxRetries: 100,
       transformation: slugify,
@@ -162,14 +169,17 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
 
     // Failed to generate a unique workspace id, so we can't create the workspace.
     if (!newWorkspaceId) {
-      return
+      return undefined
     }
 
+    const newWorkspaceDetails = { id: newWorkspaceId, name }
+
     // Create a new client store with the workspace ID and add a default document.
-    await createAndPersistWorkspace({ id: newWorkspaceId, name })
+    await createAndPersistWorkspace(newWorkspaceDetails)
 
     // Navigate to the newly created workspace.
-    await setWorkspaceId(newWorkspaceId)
+    await setWorkspaceId(newWorkspaceId, false)
+    return newWorkspaceDetails
   }
 
   /** Update the workspace list when the component is mounted */
