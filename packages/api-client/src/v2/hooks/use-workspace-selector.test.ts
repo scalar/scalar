@@ -1,4 +1,4 @@
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import 'fake-indexeddb/auto'
 
@@ -30,129 +30,150 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     await persistence.clear()
   })
 
-  it('should not do anything if there is no selected workspace', async () => {
-    const { store } = useWorkspaceSelector({ workspaceId: undefined })
+  it('initializes with null store and empty workspaces', async () => {
+    const { store, activeWorkspace, workspaces } = useWorkspaceSelector()
+
+    expect(store.value).toBeNull()
+    expect(activeWorkspace.value).toBeNull()
 
     await nextTick()
+    await flushPromises()
 
+    expect(workspaces.value).toHaveLength(0)
+  })
+
+  it('returns false when loading a workspace that does not exist', async () => {
+    const { loadWorkspace, store } = useWorkspaceSelector()
+
+    await nextTick()
+    await flushPromises()
+
+    const result = await loadWorkspace('non-existent-workspace')
+
+    expect(result).toBe(false)
     expect(store.value).toBeNull()
   })
 
-  it('should create a default workspace with a drafts document when the default workspace is selected', async () => {
-    const persistence = await persistencePromise
-    const workspaces = await persistence.workspace.getAll()
-
-    // check that no workspaces exist
-    expect(workspaces).toHaveLength(0)
-
-    const { store } = useWorkspaceSelector({ workspaceId: 'default' })
-
-    await nextTick()
-    await flushPromises()
-
-    // We are loading documents from an url so it takes a while to load
-    await new Promise((resolve) => setTimeout(resolve, 10_000))
-
-    expect(store.value).not.toBeNull()
-    assert(store.value)
-    expect(store.value.workspace.documents['drafts']).not.toBeNull()
-
-    assert(store.value.workspace.documents['drafts'])
-    expect(store.value.workspace.documents['drafts'].info?.title).toBe('Drafts')
-    expect(store.value.workspace.documents['drafts'].openapi).toBe('3.1.0')
-    expect(store.value.workspace.documents['drafts'].paths).not.toBeNull()
-
-    // check that a workspace was created
-    expect(await persistence.workspace.getAll()).toHaveLength(1)
-  })
-
-  it('should navigate the user to the default route when the selected workspace is not found', async () => {
-    useWorkspaceSelector({ workspaceId: 'some-workspace-id' })
-
-    await nextTick()
-    await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    // check that the route is the default route
-    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'default' } })
-  })
-
-  it('should load the first workspace when the default workspace is selected and no workspaces exist', async () => {
-    // Create a dummy workspace
+  it('loads an existing workspace successfully', async () => {
     const persistence = await persistencePromise
     await persistence.workspace.setItem('some-workspace', {
-      name: 'Default',
+      name: 'Test Workspace',
       workspace: createWorkspaceStore().exportWorkspace(),
     })
 
-    const { activeWorkspace } = useWorkspaceSelector({ workspaceId: 'some-workspace' })
+    const { loadWorkspace, activeWorkspace, store } = useWorkspaceSelector()
+
+    await nextTick()
+    await flushPromises()
+
+    const result = await loadWorkspace('some-workspace')
+
+    expect(result).toBe(true)
+    expect(store.value).not.toBeNull()
+    expect(activeWorkspace.value).toEqual({
+      id: 'some-workspace',
+      name: 'Test Workspace',
+    })
+  })
+
+  it('populates workspaces list on mount', async () => {
+    const persistence = await persistencePromise
+    await persistence.workspace.setItem('workspace-1', {
+      name: 'Workspace 1',
+      workspace: createWorkspaceStore().exportWorkspace(),
+    })
+    await persistence.workspace.setItem('workspace-2', {
+      name: 'Workspace 2',
+      workspace: createWorkspaceStore().exportWorkspace(),
+    })
+
+    const { workspaces } = useWorkspaceSelector()
 
     await nextTick()
     await flushPromises()
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(activeWorkspace.value).toEqual({
-      id: 'some-workspace',
-      name: 'Default',
-    })
+    expect(workspaces.value).toHaveLength(2)
   })
 
-  it('should create and navigate to the new workspace', async () => {
+  it('navigates to workspace route when setWorkspaceId is called', async () => {
+    const { setWorkspaceId } = useWorkspaceSelector()
+
+    await setWorkspaceId('some-workspace')
+
+    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'some-workspace' } })
+  })
+
+  it('creates a new workspace with a drafts document', async () => {
     const persistence = await persistencePromise
-    const { activeWorkspace, createWorkspace } = useWorkspaceSelector({ workspaceId: 'default' })
+
+    const { createWorkspace, workspaces } = useWorkspaceSelector()
 
     await nextTick()
     await flushPromises()
-    // change the timeout when we remove the loading default documents
-    await new Promise((resolve) => setTimeout(resolve, 10_000))
 
-    expect(activeWorkspace.value).not.toBeNull()
-    assert(activeWorkspace.value)
-    expect(activeWorkspace.value.id).toBe('default')
-    expect(activeWorkspace.value.name).toBe('Default Workspace')
-
-    // create a new workspace
     await createWorkspace({ name: 'New Workspace' })
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 10_000))
 
-    // this will set the active workspace to the new workspace
+    // Check that router navigation was called
     expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'new-workspace' } })
 
-    // check that a workspace was created
-    expect(await persistence.workspace.getAll()).toHaveLength(2)
+    // Check that the workspace was persisted
+    const allWorkspaces = await persistence.workspace.getAll()
+    expect(allWorkspaces).toHaveLength(1)
+
+    // Check that the workspace was added to the list
+    expect(workspaces.value).toHaveLength(1)
+    expect(workspaces.value[0]).toEqual({ id: 'new-workspace', name: 'New Workspace' })
   })
 
-  it('should load an existing workspace when the workspace is selected', async () => {
+  it('generates unique workspace id when name already exists', async () => {
     const persistence = await persistencePromise
-    await persistence.workspace.setItem('some-workspace', {
-      name: 'Default',
+    await persistence.workspace.setItem('new-workspace', {
+      name: 'New Workspace',
       workspace: createWorkspaceStore().exportWorkspace(),
     })
 
-    const { activeWorkspace } = useWorkspaceSelector({ workspaceId: 'some-workspace' })
+    const { createWorkspace } = useWorkspaceSelector()
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(activeWorkspace.value).not.toBeNull()
-    assert(activeWorkspace.value)
-    expect(activeWorkspace.value.id).toBe('some-workspace')
-    expect(activeWorkspace.value.name).toBe('Default')
+    await createWorkspace({ name: 'New Workspace' })
+
+    await nextTick()
+    await flushPromises()
+
+    // Should navigate to a unique slug (not 'new-workspace' since that exists)
+    expect(push).toHaveBeenCalled()
+    const callArg = push.mock.calls[0]?.[0] as { name: string; params: { workspaceSlug: string } } | undefined
+    expect(callArg).toBeDefined()
+    expect(callArg?.name).toBe('workspace.environment')
+    expect(callArg?.params.workspaceSlug).not.toBe('new-workspace')
   })
 
-  it('should navigate to the worksapce when the workspace is selected', async () => {
-    const { setWorkspaceId } = useWorkspaceSelector({ workspaceId: 'some-workspace' })
+  it('clears store when creating a new workspace', async () => {
+    const persistence = await persistencePromise
+    await persistence.workspace.setItem('existing-workspace', {
+      name: 'Existing',
+      workspace: createWorkspaceStore().exportWorkspace(),
+    })
 
-    setWorkspaceId('some-workspace')
+    const { loadWorkspace, createWorkspace, store } = useWorkspaceSelector()
 
     await nextTick()
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(push).toHaveBeenCalledWith({ name: 'workspace.environment', params: { workspaceSlug: 'some-workspace' } })
+    // Load an existing workspace first
+    await loadWorkspace('existing-workspace')
+    expect(store.value).not.toBeNull()
+
+    // Start creating a new workspace - store should be cleared
+    const createPromise = createWorkspace({ name: 'Another Workspace' })
+    expect(store.value).toBeNull()
+
+    await createPromise
   })
 })

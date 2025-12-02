@@ -3,7 +3,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type Ref, onMounted, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { slugify } from '@/v2/helpers/slugify'
@@ -173,13 +173,14 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
   }
 
   /** Update the workspace list when the component is mounted */
-  onMounted(async () => {
+  // biome-ignore lint/nursery/noFloatingPromises: run the function immediately
+  ;(async () => {
     // Try to update the workspace list
     const persistence = await persistencePromise
 
     const result = await persistence.workspace.getAll()
     workspaces.value = result
-  })
+  })()
 
   return {
     store,

@@ -3,9 +3,17 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { DEFAULT_WORKSPACE, type UseWorkspaceSelectorReturn } from '@/v2/hooks/use-workspace-selector'
 
+import type { UseTabsReturn } from './use-tabs'
+
 const LOAD_FROM_SESSION_QUERY = 'loadFromSession' as const
 
-export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorkspaceSelectorReturn }) => {
+export const useSyncPath = ({
+  workspaceSelectorState,
+  tabsState,
+}: {
+  workspaceSelectorState: UseWorkspaceSelectorReturn
+  tabsState: UseTabsReturn
+}) => {
   const route = useRoute()
   const router = useRouter()
 
@@ -20,7 +28,7 @@ export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorks
   }
 
   const sync = async (fn?: (props: { tabPath: string }) => Promise<void> | void) => {
-    const store = workspaceSelector.store.value
+    const store = workspaceSelectorState.store.value
 
     if (!store) {
       return
@@ -43,7 +51,7 @@ export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorks
   }
 
   const updateCurrentTab = () => {
-    const store = workspaceSelector.store.value
+    const store = workspaceSelectorState.store.value
 
     if (!store) {
       return
@@ -56,18 +64,16 @@ export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorks
       return
     }
 
-    tabs[index] = {
-      title: 'updated',
-      path: route.path,
-    }
+    // Update the current tab path
+    tabs[index] = tabsState.createTabFromCurrentRoute()
   }
 
   // Sync the path when the active tab changes
   watch(
     [
-      () => workspaceSelector.store.value?.workspace['x-scalar-tabs'],
-      () => workspaceSelector.store.value?.workspace['x-scalar-active-tab'],
-      () => workspaceSelector.activeWorkspace.value?.id,
+      () => workspaceSelectorState.store.value?.workspace['x-scalar-tabs'],
+      () => workspaceSelectorState.store.value?.workspace['x-scalar-active-tab'],
+      () => workspaceSelectorState.activeWorkspace.value?.id,
     ],
     async ([_tabs, _activeTab, workspaceId], [_newTabs, _newActiveTab, newWorkspaceId]) => {
       // When we switch workspace, we do not want to sync the path
@@ -78,7 +84,6 @@ export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorks
 
       // Sync the router path with the active tab path
       await sync(async ({ tabPath }) => {
-        console.log('pushing router to sync with the tab state', tabPath)
         await router.push(tabPath)
         isLoading.value = false
       })
@@ -89,25 +94,23 @@ export const useSyncPath = ({ workspaceSelector }: { workspaceSelector: UseWorks
     const slug = route.params.workspaceSlug
 
     // When the worksapce changes
-    if (typeof slug === 'string' && slug !== workspaceSelector.activeWorkspace.value?.id) {
+    if (typeof slug === 'string' && slug !== workspaceSelectorState.activeWorkspace.value?.id) {
       // Clear the store before we load the new wroksapce
-      workspaceSelector.store.value = null
+      workspaceSelectorState.store.value = null
       isLoading.value = true
-      console.log('loading workspace')
 
       // Load the workspace if the slug is different
-      if (await workspaceSelector.loadWorkspace(slug)) {
-        console.log('worksapce loaded', slug)
+      if (await workspaceSelectorState.loadWorkspace(slug)) {
         // Sync the tab with the new path
         await sync(updateCurrentTab)
         return
       }
 
       // Create the default workspace and navigate to it
-      await workspaceSelector.createWorkspace({ name: DEFAULT_WORKSPACE.name })
+      await workspaceSelectorState.createWorkspace({ name: DEFAULT_WORKSPACE.name })
 
       // Navigate to the default workspace
-      return await workspaceSelector.setWorkspaceId(DEFAULT_WORKSPACE.id)
+      return await workspaceSelectorState.setWorkspaceId(DEFAULT_WORKSPACE.id)
     }
 
     // Sync the tab with the new path

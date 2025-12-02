@@ -125,7 +125,8 @@ const tabsState = useTabs({
 })
 
 const { isLoading: isSyncPathLoading } = useSyncPath({
-  workspaceSelector: workspaceSelectorState,
+  workspaceSelectorState,
+  tabsState,
 })
 
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
