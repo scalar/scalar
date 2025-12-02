@@ -113,6 +113,7 @@ export const useTabs = ({
         })
       }
     },
+    { immediate: true },
   )
 
   return {
