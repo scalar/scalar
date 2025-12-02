@@ -134,7 +134,7 @@ const operationExists = computed<boolean>(() => {
   if (
     !selectedDocument.value ||
     !selectedMethod.value ||
-    !requestPath.value.trim()
+    !requestPathTrimmed.value
   ) {
     return false
   }
@@ -142,9 +142,9 @@ const operationExists = computed<boolean>(() => {
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
 
   /** Ensure path starts with '/' for consistent lookup */
-  const normalizedPath = requestPath.value.startsWith('/')
-    ? requestPath.value
-    : `/${requestPath.value}`
+  const normalizedPath = requestPathTrimmed.value.startsWith('/')
+    ? requestPathTrimmed.value
+    : `/${requestPathTrimmed.value}`
 
   return !!document?.paths?.[normalizedPath]?.[selectedMethod.value.method]
 })
