@@ -7,7 +7,6 @@ import { type MaybeRefOrGetter, type Ref, ref, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { slugify } from '@/v2/helpers/slugify'
-import { workspaceStorage } from '@/v2/helpers/storage'
 
 const DEFAULT_DEBOUNCE_DELAY = 1000
 
@@ -81,7 +80,6 @@ export const useWorkspaceSelector = ({
 
     const client = await createClientStore({ workspaceId: id })
     client.loadWorkspace(workspace.workspace)
-    workspaceStorage.setActiveWorkspaceId(id)
     activeWorkspace.value = { id, name: workspace.name }
     store.value = client
     return true

@@ -137,7 +137,8 @@ export const ROUTES = [
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
-      const redirectPath = `/workspace/${workspaceStorage.getActiveWorkspaceId() ?? 'default'}/document/drafts/overview`
+      const lastPath = workspaceStorage.getLastPath()
+      const redirectPath = lastPath ?? '/workspace/default/document/drafts/overview'
 
       const pathMatch = to.params.pathMatch
 

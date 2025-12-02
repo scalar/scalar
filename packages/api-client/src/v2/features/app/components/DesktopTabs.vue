@@ -2,6 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import DesktopTab from '@/v2/features/app/components/DesktopTab.vue'
 import type { UseTabsReturn } from '@/v2/hooks/use-tabs'
@@ -21,9 +22,17 @@ const handleAddTab = (): void => {
   eventBus.emit('tabs:add:tab', undefined)
 }
 
+const router = useRouter()
+
 /** Switches to the tab at the specified index */
 const switchTab = (index: number): void => {
   eventBus.emit('tabs:focus:tab', { index })
+
+  // Hacky lets also redirect here
+  const path = tabsState.tabs.value[index]?.path
+  if (path) {
+    router.replace(path)
+  }
 }
 
 /** Closes the tab at the specified index */

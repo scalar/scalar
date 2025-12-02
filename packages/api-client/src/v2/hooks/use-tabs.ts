@@ -3,10 +3,12 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
+
+import { workspaceStorage } from '../helpers/storage'
 
 /** Constants for workspace store keys */
 const TABS_KEY = 'x-scalar-tabs' as const
@@ -45,9 +47,7 @@ export const useTabs = ({
   method,
   eventBus,
 }: UseTabsParams): UseTabsReturn => {
-  const router = useRouter()
   const route = useRoute()
-
   const isLoading = ref(false)
 
   /**
@@ -120,6 +120,12 @@ export const useTabs = ({
     return route.query[LOAD_FROM_SESSION_QUERY] === 'true'
   }
 
+  // Updates the last route in local storage for reload
+  watch(
+    () => route.path,
+    (newPath) => workspaceStorage.setCurrentPath(newPath),
+  )
+
   // Initialize the tabs
   watch(
     [() => workspaceStore.value, () => workspaceStore.value?.workspace[TABS_KEY]],
@@ -138,38 +144,6 @@ export const useTabs = ({
 
       if (tabs) {
         isLoading.value = false
-      }
-    },
-    { immediate: true },
-  )
-
-  // Navigate correctly when the active tab changes
-  watch(
-    [
-      () => workspaceStore.value?.workspace[TABS_KEY],
-      () => workspaceStore.value?.workspace[ACTIVE_TAB_KEY],
-      () => isLoading.value,
-      () => toValue(workspaceSlug),
-    ],
-    async ([tabs, activeTabIndex, , newWorkspaceSlug], [, , , oldWorkspaceSlug]) => {
-      if (isLoading.value) {
-        return
-      }
-
-      // Do not navigate if we are switching workspaces (but allow initial load when oldWorkspaceSlug is undefined)
-      if (oldWorkspaceSlug !== undefined && newWorkspaceSlug !== oldWorkspaceSlug) {
-        return
-      }
-
-      const activeTab = tabs?.[activeTabIndex ?? 0]
-
-      if (!activeTab) {
-        return
-      }
-
-      // If the current path is not the path of the active tab, navigate to it
-      if (route.path !== activeTab.path) {
-        await router.push(activeTab.path)
       }
     },
     { immediate: true },
