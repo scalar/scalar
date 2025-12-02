@@ -340,6 +340,108 @@ describe('handleDragEnd', () => {
     expect(result).toBe(false)
   })
 
+  it('successfully moves an operation containing a circular reference to another tag', async () => {
+    // Create a document with a schema that has a circular reference (Person references itself via children)
+    // This tests that the removeCircular helper properly handles circular refs during dereference
+    const documentWithCircularRef = {
+      openapi: '3.1.0',
+      info: { title: 'Circular Ref API', version: '1.0.0' },
+      paths: {
+        '/people': {
+          get: {
+            tags: ['people'],
+            summary: 'Get People',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Person',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/animals': {
+          get: {
+            tags: ['animals'],
+            summary: 'Get Animals',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      tags: [
+        { name: 'people', description: 'People operations' },
+        { name: 'animals', description: 'Animal operations' },
+      ],
+      components: {
+        schemas: {
+          Person: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              // This creates a circular reference - Person has children who are also Person
+              children: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Person' },
+              },
+            },
+          },
+        },
+      },
+      'x-scalar-original-document-hash': '',
+    } as unknown as OpenApiDocument
+
+    await store.addDocument({
+      name: 'circular-doc',
+      document: documentWithCircularRef,
+    })
+
+    store.buildSidebar('circular-doc')
+
+    const sidebarState = getSidebarState(store)
+    const navigation = store.workspace.documents['circular-doc']?.['x-scalar-navigation']
+
+    const tagPeople = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'people')
+    const tagAnimals = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'animals')
+
+    assert(tagPeople, 'People tag is required')
+    assert(tagPeople.type === 'tag', 'People tag type is required')
+    assert(tagAnimals, 'Animals tag is required')
+    assert(tagAnimals.type === 'tag', 'Animals tag type is required')
+
+    const operation = tagPeople.children?.find((child) => child.type === 'operation')
+
+    assert(operation, 'Operation is required')
+    assert(operation.type === 'operation', 'Operation type is required')
+
+    const { handleDragEnd } = dragHandleFactory({
+      store: ref(store),
+      sidebarState,
+    })
+
+    // Move the operation with circular ref from 'people' tag to 'animals' tag (offset: 2 = drop into)
+    const result = handleDragEnd({ id: operation.id, parentId: null }, { id: tagAnimals.id, parentId: null, offset: 2 })
+
+    expect(result).toBe(true)
+
+    // Verify the operation was moved
+    const updatedDoc = store.workspace.documents['circular-doc']
+    const peopleOp = updatedDoc?.paths?.['/people']?.get as
+      | { tags?: string[]; responses?: Record<string, unknown> }
+      | undefined
+
+    // The operation should now have 'animals' tag instead of 'people'
+    expect(peopleOp?.tags).toContain('animals')
+    expect(peopleOp?.tags).not.toContain('people')
+
+    // Verify the response schema still exists (was not corrupted by circular ref handling)
+    expect(peopleOp?.responses?.['200']).toBeDefined()
+  })
+
   it('returns false when store is null', () => {
     const sidebarState = getSidebarState(store)
     const { handleDragEnd } = dragHandleFactory({

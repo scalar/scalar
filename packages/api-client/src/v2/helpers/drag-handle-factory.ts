@@ -254,8 +254,10 @@ const getDereferencedOperation = (
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
-  const { schema } = dereference(document)
-  return removeCircular(schema as OpenApiDocument).paths?.[path]?.[method] as OperationObject | undefined
+  const result = dereference(document).schema as OpenApiDocument
+  const operation = result.paths?.[path]?.[method]
+
+  return removeCircular(operation, { prefix: `#/paths/${path}/${method}` }) as OperationObject | undefined
 }
 
 /**
