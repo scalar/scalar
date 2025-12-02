@@ -43,4 +43,4 @@ jobs:
 
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Delete preview version from Scalar Registry
-        run: npx @scalar/cli@latest registry delete --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}
+        run: npx @scalar/cli@latest registry delete scalar galaxy --version ${{ env.PREVIEW_VERSION }}
