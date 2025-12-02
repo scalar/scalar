@@ -5,7 +5,6 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fgalaxy)](https://www.npmjs.com/package/@scalar/galaxy)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-
 OpenAPI and AsyncAPI example documents in YAML and JSON to test OpenAPI and AsyncAPI tooling, run test suites or learn about OpenAPI and AsyncAPI.
 
 ## Installation
