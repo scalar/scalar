@@ -801,9 +801,11 @@ jobs:
       - name: Extract version and generate preview version
         id: preview-version
         working-directory: packages/galaxy
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9-]/-/g')
+          BRANCH_NAME=$(echo "$GITHUB_HEAD_REF" | sed 's/[^a-zA-Z0-9-]/-/g')
           PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
