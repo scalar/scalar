@@ -5,6 +5,9 @@ on:
     types:
       - closed
 
+permissions:
+  contents: read
+
 jobs:
   delete-preview:
     if: github.event.action == 'closed'
