@@ -3,7 +3,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type MaybeRefOrGetter, type Ref, ref, toValue, watch } from 'vue'
+import { type Ref, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { slugify } from '@/v2/helpers/slugify'
@@ -15,7 +15,7 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
  * Default workspace meta used when we need to create or navigate to a fallback workspace.
  * Keep in sync with the persisted workspace structure.
  */
-const DEFAULT_WORKSPACE: Workspace = {
+export const DEFAULT_WORKSPACE: Workspace = {
   name: 'Default Workspace',
   id: 'default',
 }
@@ -49,17 +49,16 @@ export type Workspace = {
   id: string
 }
 
-export const useWorkspaceSelector = ({
-  workspaceId,
-}: {
-  workspaceId: MaybeRefOrGetter<string | undefined>
-}): {
+export type UseWorkspaceSelectorReturn = {
   activeWorkspace: Ref<Workspace | null>
   workspaces: Ref<Workspace[]>
   store: Ref<WorkspaceStore | null>
-  setWorkspaceId: (id: string) => void
+  setWorkspaceId: (id: string) => Promise<void>
   createWorkspace: (props: { name: string }) => Promise<void>
-} => {
+  loadWorkspace: (id: string) => Promise<boolean>
+}
+
+export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
   const activeWorkspace = ref<Workspace | null>(null)
   const workspaces = ref<Workspace[]>([])
   const store = ref<WorkspaceStore | null>(null)
@@ -122,50 +121,10 @@ export const useWorkspaceSelector = ({
       name: name,
       workspace: draftStore.exportWorkspace(),
     })
+
+    // Update the workspace list
+    workspaces.value.push({ id, name })
   }
-
-  watch(
-    () => toValue(workspaceId),
-    async (newWorkspaceId): Promise<void> => {
-      const id = newWorkspaceId
-      const persistence = await persistencePromise
-
-      // Get all available workspaces
-      const workspaceList = await persistence.workspace.getAll()
-      workspaces.value = workspaceList
-
-      if (!id) {
-        return
-      }
-
-      // Load the selected workspace id
-      if (await loadWorkspace(id)) {
-        return
-      }
-
-      // Load the first workspace we can find when the default workspace
-      if (id === DEFAULT_WORKSPACE.id) {
-        if (workspaceList[0] && (await loadWorkspace(workspaceList[0].id))) {
-          return
-        }
-
-        // Create the default workspace and navigate to it
-        await createAndPersistWorkspace(DEFAULT_WORKSPACE)
-
-        if (await loadWorkspace(DEFAULT_WORKSPACE.id)) {
-          // Update the workspace list
-          workspaces.value.push(DEFAULT_WORKSPACE)
-          return
-        }
-        console.error('[ERROR]: something went wrong when trying to create the default workspace')
-        return
-      }
-
-      // Navigate to the default workspace, when the workspace does not exist
-      return setWorkspaceId(DEFAULT_WORKSPACE.id)
-    },
-    { immediate: true },
-  )
 
   /**
    * Navigates to the workspace route for the given workspace ID.
@@ -173,8 +132,8 @@ export const useWorkspaceSelector = ({
    *
    * @param id - The unique identifier (slug) of the workspace to navigate to.
    */
-  const setWorkspaceId = (id: string): void => {
-    router.push({ name: 'workspace.environment', params: { workspaceSlug: id } })
+  const setWorkspaceId = async (id: string): Promise<void> => {
+    await router.push({ name: 'workspace.environment', params: { workspaceSlug: id } })
   }
 
   /**
@@ -208,9 +167,19 @@ export const useWorkspaceSelector = ({
 
     // Create a new client store with the workspace ID and add a default document.
     await createAndPersistWorkspace({ id: newWorkspaceId, name })
+
     // Navigate to the newly created workspace.
-    setWorkspaceId(newWorkspaceId)
+    await setWorkspaceId(newWorkspaceId)
   }
+
+  /** Update the workspace list when the component is mounted */
+  onMounted(async () => {
+    // Try to update the workspace list
+    const persistence = await persistencePromise
+
+    const result = await persistence.workspace.getAll()
+    workspaces.value = result
+  })
 
   return {
     store,
@@ -218,5 +187,6 @@ export const useWorkspaceSelector = ({
     workspaces,
     setWorkspaceId,
     createWorkspace,
+    loadWorkspace,
   }
 }

@@ -27,6 +27,7 @@ import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
+import { useSyncPath } from '@/v2/hooks/use-sync-path'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -94,10 +95,10 @@ const method = computed(() => {
 const exampleName = computed(() => getRouteParam('exampleName'))
 
 // Workspace-related state and utilities derived from the workspaceSlug route param.
+const workspaceSelectorState = useWorkspaceSelector()
+
 const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
-  useWorkspaceSelector({
-    workspaceId: workspaceSlug,
-  })
+  workspaceSelectorState
 
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode({ workspaceStore: store })
@@ -112,6 +113,21 @@ const { handleSelectItem, sidebarState, getEntryByLocation } = useSidebarState({
   exampleName,
 })
 
+/** Desktop tabs state and actions (only used in desktop layout) */
+const tabsState = useTabs({
+  workspaceStore: store,
+  eventBus,
+  workspaceSlug,
+  documentSlug,
+  path,
+  method,
+  getEntryByLocation,
+})
+
+const { isLoading: isSyncPathLoading } = useSyncPath({
+  workspaceSelector: workspaceSelectorState,
+})
+
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientEvents({
   eventBus,
@@ -123,17 +139,6 @@ useWorkspaceClientEvents({
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(eventBus, layout)
-
-/** Desktop tabs state and actions (only used in desktop layout) */
-const tabsState = useTabs({
-  workspaceStore: store,
-  eventBus,
-  workspaceSlug,
-  documentSlug,
-  path,
-  method,
-  getEntryByLocation,
-})
 
 const DEFAULT_DOCUMENT_WATCH_TIMEOUT = 5000
 
@@ -248,9 +253,7 @@ const createWorkspaceModalState = useModal()
 
 <template>
   <template
-    v-if="
-      store !== null && activeWorkspace !== null && !tabsState.isLoading.value
-    ">
+    v-if="store !== null && activeWorkspace !== null && !isSyncPathLoading">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
       <!-- Desktop App Tabs -->
