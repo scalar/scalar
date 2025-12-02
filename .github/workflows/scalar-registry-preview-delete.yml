@@ -1,0 +1,41 @@
+name: Scalar Registry Preview Delete
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-preview:
+    if: github.event.action == 'closed'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Check whether galaxy files were modified in the PR
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            galaxy:
+              - packages/galaxy/**
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Extract version and generate preview version
+        working-directory: packages/galaxy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9-]/-/g')
+          PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
+          echo "PREVIEW_VERSION=$PREVIEW_VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Login to Scalar Registry
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Delete preview version from Scalar Registry
+        run: npx @scalar/cli@latest registry delete --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}

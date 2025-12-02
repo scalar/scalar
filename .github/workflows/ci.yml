@@ -67,6 +67,7 @@ jobs:
       java_package_changed: ${{ steps.set-outputs.outputs.java_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
+      galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
@@ -96,6 +97,8 @@ jobs:
             icons_changed:
               - packages/icons/**
               - packages/components/src/components/ScalarIcon/**
+            galaxy_changed:
+              - packages/galaxy/**
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -134,6 +137,7 @@ jobs:
           echo "java_package_changed=${{ steps.changed-package-files.outputs.java_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -770,28 +774,90 @@ jobs:
         if: github.event_name == 'pull_request'
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
 
+  galaxy-registry-preview:
+    # Only run for PRs from the same repository
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]') &&
+      needs.check-changes.outputs.galaxy_changed == 'true'
+    needs: [build, check-changes]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    outputs:
+      preview-url: ${{ steps.set-preview-url.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Build @scalar/galaxy
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar/galaxy...'
+
+      - name: Extract version and generate preview version
+        id: preview-version
+        working-directory: packages/galaxy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9-]/-/g')
+          PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "PREVIEW_VERSION=$PREVIEW_VERSION" >> $GITHUB_ENV
+          echo "version=$PREVIEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Login to Scalar Registry
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
+
+      - name: Publish preview version to Scalar Registry
+        run: npx @scalar/cli@latest --version && npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} --force --no-current packages/galaxy/dist/latest.yaml
+
+      - name: Set preview URL output
+        id: set-preview-url
+        run: echo "url=https://registry.scalar.com/@scalar/apis/galaxy/${{ env.PREVIEW_VERSION }}" >> $GITHUB_OUTPUT
+
   deploy-preview-comment:
     # Only run for PRs from the same repository
     if: |
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [deploy-api-reference, deploy-components]
+    needs: [deploy-api-reference, deploy-components, galaxy-registry-preview]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     permissions:
       pull-requests: write
     steps:
+      - name: Build comment message
+        id: build-message
+        run: |
+          MESSAGE="**Preview Examples**
+
+          ${{ needs.deploy-api-reference.outputs.preview-url }}
+
+          **Preview Storybook**
+
+          ${{ needs.deploy-components.outputs.preview-url }}"
+
+          if [ "${{ needs.galaxy-registry-preview.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE
+
+          **Scalar Registry Preview**
+
+          ${{ needs.galaxy-registry-preview.outputs.preview-url }}"
+          fi
+
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Add combined preview URLs to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
-          message: |
-            **Preview Examples**
-
-            ${{ needs.deploy-api-reference.outputs.preview-url }}
-
-            **Preview Storybook**
-
-            ${{ needs.deploy-components.outputs.preview-url }}
+          message: ${{ steps.build-message.outputs.message }}
           comment-tag: 'deployment-preview'
 
   # ---------------------------------------------------------------------------------------------------------
