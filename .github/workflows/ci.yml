@@ -782,7 +782,7 @@ jobs:
       !contains(github.actor, '[bot]') &&
       needs.check-changes.outputs.galaxy_changed == 'true'
     needs: [build, check-changes]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
