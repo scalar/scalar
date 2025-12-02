@@ -820,11 +820,13 @@ jobs:
         id: set-preview-url
         run: echo "url=https://registry.scalar.com/@scalar/apis/galaxy/${{ env.PREVIEW_VERSION }}" >> $GITHUB_OUTPUT
 
-  deploy-preview-comment:
+  preview-comment:
     # Only run for PRs from the same repository
     if: |
+      always() &&
       github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]')
     needs: [deploy-api-reference, deploy-components, galaxy-registry-preview]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
