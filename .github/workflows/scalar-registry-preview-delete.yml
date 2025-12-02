@@ -1,9 +1,11 @@
 name: Scalar Registry Preview Delete
 
 on:
-  pull_request:
-    types:
-      - closed
+  # Delete does not work as expected, do not run it for now
+  workflow_dispatch: null
+  # pull_request:
+  #   types:
+  #     - closed
 
 permissions:
   contents: read
