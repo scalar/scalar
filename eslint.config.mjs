@@ -155,6 +155,7 @@ export default tslint.config(
         {
           ignoreRestSiblings: true,
           argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'off',

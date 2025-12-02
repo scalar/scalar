@@ -54,8 +54,6 @@ const { sidebarState, layout, activeWorkspace, store } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  /** Emitted when the command palette is opened, possibly with a specific action (e.g., 'import') */
-  (e: 'open:commandPalette', action?: 'import'): void
   /** Emitted when the workspace button in the sidebar is clicked */
   (e: 'click:workspace'): void
   /** Emitted when a navigation or sidebar item is selected by ID */
@@ -173,7 +171,12 @@ const isDroppable = (
             v-if="showGettingStarted"
             class="w-full"
             size="sm"
-            @click="emit('open:commandPalette', 'import')">
+            @click="
+              eventBus.emit('ui:open:command-palette', {
+                action: 'import-from-openapi-swagger-postman-curl',
+                payload: undefined,
+              })
+            ">
             Import Collection
           </ScalarButton>
 
@@ -182,7 +185,7 @@ const isDroppable = (
             hotkey="K"
             size="sm"
             variant="outlined"
-            @click="emit('open:commandPalette')">
+            @click="eventBus.emit('ui:open:command-palette')">
             Add Item
           </ScalarButton>
         </div>

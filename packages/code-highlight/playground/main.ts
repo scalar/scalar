@@ -3,7 +3,6 @@
  */
 import { presets } from '@scalar/themes'
 
-import '@scalar/themes/base.css'
 import '@scalar/themes/style.css'
 
 import { syntaxHighlight } from '../src/code'

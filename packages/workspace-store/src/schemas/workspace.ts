@@ -26,16 +26,20 @@ import {
   ServerObjectSchema,
 } from './v3.1/strict/openapi-document'
 
-export const WorkspaceDocumentMetaSchema = Type.Partial(
-  Type.Object({
-    [extensions.document.activeAuth]: Type.String(),
-    [extensions.document.activeServer]: Type.String(),
-  }),
+export const WorkspaceDocumentMetaSchema = compose(
+  Type.Partial(
+    Type.Object({
+      [extensions.document.activeAuth]: Type.String(),
+      [extensions.document.activeServer]: Type.String(),
+      'x-scalar-watch-mode': Type.Boolean(),
+    }),
+  ),
 )
 
 export type WorkspaceDocumentMeta = {
   [extensions.document.activeAuth]?: string
   [extensions.document.activeServer]?: string
+  'x-scalar-watch-mode'?: boolean
 }
 
 // Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules

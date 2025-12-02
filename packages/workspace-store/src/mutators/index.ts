@@ -140,7 +140,7 @@ export {
   updateSelectedSecuritySchemes,
 } from './auth'
 export { deleteCookie, upsertCookie } from './cookie'
-export { toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
+export { createEmptyDocument, toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
 export {
   upsertEnvironment,
   upsertEnvironmentVariable,
@@ -150,6 +150,7 @@ export {
   type OperationMeta,
   addOperationParameter,
   addOperationRequestBodyFormRow,
+  createOperation,
   deleteAllOperationParameters,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
@@ -178,4 +179,5 @@ export {
   navigatePreviousTab,
   updateTabs,
 } from './tabs'
+export { createTag } from './tag'
 export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'

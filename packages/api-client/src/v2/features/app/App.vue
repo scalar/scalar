@@ -23,6 +23,8 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
+import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
@@ -129,6 +131,9 @@ const { isLoading: isSyncPathLoading } = useSyncPath({
   tabsState,
 })
 
+/** Command palette state and actions */
+const commandPaletteState = useCommandPaletteState()
+
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientEvents({
   eventBus,
@@ -136,6 +141,7 @@ useWorkspaceClientEvents({
   workspaceStore: store,
   navigateTo: handleSelectItem,
   isSidebarOpen,
+  commandPaletteState,
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -297,7 +303,10 @@ const createWorkspaceModalState = useModal()
           @create:workspace="(payload) => createWorkspace(payload)" />
 
         <!-- Popup command palette to add resources from anywhere -->
-        <!-- <TheCommandPalette /> -->
+        <TheCommandPalette
+          :eventBus="eventBus"
+          :paletteState="commandPaletteState"
+          :workspaceStore="store" />
 
         <!-- <ImportCollectionListener></ImportCollectionListener> -->
 

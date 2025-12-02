@@ -1,11 +1,27 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import 'fake-indexeddb/auto'
 
 import App from './App.vue'
+
+/**
+ * Mock vue-router to avoid router setup in tests
+ */
+vi.mock('vue-router', () => ({
+  RouterView: {
+    name: 'RouterView',
+    template: '<div class="router-view"><slot /></div>',
+  },
+  useRoute: () => ({
+    params: { workspaceSlug: 'default', documentSlug: 'doc1' },
+  }),
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}))
 
 /**
  * Critical tests for the main App component
@@ -14,21 +30,6 @@ import App from './App.vue'
 describe('App', () => {
   const WORKSPACE_ID = 'default'
   const DOCUMENT_ID = 'doc1'
-
-  /**
-   * Disable persistence side-effects during these tests to avoid IndexedDB structured clone errors
-   * stemming from debounced writes happening after the test completes.
-   */
-  vi.mock('@scalar/workspace-store/plugins/client', () => ({
-    persistencePlugin: async () => ({
-      hooks: {
-        onWorkspaceStateChanges: () => {
-          // no-op in tests
-          return
-        },
-      },
-    }),
-  }))
 
   const setupWorkspace = async () => {
     const store = createWorkspaceStore()
