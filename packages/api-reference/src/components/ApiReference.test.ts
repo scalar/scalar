@@ -5,40 +5,36 @@ import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
 
-// Mock window.location for all tests
-const mockLocation = {
-  href: 'http://localhost:3000/',
-  origin: 'http://localhost:3000',
-  protocol: 'http:',
-  host: 'localhost:3000',
-  hostname: 'localhost',
-  port: '3000',
-  pathname: '/',
-  search: '',
-  hash: '',
-  ancestorOrigins: {} as DOMStringList,
-  assign: vi.fn(),
-  reload: vi.fn(),
-  replace: vi.fn(),
-  toString: () => 'http://localhost:3000/',
-}
+vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
+  ...importOriginal(),
+  useBreakpoints: () => ({
+    mediaQueries: {
+      lg: { value: true },
+    },
+  }),
+}))
 
 beforeEach(() => {
   vi.resetAllMocks()
-  // Reset location mock before each test
-  mockLocation.href = 'http://localhost:3000/'
-  mockLocation.pathname = '/'
-  mockLocation.search = ''
-  mockLocation.hash = ''
+  vi.unstubAllGlobals()
 
-  vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
-    useBreakpoints: () => ({
-      mediaQueries: {
-        lg: { value: true },
-      },
-    }),
-  }))
-  vi.stubGlobal('location', mockLocation)
+  // Mock window.location for all tests
+  vi.stubGlobal('location', {
+    href: 'http://localhost:3000/',
+    origin: 'http://localhost:3000',
+    protocol: 'http:',
+    host: 'localhost:3000',
+    hostname: 'localhost',
+    port: '3000',
+    pathname: '/',
+    search: '',
+    hash: '',
+    ancestorOrigins: {} as DOMStringList,
+    assign: vi.fn(),
+    reload: vi.fn(),
+    replace: vi.fn(),
+    toString: () => 'http://localhost:3000/',
+  })
 })
 
 describe('multiple configurations', () => {
@@ -181,7 +177,65 @@ describe('multiple configurations', () => {
     // Check whether it renders the names
     expect(documentSelector.html()).toContain('my-api-1')
     await documentSelector.vm.$emit('update:modelValue', 'my-api-2')
+    await wrapper.vm.$nextTick()
     expect(documentSelector.html()).toContain('my-api-2')
+    wrapper.unmount()
+  })
+
+  it('should fire `onDocumentSelect` when changing document', async () => {
+    const onDocumentSelect = vi.fn()
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          onDocumentSelect,
+
+          sources: [
+            {
+              slug: 'my-api-1',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #1',
+                  version: '1.0.0',
+                },
+              },
+            },
+            {
+              slug: 'my-api-2',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #2',
+                  version: '1.0.0',
+                },
+              },
+            },
+          ],
+        },
+      },
+    })
+
+    // Wait for the API reference to be rendered
+    await wrapper.vm.$nextTick()
+
+    // onDocumentSelect should be called after API reference is loaded
+    expect(onDocumentSelect).toHaveBeenCalledOnce()
+
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+
+    // Ensure the select is rendered
+    expect(documentSelector.exists()).toBe(true)
+
+    await documentSelector.vm.$emit('update:modelValue', 'my-api-2')
+    await wrapper.vm.$nextTick()
+
+    // onDocumentSelect should be called after choosing another document
+    expect(onDocumentSelect).toHaveBeenCalledTimes(2)
+
     wrapper.unmount()
   })
 })

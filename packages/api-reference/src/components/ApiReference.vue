@@ -446,6 +446,8 @@ const changeSelectedDocument = async (
     ...configurationOverrides.value,
   }
 
+  await config.onDocumentSelect?.()
+
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
@@ -470,7 +472,8 @@ const changeSelectedDocument = async (
             config: mapConfiguration(config),
           },
     )
-    config.onLoaded?.(slug)
+
+    await config.onLoaded?.(slug)
   }
 
   /** When loading to a specified element we need to freeze and scroll */
