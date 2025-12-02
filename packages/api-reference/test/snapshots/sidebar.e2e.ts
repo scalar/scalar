@@ -49,6 +49,8 @@ toTest.forEach((source) => {
       // Ensure section is visible and stable
       await expect(section).toBeVisible()
 
+      await page.waitForTimeout(100)
+
       await expect(section).toHaveScreenshot(`${slug}-section-${index + 1}.png`)
     }
   })
