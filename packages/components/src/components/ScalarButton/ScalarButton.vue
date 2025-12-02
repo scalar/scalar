@@ -91,12 +91,12 @@ const { cx } = useBindCx()
     :type="is === 'button' ? 'button' : undefined"
     v-bind="
       cx(buttonVariants({ disabled, size, variant }), {
-        relative: loading?.isLoading,
+        relative: loader?.isActive,
       })
     ">
     <div
       v-if="$slots.icon || icon"
-      :class="[iconVariants({ size }), { invisible: loading?.isLoading }]">
+      :class="[iconVariants({ size }), { invisible: loader?.isActive }]">
       <slot name="icon">
         <component
           :is="icon"
@@ -104,17 +104,17 @@ const { cx } = useBindCx()
       </slot>
     </div>
     <span
-      v-if="loading"
-      :class="{ invisible: loading?.isLoading }">
+      v-if="loader"
+      :class="{ invisible: loader?.isActive }">
       <slot />
     </span>
     <slot v-else />
     <div
-      v-if="loading?.isLoading"
+      v-if="loader?.isActive"
       class="centered">
       <ScalarLoading
         :class="loadingVariants({ size })"
-        :loadingState="loading" />
+        :loader />
     </div>
   </component>
 </template>

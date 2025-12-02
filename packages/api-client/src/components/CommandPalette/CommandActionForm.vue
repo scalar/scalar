@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  useBindCx,
-  type useLoadingState,
-} from '@scalar/components'
+import { ScalarButton, useBindCx, type LoadingState } from '@scalar/components'
 
-const { loading, disabled = false } = defineProps<{
-  loading?: ReturnType<typeof useLoadingState>
+const { loader, disabled = false } = defineProps<{
+  loader?: LoadingState
   disabled?: boolean
 }>()
 
@@ -33,7 +29,7 @@ const { cx } = useBindCx()
       <ScalarButton
         class="max-h-8 px-3 text-xs"
         :disabled="disabled"
-        :loading="loading"
+        :loader
         type="submit">
         <slot name="submit">Continue</slot>
       </ScalarButton>

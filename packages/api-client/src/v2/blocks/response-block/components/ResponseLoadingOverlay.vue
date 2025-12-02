@@ -13,28 +13,28 @@ const { events } = defineProps<{
   events: ReturnType<typeof createStoreEvents>
 }>()
 
-const loading = useLoadingState()
+const loader = useLoadingState()
 
 const timeout = ref<ReturnType<typeof setTimeout>>()
 
-events.requestStatus.on((status) => {
+events.requestStatus.on(async (status) => {
   if (status === 'start') {
-    timeout.value = setTimeout(() => loading.startLoading(), 1000)
+    timeout.value = setTimeout(() => loader.start(), 1000)
   } else {
     clearTimeout(timeout.value)
     timeout.value = undefined
-    loading.stopLoading()
+    await loader.clear()
   }
 })
 </script>
 <template>
   <Transition>
     <div
-      v-if="loading.isLoading"
+      v-if="loader.isActive"
       class="bg-b-1 z-overlay absolute inset-0 flex flex-col items-center justify-center gap-6">
       <ScalarLoading
         class="text-c-3"
-        :loadingState="loading"
+        :loader
         size="3xl" />
       <ScalarButton
         variant="ghost"

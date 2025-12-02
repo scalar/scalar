@@ -22,7 +22,7 @@ import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
 defineProps<{
-  loading?: LoadingState
+  loader?: LoadingState
   label?: string
 }>()
 
@@ -62,9 +62,9 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       v-bind="otherAttrs"
       v-model="model" />
     <ScalarLoading
-      v-if="loading && loading.isLoading"
+      v-if="loader && loader.isActive"
       class="self-center"
-      :loadingState="loading"
+      :loader
       size="md" />
     <ScalarIconButton
       v-else-if="model"

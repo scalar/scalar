@@ -19,34 +19,34 @@ const { workspace } = defineProps<{
 }>()
 
 const { toast } = useToasts()
-const loading = useLoadingState()
+const loader = useLoadingState()
 
 const tempDocUrl = defineModel<string>('url')
 
 async function generateTemporaryLink() {
-  if (loading.isLoading || !workspace || !!tempDocUrl.value) {
+  if (loader.isLoading || !workspace || !!tempDocUrl.value) {
     return
   }
 
-  loading.startLoading()
+  loader.start()
 
   const document = workspace.exportActiveDocument('json')
 
   if (!document) {
     toast('Unable to export active document', 'error')
-    loading.invalidate()
+    await loader.invalidate()
     return
   }
 
   try {
     tempDocUrl.value = await uploadTempDocument(document)
-    copyToClipboard(tempDocUrl.value)
-    loading.validate()
+    await copyToClipboard(tempDocUrl.value)
+    await loader.validate()
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'An unknown error occurred'
     toast(message, 'error')
-    loading.invalidate()
+    await loader.invalidate()
   }
 }
 
@@ -72,7 +72,7 @@ const { copyToClipboard } = useClipboard()
   <ScalarButton
     class="h-auto p-2.5"
     :disabled="!!tempDocUrl"
-    :loading
+    :loader
     variant="outlined"
     @click="generateTemporaryLink">
     Generate

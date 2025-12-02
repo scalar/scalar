@@ -29,7 +29,7 @@ const { cx } = useBindCx()
       )
     ">
     <ScalarLoading
-      :loadingState="loader"
+      :loader
       size="md" />
   </div>
 </template>
