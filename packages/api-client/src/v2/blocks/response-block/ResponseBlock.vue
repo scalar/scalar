@@ -177,7 +177,10 @@ defineExpose({
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="
-            eventBus.emit('ui:open:command-palette', { action: 'addOperation' })
+            eventBus.emit('ui:open:command-palette', {
+              action: 'create-request',
+              payload: undefined,
+            })
           "
           @openCommandPalette="eventBus.emit('ui:open:command-palette')"
           @sendRequest="emits('sendRequest')" />

@@ -47,11 +47,11 @@ const handleDeleteDocument = () => {
   <DocumentSettings
     v-if="collectionType === 'document'"
     :documentUrl="document?.['x-scalar-original-source-url']"
+    :isDraftDocument="documentSlug === 'drafts'"
     :title="document?.info.title ?? ''"
     :watchMode="document?.['x-scalar-watch-mode'] ?? true"
     @delete:document="handleDeleteDocument"
-    @update:watchMode="handleUpdateWatchMode"
-    :isDraftDocument="documentSlug === 'drafts'" />
+    @update:watchMode="handleUpdateWatchMode" />
   <CollectionSettings
     v-else
     :activeProxyUrl="workspaceStore.workspace['x-scalar-active-proxy']"

@@ -1,10 +1,13 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { CollectionType, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { CollectionType, CommandPaletteAction, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
   addServer,
+  createEmptyDocument,
+  createOperation,
+  createTag,
   deleteAllOperationParameters,
   deleteCookie,
   deleteOperationParameter,
@@ -39,6 +42,8 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import { type ComputedRef, type Ref, toValue } from 'vue'
 import { useRouter } from 'vue-router'
 
+import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+
 /**
  * Top level state mutation handling for the workspace store in the client
  */
@@ -48,12 +53,14 @@ export const useWorkspaceClientEvents = ({
   workspaceStore,
   navigateTo,
   isSidebarOpen,
+  commandPaletteState,
 }: {
   eventBus: WorkspaceEventBus
   document: ComputedRef<WorkspaceDocument | null>
   workspaceStore: Ref<WorkspaceStore | null>
   navigateTo: (id: string) => Promise<unknown> | undefined
   isSidebarOpen: Ref<boolean>
+  commandPaletteState: UseCommandPaletteStateReturn
 }) => {
   /** Selects between the workspace or document based on the type */
   const getCollection = (
@@ -73,6 +80,11 @@ export const useWorkspaceClientEvents = ({
   const router = useRouter()
 
   //------------------------------------------------------------------------------------
+  // Navigation Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
+
+  //------------------------------------------------------------------------------------
   // Workspace Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('workspace:update:active-proxy', (payload) =>
@@ -90,7 +102,7 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
   eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
-  eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
+  eventBus.on('document:create:empty-document', (payload) => createEmptyDocument(workspaceStore.value, payload))
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
@@ -153,6 +165,7 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('operation:create:operation', (payload) => createOperation(workspaceStore.value, payload))
   eventBus.on('operation:update:method', (payload) =>
     updateOperationMethod(document.value, workspaceStore.value, payload, (success) => {
       // Lets redirect to the new example if the mutation was successful
@@ -193,7 +206,22 @@ export const useWorkspaceClientEvents = ({
   )
 
   //------------------------------------------------------------------------------------
+  // Tag Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('tag:create:tag', (payload) => createTag(workspaceStore.value, payload))
+
+  //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
+  eventBus.on(
+    'ui:open:command-palette',
+    <P extends CommandPaletteAction['action']>(payload: CommandPaletteAction<P> | undefined) => {
+      if (payload) {
+        commandPaletteState.open(payload.action, payload.payload)
+      } else {
+        commandPaletteState.open()
+      }
+    },
+  )
 }

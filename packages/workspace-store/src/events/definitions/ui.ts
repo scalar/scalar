@@ -1,101 +1,189 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-/** Event definitions to control the ui */
+/**
+ * Available actions that can be triggered from the command palette.
+ * Each action may have an associated payload type.
+ */
+type CommandPalettePayload = {
+  /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
+  'import-from-openapi-swagger-postman-curl': undefined
+  /** Create a new document in the workspace */
+  'create-document': undefined
+  /** Add a new tag to organize requests */
+  'add-tag': undefined
+  /** Create a new HTTP request */
+  'create-request': undefined
+  /** Add a new example to an existing request */
+  'add-example': undefined
+  /** Import a request from a cURL command string */
+  'import-curl-command': {
+    /** The cURL command string to parse and import */
+    curl: string
+  }
+}
+
+/**
+ * Type-safe command palette action with correlated action and payload.
+ * This ensures that when an action is dispatched, it must include the correct payload type.
+ *
+ * Example:
+ * - { action: 'create-document', payload: undefined }
+ * - { action: 'import-curl-command', payload: { curl: 'curl ...' } }
+ */
+export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {
+  /** The action to perform */
+  action: K
+  /** The payload for this action, typed based on the action */
+  payload: CommandPalettePayload[K]
+  /** Optional keyboard event that triggered this action */
+  event?: KeyboardEvent
+}
+
+/**
+ * Common payload for keyboard-triggered events.
+ * Used when we need to track the original keyboard event for things like
+ * preventing default behavior or stopping propagation.
+ */
+type KeyboardEventPayload = {
+  /** The keyboard event that triggered this action */
+  event: KeyboardEvent
+}
+
+/**
+ * Common payload for navigation item operations.
+ * Navigation items include tags, operations, folders, etc. in the sidebar.
+ */
+type NavigationItemPayload = {
+  /** The unique identifier of the navigation item */
+  id: string
+}
+
+/**
+ * Event definitions for controlling the UI.
+ * These events are dispatched through the event bus to trigger UI actions
+ * across different components without tight coupling.
+ */
 export type UIEvents = {
+  // ────────────────────────────────────────────────────────────
+  // Download Events
+  // ────────────────────────────────────────────────────────────
+
   /**
-   * Download the document from the store
+   * Download the OpenAPI document from the store.
+   * Supports multiple export formats for different use cases.
    */
   'ui:download:document': {
     /** Format to download the document in */
     format: 'json' | 'yaml' | 'direct'
   }
+
+  // ────────────────────────────────────────────────────────────
+  // Focus Events
+  // ────────────────────────────────────────────────────────────
+
   /**
-   * Focus the address bar
+   * Focus the address bar input field.
+   * Typically triggered by keyboard shortcuts for quick navigation.
    */
-  'ui:focus:address-bar': {
-    event: KeyboardEvent
-  }
+  'ui:focus:address-bar': KeyboardEventPayload
+
   /**
-   * Focus the send button
+   * Focus the send button to execute a request.
+   * Useful for keyboard-driven workflows.
    */
-  'ui:focus:send-button': {
-    event: KeyboardEvent
-  }
+  'ui:focus:send-button': KeyboardEventPayload
+
   /**
-   * Focus the search
+   * Focus the search input in the sidebar.
+   * Allows quick filtering of requests and tags.
    */
-  'ui:focus:search': {
-    event: KeyboardEvent
-  }
+  'ui:focus:search': KeyboardEventPayload
+
+  // ────────────────────────────────────────────────────────────
+  // Toggle Events
+  // ────────────────────────────────────────────────────────────
+
   /**
-   * Toggle the sidebar
+   * Toggle the sidebar visibility.
+   * Useful for maximizing content area on smaller screens.
    */
-  'ui:toggle:sidebar': {
-    event: KeyboardEvent
-  }
+  'ui:toggle:sidebar': KeyboardEventPayload
+
+  // ────────────────────────────────────────────────────────────
+  // Modal Events
+  // ────────────────────────────────────────────────────────────
+
   /**
-   * Open the Api Client modal to a specific operation
+   * Open the API Client modal to a specific operation.
+   * This allows deep linking into specific endpoints from external sources.
    */
   'ui:open:client-modal': {
-    /** The HTTP method of the operation to load */
+    /** The HTTP method of the operation to load (e.g., GET, POST) */
     method: HttpMethod
-    /** The path of the operation to load */
+    /** The path of the operation to load (e.g., /users/{id}) */
     path: string
-    /** The example name to load */
+    /** Optional example name to load for this operation */
     exampleName?: string
   }
-  /**
-   * Close the client modal
-   */
-  'ui:close:client-modal': {
-    event: KeyboardEvent
-  }
-  /**
-   * Open the command palette
-   */
-  'ui:open:command-palette':
-    | {
-        action?: 'import' | 'addServer' | 'addCollection' | 'addTag' | 'addExample' | 'addOperation' | undefined
-        event?: KeyboardEvent
-      }
-    | undefined
 
-  /** Set a navigation item's (such as a tag or operation) expanded state */
-  'toggle:nav-item': {
-    /** The name of the nav item to toggle */
-    id: string
-    /** Optional defined state for the nav item. */
+  /**
+   * Close the API Client modal.
+   * Typically triggered by escape key or clicking outside the modal.
+   */
+  'ui:close:client-modal': KeyboardEventPayload
+
+  /**
+   * Hide the modal in modal mode.
+   * Generic close action for modal display contexts.
+   */
+  'hide:modal': undefined
+
+  // ────────────────────────────────────────────────────────────
+  // Command Palette Events
+  // ────────────────────────────────────────────────────────────
+
+  /**
+   * Open the command palette.
+   * Can optionally pre-fill with a specific action to execute.
+   * If undefined is passed, opens the palette without a pre-selected action.
+   */
+  'ui:open:command-palette': CommandPaletteAction | undefined
+
+  // ────────────────────────────────────────────────────────────
+  // Navigation Item Events
+  // ────────────────────────────────────────────────────────────
+
+  /**
+   * Toggle a navigation item's expanded state.
+   * Used for collapsible items like tags, folders, or operation groups.
+   */
+  'toggle:nav-item': NavigationItemPayload & {
+    /** If provided, sets the state explicitly instead of toggling */
     open?: boolean
   }
 
-  /** Select a navigation item. Run on sidebar clicks where a scroll handler would typically be expected */
-  'select:nav-item': {
-    /** The id of the nav item to select */
-    id: string
-  }
+  /**
+   * Select a navigation item.
+   * Fired when clicking on a sidebar item where a scroll handler would typically be expected.
+   * This does not automatically scroll to the item.
+   */
+  'select:nav-item': NavigationItemPayload
 
-  /** Fired when a navigation item intersects with the viewport */
-  'intersecting:nav-item': {
-    /** The id of the nav item that is intersecting */
-    id: string
-  }
+  /**
+   * Fired when a navigation item intersects with the viewport.
+   * Used for highlighting active sections in the sidebar during scrolling.
+   */
+  'intersecting:nav-item': NavigationItemPayload
 
-  /** Explicity scroll to a navigation item */
-  'scroll-to:nav-item': {
-    /** The id of the nav item to scroll to */
-    id: string
-  }
+  /**
+   * Explicitly scroll to a navigation item in the content area.
+   * This will move the viewport to show the corresponding content.
+   */
+  'scroll-to:nav-item': NavigationItemPayload
 
-  /** Copy the url including anchor details for a navigation item */
-  'copy-url:nav-item': {
-    /** The id of the nav item to copy the anchor url for */
-    id: string
-  }
-
-  /** On modal mode hide the modal */
-  'hide:modal': undefined
-
-  'import:curl': {
-    value: string
-  }
+  /**
+   * Copy the URL with anchor details for a navigation item.
+   * Useful for sharing direct links to specific sections.
+   */
+  'copy-url:nav-item': NavigationItemPayload
 }
