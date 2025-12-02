@@ -28,7 +28,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
@@ -66,7 +66,7 @@ const COMMAND_COMPONENTS = {
   'add-tag': CommandPaletteTag,
   'add-example': CommandPaletteExample,
   'import-curl-command': CommandPaletteImportCurl,
-} as const satisfies Record<UiCommandIds, unknown>
+} as const satisfies Record<UiCommandIds, Component>
 
 /**
  * Type-level assertion: ensures all command components have correct props.
