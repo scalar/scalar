@@ -229,6 +229,31 @@ describe('shellCurl', () => {
   --form 'field=value'`)
   })
 
+  it('handles multipart form data with single quotes in parameter name', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: "field'name",
+            value: 'value',
+          },
+          {
+            name: "file'name",
+            fileName: 'test.txt',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'field'\\''name=value' \\
+  --form 'file'\\''name=@test.txt'`)
+  })
+
   it('handles multipart form data with JSON payload', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
@@ -273,6 +298,26 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --data-urlencode 'special%20chars!%40%23=value'`)
+  })
+
+  it('handles url-encoded form data with single quotes in parameter name', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: "field'name",
+            value: 'value',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --data-urlencode 'field'\\''name=value'`)
   })
 
   it('handles binary data flag', () => {
@@ -521,5 +566,19 @@ describe('shellCurl', () => {
     })
 
     expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
+  })
+
+  it('escapes single quotes in JSON body', () => {
+    const result = shellCurl.generate({
+      url: 'https://editor.scalar.com/test',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: '"hell\'o"',
+      },
+    })
+
+    expect(result).toContain(`--data '"hell'\\''o"'`)
   })
 })
