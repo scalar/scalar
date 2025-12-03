@@ -14,8 +14,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
-import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-requirement'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type {
+  SecurityRequirementObject,
+  SecuritySchemeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type MaybeRefOrGetter, watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
 import { type Ref, computed, provide, toRaw, toValue, watch } from 'vue'

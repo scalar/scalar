@@ -1,6 +1,5 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Gets the "name" of the schema from the ref path

@@ -24,7 +24,6 @@
     "packages/use-hooks/**",
     "packages/use-toasts/**",
     "packages/void-server/**",
-    "packages/workspace-store/**",
     "projects/**",
     "integrations/docker/**",
     "integrations/dotnet/**",
@@ -137,6 +136,24 @@
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts"
+      ]
+    },
+    "packages/workspace-store": {
+      "entry": [
+        "./src/client.ts",
+        "./src/events/index.ts",
+        "./src/helpers/*.ts",
+        "./src/mutators/index.ts",
+        "./src/navigation/index.ts",
+        "./src/persistence/index.ts",
+        "./src/plugins/bundler/index.ts",
+        "./src/plugins/client/index.ts",
+        "./src/schemas.ts",
+        "./src/schemas/*.ts",
+        "./src/schemas/extensions/operation/index.ts",
+        "./src/schemas/v3.1/strict/openapi-document.ts",
+        "./src/schemas/v3.1/strict/type-guards.ts",
+        "./src/server.ts"
       ]
     },
     "integrations/docusaurus": {

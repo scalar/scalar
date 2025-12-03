@@ -131,12 +131,4 @@ export type OAuthFlowAuthorizationCode = OAuthFlowCommon & {
   XScalarSecretRedirectUri &
   XusePkce
 
-/** Union of all OAuth flow schemas */
-export const OAuthFlowObjectSchemaDefinition = Type.Union([
-  OAuthFlowImplicitSchema,
-  OAuthFlowPasswordSchema,
-  OAuthFlowClientCredentialsSchema,
-  OAuthFlowAuthorizationCodeSchema,
-])
-
 export type OAuthFlow = OAuthFlowImplicit | OAuthFlowPassword | OAuthFlowClientCredentials | OAuthFlowAuthorizationCode

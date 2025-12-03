@@ -3,7 +3,7 @@ import type { Heading, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 
-export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
+const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 
 /**
  * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.

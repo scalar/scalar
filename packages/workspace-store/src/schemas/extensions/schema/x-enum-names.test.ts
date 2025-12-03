@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XEnumVarNamesSchema } from './x-enum-varnames'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XEnumVarNamesSchema } from './x-enum-varnames'
 
 describe('XEnumVarNamesSchema', () => {
   it('validates x-enum-varnames array', () => {

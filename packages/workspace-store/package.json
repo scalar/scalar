@@ -22,12 +22,11 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "vite-node ./src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -93,6 +92,11 @@
       "import": "./dist/schemas/v3.1/strict/openapi-document.js",
       "types": "./dist/schemas/v3.1/strict/openapi-document.d.ts",
       "default": "./dist/schemas/v3.1/strict/openapi-document.js"
+    },
+    "./schemas/v3.1/strict/type-guards": {
+      "import": "./dist/schemas/v3.1/strict/type-guards.js",
+      "types": "./dist/schemas/v3.1/strict/type-guards.d.ts",
+      "default": "./dist/schemas/v3.1/strict/type-guards.js"
     },
     "./server": {
       "import": "./dist/server.js",

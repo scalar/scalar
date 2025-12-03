@@ -61,7 +61,7 @@ export function getHeadingsFromMarkdown(input: string): Heading[] {
   return withSlugs(headings as Heading[], slugger)
 }
 
-export type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
+type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
 
 /**
  * Returns the lowest heading level from a list of headings.

@@ -80,7 +80,7 @@ export type WorkspaceEventBus = {
 /**
  * Options for creating an event bus
  */
-export type EventBusOptions = {
+type EventBusOptions = {
   /**
    * Enable debug mode to log all events and listener operations
    * Useful for development and troubleshooting

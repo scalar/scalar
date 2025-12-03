@@ -8,7 +8,7 @@ import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from './ref-def
 import { type ReferenceType, reference } from './reference'
 import type { SchemaObject } from './schema'
 
-export const HeaderObjectSchemaBase = Type.Object({
+const HeaderObjectSchemaBase = Type.Object({
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
   description: Type.Optional(Type.String()),
   /** Determines whether this header is mandatory. The default value is false. */
@@ -27,7 +27,7 @@ type HeaderBase = {
   deprecated?: boolean
 }
 
-export const HeaderObjectWithSchemaSchema = compose(
+const HeaderObjectWithSchemaSchema = compose(
   HeaderObjectSchemaBase,
   Type.Object({
     /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
