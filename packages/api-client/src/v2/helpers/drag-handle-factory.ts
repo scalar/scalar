@@ -17,6 +17,8 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
+import { removeCircular } from '@/v2/helpers/remove-circular'
+
 /**
  * Drag offset constants.
  * These match the draggable component's offset values.
@@ -252,8 +254,10 @@ const getDereferencedOperation = (
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
-  const { schema } = dereference(document)
-  return (schema as OpenApiDocument).paths?.[path]?.[method] as OperationObject | undefined
+  const result = dereference(document).schema as OpenApiDocument
+  const operation = result.paths?.[path]?.[method]
+
+  return removeCircular(operation, { prefix: `#/paths/${path}/${method}` }) as OperationObject | undefined
 }
 
 /**
@@ -278,8 +282,6 @@ const handleMoveOperation = (
     return false
   }
 
-  // Get dereferenced operation to ensure all refs are resolved
-  // TODO: handle circular refs on the operation
   const currentOperation = getDereferencedOperation(
     unpackProxyObject(draggingDocument),
     draggingItem.path,
