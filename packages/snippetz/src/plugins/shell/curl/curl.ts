@@ -104,17 +104,20 @@ export const shellCurl: Plugin = {
         // Handle URL-encoded form data
         normalizedRequest.postData.params.forEach((param) => {
           const escapedValue = escapeSingleQuotes(param.value ?? '')
-          parts.push(`--data-urlencode '${encodeURIComponent(param.name)}=${escapedValue}'`)
+          const encodedName = encodeURIComponent(param.name)
+          const escapedName = escapeSingleQuotes(encodedName)
+          parts.push(`--data-urlencode '${escapedName}=${escapedValue}'`)
         })
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         // Handle multipart form data
         normalizedRequest.postData.params.forEach((param) => {
+          const escapedName = escapeSingleQuotes(param.name)
           if (param.fileName !== undefined) {
             const escapedFileName = escapeSingleQuotes(param.fileName)
-            parts.push(`--form '${param.name}=@${escapedFileName}'`)
+            parts.push(`--form '${escapedName}=@${escapedFileName}'`)
           } else {
             const escapedValue = escapeSingleQuotes(param.value ?? '')
-            parts.push(`--form '${param.name}=${escapedValue}'`)
+            parts.push(`--form '${escapedName}=${escapedValue}'`)
           }
         })
       } else {
