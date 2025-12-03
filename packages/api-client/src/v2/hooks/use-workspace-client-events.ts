@@ -306,6 +306,9 @@ export const useWorkspaceClientEvents = ({
             exampleName: payload.meta.exampleKey,
           },
         })
+
+        // We want to re-focus the addressbar after routing (nextTick doesn't work here)
+        setTimeout(() => eventBus.emit('ui:focus:address-bar'), 0)
       }
     }),
   )

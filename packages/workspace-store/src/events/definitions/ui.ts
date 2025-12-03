@@ -98,8 +98,7 @@ export type UIEvents = {
    * Focus the address bar input field.
    * Typically triggered by keyboard shortcuts for quick navigation.
    */
-  'ui:focus:address-bar': KeyboardEventPayload
-
+  'ui:focus:address-bar': KeyboardEventPayload | undefined
   /**
    * Focus the send button to execute a request.
    * Useful for keyboard-driven workflows.

@@ -145,16 +145,16 @@ const addressBarRef = useTemplateRef('addressBarRef')
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 /** Focus the addressbar */
-const handleFocusAddressBar = ({
-  event,
-}: ApiReferenceEvents['ui:focus:address-bar']) => {
+const handleFocusAddressBar = (
+  payload: ApiReferenceEvents['ui:focus:address-bar'],
+) => {
   // if its already has focus we just propagate native behaviour which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
 
-  addressBarRef.value?.focus()
-  event.preventDefault()
+  addressBarRef.value?.focus(true)
+  payload?.event.preventDefault()
 }
 
 onMounted(() => {
