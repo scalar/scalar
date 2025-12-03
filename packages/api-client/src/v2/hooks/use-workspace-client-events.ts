@@ -52,14 +52,12 @@ import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 export const useWorkspaceClientEvents = ({
   eventBus,
   document,
-  documentSlug,
   workspaceStore,
   isSidebarOpen,
   commandPaletteState,
   sidebarState,
 }: {
   eventBus: WorkspaceEventBus
-  documentSlug: ComputedRef<string | undefined>
   document: ComputedRef<WorkspaceDocument | null>
   workspaceStore: Ref<WorkspaceStore | null>
   isSidebarOpen: Ref<boolean>
@@ -91,7 +89,7 @@ export const useWorkspaceClientEvents = ({
    * consistent (e.g., after adding a new example via the UI).
    */
   const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-    const documentName = documentSlug.value
+    const documentName = document.value?.['x-scalar-navigation']?.id
     if (!documentName) {
       return
     }

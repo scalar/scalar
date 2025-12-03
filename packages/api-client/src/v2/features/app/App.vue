@@ -120,7 +120,6 @@ const commandPaletteState = useCommandPaletteState()
 useWorkspaceClientEvents({
   eventBus,
   document,
-  documentSlug,
   workspaceStore: store,
   isSidebarOpen,
   commandPaletteState,
