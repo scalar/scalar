@@ -2,6 +2,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { CollectionType, CommandPaletteAction, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
+  type OperationExampleMeta,
   addOperationParameter,
   addOperationRequestBodyFormRow,
   addServer,
@@ -43,6 +44,7 @@ import { type ComputedRef, type Ref, toValue } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 
 /**
  * Top level state mutation handling for the workspace store in the client
@@ -50,18 +52,23 @@ import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette
 export const useWorkspaceClientEvents = ({
   eventBus,
   document,
+  documentSlug,
   workspaceStore,
-  navigateTo,
   isSidebarOpen,
   commandPaletteState,
+  sidebarState,
 }: {
   eventBus: WorkspaceEventBus
+  documentSlug: ComputedRef<string | undefined>
   document: ComputedRef<WorkspaceDocument | null>
   workspaceStore: Ref<WorkspaceStore | null>
-  navigateTo: (id: string) => Promise<unknown> | undefined
   isSidebarOpen: Ref<boolean>
   commandPaletteState: UseCommandPaletteStateReturn
+  sidebarState: UseSidebarStateReturn
 }) => {
+  /** Use router for some redirects */
+  const router = useRouter()
+
   /** Selects between the workspace or document based on the type */
   const getCollection = (
     document: ComputedRef<WorkspaceDocument | null>,
@@ -76,13 +83,37 @@ export const useWorkspaceClientEvents = ({
     return collectionType === 'document' ? document.value : store.workspace
   }
 
-  /** Use router for some redirects */
-  const router = useRouter()
+  /**
+   * Ensures the sidebar is refreshed after a new example is created.
+   *
+   * If the sidebar entry for the new example does not exist or is of a different type,
+   * this will rebuild the sidebar for the current document. This helps keep the sidebar state
+   * consistent (e.g., after adding a new example via the UI).
+   */
+  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
+    const documentName = documentSlug.value
+    if (!documentName) {
+      return
+    }
+
+    const entry = sidebarState.getEntryByLocation({
+      document: documentName,
+      path: payload.path,
+      method: payload.method,
+      example: payload.exampleKey,
+    })
+
+    if (!entry || entry.type !== 'example') {
+      // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
+      workspaceStore.value?.buildSidebar(documentName)
+    }
+    return
+  }
 
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('scroll-to:nav-item', async ({ id }) => await navigateTo(id))
+  eventBus.on('scroll-to:nav-item', ({ id }) => sidebarState.handleSelectItem(id))
 
   //------------------------------------------------------------------------------------
   // Workspace Event Handlers
@@ -183,8 +214,15 @@ export const useWorkspaceClientEvents = ({
   )
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
-  eventBus.on('operation:add:parameter', (payload) => addOperationParameter(document.value, payload))
-  eventBus.on('operation:update:parameter', (payload) => updateOperationParameter(document.value, payload))
+  eventBus.on('operation:add:parameter', (payload) => {
+    addOperationParameter(document.value, payload)
+    refreshSidebarAfterExampleCreation(payload.meta)
+  })
+  eventBus.on('operation:update:parameter', (payload) => {
+    updateOperationParameter(document.value, payload)
+    // When updating a path parameter, we need to check if we are creating a new example
+    refreshSidebarAfterExampleCreation(payload.meta)
+  })
   eventBus.on('operation:delete:parameter', (payload) => deleteOperationParameter(document.value, payload))
   eventBus.on('operation:delete-all:parameters', (payload) => deleteAllOperationParameters(document.value, payload))
 
@@ -194,10 +232,14 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('operation:update:requestBody:contentType', (payload) =>
     updateOperationRequestBodyContentType(document.value, payload),
   )
-  eventBus.on('operation:update:requestBody:value', (payload) =>
-    updateOperationRequestBodyExample(document.value, payload),
-  )
-  eventBus.on('operation:add:requestBody:formRow', (payload) => addOperationRequestBodyFormRow(document.value, payload))
+  eventBus.on('operation:update:requestBody:value', (payload) => {
+    updateOperationRequestBodyExample(document.value, payload)
+    refreshSidebarAfterExampleCreation(payload.meta)
+  })
+  eventBus.on('operation:add:requestBody:formRow', (payload) => {
+    addOperationRequestBodyFormRow(document.value, payload)
+    refreshSidebarAfterExampleCreation(payload.meta)
+  })
   eventBus.on('operation:update:requestBody:formRow', (payload) =>
     updateOperationRequestBodyFormRow(document.value, payload),
   )

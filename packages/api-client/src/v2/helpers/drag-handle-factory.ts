@@ -1,6 +1,6 @@
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { dereference } from '@scalar/openapi-parser'
+import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -257,7 +257,9 @@ const getDereferencedOperation = (
   const result = dereference(document).schema as OpenApiDocument
   const operation = result.paths?.[path]?.[method]
 
-  return removeCircular(operation, { prefix: `#/paths/${path}/${method}` }) as OperationObject | undefined
+  return removeCircular(operation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
+    | OperationObject
+    | undefined
 }
 
 /**

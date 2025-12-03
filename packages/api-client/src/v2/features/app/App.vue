@@ -104,7 +104,7 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
 useColorMode({ workspaceStore: store })
 
 /** Sidebar state and selection handling. */
-const { handleSelectItem, sidebarState } = useSidebarState({
+const sidebarState = useSidebarState({
   workspaceStore: store,
   workspaceSlug,
   documentSlug,
@@ -120,10 +120,11 @@ const commandPaletteState = useCommandPaletteState()
 useWorkspaceClientEvents({
   eventBus,
   document,
+  documentSlug,
   workspaceStore: store,
-  navigateTo: handleSelectItem,
   isSidebarOpen,
   commandPaletteState,
+  sidebarState,
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -265,14 +266,14 @@ const createWorkspaceModalState = useModal()
           :eventBus
           :isWorkspaceOpen
           :layout
-          :sidebarState
+          :sidebarState="sidebarState.state"
           :sidebarWidth
           :store
           :workspaces
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
-          @selectItem="handleSelectItem"
+          @selectItem="sidebarState.handleSelectItem"
           @update:sidebarWidth="handleSidebarWidthUpdate" />
 
         <!-- Create workspace modal -->
