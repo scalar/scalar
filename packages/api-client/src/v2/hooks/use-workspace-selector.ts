@@ -6,9 +6,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { type Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { ROUTE_QUERIES } from '@/v2/features/app/helpers/routes'
 import { slugify } from '@/v2/helpers/slugify'
-import { workspaceStorage } from '@/v2/helpers/storage'
 
 const DEFAULT_DEBOUNCE_DELAY = 1000
 
@@ -56,7 +54,7 @@ export type UseWorkspaceSelectorReturn = {
   store: Ref<WorkspaceStore | null>
   setWorkspaceId: (id: string) => Promise<void>
   createWorkspace: (props: { name: string }) => Promise<Workspace | undefined>
-  loadWorkspace: (id: string) => Promise<boolean>
+  loadWorkspace: (id: string) => Promise<{ success: true; workspace: WorkspaceStore } | { success: false }>
 }
 
 export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
@@ -71,20 +69,25 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
    * Attempts to load and activate a workspace by id.
    * Returns true when the workspace was found and activated.
    */
-  const loadWorkspace = async (id: string): Promise<boolean> => {
+  const loadWorkspace: UseWorkspaceSelectorReturn['loadWorkspace'] = async (id) => {
     const persistence = await persistencePromise
     const workspace = await persistence.workspace.getItem(id)
 
     if (!workspace) {
-      return false
+      return {
+        success: false,
+      }
     }
 
     const client = await createClientStore({ workspaceId: id })
     client.loadWorkspace(workspace.workspace)
-    workspaceStorage.setActiveWorkspaceId(id)
     activeWorkspace.value = { id, name: workspace.name }
     store.value = client
-    return true
+
+    return {
+      success: true,
+      workspace: client,
+    }
   }
 
   /**
@@ -135,11 +138,10 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
    * @param id - The workspace slug (unique identifier) to navigate to.
    * @param loadFromSession - If true, includes "loadFromSession=true" in the query to indicate state/session should be restored.
    */
-  const setWorkspaceId = async (id: string, loadFromSession: boolean = true): Promise<void> => {
+  const setWorkspaceId = async (id: string): Promise<void> => {
     await router.push({
       name: 'workspace.environment',
       params: { workspaceSlug: id },
-      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: loadFromSession ? 'true' : undefined },
     })
   }
 
@@ -178,7 +180,7 @@ export const useWorkspaceSelector = (): UseWorkspaceSelectorReturn => {
     await createAndPersistWorkspace(newWorkspaceDetails)
 
     // Navigate to the newly created workspace.
-    await setWorkspaceId(newWorkspaceId, false)
+    await setWorkspaceId(newWorkspaceId)
     return newWorkspaceDetails
   }
 

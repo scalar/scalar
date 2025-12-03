@@ -1,6 +1,6 @@
 import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
 
-const ACTIVE_WORKSPACE_ID_KEY = 'scalar.activeWorkspaceId' as const
+const CURRENT_PATH_KEY = 'scalar.currentPath' as const
 
 /**
  * Handles persistence of the active workspace ID in localStorage.
@@ -16,18 +16,16 @@ const ACTIVE_WORKSPACE_ID_KEY = 'scalar.activeWorkspaceId' as const
  */
 export const workspaceStorage = {
   /**
-   * Retrieves the active workspace ID from localStorage.
-   * @returns {string | undefined} The currently active workspace ID, or undefined if not set.
+   * We keep the currently active path so we can reload it if needed
    */
-  getActiveWorkspaceId(): string | undefined {
-    return safeLocalStorage().getItem(ACTIVE_WORKSPACE_ID_KEY) ?? undefined
+  setCurrentPath: (path: string): void => {
+    safeLocalStorage().setItem(CURRENT_PATH_KEY, path)
   },
 
   /**
-   * Stores the given workspace ID as the active workspace in localStorage.
-   * @param {string} id - The workspace ID to set as active.
+   * Retrieve the last active path
    */
-  setActiveWorkspaceId(id: string): void {
-    safeLocalStorage().setItem(ACTIVE_WORKSPACE_ID_KEY, id)
+  getLastPath: (): string | null => {
+    return safeLocalStorage().getItem(CURRENT_PATH_KEY)
   },
 } as const

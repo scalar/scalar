@@ -84,6 +84,25 @@ export const useWorkspaceClientEvents = ({
     return collectionType === 'document' ? document.value : store.workspace
   }
 
+  /**
+   * Navigates to the currently active tab's path using the router.
+   * Returns early if the workspace store or active tab is unavailable.
+   */
+  const navigateToCurrentTab = async (): Promise<void> => {
+    const store = toValue(workspaceStore)
+    if (!store) {
+      return
+    }
+
+    const activeTabIndex = store.workspace['x-scalar-active-tab'] ?? 0
+    const activeTab = store.workspace['x-scalar-tabs']?.[activeTabIndex]
+    if (!activeTab) {
+      return
+    }
+
+    await router.replace(activeTab.path)
+  }
+
   /** Use router for some redirects */
   const router = useRouter()
 
@@ -236,14 +255,33 @@ export const useWorkspaceClientEvents = ({
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('tabs:add:tab', (payload) => addTab(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('tabs:close:tab', (payload) => closeTab(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:add:tab', async (payload) => {
+    addTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
+  eventBus.on('tabs:close:tab', async (payload) => {
+    closeTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
   eventBus.on('tabs:close:other-tabs', (payload) => closeOtherTabs(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('tabs:focus:tab', (payload) => focusTab(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('tabs:focus:tab-last', (payload) => focusLastTab(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('tabs:navigate:previous', (payload) =>
-    navigatePreviousTab(workspaceStore.value?.workspace ?? null, payload),
-  )
-  eventBus.on('tabs:navigate:next', (payload) => navigateNextTab(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('tabs:update:tabs', (payload) => updateTabs(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:focus:tab', async (payload) => {
+    focusTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
+  eventBus.on('tabs:focus:tab-last', async (payload) => {
+    focusLastTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
+  eventBus.on('tabs:navigate:previous', async (payload) => {
+    navigatePreviousTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
+  eventBus.on('tabs:navigate:next', async (payload) => {
+    navigateNextTab(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
+  eventBus.on('tabs:update:tabs', async (payload) => {
+    updateTabs(workspaceStore.value?.workspace ?? null, payload)
+    await navigateToCurrentTab()
+  })
 }
