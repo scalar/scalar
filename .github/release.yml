@@ -1,0 +1,5 @@
+changelog:
+  exclude:
+    labels:
+      - dependencies # Renovate
+      - release # Changeset
