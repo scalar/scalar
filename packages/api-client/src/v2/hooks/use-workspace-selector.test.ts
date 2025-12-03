@@ -7,7 +7,6 @@ import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persist
 import { flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 
-import { ROUTE_QUERIES } from '@/v2/features/app/helpers/routes'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 
 const push = vi.fn()
@@ -51,7 +50,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
 
     const result = await loadWorkspace('non-existent-workspace')
 
-    expect(result).toBe(false)
+    expect(result.success).toBe(false)
     expect(store.value).toBeNull()
   })
 
@@ -69,7 +68,7 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
 
     const result = await loadWorkspace('some-workspace')
 
-    expect(result).toBe(true)
+    expect(result.success).toBe(true)
     expect(store.value).not.toBeNull()
     expect(activeWorkspace.value).toEqual({
       id: 'some-workspace',
@@ -105,7 +104,6 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     expect(push).toHaveBeenCalledWith({
       name: 'workspace.environment',
       params: { workspaceSlug: 'some-workspace' },
-      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: 'true' },
     })
   })
 
@@ -126,7 +124,6 @@ describe('useWorkspaceSelector', { concurrent: false, sequential: false, timeout
     expect(push).toHaveBeenCalledWith({
       name: 'workspace.environment',
       params: { workspaceSlug: 'new-workspace' },
-      query: { [ROUTE_QUERIES.LOAD_FROM_SESSION]: undefined },
     })
 
     // Check that the workspace was persisted
