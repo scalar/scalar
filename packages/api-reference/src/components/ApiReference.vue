@@ -446,7 +446,7 @@ const changeSelectedDocument = async (
     ...configurationOverrides.value,
   }
 
-  // Store `onDocumentSelect` await its execution later before calling `onLoaded`
+  // Store `onDocumentSelect` result to await its execution later, before calling `onLoaded`
   const onDocumentSelectPromise = config.onDocumentSelect?.()
 
   // Set the active slug and update any routing
