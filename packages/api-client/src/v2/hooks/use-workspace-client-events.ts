@@ -294,7 +294,21 @@ export const useWorkspaceClientEvents = ({
       }
     }),
   )
-  eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
+  eventBus.on('operation:update:path', (payload) =>
+    updateOperationPath(document.value, workspaceStore.value, payload, (success) => {
+      // Lets redirect to the new example if the mutation was successful
+      if (success) {
+        router.replace({
+          name: 'example',
+          params: {
+            method: payload.meta.method,
+            pathEncoded: encodeURIComponent(payload.payload.path),
+            exampleName: payload.meta.exampleKey,
+          },
+        })
+      }
+    }),
+  )
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
   eventBus.on('operation:delete:operation', (payload) => {
     deleteOperation(workspaceStore.value, payload)

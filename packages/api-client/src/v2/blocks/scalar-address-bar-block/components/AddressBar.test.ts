@@ -32,8 +32,22 @@ describe('AddressBar', () => {
   /** Creates an operation entries map for testing conflicts */
   const createOperationEntriesMap = (entries: Array<{ path: string; method: string }> = []): OperationEntriesMap => {
     const map: OperationEntriesMap = new Map()
-    entries.forEach(({ path, method }) => {
-      map.set(`${path}|${method}`, { path, method })
+    entries.forEach(({ path, method }, index) => {
+      const mockEntry = {
+        id: `test-operation-${index}`,
+        title: `${method.toUpperCase()} ${path}`,
+        type: 'operation' as const,
+        ref: `#/paths${path}/${method}`,
+        method: method as HttpMethod,
+        path,
+        parent: {
+          id: 'test-document',
+          title: 'Test Document',
+          type: 'document' as const,
+          name: 'Test Document',
+        },
+      }
+      map.set(`${path}|${method}`, [mockEntry])
     })
     return map
   }
@@ -474,6 +488,144 @@ describe('AddressBar', () => {
        */
       errorMessage = wrapper.find('.text-c-danger')
       expect(errorMessage.exists()).toBe(false)
+    })
+  })
+
+  describe('handleMethodChange', () => {
+    it('allows changing to the same method without triggering a conflict', async () => {
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const getOption = { id: 'get', label: 'GET', color: 'text-method-get' }
+      await listbox.vm.$emit('update:modelValue', getOption)
+      await nextTick()
+
+      /**
+       * Changing to the same method should emit update:method
+       * because the condition checks method !== newMethod.
+       */
+      const emitted = wrapper.emitted('update:method')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.[0]).toEqual([{ value: 'get' }])
+    })
+  })
+
+  describe('handlePathUpdate', () => {
+    it('does not emit update:path when updating to a conflicting path', async () => {
+      const operationEntriesMap = createOperationEntriesMap([
+        { path: '/api/users', method: 'get' },
+        { path: '/api/products', method: 'get' },
+      ])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '/api/users')
+      await nextTick()
+
+      /**
+       * The update:path event should NOT be emitted due to conflict.
+       */
+      const emitted = wrapper.emitted('update:path')
+      expect(emitted).toBeFalsy()
+
+      /**
+       * conflict should be set with the conflicting path.
+       */
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.conflict?.path).toBe('/api/users')
+    })
+
+    it('allows updating to the same path without triggering a conflict', async () => {
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '/api/test')
+      await nextTick()
+
+      /**
+       * Updating to the same path should emit update:path
+       * because the condition checks newPath !== path.
+       */
+      const emitted = wrapper.emitted('update:path')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.[0]).toEqual([{ value: '/api/test' }])
+    })
+
+    it('handles empty path gracefully', async () => {
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '')
+      await nextTick()
+
+      /**
+       * Empty path should be allowed and emit update:path.
+       */
+      const emitted = wrapper.emitted('update:path')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.[0]).toEqual([{ value: '' }])
+
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.conflict).toBeNull()
+    })
+
+    it('handles paths with special characters and detects conflicts', async () => {
+      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/users/{id}', method: 'get' }])
+
+      const { wrapper } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        operationEntriesMap,
+      })
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+
+      /**
+       * Update to a path with special characters that does not conflict.
+       */
+      await codeInput.vm.$emit('update:modelValue', '/api/users/{name}')
+      await nextTick()
+
+      const emitted = wrapper.emitted('update:path')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.[0]).toEqual([{ value: '/api/users/{name}' }])
+
+      /**
+       * Update to a path that does conflict.
+       */
+      await codeInput.vm.$emit('update:modelValue', '/api/users/{id}')
+      await nextTick()
+
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.conflict).toEqual({ method: 'get', path: '/api/users/{id}' })
     })
   })
 })
