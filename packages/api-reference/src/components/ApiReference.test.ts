@@ -238,6 +238,85 @@ describe('multiple configurations', () => {
 
     wrapper.unmount()
   })
+
+  it('should fire `onDocumentSelect` then `onLoaded`', async () => {
+    const onDocumentSelect = vi.fn()
+    const onLoaded = vi.fn()
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          onDocumentSelect,
+          onLoaded,
+
+          sources: [
+            {
+              slug: 'my-api-1',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #1',
+                  version: '1.0.0',
+                },
+              },
+            },
+            {
+              slug: 'my-api-2',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #2',
+                  version: '1.0.0',
+                },
+              },
+            },
+          ],
+        },
+      },
+    })
+
+    // Wait for the API reference to be rendered
+    await wrapper.vm.$nextTick()
+
+    // onDocumentSelect should be called after API reference is loaded
+    expect(onDocumentSelect).toHaveBeenCalledOnce()
+
+    // onLoaded should not have been called yet
+    expect(onLoaded).not.toHaveBeenCalled()
+
+    // resolve document load promises
+    await flushPromises()
+
+    // now onLoaded should have been called
+    expect(onLoaded).toHaveBeenCalledOnce()
+
+    // Check whether it renders the Content component
+    expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+
+    // Reset mocks
+    onDocumentSelect.mockClear()
+    onLoaded.mockClear()
+
+    // Ensure the select is rendered
+    expect(documentSelector.exists()).toBe(true)
+
+    await documentSelector.vm.$emit('update:modelValue', 'my-api-2')
+    await wrapper.vm.$nextTick()
+
+    // onDocumentSelect should be called after choosing another document
+    expect(onDocumentSelect).toHaveBeenCalledOnce()
+    expect(onLoaded).not.toHaveBeenCalledOnce()
+
+    // resolve promises loading the document
+    await flushPromises()
+
+    // now onLoaded should have been called
+    expect(onLoaded).toHaveBeenCalledOnce()
+
+    wrapper.unmount()
+  })
 })
 
 describe('circular documents', () => {

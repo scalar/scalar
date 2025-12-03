@@ -446,7 +446,8 @@ const changeSelectedDocument = async (
     ...configurationOverrides.value,
   }
 
-  await config.onDocumentSelect?.()
+  // Store `onDocumentSelect` await its execution later before calling `onLoaded`
+  const onDocumentSelectPromise = config.onDocumentSelect?.()
 
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
@@ -472,9 +473,13 @@ const changeSelectedDocument = async (
             config: mapConfiguration(config),
           },
     )
-
-    void config.onLoaded?.(slug)
   }
+
+  // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`
+  void (async () => {
+    await onDocumentSelectPromise
+    void config.onLoaded?.(slug)
+  })()
 
   /** When loading to a specified element we need to freeze and scroll */
   if (elementId && elementId !== slug) {
