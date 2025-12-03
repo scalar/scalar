@@ -1,5 +1,6 @@
-import { objectToString } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { objectToString } from '@/libs/javascript'
 
 /**
  * node/ofetch

@@ -1,10 +1,17 @@
-import { needsQuotes } from './needsQuotes'
+/**
+ * Checks if a key needs to be wrapped in quotes when used as an object property
+ *
+ * Returns true if the key contains spaces or hyphens
+ */
+function needsQuotes(key: string) {
+  return /\s|-/.test(key)
+}
 
 /**
  * Represents a raw code that should not be quoted, e.g. `JSON.stringify(...)`.
  * If consists of multiple lines, they will be indented properly.
  */
-export class Unquoted {
+export class Raw {
   constructor(public value: string) {}
 }
 
@@ -25,7 +32,7 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
   for (const [key, value] of Object.entries(obj)) {
     const formattedKey = needsQuotes(key) ? `'${key}'` : key
 
-    if (value instanceof Unquoted) {
+    if (value instanceof Raw) {
       const lines = value.value.split('\n')
       let formattedValue = `${value.value}`
 

@@ -540,7 +540,7 @@ curl_close($ch);`)
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-  'key' => '"quotes" and \\backslashes\\',
+  'key' => '"quotes" and \\\\backslashes\\\\',
   'nested' => [
     'array' => [
       'item1',
