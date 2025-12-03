@@ -49,7 +49,7 @@ export const updateTabs = (workspace: Workspace | null, payload: TabEvents['tabs
     workspace['x-scalar-tabs'] = payload['x-scalar-tabs']
   }
 
-  if (payload['x-scalar-active-tab']) {
+  if (payload['x-scalar-active-tab'] !== undefined) {
     workspace['x-scalar-active-tab'] = payload['x-scalar-active-tab']
   }
 }
@@ -83,25 +83,32 @@ export const addTab = (workspace: Workspace | null, _payload: TabEvents['tabs:ad
  * Prevents closing if only one tab remains, to ensure the user always has a tab open.
  * Adjusts the active index if needed to keep it in bounds.
  */
-export const closeTab = (workspace: Workspace | null, _payload: TabEvents['tabs:close:tab']): boolean => {
+export const closeTab = (workspace: Workspace | null, payload: TabEvents['tabs:close:tab']): boolean => {
+  const getInputIndex = (): number => {
+    if ('event' in payload) {
+      return payload.event.code.startsWith('Digit') ? Number.parseInt(payload.event.key, 10) - 1 : Number.NaN
+    }
+    return payload.index
+  }
+
   if (!hasValidTabs(workspace)) {
     return false
   }
 
   const tabs = getUnpackedTabs(workspace)
-  const activeIndex = getActiveIndex(workspace)
+  const index = getInputIndex()
 
   if (tabs.length <= 1) {
     return false
   }
 
-  workspace['x-scalar-tabs'] = tabs.filter((_, index) => index !== activeIndex)
+  workspace['x-scalar-tabs'] = tabs.filter((_, i) => i !== index)
 
   /**
    * If we closed a tab at the end, the active index needs to move back.
    * This ensures the active tab stays within bounds after removal.
    */
-  if (activeIndex >= tabs.length - 1) {
+  if (index >= tabs.length - 1) {
     workspace['x-scalar-active-tab'] = tabs.length - 2
   }
 
