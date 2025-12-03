@@ -1,3 +1,5 @@
+import type { Target } from '@scalar/types/snippetz'
+
 import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
 import { clojureCljhttp } from '@/plugins/clojure/clj_http'
 import { csharpHttpclient } from '@/plugins/csharp/httpclient'
@@ -26,9 +28,9 @@ import { phpCurl } from '@/plugins/php/curl'
 import { phpGuzzle } from '@/plugins/php/guzzle'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
+import { pythonHttpxAsync, pythonHttpxSync } from '@/plugins/python/httpx'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
-import { pythonHttpxSync, pythonHttpxAsync } from '@/plugins/python/httpx'
 import { rHttr } from '@/plugins/r/httr'
 import { rubyNative } from '@/plugins/ruby/native'
 import { rustReqwest } from '@/plugins/rust/reqwest'
@@ -36,7 +38,6 @@ import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
 import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
-import type { Target } from '@scalar/types/snippetz'
 
 /**
  * All available clients

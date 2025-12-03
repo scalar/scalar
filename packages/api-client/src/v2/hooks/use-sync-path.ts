@@ -1,3 +1,4 @@
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -9,9 +10,11 @@ import type { UseTabsReturn } from './use-tabs'
 export const useSyncPath = ({
   workspaceSelectorState,
   tabsState,
+  eventBus,
 }: {
   workspaceSelectorState: UseWorkspaceSelectorReturn
   tabsState: UseTabsReturn
+  eventBus: WorkspaceEventBus
 }) => {
   const route = useRoute()
   const router = useRouter()
@@ -97,6 +100,14 @@ export const useSyncPath = ({
         await router.replace(tab.path)
       }
 
+      // Initialize the tabs if they does not exist
+      if (!client.workspace['x-scalar-tabs']) {
+        eventBus.emit('tabs:update:tabs', {
+          'x-scalar-tabs': [tabsState.createTabFromCurrentRoute()],
+          'x-scalar-active-tab': 0,
+        })
+      }
+
       isLoading.value = false
       return
     }
@@ -130,7 +141,7 @@ export const useSyncPath = ({
 
       // If switching to a new workspace, handle loading and navigation
       if (typeof slug === 'string' && slug !== workspaceSelectorState.activeWorkspace.value?.id) {
-        await changeWorkspace(slug)
+        return await changeWorkspace(slug)
       }
 
       // For any route change (including in the same workspace), sync tab state with the route

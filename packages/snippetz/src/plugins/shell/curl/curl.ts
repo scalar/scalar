@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { escapeSingleQuotes } from '@/libs/shell'
+
 /**
  * shell/curl
  */
@@ -44,13 +46,15 @@ export const shellCurl: Plugin = {
 
     // Basic Auth
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      parts.push(`--user '${configuration.auth.username}:${configuration.auth.password}'`)
+      const authValue = escapeSingleQuotes(`${configuration.auth.username}:${configuration.auth.password}`)
+      parts.push(`--user '${authValue}'`)
     }
 
     // Headers
     if (normalizedRequest.headers?.length) {
       normalizedRequest.headers.forEach((header) => {
-        parts.push(`--header '${header.name}: ${header.value}'`)
+        const headerValue = escapeSingleQuotes(`${header.name}: ${header.value}`)
+        parts.push(`--header '${headerValue}'`)
       })
 
       // Add compressed flag if Accept-Encoding header includes compression
@@ -70,7 +74,8 @@ export const shellCurl: Plugin = {
           return `${encodedName}=${encodedValue}`
         })
         .join('; ')
-      parts.push(`--cookie '${cookieString}'`)
+      const escapedCookieString = escapeSingleQuotes(cookieString)
+      parts.push(`--cookie '${escapedCookieString}'`)
     }
 
     // Body
@@ -81,29 +86,38 @@ export const shellCurl: Plugin = {
           try {
             const jsonData = JSON.parse(normalizedRequest.postData.text)
             const prettyJson = JSON.stringify(jsonData, null, 2)
-            parts.push(`--data '${prettyJson}'`)
+            const escapedJson = escapeSingleQuotes(prettyJson)
+            parts.push(`--data '${escapedJson}'`)
           } catch {
             // If JSON parsing fails, use the original text
-            parts.push(`--data '${normalizedRequest.postData.text}'`)
+            const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+            parts.push(`--data '${escapedText}'`)
           }
         }
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        parts.push(`--data-binary '${normalizedRequest.postData.text}'`)
+        const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+        parts.push(`--data-binary '${escapedText}'`)
       } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
       ) {
         // Handle URL-encoded form data
         normalizedRequest.postData.params.forEach((param) => {
-          parts.push(`--data-urlencode '${encodeURIComponent(param.name)}=${param.value}'`)
+          const escapedValue = escapeSingleQuotes(param.value ?? '')
+          const encodedName = encodeURIComponent(param.name)
+          const escapedName = escapeSingleQuotes(encodedName)
+          parts.push(`--data-urlencode '${escapedName}=${escapedValue}'`)
         })
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         // Handle multipart form data
         normalizedRequest.postData.params.forEach((param) => {
+          const escapedName = escapeSingleQuotes(param.name)
           if (param.fileName !== undefined) {
-            parts.push(`--form '${param.name}=@${param.fileName}'`)
+            const escapedFileName = escapeSingleQuotes(param.fileName)
+            parts.push(`--form '${escapedName}=@${escapedFileName}'`)
           } else {
-            parts.push(`--form '${param.name}=${param.value}'`)
+            const escapedValue = escapeSingleQuotes(param.value ?? '')
+            parts.push(`--form '${escapedName}=${escapedValue}'`)
           }
         })
       } else {
@@ -111,9 +125,11 @@ export const shellCurl: Plugin = {
         try {
           const jsonData = JSON.parse(normalizedRequest.postData.text ?? '')
           const prettyJson = JSON.stringify(jsonData, null, 2)
-          parts.push(`--data '${prettyJson}'`)
+          const escapedJson = escapeSingleQuotes(prettyJson)
+          parts.push(`--data '${escapedJson}'`)
         } catch {
-          parts.push(`--data '${normalizedRequest.postData.text}'`)
+          const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+          parts.push(`--data '${escapedText}'`)
         }
       }
     }

@@ -1,6 +1,7 @@
-import { createSearchParams } from '@/utils/create-search-params'
-import { objectToString, Unquoted } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { Raw, objectToString } from '@/libs/javascript'
+import { createSearchParams } from '@/libs/http'
 
 /**
  * js/fetch
@@ -63,8 +64,8 @@ export const jsFetch: Plugin = {
 
       if (mimeType === 'application/json' && text) {
         try {
-          options.body = new Unquoted(`JSON.stringify(${objectToString(JSON.parse(text))})`)
-        } catch (e) {
+          options.body = new Raw(`JSON.stringify(${objectToString(JSON.parse(text))})`)
+        } catch {
           options.body = text
         }
       } else if (mimeType === 'multipart/form-data' && params) {
@@ -77,10 +78,10 @@ export const jsFetch: Plugin = {
           }
         })
         prefix += '\n'
-        options.body = new Unquoted('formData')
+        options.body = new Raw('formData')
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
         const form = Object.fromEntries(params.map((p) => [p.name, p.value]))
-        options.body = new Unquoted(`new URLSearchParams(${objectToString(form)})`)
+        options.body = new Raw(`new URLSearchParams(${objectToString(form)})`)
       } else {
         options.body = normalizedRequest.postData.text
       }

@@ -19,7 +19,6 @@
     "packages/react-renderer/**",
     "packages/sidebar/**",
     "packages/snippetz/**",
-    "packages/themes/**",
     "packages/ts-to-openapi/**",
     "packages/use-codemirror/**",
     "packages/use-hooks/**",

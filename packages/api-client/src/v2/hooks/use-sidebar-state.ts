@@ -7,16 +7,16 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-export type GetEntryByLocation = (location: {
-  document: string
-  path?: string
-  method?: HttpMethod
-  example?: string
-}) =>
-  | (TraversedEntry & {
-      parent?: TraversedEntry | undefined
-    })
-  | undefined
+export type UseSidebarStateReturn = {
+  handleSelectItem: (id: string) => void
+  state: ReturnType<typeof createSidebarState<TraversedEntry>>
+  getEntryByLocation: (location: {
+    document: string
+    path?: string
+    method?: HttpMethod
+    example?: string
+  }) => TraversedEntry | undefined
+}
 
 /**
  * useSidebarState - Custom hook to manage the sidebar state and navigation logic in the Scalar API client
@@ -48,7 +48,7 @@ export const useSidebarState = ({
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
   exampleName: MaybeRefOrGetter<string | undefined>
-}) => {
+}): UseSidebarStateReturn => {
   const router = useRouter()
 
   const entries = computed(() => {
@@ -144,7 +144,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation: GetEntryByLocation = (location) => {
+  const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(generateId(location))
 
@@ -273,7 +273,7 @@ export const useSidebarState = ({
 
   return {
     handleSelectItem,
-    sidebarState: state,
+    state,
     getEntryByLocation,
   }
 }

@@ -106,7 +106,7 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
 useColorMode({ workspaceStore: store })
 
 /** Sidebar state and selection handling. */
-const { handleSelectItem, sidebarState, getEntryByLocation } = useSidebarState({
+const sidebarState = useSidebarState({
   workspaceStore: store,
   workspaceSlug,
   documentSlug,
@@ -118,12 +118,12 @@ const { handleSelectItem, sidebarState, getEntryByLocation } = useSidebarState({
 /** Desktop tabs state and actions (only used in desktop layout) */
 const tabsState = useTabs({
   workspaceStore: store,
+  getEntryByLocation: sidebarState.getEntryByLocation,
   eventBus,
   workspaceSlug,
   documentSlug,
   path,
   method,
-  getEntryByLocation,
 })
 
 const { isLoading: isSyncPathLoading } = useSyncPath({
@@ -139,9 +139,9 @@ useWorkspaceClientEvents({
   eventBus,
   document,
   workspaceStore: store,
-  navigateTo: handleSelectItem,
   isSidebarOpen,
   commandPaletteState,
+  sidebarState,
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -287,14 +287,14 @@ const createWorkspaceModalState = useModal()
           :eventBus
           :isWorkspaceOpen
           :layout
-          :sidebarState
+          :sidebarState="sidebarState.state"
           :sidebarWidth
           :store
           :workspaces
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="handleSelectWorkspace"
-          @selectItem="handleSelectItem"
+          @selectItem="sidebarState.handleSelectItem"
           @update:sidebarWidth="handleSidebarWidthUpdate" />
 
         <!-- Create workspace modal -->

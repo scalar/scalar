@@ -1,7 +1,7 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { createSearchParams } from '@/utils/create-search-params'
+import { createSearchParams } from '@/libs/http'
 
 /**
  * csharp/httpclient

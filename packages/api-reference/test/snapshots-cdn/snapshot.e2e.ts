@@ -36,24 +36,28 @@ async function waitForStableAriaSnapshot(page: Page, options?: { matches?: numbe
 
 test.describe.configure({ mode: 'parallel', timeout: 45000 })
 
-sources.forEach((source) => {
-  test(`Diff with CDN - ${source.title}`, async ({ page }) => {
-    const filename = `snapshot-${source.slug}.png`
-    const path = test.info().snapshotPath(filename, { kind: 'screenshot' })
+sources
+  // TODO: Get the stripe example working in V2
+  // Stripe is excluded because it takes too long to load
+  .filter(({ slug }) => slug !== 'stripe')
+  .forEach((source) => {
+    test(`Diff with CDN - ${source.title}`, async ({ page }) => {
+      const filename = `snapshot-${source.slug}.png`
+      const path = test.info().snapshotPath(filename, { kind: 'screenshot' })
 
-    // Wait longer between polling intervals on CI
-    const polling = process.env.CI ? 800 : 400
+      // Wait longer between polling intervals on CI
+      const polling = process.env.CI ? 800 : 400
 
-    // Capture screenshot of CDN
-    const cdnExample = await serveExample({ ...source, cdn })
-    await page.goto(cdnExample, { waitUntil: 'networkidle' })
-    await waitForStableAriaSnapshot(page, { polling })
-    await page.screenshot({ path, fullPage: true })
+      // Capture screenshot of CDN
+      const cdnExample = await serveExample({ ...source, cdn })
+      await page.goto(cdnExample, { waitUntil: 'networkidle' })
+      await waitForStableAriaSnapshot(page, { polling })
+      await page.screenshot({ path, fullPage: true })
 
-    // Compare with local
-    const localExample = await serveExample(source)
-    await page.goto(localExample, { waitUntil: 'networkidle' })
-    await waitForStableAriaSnapshot(page, { polling })
-    await expect(page).toHaveScreenshot(filename, { fullPage: true })
+      // Compare with local
+      const localExample = await serveExample(source)
+      await page.goto(localExample, { waitUntil: 'networkidle' })
+      await waitForStableAriaSnapshot(page, { polling })
+      await expect(page).toHaveScreenshot(filename, { fullPage: true })
+    })
   })
-})

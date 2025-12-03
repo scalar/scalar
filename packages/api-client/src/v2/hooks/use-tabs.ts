@@ -2,11 +2,11 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
-import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, ref, toValue } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
-import type { GetEntryByLocation } from '@/v2/hooks/use-sidebar-state'
+import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 
 /** Constants for workspace store keys */
 const TABS_KEY = 'x-scalar-tabs' as const
@@ -27,7 +27,7 @@ type UseTabsParams = {
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
-  getEntryByLocation: GetEntryByLocation
+  getEntryByLocation: UseSidebarStateReturn['getEntryByLocation']
 }
 
 /**
@@ -43,7 +43,6 @@ export const useTabs = ({
   documentSlug,
   path,
   method,
-  eventBus,
 }: UseTabsParams): UseTabsReturn => {
   const route = useRoute()
 
@@ -96,25 +95,6 @@ export const useTabs = ({
       console.error('Failed to copy URL to clipboard:', error)
     }
   }
-
-  /** Initialize the tabs when the workspace store changes */
-  watch(
-    () => workspaceStore.value,
-    () => {
-      if (!workspaceStore.value) {
-        return
-      }
-
-      // If the tabs are not set, create a new tab
-      if (!workspaceStore.value.workspace['x-scalar-tabs']) {
-        eventBus.emit('tabs:update:tabs', {
-          'x-scalar-tabs': [createTabFromCurrentRoute()],
-          'x-scalar-active-tab': 0,
-        })
-      }
-    },
-    { immediate: true },
-  )
 
   return {
     tabs,
