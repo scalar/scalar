@@ -25,8 +25,8 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -47,14 +47,11 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/types": "workspace:*",
     "nanoid": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:*"
   }
 }
