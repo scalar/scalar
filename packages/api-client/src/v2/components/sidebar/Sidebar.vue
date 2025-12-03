@@ -97,7 +97,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 v-if="layout === 'desktop'"
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
-                @createWorkspace="emit('create:workspace')"
+                @create:workspace="emit('create:workspace')"
                 @select:workspace="(id) => emit('select:workspace', id)" />
 
               <!-- Toggle the sidebar -->

@@ -17,9 +17,11 @@ vi.mock('vue-router', () => ({
   },
   useRoute: () => ({
     params: { workspaceSlug: 'default', documentSlug: 'doc1' },
+    query: {},
   }),
   useRouter: () => ({
     push: vi.fn(),
+    replace: vi.fn(),
   }),
 }))
 

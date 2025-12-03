@@ -29,10 +29,12 @@ import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
+import { useSyncPath } from '@/v2/hooks/use-sync-path'
 import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
+import { useTabs } from '../../hooks/use-tabs'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
@@ -95,10 +97,10 @@ const method = computed(() => {
 const exampleName = computed(() => getRouteParam('exampleName'))
 
 // Workspace-related state and utilities derived from the workspaceSlug route param.
+const workspaceSelectorState = useWorkspaceSelector()
+
 const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
-  useWorkspaceSelector({
-    workspaceId: workspaceSlug,
-  })
+  workspaceSelectorState
 
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode({ workspaceStore: store })
@@ -111,6 +113,23 @@ const sidebarState = useSidebarState({
   path,
   method,
   exampleName,
+})
+
+/** Desktop tabs state and actions (only used in desktop layout) */
+const tabsState = useTabs({
+  workspaceStore: store,
+  getEntryByLocation: sidebarState.getEntryByLocation,
+  eventBus,
+  workspaceSlug,
+  documentSlug,
+  path,
+  method,
+})
+
+const { isLoading: isSyncPathLoading } = useSyncPath({
+  workspaceSelectorState,
+  tabsState,
+  eventBus,
 })
 
 /** Command palette state and actions */
@@ -241,11 +260,15 @@ const createWorkspaceModalState = useModal()
 </script>
 
 <template>
-  <template v-if="store !== null && activeWorkspace !== null">
+  <template
+    v-if="store !== null && activeWorkspace !== null && !isSyncPathLoading">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
       <!-- Desktop App Tabs -->
-      <DesktopTabs v-if="layout === 'desktop'" />
+      <DesktopTabs
+        v-if="layout === 'desktop'"
+        :eventBus="eventBus"
+        :tabsState="tabsState" />
 
       <!-- Web App Top Nav -->
       <WebTopNav

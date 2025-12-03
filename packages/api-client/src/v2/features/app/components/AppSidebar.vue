@@ -122,7 +122,7 @@ const isDroppable = (
     :layout="layout"
     :sidebarState="sidebarState"
     :workspaces="workspaces"
-    @createWorkspace="emit('create:workspace')"
+    @create:workspace="emit('create:workspace')"
     @reorder="
       (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
     "

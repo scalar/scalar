@@ -144,7 +144,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation = (location: { document: string; path?: string; method?: HttpMethod; example?: string }) => {
+  const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(generateId(location))
 

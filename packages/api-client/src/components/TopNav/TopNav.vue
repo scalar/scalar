@@ -141,14 +141,14 @@ function removeNavItem(idx: number) {
   handleNavRoute()
 }
 
-const copyUrl = (idx: number) => {
+const copyUrl = async (idx: number) => {
   if (!topNavItems[idx]?.path) {
     return
   }
 
   const fullUrl = new URL(window.location.href)
   fullUrl.pathname = topNavItems[idx].path
-  copyToClipboard(fullUrl.toString())
+  await copyToClipboard(fullUrl.toString())
 }
 
 const closeOtherTabs = (idx: number) => {

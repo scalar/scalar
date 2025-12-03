@@ -84,6 +84,9 @@ export const createSidebarState = <T extends { id: string }>(
   // Reactive record of expanded item ids
   const expandedItems = ref<Record<string, boolean>>({})
 
+  // Lowest level selected item
+  const selectedItem = ref<string | null>(null)
+
   /**
    * Selects the given item by id, and recursively marks all its parent items as selected.
    * Triggers optional lifecycle hooks before and after selection.
@@ -118,6 +121,7 @@ export const createSidebarState = <T extends { id: string }>(
 
     // Clear previous selection
     selectedItems.value = {}
+    selectedItem.value = id
 
     // If id is null, do not select anything
     // We already cleared the selection above
@@ -198,6 +202,7 @@ export const createSidebarState = <T extends { id: string }>(
     index,
     selectedItems,
     expandedItems,
+    selectedItem,
     setSelected,
     setExpanded,
     isExpanded,

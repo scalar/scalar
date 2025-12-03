@@ -169,5 +169,15 @@ export {
   updateServer,
   updateServerVariables,
 } from './server'
+export {
+  addTab,
+  closeOtherTabs,
+  closeTab,
+  focusLastTab,
+  focusTab,
+  navigateNextTab,
+  navigatePreviousTab,
+  updateTabs,
+} from './tabs'
 export { createTag } from './tag'
 export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'

@@ -1,17 +1,27 @@
+import type { XScalarTabs } from '@/schemas/extensions/workspace/x-sclar-tabs'
+
 /** Event definitions to control the tabs */
 export type TabEvents = {
   /**
+   * Update the tabs of the workspace
+   */
+  'tabs:update:tabs': XScalarTabs
+  /**
    * Add a new tab
    */
-  'tabs:add:tab': {
-    event: KeyboardEvent
-  }
+  'tabs:add:tab':
+    | {
+        event: KeyboardEvent
+      }
+    | undefined
   /**
    * Closes the current tab
    */
-  'tabs:close:tab': {
-    event: KeyboardEvent
-  }
+  'tabs:close:tab': { event: KeyboardEvent } | { index: number }
+  /**
+   * Closes all other tabs except the one at the given index
+   */
+  'tabs:close:other-tabs': { index: number }
   /**
    * Navigates to the previous tab
    */
@@ -27,9 +37,7 @@ export type TabEvents = {
   /**
    * Jumps to a specific tab, we can grab the number from the keyboard event
    */
-  'tabs:focus:tab': {
-    event: KeyboardEvent
-  }
+  'tabs:focus:tab': { event: KeyboardEvent } | { index: number }
   /**
    * Focuses the last tab
    */
