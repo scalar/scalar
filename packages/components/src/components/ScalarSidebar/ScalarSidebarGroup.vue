@@ -33,14 +33,14 @@ import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'li', controlled } = defineProps<ScalarSidebarGroupProps>()
+const { controlled, is = 'li' } = defineProps<ScalarSidebarGroupProps>()
 
-defineEmits<{
+const emit = defineEmits<{
   /** Emitted when the group toggle button is clicked */
   (e: 'click', event: MouseEvent): void
 }>()
 
-const model = defineModel<boolean>('open', { default: false })
+const open = defineModel<boolean>('open', { default: false })
 
 defineSlots<ScalarSidebarGroupSlots>()
 
@@ -48,6 +48,16 @@ const { level } = useSidebarGroups({ increment: true })
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
+
+/** Handle the click event for the group toggle */
+const handleClick = (event: MouseEvent) => {
+  // Bubble up the click event
+  emit('click', event)
+  if (!controlled) {
+    // Only toggle the open state if the group is uncontrolled
+    open.value = !open.value
+  }
+}
 </script>
 <template>
   <component
@@ -56,16 +66,16 @@ const { cx } = useBindCx()
     <slot
       :level="level"
       name="button"
-      :open="model">
+      :open>
       <ScalarSidebarButton
         is="button"
         :active
-        :aria-expanded="model"
+        :aria-expanded="open"
         class="group/group-button"
         :disabled
         :indent="level"
         :selected
-        @click="($emit('click', $event), !controlled && (model = !model))">
+        @click="handleClick">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"
@@ -74,10 +84,10 @@ const { cx } = useBindCx()
         <template #icon>
           <slot
             name="icon"
-            :open="model">
+            :open>
             <ScalarSidebarGroupToggle
               class="text-c-3"
-              :open="model" />
+              :open />
           </slot>
         </template>
         <template
@@ -85,17 +95,17 @@ const { cx } = useBindCx()
           #aside>
           <slot
             name="aside"
-            :open="model" />
+            :open />
         </template>
-        <slot :open="model" />
+        <slot :open />
       </ScalarSidebarButton>
     </slot>
     <ul
-      v-if="model"
+      v-if="open"
       class="group/items flex flex-col gap-px">
       <slot
         name="items"
-        :open="model" />
+        :open />
     </ul>
   </component>
 </template>
