@@ -473,7 +473,7 @@ const changeSelectedDocument = async (
           },
     )
 
-    await config.onLoaded?.(slug)
+    void config.onLoaded?.(slug)
   }
 
   /** When loading to a specified element we need to freeze and scroll */
