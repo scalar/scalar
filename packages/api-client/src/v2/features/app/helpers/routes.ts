@@ -38,10 +38,6 @@ export type CollectionProps = RouteProps &
       }
   )
 
-export const ROUTE_QUERIES = {
-  LOAD_FROM_SESSION: 'loadFromSession' as const,
-} as const
-
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
