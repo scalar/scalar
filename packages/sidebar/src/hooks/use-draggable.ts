@@ -2,18 +2,27 @@ import { cva } from '@scalar/use-hooks/useBindCx'
 import { type MaybeRef, type Ref, computed, ref, toValue } from 'vue'
 
 /**
+ * Drag offset options
+ */
+export const DRAG_OFFSETS = [
+  'before', // Insert before the hovered item
+  'after', // Insert after the hovered item
+  'into', // Drop into the hovered item
+] as const
+
+/**
+ * Drag offsets
+ *
+ */
+export type DragOffset = (typeof DRAG_OFFSETS)[number] | null
+
+/**
  * Item you are currently dragging over
  */
 export type HoveredItem = {
   id: string
   parentId: string | null
-  /**
-   * Offset is used when adding back an item, also for the highlight classes
-   * 0 = above      | .dragover-above
-   * 1 = below      | .dragover-below
-   * 2 = as a child | .dragover-asChild
-   */
-  offset: number
+  offset: DragOffset
 }
 
 /**
@@ -38,15 +47,15 @@ const throttle = (callback: (...args: any) => void, limit: number) => {
   }
 }
 
-/** Draggable class variants to  */
+/** Draggable class variants to apply to the draggable element */
 const draggableVariants = cva({
-  base: 'relative after:absolute after:w-full after:block after:bg-blue after:opacity-15 after:pointer-events-none after:rounded',
+  base: 'relative after:absolute after:inset-x-0 after:block after:bg-blue after:opacity-15 after:pointer-events-none after:rounded',
   variants: {
     position: {
-      above: 'after:-top-0.25 after:h-0.75',
-      below: 'after:-bottom-0.25 after:h-0.75',
-      asChild: 'after:inset-0',
-    },
+      before: 'after:-top-0.5 after:h-0.75',
+      after: 'after:-bottom-0.5 after:h-0.75',
+      into: 'after:inset-0',
+    } as const satisfies Record<NonNullable<DragOffset>, string>,
   },
 })
 
@@ -119,7 +128,7 @@ export function useDraggable(options: UseDraggableOptions) {
   const parentId = computed(() => parentIds.at(-1) ?? null)
 
   /** Check if isDroppable guard */
-  const _isDroppable = (offset: number): boolean =>
+  const _isDroppable = (offset: DragOffset | null): boolean =>
     typeof isDroppable === 'function'
       ? isDroppable(draggingItem.value!, {
           id: id,
@@ -155,23 +164,23 @@ export function useDraggable(options: UseDraggableOptions) {
     const height = (ev.target as HTMLDivElement).offsetHeight
     const _floor = floor * height
     const _ceiling = ceiling * height
-    let offset = 3
+    let offset: DragOffset | null = null
 
     // handle negative offset to be previous offset
-    if (ev.offsetY <= 0 && !!previousOffset && previousOffset !== 3) {
+    if (ev.offsetY <= 0 && previousOffset && previousOffset !== 'after') {
       offset = previousOffset
     }
     // Above
     else if (ev.offsetY <= _floor) {
-      offset = 0
+      offset = 'before'
     }
     // Below
     else if (ev.offsetY >= _ceiling) {
-      offset = 1
+      offset = 'after'
     }
     // between
     else if (ev.offsetY > _floor && ev.offsetY < _ceiling) {
-      offset = 2
+      offset = 'into'
     }
 
     // Hover guard
@@ -203,10 +212,7 @@ export function useDraggable(options: UseDraggableOptions) {
   }
 
   const draggableClass = computed(() => {
-    const position =
-      id === hoveredItem.value?.id
-        ? (['above', 'below', 'asChild'][hoveredItem.value.offset] as 'above' | 'below' | 'asChild' | undefined)
-        : undefined
+    const position = id === hoveredItem.value?.id ? hoveredItem.value.offset : undefined
 
     if (!position) {
       return ''

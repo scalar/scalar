@@ -101,7 +101,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-2', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: 'doc-2', parentId: null }, { id: 'doc-1', parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
     expect(store.workspace['x-scalar-order']).toEqual(['doc-2', 'doc-1'])
@@ -124,7 +124,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 1 })
+    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 'after' })
 
     expect(result).toBe(true)
     expect(store.workspace['x-scalar-order']).toEqual(['doc-2', 'doc-1'])
@@ -137,7 +137,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 2 })
+    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 'into' })
 
     expect(result).toBe(false)
   })
@@ -154,7 +154,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: tagId, parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: tagId, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -181,10 +181,10 @@ describe('handleDragEnd', () => {
     store.buildSidebar('doc-1')
 
     // Check the order of the tags
-    const sidebarStructre = store.workspace.documents['doc-1']?.['x-scalar-navigation']
-    assert(sidebarStructre, 'Sidebar structure is required')
+    const sidebarStructure = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    assert(sidebarStructure, 'Sidebar structure is required')
 
-    const order = sidebarStructre.children?.map((child) => child.id)
+    const order = sidebarStructure.children?.map((child) => child.id)
     expect(order).toEqual([tagUsers.id, tagPets.id])
 
     const { handleDragEnd } = dragHandleFactory({
@@ -192,7 +192,10 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: tagPets.id, parentId: null }, { id: tagUsers.id, parentId: null, offset: 0 })
+    const result = handleDragEnd(
+      { id: tagPets.id, parentId: null },
+      { id: tagUsers.id, parentId: null, offset: 'before' },
+    )
 
     expect(result).toBe(true)
     const updatedDoc = store.workspace.documents['doc-1']
@@ -241,7 +244,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -258,7 +261,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: tag.id, parentId: null }, { id: tag.id, parentId: null, offset: 2 })
+    const result = handleDragEnd({ id: tag.id, parentId: null }, { id: tag.id, parentId: null, offset: 'into' })
 
     expect(result).toBe(false)
   })
@@ -294,7 +297,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: opPost.id, parentId: null }, { id: opGet.id, parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: opPost.id, parentId: null }, { id: opGet.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
     const tagObject = store.workspace.documents['doc-1']?.tags?.find((it) => it.name === 'users')
@@ -335,7 +338,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -424,7 +427,10 @@ describe('handleDragEnd', () => {
     })
 
     // Move the operation with circular ref from 'people' tag to 'animals' tag (offset: 2 = drop into)
-    const result = handleDragEnd({ id: operation.id, parentId: null }, { id: tagAnimals.id, parentId: null, offset: 2 })
+    const result = handleDragEnd(
+      { id: operation.id, parentId: null },
+      { id: tagAnimals.id, parentId: null, offset: 'into' },
+    )
 
     expect(result).toBe(true)
 
@@ -449,7 +455,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -461,7 +467,10 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'non-existent', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = handleDragEnd(
+      { id: 'non-existent', parentId: null },
+      { id: 'doc-1', parentId: null, offset: 'before' },
+    )
 
     expect(result).toBe(false)
   })
@@ -473,7 +482,10 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'non-existent', parentId: null, offset: 0 })
+    const result = handleDragEnd(
+      { id: 'doc-1', parentId: null },
+      { id: 'non-existent', parentId: null, offset: 'before' },
+    )
 
     expect(result).toBe(false)
   })
@@ -485,7 +497,7 @@ describe('handleDragEnd', () => {
       sidebarState,
     })
 
-    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = handleDragEnd({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -524,7 +536,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 0 })
+    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
   })
@@ -548,7 +560,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 2 })
+    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-2', parentId: null, offset: 'into' })
 
     expect(result).toBe(false)
   })
@@ -565,7 +577,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: tag.id, parentId: null, offset: 0 })
+    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: tag.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -590,7 +602,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 0 })
+    const result = isDroppable({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
   })
@@ -633,7 +645,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 0 })
+    const result = isDroppable({ id: tag1.id, parentId: null }, { id: tag2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -660,7 +672,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 0 })
+    const result = isDroppable({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
   })
@@ -685,7 +697,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 0 })
+    const result = isDroppable({ id: op1.id, parentId: null }, { id: op2.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -712,7 +724,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: example.id, parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = isDroppable({ id: example.id, parentId: null }, { id: 'doc-1', parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -724,7 +736,7 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'doc-1', parentId: null, offset: 'before' })
 
     expect(result).toBe(false)
   })
@@ -736,7 +748,10 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'non-existent', parentId: null }, { id: 'doc-1', parentId: null, offset: 0 })
+    const result = isDroppable(
+      { id: 'non-existent', parentId: null },
+      { id: 'doc-1', parentId: null, offset: 'before' },
+    )
 
     expect(result).toBe(false)
   })
@@ -748,7 +763,10 @@ describe('isDroppable', () => {
       sidebarState,
     })
 
-    const result = isDroppable({ id: 'doc-1', parentId: null }, { id: 'non-existent', parentId: null, offset: 0 })
+    const result = isDroppable(
+      { id: 'doc-1', parentId: null },
+      { id: 'non-existent', parentId: null, offset: 'before' },
+    )
 
     expect(result).toBe(false)
   })

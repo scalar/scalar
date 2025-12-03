@@ -12,6 +12,7 @@ export {
 export { generateReverseIndex } from './helpers/generate-reverse-index'
 export { getChildEntry } from './helpers/get-child-entry'
 export {
+  type DragOffset,
   type DraggingItem,
   type HoveredItem,
   useDraggable,

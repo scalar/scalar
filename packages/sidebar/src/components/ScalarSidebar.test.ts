@@ -486,7 +486,7 @@ describe('ScalarSidebar', () => {
       })
 
       const draggingItem: DraggingItem = { id: '1', parentId: null }
-      const hoveredItem: HoveredItem = { id: '2', offset: 0, parentId: null }
+      const hoveredItem: HoveredItem = { id: '2', offset: 'before', parentId: null }
 
       const sidebarItem = wrapper.findComponent(SidebarItem)
       expect(sidebarItem.exists()).toBe(true)
@@ -528,7 +528,7 @@ describe('ScalarSidebar', () => {
       })
 
       const draggingItem: DraggingItem = { id: 'item-a', parentId: null }
-      const hoveredItem: HoveredItem = { id: 'item-b', offset: 1, parentId: null }
+      const hoveredItem: HoveredItem = { id: 'item-b', offset: 'after', parentId: null }
 
       const sidebarItems = wrapper.findAllComponents(SidebarItem)
       sidebarItems[0]?.vm.$emit('onDragEnd', draggingItem, hoveredItem)

@@ -1,7 +1,6 @@
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
-import type { SidebarState } from '@scalar/sidebar'
+import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
@@ -20,24 +19,11 @@ import { type MaybeRefOrGetter, toValue } from 'vue'
 import { removeCircular } from '@/v2/helpers/remove-circular'
 
 /**
- * Drag offset constants.
- * These match the draggable component's offset values.
- */
-const DRAG_OFFSET = {
-  /** Insert before the hovered item */
-  BEFORE: 0,
-  /** Insert after the hovered item */
-  AFTER: 1,
-  /** Drop into the hovered item */
-  INTO: 2,
-} as const
-
-/**
  * Reorders items in an array by moving an item from one index to another,
  * adjusting insertion point based on offset.
  * Returns the new order array, or null if indices are invalid.
  */
-const reorderArray = <T>(array: T[], fromIndex: number, toIndex: number, offset: number): T[] | null => {
+const reorderArray = <T>(array: T[], fromIndex: number, toIndex: number, offset: DragOffset): T[] | null => {
   if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
     return null
   }
@@ -56,18 +42,18 @@ const reorderArray = <T>(array: T[], fromIndex: number, toIndex: number, offset:
 /**
  * Calculates the insertion index based on drag offset and direction.
  */
-const calculateInsertIndex = (fromIndex: number, toIndex: number, offset: number, arrayLength: number): number => {
+const calculateInsertIndex = (fromIndex: number, toIndex: number, offset: DragOffset, arrayLength: number): number => {
   const isMovingDown = fromIndex < toIndex
 
-  if (offset === DRAG_OFFSET.AFTER) {
+  if (offset === 'after') {
     return isMovingDown ? toIndex : toIndex + 1
   }
 
-  if (offset === DRAG_OFFSET.BEFORE) {
+  if (offset === 'before') {
     return isMovingDown ? toIndex - 1 : toIndex
   }
 
-  if (offset === DRAG_OFFSET.INTO) {
+  if (offset === 'into') {
     return arrayLength
   }
 
@@ -95,18 +81,18 @@ const isEntryType = <Entry extends TraversedEntry, const Type extends TraversedE
 
 /**
  * Determines if the hovered item qualifies as a "reorder" operation.
- * Reorder means moving before or after another item (offset 0 or 1),
- * not dropping into a parent container (offset 2).
+ * Reorder means moving before or after another item, not dropping
+ * into a parent container.
  */
 const isReorder = (hoveredItem: HoveredItem): boolean => {
-  return hoveredItem.offset < DRAG_OFFSET.INTO
+  return hoveredItem.offset === 'before' || hoveredItem.offset === 'after'
 }
 
 /**
  * Determines if the hovered item represents a "drop into parent" operation.
  */
 const isDropIntoParent = (hoveredItem: HoveredItem): boolean => {
-  return hoveredItem.offset === DRAG_OFFSET.INTO
+  return hoveredItem.offset === 'into'
 }
 
 /**
@@ -169,7 +155,7 @@ const handleReorderWithinParent = (
   store: WorkspaceStore,
   draggingItem: TraversedEntry & { parent?: TraversedEntry },
   hoveredItem: TraversedEntry & { parent?: TraversedEntry },
-  offset: number,
+  offset: DragOffset,
 ): boolean => {
   const parentEntry = draggingItem.parent
   if (!parentEntry || !isEntryType(parentEntry, ['tag', 'document'])) {
@@ -316,7 +302,7 @@ const handleDocumentReorder = (
   store: WorkspaceStore,
   draggingItem: TraversedDocument,
   hoveredItem: TraversedDocument,
-  offset: number,
+  offset: DragOffset,
 ): boolean => {
   const currentOrder = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
   const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
