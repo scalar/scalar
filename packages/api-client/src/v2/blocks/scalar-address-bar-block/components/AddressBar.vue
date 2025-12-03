@@ -90,44 +90,52 @@ const style = computed(() => ({
   transform: `translate3d(-${percentage}%,0,0)`,
 }))
 
-// Ensure we clear the errors when the state changes
+/**
+ * Tracks a conflict when the user attempts to change the method or path
+ * to a combination that already exists in the document.
+ */
+type Conflict = {
+  method: HttpMethodType
+  path: string
+}
+
+const conflict = ref<Conflict | null>(null)
+
+/** Clear conflict when the props change externally (e.g., user navigates to a different request) */
 watch(
   () => [method, path],
   () => {
-    conflictingMethod.value = null
-    conflictingPath.value = null
+    conflict.value = null
   },
 )
 
-/** Handles error state for http method + path conflicts */
-const conflictingMethod = ref<HttpMethodType | null>(null)
-const conflictingPath = ref<string | null>(null)
+/**
+ * Checks if a method + path combination would conflict with an existing operation.
+ * Returns true if the combination exists in the map and differs from the current values.
+ */
+const hasConflict = (newMethod: HttpMethodType, newPath: string): boolean =>
+  Boolean(operationEntriesMap.get(`${newPath}|${newMethod}`)) &&
+  (newMethod !== method || newPath !== path)
 
-/** Ensure we only update the method if it doesn't conflict, else enter error state */
-const handleMethodChange = (newMethod: HttpMethodType) => {
-  conflictingMethod.value = null
-
-  // Checks our map to see if the conflict exists
-  if (operationEntriesMap.get(`${path}|${newMethod}`) && method !== newMethod) {
-    conflictingMethod.value = newMethod
+/** Ensure we only update the method if it does not conflict, else enter error state */
+const handleMethodChange = (newMethod: HttpMethodType): void => {
+  if (hasConflict(newMethod, path)) {
+    conflict.value = { method: newMethod, path }
     return
   }
 
-  // Update the method in the store or perform any other necessary actions
+  conflict.value = null
   emit('update:method', { value: newMethod })
 }
 
-/** Ensure we only update the path if it doesn't conflict, else enter error state */
-const handlePathUpdate = (newPath: string) => {
-  conflictingPath.value = null
-
-  // Checks our map to see if the conflict exists
-  if (operationEntriesMap.get(`${newPath}|${method}`) && newPath !== path) {
-    conflictingPath.value = newPath
+/** Ensure we only update the path if it does not conflict, else enter error state */
+const handlePathUpdate = (newPath: string): void => {
+  if (hasConflict(method, newPath)) {
+    conflict.value = { method, path: newPath }
     return
   }
 
-  // Update the path in the store or perform any other necessary actions
+  conflict.value = null
   emit('update:path', { value: newPath })
 }
 
@@ -158,6 +166,10 @@ onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
 })
+
+defineExpose({
+  conflict,
+})
 </script>
 <template>
   <div
@@ -167,7 +179,7 @@ onBeforeUnmount(() => {
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
-        'outline-c-danger outline': conflictingMethod || conflictingPath,
+        'outline-c-danger outline': conflict,
       }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
@@ -179,7 +191,7 @@ onBeforeUnmount(() => {
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="conflictingMethod ?? method"
+          :method="conflict?.method ?? method"
           teleport
           @change="handleMethodChange" />
       </div>
@@ -236,16 +248,15 @@ onBeforeUnmount(() => {
         :target="id" />
       <!-- Error message -->
       <div
-        v-if="conflictingMethod || conflictingPath"
+        v-if="conflict"
         class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
             A
-            <em>{{ (conflictingMethod ?? method)?.toUpperCase() }}</em> request
-            to
-            <ScalarWrappingText :text="conflictingPath ?? path" />
+            <em>{{ conflict.method.toUpperCase() }}</em> request to
+            <ScalarWrappingText :text="conflict.path" />
             already exists in this document
           </div>
         </div>

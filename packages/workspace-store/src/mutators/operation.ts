@@ -11,7 +11,8 @@ import { getOpenapiObject } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
-import type { ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
+import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -236,6 +237,60 @@ export const updateOperationSummary = (
 }
 
 /**
+ * Updates the order ID of an operation in the sidebar.
+ * Used when changing path or method so we do not lose the sidebar ordering
+ */
+const updateOperationOrderId = ({
+  store,
+  operation,
+  generateId,
+  method,
+  path,
+  entries,
+}: {
+  store: WorkspaceStore
+  operation: OperationObject
+  generateId: IdGenerator
+  method: HttpMethod
+  path: string
+  entries: (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]
+}) => {
+  // Loop over the entries and replace the ID in the x-scalar-order with the new ID
+  entries?.forEach((entry) => {
+    if (!canHaveOrder(entry.parent)) {
+      return
+    }
+
+    // Ensure we have an x-scalar-order property
+    const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
+    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject)) {
+      return
+    }
+
+    const order = parentOpenAPIObject['x-scalar-order']
+    const index = order?.indexOf(entry.id)
+    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
+      return
+    }
+
+    const parentTag =
+      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject
+        ? { tag: parentOpenAPIObject, id: entry.parent.id }
+        : undefined
+
+    // Generate the new ID based on whether this is an operation or webhook
+    order[index] = generateId({
+      type: 'operation',
+      path,
+      method,
+      operation,
+      parentId: entry.parent.id,
+      parentTag,
+    })
+  })
+}
+
+/**
  * Updates the HTTP method of an operation and moves it to the new method slot.
  * This function:
  * 1. Moves the operation from the old method to the new method under paths
@@ -285,39 +340,10 @@ export const updateOperationMethod = (
   /** Grabs all of the current operation entries for the given path and method */
   const entries = operationEntriesMap.get(`${meta.path}|${meta.method}`)
 
-  // Loop over the entries and replace the ID in the x-scalar-order with the new ID
-  entries?.forEach((entry) => {
-    if (!canHaveOrder(entry.parent)) {
-      return
-    }
-
-    // Ensure we have an x-scalar-order property
-    const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
-    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject)) {
-      return
-    }
-
-    const order = parentOpenAPIObject['x-scalar-order']
-    const index = order?.indexOf(entry.id)
-    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
-      return
-    }
-
-    const parentTag =
-      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject
-        ? { tag: parentOpenAPIObject, id: entry.parent.id }
-        : undefined
-
-    // Generate the new ID based on whether this is an operation or webhook
-    order[index] = generateId({
-      type: 'operation',
-      path: meta.path,
-      method: method,
-      operation: operation,
-      parentId: entry.parent.id,
-      parentTag,
-    })
-  })
+  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
+  if (entries) {
+    updateOperationOrderId({ store, operation, generateId, method, path: meta.path, entries })
+  }
 
   // Prevent assigning dangerous keys to the path items object
   preventPollution(meta.path)
@@ -359,7 +385,8 @@ export const updateOperationMethod = (
  */
 export const updateOperationPath = (
   document: WorkspaceDocument | null,
-  { meta, payload: { path } }: OperationEvents['operation:update:path'],
+  store: WorkspaceStore | null,
+  { meta, payload: { path }, operationEntriesMap }: OperationEvents['operation:update:path'],
   callback?: (success: boolean) => void,
 ) => {
   // If the path has not changed, no need to move the operation
@@ -386,6 +413,25 @@ export const updateOperationPath = (
     operation.parameters = syncParametersForPathChange(path, meta.path, existingParameters)
   }
 
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName || !store) {
+    console.error('Document or workspace not found', { document })
+    return
+  }
+
+  // Get the document configuration to generate IDs consistently
+  // If no store is provided (e.g., in tests), use default configuration
+  const documentConfig = store?.getDocumentConfiguration(documentName)
+  const { generateId } = getNavigationOptions(documentName, documentConfig)
+
+  /** Grabs all of the current operation entries for the given path and method */
+  const entries = operationEntriesMap.get(`${meta.path}|${meta.method}`)
+
+  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
+  if (entries) {
+    updateOperationOrderId({ store, operation, generateId, method: meta.method, path, entries })
+  }
+
   // Initialize the paths object if it does not exist
   if (!document.paths) {
     document.paths = {}
@@ -408,6 +454,14 @@ export const updateOperationPath = (
     if (Object.keys(oldPath).length === 0) {
       delete document.paths[meta.path]
     }
+  }
+
+  // Rebuild the sidebar with the updated order (if store is available)
+  if (store) {
+    const success = store.buildSidebar(documentName)
+    callback?.(success)
+  } else {
+    callback?.(true)
   }
 }
 
