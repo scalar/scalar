@@ -39,18 +39,13 @@ toTest.forEach((source) => {
       .filter({ has: page.getByRole('button', { name: 'Close Group', expanded: true }) })
 
     // Wait for sections to appear and be stable
-    await expect(sections.last()).toBeVisible({ timeout: 1000 })
+    await expect(sections.first()).toBeVisible({ timeout: 1000 })
 
     // Playwright's toHaveScreenshot already waits for stability and fonts,
     // but we ensure the DOM is ready by waiting for visibility above
     expect(await sections.count()).toBeGreaterThan(0)
 
     for (const [index, section] of (await sections.all()).entries()) {
-      // Ensure section is visible and stable
-      await expect(section).toBeVisible()
-
-      await page.waitForTimeout(100)
-
       await expect(section).toHaveScreenshot(`${slug}-section-${index + 1}.png`)
     }
   })
