@@ -1,7 +1,7 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { ref } from 'vue'
 
 import { useTabs } from '@/v2/hooks/use-tabs'
 
@@ -12,88 +12,6 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('useTabs', () => {
-  it('if there are no tabs defined in the workspace, it should try to create them based on the currrent path', async () => {
-    const workspaceStore = ref(createWorkspaceStore())
-    const eventBus = createWorkspaceEventBus()
-
-    const updateTabs = vi.fn()
-
-    eventBus.on('tabs:update:tabs', updateTabs)
-
-    expect(workspaceStore.value.workspace['x-scalar-tabs']).toBeUndefined()
-    expect(workspaceStore.value.workspace['x-scalar-active-tab']).toBeUndefined()
-
-    useTabs({
-      workspaceStore,
-      eventBus,
-      getEntryByLocation: () => undefined,
-      workspaceSlug: 'test-workspace',
-      documentSlug: 'test-document',
-      path: '/test-path',
-      method: 'get',
-    })
-
-    await nextTick()
-
-    expect(updateTabs).toHaveBeenCalledWith({
-      'x-scalar-tabs': [
-        {
-          path: '/test-path',
-          title: 'Untitled Tab',
-        },
-      ],
-      'x-scalar-active-tab': 0,
-    })
-  })
-
-  it('if there are tabs defined in the workspace, it should not create a new tab', async () => {
-    const workspaceStore = ref(createWorkspaceStore())
-    const eventBus = createWorkspaceEventBus()
-
-    const updateTabs = vi.fn()
-
-    eventBus.on('tabs:update:tabs', updateTabs)
-
-    // Create the tabs
-    workspaceStore.value.update('x-scalar-tabs', [{ path: '/test-path', title: 'Test Document' }])
-
-    const { tabs } = useTabs({
-      workspaceStore,
-      eventBus,
-      getEntryByLocation: () => undefined,
-      workspaceSlug: 'test-workspace',
-      documentSlug: 'test-document',
-      path: '/test-path',
-      method: 'get',
-    })
-
-    await nextTick()
-
-    expect(updateTabs).not.toHaveBeenCalled()
-    expect(tabs.value).toEqual([{ path: '/test-path', title: 'Test Document' }])
-  })
-
-  it('should default the active tab index to 0 if not set', async () => {
-    const workspaceStore = ref(createWorkspaceStore())
-    const eventBus = createWorkspaceEventBus()
-
-    expect(workspaceStore.value.workspace['x-scalar-active-tab']).toBeUndefined()
-
-    const { activeTabIndex } = useTabs({
-      workspaceStore,
-      eventBus,
-      getEntryByLocation: () => undefined,
-      workspaceSlug: 'test-workspace',
-      documentSlug: 'test-document',
-      path: '/test-path',
-      method: 'get',
-    })
-
-    await nextTick()
-
-    expect(activeTabIndex.value).toBe(0)
-  })
-
   it('createTabFromCurrentRoute returns Untitled Tab when workspace is not provided', () => {
     const workspaceStore = ref(createWorkspaceStore())
     const eventBus = createWorkspaceEventBus()

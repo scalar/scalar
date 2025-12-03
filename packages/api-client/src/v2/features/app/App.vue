@@ -129,6 +129,7 @@ const tabsState = useTabs({
 const { isLoading: isSyncPathLoading } = useSyncPath({
   workspaceSelectorState,
   tabsState,
+  eventBus,
 })
 
 /** Command palette state and actions */

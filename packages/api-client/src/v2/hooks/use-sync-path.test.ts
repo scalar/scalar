@@ -5,6 +5,7 @@ import { nextTick, reactive, ref } from 'vue'
 import 'fake-indexeddb/auto'
 
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { useSyncPath } from './use-sync-path'
 import type { UseTabsReturn } from './use-tabs'
@@ -66,6 +67,8 @@ const createMockTabsState = (overrides: Partial<UseTabsReturn> = {}): UseTabsRet
   }
 }
 
+const eventBus = createWorkspaceEventBus()
+
 describe('useSyncPath', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -78,7 +81,7 @@ describe('useSyncPath', () => {
     const workspaceSelectorState = createMockWorkspaceSelectorState()
     const tabsState = createMockTabsState()
 
-    const { isLoading } = useSyncPath({ workspaceSelectorState, tabsState })
+    const { isLoading } = useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -91,7 +94,7 @@ describe('useSyncPath', () => {
     const workspaceSelectorState = createMockWorkspaceSelectorState()
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -107,7 +110,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -132,7 +135,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -151,7 +154,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -168,7 +171,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -187,7 +190,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
 
@@ -211,7 +214,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState({ createTabFromCurrentRoute })
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     // Change the route path
     mockRoute.path = '/workspace/default/document/drafts/requests'
@@ -236,7 +239,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState({ createTabFromCurrentRoute })
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -254,7 +257,7 @@ describe('useSyncPath', () => {
 
     // Should not throw when store is null
     expect(() => {
-      useSyncPath({ workspaceSelectorState, tabsState })
+      useSyncPath({ workspaceSelectorState, tabsState, eventBus })
     }).not.toThrow()
   })
 
@@ -270,7 +273,7 @@ describe('useSyncPath', () => {
 
     // Should not throw when tabs are undefined
     expect(() => {
-      useSyncPath({ workspaceSelectorState, tabsState })
+      useSyncPath({ workspaceSelectorState, tabsState, eventBus })
     }).not.toThrow()
   })
 
@@ -287,7 +290,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    const { isLoading } = useSyncPath({ workspaceSelectorState, tabsState })
+    const { isLoading } = useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
 
@@ -321,7 +324,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()
@@ -349,7 +352,7 @@ describe('useSyncPath', () => {
     })
     const tabsState = createMockTabsState()
 
-    useSyncPath({ workspaceSelectorState, tabsState })
+    useSyncPath({ workspaceSelectorState, tabsState, eventBus })
 
     await nextTick()
     await flushPromises()

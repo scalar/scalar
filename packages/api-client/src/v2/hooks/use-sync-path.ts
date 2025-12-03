@@ -115,6 +115,8 @@ export const useSyncPath = ({
     // If loading failed (workspace does not exist), create the default workspace and navigate to it.
     const createResult = await workspaceSelectorState.createWorkspace(DEFAULT_WORKSPACE)
 
+    isLoading.value = false
+
     if (!createResult) {
       return console.error('Failed to create the default workspace, something went wrong, can not load the workspace')
     }
