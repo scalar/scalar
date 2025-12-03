@@ -17,6 +17,7 @@ vi.mock('vue-router', () => ({
   },
   useRoute: () => ({
     params: { workspaceSlug: 'default', documentSlug: 'doc1' },
+    query: {},
   }),
   useRouter: () => ({
     push: vi.fn(),
@@ -66,38 +67,6 @@ describe('App', () => {
       workspace: store.exportWorkspace(),
     })
   }
-
-  beforeEach(() => {
-    // Mock getThemeStyles
-    vi.mock('@scalar/themes', () => ({
-      getThemeStyles: vi.fn(() => 'body { color: red; }'),
-    }))
-
-    // Mock useColorMode
-    vi.mock('@scalar/use-hooks/useColorMode', () => ({
-      useColorMode: vi.fn(() => ({ colorMode: 'light' })),
-    }))
-
-    // Mock vue-router
-    vi.mock('vue-router', () => ({
-      RouterView: {
-        name: 'RouterView',
-        template: '<div class="router-view"><slot /></div>',
-      },
-      useRoute: () => ({
-        params: { workspaceSlug: 'default', documentSlug: 'doc1' },
-        query: {},
-      }),
-      useRouter: () => ({
-        push: vi.fn(),
-      }),
-    }))
-
-    // Mock workspace client events
-    vi.mock('@/v2/hooks/use-workspace-client-events', () => ({
-      useWorkspaceClientEvents: vi.fn(),
-    }))
-  })
 
   it('generates theme style tag from workspace theme configuration', async () => {
     await setupWorkspace()
