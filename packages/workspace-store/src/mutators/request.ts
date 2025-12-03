@@ -2,7 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
-export type OperationIdentifier = {
+type OperationIdentifier = {
   path: string
   method: Exclude<HttpMethod, 'head' | 'options'>
 }

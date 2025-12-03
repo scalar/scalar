@@ -10,7 +10,7 @@ import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas
 import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
-export const ParameterObjectBaseSchema = compose(
+const ParameterObjectBaseSchema = compose(
   Type.Object({
     /** REQUIRED. The name of the parameter. Parameter names are case sensitive.
      *    - If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object. See Path Templating for further information.
@@ -57,7 +57,7 @@ type ParameterObjectBase = {
 } & XInternal &
   XScalarIgnore
 
-export const ParameterObjectWithSchemaSchema = compose(
+const ParameterObjectWithSchemaSchema = compose(
   ParameterObjectBaseSchema,
   Type.Object({
     /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
@@ -73,7 +73,7 @@ export const ParameterObjectWithSchemaSchema = compose(
   }),
 )
 
-export type ParameterWithSchemaObject = ParameterObjectBase & {
+type ParameterWithSchemaObject = ParameterObjectBase & {
   /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
   style?: string
   /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
@@ -86,7 +86,7 @@ export type ParameterWithSchemaObject = ParameterObjectBase & {
   examples?: Record<string, ReferenceType<ExampleObject>>
 }
 
-export const ParameterObjectWithContentSchema = compose(
+const ParameterObjectWithContentSchema = compose(
   ParameterObjectBaseSchema,
   Type.Object({
     content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectRef)),

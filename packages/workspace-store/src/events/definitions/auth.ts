@@ -13,7 +13,7 @@ import type { ApiKeyObject, HttpObject, OAuth2Object } from '@/schemas/v3.1/stri
  * - `oauth2`: Updates to OAuth2 type schemes for each supported OAuth2 flow.
  *    - Can set various properties such as auth/token URLs, tokens, PKCE method, client credentials, etc.
  */
-export type SecuritySchemeUpdatePayload =
+type SecuritySchemeUpdatePayload =
   | ({
       type: 'http'
     } & Partial<Omit<HttpObject, 'type'>>)

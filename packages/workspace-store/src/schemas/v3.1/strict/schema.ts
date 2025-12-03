@@ -71,7 +71,7 @@ const Extensions = compose(
   XTags,
 )
 
-export type Extensions = XScalarIgnore &
+type Extensions = XScalarIgnore &
   XInternal &
   XVariable &
   XEnumDescriptions &
@@ -130,7 +130,7 @@ const CorePropertiesWithSchema = Type.Object({
   not: Type.Optional(schemaOrReference),
 })
 
-export type CoreProperties = {
+type CoreProperties = {
   name?: string
   /** A title for the schema. */
   title?: string
@@ -200,7 +200,7 @@ const NumericProperties = Type.Object({
   exclusiveMinimum: Type.Optional(Type.Union([Type.Boolean(), Type.Number()])),
 })
 
-export type NumericObject = CoreProperties & {
+type NumericObject = CoreProperties & {
   type: 'number' | 'integer'
   /** Different subtypes */
   format?:
@@ -253,7 +253,7 @@ const StringValidationProperties = Type.Object({
  * These provide better type safety for string format validation. We wanted to allow any arbitrary string
  * in the schema, so we type it in typescript instead. This gives us autocomplete while allowing any string!
  */
-export type StringFormat =
+type StringFormat =
   // Date and time formats
   | 'date'
   | 'date-time'
@@ -295,7 +295,7 @@ export type StringFormat =
   | 'sf-boolean'
   | (string & {})
 
-export type StringObject = CoreProperties & {
+type StringObject = CoreProperties & {
   type: 'string'
   /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
   format?: StringFormat
@@ -321,7 +321,7 @@ const ArrayValidationPropertiesWithSchema = Type.Object({
   prefixItems: Type.Optional(Type.Array(schemaOrReference)),
 })
 
-export type ArrayObject = CoreProperties & {
+type ArrayObject = CoreProperties & {
   type: 'array'
   /** Maximum number of items in array. */
   maxItems?: number
@@ -351,7 +351,7 @@ const ObjectValidationPropertiesWithSchema = Type.Object({
   patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
 })
 
-export type ObjectObject = CoreProperties & {
+type ObjectObject = CoreProperties & {
   type: 'object'
   /** Maximum number of properties. */
   maxProperties?: number

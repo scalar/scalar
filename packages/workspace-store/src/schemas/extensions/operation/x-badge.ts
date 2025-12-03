@@ -42,7 +42,7 @@ export const XBadgeSchema = Type.Object(
  * Schema for individual badge configuration in x-badges extension.
  * Badges are indicators that can be displayed in API documentation.
  */
-export type XBadge = {
+type XBadge = {
   /** The text that displays in the badge. This is required for all badges. */
   name: string
   /**
