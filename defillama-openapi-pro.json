@@ -50,6 +50,10 @@
     {
       "name": "narratives",
       "description": "Track performance of narratives"
+    },
+    {
+      "name": "DAT",
+      "description": "Digital Asset Treasury"
     }
   ],
   "paths": {
@@ -7835,6 +7839,646 @@
                       }
                     ]
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dat/institutions": {
+      "get": {
+        "tags": ["DAT"],
+        "x-api-plan-only": true,
+        "summary": "Get list of all institutions with Digital Asset Treasury data",
+        "description": "Returns comprehensive data about institutions holding digital assets, including mNAV calculations (realized, realistic, maximum) as described in the [DAT Methodology](https://docs.llama.fi/analysts/dat-methodology)",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "institutionMetadata": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "institutionId": {
+                            "type": "integer",
+                            "description": "Unique institution identifier"
+                          },
+                          "ticker": {
+                            "type": "string",
+                            "description": "Institution ticker symbol",
+                            "example": "MSTR"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Institution name",
+                            "example": "Strategy, Inc. (Formerly: MicroStrategy Inc.)"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Institution type",
+                            "example": "Stock"
+                          },
+                          "price": {
+                            "type": "number",
+                            "description": "Current share price"
+                          },
+                          "priceChange24h": {
+                            "type": "number",
+                            "description": "24h price change percentage"
+                          },
+                          "volume24h": {
+                            "type": "number",
+                            "description": "24h trading volume"
+                          },
+                          "mcapRealized": {
+                            "type": "number",
+                            "description": "Market cap using current outstanding shares"
+                          },
+                          "mcapRealistic": {
+                            "type": "number",
+                            "description": "Market cap accounting for unavoidable dilution"
+                          },
+                          "mcapMax": {
+                            "type": "number",
+                            "description": "Market cap under maximum dilution scenario"
+                          },
+                          "realized_mNAV": {
+                            "type": "number",
+                            "description": "Ratio of marketcap to crypto treasury using current shares"
+                          },
+                          "realistic_mNAV": {
+                            "type": "number",
+                            "description": "Ratio accounting for unavoidable dilution"
+                          },
+                          "max_mNAV": {
+                            "type": "number",
+                            "description": "Ratio under maximum dilution scenario"
+                          },
+                          "totalUsdValue": {
+                            "type": "number",
+                            "description": "Total USD value of crypto holdings"
+                          },
+                          "totalCost": {
+                            "type": "number",
+                            "description": "Total cost basis of crypto holdings"
+                          },
+                          "holdings": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "object",
+                              "properties": {
+                                "amount": {
+                                  "type": "number",
+                                  "description": "Amount of asset held"
+                                },
+                                "avgPrice": {
+                                  "type": "number",
+                                  "description": "Average purchase price"
+                                },
+                                "usdValue": {
+                                  "type": "number",
+                                  "description": "Current USD value"
+                                },
+                                "cost": {
+                                  "type": "number",
+                                  "description": "Total cost basis"
+                                },
+                                "transactionCount": {
+                                  "type": "integer",
+                                  "description": "Number of transactions"
+                                },
+                                "firstAnnouncementDate": {
+                                  "type": "string",
+                                  "format": "date",
+                                  "description": "Date of first announcement"
+                                },
+                                "lastAnnouncementDate": {
+                                  "type": "string",
+                                  "format": "date",
+                                  "description": "Date of last announcement"
+                                },
+                                "supplyPercentage": {
+                                  "type": "number",
+                                  "description": "Percentage of total supply held"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "assetMetadata": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Asset name",
+                            "example": "Bitcoin"
+                          },
+                          "ticker": {
+                            "type": "string",
+                            "description": "Asset ticker",
+                            "example": "BTC"
+                          },
+                          "geckoId": {
+                            "type": "string",
+                            "description": "CoinGecko ID"
+                          },
+                          "companies": {
+                            "type": "integer",
+                            "description": "Number of companies holding this asset"
+                          },
+                          "totalAmount": {
+                            "type": "number",
+                            "description": "Total amount held across all institutions"
+                          },
+                          "totalUsdValue": {
+                            "type": "number",
+                            "description": "Total USD value across all institutions"
+                          },
+                          "circSupplyPerc": {
+                            "type": "number",
+                            "description": "Percentage of circulating supply held"
+                          }
+                        }
+                      }
+                    },
+                    "institutions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "institutionId": {
+                            "type": "integer",
+                            "description": "Institution ID"
+                          },
+                          "totalUsdValue": {
+                            "type": "number",
+                            "description": "Total USD value of holdings"
+                          },
+                          "totalCost": {
+                            "type": "number",
+                            "description": "Total cost basis"
+                          }
+                        }
+                      }
+                    },
+                    "assets": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "institutionId": {
+                              "type": "integer",
+                              "description": "Institution ID"
+                            },
+                            "usdValue": {
+                              "type": "number",
+                              "description": "USD value of holding"
+                            },
+                            "amount": {
+                              "type": "number",
+                              "description": "Amount held"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "totalCompanies": {
+                      "type": "integer",
+                      "description": "Total number of companies tracked"
+                    },
+                    "flows": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "integer",
+                              "description": "Timestamp"
+                            },
+                            {
+                              "type": "number",
+                              "description": "Net flow"
+                            },
+                            {
+                              "type": "number",
+                              "description": "Inflow"
+                            },
+                            {
+                              "type": "number",
+                              "description": "Outflow"
+                            },
+                            {
+                              "type": "number",
+                              "description": "USD value"
+                            },
+                            {
+                              "type": "number",
+                              "description": "USD value of net flow"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "mNAV": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "integer",
+                                "description": "Timestamp"
+                              },
+                              {
+                                "type": "number",
+                                "description": "Realized mNAV"
+                              },
+                              {
+                                "type": "number",
+                                "description": "Realistic mNAV"
+                              },
+                              {
+                                "type": "number",
+                                "description": "Maximum mNAV"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "lastUpdated": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Last update timestamp"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dat/institutions/{symbol}": {
+      "get": {
+        "tags": ["DAT"],
+        "x-api-plan-only": true,
+        "summary": "Get individual institution Digital Asset Treasury details",
+        "description": "Returns detailed data for a specific institution, including mNAV calculations (realized, realistic, maximum) as described in the [DAT Methodology](https://docs.llama.fi/analysts/dat-methodology)",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "description": "Institution ticker symbol (e.g., MSTR for MicroStrategy)",
+            "schema": {
+              "type": "string",
+              "example": "MSTR"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "institutionId": {
+                      "type": "integer",
+                      "description": "Unique institution identifier"
+                    },
+                    "ticker": {
+                      "type": "string",
+                      "description": "Institution ticker symbol",
+                      "example": "MSTR"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Institution name",
+                      "example": "Strategy, Inc. (Formerly: MicroStrategy Inc.)"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Institution type",
+                      "example": "Stock"
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "description": "Institution rank"
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "Current share price"
+                    },
+                    "priceChange24h": {
+                      "type": "number",
+                      "description": "24h price change percentage"
+                    },
+                    "volume24h": {
+                      "type": "number",
+                      "description": "24h trading volume"
+                    },
+                    "fd_realized": {
+                      "type": "string",
+                      "description": "Fully diluted shares - realized count"
+                    },
+                    "fd_realistic": {
+                      "type": "string",
+                      "description": "Fully diluted shares - realistic count"
+                    },
+                    "fd_max": {
+                      "type": "string",
+                      "description": "Fully diluted shares - maximum count"
+                    },
+                    "mcap_realized": {
+                      "type": "number",
+                      "description": "Market cap using realized share count"
+                    },
+                    "mcap_realistic": {
+                      "type": "number",
+                      "description": "Market cap using realistic share count"
+                    },
+                    "mcap_max": {
+                      "type": "number",
+                      "description": "Market cap using maximum share count"
+                    },
+                    "realized_mNAV": {
+                      "type": "number",
+                      "description": "Realized mNAV ratio"
+                    },
+                    "realistic_mNAV": {
+                      "type": "number",
+                      "description": "Realistic mNAV ratio"
+                    },
+                    "max_mNAV": {
+                      "type": "number",
+                      "description": "Maximum mNAV ratio"
+                    },
+                    "totalCost": {
+                      "type": "number",
+                      "description": "Total cost basis of crypto holdings"
+                    },
+                    "totalUsdValue": {
+                      "type": "number",
+                      "description": "Total USD value of crypto holdings"
+                    },
+                    "assets": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "amount": {
+                            "type": "number",
+                            "description": "Amount of asset held"
+                          },
+                          "avgPrice": {
+                            "type": "number",
+                            "description": "Average purchase price"
+                          },
+                          "usdValue": {
+                            "type": "number",
+                            "description": "Current USD value"
+                          },
+                          "cost": {
+                            "type": "number",
+                            "description": "Total cost basis"
+                          }
+                        }
+                      },
+                      "description": "Asset holdings by asset type"
+                    },
+                    "assetsMeta": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Asset name",
+                            "example": "Bitcoin"
+                          },
+                          "ticker": {
+                            "type": "string",
+                            "description": "Asset ticker",
+                            "example": "BTC"
+                          }
+                        }
+                      },
+                      "description": "Metadata for assets held"
+                    },
+                    "ohlcv": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Open price"
+                          },
+                          {
+                            "type": "number",
+                            "description": "High price"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Low price"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Close price"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Volume"
+                          }
+                        ]
+                      },
+                      "description": "Historical OHLCV data"
+                    },
+                    "assetValue": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Asset value in USD"
+                          }
+                        ]
+                      },
+                      "description": "Historical asset value data"
+                    },
+                    "stats": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Fully diluted shares - realized"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Fully diluted shares - realistic"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Fully diluted shares - maximum"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Market cap - realized"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Market cap - realistic"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Market cap - maximum"
+                          },
+                          {
+                            "type": "number",
+                            "description": "mNAV - realized"
+                          },
+                          {
+                            "type": "number",
+                            "description": "mNAV - realistic"
+                          },
+                          {
+                            "type": "number",
+                            "description": "mNAV - maximum"
+                          }
+                        ]
+                      },
+                      "description": "Compact historical stats: [timestamp, fd_realized, fd_realistic, fd_maximum, mcap_realized, mcap_realistic, mcap_max, mnav_realized, mnav_realistic, mnav_max]"
+                    },
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "Transaction ID"
+                          },
+                          "asset": {
+                            "type": "string",
+                            "description": "Asset type",
+                            "example": "bitcoin"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Amount transacted"
+                          },
+                          "avg_price": {
+                            "type": "string",
+                            "description": "Average price per unit"
+                          },
+                          "usd_value": {
+                            "type": "string",
+                            "description": "Total USD value"
+                          },
+                          "start_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Transaction start date"
+                          },
+                          "end_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Transaction end date"
+                          },
+                          "report_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Report date"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Transaction type",
+                            "example": "purchase"
+                          },
+                          "source_type": {
+                            "type": "string",
+                            "description": "Source type",
+                            "example": "filing"
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "description": "Source URL"
+                          },
+                          "source_note": {
+                            "type": "string",
+                            "description": "Source note with transaction details"
+                          },
+                          "is_approved": {
+                            "type": "boolean",
+                            "description": "Whether transaction is approved"
+                          },
+                          "reject_reason": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Rejection reason if not approved"
+                          },
+                          "last_updated": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Last update timestamp"
+                          },
+                          "ticker": {
+                            "type": "string",
+                            "description": "Institution ticker"
+                          },
+                          "assetName": {
+                            "type": "string",
+                            "description": "Asset name"
+                          },
+                          "assetTicker": {
+                            "type": "string",
+                            "description": "Asset ticker"
+                          }
+                        }
+                      },
+                      "description": "Transaction history"
+                    },
+                    "lastUpdated": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Last update timestamp"
+                    }
+                  }
                 }
               }
             }

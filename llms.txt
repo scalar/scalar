@@ -1635,10 +1635,180 @@ Base URL: `https://bridges.llama.fi`
     ```
 
 ===============================================================================
-SECTION 11: ACCOUNT MANAGEMENT
+SECTION 11: DIGITAL ASSET TREASURY (DAT)
 ===============================================================================
 
-64. 🔒 **GET /usage/APIKEY**
+Base URL: `https://pro-api.llama.fi`
+
+64. 🔒 **GET /dat/institutions**
+    Purpose: Get comprehensive Digital Asset Treasury data for all institutions
+    Description: Returns detailed data about institutions holding digital assets, including mNAV calculations (realized, realistic, maximum) as described in the DAT Methodology (https://docs.llama.fi/analysts/dat-methodology)
+    Parameters: None
+    Response:
+    ```json
+    {
+      "institutionMetadata": {
+        "1": {
+          "institutionId": 1,
+          "ticker": "MSTR",
+          "name": "Strategy, Inc. (Formerly: MicroStrategy Inc.)",
+          "type": "Stock",
+          "price": 171.42,
+          "priceChange24h": -3.25,
+          "volume24h": 42770300,
+          "mcapRealized": 49258176727.84,
+          "mcapRealistic": 54861256214.33,
+          "mcapMax": 54861256214.33,
+          "realized_mNAV": 0.838,
+          "realistic_mNAV": 0.934,
+          "max_mNAV": 0.934,
+          "totalUsdValue": 58754718187.34,
+          "totalCost": 48422689951,
+          "holdings": {
+            "bitcoin": {
+              "amount": 650001,
+              "avgPrice": 74496.33,
+              "usdValue": 60619743261,
+              "cost": 48422689951,
+              "transactionCount": 90,
+              "firstAnnouncementDate": "2020-08-11",
+              "lastAnnouncementDate": "2025-12-01",
+              "supplyPercentage": 3.26
+            }
+          }
+        }
+      },
+      "assetMetadata": {
+        "bitcoin": {
+          "name": "Bitcoin",
+          "ticker": "BTC",
+          "geckoId": "bitcoin",
+          "companies": 36,
+          "totalAmount": 951605.06,
+          "totalUsdValue": 88747639039.36,
+          "circSupplyPerc": 4.77
+        }
+      },
+      "institutions": [
+        {
+          "institutionId": 1,
+          "totalUsdValue": 58754718187.34,
+          "totalCost": 48422689951
+        }
+      ],
+      "assets": {
+        "bitcoin": [
+          {
+            "institutionId": 1,
+            "usdValue": 60619743261,
+            "amount": 650001
+          }
+        ]
+      },
+      "totalCompanies": 70,
+      "flows": {
+        "bitcoin": [
+          [1583107200000, 944, 944, 0, 0, 8088005.32]
+        ]
+      },
+      "mNAV": {
+        "bitcoin": {
+          "MSTR": [
+            [1595894400000, 0.485, 0.488, 0.559]
+          ]
+        }
+      },
+      "lastUpdated": "2025-12-03T10:21:47.773Z"
+    }
+    ```
+
+65. 🔒 **GET /dat/institutions/{symbol}**
+    Purpose: Get detailed Digital Asset Treasury data for a specific institution
+    Description: Returns comprehensive data for a specific institution, including mNAV calculations, historical data, and transaction history as described in the DAT Methodology
+    Parameters:
+      - symbol (path, required): Institution ticker symbol (e.g., "MSTR" for MicroStrategy)
+    Response:
+    ```json
+    {
+      "institutionId": 1,
+      "ticker": "MSTR",
+      "name": "Strategy, Inc. (Formerly: MicroStrategy Inc.)",
+      "type": "Stock",
+      "rank": 1,
+      "price": 171.42,
+      "priceChange24h": -3.25,
+      "volume24h": 42770300,
+      "fd_realized": "287353735",
+      "fd_realistic": "320040000",
+      "fd_max": "320040000",
+      "mcap_realized": 49258176727.84,
+      "mcap_realistic": 54861256214.33,
+      "mcap_max": 54861256214.33,
+      "realized_mNAV": 0.838,
+      "realistic_mNAV": 0.934,
+      "max_mNAV": 0.934,
+      "totalCost": 48422689951,
+      "totalUsdValue": 58754718187.34,
+      "assets": {
+        "bitcoin": {
+          "amount": 650001,
+          "avgPrice": 74496.33,
+          "usdValue": 60357792858,
+          "cost": 48422689951
+        }
+      },
+      "assetsMeta": {
+        "bitcoin": {
+          "name": "Bitcoin",
+          "ticker": "BTC"
+        }
+      },
+      "ohlcv": [
+        [1595203200000, 11.81, 12.14, 11.81, 12.05, 314000]
+      ],
+      "assetValue": [
+        [1595894400000, 235184293.46]
+      ],
+      "stats": [
+        [1595894400000, 9686000, 9741000, 11166533, 114110767.36, 114758722.36, 131552926.84, 0.485, 0.488, 0.559]
+      ],
+      "transactions": [
+        {
+          "id": 651,
+          "asset": "bitcoin",
+          "amount": "130.00000000",
+          "avg_price": "89960.00000000",
+          "usd_value": "11700000.00",
+          "start_date": "2025-11-17",
+          "end_date": "2025-11-30",
+          "report_date": "2025-12-01",
+          "type": "purchase",
+          "source_type": "filing",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1050446/000119312525303157/0001193125-25-303157-index.htm",
+          "source_note": "Purchased 130 bitcoin for approximately $11.7 million at an average price of $89,960 per bitcoin using proceeds from the sale of shares of MSTR Stock under Strategy's ATM per 8-K filed December 1, 2025.",
+          "is_approved": true,
+          "reject_reason": null,
+          "last_updated": "2025-12-01T15:43:36.511Z",
+          "ticker": "MSTR",
+          "assetName": "Bitcoin",
+          "assetTicker": "BTC"
+        }
+      ],
+      "lastUpdated": "2025-12-03T11:21:58.401Z"
+    }
+    ```
+
+    **Key Data Formats:**
+    - flows: [timestamp, net, inflow, outflow, usdValue, usdValueOfNet]
+    - mNAV: [date, mNAV realized, mNAV realistic, mNAV maximum]
+    - stats: [timestamp, fd_realized, fd_realistic, fd_maximum, mcap_realized, mcap_realistic, mcap_max, mnav_realized, mnav_realistic, mnav_max]
+    - ohlcv: [timestamp, open, high, low, close, volume]
+
+===============================================================================
+SECTION 12: ACCOUNT MANAGEMENT
+===============================================================================
+
+66. 🔒 **GET /usage/APIKEY**
     Base: `https://pro-api.llama.fi`
     Purpose: Check API usage
     Parameters: None (uses API key from header)
@@ -1654,4 +1824,3 @@ SECTION 11: ACCOUNT MANAGEMENT
     }
     ```
 
- 
