@@ -35,12 +35,18 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "files": [
     "dist",
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "nanoid": "catalog:*",
     "vue": "catalog:*",
     "vue-sonner": "^1.0.3"
   },
