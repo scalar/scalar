@@ -169,4 +169,40 @@ describe('store', () => {
       store.clear('non-existent')
     }).not.toThrow()
   })
+
+  it('create handles null data', () => {
+    const result = store.create('items', null)
+
+    expect(result).toHaveProperty('id')
+    expect(typeof result.id).toBe('string')
+    expect(result.id.length).toBeGreaterThan(0)
+  })
+
+  it('create handles undefined data', () => {
+    const result = store.create('items', undefined)
+
+    expect(result).toHaveProperty('id')
+    expect(typeof result.id).toBe('string')
+    expect(result.id.length).toBeGreaterThan(0)
+  })
+
+  it('update handles null data', () => {
+    store.create('items', { id: '1', name: 'Item' })
+
+    const updated = store.update('items', '1', null)
+
+    expect(updated).not.toBeNull()
+    expect(updated.id).toBe('1')
+    expect(updated.name).toBe('Item')
+  })
+
+  it('update handles undefined data', () => {
+    store.create('items', { id: '1', name: 'Item' })
+
+    const updated = store.update('items', '1', undefined)
+
+    expect(updated).not.toBeNull()
+    expect(updated.id).toBe('1')
+    expect(updated.name).toBe('Item')
+  })
 })

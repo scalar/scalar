@@ -31,8 +31,10 @@ export class Store {
       this.data[collection] = {}
     }
 
-    const id = data.id ?? crypto.randomUUID()
-    const item = { ...data, id }
+    // Handle null/undefined data by defaulting to empty object
+    const safeData = data ?? {}
+    const id = safeData.id ?? crypto.randomUUID()
+    const item = { ...safeData, id }
 
     this.data[collection][id] = item
 
@@ -48,7 +50,9 @@ export class Store {
       return null
     }
 
-    const updated = { ...this.data[collection][id], ...data, id }
+    // Handle null/undefined data by defaulting to empty object
+    const safeData = data ?? {}
+    const updated = { ...this.data[collection][id], ...safeData, id }
     this.data[collection][id] = updated
 
     return updated
