@@ -9,6 +9,25 @@ import Operation from './Operation.vue'
 describe('Operation', () => {
   const eventBus = createWorkspaceEventBus()
 
+  const defaultNavigation = {
+    type: 'document' as const,
+    id: 'default',
+    name: 'default',
+    title: 'Test API',
+    children: [
+      {
+        id: 'default/get/pets',
+        method: 'get' as const,
+        path: '/pets',
+        isDeprecated: false,
+        ref: '#/paths/~1pets/get',
+        title: 'listPets',
+        type: 'operation' as const,
+        children: [],
+      },
+    ],
+  }
+
   const defaultDocument = {
     openapi: '3.0.0',
     info: { title: 'Test API', version: '1.0.0' },
@@ -22,6 +41,7 @@ describe('Operation', () => {
       },
     },
     'x-scalar-original-document-hash': '123',
+    'x-scalar-navigation': defaultNavigation,
   }
 
   const defaultProps: RouteProps = {
@@ -66,20 +86,7 @@ describe('Operation', () => {
   })
 
   it('renders OperationBlock when path, method, exampleName and operation exist', () => {
-    const document = {
-      ...defaultDocument,
-      components: { securitySchemes: {} },
-      paths: {
-        '/pets': {
-          get: {
-            operationId: 'listPets',
-            responses: {},
-          },
-        },
-      },
-    }
-
-    const wrapper = render({ document })
+    const wrapper = render()
 
     const oc = wrapper.findComponent({ name: 'OperationBlock' })
     expect(oc.exists()).toBe(true)
@@ -88,7 +95,6 @@ describe('Operation', () => {
   it('passes operation security to OperationBlock when defined on operation', () => {
     const document = {
       ...defaultDocument,
-      components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
         selectedIndex: 0,
@@ -98,6 +104,7 @@ describe('Operation', () => {
       paths: {
         '/pets': {
           get: {
+            operationId: 'listPets',
             security: [{ apiKeyAuth: [] }],
             'x-scalar-selected-security': {
               selectedIndex: 0,
@@ -124,18 +131,10 @@ describe('Operation', () => {
   it('uses document security when operation security is not defined', () => {
     const document = {
       ...defaultDocument,
-      components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
         selectedIndex: 0,
         selectedSchemes: [{ bearerAuth: [] }],
-      },
-      paths: {
-        '/pets': {
-          get: {
-            responses: {},
-          },
-        },
       },
     }
 
@@ -154,7 +153,6 @@ describe('Operation', () => {
   it('merges document security when operation security is an empty object entry', () => {
     const document = {
       ...defaultDocument,
-      components: { securitySchemes: {} },
       security: [{ bearerAuth: [] }],
       'x-scalar-selected-security': {
         selectedIndex: 0,
@@ -163,6 +161,7 @@ describe('Operation', () => {
       paths: {
         '/pets': {
           get: {
+            operationId: 'listPets',
             security: [{}],
             responses: {},
           },
