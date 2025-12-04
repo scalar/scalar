@@ -1,5 +1,5 @@
 /**
- * Simple in-memory store for x-handle operations.
+ * Simple in-memory store for x-handler operations.
  * Data persists during server lifetime but is reset on server restart.
  */
 type StoreData = Record<string, Record<string, any>>

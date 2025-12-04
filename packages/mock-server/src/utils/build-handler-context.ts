@@ -8,7 +8,7 @@ import { store } from '../libs/store'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
- * Context object provided to x-handle code.
+ * Context object provided to x-handler code.
  */
 export type HandlerContext = {
   store: ReturnType<typeof createStoreWrapper>['wrappedStore']

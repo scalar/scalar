@@ -102,7 +102,7 @@ function determineStatusCode(
 }
 
 /**
- * Mock response using x-handle code.
+ * Mock response using x-handler code.
  * Executes the handler and returns its result as the response.
  */
 export async function mockHandlerResponse(
@@ -118,12 +118,12 @@ export async function mockHandlerResponse(
     })
   }
 
-  // Get x-handle code from operation
-  const handlerCode = operation?.['x-handle']
+  // Get x-handler code from operation
+  const handlerCode = operation?.['x-handler']
 
   if (!handlerCode) {
     c.status(500)
-    return c.json({ error: 'x-handle code not found in operation' })
+    return c.json({ error: 'x-handler code not found in operation' })
   }
 
   try {
@@ -165,7 +165,7 @@ export async function mockHandlerResponse(
     return c.json(result)
   } catch (error) {
     // Log error to console
-    console.error('x-handle execution error:', error)
+    console.error('x-handler execution error:', error)
 
     // Return 500 error
     c.status(500)

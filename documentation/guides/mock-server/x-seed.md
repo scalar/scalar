@@ -95,14 +95,14 @@ components:
 
 When writing `x-seed` code, you have access to:
 
-- **`store`**: The same store helper as `x-handle` (for advanced use cases)
+- **`store`**: The same store helper as `x-handler` (for advanced use cases)
 - **`faker`**: Faker.js for generating realistic data
 - **`seed`**: The seed helper function (described above)
 - **`schema`**: The schema key name (useful for debugging)
 
 ## Example: Blog Posts with Seeding
 
-Here's a complete example that combines `x-seed` for initial data and `x-handle` for endpoints:
+Here's a complete example that combines `x-seed` for initial data and `x-handler` for endpoints:
 
 ```yaml
 openapi: 3.1.0
@@ -114,7 +114,7 @@ paths:
     get:
       summary: List all posts
       operationId: listPosts
-      x-handle: |
+      x-handler: |
         return store.list('Post')
       responses:
         '200':
@@ -125,11 +125,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-    
+
     post:
       summary: Create a new post
       operationId: createPost
-      x-handle: |
+      x-handler: |
         return store.create('Post', {
           id: faker.string.uuid(),
           ...req.body,
@@ -208,7 +208,7 @@ components:
           title: faker.lorem.sentence(),
           content: faker.lorem.paragraphs(3)
         }))
-    
+
     Author:
       type: object
       x-seed: |
@@ -218,7 +218,7 @@ components:
           email: faker.internet.email(),
           bio: faker.person.bio()
         }))
-    
+
     Category:
       type: object
       x-seed: |
@@ -239,7 +239,7 @@ The seed code only runs if the collection is empty. This means:
 - **Subsequent starts**: Skips seeding if data exists
 - **After clearing**: Seeds again on next start
 
-This prevents duplicate data and ensures consistent behavior. If you need to reseed, you can clear the collection using `store.clear('Post')` in an `x-handle` endpoint, or restart the server after clearing.
+This prevents duplicate data and ensures consistent behavior. If you need to reseed, you can clear the collection using `store.clear('Post')` in an `x-handler` endpoint, or restart the server after clearing.
 
 ## Best Practices
 
@@ -247,7 +247,7 @@ This prevents duplicate data and ensures consistent behavior. If you need to res
 2. **Generate realistic data**: Use Faker to create believable test data
 3. **Match schema structure**: Ensure seeded data matches your schema properties
 4. **Use factories**: Prefer factory functions over hardcoded arrays for flexibility
-5. **Combine with x-handle**: Use `x-seed` for initial data and `x-handle` for CRUD operations
+5. **Combine with x-handler**: Use `x-seed` for initial data and `x-handler` for CRUD operations
 
 ## Common Patterns
 
@@ -262,7 +262,7 @@ Post:
       id: faker.string.uuid(),
       name: faker.person.fullName()
     }))
-    
+
     // Then create posts with author references
     seed.count(10, () => ({
       id: faker.string.uuid(),

@@ -1,20 +1,20 @@
-# x-handle: Custom Request Handlers
+# x-handler: Custom Request Handlers
 
-The `x-handle` extension allows you to write custom JavaScript code directly in your OpenAPI operations to handle requests dynamically. This gives you full control over request processing, data persistence, and response generation.
+The `x-handler` extension allows you to write custom JavaScript code directly in your OpenAPI operations to handle requests dynamically. This gives you full control over request processing, data persistence, and response generation.
 
-## When to Use x-handle
+## When to Use x-handler
 
-Use `x-handle` when you need:
+Use `x-handler` when you need:
 - **Persistent data** across requests (CRUD operations)
 - **Dynamic responses** based on request data
 - **Custom business logic** in your mock server
 - **Realistic data generation** using Faker
 
-Without `x-handle`, the mock server returns static example data. With `x-handle`, you can build fully functional mock APIs that behave like real backends.
+Without `x-handler`, the mock server returns static example data. With `x-handler`, you can build fully functional mock APIs that behave like real backends.
 
 ## Available Helpers
 
-When writing `x-handle` code, you have access to several helpers:
+When writing `x-handler` code, you have access to several helpers:
 
 ### `store` - Data Persistence
 
@@ -78,7 +78,7 @@ res['404']  // Example for 404 status
 
 ## Example: Blog Posts API
 
-Here's a complete example of a blog posts API using `x-handle`:
+Here's a complete example of a blog posts API using `x-handler`:
 
 ```yaml
 openapi: 3.1.0
@@ -90,7 +90,7 @@ paths:
     get:
       summary: List all posts
       operationId: listPosts
-      x-handle: |
+      x-handler: |
         return store.list('Post')
       responses:
         '200':
@@ -105,7 +105,7 @@ paths:
     post:
       summary: Create a new post
       operationId: createPost
-      x-handle: |
+      x-handler: |
         return store.create('Post', {
           id: faker.string.uuid(),
           title: req.body.title,
@@ -138,7 +138,7 @@ paths:
     get:
       summary: Get a post by ID
       operationId: getPost
-      x-handle: |
+      x-handler: |
         return store.get('Post', req.params.id)
       responses:
         '200':
@@ -153,7 +153,7 @@ paths:
     put:
       summary: Update a post
       operationId: updatePost
-      x-handle: |
+      x-handler: |
         return store.update('Post', req.params.id, {
           ...req.body,
           updatedAt: new Date().toISOString()
@@ -177,7 +177,7 @@ paths:
     delete:
       summary: Delete a post
       operationId: deletePost
-      x-handle: |
+      x-handler: |
         return store.delete('Post', req.params.id)
       responses:
         '204':
@@ -243,7 +243,7 @@ The mock server automatically determines HTTP status codes based on the store op
 You can return any value from your handler. The mock server will serialize it as JSON:
 
 ```yaml
-x-handle: |
+x-handler: |
   const posts = store.list('Post')
   return {
     data: posts,
@@ -258,7 +258,7 @@ x-handle: |
 If your handler throws an error, the server returns a `500` status with an error message:
 
 ```yaml
-x-handle: |
+x-handler: |
   if (!req.body.title) {
     throw new Error('Title is required')
   }

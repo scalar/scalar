@@ -512,8 +512,8 @@
               "type": "page"
             },
             {
-              "name": "x-handle",
-              "path": "documentation/guides/mock-server/x-handle.md",
+              "name": "x-handler",
+              "path": "documentation/guides/mock-server/x-handler.md",
               "type": "page"
             },
             {
