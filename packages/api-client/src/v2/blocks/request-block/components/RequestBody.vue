@@ -148,10 +148,11 @@ const tableRows = computed(() => {
   <CollapsibleSection>
     <template #title>{{ title }}</template>
     <DataTable
+      class="border-b"
       :columns="['']"
       presentational>
       <DataTableHeader
-        class="relative col-span-full flex h-8 cursor-pointer items-center justify-between !p-0">
+        class="relative col-span-full flex h-8 cursor-pointer items-center justify-between border-r-0 !p-0">
         <ScalarListbox
           v-model="selectedContentTypeModel"
           :options="contentTypeOptions"
