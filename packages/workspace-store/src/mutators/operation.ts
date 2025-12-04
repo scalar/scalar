@@ -362,7 +362,7 @@ export const updateOperationMethod = (
     const success = store.buildSidebar(documentName)
     callback?.(success)
   } else {
-    callback?.(true)
+    callback?.(false)
   }
 }
 
