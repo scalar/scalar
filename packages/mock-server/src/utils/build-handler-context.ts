@@ -2,10 +2,10 @@ import { faker } from '@faker-js/faker'
 import type { Context } from 'hono'
 
 import { store } from '../libs/store'
-import { createStoreWrapper, type StoreOperationTracking } from './store-wrapper'
+import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
- * Context object provided to x-handler code.
+ * Context object provided to x-handle code.
  */
 export type HandlerContext = {
   store: ReturnType<typeof createStoreWrapper>['wrappedStore']

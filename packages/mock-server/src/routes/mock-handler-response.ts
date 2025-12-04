@@ -46,7 +46,7 @@ function determineStatusCode(
 }
 
 /**
- * Mock response using x-handler code.
+ * Mock response using x-handle code.
  * Executes the handler and returns its result as the response.
  */
 export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operation, options: MockServerOptions) {
@@ -58,7 +58,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
     })
   }
 
-  // Get x-handler code from operation
+  // Get x-handle code from operation
   const handlerCode = operation?.['x-handler']
 
   if (!handlerCode) {

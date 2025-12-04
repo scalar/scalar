@@ -83,7 +83,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
         app[method](route, handleAuthentication(schema, operation))
       }
 
-      // Check if operation has x-handler extension
+      // Check if operation has x-handle extension
       const hasHandler = operation?.['x-handler'] !== undefined
 
       // Route to appropriate handler

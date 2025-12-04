@@ -14,7 +14,7 @@ paths:
       tags:
         - Articles
       operationId: getArticles
-      x-handler: |
+      x-handle: |
         return store.list('articles')
       responses:
         '200':
@@ -29,7 +29,7 @@ paths:
       tags:
         - Articles
       operationId: createArticle
-      x-handler: |
+      x-handle: |
         return store.create('articles', {
           id: faker.string.uuid(),
           ...req.body
@@ -61,7 +61,7 @@ paths:
       tags:
         - Articles
       operationId: getArticle
-      x-handler: |
+      x-handle: |
         return store.get('articles', req.params.id)
       responses:
         '200':
@@ -76,7 +76,7 @@ paths:
       tags:
         - Articles
       operationId: updateArticle
-      x-handler: |
+      x-handle: |
         return store.update('articles', req.params.id, req.body)
       requestBody:
         required: true
@@ -97,7 +97,7 @@ paths:
       tags:
         - Articles
       operationId: deleteArticle
-      x-handler: |
+      x-handle: |
         return store.delete('articles', req.params.id)
       responses:
         '204':
