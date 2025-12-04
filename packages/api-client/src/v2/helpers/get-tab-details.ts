@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 
 import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 
