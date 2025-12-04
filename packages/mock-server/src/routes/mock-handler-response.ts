@@ -59,11 +59,11 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
   }
 
   // Get x-handle code from operation
-  const handlerCode = operation?.['x-handler']
+  const handlerCode = operation?.['x-handle']
 
   if (!handlerCode) {
     c.status(500)
-    return c.json({ error: 'x-handler code not found in operation' })
+    return c.json({ error: 'x-handle code not found in operation' })
   }
 
   try {
@@ -96,7 +96,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
     return c.json(result)
   } catch (error) {
     // Log error to console
-    console.error('x-handler execution error:', error)
+    console.error('x-handle execution error:', error)
 
     // Return 500 error
     c.status(500)

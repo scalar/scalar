@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMockServer } from './create-mock-server'
 import { store } from './libs/store'
 
-describe('x-handler', () => {
+describe('x-handle', () => {
   beforeEach(() => {
     // Clear store before each test to ensure clean state
     store.clear()
@@ -19,7 +19,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           get: {
-            'x-handler': "return store.list('items');",
+            'x-handle': "return store.list('items');",
             responses: {
               '200': {
                 description: 'OK',
@@ -48,7 +48,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -85,7 +85,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -93,7 +93,7 @@ describe('x-handler', () => {
             },
           },
           get: {
-            'x-handler': "return store.get('items', req.params.id);",
+            'x-handle': "return store.get('items', req.params.id);",
             responses: {
               '200': {
                 description: 'OK',
@@ -103,7 +103,7 @@ describe('x-handler', () => {
         },
         '/items/{id}': {
           get: {
-            'x-handler': "return store.get('items', req.params.id);",
+            'x-handle': "return store.get('items', req.params.id);",
             responses: {
               '200': {
                 description: 'OK',
@@ -147,7 +147,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -157,7 +157,7 @@ describe('x-handler', () => {
         },
         '/items/{id}': {
           put: {
-            'x-handler': "return store.update('items', req.params.id, req.body);",
+            'x-handle': "return store.update('items', req.params.id, req.body);",
             responses: {
               '200': {
                 description: 'OK',
@@ -207,7 +207,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -215,7 +215,7 @@ describe('x-handler', () => {
             },
           },
           get: {
-            'x-handler': "return store.list('items');",
+            'x-handle': "return store.list('items');",
             responses: {
               '200': {
                 description: 'OK',
@@ -225,7 +225,7 @@ describe('x-handler', () => {
         },
         '/items/{id}': {
           delete: {
-            'x-handler': "return store.delete('items', req.params.id);",
+            'x-handle': "return store.delete('items', req.params.id);",
             responses: {
               '204': {
                 description: 'No Content',
@@ -275,7 +275,7 @@ describe('x-handler', () => {
       paths: {
         '/users': {
           post: {
-            'x-handler': `
+            'x-handle': `
               const uuid = faker.string.uuid();
               const name = faker.person.fullName();
               return store.create('users', { id: uuid, name });
@@ -318,7 +318,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': `
+            'x-handle': `
               const uuid = faker.string.uuid();
               return store.create('items', { id: uuid, ...req.body });
             `,
@@ -359,7 +359,7 @@ describe('x-handler', () => {
       paths: {
         '/items/{id}': {
           get: {
-            'x-handler': "return { id: req.params.id, message: 'Found item' };",
+            'x-handle': "return { id: req.params.id, message: 'Found item' };",
             responses: {
               '200': {
                 description: 'OK',
@@ -390,7 +390,7 @@ describe('x-handler', () => {
       paths: {
         '/search': {
           get: {
-            'x-handler': 'return { query: req.query.q, limit: req.query.limit };',
+            'x-handle': 'return { query: req.query.q, limit: req.query.limit };',
             responses: {
               '200': {
                 description: 'OK',
@@ -423,7 +423,7 @@ describe('x-handler', () => {
       paths: {
         '/error': {
           get: {
-            'x-handler': 'throw new Error("Test error");',
+            'x-handle': 'throw new Error("Test error");',
             responses: {
               '200': {
                 description: 'OK',
@@ -459,7 +459,7 @@ describe('x-handler', () => {
       paths: {
         '/custom': {
           get: {
-            'x-handler': "return { custom: 'response', value: 42 };",
+            'x-handle': "return { custom: 'response', value: 42 };",
             responses: {
               '200': {
                 description: 'OK',
@@ -498,7 +498,7 @@ describe('x-handler', () => {
       paths: {
         '/articles': {
           get: {
-            'x-handler': "return store.list('articles');",
+            'x-handle': "return store.list('articles');",
             responses: {
               '200': {
                 description: 'OK',
@@ -506,7 +506,7 @@ describe('x-handler', () => {
             },
           },
           post: {
-            'x-handler': `
+            'x-handle': `
               const uuid = faker.string.uuid();
               return store.create('articles', { id: uuid, ...req.body });
             `,
@@ -552,7 +552,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -560,7 +560,7 @@ describe('x-handler', () => {
             },
           },
           get: {
-            'x-handler': "return store.list('items');",
+            'x-handle': "return store.list('items');",
             responses: {
               '200': {
                 description: 'OK',
@@ -614,7 +614,7 @@ describe('x-handler', () => {
       paths: {
         '/items/{id}': {
           get: {
-            'x-handler': "return store.get('items', req.params.id);",
+            'x-handle': "return store.get('items', req.params.id);",
             responses: {
               '200': {
                 description: 'OK',
@@ -649,7 +649,7 @@ describe('x-handler', () => {
       paths: {
         '/items/{id}': {
           get: {
-            'x-handler': `
+            'x-handle': `
               const item = store.get('items', req.params.id);
               return item === null ? null : item;
             `,
@@ -684,7 +684,7 @@ describe('x-handler', () => {
       paths: {
         '/items/{id}': {
           put: {
-            'x-handler': "return store.update('items', req.params.id, req.body);",
+            'x-handle': "return store.update('items', req.params.id, req.body);",
             responses: {
               '200': {
                 description: 'OK',
@@ -724,7 +724,7 @@ describe('x-handler', () => {
       paths: {
         '/items/{id}': {
           delete: {
-            'x-handler': "return store.delete('items', req.params.id);",
+            'x-handle': "return store.delete('items', req.params.id);",
             responses: {
               '204': {
                 description: 'No Content',
@@ -760,7 +760,7 @@ describe('x-handler', () => {
       paths: {
         '/items': {
           post: {
-            'x-handler': "return store.create('items', req.body);",
+            'x-handle': "return store.create('items', req.body);",
             responses: {
               '201': {
                 description: 'Created',
@@ -770,7 +770,7 @@ describe('x-handler', () => {
         },
         '/items/{id}': {
           delete: {
-            'x-handler': "return store.delete('items', req.params.id);",
+            'x-handle': "return store.delete('items', req.params.id);",
             responses: {
               '204': {
                 description: 'No Content',

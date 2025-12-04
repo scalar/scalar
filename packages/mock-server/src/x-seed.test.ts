@@ -66,7 +66,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -117,7 +117,7 @@ describe('x-seed', () => {
         paths: {
           '/users': {
             get: {
-              'x-handler': "return store.list('users');",
+              'x-handle': "return store.list('users');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -165,7 +165,7 @@ describe('x-seed', () => {
         paths: {
           '/comments': {
             get: {
-              'x-handler': "return store.list('comments');",
+              'x-handle': "return store.list('comments');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -215,7 +215,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -266,7 +266,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -331,7 +331,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -341,7 +341,7 @@ describe('x-seed', () => {
           },
           '/users': {
             get: {
-              'x-handler': "return store.list('users');",
+              'x-handle': "return store.list('users');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -392,7 +392,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -442,7 +442,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handler': "return store.list('articles');",
+              'x-handle': "return store.list('articles');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -496,7 +496,7 @@ describe('x-seed', () => {
         paths: {
           '/userProfiles': {
             get: {
-              'x-handler': "return store.list('userProfiles');",
+              'x-handle': "return store.list('userProfiles');",
               responses: {
                 '200': {
                   description: 'OK',

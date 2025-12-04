@@ -14,7 +14,7 @@ import type { Hono } from 'hono'
 export async function loadDocument(): Promise<string> {
   try {
     // TODO: Restore before merging
-    return await readFile(new URL('./x-handler.yaml', import.meta.url), 'utf8')
+    return await readFile(new URL('./x-handle.yaml', import.meta.url), 'utf8')
   } catch {
     console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
     return ''
