@@ -474,8 +474,8 @@ export namespace OpenAPIV3_1 {
     Omit<OpenAPIV3.BaseSchemaObject, 'nullable'>,
     {
       examples?: OpenAPIV3.BaseSchemaObject['example'][]
-      exclusiveMinimum?: boolean | number
-      exclusiveMaximum?: boolean | number
+      exclusiveMinimum?: number
+      exclusiveMaximum?: number
       contentMediaType?: string
       $schema?: string
       additionalProperties?: boolean | ReferenceObject | SchemaObject
