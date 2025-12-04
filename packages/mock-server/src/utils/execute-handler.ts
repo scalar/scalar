@@ -3,7 +3,7 @@ import type { HandlerContext } from './build-handler-context'
 /**
  * Result of executing a handler, including the result and operation tracking.
  */
-export type HandlerExecutionResult = {
+type HandlerExecutionResult = {
   result: any
 }
 

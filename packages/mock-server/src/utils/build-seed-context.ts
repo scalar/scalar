@@ -6,7 +6,7 @@ import { createStoreWrapper } from './store-wrapper'
 /**
  * Seed helper function type.
  */
-export type SeedHelper = {
+type SeedHelper = {
   /**
    * Create n items using a factory function.
    */

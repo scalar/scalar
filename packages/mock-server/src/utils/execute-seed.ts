@@ -3,7 +3,7 @@ import type { SeedContext } from './build-seed-context'
 /**
  * Result of executing a seed handler.
  */
-export type SeedExecutionResult = {
+type SeedExecutionResult = {
   result: any
 }
 

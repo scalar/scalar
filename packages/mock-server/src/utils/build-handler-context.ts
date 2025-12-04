@@ -25,7 +25,7 @@ export type HandlerContext = {
 /**
  * Result of building handler context, including operation tracking.
  */
-export type HandlerContextResult = {
+type HandlerContextResult = {
   context: HandlerContext
   tracking: StoreOperationTracking
 }

@@ -3,7 +3,7 @@ import type { Store } from '../libs/store'
 /**
  * Public interface of the Store class (methods only, no private properties).
  */
-export type StoreInterface = Pick<Store, 'list' | 'get' | 'create' | 'update' | 'delete' | 'clear'>
+type StoreInterface = Pick<Store, 'list' | 'get' | 'create' | 'update' | 'delete' | 'clear'>
 
 /**
  * Tracks the last store operation performed.
