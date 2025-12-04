@@ -412,7 +412,7 @@ describe('x-handle', () => {
   })
 
   it('handler error returns 500 and logs to console', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     const document = {
       openapi: '3.1.0',
@@ -805,5 +805,259 @@ describe('x-handle', () => {
     expect(contentType).toBeNull()
     const body = await deleteResponse.text()
     expect(body).toBe('')
+  })
+
+  it('handler returns 404 with example response when item not found', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handle': "return store.get('items', req.params.id);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+              '404': {
+                description: 'Not Found',
+                content: {
+                  'application/json': {
+                    example: {
+                      error: 'Item not found',
+                      message: 'The requested item does not exist',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to get non-existent item
+    const getResponse = await server.request('/items/non-existent-id')
+
+    expect(getResponse.status).toBe(404)
+    const data = await getResponse.json()
+    expect(data).toEqual({
+      error: 'Item not found',
+      message: 'The requested item does not exist',
+    })
+  })
+
+  it('handler returns 404 with example from schema when item not found', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handle': "return store.get('items', req.params.id);",
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+              '404': {
+                description: 'Not Found',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: {
+                          type: 'string',
+                          example: 'Not Found',
+                        },
+                        code: {
+                          type: 'number',
+                          example: 404,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    // Try to get non-existent item
+    const getResponse = await server.request('/items/non-existent-id')
+
+    expect(getResponse.status).toBe(404)
+    const data = await getResponse.json()
+    expect(data).toHaveProperty('error')
+    expect(data).toHaveProperty('code')
+    expect(data.error).toBe('Not Found')
+    expect(data.code).toBe(404)
+  })
+
+  it('handler returns 201 with example response when handler explicitly returns null after create', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handle': `
+              store.create('items', req.body);
+              return null;
+            `,
+            responses: {
+              '201': {
+                description: 'Created',
+                content: {
+                  'application/json': {
+                    example: {
+                      id: '123e4567-e89b-12d3-a456-426614174000',
+                      name: 'Example Item',
+                      createdAt: '2024-01-01T00:00:00Z',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    expect(response.status).toBe(201)
+    const data = await response.json()
+    // Handler returns null but status is 201, so should use example
+    expect(data).toEqual({
+      id: '123e4567-e89b-12d3-a456-426614174000',
+      name: 'Example Item',
+      createdAt: '2024-01-01T00:00:00Z',
+    })
+  })
+
+  it('handler returns 201 with example from schema when handler explicitly returns null after create', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items': {
+          post: {
+            'x-handle': `
+              store.create('items', req.body);
+              return null;
+            `,
+            responses: {
+              '201': {
+                description: 'Created',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'string',
+                          format: 'uuid',
+                        },
+                        name: {
+                          type: 'string',
+                          example: 'Created Item',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Item' }),
+    })
+
+    expect(response.status).toBe(201)
+    const data = await response.json()
+    // Since handler returns null but status is 201, should use example from schema
+    expect(data).toHaveProperty('id')
+    expect(data).toHaveProperty('name')
+    expect(data.name).toBe('Created Item')
+  })
+
+  it('handler result takes precedence over example response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handle': "return { id: req.params.id, custom: 'handler-value' };",
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      id: 'example-id',
+                      custom: 'example-value',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/items/actual-id')
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    // Handler returns a value, so it should be used instead of example
+    expect(data).toEqual({
+      id: 'actual-id',
+      custom: 'handler-value',
+    })
+    expect(data.custom).not.toBe('example-value')
   })
 })

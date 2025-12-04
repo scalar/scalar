@@ -1,10 +1,66 @@
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { Context } from 'hono'
+import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import type { MockServerOptions } from '@/types'
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
+
+/**
+ * Get example response from OpenAPI spec for a given status code.
+ * Returns the example value if found, or null if not available.
+ */
+function getExampleFromResponse(
+  c: Context,
+  statusCode: StatusCode,
+  responses: OpenAPI.ResponsesObject | undefined,
+): any {
+  if (!responses) {
+    return null
+  }
+
+  const statusCodeStr = statusCode.toString()
+  const response = responses[statusCodeStr] || responses.default
+
+  if (!response) {
+    return null
+  }
+
+  const supportedContentTypes = Object.keys(response.content ?? {})
+
+  // If no content types are defined, return null
+  if (supportedContentTypes.length === 0) {
+    return null
+  }
+
+  // Content-Type negotiation
+  const acceptedContentType = accepts(c, {
+    header: 'Accept',
+    supports: supportedContentTypes,
+    default: supportedContentTypes.includes('application/json')
+      ? 'application/json'
+      : (supportedContentTypes[0] ?? 'text/plain;charset=UTF-8'),
+  })
+
+  const acceptedResponse = response.content?.[acceptedContentType]
+
+  if (!acceptedResponse) {
+    return null
+  }
+
+  // Extract example from example property or generate from schema
+  return acceptedResponse.example !== undefined
+    ? acceptedResponse.example
+    : acceptedResponse.schema
+      ? getExampleFromSchema(acceptedResponse.schema, {
+          emptyString: 'string',
+          variables: c.req.param(),
+          mode: 'read',
+        })
+      : null
+}
 
 /**
  * Determine HTTP status code based on store operation tracking.
@@ -90,6 +146,11 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
     // Return the handler result as JSON
     // Handle undefined/null results gracefully
     if (result === undefined || result === null) {
+      // Try to pick up example response from OpenAPI spec if available
+      const exampleResponse = getExampleFromResponse(c, statusCode, operation.responses)
+      if (exampleResponse !== null) {
+        return c.json(exampleResponse)
+      }
       return c.json(null)
     }
 
