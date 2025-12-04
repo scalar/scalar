@@ -1,5 +1,5 @@
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -15,7 +15,7 @@ import { executeHandler } from '@/utils/execute-handler'
 function getExampleFromResponse(
   c: Context,
   statusCode: StatusCode,
-  responses: OpenAPI.ResponsesObject | undefined,
+  responses: OpenAPIV3_1.ResponsesObject | undefined,
 ): any {
   if (!responses) {
     return null
@@ -105,7 +105,11 @@ function determineStatusCode(
  * Mock response using x-handle code.
  * Executes the handler and returns its result as the response.
  */
-export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operation, options: MockServerOptions) {
+export async function mockHandlerResponse(
+  c: Context,
+  operation: OpenAPIV3_1.OperationObject,
+  options: MockServerOptions,
+) {
   // Call onRequest callback
   if (options?.onRequest) {
     options.onRequest({
@@ -147,7 +151,11 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
     // Handle undefined/null results gracefully
     if (result === undefined || result === null) {
       // Try to pick up example response from OpenAPI spec if available
-      const exampleResponse = getExampleFromResponse(c, statusCode, operation.responses)
+      const exampleResponse = getExampleFromResponse(
+        c,
+        statusCode,
+        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
+      )
       if (exampleResponse !== null) {
         return c.json(exampleResponse)
       }

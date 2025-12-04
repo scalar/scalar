@@ -1973,6 +1973,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1982,6 +1985,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/openapi-upgrader':
+        specifier: workspace:*
+        version: link:../openapi-upgrader
       hono:
         specifier: catalog:*
         version: 4.10.3

@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 
 /** Available HTTP methods for Hono routes */
@@ -33,7 +33,7 @@ type BaseMockServerOptions = {
   /**
    * Callback function to be called before each request is processed.
    */
-  onRequest?: (data: { context: Context; operation: OpenAPI.Operation }) => void
+  onRequest?: (data: { context: Context; operation: OpenAPIV3_1.OperationObject }) => void
 }
 
 export type MockServerOptions = RequireAtLeastOne<BaseMockServerOptions, 'specification' | 'document'>

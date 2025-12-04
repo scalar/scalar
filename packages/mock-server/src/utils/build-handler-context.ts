@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
@@ -34,7 +34,11 @@ export type HandlerContextResult = {
  * Get example response from OpenAPI spec for a given status code.
  * Returns the example value if found, or null if not available.
  */
-function getExampleFromResponse(c: Context, statusCode: string, responses: OpenAPI.ResponsesObject | undefined): any {
+function getExampleFromResponse(
+  c: Context,
+  statusCode: string,
+  responses: OpenAPIV3_1.ResponsesObject | undefined,
+): any {
   if (!responses) {
     return null
   }
@@ -82,7 +86,10 @@ function getExampleFromResponse(c: Context, statusCode: string, responses: OpenA
 /**
  * Build the handler context from a Hono context.
  */
-export async function buildHandlerContext(c: Context, operation?: OpenAPI.Operation): Promise<HandlerContextResult> {
+export async function buildHandlerContext(
+  c: Context,
+  operation?: OpenAPIV3_1.OperationObject,
+): Promise<HandlerContextResult> {
   let body: any = undefined
 
   try {
@@ -104,7 +111,11 @@ export async function buildHandlerContext(c: Context, operation?: OpenAPI.Operat
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses)
+      res[statusCode] = getExampleFromResponse(
+        c,
+        statusCode,
+        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
+      )
     }
   }
 

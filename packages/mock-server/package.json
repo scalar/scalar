@@ -48,9 +48,11 @@
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
     "@scalar/helpers": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "hono": "catalog:*"
   },
   "devDependencies": {

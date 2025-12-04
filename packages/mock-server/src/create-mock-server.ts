@@ -1,5 +1,4 @@
-import { dereference } from '@scalar/openapi-parser'
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -11,6 +10,7 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
+import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 
 import { store } from './libs/store'
@@ -25,7 +25,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = dereference(configuration?.document ?? configuration?.specification ?? {})
+  const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification)
 
   // Seed data from schemas with x-seed extension
   // This happens before routes are set up so data is available immediately
@@ -73,7 +73,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     /** Keys for all operations of a specified path */
     methods.forEach((method) => {
       const route = honoRouteFromPath(path)
-      const operation = schema?.paths?.[path]?.[method] as OpenAPI.Operation
+      const operation = schema?.paths?.[path]?.[method] as OpenAPIV3_1.OperationObject
 
       // Check if authentication is required for this operation
       if (isAuthenticationRequired(operation.security)) {

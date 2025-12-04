@@ -381,7 +381,7 @@ describe('x-seed', () => {
 
       // Verify error was logged
       expect(consoleErrorSpy).toHaveBeenCalled()
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('Error seeding schema "Article"')
+      expect(consoleErrorSpy.mock.calls[0]?.[0]).toContain('Error seeding schema "Article"')
 
       // Verify collection is empty (seeding failed)
       const response = await server.request('/articles')

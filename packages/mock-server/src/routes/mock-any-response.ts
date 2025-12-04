@@ -1,6 +1,6 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -11,7 +11,7 @@ import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 /**
  * Mock any response
  */
-export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, options: MockServerOptions) {
+export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject, options: MockServerOptions) {
   // Call onRequest callback
   if (options?.onRequest) {
     options.onRequest({
