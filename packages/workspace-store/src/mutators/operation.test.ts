@@ -241,8 +241,6 @@ describe('updateOperationMethod', () => {
       ]),
     })
 
-    console.dir(store.workspace.documents.test2!, { depth: null })
-
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
       'test2/tag/products/patch/products',
       'test2/tag/products/delete/products',
