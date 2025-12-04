@@ -101,19 +101,20 @@ export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: 
       if (!isAuthenticated) {
         let wwwAuthenticateValue = authScheme
 
-        switch (authScheme) {
-          case 'Basic':
-            wwwAuthenticateValue += ' realm="Scalar Mock Server", charset="UTF-8"'
-            break
-          case 'Bearer':
-            wwwAuthenticateValue +=
-              ' realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"'
-            break
-          case 'ApiKey':
-            wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
-            break
-          default:
-            wwwAuthenticateValue = 'Bearer realm="Scalar Mock Server"'
+        if (authScheme.startsWith('ApiKey')) {
+          wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
+        } else {
+          switch (authScheme) {
+            case 'Basic':
+              wwwAuthenticateValue += ' realm="Scalar Mock Server", charset="UTF-8"'
+              break
+            case 'Bearer':
+              wwwAuthenticateValue +=
+                ' realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"'
+              break
+            default:
+              wwwAuthenticateValue = 'Bearer realm="Scalar Mock Server"'
+          }
         }
 
         c.header('WWW-Authenticate', wwwAuthenticateValue)
