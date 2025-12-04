@@ -88,6 +88,11 @@
       "types": "./dist/schemas/extensions/operation/index.d.ts",
       "default": "./dist/schemas/extensions/operation/index.js"
     },
+    "./schemas/extensions/workspace": {
+      "import": "./dist/schemas/extensions/workspace/index.js",
+      "types": "./dist/schemas/extensions/workspace/index.d.ts",
+      "default": "./dist/schemas/extensions/workspace/index.js"
+    },
     "./schemas/v3.1/strict/openapi-document": {
       "import": "./dist/schemas/v3.1/strict/openapi-document.js",
       "types": "./dist/schemas/v3.1/strict/openapi-document.d.ts",
