@@ -10,6 +10,8 @@ A powerful Node.js mock server that automatically generates realistic API respon
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents
 - Customizable response handling
+- **x-handler**: Write custom JavaScript handlers for dynamic responses
+- **x-seed**: Automatically seed initial data on server startup
 
 ## Quickstart
 
@@ -175,3 +177,17 @@ serve(
 The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
+
+## Advanced Features
+
+### Custom Request Handlers
+
+Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.
+
+[Learn more about custom request handlers →](./custom-request-handler)
+
+### Data Seeding
+
+Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
+
+[Learn more about data seeding →](./data-seeding)

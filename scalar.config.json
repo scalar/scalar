@@ -502,13 +502,23 @@
           ]
         },
         {
-          "name": "Scalar-Mock Server",
+          "name": "Scalar Mock Server",
           "type": "folder",
           "icon": "phosphor/regular/jar",
           "children": [
             {
               "name": "Getting Started",
               "path": "documentation/guides/mock-server/getting-started.md",
+              "type": "page"
+            },
+            {
+              "name": "Custom Request Handlers",
+              "path": "documentation/guides/mock-server/custom-request-handler.md",
+              "type": "page"
+            },
+            {
+              "name": "Data Seeding",
+              "path": "documentation/guides/mock-server/data-seeding.md",
               "type": "page"
             }
           ]

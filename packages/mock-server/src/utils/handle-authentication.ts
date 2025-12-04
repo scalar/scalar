@@ -1,11 +1,11 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 /**
  * Handles authentication for incoming requests based on the OpenAPI document.
  */
-export function handleAuthentication(schema?: OpenAPI.Document, operation?: OpenAPI.Operation) {
+export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: OpenAPIV3_1.OperationObject) {
   return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {
     const operationSecuritySchemes = operation?.security || schema?.security
 
@@ -19,17 +19,24 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
         for (const [schemeName] of Object.entries(securityRequirement)) {
           const scheme = schema?.components?.securitySchemes?.[schemeName]
 
-          if (scheme) {
-            switch (scheme.type) {
+          // Skip if scheme is a reference object (should be dereferenced already, but check to be safe)
+          if (scheme && '$ref' in scheme) {
+            continue
+          }
+
+          if (scheme && 'type' in scheme) {
+            const securityScheme = scheme as OpenAPIV3_1.SecuritySchemeObject
+
+            switch (securityScheme.type) {
               case 'http':
-                if (scheme.scheme === 'basic') {
+                if ('scheme' in securityScheme && securityScheme.scheme === 'basic') {
                   authScheme = 'Basic'
                   const authHeader = c.req.header('Authorization')
 
                   if (authHeader?.startsWith('Basic ')) {
                     isAuthenticated = true
                   }
-                } else if (scheme.scheme === 'bearer') {
+                } else if ('scheme' in securityScheme && securityScheme.scheme === 'bearer') {
                   authScheme = 'Bearer'
                   const authHeader = c.req.header('Authorization')
 
@@ -39,24 +46,26 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
                 }
                 break
               case 'apiKey':
-                authScheme = `ApiKey ${scheme.name}`
+                if ('name' in securityScheme && 'in' in securityScheme && securityScheme.name) {
+                  authScheme = `ApiKey ${securityScheme.name}`
 
-                if (scheme.in === 'header') {
-                  const apiKey = c.req.header(scheme.name)
-                  if (apiKey) {
-                    isAuthenticated = true
-                  }
-                } else if (scheme.in === 'query') {
-                  const apiKey = c.req.query(scheme.name)
+                  if (securityScheme.in === 'header') {
+                    const apiKey = c.req.header(securityScheme.name)
+                    if (apiKey) {
+                      isAuthenticated = true
+                    }
+                  } else if (securityScheme.in === 'query') {
+                    const apiKey = c.req.query(securityScheme.name)
 
-                  if (apiKey) {
-                    isAuthenticated = true
-                  }
-                } else if (scheme.in === 'cookie') {
-                  const apiKey = getCookie(c, scheme.name)
+                    if (apiKey) {
+                      isAuthenticated = true
+                    }
+                  } else if (securityScheme.in === 'cookie') {
+                    const apiKey = getCookie(c, securityScheme.name)
 
-                  if (apiKey) {
-                    isAuthenticated = true
+                    if (apiKey) {
+                      isAuthenticated = true
+                    }
                   }
                 }
                 break
@@ -92,19 +101,20 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
       if (!isAuthenticated) {
         let wwwAuthenticateValue = authScheme
 
-        switch (authScheme) {
-          case 'Basic':
-            wwwAuthenticateValue += ' realm="Scalar Mock Server", charset="UTF-8"'
-            break
-          case 'Bearer':
-            wwwAuthenticateValue +=
-              ' realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"'
-            break
-          case 'ApiKey':
-            wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
-            break
-          default:
-            wwwAuthenticateValue = 'Bearer realm="Scalar Mock Server"'
+        if (authScheme.startsWith('ApiKey')) {
+          wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
+        } else {
+          switch (authScheme) {
+            case 'Basic':
+              wwwAuthenticateValue += ' realm="Scalar Mock Server", charset="UTF-8"'
+              break
+            case 'Bearer':
+              wwwAuthenticateValue +=
+                ' realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"'
+              break
+            default:
+              wwwAuthenticateValue = 'Bearer realm="Scalar Mock Server"'
+          }
         }
 
         c.header('WWW-Authenticate', wwwAuthenticateValue)
