@@ -502,13 +502,23 @@
           ]
         },
         {
-          "name": "Scalar-Mock Server",
+          "name": "Scalar Mock Server",
           "type": "folder",
           "icon": "phosphor/regular/jar",
           "children": [
             {
               "name": "Getting Started",
               "path": "documentation/guides/mock-server/getting-started.md",
+              "type": "page"
+            },
+            {
+              "name": "x-handle",
+              "path": "documentation/guides/mock-server/x-handle.md",
+              "type": "page"
+            },
+            {
+              "name": "x-seed",
+              "path": "documentation/guides/mock-server/x-seed.md",
               "type": "page"
             }
           ]
