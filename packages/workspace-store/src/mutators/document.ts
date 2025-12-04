@@ -68,3 +68,11 @@ export const createEmptyDocument = async (
 
   payload.callback?.(true)
 }
+
+export const deleteDocument = (store: WorkspaceStore | null, payload: DocumentEvents['document:delete:document']) => {
+  if (!store) {
+    return
+  }
+
+  store.deleteDocument(payload.name)
+}

@@ -1,5 +1,7 @@
 import type { WorkspaceStore } from '@/client'
 import type { TagEvents } from '@/events/definitions/tag'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
 /**
  * Adds a new tag to the WorkspaceDocument's `tags` array.
@@ -27,4 +29,47 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
   })
 
   payload.callback?.(true)
+}
+
+/**
+ * Deletes a tag from the workspace
+ *
+ * Example:
+ * ```ts
+ * deleteTag({
+ *   document,
+ *   name: 'tag',
+ * })
+ * ```
+ */
+export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['tag:delete:tag']) => {
+  const document = workspace?.workspace.documents[payload.documentName]
+  if (!document) {
+    return
+  }
+
+  // Clear tags from all operations that have this tag
+  Object.values(document.paths ?? {}).forEach((path) => {
+    Object.values(path).forEach((operation) => {
+      // Only process operations that are objects
+      if (typeof operation !== 'object' || Array.isArray(operation)) {
+        return
+      }
+
+      const resolvedOperation = getResolvedRef(operation)
+
+      if ('tags' in resolvedOperation) {
+        resolvedOperation.tags = unpackProxyObject(
+          resolvedOperation.tags?.filter((tag) => tag !== payload.name),
+          { depth: 2 },
+        )
+      }
+    })
+  })
+
+  // Remove the tag from the document tags array
+  document.tags = unpackProxyObject(
+    document.tags?.filter((tag) => tag.name !== payload.name),
+    { depth: 2 },
+  )
 }

@@ -60,7 +60,7 @@ const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
     isDroppable?: UseDraggableOptions['isDroppable']
   }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   /**
    * Emitted when the item is selected
    * @param id - The id of the selected item
@@ -74,7 +74,7 @@ const emits = defineEmits<{
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
-defineSlots<{
+const slots = defineSlots<{
   /**
    * Adds an optional decorator for each item, such as an edit menu.
    * The slot receives an object with the current item.
@@ -113,7 +113,7 @@ const filterItems = (items: Item[]) => {
  * Handle drag end event and bubble it up to parent.
  */
 const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
-  emits('onDragEnd', draggingItem, hoveredItem)
+  emit('onDragEnd', draggingItem, hoveredItem)
 }
 const { draggableAttrs, draggableEvents } = useDraggable({
   id: item.id,
@@ -140,7 +140,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :layout="layout"
         :options="options"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emits('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)">
         <template #decorator="slotProps">
           <slot
             v-bind="slotProps"
@@ -161,7 +161,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
-    @click="() => emits('selectItem', item.id)">
+    @click="() => emit('selectItem', item.id)">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
@@ -200,7 +200,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :options="options"
         :parentIds="[]"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emits('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)">
         <template #decorator="slotProps">
           <slot
             v-bind="slotProps"
@@ -210,12 +210,12 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
   </ScalarSidebarGroup>
   <ScalarSidebarItem
-    v-else
     is="button"
+    v-else
     v-bind="draggableAttrs"
-    v-on="draggableEvents"
     :selected="isSelected(item.id)"
-    @click="() => emits('selectItem', item.id)">
+    v-on="draggableEvents"
+    @click="() => emit('selectItem', item.id)">
     <template v-if="item.type === 'model'">
       <ScalarWrappingText
         preset="property"
@@ -233,7 +233,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       v-if="'method' in item || $slots.decorator"
       #aside>
       <slot
-        v-if="$slots.decorator"
+        v-if="slots.decorator"
         :item="item"
         name="decorator" />
       <SidebarHttpBadge

@@ -57,6 +57,8 @@ const emit = defineEmits<{
 defineSlots<{
   /** Slot to add the workspace button */
   workspaceButton?(): unknown
+  /** Slot to add additional content to the decorator */
+  decorator?(props: { item: TraversedEntry }): unknown
   /** Slot to add additional content to the footer */
   footer?(): unknown
 }>()
@@ -122,6 +124,12 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               :documents="documents"
               :eventBus="eventBus" />
           </div>
+        </template>
+
+        <template #decorator="decoratorProps">
+          <slot
+            v-bind="decoratorProps"
+            name="decorator" />
         </template>
 
         <template #before>

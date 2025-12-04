@@ -11,6 +11,7 @@ import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import ItemDecorator from '@/v2/features/app/components/ItemDecorator.vue'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -136,6 +137,14 @@ const isDroppable = (
         @click="emit('click:workspace')">
         {{ workspaceLabel }}
       </ScalarSidebarItem>
+    </template>
+
+    <!-- Decorator dropdown menu -->
+    <template #decorator="{ item }">
+      <ItemDecorator
+        :eventBus="eventBus"
+        :item="item"
+        :sidebarState="sidebarState" />
     </template>
 
     <!-- Getting started section -->

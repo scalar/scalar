@@ -417,6 +417,75 @@ export const updateOperationPath = (
   }
 }
 
+/**
+ * Deletes an operation from the workspace
+ *
+ * Example:
+ * ```ts
+ * deleteOperation({
+ *   document,
+ *   meta: { method: 'get', path: '/users' },
+ * })
+ * ```
+ */
+export const deleteOperation = (
+  workspace: WorkspaceStore | null,
+  { meta, documentName }: OperationEvents['operation:delete:operation'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    return
+  }
+
+  delete document.paths?.[meta.path]?.[meta.method]
+
+  // If the path has no more operations, remove the path entry
+  if (Object.keys(document.paths?.[meta.path] ?? {}).length === 0) {
+    delete document.paths?.[meta.path]
+  }
+}
+
+export const deleteOperationExample = (
+  workspace: WorkspaceStore | null,
+  { meta: { path, method, exampleKey }, documentName }: OperationEvents['operation:delete:example'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  if (!operation) {
+    return
+  }
+
+  // Delete the exampples from the parameters
+  operation.parameters?.forEach((parameter) => {
+    const resolvedParameter = getResolvedRef(parameter)
+
+    if ('content' in resolvedParameter && resolvedParameter.content) {
+      Object.values(resolvedParameter.content).forEach((mediaType) => {
+        delete mediaType.examples?.[exampleKey]
+      })
+    }
+
+    if ('examples' in resolvedParameter && resolvedParameter.examples) {
+      delete resolvedParameter.examples?.[exampleKey]
+    }
+  })
+
+  // Delete example from the request body
+  const requestBody = getResolvedRef(operation.requestBody)
+  if (!requestBody) {
+    return
+  }
+
+  // For all content types, delete the example matching the exampleKey
+  Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+    delete mediaType.examples?.[exampleKey]
+  })
+}
+
 /** ------------------------------------------------------------------------------------------------
  * Operation Parameters Mutators
  * ------------------------------------------------------------------------------------------------ */

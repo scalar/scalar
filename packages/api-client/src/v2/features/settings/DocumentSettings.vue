@@ -119,8 +119,8 @@ const handleDocumentDelete = () => {
         <!-- user can not delete draft documents -->
         <ScalarButton
           class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
-          :variant="'danger'"
           :disabled="isDraftDocument"
+          :variant="'danger'"
           @click="handleDeleteClick">
           Delete Collection
         </ScalarButton>
