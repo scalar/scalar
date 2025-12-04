@@ -1,2 +1,7 @@
 export { default as ScalarToasts } from './components/ScalarToasts.vue'
-export * from './hooks'
+export {
+  type ToastFunction,
+  type ToastOptions,
+  initializeToasts,
+  useToasts,
+} from './hooks/useToasts'

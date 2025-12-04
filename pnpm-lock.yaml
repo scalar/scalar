@@ -2615,9 +2615,6 @@ importers:
 
   packages/use-toasts:
     dependencies:
-      nanoid:
-        specifier: catalog:*
-        version: 5.1.5
       vue:
         specifier: catalog:*
         version: 3.5.21(typescript@5.8.3)
