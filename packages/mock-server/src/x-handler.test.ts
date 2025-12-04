@@ -1536,5 +1536,148 @@ describe('x-handler', () => {
       expect(data.name).toBe('Jane Doe')
       expect(data.email).toBe('jane@example.com')
     })
+
+    it('status code prioritizes semantically meaningful operations when multiple operations are performed', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items/{id}': {
+            get: {
+              'x-handler': `
+                // Perform get operation (semantically meaningful)
+                const item = store.get('items', req.params.id);
+                // Perform auxiliary create operation for logging (should not affect status code)
+                store.create('logs', { action: 'get', itemId: req.params.id, timestamp: new Date().toISOString() });
+                return item;
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+                '404': {
+                  description: 'Not Found',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Create an item directly in the store for testing
+      const created = store.create('items', { name: 'Test Item' })
+      const itemId = created.id
+
+      // Test 1: Get existing item - should return 200 (from get, not 201 from create)
+      const getResponse = await server.request(`/items/${itemId}`)
+      expect(getResponse.status).toBe(200) // Should be 200 from get, not 201 from create
+      const data = await getResponse.json()
+      expect(data.id).toBe(itemId)
+
+      // Test 2: Get non-existent item - should return 404 (from get, not 201 from create)
+      const getNotFoundResponse = await server.request('/items/non-existent-id')
+      expect(getNotFoundResponse.status).toBe(404) // Should be 404 from get, not 201 from create
+
+      // Verify that logs were created (auxiliary operation worked)
+      const logs = store.list('logs')
+      expect(logs.length).toBeGreaterThan(0)
+    })
+
+    it('status code prioritizes update over create when both operations are performed', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items/{id}': {
+            put: {
+              'x-handler': `
+                // Perform update operation (semantically meaningful)
+                const updated = store.update('items', req.params.id, req.body);
+                // Perform auxiliary create operation for logging (should not affect status code)
+                store.create('logs', { action: 'update', itemId: req.params.id, timestamp: new Date().toISOString() });
+                return updated;
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+                '404': {
+                  description: 'Not Found',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Create an item directly in the store for testing
+      const created = store.create('items', { name: 'Original Name' })
+      const itemId = created.id
+
+      // Update the item - should return 200 (from update, not 201 from create)
+      const updateResponse = await server.request(`/items/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Updated Name' }),
+      })
+      expect(updateResponse.status).toBe(200) // Should be 200 from update, not 201 from create
+      const data = await updateResponse.json()
+      expect(data.name).toBe('Updated Name')
+    })
+
+    it('status code prioritizes delete over list when both operations are performed', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items/{id}': {
+            delete: {
+              'x-handler': `
+                // Perform delete operation (semantically meaningful)
+                const deleted = store.delete('items', req.params.id);
+                // Perform auxiliary list operation for logging (should not affect status code)
+                store.list('items');
+                return deleted;
+              `,
+              responses: {
+                '204': {
+                  description: 'No Content',
+                },
+                '404': {
+                  description: 'Not Found',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Create an item directly in the store for testing
+      const created = store.create('items', { name: 'Test Item' })
+      const itemId = created.id
+
+      // Delete the item - should return 204 (from delete, not 200 from list)
+      const deleteResponse = await server.request(`/items/${itemId}`, {
+        method: 'DELETE',
+      })
+      expect(deleteResponse.status).toBe(204) // Should be 204 from delete, not 200 from list
+    })
   })
 })

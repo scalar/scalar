@@ -64,40 +64,59 @@ function getExampleFromResponse(
 
 /**
  * Determine HTTP status code based on store operation tracking.
+ * Prioritizes operations based on semantic meaning:
+ * - get > update > delete > create > list
+ * This ensures that if a handler performs multiple operations (e.g., get followed by create for logging),
+ * the status code reflects the most semantically meaningful operation.
  */
-function determineStatusCode(
-  lastOperation: 'get' | 'create' | 'update' | 'delete' | 'list' | null,
-  lastResult: any,
-): StatusCode {
-  if (lastOperation === 'get') {
+function determineStatusCode(tracking: {
+  operations: Array<{ operation: 'get' | 'create' | 'update' | 'delete' | 'list'; result: any }>
+}): StatusCode {
+  const { operations } = tracking
+
+  // If no operations were performed, default to 200
+  if (operations.length === 0) {
+    return 200
+  }
+
+  // Priority order: get > update > delete > create > list
+  // Check for get operations first (highest priority)
+  const getOperation = operations.find((op) => op.operation === 'get')
+  if (getOperation) {
     // Return 404 if get() returned undefined or null
-    if (lastResult === undefined || lastResult === null) {
+    if (getOperation.result === undefined || getOperation.result === null) {
       return 404
     }
     return 200
   }
 
-  if (lastOperation === 'create') {
-    return 201
-  }
-
-  if (lastOperation === 'update') {
+  // Check for update operations
+  const updateOperation = operations.find((op) => op.operation === 'update')
+  if (updateOperation) {
     // Return 404 if update() returned null (item not found)
-    if (lastResult === null || lastResult === undefined) {
+    if (updateOperation.result === null || updateOperation.result === undefined) {
       return 404
     }
     return 200
   }
 
-  if (lastOperation === 'delete') {
+  // Check for delete operations
+  const deleteOperation = operations.find((op) => op.operation === 'delete')
+  if (deleteOperation) {
     // Return 404 if delete() returned null (item not found)
-    if (lastResult === null || lastResult === undefined) {
+    if (deleteOperation.result === null || deleteOperation.result === undefined) {
       return 404
     }
     return 204
   }
 
-  // Default to 200 for list or no operation
+  // Check for create operations
+  const createOperation = operations.find((op) => op.operation === 'create')
+  if (createOperation) {
+    return 201
+  }
+
+  // Default to 200 for list or any other operation
   return 200
 }
 
@@ -133,8 +152,8 @@ export async function mockHandlerResponse(
     // Execute handler
     const { result } = await executeHandler(handlerCode, context)
 
-    // Determine status code based on last store operation
-    const statusCode = determineStatusCode(tracking.lastOperation, tracking.lastResult)
+    // Determine status code based on all store operations, prioritizing semantically meaningful ones
+    const statusCode = determineStatusCode(tracking)
 
     // Set status code
     c.status(statusCode)
