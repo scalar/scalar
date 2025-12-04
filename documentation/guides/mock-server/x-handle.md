@@ -101,7 +101,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-    
+
     post:
       summary: Create a new post
       operationId: createPost
@@ -149,7 +149,7 @@ paths:
                 $ref: '#/components/schemas/Post'
         '404':
           description: Post not found
-    
+
     put:
       summary: Update a post
       operationId: updatePost
@@ -173,7 +173,7 @@ paths:
                 $ref: '#/components/schemas/Post'
         '404':
           description: Post not found
-    
+
     delete:
       summary: Delete a post
       operationId: deletePost
