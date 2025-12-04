@@ -48,7 +48,7 @@ defineSlots<{
   'oauth-actions'?: () => unknown
 }>()
 
-const loadingState = useLoadingState()
+const loader = useLoadingState()
 const { toast } = useToasts()
 const storeContext = useWorkspace()
 
@@ -58,20 +58,22 @@ const updateScheme: UpdateScheme = (path, value) =>
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
-  if (loadingState.isLoading || !collection?.uid) {
+  if (loader.isActive || !collection?.uid) {
     return
   }
   if (!server) {
     toast('No server selected', 'error')
     return
   }
-  loadingState.startLoading()
+  loader.start()
 
   const [error, accessToken] = await authorizeOauth2(
     flow,
     server,
     workspace?.proxyUrl,
-  ).finally(() => loadingState.stopLoading())
+  )
+
+  await loader.clear()
 
   if (accessToken) {
     updateScheme(`flows.${flow.type}.token`, accessToken)
@@ -108,7 +110,7 @@ const dataTableInputProps = {
       <div class="flex h-8 items-center justify-end border-t">
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
-          :loading="loadingState"
+          :loader
           size="sm"
           variant="outlined"
           @click="updateScheme(`flows.${flow.type}.token`, '')">
@@ -259,7 +261,7 @@ const dataTableInputProps = {
       <div class="flex h-8 w-full items-center justify-end border-t">
         <ScalarButton
           class="mr-0.75 p-0 px-2 py-0.5"
-          :loading="loadingState"
+          :loader
           size="sm"
           variant="outlined"
           @click="handleAuthorize">

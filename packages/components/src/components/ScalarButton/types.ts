@@ -60,17 +60,17 @@ export type ScalarButtonProps = {
   /**
    * The loading state of the button
    *
-   * @see <ScalarLoading>
+   * @see ScalarLoading
    *
    * @example
-   * import { useLoadingState } from '@scalar/components'
+   * import { ScalarButton, useLoadingState } from '@scalar/components'
    * ...
-   * const loadingState = useLoadingState()
-   * loadingState.startLoading()
+   * const loader = useLoadingState()
+   * loader.start()
    * ...
-   * <ScalarButton :loading="loadingState">
+   * <ScalarButton :loader>
    *   It's loading...
    * </ScalarButton>
    */
-  loading?: LoadingState
+  loader?: LoadingState
 }

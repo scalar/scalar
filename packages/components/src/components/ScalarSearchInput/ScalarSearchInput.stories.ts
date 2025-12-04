@@ -29,11 +29,11 @@ export const Loading: Story = {
   render: () => ({
     components: { ScalarSearchInput },
     setup() {
-      const loadingState = useLoadingState()
-      loadingState.startLoading()
-      return { loadingState }
+      const loader = useLoadingState()
+      loader.start()
+      return { loader }
     },
-    template: `<ScalarSearchInput modelValue="My search query" :loading="loadingState" />`,
+    template: `<ScalarSearchInput modelValue="My search query" :loader />`,
   }),
 }
 

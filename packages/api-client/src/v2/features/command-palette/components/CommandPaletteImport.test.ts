@@ -491,7 +491,7 @@ describe('CommandPaletteImport', () => {
     })
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
-    expect(form.props('loading')).toBeDefined()
+    expect(form.props('loader')).toBeDefined()
   })
 
   it('renders submit button with "Import" text', () => {

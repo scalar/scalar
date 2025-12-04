@@ -125,7 +125,7 @@ async function importCollection() {
     return
   }
 
-  loader.startLoading()
+  loader.start()
   try {
     if (isInputUrl.value) {
       const [error, workspace] = await importSpecFromUrl(
@@ -145,7 +145,7 @@ async function importCollection() {
           'error',
           { timeout: 5_000 },
         )
-        loader.invalidate(2000, true)
+        await loader.invalidate()
         return
       }
     } else if (isInputDocument.value) {
@@ -165,18 +165,18 @@ async function importCollection() {
       }
     } else {
       toast('Import failed: Invalid URL or OpenAPI document', 'error')
-      loader.invalidate(2000, true)
+      await loader.invalidate()
       return
     }
 
-    loader.clear()
+    await loader.clear()
 
     emits('close')
     toast('Import successful', 'info')
   } catch (error) {
     console.error('[importCollection]', error)
     const errorMessage = (error as Error)?.message || 'Unknown error'
-    loader.invalidate(2000, true)
+    await loader.invalidate()
     toast(`Import failed: ${errorMessage}`, 'error')
   }
 }
@@ -198,7 +198,7 @@ const handleInput = (value: string) => {
 <template>
   <CommandActionForm
     :disabled="!inputContent.trim()"
-    :loading="loader"
+    :loader
     @submit="importCollection">
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput

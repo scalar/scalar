@@ -8,7 +8,7 @@
  *
  * @example
  * <CommandActionForm
- *   :loading="loading"
+ *   :loader
  *   :disabled="isDisabled"
  *   @submit="handleSubmit"
  *   @cancel="handleCancel"
@@ -32,15 +32,11 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarButton,
-  useBindCx,
-  type useLoadingState,
-} from '@scalar/components'
+import { ScalarButton, useBindCx, type LoadingState } from '@scalar/components'
 
-const { loading, disabled = false } = defineProps<{
+const { loader, disabled = false } = defineProps<{
   /** Loading state from useLoadingState composable to show spinner on submit button */
-  loading?: ReturnType<typeof useLoadingState>
+  loader?: LoadingState
   /** Whether the form and submit button are disabled */
   disabled?: boolean
 }>()
@@ -94,7 +90,7 @@ const handleSubmit = (): void => {
       <ScalarButton
         class="max-h-8 px-3 text-xs"
         :disabled="disabled"
-        :loading="loading"
+        :loader
         type="submit">
         <slot name="submit">Continue</slot>
       </ScalarButton>

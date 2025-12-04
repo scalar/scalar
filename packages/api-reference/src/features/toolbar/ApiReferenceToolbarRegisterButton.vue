@@ -15,7 +15,7 @@ const { sdks = [], workspace } = defineProps<{
 const tempDocUrl = defineModel<string>('url')
 
 const { toast } = useToasts()
-const loading = useLoadingState()
+const loader = useLoadingState()
 
 /** Open the registration link in a new tab */
 function openRegisterLink(docUrl: string) {
@@ -28,7 +28,7 @@ function openRegisterLink(docUrl: string) {
 
 /** Generate and open the registration link */
 async function generateRegisterLink() {
-  if (loading.isLoading || !workspace) {
+  if (loader.isLoading || !workspace) {
     return
   }
 
@@ -38,36 +38,36 @@ async function generateRegisterLink() {
     return
   }
 
-  loading.startLoading()
+  loader.start()
 
   const document = workspace.exportActiveDocument('json')
 
   if (!document) {
     toast('Unable to export active document', 'error')
-    loading.invalidate()
+    await loader.invalidate()
     return
   }
 
   try {
     tempDocUrl.value = await uploadTempDocument(document)
-    await loading.validate(600)
+    await loader.validate()
     openRegisterLink(tempDocUrl.value)
 
     await nextTick()
 
-    loading.clear()
+    await loader.clear()
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'An unknown error occurred'
     toast(message, 'error')
-    loading.invalidate()
+    await loader.invalidate()
   }
 }
 </script>
 <template>
   <ScalarButton
     class="h-auto p-2.5"
-    :loading
+    :loader
     @click="generateRegisterLink">
     <slot>Generate</slot>
   </ScalarButton>

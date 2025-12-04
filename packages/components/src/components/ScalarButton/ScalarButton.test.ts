@@ -89,16 +89,12 @@ describe('ScalarButton', () => {
   })
 
   it('handles loading state correctly', () => {
-    const loadingState = useLoadingState()
-    loadingState.startLoading()
+    const loader = useLoadingState()
+    loader.start()
 
     const wrapper = mount(ScalarButton, {
-      props: {
-        loading: loadingState,
-      },
-      slots: {
-        default: 'Loading Button',
-      },
+      props: { loader },
+      slots: { default: 'Loading Button' },
     })
     expect(wrapper.find('.centered').exists()).toBe(true)
     expect(wrapper.find('span').classes()).toContain('invisible')

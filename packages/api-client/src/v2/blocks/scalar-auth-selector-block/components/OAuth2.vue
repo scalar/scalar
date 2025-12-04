@@ -39,7 +39,7 @@ const emits = defineEmits<{
   ): void
 }>()
 
-const loadingState = useLoadingState()
+const loader = useLoadingState()
 const { toast } = useToasts()
 
 /** The current OAuth flow based on the selected type */
@@ -59,11 +59,11 @@ const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
  * Opens the appropriate OAuth dialog and/or performs the token exchange.
  */
 const handleAuthorize = async (): Promise<void> => {
-  if (loadingState.isLoading) {
+  if (loader.isLoading) {
     return
   }
 
-  loadingState.startLoading()
+  loader.start()
 
   const [error, accessToken] = await authorizeOauth2(
     flows,
@@ -71,7 +71,9 @@ const handleAuthorize = async (): Promise<void> => {
     selectedScopes,
     server,
     proxyUrl,
-  ).finally(() => loadingState.stopLoading())
+  )
+
+  await loader.clear()
 
   if (accessToken) {
     handleOauth2Update({ 'x-scalar-secret-token': accessToken })
@@ -103,7 +105,7 @@ const handleAuthorize = async (): Promise<void> => {
       <div class="flex h-8 items-center justify-end gap-2 border-t">
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
-          :loading="loadingState"
+          :loader
           size="sm"
           variant="outlined"
           @click="() => handleOauth2Update({ 'x-scalar-secret-token': '' })">
@@ -231,7 +233,7 @@ const handleAuthorize = async (): Promise<void> => {
       <div class="flex h-8 w-full items-center justify-end border-t">
         <ScalarButton
           class="mr-0.75 p-0 px-2 py-0.5"
-          :loading="loadingState"
+          :loader
           size="sm"
           variant="outlined"
           @click="handleAuthorize">
