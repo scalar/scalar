@@ -81,7 +81,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       }
 
       // Check if operation has x-handler extension
-      const hasHandler = operation?.['x-handler'] !== undefined
+      // Validate that it's a non-empty string (consistent with x-seed validation)
+      const handlerCode = operation?.['x-handler']
+      const hasHandler = handlerCode && typeof handlerCode === 'string' && handlerCode.trim().length > 0
 
       // Route to appropriate handler
       if (hasHandler) {
