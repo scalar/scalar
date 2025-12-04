@@ -3,14 +3,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { OpenApiClientButton } from '@/components'
-import { createStoreEvents } from '@/store/events'
 import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
 
 import Header from './Header.vue'
 
 describe('Header', () => {
   const eventBus = createWorkspaceEventBus()
-  const events = createStoreEvents()
 
   const defaultProps = {
     path: '/pets',
@@ -26,15 +24,14 @@ describe('Header', () => {
     servers: [] as any[],
     history: [] as any[],
     requestLoadingPercentage: undefined as number | undefined,
-    events,
     eventBus,
+    operationEntriesMap: new Map(),
     environment: {
       uid: 'env-1' as any,
       name: 'Test',
       color: 'blue',
       value: 'default',
     } as any,
-    envVariables: [] as any[],
   }
 
   const render = (overrides: Record<string, any> = {}) => {
