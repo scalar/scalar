@@ -357,13 +357,9 @@ export const updateOperationMethod = (
   pathItems[method] = unpackProxyObject(operation)
   delete pathItems[meta.method]
 
-  // Rebuild the sidebar with the updated order (if store is available)
-  if (store) {
-    const success = store.buildSidebar(documentName)
-    callback?.(success)
-  } else {
-    callback?.(false)
-  }
+  // Rebuild the sidebar with the updated order
+  const success = store.buildSidebar(documentName)
+  callback?.(success)
 }
 
 /**
