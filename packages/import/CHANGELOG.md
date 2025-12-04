@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.4.36
+
+### Patch Changes
+
+- [#7408](https://github.com/scalar/scalar/pull/7408) [`612eb05`](https://github.com/scalar/scalar/commit/612eb05f61ad97272206f1b7ff85a725131ca917) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(import): remove `@scalar/openapi-parser` unused dependency
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d)]:
+  - @scalar/helpers@0.1.3
+
 ## 0.4.35
 
 ### Patch Changes

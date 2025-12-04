@@ -1,5 +1,27 @@
 # @scalar/mock-server
 
+## 0.8.0
+
+### Minor Changes
+
+- [#7298](https://github.com/scalar/scalar/pull/7298) [`663e436`](https://github.com/scalar/scalar/commit/663e4361892ec0f1f1c94e1b2fbde754bdf92cd6) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: support external references
+
+- [#7298](https://github.com/scalar/scalar/pull/7298) [`663e436`](https://github.com/scalar/scalar/commit/663e4361892ec0f1f1c94e1b2fbde754bdf92cd6) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: x-seed to prefill the in-memory database
+
+- [#7298](https://github.com/scalar/scalar/pull/7298) [`663e436`](https://github.com/scalar/scalar/commit/663e4361892ec0f1f1c94e1b2fbde754bdf92cd6) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: x-handler to script responses
+
+- [#7298](https://github.com/scalar/scalar/pull/7298) [`663e436`](https://github.com/scalar/scalar/commit/663e4361892ec0f1f1c94e1b2fbde754bdf92cd6) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: upgrade all documents to OpenAPI 3.1 now
+
+### Patch Changes
+
+- Updated dependencies [[`e04879c`](https://github.com/scalar/scalar/commit/e04879c65602dfb65393876754f5344751b8953d), [`a164d76`](https://github.com/scalar/scalar/commit/a164d76f21437b3a35210d62a996b6c9d483e5a4), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d), [`af54a80`](https://github.com/scalar/scalar/commit/af54a80349269a4269a68f6a372f837177a3537c)]:
+  - @scalar/json-magic@0.8.3
+  - @scalar/openapi-types@0.5.2
+  - @scalar/helpers@0.1.3
+  - @scalar/oas-utils@0.6.5
+  - @scalar/openapi-parser@0.23.4
+  - @scalar/openapi-upgrader@0.1.5
+
 ## 0.7.2
 
 ### Patch Changes

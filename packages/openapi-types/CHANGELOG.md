@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.5.2
+
+### Patch Changes
+
+- [#7453](https://github.com/scalar/scalar/pull/7453) [`a164d76`](https://github.com/scalar/scalar/commit/a164d76f21437b3a35210d62a996b6c9d483e5a4) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: exclusiveMinimum and exclusiveMaximum allow booleans
+
 ## 0.5.1
 
 ### Patch Changes

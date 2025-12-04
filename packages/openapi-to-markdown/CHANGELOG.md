@@ -1,5 +1,20 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.5
+
+### Patch Changes
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- Updated dependencies [[`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583), [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8), [`a164d76`](https://github.com/scalar/scalar/commit/a164d76f21437b3a35210d62a996b6c9d483e5a4), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d)]:
+  - @scalar/components@0.16.5
+  - @scalar/openapi-types@0.5.2
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/oas-utils@0.6.5
+  - @scalar/openapi-parser@0.23.4
+  - @scalar/openapi-upgrader@0.1.5
+
 ## 0.3.4
 
 ### Patch Changes

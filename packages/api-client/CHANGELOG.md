@@ -1,5 +1,47 @@
 # @scalar/api-client
 
+## 2.13.0
+
+### Minor Changes
+
+- [#7431](https://github.com/scalar/scalar/pull/7431) [`61c980c`](https://github.com/scalar/scalar/commit/61c980cebef219685a05f3a4cb1e379984922cd4) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: implememnt command palette
+
+- [#7455](https://github.com/scalar/scalar/pull/7455) [`1bc2b45`](https://github.com/scalar/scalar/commit/1bc2b45b6eabd5c5045e77d67f59d202ab04d3fb) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: tabs support on the store
+
+- [#7463](https://github.com/scalar/scalar/pull/7463) [`1eafcbe`](https://github.com/scalar/scalar/commit/1eafcbeeaad3e611b9c8f365ce2961772b8e9494) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: rebuild the sidebar when a new example is created
+
+### Patch Changes
+
+- [#7465](https://github.com/scalar/scalar/pull/7465) [`9342adc`](https://github.com/scalar/scalar/commit/9342adcd76e26a8e5eff75c1a2abee2c207b1487) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: ensure `@scalar/workspace-store` consumers rely only on public exports
+
+- [#7460](https://github.com/scalar/scalar/pull/7460) [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): update and polish ScalarLoading
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- [#7416](https://github.com/scalar/scalar/pull/7416) [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d) Thanks [@amritk](https://github.com/amritk)! - feat: add update method to client v2
+
+- Updated dependencies [[`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583), [`61c980c`](https://github.com/scalar/scalar/commit/61c980cebef219685a05f3a4cb1e379984922cd4), [`1bc2b45`](https://github.com/scalar/scalar/commit/1bc2b45b6eabd5c5045e77d67f59d202ab04d3fb), [`9342adc`](https://github.com/scalar/scalar/commit/9342adcd76e26a8e5eff75c1a2abee2c207b1487), [`fa361d2`](https://github.com/scalar/scalar/commit/fa361d2799e358d582fbb224a7b93d5b6e832c0e), [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8), [`e04879c`](https://github.com/scalar/scalar/commit/e04879c65602dfb65393876754f5344751b8953d), [`a164d76`](https://github.com/scalar/scalar/commit/a164d76f21437b3a35210d62a996b6c9d483e5a4), [`dd8e9dc`](https://github.com/scalar/scalar/commit/dd8e9dc118d3ae98180e2a93bd6ba11e982abbf8), [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d), [`612eb05`](https://github.com/scalar/scalar/commit/612eb05f61ad97272206f1b7ff85a725131ca917), [`35af6bf`](https://github.com/scalar/scalar/commit/35af6bfce4bc4ae3d0fc5783ea36e0165e964361), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d), [`294f9fc`](https://github.com/scalar/scalar/commit/294f9fc6cfd43cdab110deb1c851883509bc2b84), [`af54a80`](https://github.com/scalar/scalar/commit/af54a80349269a4269a68f6a372f837177a3537c)]:
+  - @scalar/components@0.16.5
+  - @scalar/sidebar@0.5.0
+  - @scalar/workspace-store@0.22.0
+  - @scalar/snippetz@0.5.4
+  - @scalar/json-magic@0.8.3
+  - @scalar/openapi-types@0.5.2
+  - @scalar/use-toasts@0.9.1
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/import@0.4.36
+  - @scalar/themes@0.13.25
+  - @scalar/use-codemirror@0.12.49
+  - @scalar/oas-utils@0.6.5
+  - @scalar/analytics-client@1.0.0
+  - @scalar/draggable@0.3.0
+  - @scalar/icons@0.5.0
+  - @scalar/object-utils@1.2.13
+  - @scalar/openapi-parser@0.23.4
+  - @scalar/postman-to-openapi@0.3.46
+  - @scalar/use-hooks@0.3.1
+
 ## 2.12.0
 
 ### Minor Changes

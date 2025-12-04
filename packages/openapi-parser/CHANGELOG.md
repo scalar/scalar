@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.23.4
+
+### Patch Changes
+
+- Updated dependencies [[`e04879c`](https://github.com/scalar/scalar/commit/e04879c65602dfb65393876754f5344751b8953d), [`a164d76`](https://github.com/scalar/scalar/commit/a164d76f21437b3a35210d62a996b6c9d483e5a4), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`af54a80`](https://github.com/scalar/scalar/commit/af54a80349269a4269a68f6a372f837177a3537c)]:
+  - @scalar/json-magic@0.8.3
+  - @scalar/openapi-types@0.5.2
+  - @scalar/openapi-upgrader@0.1.5
+
 ## 0.23.3
 
 ### Patch Changes

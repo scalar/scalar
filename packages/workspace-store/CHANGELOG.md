@@ -1,5 +1,33 @@
 # @scalar/workspace-store
 
+## 0.22.0
+
+### Minor Changes
+
+- [#7431](https://github.com/scalar/scalar/pull/7431) [`61c980c`](https://github.com/scalar/scalar/commit/61c980cebef219685a05f3a4cb1e379984922cd4) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: implememnt command palette
+
+- [#7455](https://github.com/scalar/scalar/pull/7455) [`1bc2b45`](https://github.com/scalar/scalar/commit/1bc2b45b6eabd5c5045e77d67f59d202ab04d3fb) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: tabs support on the store
+
+### Patch Changes
+
+- [#7465](https://github.com/scalar/scalar/pull/7465) [`9342adc`](https://github.com/scalar/scalar/commit/9342adcd76e26a8e5eff75c1a2abee2c207b1487) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: ensure `@scalar/workspace-store` consumers rely only on public exports
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- [#7416](https://github.com/scalar/scalar/pull/7416) [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d) Thanks [@amritk](https://github.com/amritk)! - feat: add update method to client v2
+
+- [#7414](https://github.com/scalar/scalar/pull/7414) [`294f9fc`](https://github.com/scalar/scalar/commit/294f9fc6cfd43cdab110deb1c851883509bc2b84) Thanks [@hanspagel](https://github.com/hanspagel)! - feat: show tags without operations
+
+- Updated dependencies [[`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f), [`fa361d2`](https://github.com/scalar/scalar/commit/fa361d2799e358d582fbb224a7b93d5b6e832c0e), [`e04879c`](https://github.com/scalar/scalar/commit/e04879c65602dfb65393876754f5344751b8953d), [`dd8e9dc`](https://github.com/scalar/scalar/commit/dd8e9dc118d3ae98180e2a93bd6ba11e982abbf8), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f), [`35af6bf`](https://github.com/scalar/scalar/commit/35af6bfce4bc4ae3d0fc5783ea36e0165e964361), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d), [`af54a80`](https://github.com/scalar/scalar/commit/af54a80349269a4269a68f6a372f837177a3537c)]:
+  - @scalar/code-highlight@0.2.1
+  - @scalar/snippetz@0.5.4
+  - @scalar/json-magic@0.8.3
+  - @scalar/helpers@0.1.3
+  - @scalar/types@0.5.1
+  - @scalar/themes@0.13.25
+  - @scalar/object-utils@1.2.13
+  - @scalar/openapi-upgrader@0.1.5
+
 ## 0.21.0
 
 ### Minor Changes

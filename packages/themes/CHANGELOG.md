@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.25
+
+### Patch Changes
+
+- [#7458](https://github.com/scalar/scalar/pull/7458) [`35af6bf`](https://github.com/scalar/scalar/commit/35af6bfce4bc4ae3d0fc5783ea36e0165e964361) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove `@scalar/types` unused dependency
+
 ## 0.13.24
 
 ### Patch Changes
