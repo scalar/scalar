@@ -1207,13 +1207,13 @@ The function receives the request object and can be used to modify the request b
 
 #### onDocumentSelect
 
-**Type:** `() => void`
+**Type:** `() => Promise<void> | void`
 
 Triggered when multiple documents are configured and the users switches between them.
 
 #### onLoaded
 
-**Type:** `() => void`
+**Type:** `(slug: string) => Promise<void> | void`
 
 Callback that triggers as soon as the references are lazy loaded.
 
