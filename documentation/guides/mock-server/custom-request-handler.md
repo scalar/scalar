@@ -1,4 +1,4 @@
-# x-handler: Custom Request Handlers
+# Custom Request Handlers
 
 The `x-handler` extension allows you to write custom JavaScript code directly in your OpenAPI operations to handle requests dynamically. This gives you full control over request processing, data persistence, and response generation.
 

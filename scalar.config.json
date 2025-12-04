@@ -512,13 +512,13 @@
               "type": "page"
             },
             {
-              "name": "x-handler",
-              "path": "documentation/guides/mock-server/x-handler.md",
+              "name": "Custom Request Handlers",
+              "path": "documentation/guides/mock-server/custom-request-handler.md",
               "type": "page"
             },
             {
-              "name": "x-seed",
-              "path": "documentation/guides/mock-server/x-seed.md",
+              "name": "Data Seeding",
+              "path": "documentation/guides/mock-server/data-seeding.md",
               "type": "page"
             }
           ]

@@ -1,4 +1,4 @@
-# x-seed: Automatic Data Seeding
+# Data Seeding
 
 The `x-seed` extension allows you to automatically populate initial data when the mock server starts. This is perfect for having realistic test data available immediately without manual setup.
 

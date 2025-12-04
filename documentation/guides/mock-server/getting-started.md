@@ -180,14 +180,14 @@ The given OpenAPI document is automatically exposed:
 
 ## Advanced Features
 
-### x-handler: Custom Request Handlers
+### Custom Request Handlers
 
 Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.
 
-[Learn more about x-handler →](./x-handler)
+[Learn more about custom request handlers →](./custom-request-handler)
 
-### x-seed: Automatic Data Seeding
+### Data Seeding
 
 Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
 
-[Learn more about x-seed →](./x-seed)
+[Learn more about data seeding →](./data-seeding)
