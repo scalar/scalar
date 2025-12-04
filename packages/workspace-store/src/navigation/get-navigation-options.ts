@@ -56,7 +56,7 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
         })}`
       }
 
-      return `${prefixTag}${props.method}/${slug(props.path)}`
+      return `${prefixTag}${props.method}/${props.path}`
     }
 
     // -------- Default webhook id generation logic --------
