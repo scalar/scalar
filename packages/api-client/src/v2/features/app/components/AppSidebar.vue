@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { ScalarIconGlobe } from '@scalar/icons'
-import type { SidebarState } from '@scalar/sidebar'
+import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'

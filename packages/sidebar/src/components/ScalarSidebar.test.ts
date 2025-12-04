@@ -1,8 +1,8 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
 import type { Item } from '@/types'
 
 import { createSidebarState } from '../helpers/create-sidebar-state'
@@ -406,6 +406,62 @@ describe('ScalarSidebar', () => {
   })
 
   describe('drag and drop', () => {
+    it('enables dragging for client layout', () => {
+      const items: Item[] = [
+        {
+          id: '1',
+          title: 'Test Item',
+          type: 'operation',
+          ref: 'ref-1',
+          method: 'get',
+          path: '/test',
+        },
+      ]
+
+      const state = createSidebarState(items)
+
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'client',
+          items: state.items.value,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+        },
+      })
+
+      const sidebarItem = wrapper.findComponent(SidebarItem)
+      // Check that isDraggable prop is passed as true for client layout
+      expect(sidebarItem.props('isDraggable')).toBe(true)
+    })
+
+    it('disables dragging for reference layout', () => {
+      const items: Item[] = [
+        {
+          id: '1',
+          title: 'Test Item',
+          type: 'operation',
+          ref: 'ref-1',
+          method: 'get',
+          path: '/test',
+        },
+      ]
+
+      const state = createSidebarState(items)
+
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'reference',
+          items: state.items.value,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+        },
+      })
+
+      const sidebarItem = wrapper.findComponent(SidebarItem)
+      // Check that isDraggable prop is passed as false for reference layout
+      expect(sidebarItem.props('isDraggable')).toBe(false)
+    })
+
     it('emits reorder event when onDragEnd is triggered', () => {
       const items: Item[] = [
         {
@@ -430,7 +486,7 @@ describe('ScalarSidebar', () => {
       })
 
       const draggingItem: DraggingItem = { id: '1', parentId: null }
-      const hoveredItem: HoveredItem = { id: '2', offset: 0, parentId: null }
+      const hoveredItem: HoveredItem = { id: '2', offset: 'before', parentId: null }
 
       const sidebarItem = wrapper.findComponent(SidebarItem)
       expect(sidebarItem.exists()).toBe(true)
@@ -472,7 +528,7 @@ describe('ScalarSidebar', () => {
       })
 
       const draggingItem: DraggingItem = { id: 'item-a', parentId: null }
-      const hoveredItem: HoveredItem = { id: 'item-b', offset: 1, parentId: null }
+      const hoveredItem: HoveredItem = { id: 'item-b', offset: 'after', parentId: null }
 
       const sidebarItems = wrapper.findAllComponents(SidebarItem)
       sidebarItems[0]?.vm.$emit('onDragEnd', draggingItem, hoveredItem)

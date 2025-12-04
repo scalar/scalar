@@ -34,7 +34,13 @@ import type { ScalarSidebarGroupProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
-const { icon = ScalarIconListDashes } = defineProps<ScalarSidebarGroupProps>()
+const { controlled, icon = ScalarIconListDashes } =
+  defineProps<ScalarSidebarGroupProps>()
+
+const emit = defineEmits<{
+  /** Emitted when the nested item button is clicked */
+  (e: 'click', event: MouseEvent): void
+}>()
 
 const open = defineModel<boolean>('open', { default: false })
 useSidebarNestedItem(open)
@@ -87,6 +93,16 @@ function onClose() {
 }
 
 defineOptions({ inheritAttrs: false })
+
+/** Handle the click event for the nested items button */
+const handleClick = (event: MouseEvent) => {
+  // Bubble up the click event
+  emit('click', event)
+  if (!controlled) {
+    // Only toggle the open state if the group is uncontrolled
+    open.value = !open.value
+  }
+}
 </script>
 <template>
   <li
@@ -103,7 +119,7 @@ defineOptions({ inheritAttrs: false })
         :indent="level"
         :selected
         v-bind="$attrs"
-        @click="!controlled && (open = true)">
+        @click="handleClick">
         <template #icon>
           <slot name="icon">
             <ScalarIconLegacyAdapter

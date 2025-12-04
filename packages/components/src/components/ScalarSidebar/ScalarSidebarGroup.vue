@@ -33,33 +33,49 @@ import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'ul', controlled } = defineProps<ScalarSidebarGroupProps>()
+const { controlled, is = 'li' } = defineProps<ScalarSidebarGroupProps>()
 
-const model = defineModel<boolean>('open', { default: false })
+const emit = defineEmits<{
+  /** Emitted when the group toggle button is clicked */
+  (e: 'click', event: MouseEvent): void
+}>()
+
+const open = defineModel<boolean>('open', { default: false })
 
 defineSlots<ScalarSidebarGroupSlots>()
 
 const { level } = useSidebarGroups({ increment: true })
 
 defineOptions({ inheritAttrs: false })
-const { stylingAttrsCx, otherAttrs } = useBindCx()
+const { cx } = useBindCx()
+
+/** Handle the click event for the group toggle */
+const handleClick = (event: MouseEvent) => {
+  // Bubble up the click event
+  emit('click', event)
+  if (!controlled) {
+    // Only toggle the open state if the group is uncontrolled
+    open.value = !open.value
+  }
+}
 </script>
 <template>
-  <li class="group/item flex flex-col gap-px">
+  <component
+    v-bind="cx('group/item flex flex-col gap-px')"
+    :is="is">
     <slot
       :level="level"
       name="button"
-      :open="model">
+      :open>
       <ScalarSidebarButton
         is="button"
         :active
-        :aria-expanded="model"
+        :aria-expanded="open"
         class="group/group-button"
         :disabled
         :indent="level"
         :selected
-        v-bind="otherAttrs"
-        @click="!controlled && (model = !model)">
+        @click="handleClick">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"
@@ -68,10 +84,10 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
         <template #icon>
           <slot
             name="icon"
-            :open="model">
+            :open>
             <ScalarSidebarGroupToggle
               class="text-c-3"
-              :open="model" />
+              :open />
           </slot>
         </template>
         <template
@@ -79,18 +95,17 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
           #aside>
           <slot
             name="aside"
-            :open="model" />
+            :open />
         </template>
-        <slot :open="model" />
+        <slot :open />
       </ScalarSidebarButton>
     </slot>
-    <component
-      :is="is"
-      v-if="model"
-      v-bind="stylingAttrsCx('group/items flex flex-col gap-px')">
+    <ul
+      v-if="open"
+      class="group/items flex flex-col gap-px">
       <slot
         name="items"
-        :open="model" />
-    </component>
-  </li>
+        :open />
+    </ul>
+  </component>
 </template>

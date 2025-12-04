@@ -10,7 +10,6 @@
 }
 
 @import "@scalar/components/style.css"; /* Component Library Styles */
-@import "@scalar/draggable/style.css"; /* Draggable Library Styles */
 
 /* Search for Tailwind classes in the API Reference */
 @source "./";
