@@ -9,7 +9,7 @@ export type HandlerExecutionResult = {
 
 /**
  * Execute handler code in a sandboxed environment.
- * The code has access only to the provided context (store, faker, req).
+ * The code has access only to the provided context (store, faker, req, res).
  */
 export async function executeHandler(code: string, context: HandlerContext): Promise<HandlerExecutionResult> {
   // Create a function that executes the handler code with the context
@@ -19,23 +19,17 @@ export async function executeHandler(code: string, context: HandlerContext): Pro
     'store',
     'faker',
     'req',
+    'res',
     `
     ${code}
   `,
   )
+  const result = handlerFunction(context.store, context.faker, context.req, context.res)
 
-  // Execute the handler with the context
-  try {
-    const result = handlerFunction(context.store, context.faker, context.req)
-
-    // If the result is a Promise, await it
-    if (result instanceof Promise) {
-      return { result: await result }
-    }
-
-    return { result }
-  } catch (error) {
-    // Re-throw to be caught by the caller
-    throw error
+  // If the result is a Promise, await it
+  if (result instanceof Promise) {
+    return { result: await result }
   }
+
+  return { result }
 }

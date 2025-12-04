@@ -1060,4 +1060,481 @@ describe('x-handle', () => {
     })
     expect(data.custom).not.toBe('example-value')
   })
+
+  describe('res object with example responses', () => {
+    it('handler can access explicit example via res[statusCode]', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items': {
+            post: {
+              'x-handle': "return store.create('items', req.body);",
+              responses: {
+                '201': {
+                  description: 'Created',
+                },
+              },
+            },
+          },
+          '/items/{id}': {
+            get: {
+              'x-handle': `
+                const item = store.get('items', req.params.id);
+                if (!item) {
+                  return res['404'];
+                }
+                return { ...res['200'], ...item };
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      example: {
+                        id: 'example-id',
+                        name: 'Example Item',
+                      },
+                    },
+                  },
+                },
+                '404': {
+                  description: 'Not Found',
+                  content: {
+                    'application/json': {
+                      example: {
+                        error: 'Item not found',
+                        message: 'The requested item does not exist',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Test 404 response - store.get returns null, so status is 404
+      const notFoundResponse = await server.request('/items/non-existent')
+      expect(notFoundResponse.status).toBe(404)
+      const notFoundData = await notFoundResponse.json()
+      expect(notFoundData).toEqual({
+        error: 'Item not found',
+        message: 'The requested item does not exist',
+      })
+
+      // Create an item first
+      const createResponse = await server.request('/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Test Item' }),
+      })
+      const created = await createResponse.json()
+      const itemId = created.id
+
+      // Test 200 response with merged example
+      const foundResponse = await server.request(`/items/${itemId}`)
+      expect(foundResponse.status).toBe(200)
+      const foundData = await foundResponse.json()
+      expect(foundData).toHaveProperty('id')
+      expect(foundData).toHaveProperty('name')
+      // Should have merged example properties with actual item data
+      expect(foundData.id).toBe(itemId)
+    })
+
+    it('handler can access generated example from schema via res[statusCode]', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items': {
+            post: {
+              'x-handle': "return store.create('items', req.body);",
+              responses: {
+                '201': {
+                  description: 'Created',
+                },
+              },
+            },
+          },
+          '/items/{id}': {
+            get: {
+              'x-handle': `
+                const item = store.get('items', req.params.id);
+                if (!item) {
+                  return res['404'];
+                }
+                return { ...res['200'], ...item };
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: {
+                            type: 'string',
+                            example: 'generated-id',
+                          },
+                          name: {
+                            type: 'string',
+                            example: 'Generated Item',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                '404': {
+                  description: 'Not Found',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          error: {
+                            type: 'string',
+                            example: 'Not Found',
+                          },
+                          code: {
+                            type: 'number',
+                            example: 404,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Test 404 response with generated example
+      const notFoundResponse = await server.request('/items/non-existent')
+      expect(notFoundResponse.status).toBe(404)
+      const notFoundData = await notFoundResponse.json()
+      expect(notFoundData).toHaveProperty('error')
+      expect(notFoundData).toHaveProperty('code')
+      expect(notFoundData.error).toBe('Not Found')
+      expect(notFoundData.code).toBe(404)
+
+      // Create an item first
+      const createResponse = await server.request('/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Test Item' }),
+      })
+      const created = await createResponse.json()
+      const itemId = created.id
+
+      // Test 200 response with generated example merged with actual data
+      const foundResponse = await server.request(`/items/${itemId}`)
+      expect(foundResponse.status).toBe(200)
+      const foundData = await foundResponse.json()
+      expect(foundData).toHaveProperty('id')
+      expect(foundData).toHaveProperty('name')
+      // Should have actual item id, not the generated example id
+      expect(foundData.id).toBe(itemId)
+    })
+
+    it('handler can modify and return examples from res', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items': {
+            post: {
+              'x-handle': `
+                const example = res['201'];
+                const item = store.create('items', { ...example, id: faker.string.uuid(), ...req.body });
+                return item;
+              `,
+              responses: {
+                '201': {
+                  description: 'Created',
+                  content: {
+                    'application/json': {
+                      example: {
+                        id: 'template-id',
+                        name: 'Template Name',
+                        createdAt: '2024-01-01T00:00:00Z',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Custom Item' }),
+      })
+
+      expect(response.status).toBe(201)
+      const data = await response.json()
+      expect(data).toHaveProperty('id')
+      expect(data.name).toBe('Custom Item')
+      expect(data.createdAt).toBe('2024-01-01T00:00:00Z')
+      expect(data.id).not.toBe('template-id')
+    })
+
+    it('handler can access examples for multiple status codes', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items': {
+            post: {
+              'x-handle': `
+                const item = store.create('items', req.body);
+                return res['201'];
+              `,
+              responses: {
+                '201': {
+                  description: 'Created',
+                  content: {
+                    'application/json': {
+                      example: {
+                        id: 'created-id',
+                        status: 'created',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            get: {
+              'x-handle': `
+                return res['200'];
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      example: {
+                        items: [],
+                        count: 0,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '/items/{id}': {
+            get: {
+              'x-handle': `
+                const item = store.get('items', req.params.id);
+                if (!item) {
+                  return res['404'];
+                }
+                return res['200'];
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      example: {
+                        id: 'found-id',
+                        found: true,
+                      },
+                    },
+                  },
+                },
+                '404': {
+                  description: 'Not Found',
+                  content: {
+                    'application/json': {
+                      example: {
+                        error: 'not found',
+                        code: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Test 201
+      const createResponse = await server.request('/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Test' }),
+      })
+      expect(createResponse.status).toBe(201)
+      const createData = await createResponse.json()
+      expect(createData).toEqual({
+        id: 'created-id',
+        status: 'created',
+      })
+
+      // Test 200
+      const listResponse = await server.request('/items')
+      expect(listResponse.status).toBe(200)
+      const listData = await listResponse.json()
+      expect(listData).toEqual({
+        items: [],
+        count: 0,
+      })
+
+      // Test 404
+      const notFoundResponse = await server.request('/items/non-existent')
+      expect(notFoundResponse.status).toBe(404)
+      const notFoundData = await notFoundResponse.json()
+      expect(notFoundData).toEqual({
+        error: 'not found',
+        code: 404,
+      })
+    })
+
+    it('res[statusCode] is null when neither example nor schema exists', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/items': {
+            get: {
+              'x-handle': `
+                return res['204'];
+              `,
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      example: {
+                        items: [],
+                      },
+                    },
+                  },
+                },
+                '204': {
+                  description: 'No Content',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/items')
+      expect(response.status).toBe(200)
+      // Handler returns null (res['204']), but status is 200, so should use 200 example
+      const data = await response.json()
+      expect(data).toEqual({
+        items: [],
+      })
+    })
+
+    it('handler can use res with generated examples from schema', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            post: {
+              'x-handle': `
+                const example = res['201'];
+                const user = store.create('users', { ...example, id: faker.string.uuid(), ...req.body });
+                return user;
+              `,
+              responses: {
+                '201': {
+                  description: 'Created',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: {
+                            type: 'string',
+                            format: 'uuid',
+                          },
+                          name: {
+                            type: 'string',
+                            example: 'John Doe',
+                          },
+                          email: {
+                            type: 'string',
+                            format: 'email',
+                            example: 'john@example.com',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Jane Doe', email: 'jane@example.com' }),
+      })
+
+      expect(response.status).toBe(201)
+      const data = await response.json()
+      expect(data).toHaveProperty('id')
+      expect(data.name).toBe('Jane Doe')
+      expect(data.email).toBe('jane@example.com')
+    })
+  })
 })

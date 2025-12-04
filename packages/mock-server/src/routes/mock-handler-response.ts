@@ -124,7 +124,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPI.Operati
 
   try {
     // Build handler context with tracking
-    const { context, tracking } = await buildHandlerContext(c)
+    const { context, tracking } = await buildHandlerContext(c, operation)
 
     // Execute handler
     const { result } = await executeHandler(handlerCode, context)
