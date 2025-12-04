@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.16.5
+
+### Patch Changes
+
+- [#7371](https://github.com/scalar/scalar/pull/7371) [`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583) Thanks [@hwkr](https://github.com/hwkr)! - feat(sidebar): convert draggable logic to a hook
+
+- [#7460](https://github.com/scalar/scalar/pull/7460) [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): update and polish ScalarLoading
+
+- Updated dependencies [[`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f), [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d), [`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f), [`35af6bf`](https://github.com/scalar/scalar/commit/35af6bfce4bc4ae3d0fc5783ea36e0165e964361), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d)]:
+  - @scalar/code-highlight@0.2.1
+  - @scalar/use-toasts@0.9.1
+  - @scalar/helpers@0.1.3
+  - @scalar/themes@0.13.25
+  - @scalar/oas-utils@0.6.5
+  - @scalar/icons@0.5.0
+  - @scalar/use-hooks@0.3.1
+
 ## 0.16.4
 
 ### Patch Changes

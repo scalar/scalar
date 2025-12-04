@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.7.23
+
+### Patch Changes
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/types@0.5.1
+
 ## 0.7.22
 
 ### Patch Changes

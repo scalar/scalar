@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.5.4
+
+### Patch Changes
+
+- [#7435](https://github.com/scalar/scalar/pull/7435) [`fa361d2`](https://github.com/scalar/scalar/commit/fa361d2799e358d582fbb224a7b93d5b6e832c0e) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: single quotes in shell/curl are not escaped
+
+- [#7436](https://github.com/scalar/scalar/pull/7436) [`dd8e9dc`](https://github.com/scalar/scalar/commit/dd8e9dc118d3ae98180e2a93bd6ba11e982abbf8) Thanks [@hanspagel](https://github.com/hanspagel)! - refactor: move javascript util to language lib
+
+- Updated dependencies [[`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03)]:
+  - @scalar/types@0.5.1
+
 ## 0.5.3
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.12.49
+
+### Patch Changes
+
+- Updated dependencies [[`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583), [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8)]:
+  - @scalar/components@0.16.5
+
 ## 0.12.48
 
 ### Patch Changes
