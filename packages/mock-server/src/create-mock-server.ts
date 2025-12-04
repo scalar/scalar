@@ -11,7 +11,6 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
-import { schemaNameToCollection } from '@/utils/schema-name-to-collection'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 
 import { store } from './libs/store'
@@ -37,14 +36,12 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       if (seedCode && typeof seedCode === 'string') {
         try {
-          // Convert schema name to collection name
-          const collectionName = schemaNameToCollection(schemaName)
-
           // Check if collection is empty (idempotent seeding)
-          const existingItems = store.list(collectionName)
+          // Use the schema key directly as the collection name
+          const existingItems = store.list(schemaName)
           if (existingItems.length === 0) {
-            // Build seed context with collection name
-            const seedContext = buildSeedContext(collectionName)
+            // Build seed context with schema key (used as collection name)
+            const seedContext = buildSeedContext(schemaName)
 
             // Execute seed code
             await executeSeed(seedCode, seedContext)

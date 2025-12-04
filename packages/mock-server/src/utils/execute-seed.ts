@@ -9,7 +9,7 @@ export type SeedExecutionResult = {
 
 /**
  * Execute seed code in a sandboxed environment.
- * The code has access only to the provided context (store, faker, seed).
+ * The code has access only to the provided context (store, faker, seed, schema).
  */
 export async function executeSeed(code: string, context: SeedContext): Promise<SeedExecutionResult> {
   // Create a function that executes the seed code with the context
@@ -19,6 +19,7 @@ export async function executeSeed(code: string, context: SeedContext): Promise<S
     'store',
     'faker',
     'seed',
+    'schema',
     `
     ${code}
   `,
@@ -26,7 +27,7 @@ export async function executeSeed(code: string, context: SeedContext): Promise<S
 
   // Execute the seed function with the context
   try {
-    const result = seedFunction(context.store, context.faker, context.seed)
+    const result = seedFunction(context.store, context.faker, context.seed, context.schema)
 
     // If the result is a Promise, await it
     if (result instanceof Promise) {

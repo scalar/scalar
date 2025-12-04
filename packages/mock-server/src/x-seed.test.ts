@@ -2,38 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from './create-mock-server'
 import { store } from './libs/store'
-import { schemaNameToCollection } from './utils/schema-name-to-collection'
 
 describe('x-seed', () => {
   beforeEach(() => {
     // Clear store before each test to ensure clean state
     store.clear()
-  })
-
-  describe('schemaNameToCollection', () => {
-    it('converts simple singular to plural', () => {
-      expect(schemaNameToCollection('Article')).toBe('articles')
-      expect(schemaNameToCollection('User')).toBe('users')
-      expect(schemaNameToCollection('Comment')).toBe('comments')
-    })
-
-    it('converts camelCase to camelCase plural', () => {
-      expect(schemaNameToCollection('UserProfile')).toBe('userProfiles')
-      expect(schemaNameToCollection('BlogPost')).toBe('blogPosts')
-    })
-
-    it('handles acronyms', () => {
-      expect(schemaNameToCollection('API')).toBe('apis')
-      expect(schemaNameToCollection('XML')).toBe('xmls')
-    })
-
-    it('handles single character', () => {
-      expect(schemaNameToCollection('A')).toBe('as')
-    })
-
-    it('handles empty string', () => {
-      expect(schemaNameToCollection('')).toBe('')
-    })
   })
 
   describe('basic seeding', () => {
@@ -66,7 +39,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -117,7 +90,7 @@ describe('x-seed', () => {
         paths: {
           '/users': {
             get: {
-              'x-handle': "return store.list('users');",
+              'x-handle': "return store.list('User');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -165,7 +138,7 @@ describe('x-seed', () => {
         paths: {
           '/comments': {
             get: {
-              'x-handle': "return store.list('comments');",
+              'x-handle': "return store.list('Comment');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -215,7 +188,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -227,7 +200,7 @@ describe('x-seed', () => {
       }
 
       // Pre-populate the collection
-      store.create('articles', { id: 'existing-1', title: 'Existing Article' })
+      store.create('Article', { id: 'existing-1', title: 'Existing Article' })
 
       const server = await createMockServer({ document })
 
@@ -266,7 +239,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -278,7 +251,7 @@ describe('x-seed', () => {
       }
 
       // Ensure collection is empty
-      store.clear('articles')
+      store.clear('Article')
 
       const server = await createMockServer({ document })
 
@@ -331,7 +304,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -341,7 +314,7 @@ describe('x-seed', () => {
           },
           '/users': {
             get: {
-              'x-handle': "return store.list('users');",
+              'x-handle': "return store.list('User');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -392,7 +365,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -442,7 +415,7 @@ describe('x-seed', () => {
         paths: {
           '/articles': {
             get: {
-              'x-handle': "return store.list('articles');",
+              'x-handle': "return store.list('Article');",
               responses: {
                 '200': {
                   description: 'OK',
@@ -468,7 +441,7 @@ describe('x-seed', () => {
     })
   })
 
-  describe('schema name to collection name conversion', () => {
+  describe('schema key usage', () => {
     it('handles camelCase schema names', async () => {
       const document = {
         openapi: '3.1.0',
@@ -496,7 +469,7 @@ describe('x-seed', () => {
         paths: {
           '/userProfiles': {
             get: {
-              'x-handle': "return store.list('userProfiles');",
+              'x-handle': "return store.list('UserProfile');",
               responses: {
                 '200': {
                   description: 'OK',

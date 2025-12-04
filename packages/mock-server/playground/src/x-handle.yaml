@@ -15,7 +15,7 @@ paths:
         - Articles
       operationId: getArticles
       x-handle: |
-        return store.list('articles')
+        return store.list('Article')
       responses:
         '200':
           description: OK
@@ -30,7 +30,7 @@ paths:
         - Articles
       operationId: createArticle
       x-handle: |
-        return store.create('articles', {
+        return store.create('Article', {
           id: faker.string.uuid(),
           ...req.body
         })
@@ -62,7 +62,7 @@ paths:
         - Articles
       operationId: getArticle
       x-handle: |
-        return store.get('articles', req.params.id)
+        return store.get('Article', req.params.id)
       responses:
         '200':
           description: OK
@@ -77,7 +77,7 @@ paths:
         - Articles
       operationId: updateArticle
       x-handle: |
-        return store.update('articles', req.params.id, req.body)
+        return store.update('Article', req.params.id, req.body)
       requestBody:
         required: true
         content:
@@ -98,7 +98,7 @@ paths:
         - Articles
       operationId: deleteArticle
       x-handle: |
-        return store.delete('articles', req.params.id)
+        return store.delete('Article', req.params.id)
       responses:
         '204':
           description: No Content

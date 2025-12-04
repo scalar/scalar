@@ -28,13 +28,14 @@ export type SeedContext = {
   store: ReturnType<typeof createStoreWrapper>['wrappedStore']
   faker: typeof faker
   seed: SeedHelper
+  schema: string
 }
 
 /**
  * Build the seed context with a seed helper function.
- * The seed helper automatically uses the provided collection name.
+ * The seed helper automatically uses the schema key as the collection name.
  */
-export function buildSeedContext(collectionName: string): SeedContext {
+export function buildSeedContext(schemaKey: string): SeedContext {
   const { wrappedStore } = createStoreWrapper(store)
 
   /**
@@ -49,7 +50,7 @@ export function buildSeedContext(collectionName: string): SeedContext {
 
       for (let i = 0; i < count; i++) {
         const item = factory()
-        const created = wrappedStore.create(collectionName, item)
+        const created = wrappedStore.create(schemaKey, item)
         items.push(created)
       }
 
@@ -61,7 +62,7 @@ export function buildSeedContext(collectionName: string): SeedContext {
       const items: any[] = []
 
       for (const item of arg1) {
-        const created = wrappedStore.create(collectionName, item)
+        const created = wrappedStore.create(schemaKey, item)
         items.push(created)
       }
 
@@ -72,7 +73,7 @@ export function buildSeedContext(collectionName: string): SeedContext {
     if (typeof arg1 === 'function') {
       const factory = arg1
       const item = factory()
-      const created = wrappedStore.create(collectionName, item)
+      const created = wrappedStore.create(schemaKey, item)
       return created
     }
 
@@ -85,7 +86,7 @@ export function buildSeedContext(collectionName: string): SeedContext {
 
     for (let i = 0; i < n; i++) {
       const item = factory()
-      const created = wrappedStore.create(collectionName, item)
+      const created = wrappedStore.create(schemaKey, item)
       items.push(created)
     }
 
@@ -96,5 +97,6 @@ export function buildSeedContext(collectionName: string): SeedContext {
     store: wrappedStore,
     faker,
     seed: seedHelper,
+    schema: schemaKey,
   }
 }
