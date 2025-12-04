@@ -1,7 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-sclar-tabs'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue } from 'vue'
 import { useRoute } from 'vue-router'
 
