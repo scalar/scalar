@@ -14,14 +14,16 @@ packages:
 minimumReleaseAge: 10080 # 1 week
 
 minimumReleaseAgeExclude:
+  - '@astrojs/*'
+  - '@next/*'
+  - astro
+  - hono
+  - next
   - rollup
   - vite
-  - vue
   - vite-node
   - vitest
-  - hono
-  - astro
-  - '@astrojs/*'
+  - vue
 
 catalogs:
   '*':
