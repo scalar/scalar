@@ -1,8 +1,10 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type {
+  OperationObject,
+  ParameterObject,
+  SchemaObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { parseCurlCommand } from '@/libs'
 

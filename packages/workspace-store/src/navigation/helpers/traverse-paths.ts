@@ -6,7 +6,7 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
+import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 

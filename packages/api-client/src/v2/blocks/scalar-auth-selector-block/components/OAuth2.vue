@@ -5,8 +5,8 @@ import { useToasts } from '@scalar/use-toasts'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
-import type { OAuthFlow } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
+  OAuthFlow,
   OAuthFlowsObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'

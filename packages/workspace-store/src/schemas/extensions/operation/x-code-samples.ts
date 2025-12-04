@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 
-export const XCodeSampleSchema = Type.Object({
+const XCodeSampleSchema = Type.Object({
   lang: Type.Optional(Type.String()),
   label: Type.Optional(Type.String()),
   source: Type.String(),

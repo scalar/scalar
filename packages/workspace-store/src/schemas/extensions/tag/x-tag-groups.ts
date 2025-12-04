@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 
-export const XTagGroupSchema = compose(
+const XTagGroupSchema = compose(
   Type.Object({
     /**
      * The group name.
@@ -17,7 +17,7 @@ export const XTagGroupSchema = compose(
   XScalarOrderSchema,
 )
 
-export type XTagGroup = {
+type XTagGroup = {
   /**
    * The group name.
    */

@@ -5,15 +5,13 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
+  ApiKeyObject,
   ComponentsObject,
+  HttpObject,
   SecurityRequirementObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type {
-  ApiKeyObject,
-  HttpObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import { capitalize, computed, ref } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'

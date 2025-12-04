@@ -11,7 +11,7 @@ import {
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
-export const DescriptionSchema = Type.Object({
+const DescriptionSchema = Type.Object({
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description: Type.Optional(Type.String()),
 })
@@ -21,7 +21,7 @@ type Description = {
   description?: string
 }
 
-export const ApiKeySchema = compose(
+const ApiKeySchema = compose(
   DescriptionSchema,
   XScalarSecretTokenSchema,
   Type.Object({
@@ -43,7 +43,7 @@ export type ApiKeyObject = Description & {
   in: string
 } & XScalarSecretToken
 
-export const HttpSchema = compose(
+const HttpSchema = compose(
   DescriptionSchema,
   XScalarSecretTokenSchema,
   XScalarSecretHTTPSchema,
@@ -67,7 +67,7 @@ export type HttpObject = Description & {
 } & XScalarSecretHTTP &
   XScalarSecretToken
 
-export const OAuth2 = compose(
+const OAuth2 = compose(
   DescriptionSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
@@ -85,7 +85,7 @@ export type OAuth2Object = Description & {
   flows: OAuthFlowsObject
 } & XDefaultScopes
 
-export const OpenIdConnect = compose(
+const OpenIdConnect = compose(
   DescriptionSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
@@ -95,7 +95,7 @@ export const OpenIdConnect = compose(
   }),
 )
 
-export type OpenIdConnectObject = Description & {
+type OpenIdConnectObject = Description & {
   /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
   type: 'openIdConnect'
   /** REQUIRED. Well-known URL to discover the [[OpenID-Connect-Discovery]] provider metadata. */
