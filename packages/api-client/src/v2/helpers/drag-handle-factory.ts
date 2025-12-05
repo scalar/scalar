@@ -1,3 +1,4 @@
+import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
@@ -303,7 +304,9 @@ const handleDocumentReorder = (
   hoveredItem: TraversedDocument,
   offset: DragOffset,
 ): boolean => {
-  const currentOrder = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
+  const order = store.workspace['x-scalar-order'] ?? []
+  const documents = Object.keys(store.workspace.documents)
+  const currentOrder = sortByOrder(documents, order, (item) => item)
   const draggedIndex = currentOrder.findIndex((id) => id === draggingItem.id)
   const hoveredIndex = currentOrder.findIndex((id) => id === hoveredItem.id)
 

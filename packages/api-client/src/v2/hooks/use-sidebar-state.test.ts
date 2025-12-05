@@ -370,4 +370,62 @@ describe('use-sidebar-state', () => {
     const selectedIds = Object.keys(state.selectedItems.value)
     expect(selectedIds).toEqual(['pets'])
   })
+
+  it('sorts documents by the order specified in the workspace', async () => {
+    const document = getDocument({ paths: {} })
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'pets', document })
+    await store.addDocument({ name: 'dogs', document })
+    await store.addDocument({ name: 'birds', document })
+
+    store.update('x-scalar-order', ['dogs', 'birds', 'pets'])
+
+    const workspaceSlug = ref('ws')
+    const documentSlug = ref<string | undefined>('pets')
+    const path = ref<string | undefined>(undefined)
+    const method = ref<'get' | undefined>(undefined)
+    const exampleName = ref<string | undefined>(undefined)
+
+    const { state } = useSidebarState({
+      workspaceStore: store,
+      workspaceSlug,
+      documentSlug,
+      path,
+      method,
+      exampleName,
+    })
+
+    const result = state.items.value.map((it) => it.id)
+
+    expect(result).toEqual(['dogs', 'birds', 'pets'])
+  })
+
+  it('shows also missing documents in the order specified in the workspace', async () => {
+    const document = getDocument({ paths: {} })
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'pets', document })
+    await store.addDocument({ name: 'dogs', document })
+    await store.addDocument({ name: 'birds', document })
+
+    store.update('x-scalar-order', ['dogs'])
+
+    const workspaceSlug = ref('ws')
+    const documentSlug = ref<string | undefined>('pets')
+    const path = ref<string | undefined>(undefined)
+    const method = ref<'get' | undefined>(undefined)
+    const exampleName = ref<string | undefined>(undefined)
+
+    const { state } = useSidebarState({
+      workspaceStore: store,
+      workspaceSlug,
+      documentSlug,
+      path,
+      method,
+      exampleName,
+    })
+
+    const result = state.items.value.map((it) => it.id)
+
+    expect(result).toEqual(['dogs', 'pets', 'birds'])
+  })
 })

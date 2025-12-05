@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -59,7 +60,7 @@ export const useSidebarState = ({
 
     const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
 
-    return order
+    return sortByOrder(Object.keys(store.workspace.documents), order, (item) => item)
       .map((doc) => store.workspace.documents[doc]?.['x-scalar-navigation'])
       .filter(isDefined) as TraversedEntry[]
   })
