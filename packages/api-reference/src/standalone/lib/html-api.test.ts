@@ -177,8 +177,8 @@ describe('createApiReference', () => {
     await flushPromises()
     await sleep(1000)
 
-    expect(document.getElementById('updated-api/tag/test/get/test')).not.toBeNull()
-    expect(document.getElementById('updated-api/tag/test/get/test')?.innerHTML).toContain('New Operation')
+    expect(document.getElementById('updated-api/tag/test/GET/test')).not.toBeNull()
+    expect(document.getElementById('updated-api/tag/test/GET/test')?.innerHTML).toContain('New Operation')
 
     // Update configuration
     app.updateConfiguration({
@@ -200,8 +200,8 @@ describe('createApiReference', () => {
     await flushPromises()
 
     await sleep(1000)
-    expect(document.getElementById('updated-api/tag/test/post/test')).not.toBeNull()
-    expect(document.getElementById('updated-api/tag/test/post/test')?.innerHTML).toContain('Even newer operation')
+    expect(document.getElementById('updated-api/tag/test/POST/test')).not.toBeNull()
+    expect(document.getElementById('updated-api/tag/test/POST/test')?.innerHTML).toContain('Even newer operation')
 
     // Assert the configuration was updated
     await flushPromises()
