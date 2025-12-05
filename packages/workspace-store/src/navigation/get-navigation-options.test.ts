@@ -149,7 +149,7 @@ describe('get-navigation-options', () => {
       method: 'get',
       operation: { summary: 'Get a pet' },
     })
-    expect(id).toBe('pet-store/get/pets/{id}/edit')
+    expect(id).toBe('pet-store/GET/pets/{id}/edit')
   })
 
   it('generates operation ID with parent tag prefix', () => {
@@ -165,7 +165,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Pets' },
       },
     })
-    expect(id).toBe('pet-store/tag/pets/get/pets/{id}')
+    expect(id).toBe('pet-store/tag/pets/GET/pets/{id}')
   })
 
   it('uses custom generateOperationSlug when provided', () => {
@@ -193,7 +193,7 @@ describe('get-navigation-options', () => {
       name: 'newPetCreated',
       method: 'post',
     })
-    expect(id).toBe('pet-store/webhook/post/newpetcreated')
+    expect(id).toBe('pet-store/webhook/POST/newpetcreated')
   })
 
   it('generates webhook ID with parent tag prefix', () => {
@@ -208,7 +208,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Webhooks' },
       },
     })
-    expect(id).toBe('pet-store/tag/webhooks/webhook/put/petupdated')
+    expect(id).toBe('pet-store/tag/webhooks/webhook/PUT/petupdated')
   })
 
   it('uses custom generateWebhookSlug when provided', () => {
@@ -224,7 +224,7 @@ describe('get-navigation-options', () => {
       name: 'orderCreated',
       method: 'post',
     })
-    expect(id).toBe('api/webhook/post-orderCreated')
+    expect(id).toBe('api/webhook/POST-orderCreated')
   })
 
   it('generates model ID for models root when name is empty', () => {
@@ -324,7 +324,7 @@ describe('get-navigation-options', () => {
       method: 'get',
       operation: {},
     })
-    expect(id).toBe('api/get/search?query={term}')
+    expect(id).toBe('api/GET/search?query={term}')
   })
 
   it('preserves nested tag generation for operations under tags', () => {
@@ -341,7 +341,7 @@ describe('get-navigation-options', () => {
       },
     })
     // The tag ID is regenerated, not used from parentTag.id
-    expect(id).toBe('store-api/tag/orders/post/orders')
+    expect(id).toBe('store-api/tag/orders/POST/orders')
   })
 
   it('handles webhook with undefined method', () => {

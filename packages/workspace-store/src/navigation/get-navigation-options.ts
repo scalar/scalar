@@ -51,12 +51,12 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
         return `${prefixTag}${referenceConfig.generateOperationSlug({
           path: props.path,
           operationId: props.operation.operationId,
-          method: props.method,
+          method: props.method.toUpperCase(),
           summary: props.operation.summary,
         })}`
       }
 
-      return `${prefixTag}${props.method}${props.path}`
+      return `${prefixTag}${props.method.toUpperCase()}${props.path}`
     }
 
     // -------- Default webhook id generation logic --------
@@ -72,11 +72,11 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
       if (referenceConfig?.generateWebhookSlug) {
         return `${prefixTag}webhook/${referenceConfig.generateWebhookSlug({
           name: props.name,
-          method: props.method,
+          method: props.method?.toUpperCase(),
         })}`
       }
 
-      return `${prefixTag}webhook/${props.method}/${slug(props.name)}`
+      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slug(props.name)}`
     }
 
     // -------- Default model id generation logic --------
