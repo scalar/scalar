@@ -437,6 +437,9 @@ export const deleteOperation = (
     return
   }
 
+  preventPollution(meta.path)
+  preventPollution(meta.method)
+
   delete document.paths?.[meta.path]?.[meta.method]
 
   // If the path has no more operations, remove the path entry
