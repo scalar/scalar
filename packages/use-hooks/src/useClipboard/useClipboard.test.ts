@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useClipboard } from './useClipboard'
 
-vi.mock('@scalar/use-toasts', () => ({
+vi.mock(import('@scalar/use-toasts'), () => ({
   useToasts: vi.fn().mockReturnValue({
     toast: vi.fn(),
     initializeToasts: vi.fn(),

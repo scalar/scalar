@@ -1,1 +1,1 @@
-export * from './useClipboard'
+export { useClipboard } from './useClipboard'

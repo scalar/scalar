@@ -136,7 +136,7 @@ describe('useColorMode', () => {
   })
 
   it('listens to system preference changes', async () => {
-    let mediaQueryCallback: () => void = () => {}
+    let mediaQueryCallback: () => void = vi.fn()
 
     const mockMediaQuery = (matches: boolean) => ({
       matches,
@@ -227,13 +227,10 @@ describe('useColorMode', () => {
   })
 
   it('handles missing matchMedia gracefully', () => {
-    const originalMatchMedia = window.matchMedia
     // @ts-expect-error - Intentionally removing matchMedia
     delete window.matchMedia
 
     const { darkLightMode } = useColorMode()
     expect(darkLightMode.value).toBe('dark') // Should default to dark when matchMedia is unavailable
-
-    window.matchMedia = originalMatchMedia
   })
 })
