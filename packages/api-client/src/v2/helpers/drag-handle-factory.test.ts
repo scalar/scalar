@@ -282,7 +282,7 @@ describe('handleDragEnd', () => {
 
     const operations = tag.children?.filter((child) => child.type === 'operation') ?? []
 
-    expect(operations.map((it) => it.id)).toEqual(['doc-1/tag/users/get/users', 'doc-1/tag/users/post/users'])
+    expect(operations.map((it) => it.id)).toEqual(['doc-1/tag/users/GET/users', 'doc-1/tag/users/POST/users'])
 
     const opGet = operations[0]
     const opPost = operations[1]

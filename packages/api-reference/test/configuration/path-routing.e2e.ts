@@ -57,7 +57,7 @@ test.describe('pathRouting', () => {
     // Make the viewport smaller to test scrolling
     await page.setViewportSize({ width: 1024, height: 100 })
 
-    await page.goto(`${example}/my-custom-base-path/tag/user-tag/get/users`)
+    await page.goto(`${example}/my-custom-base-path/tag/user-tag/GET/users`)
 
     await expect(page.getByRole('heading', { name: 'Get all users', level: 3 })).toBeInViewport()
   })

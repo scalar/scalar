@@ -76,13 +76,13 @@ describe('use-sidebar-state', () => {
     })
 
     expect(Object.keys(state.selectedItems.value)).toEqual([
-      'pets/tag/pets/get/pets/example/default',
-      'pets/tag/pets/get/pets',
+      'pets/tag/pets/GET/pets/example/default',
+      'pets/tag/pets/GET/pets',
       'pets/tag/pets',
       'pets',
     ])
 
-    expect(state.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
+    expect(state.isExpanded('pets/tag/pets/GET/pets/example/default')).toBe(true)
   })
 
   it('navigates to document overview and expands when selecting a document', async () => {
@@ -167,8 +167,8 @@ describe('use-sidebar-state', () => {
     handleSelectItem(operationId)
 
     // The first example should be selected and expanded
-    expect(state.isSelected('pets/tag/pets/get/pets/example/default')).toBe(true)
-    expect(state.isExpanded('pets/tag/pets/get/pets/example/default')).toBe(true)
+    expect(state.isSelected('pets/tag/pets/GET/pets/example/default')).toBe(true)
+    expect(state.isExpanded('pets/tag/pets/GET/pets/example/default')).toBe(true)
     expect(push).toHaveBeenCalledTimes(1)
     expect(push).toHaveBeenCalledWith({
       name: 'example',
