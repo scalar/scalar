@@ -5,7 +5,7 @@ import { computed, ref, toValue } from 'vue'
 import { screens } from './constants'
 import { useBreakpoints } from './useBreakpoints'
 
-vi.mock('@vueuse/core', () => ({
+vi.mock(import('@vueuse/core'), () => ({
   useMediaQuery: vi.fn(),
 }))
 

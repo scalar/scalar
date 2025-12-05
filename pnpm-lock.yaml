@@ -2603,12 +2603,12 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.1(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.21(typescript@5.8.3))
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.6
+      jsdom:
+        specifier: catalog:*
+        version: 26.1.0
       vite:
         specifier: catalog:*
         version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -20420,7 +20420,7 @@ snapshots:
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.4
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -22263,7 +22263,7 @@ snapshots:
   '@eslint/config-array@0.19.2':
     dependencies:
       '@eslint/object-schema': 2.1.6
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -22279,7 +22279,7 @@ snapshots:
   '@eslint/eslintrc@3.2.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.1
@@ -26259,7 +26259,7 @@ snapshots:
   '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)))(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 5.0.3(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       svelte: 5.25.10
       vite: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
     transitivePeerDependencies:
@@ -38996,7 +38996,7 @@ snapshots:
       '@types/node': 20.17.10
       '@types/unist': 3.0.2
       concat-stream: 2.0.0
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       extend: 3.0.2
       glob: 10.4.5
       ignore: 5.3.1

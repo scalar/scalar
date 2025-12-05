@@ -1,2 +1,2 @@
-export { useBreakpoints } from './useBreakpoints'
 export { screens } from './constants'
+export { useBreakpoints } from './useBreakpoints'
