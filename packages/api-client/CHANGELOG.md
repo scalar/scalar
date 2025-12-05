@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c)]:
+  - @scalar/use-hooks@0.3.2
+  - @scalar/components@0.16.6
+  - @scalar/sidebar@0.5.1
+  - @scalar/use-codemirror@0.12.50
+
 ## 2.13.0
 
 ### Minor Changes
