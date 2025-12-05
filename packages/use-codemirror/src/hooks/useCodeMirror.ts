@@ -1,6 +1,5 @@
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
-import { indentWithTab, insertNewline } from '@codemirror/commands'
-import { history, historyKeymap } from '@codemirror/commands'
+import { history, historyKeymap, indentWithTab, insertNewline } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'

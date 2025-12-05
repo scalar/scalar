@@ -38,11 +38,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./hooks": {
-      "import": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts",
-      "default": "./dist/hooks/index.js"
-    },
     "./themes": {
       "import": "./dist/themes/index.js",
       "types": "./dist/themes/index.d.ts",
@@ -69,7 +64,6 @@
     "@lezer/highlight": "^1.2.1",
     "@replit/codemirror-css-color-picker": "^6.3.0",
     "@scalar/components": "workspace:*",
-    "codemirror": "^6.0.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

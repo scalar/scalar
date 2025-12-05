@@ -14,5 +14,9 @@ export {
 } from '@codemirror/view'
 export { colorPicker } from '@replit/codemirror-css-color-picker'
 
-export * from './hooks'
-export * from './types'
+export {
+  type UseCodeMirrorParameters,
+  useCodeMirror,
+} from './hooks/useCodeMirror'
+export { useDropdown } from './hooks/useDropdown'
+export type { CodeMirrorLanguage } from './types'
