@@ -67,6 +67,22 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
     })
   })
 
+  // Remove the tag from all webhooks that have this tag
+  Object.values(document.webhooks ?? {}).forEach((webhook) => {
+    Object.values(webhook).forEach((operation) => {
+      if (typeof operation !== 'object' || Array.isArray(operation)) {
+        return
+      }
+
+      const resolvedOperation = getResolvedRef(operation)
+
+      resolvedOperation.tags = unpackProxyObject(
+        resolvedOperation.tags?.filter((tag) => tag !== payload.name),
+        { depth: 2 },
+      )
+    })
+  })
+
   // Remove the tag from the document tags array
   document.tags = unpackProxyObject(
     document.tags?.filter((tag) => tag.name !== payload.name),

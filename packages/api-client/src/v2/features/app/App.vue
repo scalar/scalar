@@ -281,8 +281,8 @@ const createWorkspaceModalState = useModal()
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
         <!-- App sidebar -->
+
         <AppSidebar
-          v-show="isSidebarOpen"
           v-model:isSidebarOpen="isSidebarOpen"
           :activeWorkspace
           :eventBus
