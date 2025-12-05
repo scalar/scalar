@@ -513,9 +513,13 @@ jobs:
             echo "Release ${{ steps.tag.outputs.date }}" > release-notes.md
           else
             # Extract only the relevant content:
-            # - Start from "# Releases" heading
+            # - Start from "# Releases" heading (using awk for reliability)
             # - Stop before "<!-- CURSOR_SUMMARY -->" marker
-            echo "$PR_BODY" | sed -n '/^# Releases/,/<!-- CURSOR_SUMMARY -->/p' | sed '/<!-- CURSOR_SUMMARY -->/d' > release-notes.md
+            echo "$PR_BODY" | awk '
+              /^# Releases/ { found=1 }
+              /<!-- CURSOR_SUMMARY -->/ { exit }
+              found { print }
+            ' > release-notes.md
 
             # If extraction failed (no "# Releases" found), use full body
             if [ ! -s release-notes.md ]; then
