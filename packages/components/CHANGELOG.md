@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.16.6
+
+### Patch Changes
+
+- Updated dependencies [[`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c)]:
+  - @scalar/use-hooks@0.3.2
+
 ## 0.16.5
 
 ### Patch Changes
