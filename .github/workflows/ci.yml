@@ -1498,7 +1498,7 @@ jobs:
         run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
       - name: Publish all Java modules to Maven Central
         working-directory: integrations/java
-        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux
+        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux -am
         env:
           # Create an account on Sonatype and add the credentials to the repository secrets.
           # Generate User Token: https://central.sonatype.com/account
