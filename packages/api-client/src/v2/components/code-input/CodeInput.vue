@@ -349,7 +349,28 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
 // Public API
 
 defineExpose({
-  focus: () => codeMirror.value?.focus(),
+  /**
+   * Focus the codemirror element
+   *
+   * @param cursorAtEnd boolean place the cursor at the end of the input
+   */
+  focus: (cursorAtEnd?: boolean) => {
+    if (!codeMirror.value) {
+      return
+    }
+    codeMirror.value.focus()
+
+    if (!cursorAtEnd) {
+      return
+    }
+
+    // Move the cursor to the end of the element
+    const length = codeMirror.value.state.doc.length
+    codeMirror.value.dispatch({
+      selection: { anchor: length },
+      scrollIntoView: true,
+    })
+  },
   isFocused,
   handleChange,
   handleSubmit,

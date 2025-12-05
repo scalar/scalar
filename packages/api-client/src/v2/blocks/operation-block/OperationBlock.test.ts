@@ -27,6 +27,7 @@ describe('OperationContainer', () => {
     history: [],
     totalPerformedRequests: 0,
     operation: defaultOperation,
+    operationEntriesMap: new Map(),
     exampleKey: 'default',
     selectedContentType: 'application/json',
     authMeta: { type: 'document' } as any,
@@ -74,6 +75,7 @@ describe('OperationContainer', () => {
     expect(fn).toHaveBeenCalledWith({
       meta: { method: 'get', path: '/pets', exampleKey: 'default' },
       payload: { method: 'put' },
+      operationEntriesMap: new Map(),
     })
   })
 
@@ -92,8 +94,9 @@ describe('OperationContainer', () => {
     expect(fn).toHaveBeenCalledTimes(1)
 
     expect(fn).toHaveBeenCalledWith({
-      meta: { method: 'get', path: '/pets' },
+      meta: { method: 'get', path: '/pets', exampleKey: 'default' },
       payload: { path: '/animals' },
+      operationEntriesMap: new Map(),
     })
 
     vi.useRealTimers()

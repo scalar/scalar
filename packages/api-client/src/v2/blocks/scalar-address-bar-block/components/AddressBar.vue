@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarWrappingText,
+} from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconWarningCircle } from '@scalar/icons'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
   onBeforeUnmount,
   onMounted,
+  ref,
   useId,
   useTemplateRef,
+  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -29,6 +37,7 @@ const {
   layout,
   eventBus,
   history,
+  operationEntriesMap,
   server,
   environment,
   percentage = 100,
@@ -37,6 +46,8 @@ const {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Operation entries map to keep track of conflicts */
+  operationEntriesMap: OperationEntriesMap
   /** Currently selected server */
   server: ServerObject | null
   /** Server list available for operation/document */
@@ -79,22 +90,71 @@ const style = computed(() => ({
   transform: `translate3d(-${percentage}%,0,0)`,
 }))
 
+/**
+ * Tracks a conflict when the user attempts to change the method or path
+ * to a combination that already exists in the document.
+ */
+type Conflict = {
+  method: HttpMethodType
+  path: string
+}
+
+const conflict = ref<Conflict | null>(null)
+
+/** Clear conflict when the props change externally (e.g., user navigates to a different request) */
+watch(
+  () => [method, path],
+  () => {
+    conflict.value = null
+  },
+)
+
+/**
+ * Checks if a method + path combination would conflict with an existing operation.
+ * Returns true if the combination exists in the map and differs from the current values.
+ */
+const hasConflict = (newMethod: HttpMethodType, newPath: string): boolean =>
+  Boolean(operationEntriesMap.get(`${newPath}|${newMethod}`)) &&
+  (newMethod !== method || newPath !== path)
+
+/** Ensure we only update the method if it does not conflict, else enter error state */
+const handleMethodChange = (newMethod: HttpMethodType): void => {
+  if (hasConflict(newMethod, path)) {
+    conflict.value = { method: newMethod, path }
+    return
+  }
+
+  conflict.value = null
+  emit('update:method', { value: newMethod })
+}
+
+/** Ensure we only update the path if it does not conflict, else enter error state */
+const handlePathUpdate = (newPath: string): void => {
+  if (hasConflict(method, newPath)) {
+    conflict.value = { method, path: newPath }
+    return
+  }
+
+  conflict.value = null
+  emit('update:path', { value: newPath })
+}
+
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 /** Focus the addressbar */
-const handleFocusAddressBar = ({
-  event,
-}: ApiReferenceEvents['ui:focus:address-bar']) => {
+const handleFocusAddressBar = (
+  payload: ApiReferenceEvents['ui:focus:address-bar'],
+) => {
   // if its already has focus we just propagate native behaviour which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
 
-  addressBarRef.value?.focus()
-  event.preventDefault()
+  addressBarRef.value?.focus(true)
+  payload?.event.preventDefault()
 }
 
 onMounted(() => {
@@ -106,6 +166,10 @@ onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
 })
+
+defineExpose({
+  conflict,
+})
 </script>
 <template>
   <div
@@ -113,7 +177,10 @@ onBeforeUnmount(() => {
     class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
     <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]">
+      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
+      :class="{
+        'outline-c-danger outline': conflict,
+      }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
@@ -124,9 +191,9 @@ onBeforeUnmount(() => {
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="method"
+          :method="conflict?.method ?? method"
           teleport
-          @change="(payload) => emit('update:method', { value: payload })" />
+          @change="handleMethodChange" />
       </div>
 
       <div
@@ -172,15 +239,28 @@ onBeforeUnmount(() => {
               })
           "
           @submit="emit('execute')"
-          @update:modelValue="
-            (payload) => emit('update:path', { value: payload })
-          " />
+          @update:modelValue="handlePathUpdate" />
         <div class="fade-right" />
       </div>
 
       <AddressBarHistory
         :history="history"
         :target="id" />
+      <!-- Error message -->
+      <div
+        v-if="conflict"
+        class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
+        <div
+          class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
+          <ScalarIconWarningCircle size="sm" />
+          <div class="min-w-0 flex-1">
+            A
+            <em>{{ conflict.method.toUpperCase() }}</em> request to
+            <ScalarWrappingText :text="conflict.path" />
+            already exists in this document
+          </div>
+        </div>
+      </div>
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
@@ -312,7 +392,8 @@ onBeforeUnmount(() => {
 .address-bar-bg-states:has(.cm-focused) {
   --scalar-address-bar-bg: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
-  outline: 1px solid var(--scalar-color-accent);
+  outline-width: 1px;
+  outline-style: solid;
 }
 .address-bar-bg-states:has(.cm-focused) .fade-left,
 .address-bar-bg-states:has(.cm-focused) .fade-right {
