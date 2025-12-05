@@ -4,7 +4,7 @@ import { serveExample } from '@test/utils/serve-example'
 test.describe('redirect', () => {
   test('redirects to the correct operation', async ({ page }) => {
     const example = await serveExample({
-      redirect: (hash) => hash.replace('#foobar', '#tag/authentication/POST/authtoken'),
+      redirect: (hash) => hash.replace('#foobar', '#tag/authentication/POST/auth/token'),
     })
 
     // Make the viewport smaller to test scrolling
