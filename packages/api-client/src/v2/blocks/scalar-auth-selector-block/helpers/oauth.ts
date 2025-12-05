@@ -241,7 +241,7 @@ export const authorizeOauth2 = async (
     }
     return [new Error('Failed to open auth window'), null]
   } catch (_) {
-    return [new Error('bbb'), null]
+    return [new Error('Failed to authorize oauth2 flow'), null]
   }
 }
 
