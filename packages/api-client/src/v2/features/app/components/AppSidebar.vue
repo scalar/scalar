@@ -241,15 +241,10 @@ const handleCloseMenu = () => {
       <!-- Decorator dropdown menu -->
       <template #decorator="{ item }">
         <ScalarIconButton
-          class="hover:bg-b-3"
-          :class="{
-            'hidden group-hover/button:block': !(
-              selectedItem?.isOpen && selectedItem?.item.id === item.id
-            ),
-          }"
           :icon="ScalarIconDotsThree"
-          label="Show options"
-          size="xxs"
+          weight="bold"
+          label="More options"
+          size="sm"
           @click="(e: MouseEvent) => selectItem(e, item)" />
       </template>
 
