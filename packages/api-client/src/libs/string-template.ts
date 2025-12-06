@@ -1,5 +1,4 @@
-import { REGEX } from '@scalar/oas-utils/helpers'
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { REGEX, isDefined } from '@scalar/oas-utils/helpers'
 
 /**
  * Get the nested value from a context object
@@ -18,6 +17,8 @@ export function getDotPathValue(path: string, context: object) {
  * - {{ double curly }}
  * - { single curly }
  * - :colon
+ *
+ * @deprecated Use replaceVariables from @scalar/helpers/regex/replace-variables instead
  */
 export function replaceTemplateVariables(templateString: string, context: object) {
   let substitutedString = templateString
