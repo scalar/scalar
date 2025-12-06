@@ -1139,7 +1139,7 @@
       "get": {
         "tags": ["main page"],
         "x-api-plan-only": true,
-        "summary": "Overview of all categories accross all protocols",
+        "summary": "Overview of all forks accross all protocols",
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1247,7 +1247,7 @@
     "/api/oracles": {
       "get": {
         "tags": ["main page"],
-        "summary": "Overview of all categories accross all protocols",
+        "summary": "Overview of all oracles accross all protocols",
         "responses": {
           "200": {
             "description": "successful operation",
