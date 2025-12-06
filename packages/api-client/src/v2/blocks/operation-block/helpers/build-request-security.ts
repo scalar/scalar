@@ -1,5 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
@@ -13,6 +13,7 @@ import { encode } from 'js-base64'
  * In the future we can add customization for where the security is applied
  */
 export const buildRequestSecurity = (
+  /** Applicable security schemes */
   securitySchemes: SecuritySchemeObject[] = [],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
@@ -24,9 +25,9 @@ export const buildRequestSecurity = (
   const urlParams = new URLSearchParams()
 
   securitySchemes.forEach((scheme) => {
-    // Scheme type and example value type should always match
+    // Api key
     if (scheme.type === 'apiKey') {
-      const value = replaceVariables(scheme['x-scalar-secret-token'], env) || emptyTokenPlaceholder
+      const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env) || emptyTokenPlaceholder
 
       if (scheme.in === 'header') {
         headers[scheme.name] = value
@@ -45,20 +46,21 @@ export const buildRequestSecurity = (
       }
     }
 
+    // HTTP
     if (scheme.type === 'http') {
       if (scheme.scheme === 'basic') {
-        const username = replaceVariables(scheme['x-scalar-secret-username'], env)
-        const password = replaceVariables(scheme['x-scalar-secret-password'], env)
+        const username = replaceEnvVariables(scheme['x-scalar-secret-username'], env)
+        const password = replaceEnvVariables(scheme['x-scalar-secret-password'], env)
         const value = `${username}:${password}`
 
         headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
       } else {
-        const value = replaceVariables(scheme['x-scalar-secret-token'], env)
+        const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env)
         headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
       }
     }
 
-    // For OAuth we take the token from the first flow
+    // OAuth2
     if (scheme.type === 'oauth2') {
       const flows = Object.values(scheme.flows)
       const token = flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token']
