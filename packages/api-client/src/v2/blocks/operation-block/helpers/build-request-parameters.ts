@@ -1,5 +1,4 @@
 import { replaceEnvVariables, replaceVariables } from '@scalar/helpers/regex/replace-variables'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
@@ -7,37 +6,8 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-/** Grabs the example from both schema based and content based parameters */
-const getExample = (param: ParameterObject, exampleKey: string, contentType: string) => {
-  if ('content' in param) {
-    return getResolvedRef(param.content?.[contentType]?.examples?.[exampleKey])
-  }
-  if ('examples' in param) {
-    return getResolvedRef(param.examples?.[exampleKey])
-  }
-  return undefined
-}
-
-/**
- * Gets the delimiter for the given parameter style
- *
- * @param style - The style of the parameter
- * @returns The delimiter for the given style
- */
-const getDelimiter = (style: string): string => {
-  switch (style) {
-    // color=blue black brown
-    case 'spaceDelimited':
-      return ' '
-    // color=blue|black|brown
-    case 'pipeDelimited':
-      return '|'
-    // color=blue,black,brown
-    case 'form':
-    default:
-      return ','
-  }
-}
+import { getDelimiter } from '@/v2/blocks/operation-block/helpers/get-delimiter'
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
