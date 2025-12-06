@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import {
+  ScalarIconButton,
   ScalarSidebarFooter,
   ScalarSidebarSearchInput,
 } from '@scalar/components'
+import { ScalarIconDotsThree } from '@scalar/icons'
 
 import { createSidebarState, ScalarSidebar, type Item } from '@/index'
 
@@ -64,6 +66,13 @@ const log = (name: string, ...args: any[]) => {
       <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
         <ScalarSidebarSearchInput />
       </div>
+    </template>
+    <template #decorator>
+      <ScalarIconButton
+        :icon="ScalarIconDotsThree"
+        weight="bold"
+        label="More options"
+        size="sm" />
     </template>
     <template #footer>
       <ScalarSidebarFooter />

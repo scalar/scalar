@@ -28,15 +28,15 @@ import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
-import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
+import type { ScalarSidebarButtonSlots, ScalarSidebarItemProps } from './types'
 
 const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 
-defineSlots<ScalarSidebarItemSlots>()
+defineSlots<ScalarSidebarButtonSlots>()
 
 const variants = cva({
   base: [
-    'group/button flex items-stretch rounded p-2 ',
+    'group/button peer/button flex items-stretch rounded p-2 ',
     'font-sidebar leading-5 text-c-2 no-underline wrap-break-word',
   ],
   variants: {
@@ -60,6 +60,7 @@ const { cx } = useBindCx()
     v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
       <ScalarSidebarIndent
+        class="-my-2"
         :disabled
         :indent
         :selected />

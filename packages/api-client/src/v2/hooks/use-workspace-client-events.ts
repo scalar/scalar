@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { CollectionType, CommandPaletteAction, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
@@ -14,10 +15,14 @@ import {
   createTag,
   deleteAllOperationParameters,
   deleteCookie,
+  deleteDocument,
+  deleteOperation,
+  deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
+  deleteTag,
   focusLastTab,
   focusTab,
   navigateNextTab,
@@ -49,7 +54,7 @@ import {
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type ComputedRef, type Ref, toValue } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
@@ -74,6 +79,9 @@ export const useWorkspaceClientEvents = ({
 }) => {
   /** Use router for some redirects */
   const router = useRouter()
+
+  /** Use route for the path variables */
+  const route = useRoute()
 
   /** Selects between the workspace or document based on the type */
   const getCollection = (
@@ -109,6 +117,16 @@ export const useWorkspaceClientEvents = ({
   }
 
   /**
+   * Rebuilds the sidebar for the given document.
+   * This is used to refresh the sidebar state after structural changes (e.g. after adding or removing items).
+   *
+   * @param documentName - The name (id) of the document for which to rebuild the sidebar
+   */
+  const rebuildSidebar = (documentName: string) => {
+    workspaceStore.value?.buildSidebar(documentName)
+  }
+
+  /**
    * Ensures the sidebar is refreshed after a new example is created.
    *
    * If the sidebar entry for the new example does not exist or is of a different type,
@@ -130,9 +148,39 @@ export const useWorkspaceClientEvents = ({
 
     if (!entry || entry.type !== 'example') {
       // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
-      workspaceStore.value?.buildSidebar(documentName)
+      rebuildSidebar(documentName)
     }
     return
+  }
+
+  /**
+   * Checks if the current route params match the specified operation meta.
+   * Useful for determining if the sidebar or UI needs to be updated after changes to operations/examples.
+   */
+  const isRouteParamsMatch = ({
+    documentName,
+    path,
+    method,
+    exampleName,
+  }: {
+    documentName: string
+    path?: string
+    method?: HttpMethod
+    exampleName?: string
+  }) => {
+    if (documentName !== undefined && documentName !== route.params.documentSlug) {
+      return false
+    }
+    if (path !== undefined && encodeURIComponent(path) !== route.params.pathEncoded) {
+      return false
+    }
+    if (method !== undefined && method !== route.params.method) {
+      return false
+    }
+    if (exampleName !== undefined && exampleName !== route.params.exampleName) {
+      return false
+    }
+    return true
   }
 
   //------------------------------------------------------------------------------------
@@ -159,6 +207,15 @@ export const useWorkspaceClientEvents = ({
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
   eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
   eventBus.on('document:create:empty-document', (payload) => createEmptyDocument(workspaceStore.value, payload))
+  eventBus.on('document:delete:document', async (payload) => {
+    deleteDocument(workspaceStore.value, payload)
+    // Redirect to the workspace environment page if the document was deleted
+    if (route.params.documentSlug === payload.name) {
+      await router.push({
+        name: 'workspace.environment',
+      })
+    }
+  })
 
   //------------------------------------------------------------------------------------
   // Environment Event Handlers
@@ -239,6 +296,46 @@ export const useWorkspaceClientEvents = ({
   )
   eventBus.on('operation:update:path', (payload) => updateOperationPath(document.value, payload))
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
+  eventBus.on('operation:delete:operation', (payload) => {
+    deleteOperation(workspaceStore.value, payload)
+    rebuildSidebar(payload.documentName)
+    if (
+      isRouteParamsMatch({
+        documentName: payload.documentName,
+        path: payload.meta.path,
+        method: payload.meta.method,
+      })
+    ) {
+      router.replace({
+        name: 'document.overview',
+        params: {
+          documentSlug: payload.documentName,
+        },
+      })
+    }
+  })
+  eventBus.on('operation:delete:example', (payload) => {
+    deleteOperationExample(workspaceStore.value, payload)
+    rebuildSidebar(payload.documentName)
+    if (
+      isRouteParamsMatch({
+        documentName: payload.documentName,
+        path: payload.meta.path,
+        method: payload.meta.method,
+        exampleName: payload.meta.exampleKey,
+      })
+    ) {
+      router.replace({
+        name: 'example',
+        params: {
+          pathEncoded: encodeURIComponent(payload.meta.path),
+          method: payload.meta.method,
+          documentSlug: payload.documentName,
+          exampleName: 'default',
+        },
+      })
+    }
+  })
   eventBus.on('operation:add:parameter', (payload) => {
     addOperationParameter(document.value, payload)
     refreshSidebarAfterExampleCreation(payload.meta)
@@ -276,6 +373,10 @@ export const useWorkspaceClientEvents = ({
   // Tag Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('tag:create:tag', (payload) => createTag(workspaceStore.value, payload))
+  eventBus.on('tag:delete:tag', (payload) => {
+    deleteTag(workspaceStore.value, payload)
+    rebuildSidebar(payload.documentName)
+  })
 
   //------------------------------------------------------------------------------------
   // UI Related Event Handlers

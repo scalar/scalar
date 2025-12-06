@@ -11,4 +11,13 @@ export type TagEvents = {
     /** The callback to call when the tag is created */
     callback?: (success: boolean) => void
   }
+  /**
+   * Delete a tag from the workspace
+   */
+  'tag:delete:tag': {
+    /** The document to delete the tag from */
+    documentName: string
+    /** The name of the tag to delete */
+    name: string
+  }
 }

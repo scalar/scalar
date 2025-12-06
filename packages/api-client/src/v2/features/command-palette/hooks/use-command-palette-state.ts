@@ -78,18 +78,34 @@ export const commands = [
         id: 'add-tag',
         name: 'Add Tag',
         icon: 'Folder',
+        props: getProps<{
+          /** Document id to add the tag to */
+          documentId?: string
+        }>(),
       },
       {
         type: 'folder',
         id: 'create-request',
         name: 'Create Request',
         icon: 'ExternalLink',
+        props: getProps<{
+          /** The id of the document to create the request in */
+          documentId?: string
+          /** Tag id to add the request to (optional) */
+          tagId?: string
+        }>(),
       },
       {
         type: 'folder',
         id: 'add-example',
         name: 'Add Example',
         icon: 'Example',
+        props: getProps<{
+          /** Document id to add the example to */
+          documentId?: string
+          /** Operation id to add the example to */
+          operationId?: string
+        }>(),
       },
       /** Hidden commands accessible programmatically but not shown in UI */
       {

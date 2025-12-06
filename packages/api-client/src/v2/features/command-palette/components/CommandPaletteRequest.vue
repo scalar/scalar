@@ -36,7 +36,7 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
@@ -44,11 +44,15 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus } = defineProps<{
+const { workspaceStore, eventBus, documentId, tagId } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
+  /** Preselected document id to create the request in */
+  documentId?: string
+  /** Preselected tag id to add the request to (optional) */
+  tagId?: string
 }>()
 
 const emit = defineEmits<{
@@ -94,14 +98,14 @@ const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
 }))
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  availableDocuments.value[0] ?? undefined,
+  documentId
+    ? availableDocuments.value.find((document) => document.id === documentId)
+    : (availableDocuments.value[0] ?? undefined),
 )
 
 const selectedMethod = ref<MethodOption | undefined>(
   availableMethods.find((method) => method.method === 'get'),
 )
-
-const selectedTag = ref<TagOption | undefined>(undefined)
 
 /**
  * All available tags for the selected document.
@@ -124,6 +128,17 @@ const availableTags = computed<TagOption[]>(() => {
       label: tag.name,
     })) ?? []),
   ]
+})
+
+const selectedTag = ref<TagOption | undefined>(
+  tagId
+    ? availableTags.value.find((tag) => tag.id === tagId)
+    : (availableTags.value.find((tag) => tag.id === '') ?? undefined),
+)
+
+// Reset the selected tag to the "No Tag" option when the document changes
+watch(selectedDocument, () => {
+  selectedTag.value = availableTags.value.find((tag) => tag.id === '')
 })
 
 /**

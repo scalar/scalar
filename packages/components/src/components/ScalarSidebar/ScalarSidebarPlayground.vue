@@ -4,7 +4,7 @@ import ScalarSidebarFooter from './ScalarSidebarFooter.vue'
 import ScalarSidebarSearchInput from './ScalarSidebarSearchInput.vue'
 
 const { indent = 20 } = defineProps<{
-  indent: number
+  indent?: number
 }>()
 
 const selected = defineModel<string>('selected')

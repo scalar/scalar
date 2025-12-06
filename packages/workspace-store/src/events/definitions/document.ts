@@ -33,4 +33,11 @@ export type DocumentEvents = {
     /** The callback to call when the document is created */
     callback?: (success: boolean) => void
   }
+  /**
+   * Delete a document from the workspace
+   */
+  'document:delete:document': {
+    /** The name of the document to delete */
+    name: string
+  }
 }
