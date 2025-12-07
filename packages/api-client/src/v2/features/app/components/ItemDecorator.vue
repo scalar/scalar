@@ -91,7 +91,6 @@ const handleAddTag = () => {
       },
     })
   }
-  // TODO: Implement add tag functionality
 }
 
 const handleAddExample = () => {

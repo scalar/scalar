@@ -131,9 +131,7 @@ const availableTags = computed<TagOption[]>(() => {
 })
 
 const selectedTag = ref<TagOption | undefined>(
-  tagId
-    ? availableTags.value.find((tag) => tag.id === tagId)
-    : (availableTags.value.find((tag) => tag.id === '') ?? undefined),
+  tagId ? availableTags.value.find((tag) => tag.id === tagId) : undefined,
 )
 
 // Reset the selected tag to the "No Tag" option when the document changes

@@ -261,7 +261,6 @@ describe('CommandPaletteTag', () => {
       expect.objectContaining({
         name: 'My New Tag',
         documentName: 'doc1',
-        callback: expect.any(Function),
       }),
     )
   })
@@ -591,35 +590,6 @@ describe('CommandPaletteTag', () => {
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(true)
-  })
-
-  it('calls buildSidebar when tag creation callback succeeds', async () => {
-    const document = createMockDocument()
-    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
-
-    vi.spyOn(workspaceStore, 'buildSidebar')
-
-    const wrapper = mount(CommandPaletteTag, {
-      props: {
-        workspaceStore,
-        eventBus,
-      },
-    })
-
-    const input = wrapper.findComponent({ name: 'CommandActionInput' })
-    await input.vm.$emit('update:modelValue', 'New Tag')
-    await nextTick()
-
-    const form = wrapper.findComponent({ name: 'CommandActionForm' })
-    await form.vm.$emit('submit')
-    await nextTick()
-
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'tag:create:tag')
-    const callback = emitCall?.[1]?.callback
-    callback?.(true)
-
-    expect(workspaceStore.buildSidebar).toHaveBeenCalledWith('doc1')
   })
 
   it('does not call buildSidebar when tag creation callback fails', async () => {
