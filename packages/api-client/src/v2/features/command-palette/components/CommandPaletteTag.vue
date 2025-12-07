@@ -105,11 +105,6 @@ const handleSubmit = (): void => {
   eventBus.emit('tag:create:tag', {
     name: nameTrimmed.value,
     documentName: selectedDocument.value.id,
-    callback: (success) => {
-      if (success) {
-        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
-      }
-    },
   })
 
   emit('close')

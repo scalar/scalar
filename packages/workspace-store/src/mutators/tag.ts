@@ -16,7 +16,6 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
 
   if (!document) {
     console.error('Document not found', { payload, store })
-    payload.callback?.(false)
     return
   }
 
@@ -27,8 +26,6 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
   document.tags.push({
     name: payload.name,
   })
-
-  payload.callback?.(true)
 }
 
 /**
