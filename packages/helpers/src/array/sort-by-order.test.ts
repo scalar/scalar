@@ -153,4 +153,22 @@ describe('sort-by-order', () => {
 
     expect(result).not.toBe(input)
   })
+
+  it('handles falsy values in input array #1', () => {
+    const input = [5, 0, 10, 6]
+    const order = [10, 5]
+
+    const result = sortByOrder(input, order, (item) => item)
+
+    expect(result).toEqual([10, 5, 0, 6])
+  })
+
+  it('handles falsy values in input array #2', () => {
+    const input = [5, 0, 10, 6]
+    const order = [10, 0, 5]
+
+    const result = sortByOrder(input, order, (item) => item)
+
+    expect(result).toEqual([10, 0, 5, 6])
+  })
 })

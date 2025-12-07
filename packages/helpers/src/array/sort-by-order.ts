@@ -60,5 +60,5 @@ export function sortByOrder<T, N>(arr: T[], order: N[], getId: (item: T) => N): 
     sorted[sortedIdx] = e
   })
 
-  return sorted.filter(Boolean).concat(...untagged)
+  return [...sorted.filter((it) => it !== undefined), ...untagged]
 }
