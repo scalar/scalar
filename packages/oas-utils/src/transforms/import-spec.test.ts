@@ -1,9 +1,8 @@
 /** @vitest-environment jsdom */
-
 import type { SecurityScheme, SecuritySchemeOauth2 } from '@scalar/types/entities'
 import circular from '@test/fixtures/basic-circular-spec.json' with { type: 'json' }
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json' with { type: 'json' }
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import galaxy from '../../../galaxy/dist/latest.json' with { type: 'json' }
 import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from './import-spec'
@@ -907,12 +906,15 @@ describe('importSpecToWorkspace', () => {
   })
 
   describe('servers', () => {
-    it('handles servers with different formats', async () => {
-      const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    it('handles servers with different formats', async ({ onTestFinished }) => {
       vi.stubGlobal('window', {
         location: {
           origin: 'http://localhost:3000',
         },
+      })
+
+      onTestFinished(() => {
+        vi.unstubAllGlobals()
       })
 
       const result = await importSpecToWorkspace({
@@ -956,9 +958,6 @@ describe('importSpecToWorkspace', () => {
           },
         },
       ])
-
-      // Restore the original window.location
-      vi.stubGlobal('location', originalLocation)
     })
 
     it('returns both collection and operation servers when present', async () => {
@@ -1099,6 +1098,10 @@ describe('parseSchema', () => {
 })
 
 describe('getServersFromDocument', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('parses a simple server', async () => {
     const result = await importSpecToWorkspace({
       servers: [{ url: 'https://example.com' }],
@@ -1112,7 +1115,6 @@ describe('getServersFromDocument', () => {
   })
 
   it('does not use a relative document URL as a server', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:1234',
@@ -1137,13 +1139,9 @@ describe('getServersFromDocument', () => {
         url: 'http://localhost:1234',
       },
     ])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('prefixes relative servers with window.location.origin', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1159,9 +1157,6 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000/api/v1' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('prefixes relative servers with baseServerURL when provided', async () => {
@@ -1297,8 +1292,6 @@ describe('getServersFromDocument', () => {
   })
 
   it('works without window.location', async () => {
-    // Mock window.location for SSR/SSG environments
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', undefined)
 
     const result = await importSpecToWorkspace({
@@ -1310,13 +1303,9 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: '/api/v1' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('uses current window.location.origin servers is empty', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1332,13 +1321,9 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('uses current window.location.origin when servers is undefined', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1352,9 +1337,6 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('uses document URL as server when no servers are defined in document', async () => {
@@ -1409,7 +1391,6 @@ describe('getServersFromDocument', () => {
   })
 
   it('prioritizes document URL over window.location when no servers are defined', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1430,13 +1411,9 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('falls back to window.location when no document URL and no servers are defined', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1452,13 +1429,9 @@ describe('getServersFromDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 
   it('does not use the document URL if it is relative', async () => {
-    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1483,8 +1456,5 @@ describe('getServersFromDocument', () => {
       { url: 'http://localhost:3000/v1' },
       { url: 'http://localhost:3000/api/v2' },
     ])
-
-    // Restore the original window.location
-    vi.stubGlobal('location', originalLocation)
   })
 })

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { makeUrlAbsolute } from './make-url-absolute'
 
@@ -6,14 +6,10 @@ import { makeUrlAbsolute } from './make-url-absolute'
  * @vitest-environment jsdom
  */
 describe('makeUrlAbsolute', () => {
-  const originalOrigin = window.location.origin
+  const windowLocationSpy = vi.spyOn(global.window, 'location', 'get')
 
-  afterEach(() => {
-    // Restore original window.location.origin
-    Object.defineProperty(window, 'location', {
-      value: { origin: originalOrigin },
-      writable: true,
-    })
+  beforeEach(() => {
+    windowLocationSpy.mockReset()
   })
 
   it('returns the same URL for absolute URLs', () => {
@@ -22,42 +18,26 @@ describe('makeUrlAbsolute', () => {
   })
 
   it('converts relative URLs to absolute URLs', () => {
-    // Mock window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://example.com/path/' },
-      writable: true,
-    })
+    windowLocationSpy.mockReturnValue({ href: 'http://example.com/path/' } as Location)
 
     expect(makeUrlAbsolute('relative')).toBe('http://example.com/path/relative')
     expect(makeUrlAbsolute('/absolute-path')).toBe('http://example.com/absolute-path')
   })
 
   it('handles base URLs without trailing slash', () => {
-    // Mock window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://example.com/path' },
-      writable: true,
-    })
+    windowLocationSpy.mockReturnValue({ href: 'http://example.com/path' } as Location)
 
     expect(makeUrlAbsolute('relative')).toBe('http://example.com/relative')
   })
 
   it('ignores query parameters and hash in base URL', () => {
-    // Mock window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://example.com/path?query=1#hash' },
-      writable: true,
-    })
+    windowLocationSpy.mockReturnValue({ href: 'http://example.com/path?query=1#hash' } as Location)
 
     expect(makeUrlAbsolute('relative')).toBe('http://example.com/relative')
   })
 
   it('handles parent directory paths', () => {
-    // Mock window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://example.com/path/to/current/' },
-      writable: true,
-    })
+    windowLocationSpy.mockReturnValue({ href: 'http://example.com/path/to/current/' } as Location)
 
     expect(makeUrlAbsolute('../openapi.json')).toBe('http://example.com/path/to/openapi.json')
   })
@@ -73,11 +53,7 @@ describe('makeUrlAbsolute', () => {
 
   describe('basePath functionality', () => {
     it('combines basePath with window.location.origin when no baseUrl provided', () => {
-      // Mock window.location.origin
-      Object.defineProperty(window, 'location', {
-        value: { origin: 'http://example.com' },
-        writable: true,
-      })
+      windowLocationSpy.mockReturnValue({ origin: 'http://example.com' } as Location)
 
       expect(makeUrlAbsolute('api/docs', { basePath: '/app' })).toBe('http://example.com/app/api/docs')
     })
@@ -92,11 +68,7 @@ describe('makeUrlAbsolute', () => {
     })
 
     it('handles basePath without leading slash', () => {
-      // Mock window.location.origin
-      Object.defineProperty(window, 'location', {
-        value: { origin: 'http://example.com' },
-        writable: true,
-      })
+      windowLocationSpy.mockReturnValue({ origin: 'http://example.com' } as Location)
 
       expect(makeUrlAbsolute('api/docs', { basePath: 'app' })).toBe('http://example.com/app/api/docs')
     })

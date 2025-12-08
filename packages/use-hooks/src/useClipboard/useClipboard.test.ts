@@ -78,12 +78,12 @@ describe('useClipboard', () => {
     expect(mockConsole).toHaveBeenCalledWith('Clipboard error')
   })
 
-  it('works in SSG environment without navigator', async () => {
-    const originalNavigator = global.navigator
-
+  it('works in SSG environment without navigator', async ({ onTestFinished }) => {
     // Mock SSG environment by removing navigator
-    // @ts-expect-error
-    delete global.navigator
+    vi.stubGlobal('navigator', undefined)
+    onTestFinished(() => {
+      vi.unstubAllGlobals()
+    })
 
     const notify = vi.fn()
     const { copyToClipboard } = useClipboard({ notify })
@@ -92,8 +92,5 @@ describe('useClipboard', () => {
 
     // Should show error notification since clipboard is not available
     expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
-
-    // Restore navigator
-    global.navigator = originalNavigator
   })
 })
