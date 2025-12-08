@@ -1,3 +1,4 @@
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { encode, fromUint8Array } from 'js-base64'
@@ -71,16 +72,24 @@ export const authorizeOauth2 = async (
 
     // Client Credentials or Password Flow
     if (flow.type === 'clientCredentials' || flow.type === 'password') {
-      return authorizeServers(flow, scopes, {
-        proxyUrl,
-      })
+      return authorizeServers(
+        flow,
+        scopes,
+        {
+          proxyUrl,
+        },
+        activeServer,
+      )
     }
 
     // OAuth2 flows with a login popup
 
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
-    const url = new URL(flow.authorizationUrl)
+    const authorizationUrl = makeUrlAbsolute(flow.authorizationUrl, {
+      baseUrl: activeServer?.url,
+    })
+    const url = new URL(authorizationUrl)
 
     /** Special PKCE state */
     let pkce: PKCEState | null = null
@@ -114,8 +123,8 @@ export const authorizeOauth2 = async (
 
     // Handle relative redirect uris
     if (flow['x-scalar-redirect-uri'].startsWith('/')) {
-      const baseUrl = activeServer.url || window.location.origin + window.location.pathname
-      const redirectUri = new URL(flow['x-scalar-redirect-uri'], baseUrl).toString()
+      const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
+      const redirectUri = makeUrlAbsolute(flow['x-scalar-redirect-uri'], { baseUrl: baseUrl })
 
       url.searchParams.set('redirect_uri', redirectUri)
     } else {
@@ -198,11 +207,16 @@ export const authorizeOauth2 = async (
 
               if (_state === state) {
                 // biome-ignore lint/nursery/noFloatingPromises: output of authorizeServers must be returned
-                authorizeServers(flow as NonImplicitFlow, scopes, {
-                  code,
-                  pkce,
-                  proxyUrl,
-                }).then(resolve)
+                authorizeServers(
+                  flow as NonImplicitFlow,
+                  scopes,
+                  {
+                    code,
+                    pkce,
+                    proxyUrl,
+                  },
+                  activeServer,
+                ).then(resolve)
               } else {
                 resolve([new Error('State mismatch'), null])
               }
@@ -238,6 +252,7 @@ export const authorizeServers = async (
     pkce?: PKCEState | null
     proxyUrl?: string | undefined
   } = {},
+  activeServer: Server | undefined,
 ): Promise<ErrorResponse<string>> => {
   if (!flow) {
     return [new Error('OAuth2 flow was not defined'), null]
@@ -308,9 +323,10 @@ export const authorizeServers = async (
     }
 
     // Check if we should use the proxy
-    const url = shouldUseProxy(proxyUrl, flow.tokenUrl)
-      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', flow.tokenUrl]]).toString()}`
-      : flow.tokenUrl
+    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, { baseUrl: activeServer?.url })
+    const url = shouldUseProxy(proxyUrl, tokenUrl)
+      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
+      : tokenUrl
 
     // Make the call
     const resp = await fetch(url, {
