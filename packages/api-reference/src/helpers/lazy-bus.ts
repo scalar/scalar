@@ -1,6 +1,6 @@
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
-import { computed, nextTick, onBeforeUnmount, reactive, ref, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
 import { getSchemaParamsFromId } from './id-routing'
 
