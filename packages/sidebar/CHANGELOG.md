@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.5.0
+
+### Minor Changes
+
+- [#7455](https://github.com/scalar/scalar/pull/7455) [`1bc2b45`](https://github.com/scalar/scalar/commit/1bc2b45b6eabd5c5045e77d67f59d202ab04d3fb) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: tabs support on the store
+
+### Patch Changes
+
+- [#7371](https://github.com/scalar/scalar/pull/7371) [`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583) Thanks [@hwkr](https://github.com/hwkr)! - feat(sidebar): convert draggable logic to a hook
+
+- [#7416](https://github.com/scalar/scalar/pull/7416) [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d) Thanks [@amritk](https://github.com/amritk)! - feat: add update method to client v2
+
+- Updated dependencies [[`5aa0380`](https://github.com/scalar/scalar/commit/5aa0380adfcd173e58659fb5dd57df363d985583), [`61c980c`](https://github.com/scalar/scalar/commit/61c980cebef219685a05f3a4cb1e379984922cd4), [`1bc2b45`](https://github.com/scalar/scalar/commit/1bc2b45b6eabd5c5045e77d67f59d202ab04d3fb), [`9342adc`](https://github.com/scalar/scalar/commit/9342adcd76e26a8e5eff75c1a2abee2c207b1487), [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8), [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03), [`35af6bf`](https://github.com/scalar/scalar/commit/35af6bfce4bc4ae3d0fc5783ea36e0165e964361), [`86f028d`](https://github.com/scalar/scalar/commit/86f028deb0b456f923edd261f5f4b0fa9b616b7d), [`294f9fc`](https://github.com/scalar/scalar/commit/294f9fc6cfd43cdab110deb1c851883509bc2b84)]:
+  - @scalar/components@0.16.5
+  - @scalar/workspace-store@0.22.0
+  - @scalar/helpers@0.1.3
+  - @scalar/themes@0.13.25
+  - @scalar/icons@0.5.0
+  - @scalar/use-hooks@0.3.1
+
 ## 0.4.0
 
 ### Minor Changes

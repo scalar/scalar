@@ -82,7 +82,7 @@ export const Loading: Story = {
     },
     setup() {
       const loader = useLoadingState()
-      loader.startLoading()
+      loader.start()
       return { args, loader }
     },
     template: `

@@ -1,5 +1,19 @@
 # @scalar/build-tooling
 
+## 0.3.1
+
+### Patch Changes
+
+- [#7411](https://github.com/scalar/scalar/pull/7411) [`bc266eb`](https://github.com/scalar/scalar/commit/bc266ebb47f04c06316c59e264e9d5f1c79154ac) Thanks [@hanspagel](https://github.com/hanspagel)! - chore: replace glob with fast-glob
+
+- [#7413](https://github.com/scalar/scalar/pull/7413) [`633b2f5`](https://github.com/scalar/scalar/commit/633b2f5ad7a8dbd97d0d6087530ffa476c2c72ad) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(build-tooling): correct `fast-glob` import
+
+- [#7427](https://github.com/scalar/scalar/pull/7427) [`5a91d5d`](https://github.com/scalar/scalar/commit/5a91d5dd1f884d34b2fc3cff3c0751ced6d165c2) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(build-tooling): `scalar-format-check` does not work
+
+- [#7387](https://github.com/scalar/scalar/pull/7387) [`bfd814a`](https://github.com/scalar/scalar/commit/bfd814a4219660face190041cc4845182b56ab03) Thanks [@geoffgscott](https://github.com/geoffgscott)! - hotfix: patch exports from build tooling bug
+
+- [#7397](https://github.com/scalar/scalar/pull/7397) [`ec33023`](https://github.com/scalar/scalar/commit/ec33023f8995395dd7dce04e98c9f35053aa482e) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(build-tooling): addPackageFileExports - handle fs.stat error using try-catch
+
 ## 0.3.0
 
 ### Minor Changes

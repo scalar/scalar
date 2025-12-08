@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { toast, Toaster } from 'vue-sonner'
 
-import { useToasts, type ToastOptions } from '../hooks'
+import { useToasts, type ToastOptions } from '../hooks/useToasts'
 
 // The toaster is only required on the client
 const isClientMounted = ref(false)

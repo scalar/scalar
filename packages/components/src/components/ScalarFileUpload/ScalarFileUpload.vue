@@ -160,8 +160,8 @@ const { cx } = useBindCx()
       </slot>
     </div>
     <ScalarFileUploadLoading
-      v-if="loader?.isLoading"
-      :loader="loader" />
+      v-if="loader?.isActive"
+      :loader />
     <input
       ref="input"
       :accept="isExtensionList(accept) ? accept.join(',') : accept"

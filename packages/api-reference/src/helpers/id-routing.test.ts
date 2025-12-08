@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   getIdFromHash,
@@ -529,29 +529,28 @@ describe('getIdFromUrl', () => {
 })
 
 describe('makeUrlFromId', () => {
-  const originalWindow = global.window
+  const locationSpy = vi.spyOn(global.window, 'location', 'get')
 
-  beforeEach(() => {
-    // Mock window.location
-    delete (global as any).window
-    global.window = {
-      location: {
-        href: 'https://example.com/',
-        protocol: 'https:',
-        host: 'example.com',
-        pathname: '/',
-        search: '',
-        hash: '',
-      },
-    } as any
+  const createLocationMock = (overrides: Partial<Location> = {}): Partial<Location> => ({
+    href: 'https://example.com/',
+    protocol: 'https:',
+    host: 'example.com',
+    pathname: '/',
+    search: '',
+    hash: '',
+    ...overrides,
   })
 
-  afterEach(() => {
-    global.window = originalWindow
+  beforeEach(() => {
+    vi.unstubAllGlobals()
+
+    locationSpy.mockReset()
+    locationSpy.mockReturnValue(createLocationMock() as Location)
   })
 
   it('returns undefined when window is undefined', () => {
-    delete (global as any).window
+    vi.stubGlobal('window', undefined)
+
     const result = makeUrlFromId('tag/users', 'api', true)
     expect(result).toBeUndefined()
   })
@@ -619,16 +618,26 @@ describe('makeUrlFromId', () => {
   })
 
   it('preserves existing query parameters with hash routing', () => {
-    global.window.location.href = 'https://example.com/?query=test'
-    global.window.location.search = '?query=test'
+    locationSpy.mockReturnValue(
+      createLocationMock({
+        href: 'https://example.com/?query=test',
+        search: '?query=test',
+      }) as Location,
+    )
+
     const result = makeUrlFromId('tag/users', undefined, true)
     expect(result?.search).toBe('?query=test')
     expect(result?.hash).toBe('#tag/users')
   })
 
   it('preserves existing query parameters with path routing', () => {
-    global.window.location.href = 'https://example.com/api?query=test'
-    global.window.location.search = '?query=test'
+    locationSpy.mockReturnValue(
+      createLocationMock({
+        href: 'https://example.com/?query=test',
+        search: '?query=test',
+      }) as Location,
+    )
+
     const result = makeUrlFromId('tag/users', 'api', true)
     expect(result?.search).toBe('?query=test')
     expect(result?.pathname).toBe('/api/tag/users')
@@ -690,10 +699,15 @@ describe('makeUrlFromId', () => {
   })
 
   it('handles different base URLs', () => {
-    global.window.location.href = 'https://app.example.com:3000/path'
-    global.window.location.protocol = 'https:'
-    global.window.location.host = 'app.example.com:3000'
-    global.window.location.pathname = '/path'
+    locationSpy.mockReturnValue(
+      createLocationMock({
+        href: 'https://app.example.com:3000/path',
+        protocol: 'https:',
+        host: 'app.example.com:3000',
+        pathname: '/path',
+      }) as Location,
+    )
+
     const result = makeUrlFromId('tag/users', undefined, true)
     expect(result?.href).toBe('https://app.example.com:3000/path#tag/users')
   })

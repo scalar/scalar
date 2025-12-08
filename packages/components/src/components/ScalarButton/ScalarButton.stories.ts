@@ -49,12 +49,19 @@ export const Loading: Story = {
   render: (args) => ({
     components: { ScalarButton },
     setup() {
-      const loadingState = useLoadingState()
-      return { args, loadingState }
+      const loader = useLoadingState()
+      const toggleLoading = () => {
+        if (loader.isLoading) {
+          loader.validate()
+        } else {
+          loader.start()
+        }
+      }
+      return { args, loader, toggleLoading }
     },
     template: `
 <div class="w-fit p-2">
-  <ScalarButton v-bind="args" @click="loadingState.startLoading()" :loading="loadingState">Click me</ScalarButton>
+  <ScalarButton v-bind="args" @click="toggleLoading()" :loader>Click me</ScalarButton>
 </div>`,
   }),
 }

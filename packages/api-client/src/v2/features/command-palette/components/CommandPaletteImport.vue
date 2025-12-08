@@ -73,9 +73,6 @@ const MAX_NAME_RETRIES = 100
 /** Default document name when none can be extracted */
 const DEFAULT_DOCUMENT_NAME = 'document'
 
-/** Duration to show error state in milliseconds */
-const ERROR_DISPLAY_DURATION = 2000
-
 const router = useRouter()
 const loader = useLoadingState()
 
@@ -260,7 +257,7 @@ const { open: openSpecFileDialog } = useFileDialog({
  * Shows loading state during import and navigates on success.
  */
 const handleImport = async (): Promise<void> => {
-  loader.startLoading()
+  loader.start()
 
   const result = await importContents(inputContent.value)
 
@@ -269,7 +266,7 @@ const handleImport = async (): Promise<void> => {
     await loader.clear()
     navigateToDocument(result.name)
   } else {
-    await loader.invalidate(ERROR_DISPLAY_DURATION, true)
+    await loader.invalidate()
   }
 
   emit('close')
@@ -296,7 +293,7 @@ const handleBack = (event: KeyboardEvent): void => {
 <template>
   <CommandActionForm
     :disabled="isDisabled"
-    :loading="loader"
+    :loader
     @submit="handleImport">
     <!-- URL or cURL input mode -->
     <template v-if="!documentDetails || isUrlInput">

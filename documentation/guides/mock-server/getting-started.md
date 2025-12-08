@@ -9,9 +9,8 @@ A powerful Node.js mock server that automatically generates realistic API respon
 - Generates realistic mock data based on your schemas
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents
-- Customizable response handling
-- **x-handler**: Write custom JavaScript handlers for dynamic responses
-- **x-seed**: Automatically seed initial data on server startup
+- Write custom JavaScript handlers for dynamic responses
+- Automatically seed initial data on server startup
 
 ## Quickstart
 
@@ -184,10 +183,10 @@ The given OpenAPI document is automatically exposed:
 
 Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.
 
-[Learn more about custom request handlers →](./custom-request-handler)
+[Learn more about custom request handlers →](https://guides.scalar.com/scalar/scalar-mock-server/custom-request-handlers)
 
 ### Data Seeding
 
 Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
 
-[Learn more about data seeding →](./data-seeding)
+[Learn more about data seeding →](https://guides.scalar.com/scalar/scalar-mock-server/data-seeding)

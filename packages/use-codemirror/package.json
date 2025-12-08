@@ -16,7 +16,7 @@
     "vue",
     "vue3"
   ],
-  "version": "0.12.48",
+  "version": "0.12.49",
   "engines": {
     "node": ">=20"
   },
@@ -37,11 +37,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./hooks": {
-      "import": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts",
-      "default": "./dist/hooks/index.js"
     },
     "./themes": {
       "import": "./dist/themes/index.js",
@@ -69,7 +64,6 @@
     "@lezer/highlight": "^1.2.1",
     "@replit/codemirror-css-color-picker": "^6.3.0",
     "@scalar/components": "workspace:*",
-    "codemirror": "^6.0.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

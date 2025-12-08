@@ -13,7 +13,7 @@ type StyleSpec = {
   [propOrSelector: string]: string | number | StyleSpec | null
 }
 
-export type CreateThemeOptions = {
+type CreateThemeOptions = {
   /**
    * Theme inheritance. Determines which styles CodeMirror will apply by default.
    */
@@ -28,7 +28,7 @@ export type CreateThemeOptions = {
 
 type Theme = 'light' | 'dark'
 
-export type Settings = {
+type Settings = {
   /** Editor background color. */
   background?: string
   /** Editor background image. */

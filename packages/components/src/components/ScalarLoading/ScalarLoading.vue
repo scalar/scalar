@@ -1,13 +1,30 @@
+<script lang="ts">
+/**
+ * Scalar Loading Component
+ *
+ * Displays a loading state for the application
+ *
+ * @example
+ * import { ScalarLoading, useLoadingState } from '@scalar/components'
+ *
+ * const loader = useLoadingState()
+ * loader.start()
+ * ...
+ * <ScalarLoading :loader="loader" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
-import { reactive } from 'vue'
+
+import type { LoadingState } from './types'
 
 type Variants = VariantProps<typeof variants>
 
 defineProps<{
-  loadingState?: LoadingState
+  loader?: LoadingState
   size?: Variants['size']
 }>()
 
@@ -32,70 +49,15 @@ const variants = cva({
   },
 })
 </script>
-<script lang="ts">
-export type LoadingState = ReturnType<typeof useLoadingState>
-
-/**
- * Handles isLoading spinner for the FlowLoader Component
- * - stateIsLoading will trigger the spinner
- * - isValid or isInvalid will show a check or x and then spin out
- */
-export function useLoadingState() {
-  return reactive({
-    isValid: false,
-    isInvalid: false,
-    isLoading: false,
-    startLoading() {
-      this.isLoading = true
-    },
-    stopLoading() {
-      this.isLoading = false
-    },
-    validate(time = 800, clear?: boolean) {
-      this.isInvalid = false
-      this.isValid = true
-      const diff = clear ? time - 300 : time
-      // Allow chaining after animation
-      return new Promise((res) =>
-        clear
-          ? setTimeout(() => this.clear().then(() => res(true)), diff)
-          : setTimeout(() => res(true), diff),
-      )
-    },
-    invalidate(time = 1100, clear?: boolean) {
-      this.isValid = false
-      this.isInvalid = true
-      const diff = clear ? time - 300 : time
-      // Allow chaining after animation
-      return new Promise((res) =>
-        clear
-          ? setTimeout(() => this.clear().then(() => res(true)), diff)
-          : setTimeout(() => res(true), diff),
-      )
-    },
-    clear(time = 300) {
-      this.isValid = false
-      this.isInvalid = false
-      this.isLoading = false
-      // Allow chaining after animation
-      return new Promise((res) => {
-        setTimeout(() => {
-          res(true)
-        }, time)
-      })
-    },
-  })
-}
-</script>
 <template>
   <div
-    v-if="loadingState"
+    v-if="loader"
     v-bind="cx('loader-wrapper', variants({ size }))">
     <svg
       class="svg-loader"
       :class="{
-        'icon-is-valid': loadingState.isValid,
-        'icon-is-invalid': loadingState.isInvalid,
+        'icon-is-valid': loader.isValid,
+        'icon-is-invalid': loader.isInvalid,
       }"
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
@@ -115,13 +77,11 @@ export function useLoadingState() {
       <path
         class="svg-path svg-x-mark"
         d="m 50 50 l -40 40" />
-      <g
-        v-if="loadingState.isLoading"
-        class="circular-loader">
+      <g class="circular-loader">
         <circle
           class="loader-path"
           :class="{
-            'loader-path-off': loadingState.isValid || loadingState.isInvalid,
+            'loader-path-off': !loader.isLoading,
           }"
           cx="50"
           cy="50"

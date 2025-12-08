@@ -1,5 +1,17 @@
 # @scalar/aspire
 
+## 0.8.0
+
+### Minor Changes
+
+- [#7433](https://github.com/scalar/scalar/pull/7433) [`d9103c2`](https://github.com/scalar/scalar/commit/d9103c209bde14f3b39a24afb956f6585fc90f81) Thanks [@xC0dex](https://github.com/xC0dex)! - feat: support .NET 10
+
+### Patch Changes
+
+- Updated dependencies [[`9342adc`](https://github.com/scalar/scalar/commit/9342adcd76e26a8e5eff75c1a2abee2c207b1487), [`62b5210`](https://github.com/scalar/scalar/commit/62b521092bafeb8e83e79222e13378c4a19defc8), [`425d8e1`](https://github.com/scalar/scalar/commit/425d8e1aaac26a6ec9a781431e1076ee4db3d027), [`294f9fc`](https://github.com/scalar/scalar/commit/294f9fc6cfd43cdab110deb1c851883509bc2b84)]:
+  - @scalar/api-reference@1.40.1
+  - @scalar/dotnet-shared@0.1.1
+
 ## 0.7.4
 
 ### Patch Changes

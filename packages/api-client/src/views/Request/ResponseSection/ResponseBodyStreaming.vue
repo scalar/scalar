@@ -39,7 +39,7 @@ async function readStream() {
       const { done, value } = await reader.read()
 
       if (done) {
-        loader.stopLoading()
+        loader.clear()
         break
       }
 
@@ -50,7 +50,7 @@ async function readStream() {
     }
   } catch (error) {
     console.error('Error reading stream:', error)
-    loader.stopLoading()
+    loader.clear()
     errorRef.value = error as Error
   } finally {
     // Make sure to decode any remaining bytes
@@ -59,14 +59,14 @@ async function readStream() {
 }
 
 onMounted(() => {
-  loader.startLoading()
+  loader.start()
   readStream()
   errorRef.value = null
 })
 
 onBeforeUnmount(() => {
   reader.cancel()
-  loader.stopLoading()
+  loader.clear()
 })
 </script>
 
@@ -76,10 +76,10 @@ onBeforeUnmount(() => {
       <div class="flex w-full items-center justify-between">
         <div>Body</div>
         <div
-          v-if="loader.isLoading"
+          v-if="loader.isActive"
           class="mr-2 flex items-center gap-2">
           <ScalarLoading
-            :loadingState="loader"
+            :loader
             size="xs" />
           <span class="text-c-2"> Listening… </span>
         </div>

@@ -1,5 +1,12 @@
 # @scalar/use-hooks
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d), [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d)]:
+  - @scalar/use-toasts@0.9.1
+
 ## 0.3.0
 
 ### Minor Changes

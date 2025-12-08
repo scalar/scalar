@@ -1,5 +1,13 @@
 # @scalar/code-highlight
 
+## 0.2.1
+
+### Patch Changes
+
+- [#7441](https://github.com/scalar/scalar/pull/7441) [`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(code-highlight): remove `highlightjs-vue` unused dependency
+
+- [#7441](https://github.com/scalar/scalar/pull/7441) [`781f264`](https://github.com/scalar/scalar/commit/781f2648bc758a251435c3a1e2b126a37f20e44f) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix(code-highlight): remove unused languages
+
 ## 0.2.0
 
 ### Minor Changes

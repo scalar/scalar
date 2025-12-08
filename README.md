@@ -294,17 +294,17 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/geoffgscott">
-                    <img src="https://avatars.githubusercontent.com/u/59206100?v=4" width="100;" alt="geoffgscott"/>
-                    <br />
-                    <sub><b>geoffgscott</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/DemonHa">
                     <img src="https://avatars.githubusercontent.com/u/91160178?v=4" width="100;" alt="DemonHa"/>
                     <br />
                     <sub><b>DemonHa</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/geoffgscott">
+                    <img src="https://avatars.githubusercontent.com/u/59206100?v=4" width="100;" alt="geoffgscott"/>
+                    <br />
+                    <sub><b>geoffgscott</b></sub>
                 </a>
             </td>
             <td align="center">

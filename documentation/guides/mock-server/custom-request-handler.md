@@ -276,9 +276,8 @@ The error response will be:
 
 ## Best Practices
 
-1. **Use meaningful collection names**: Match your schema names (e.g., `'Post'` for a `Post` schema)
-2. **Generate IDs**: Use `faker.string.uuid()` for consistent ID generation
-3. **Handle missing data**: Check for `null` or `undefined` when using `store.get()`
-4. **Keep handlers simple**: Extract complex logic into helper functions if needed
-5. **Use Faker for realistic data**: Generate realistic test data instead of hardcoding values
+1. Use meaningful collection names: Match your schema names (e.g., `'Post'` for a `Post` schema)
+2. Generate IDs: Use `faker.string.uuid()` for consistent ID generation
+3. Handle missing data: Check for `null` or `undefined` when using `store.get()`
+4. Use Faker for realistic data: Generate realistic test data instead of hardcoding values
 

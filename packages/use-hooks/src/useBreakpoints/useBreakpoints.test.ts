@@ -5,7 +5,7 @@ import { computed, ref, toValue } from 'vue'
 import { screens } from './constants'
 import { useBreakpoints } from './useBreakpoints'
 
-vi.mock('@vueuse/core', () => ({
+vi.mock(import('@vueuse/core'), () => ({
   useMediaQuery: vi.fn(),
 }))
 
@@ -41,12 +41,12 @@ describe('useBreakpoints', () => {
     expect(breakpoints.value.md).toEqual(true)
   })
 
-  it('works in SSG environment without window', () => {
-    const originalWindow = global.window
-
+  it('works in SSG environment without window', ({ onTestFinished }) => {
     // Mock SSG environment by removing window
-    // @ts-expect-error
-    delete global.window
+    vi.stubGlobal('window', undefined)
+    onTestFinished(() => {
+      vi.unstubAllGlobals()
+    })
 
     // Mock useMediaQuery to return false since there's no window
     vi.mocked(useMediaQuery).mockImplementation(() => computed(() => false))
@@ -65,8 +65,5 @@ describe('useBreakpoints', () => {
     Object.values(breakpoints.value).forEach((value) => {
       expect(value).toBe(false)
     })
-
-    // Restore window
-    global.window = originalWindow
   })
 })

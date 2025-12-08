@@ -20,9 +20,6 @@
     "packages/sidebar/**",
     "packages/snippetz/**",
     "packages/ts-to-openapi/**",
-    "packages/use-codemirror/**",
-    "packages/use-hooks/**",
-    "packages/use-toasts/**",
     "packages/void-server/**",
     "projects/**",
     "integrations/docker/**",
@@ -136,6 +133,22 @@
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts"
+      ]
+    },
+    "packages/use-codemirror": {
+      "entry": [
+        "src/index.ts",
+        "src/themes/index.ts",
+        //
+        "playground/main.ts"
+      ]
+    },
+    "packages/use-hooks": {
+      "entry": [
+        "src/useBindCx/index.ts",
+        "src/useBreakpoints/index.ts",
+        "src/useClipboard/index.ts",
+        "src/useColorMode/index.ts"
       ]
     },
     "packages/workspace-store": {

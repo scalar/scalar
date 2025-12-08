@@ -1,5 +1,13 @@
 # @scalar/use-toasts
 
+## 0.9.1
+
+### Patch Changes
+
+- [#7473](https://github.com/scalar/scalar/pull/7473) [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove `nanoid` unused dependency
+
+- [#7473](https://github.com/scalar/scalar/pull/7473) [`ea13cd2`](https://github.com/scalar/scalar/commit/ea13cd2a44ff1ba7f19abcfcad1e51c9e7a0b75d) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: use named exports instead of star
+
 ## 0.9.0
 
 ### Minor Changes

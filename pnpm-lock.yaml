@@ -2556,9 +2556,6 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      codemirror:
-        specifier: ^6.0.0
-        version: 6.0.1(@lezer/common@1.2.3)
       vue:
         specifier: catalog:*
         version: 3.5.21(typescript@5.8.3)
@@ -2603,21 +2600,18 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.1(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.21(typescript@5.8.3))
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.6
+      jsdom:
+        specifier: catalog:*
+        version: 26.1.0
       vite:
         specifier: catalog:*
         version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   packages/use-toasts:
     dependencies:
-      nanoid:
-        specifier: catalog:*
-        version: 5.1.5
       vue:
         specifier: catalog:*
         version: 3.5.21(typescript@5.8.3)
@@ -3911,9 +3905,6 @@ packages:
 
   '@codemirror/lint@6.8.4':
     resolution: {integrity: sha512-u4q7PnZlJUojeRe8FJa/njJcMctISGgPQ4PnWsd9268R4ZTtU+tfFYmwkBvgcrK2+QQ8tYFVALVb5fVJykKc5A==}
-
-  '@codemirror/search@6.5.6':
-    resolution: {integrity: sha512-rpMgcsh7o0GuCDUXKPvww+muLA1pDJaFrpq/CCHtpQJYz8xopu4D1hPcKRoDD0YlF8gZaqTNIRa4VRBWyhyy7Q==}
 
   '@codemirror/state@6.5.0':
     resolution: {integrity: sha512-MwBHVK60IiIHDcoMet78lxt6iw5gJOGSbNbOIVBHWVXIH4/Nq1+GQgLLGgI1KlnN86WDXsPudVaqYHKBIx7Eyw==}
@@ -10171,9 +10162,6 @@ packages:
   code-excerpt@3.0.0:
     resolution: {integrity: sha512-VHNTVhd7KsLGOqfX3SyeO8RyYPMp1GJOg194VITk04WMYCv4plV68YWe6TJZxd9MhobjtpMRnVky01gqZsalaw==}
     engines: {node: '>=10'}
-
-  codemirror@6.0.1:
-    resolution: {integrity: sha512-J8j+nZ+CdWmIeFIGXEFbFPtpiYacFMDR8GlHK3IyHQJMCaVRfGx9NT+Hxivv1ckLWPvNdZqndbr/7lVhrf/Svg==}
 
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
@@ -20423,7 +20411,7 @@ snapshots:
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.4
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20757,12 +20745,6 @@ snapshots:
       style-mod: 4.1.2
 
   '@codemirror/lint@6.8.4':
-    dependencies:
-      '@codemirror/state': 6.5.0
-      '@codemirror/view': 6.35.3
-      crelt: 1.0.6
-
-  '@codemirror/search@6.5.6':
     dependencies:
       '@codemirror/state': 6.5.0
       '@codemirror/view': 6.35.3
@@ -22266,7 +22248,7 @@ snapshots:
   '@eslint/config-array@0.19.2':
     dependencies:
       '@eslint/object-schema': 2.1.6
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -22282,7 +22264,7 @@ snapshots:
   '@eslint/eslintrc@3.2.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.1
@@ -26262,7 +26244,7 @@ snapshots:
   '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)))(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 5.0.3(svelte@5.25.10)(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       svelte: 5.25.10
       vite: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
     transitivePeerDependencies:
@@ -29020,18 +29002,6 @@ snapshots:
   code-excerpt@3.0.0:
     dependencies:
       convert-to-spaces: 1.0.2
-
-  codemirror@6.0.1(@lezer/common@1.2.3):
-    dependencies:
-      '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)(@lezer/common@1.2.3)
-      '@codemirror/commands': 6.7.1
-      '@codemirror/language': 6.10.7
-      '@codemirror/lint': 6.8.4
-      '@codemirror/search': 6.5.6
-      '@codemirror/state': 6.5.0
-      '@codemirror/view': 6.35.3
-    transitivePeerDependencies:
-      - '@lezer/common'
 
   collapse-white-space@2.1.0: {}
 
@@ -38999,7 +38969,7 @@ snapshots:
       '@types/node': 20.17.10
       '@types/unist': 3.0.2
       concat-stream: 2.0.0
-      debug: 4.4.1(supports-color@5.5.0)
+      debug: 4.4.3
       extend: 3.0.2
       glob: 10.4.5
       ignore: 5.3.1

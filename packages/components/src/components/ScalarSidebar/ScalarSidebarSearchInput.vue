@@ -8,7 +8,7 @@ import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
 const { autofocus } = defineProps<{
   autofocus?: boolean
-  loading?: LoadingState
+  loader?: LoadingState
   label?: string
 }>()
 
@@ -52,9 +52,9 @@ onMounted(() => autofocus && inputRef.value?.focus())
       v-bind="otherAttrs"
       v-model="model" />
     <ScalarLoading
-      v-if="loading && loading.isLoading"
+      v-if="loader && loader.isActive"
       class="mr-3 self-center"
-      :loadingState="loading"
+      :loader
       size="md" />
     <ScalarIconButton
       v-else-if="model"

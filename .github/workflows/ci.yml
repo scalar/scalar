@@ -486,6 +486,8 @@ jobs:
     permissions:
       contents: write
     needs: [required-jobs-main]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
@@ -498,13 +500,37 @@ jobs:
           TAG="release-${DATE}-${SHORT_SHA}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "date=$DATE" >> $GITHUB_OUTPUT
+      - name: Get PR body from merged release PR
+        id: pr-body
+        run: |
+          # Find the PR that contains this commit
+          PR_DATA=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0]')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
+
+          # Fallback if PR body is empty
+          if [ -z "$PR_BODY" ] || [ "$PR_BODY" == "null" ]; then
+            echo "PR body not found, using default notes"
+            echo "Release ${{ steps.tag.outputs.date }}" > release-notes.md
+          else
+            # Extract only the relevant content:
+            # - Start from "# Releases" heading
+            # - Stop before "<!-- CURSOR_SUMMARY -->" marker
+            echo "$PR_BODY" | awk '
+              /^# Releases/ { found=1 }
+              /<!-- CURSOR_SUMMARY -->/ { exit }
+              found { print }
+            ' > release-notes.md
+
+            # If extraction failed (no "# Releases" found), use full body
+            if [ ! -s release-notes.md ]; then
+              echo "$PR_BODY" > release-notes.md
+            fi
+          fi
       - name: Create GitHub Release
         run: |
           gh release create "${{ steps.tag.outputs.tag }}" \
             --title "Release ${{ steps.tag.outputs.date }}" \
-            --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            --notes-file release-notes.md
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
@@ -1498,7 +1524,7 @@ jobs:
         run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
       - name: Publish all Java modules to Maven Central
         working-directory: integrations/java
-        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux
+        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux -am
         env:
           # Create an account on Sonatype and add the credentials to the repository secrets.
           # Generate User Token: https://central.sonatype.com/account
