@@ -16,7 +16,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -24,14 +24,7 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
     "./libs/html-rendering": {
       "import": "./dist/libs/html-rendering/index.js",
       "types": "./dist/libs/html-rendering/index.d.ts",
