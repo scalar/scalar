@@ -702,6 +702,7 @@ const handleSelectItem = (id: string) => {
     (item?.type === 'tag' || item?.type === 'models') &&
     sidebarState.isExpanded(id)
   ) {
+    // hack until we fix intersection logic
     const unblock = blockIntersection()
     sidebarState.setExpanded(id, false)
     unblock()
