@@ -24,8 +24,8 @@ export function replaceVariables(
 
 /** Replace {path} variables with their values */
 export const replacePathVariables = (path: string, variables: Record<string, string> = {}) =>
-  path.replace(REGEX.PATH, (match, key) => variables[key] || match)
+  path.replace(REGEX.PATH, (match, key) => variables[key] ?? match)
 
 /** Replace {{env}} variables with their values */
 export const replaceEnvVariables = (path: string, variables: Record<string, string> = {}) =>
-  path.replace(REGEX.VARIABLES, (match, key) => variables[key] || match)
+  path.replace(REGEX.VARIABLES, (match, key) => variables[key] ?? match)
