@@ -183,8 +183,7 @@ export namespace OpenAPIV3_2 {
    * 'items' will be always visible as optional
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    AnyOtherAttribute
+  export type SchemaObject = ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -453,8 +452,7 @@ export namespace OpenAPIV3_1 {
    * 'items' will be always visible as optional
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    AnyOtherAttribute
+  export type SchemaObject = ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
