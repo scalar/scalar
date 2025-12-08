@@ -8,7 +8,6 @@
     "packages/api-reference/**",
     "packages/api-reference-react/**",
     "packages/components/**",
-    "packages/core/**",
     "packages/draggable/**",
     "packages/galaxy/**",
     "packages/icons/**",
@@ -80,6 +79,9 @@
         //
         "playground/main.ts"
       ]
+    },
+    "packages/core": {
+      "entry": ["src/libs/html-rendering/index.ts"]
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
