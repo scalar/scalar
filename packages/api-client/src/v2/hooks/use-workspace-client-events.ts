@@ -295,10 +295,10 @@ export const useWorkspaceClientEvents = ({
     }),
   )
   eventBus.on('operation:update:path', (payload) =>
-    updateOperationPath(document.value, workspaceStore.value, payload, (success) => {
+    updateOperationPath(document.value, workspaceStore.value, payload, async (success) => {
       // Lets redirect to the new example if the mutation was successful
       if (success) {
-        router.replace({
+        await router.replace({
           name: 'example',
           params: {
             method: payload.meta.method,
@@ -307,8 +307,7 @@ export const useWorkspaceClientEvents = ({
           },
         })
 
-        // We want to re-focus the addressbar after routing (nextTick doesn't work here)
-        setTimeout(() => eventBus.emit('ui:focus:address-bar'), 0)
+        eventBus.emit('ui:focus:address-bar')
       }
     }),
   )
