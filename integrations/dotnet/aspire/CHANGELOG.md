@@ -1,5 +1,12 @@
 # @scalar/aspire
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`08d137a`](https://github.com/scalar/scalar/commit/08d137a1d9172bd51a9a401fb0101ddf90d3b1a8), [`f446bbc`](https://github.com/scalar/scalar/commit/f446bbc0b8aec7fa7314603fd48471f06c1318d5), [`b77fa53`](https://github.com/scalar/scalar/commit/b77fa5356a1ad51766b6dd6b20e10c408924a8ff)]:
+  - @scalar/api-reference@1.40.2
+
 ## 0.8.0
 
 ### Minor Changes

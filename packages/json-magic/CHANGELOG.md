@@ -1,5 +1,12 @@
 # @scalar/json-magic
 
+## 0.8.4
+
+### Patch Changes
+
+- Updated dependencies [[`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a)]:
+  - @scalar/helpers@0.2.0
+
 ## 0.8.3
 
 ### Patch Changes

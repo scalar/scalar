@@ -1,5 +1,20 @@
 # @scalar/use-codemirror
 
+## 0.13.0
+
+### Minor Changes
+
+- [#7486](https://github.com/scalar/scalar/pull/7486) [`18a7bcd`](https://github.com/scalar/scalar/commit/18a7bcd8ad00f9f7ee09a562167593c7ed07e01d) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat: hooks are now only exported from root
+
+  replace `@scalar/use-codemirror/hooks` with `@scalar/use-codemirror`
+
+### Patch Changes
+
+- [#7486](https://github.com/scalar/scalar/pull/7486) [`18a7bcd`](https://github.com/scalar/scalar/commit/18a7bcd8ad00f9f7ee09a562167593c7ed07e01d) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove unused `codemirror` dependency
+
+- Updated dependencies []:
+  - @scalar/components@0.16.6
+
 ## 0.12.49
 
 ### Patch Changes

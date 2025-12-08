@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.3.2
+
+### Patch Changes
+
+- [#7478](https://github.com/scalar/scalar/pull/7478) [`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove emtpy index file from exports
+
 ## 0.3.1
 
 ### Patch Changes
