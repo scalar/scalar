@@ -4,6 +4,14 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
 
+/**
+ * Type guard to check if a SchemaObject is an object (not a boolean).
+ * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
+ */
+const isSchemaObject = (schema: OpenAPIV3_1.SchemaObject): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
+  return typeof schema === 'object' && schema !== null
+}
+
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
@@ -66,6 +74,10 @@ const guessFromFormat = (
   makeUpRandomData: boolean = false,
   fallback: string = '',
 ): string | File => {
+  if (!isSchemaObject(schema)) {
+    return fallback
+  }
+
   // Handle binary format specially - return a File object
   if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
     return new File([''], 'filename')
@@ -93,7 +105,7 @@ const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
  * Caches the result in a WeakMap for efficient lookups.
  */
 const getRequiredNames = (parentSchema: OpenAPIV3_1.SchemaObject | undefined): ReadonlySet<string> | undefined => {
-  if (!parentSchema) {
+  if (!parentSchema || !isSchemaObject(parentSchema)) {
     return undefined
   }
 
@@ -119,7 +131,7 @@ const getRequiredNames = (parentSchema: OpenAPIV3_1.SchemaObject | undefined): R
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
  */
 const cache = (schema: OpenAPIV3_1.SchemaObject, result: unknown) => {
-  if (typeof result !== 'object' || result === null) {
+  if (typeof result !== 'object' || result === null || !isSchemaObject(schema)) {
     return result
   }
   resultCache.set(getRaw(unpackOverridesProxy(schema)), result)
@@ -130,7 +142,12 @@ const cache = (schema: OpenAPIV3_1.SchemaObject, result: unknown) => {
  * Check if a schema uses composition keywords (allOf, oneOf, anyOf).
  * These require special handling for merging or selecting schemas.
  */
-const isComposed = (schema: OpenAPIV3_1.SchemaObject): boolean => !!(schema.allOf || schema.oneOf || schema.anyOf)
+const isComposed = (schema: OpenAPIV3_1.SchemaObject): boolean => {
+  if (!isSchemaObject(schema)) {
+    return false
+  }
+  return !!(schema.allOf || schema.oneOf || schema.anyOf)
+}
 
 /**
  * Determine if a property should be omitted based on the options.
@@ -142,7 +159,7 @@ const shouldOmitProperty = (
   propertyName: string | undefined,
   options: { omitEmptyAndOptionalProperties?: boolean } | undefined,
 ): boolean => {
-  if (options?.omitEmptyAndOptionalProperties !== true) {
+  if (options?.omitEmptyAndOptionalProperties !== true || !isSchemaObject(schema)) {
     return false
   }
 
@@ -195,6 +212,10 @@ const handleObjectSchema = (
   level: number,
   seen: WeakSet<object>,
 ): unknown => {
+  if (!isSchemaObject(schema)) {
+    return null
+  }
+
   const response: Record<string, unknown> = {}
 
   if ('properties' in schema && schema.properties) {
@@ -204,7 +225,7 @@ const handleObjectSchema = (
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
       const propertySchema = getResolvedRef(schema.properties[propertyName])
-      if (!propertySchema) {
+      if (!propertySchema || !isSchemaObject(propertySchema)) {
         continue
       }
 
@@ -321,6 +342,10 @@ const handleArraySchema = (
   level: number,
   seen: WeakSet<object>,
 ) => {
+  if (!isSchemaObject(schema)) {
+    return []
+  }
+
   const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
@@ -393,6 +418,10 @@ const getPrimitiveValue = (
   makeUpRandomData: boolean,
   emptyString: string | undefined,
 ) => {
+  if (!isSchemaObject(schema)) {
+    return undefined
+  }
+
   if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
     switch (schema.type) {
       case 'string':
@@ -418,6 +447,10 @@ const getUnionPrimitiveValue = (
   makeUpRandomData: boolean,
   emptyString: string | undefined,
 ) => {
+  if (!isSchemaObject(schema)) {
+    return undefined
+  }
+
   if ('type' in schema && Array.isArray(schema.type)) {
     if (schema.type.includes('null')) {
       return null
@@ -490,6 +523,16 @@ export const getExampleFromSchema = (
     return undefined
   }
 
+  // Handle boolean schemas (true/false)
+  // According to OpenAPI specification:
+  // - true = empty schema that allows any instance to validate (accepts anything)
+  // - false = schema that allows no instance to validate (rejects everything)
+  if (typeof _schema === 'boolean') {
+    // For true (accepts anything), return an empty object as a generic example
+    // For false (rejects everything), return null to indicate no valid value
+    return _schema ? {} : null
+  }
+
   // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getRaw(unpackOverridesProxy(_schema))
   if (seen.has(targetValue)) {
@@ -525,7 +568,8 @@ export const getExampleFromSchema = (
 
   // Handle custom variables (x-variable extension)
   if ('x-variable' in _schema && _schema['x-variable']) {
-    const value = options?.variables?.[_schema['x-variable']]
+    const variableName = _schema['x-variable']
+    const value = typeof variableName === 'string' ? options?.variables?.[variableName] : undefined
     if (value !== undefined) {
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
@@ -586,7 +630,7 @@ export const getExampleFromSchema = (
     // Find the first non-null type without allocating intermediate arrays
     for (const item of discriminate) {
       const resolved = getResolvedRef(item)
-      if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
+      if (resolved && isSchemaObject(resolved) && (!('type' in resolved) || resolved.type !== 'null')) {
         seen.delete(targetValue)
         return cache(
           _schema,
