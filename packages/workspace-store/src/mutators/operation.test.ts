@@ -98,14 +98,14 @@ describe('updateOperationMethod', () => {
     })
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
-    expect(document['x-scalar-order']).toStrictEqual(['test/get/users', 'test/post/users'])
+    expect(document['x-scalar-order']).toStrictEqual(['test/GET/users', 'test/POST/users'])
 
     updateOperationMethod(document, store, {
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { method: 'put' },
     })
 
-    expect(document['x-scalar-order']).toStrictEqual(['test/put/users', 'test/post/users'])
+    expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
 
     // The operation should now be under 'put'
     expect(document.paths?.['/users']).toStrictEqual({
@@ -161,8 +161,8 @@ describe('updateOperationMethod', () => {
     store.buildSidebar('test2')
     const document = store.workspace.documents.test2!
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
-      'test2/tag/products/get/products',
-      'test2/tag/products/delete/products',
+      'test2/tag/products/GET/products',
+      'test2/tag/products/DELETE/products',
     ])
 
     updateOperationMethod(document, store, {
@@ -171,8 +171,8 @@ describe('updateOperationMethod', () => {
     })
 
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
-      'test2/tag/products/patch/products',
-      'test2/tag/products/delete/products',
+      'test2/tag/products/PATCH/products',
+      'test2/tag/products/DELETE/products',
     ])
 
     // The operation should now be under 'patch' with all properties preserved

@@ -96,7 +96,7 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
-              'id': `${name}/get/planets`,
+              'id': `${name}/GET/planets`,
               method: 'get',
               type: 'operation',
               isDeprecated: false,
@@ -106,7 +106,7 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': [`${name}/get/planets`],
+        'x-scalar-order': [`${name}/GET/planets`],
         'x-scalar-original-document-hash': '',
       })
 
@@ -195,7 +195,7 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
-              'id': 'doc-1/get/planets',
+              'id': 'doc-1/GET/planets',
               isDeprecated: false,
               method: 'get',
               type: 'operation',
@@ -205,7 +205,7 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': ['doc-1/get/planets'],
+        'x-scalar-order': ['doc-1/GET/planets'],
         'x-scalar-original-document-hash': '',
       })
 
@@ -236,7 +236,7 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
-              'id': 'doc-3/get/planets',
+              'id': 'doc-3/GET/planets',
               isDeprecated: false,
               method: 'get',
               type: 'operation',
@@ -246,7 +246,7 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': ['doc-3/get/planets'],
+        'x-scalar-order': ['doc-3/GET/planets'],
         'x-scalar-original-document-hash': '',
       })
     })
@@ -319,7 +319,7 @@ describe('create-server-store', () => {
               title: 'Scalar Galaxy',
               children: [
                 {
-                  'id': 'doc-1/get/planets',
+                  'id': 'doc-1/GET/planets',
                   isDeprecated: false,
                   method: 'get',
                   path: '/planets',
@@ -329,7 +329,7 @@ describe('create-server-store', () => {
                 },
               ],
             },
-            'x-scalar-order': ['doc-1/get/planets'],
+            'x-scalar-order': ['doc-1/GET/planets'],
             'x-scalar-original-document-hash': '',
           },
           'doc-2': {
@@ -350,7 +350,7 @@ describe('create-server-store', () => {
                 planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
-            'x-scalar-order': ['doc-2/get/planets'],
+            'x-scalar-order': ['doc-2/GET/planets'],
             'x-scalar-navigation': {
               type: 'document',
               id: 'doc-2',
@@ -358,7 +358,7 @@ describe('create-server-store', () => {
               title: 'Scalar Galaxy',
               children: [
                 {
-                  'id': 'doc-2/get/planets',
+                  'id': 'doc-2/GET/planets',
                   isDeprecated: false,
                   method: 'get',
                   type: 'operation',

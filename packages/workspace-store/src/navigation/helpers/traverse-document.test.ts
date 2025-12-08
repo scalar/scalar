@@ -104,11 +104,11 @@ describe('traverseDocument', () => {
         isWebhooks: false,
         'type': 'tag',
         xKeys: {
-          'x-scalar-order': ['doc-1/tag/test/get/test'],
+          'x-scalar-order': ['doc-1/tag/test/GET/test'],
         },
         'children': [
           {
-            'id': 'doc-1/tag/test/get/test',
+            'id': 'doc-1/tag/test/GET/test',
             'method': 'get',
             'path': '/test',
             isDeprecated: false,
@@ -148,7 +148,7 @@ describe('traverseDocument', () => {
     expect(result.children).toHaveLength(1) // Webhooks section
     expect((result.children[0] as TraversedTag).children).toHaveLength(1)
     expect((result.children[0] as TraversedTag).children?.[0]).toEqual({
-      'id': 'doc-1/webhook/post/test-webhook',
+      'id': 'doc-1/webhook/POST/test-webhook',
       'isDeprecated': false,
       'method': 'post',
       'name': 'test-webhook',
@@ -286,11 +286,11 @@ describe('traverseDocument', () => {
         'title': 'tag1',
         'type': 'tag',
         xKeys: {
-          'x-scalar-order': ['doc-1/tag/tag1/get/test1'],
+          'x-scalar-order': ['doc-1/tag/tag1/GET/test1'],
         },
         'children': [
           {
-            'id': 'doc-1/tag/tag1/get/test1',
+            'id': 'doc-1/tag/tag1/GET/test1',
             'method': 'get',
             'path': '/test1',
             isDeprecated: false,
@@ -309,11 +309,11 @@ describe('traverseDocument', () => {
         'title': 'tag2',
         'type': 'tag',
         xKeys: {
-          'x-scalar-order': ['doc-1/tag/tag2/post/test2'],
+          'x-scalar-order': ['doc-1/tag/tag2/POST/test2'],
         },
         'children': [
           {
-            'id': 'doc-1/tag/tag2/post/test2',
+            'id': 'doc-1/tag/tag2/POST/test2',
             'method': 'post',
             'path': '/test2',
             isDeprecated: false,
