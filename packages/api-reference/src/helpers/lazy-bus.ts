@@ -43,7 +43,7 @@ type UnblockFn = () => void
  * Adds a unique identifier to the intersection blockers set
  * Intersection will not be enabled until the unblock callback is run
  */
-const blockIntersection = (): UnblockFn => {
+export const blockIntersection = (): UnblockFn => {
   const blockId = nanoid()
   intersectionBlockers.add(blockId)
 

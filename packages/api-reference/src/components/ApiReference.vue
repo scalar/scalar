@@ -58,6 +58,7 @@ import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
+  blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
 import { mapConfigToClientStore } from '@/helpers/map-config-to-client-store'
@@ -701,7 +702,10 @@ const handleSelectItem = (id: string) => {
     (item?.type === 'tag' || item?.type === 'models') &&
     sidebarState.isExpanded(id)
   ) {
-    return sidebarState.setExpanded(id, false)
+    const unblock = blockIntersection()
+    sidebarState.setExpanded(id, false)
+    unblock()
+    return
   }
 
   /** When in mobile menu we close the menu when we select an item that is not a tag */
