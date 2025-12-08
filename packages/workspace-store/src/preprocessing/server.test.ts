@@ -1,58 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
 import { getServersFromDocument } from './server'
 
 describe('servers', () => {
-  // Store original window object
-  const originalWindow = global.window
-
   beforeEach(() => {
-    // Mock window.location for tests
-    Object.defineProperty(global, 'window', {
-      value: {
-        location: {
-          origin: 'https://example.com',
-        },
+    vi.unstubAllGlobals()
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://example.com',
       },
-      writable: true,
-      configurable: true,
     })
-  })
-
-  afterEach(() => {
-    // Restore original window object
-    if (originalWindow) {
-      Object.defineProperty(global, 'window', {
-        value: originalWindow,
-        writable: true,
-        configurable: true,
-      })
-    } else {
-      // Only delete if it's configurable
-      try {
-        delete (global as any).window
-      } catch {
-        // If deletion fails, just set to undefined
-        Object.defineProperty(global, 'window', {
-          value: undefined,
-          writable: true,
-          configurable: true,
-        })
-      }
-    }
-    vi.clearAllMocks()
   })
 
   describe('getServersFromDocument', () => {
     it('returns empty array when no servers provided and no fallback available', () => {
-      // Mock window to be undefined
-      Object.defineProperty(global, 'window', {
-        value: undefined,
-        writable: true,
-        configurable: true,
-      })
+      vi.stubGlobal('window', undefined)
 
       const result = getServersFromDocument(undefined)
       expect(result).toEqual([])
@@ -272,7 +236,8 @@ describe('servers', () => {
     })
 
     it('handles edge case with null servers', () => {
-      const result = getServersFromDocument(null as any)
+      // @ts-expect-error testing null value
+      const result = getServersFromDocument(null)
 
       expect(result).toHaveLength(1)
       expect(result[0]?.url).toBe('https://example.com')
