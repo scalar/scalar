@@ -42,8 +42,9 @@ import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client
 import { handleModalNavigation } from '@/v2/features/modal/helpers/handle-modal-navigation'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
-import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
+
+import { useWorkspaceClientEvents } from './hooks/use-workspace-client-events'
 
 const { modalState, routePayload, workspaceStore, route } =
   defineProps<ModalProps>()
@@ -129,9 +130,9 @@ const isSidebarOpen = ref(true)
 useWorkspaceClientEvents({
   eventBus,
   document,
-  workspaceStore: ref(workspaceStore),
   isSidebarOpen,
   sidebarState,
+  modalState,
 })
 
 // Ensure we add our scalar wrapper class to the headless ui root

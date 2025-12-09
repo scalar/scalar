@@ -118,7 +118,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal' && source !== 'gitbook'"
         class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
-        @click="eventBus.emit('hide:modal')">
+        @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="lg"
@@ -135,7 +135,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal' && source === 'gitbook'"
         class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
         type="button"
-        @click="eventBus.emit('hide:modal')">
+        @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="md"

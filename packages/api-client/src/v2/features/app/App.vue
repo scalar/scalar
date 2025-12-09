@@ -30,7 +30,6 @@ import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import { useSyncPath } from '@/v2/hooks/use-sync-path'
-import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -38,6 +37,7 @@ import { useTabs } from '../../hooks/use-tabs'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
+import { useWorkspaceClientEvents } from './hooks/use-workspace-client-events'
 
 const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>

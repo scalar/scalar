@@ -69,7 +69,7 @@ export const useWorkspaceClientEvents = ({
   document: ComputedRef<WorkspaceDocument | null>
   workspaceStore: Ref<WorkspaceStore | null>
   isSidebarOpen: Ref<boolean>
-  commandPaletteState?: UseCommandPaletteStateReturn
+  commandPaletteState: UseCommandPaletteStateReturn
   sidebarState: UseSidebarStateReturn
 }) => {
   /** Use router for some redirects */
@@ -284,10 +284,6 @@ export const useWorkspaceClientEvents = ({
   eventBus.on(
     'ui:open:command-palette',
     <P extends CommandPaletteAction['action']>(payload: CommandPaletteAction<P> | undefined) => {
-      if (!commandPaletteState) {
-        return
-      }
-
       if (payload) {
         commandPaletteState.open(payload.action, payload.payload)
       } else {

@@ -35,9 +35,10 @@ export const handleModalNavigation = ({
     const operation = getParentEntry('operation', entry)
     const example = getChildEntry('example', entry)
 
-    sidebarState.setSelected(entry.id)
+    sidebarState.setSelected(example?.id ?? entry.id)
+    sidebarState.setExpanded(example?.id ?? entry.id, true)
 
-    route({
+    return route({
       path: operation?.path ?? '',
       method: operation?.method ?? 'get',
       example: example?.name ?? 'default',
