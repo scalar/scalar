@@ -13,7 +13,6 @@ export default {}
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
-import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -77,19 +76,6 @@ const authMeta = computed<AuthMeta>(() => {
   } as const
 })
 
-/**
- * Map used to detect method + path conflicts
- *
- * Set would make more sense but we can use this map for the mutators as well
- * This contains a map of operation/webhook entries with a key of `path|method` or `name|method`
- */
-const operationEntriesMap = computed(() => {
-  const documentEntry = document?.['x-scalar-navigation']
-  if (!documentEntry) return null
-
-  return getOperationEntries(documentEntry)
-})
-
 const APP_VERSION = PACKAGE_VERSION
 
 const router = useRouter()
@@ -97,8 +83,7 @@ const router = useRouter()
 
 <template>
   <!-- Operation exists -->
-  <template
-    v-if="path && method && exampleName && operation && operationEntriesMap">
+  <template v-if="path && method && exampleName && operation">
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
@@ -109,7 +94,6 @@ const router = useRouter()
       :layout
       :method
       :operation
-      :operationEntriesMap
       :path
       :plugins="[]"
       :security="security"

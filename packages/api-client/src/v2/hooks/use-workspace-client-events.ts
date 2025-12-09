@@ -31,9 +31,8 @@ import {
   updateActiveProxy,
   updateColorMode,
   updateDocumentIcon,
-  updateOperationMethod,
   updateOperationParameter,
-  updateOperationPath,
+  updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
@@ -77,7 +76,8 @@ export const useWorkspaceClientEvents = ({
   commandPaletteState: UseCommandPaletteStateReturn
   sidebarState: UseSidebarStateReturn
 }) => {
-  /** Use router for some redirects */
+  /** Use route[r] for some redirect business */
+  const route = useRoute()
   const router = useRouter()
 
   /** Use route for the path variables */
@@ -279,36 +279,23 @@ export const useWorkspaceClientEvents = ({
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('operation:create:operation', (payload) => createOperation(workspaceStore.value, payload))
-  eventBus.on('operation:update:method', (payload) =>
-    updateOperationMethod(document.value, workspaceStore.value, payload, (success) => {
-      // Lets redirect to the new example if the mutation was successful
-      if (success) {
-        router.replace({
-          name: 'example',
-          params: {
-            method: payload.payload.method,
-            pathEncoded: encodeURIComponent(payload.meta.path),
-            exampleName: payload.meta.exampleKey,
-          },
-        })
-      }
-    }),
-  )
-  eventBus.on('operation:update:path', (payload) =>
-    updateOperationPath(document.value, workspaceStore.value, payload, async (success) => {
-      // Lets redirect to the new example if the mutation was successful
-      if (success) {
+  eventBus.on('operation:update:pathMethod', (payload) =>
+    updateOperationPathMethod(document.value, workspaceStore.value, payload, async (status) => {
+      // Redirect to the new example if the mutation was successful
+      if (status === 'success') {
         await router.replace({
           name: 'example',
           params: {
-            method: payload.meta.method,
+            method: payload.payload.method,
             pathEncoded: encodeURIComponent(payload.payload.path),
-            exampleName: payload.meta.exampleKey,
+            exampleName: route.params.exampleName,
           },
         })
 
-        eventBus.emit('ui:focus:address-bar')
+        // Rebuild the sidebar with the updated order
+        workspaceStore.value?.buildSidebar(document.value?.['x-scalar-navigation']?.id ?? '')
       }
+      payload.callback(status)
     }),
   )
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))

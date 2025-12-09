@@ -13,9 +13,8 @@ import {
   deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
-  updateOperationMethod,
   updateOperationParameter,
-  updateOperationPath,
+  updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
@@ -106,27 +105,6 @@ describe('updateOperationMethod', () => {
     updateOperationMethod(document, store, {
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { method: 'put' },
-      operationEntriesMap: new Map([
-        [
-          '/users|get',
-          [
-            {
-              id: 'test/get/users',
-              title: 'Get users',
-              type: 'operation',
-              ref: '#/paths/~1users/get',
-              method: 'get',
-              path: '/users',
-              parent: {
-                id: 'test',
-                title: 'test',
-                type: 'document',
-                name: 'test',
-              },
-            },
-          ],
-        ],
-      ]),
     })
 
     expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
@@ -192,55 +170,6 @@ describe('updateOperationMethod', () => {
     updateOperationMethod(document, store, {
       meta: { method: 'get', path: '/products', exampleKey: 'default' },
       payload: { method: 'patch' },
-      operationEntriesMap: new Map([
-        [
-          '/products|get',
-          [
-            {
-              id: 'test2/tag/products/get/products',
-              title: 'Get products',
-              type: 'operation',
-              ref: '#/paths/~1products/get',
-              method: 'get',
-              path: '/products',
-              parent: {
-                id: 'test2/tag/products',
-                title: 'products',
-                type: 'tag',
-                name: 'products',
-                isGroup: false,
-                parent: {
-                  id: 'test2',
-                  title: 'test2',
-                  type: 'document',
-                  name: 'test2',
-                },
-              },
-            },
-            {
-              id: 'test2/tag/catalog/get/products',
-              title: 'Get products',
-              type: 'operation',
-              ref: '#/paths/~1products/get',
-              method: 'get',
-              path: '/products',
-              parent: {
-                id: 'test2/tag/catalog',
-                title: 'catalog',
-                type: 'tag',
-                name: 'catalog',
-                isGroup: false,
-                parent: {
-                  id: 'test2',
-                  title: 'test2',
-                  type: 'document',
-                  name: 'test2',
-                },
-              },
-            },
-          ],
-        ],
-      ]),
     })
 
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
@@ -290,7 +219,6 @@ describe('updateOperationMethod', () => {
       {
         meta: { method: 'get', path: '/items', exampleKey: 'default' },
         payload: { method: 'post' },
-        operationEntriesMap: new Map(),
       },
       (success) => {
         callbackResult = success
@@ -325,7 +253,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { path: '/api/users' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -372,7 +299,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'post', path: '/posts', exampleKey: 'default' },
       payload: { path: '/api/v2/posts' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -421,7 +347,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { path: '/api/users' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -462,7 +387,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { path: '/events/{id}' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -503,7 +427,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users/{id}/{limit}', exampleKey: 'default' },
       payload: { path: '/events/{limit}/{id}' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -544,7 +467,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { path: '/users/{limit}' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -584,7 +506,6 @@ describe('updateOperationPath', () => {
     updateOperationPath(document, store, {
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { path: '/users/events/{limit}' },
-      operationEntriesMap: new Map(),
     })
 
     expect(document.paths).toStrictEqual({
@@ -625,7 +546,6 @@ describe('updateOperationPath', () => {
       {
         meta: { method: 'get', path: '/items', exampleKey: 'default' },
         payload: { path: '/api/items' },
-        operationEntriesMap: new Map(),
       },
       (success) => {
         callbackResult = success

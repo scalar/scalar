@@ -1,5 +1,4 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
@@ -7,7 +6,7 @@ import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { getOpenapiObject } from '@/navigation'
+import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
@@ -291,37 +290,51 @@ const updateOperationOrderId = ({
 }
 
 /**
- * Updates the HTTP method of an operation and moves it to the new method slot.
+ * Updates the HTTP method and/or path of an operation and moves it to the new location.
  * This function:
- * 1. Moves the operation from the old method to the new method under paths
+ * 1. Moves the operation from the old method/path to the new method/path under paths
  * 2. Updates x-scalar-order to maintain the operation's position in the sidebar
- * 3. Rebuilds the sidebar to reflect the changes
+ * 3. Syncs path parameters when the path changes
  *
- * Safely no-ops if the document or operation does not exist.
+ * Safely no-ops if nothing has changed, or if the document or operation does not exist.
  *
  * Example:
  * ```ts
- * updateOperationMethod({
+ * updateOperationPathMethod({
  *   document,
  *   store,
  *   meta: { method: 'get', path: '/users' },
- *   payload: { method: 'post' },
+ *   payload: { method: 'post', path: '/api/users' },
  * })
  * ```
  */
-export const updateOperationMethod = (
+export const updateOperationPathMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method }, operationEntriesMap }: OperationEvents['operation:update:method'],
-  callback?: (success: boolean) => void,
-) => {
-  // If the method has not changed, no need to do anything
-  if (meta.method === method || !isHttpMethod(method)) {
+  { meta, payload: { method, path } }: OperationEvents['operation:update:pathMethod'],
+  callback: OperationEvents['operation:update:pathMethod']['callback'],
+): void => {
+  const methodChanged = meta.method !== method
+  const pathChanged = meta.path !== path
+
+  // If nothing has changed, no need to do anything
+  if (!methodChanged && !pathChanged) {
+    callback('no-change')
     return
   }
 
-  const documentName = document?.['x-scalar-navigation']?.name
-  if (!document?.['x-scalar-navigation'] || !documentName || !store) {
+  // Determine the final method and path
+  const finalMethod = methodChanged ? method : meta.method
+  const finalPath = pathChanged ? path : meta.path
+
+  // Check for conflicts at the target location
+  if (document?.paths?.[finalPath]?.[finalMethod]) {
+    callback('conflict')
+    return
+  }
+
+  const documentNavigation = document?.['x-scalar-navigation']
+  if (!documentNavigation || !store) {
     console.error('Document or workspace not found', { document })
     return
   }
@@ -332,100 +345,32 @@ export const updateOperationMethod = (
     return
   }
 
+  // Sync path parameters if the path has changed
+  if (pathChanged) {
+    const oldPathParams = findVariables(meta.path, { includePath: true, includeEnv: false }).filter(
+      (v): v is string => v !== undefined,
+    )
+    const newPathParams = findVariables(finalPath, { includePath: true, includeEnv: false }).filter(
+      (v): v is string => v !== undefined,
+    )
+
+    if (oldPathParams.length > 0 || newPathParams.length > 0) {
+      const existingParameters = operation.parameters ?? []
+      operation.parameters = syncParametersForPathChange(finalPath, meta.path, existingParameters)
+    }
+  }
+
   // Get the document configuration to generate IDs consistently
-  // If no store is provided (e.g., in tests), use default configuration
-  const documentConfig = store?.getDocumentConfiguration(documentName)
-  const { generateId } = getNavigationOptions(documentName, documentConfig)
+  const documentConfig = store.getDocumentConfiguration(documentNavigation.name)
+  const { generateId } = getNavigationOptions(documentNavigation.name, documentConfig)
 
   /** Grabs all of the current operation entries for the given path and method */
+  const operationEntriesMap = getOperationEntries(documentNavigation)
   const entries = operationEntriesMap.get(`${meta.path}|${meta.method}`)
 
   // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
   if (entries) {
-    updateOperationOrderId({ store, operation, generateId, method, path: meta.path, entries })
-  }
-
-  // Prevent assigning dangerous keys to the path items object
-  preventPollution(meta.path)
-
-  // Now ensure we replace the actual operation in the document
-  const pathItems = document.paths?.[meta.path]
-  if (!pathItems) {
-    return
-  }
-
-  pathItems[method] = unpackProxyObject(operation)
-  delete pathItems[meta.method]
-
-  // Rebuild the sidebar with the updated order
-  const success = store.buildSidebar(documentName)
-  callback?.(success)
-}
-
-/**
- * Moves the operation to a new path in the document and synchronizes path
- * parameters in `operation.parameters` with the placeholders present in the
- * provided `path` (e.g. `/users/{id}`). When path parameters change,
- * intelligently syncs them by preserving configurations for renamed parameters
- * (detected by position) and existing parameters. Existing non-path parameters
- * are preserved. The operation is removed from the old path location.
- *
- * Example:
- * ```ts
- * updateOperationPath({
- *   document,
- *   meta: { method: 'get', path: '/users/{id}' },
- *   payload: { path: '/users/{userId}' },
- * })
- * ```
- */
-export const updateOperationPath = (
-  document: WorkspaceDocument | null,
-  store: WorkspaceStore | null,
-  { meta, payload: { path }, operationEntriesMap }: OperationEvents['operation:update:path'],
-  callback?: (success: boolean) => void,
-) => {
-  // If the path has not changed, no need to move the operation
-  if (meta.path === path) {
-    return
-  }
-
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
-  if (!operation || !document) {
-    console.error('Operation or document not found', { meta, document })
-    return
-  }
-
-  // Sync path parameters if either the old or new path has path parameters
-  const oldPathParams = findVariables(meta.path, { includePath: true, includeEnv: false }).filter(
-    (v): v is string => v !== undefined,
-  )
-  const newPathParams = findVariables(path, { includePath: true, includeEnv: false }).filter(
-    (v): v is string => v !== undefined,
-  )
-
-  if (oldPathParams.length > 0 || newPathParams.length > 0) {
-    const existingParameters = operation.parameters ?? []
-    operation.parameters = syncParametersForPathChange(path, meta.path, existingParameters)
-  }
-
-  const documentName = document?.['x-scalar-navigation']?.name
-  if (!documentName || !store) {
-    console.error('Document or workspace not found', { document })
-    return
-  }
-
-  // Get the document configuration to generate IDs consistently
-  // If no store is provided (e.g., in tests), use default configuration
-  const documentConfig = store?.getDocumentConfiguration(documentName)
-  const { generateId } = getNavigationOptions(documentName, documentConfig)
-
-  /** Grabs all of the current operation entries for the given path and method */
-  const entries = operationEntriesMap.get(`${meta.path}|${meta.method}`)
-
-  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
-  if (entries) {
-    updateOperationOrderId({ store, operation, generateId, method: meta.method, path, entries })
+    updateOperationOrderId({ store, operation, generateId, method: finalMethod, path: finalPath, entries })
   }
 
   // Initialize the paths object if it does not exist
@@ -434,31 +379,28 @@ export const updateOperationPath = (
   }
 
   // Initialize the new path if it does not exist
-  if (!document.paths[path]) {
-    document.paths[path] = {}
+  if (!document.paths[finalPath]) {
+    document.paths[finalPath] = {}
   }
 
-  // Move the operation to the new path
-  document.paths[path][meta.method] = unpackProxyObject(operation)
+  // Prevent assigning dangerous keys to the path items object
+  preventPollution(finalPath)
 
-  // Remove the operation from the old path
-  const oldPath = document.paths[meta.path]
-  if (oldPath) {
-    delete oldPath[meta.method]
+  // Move the operation to the new location
+  document.paths[finalPath][finalMethod] = unpackProxyObject(operation)
+
+  // Remove the operation from the old location
+  const oldPathItems = document.paths[meta.path]
+  if (oldPathItems) {
+    delete oldPathItems[meta.method]
 
     // If the old path has no more operations, remove the path entry
-    if (Object.keys(oldPath).length === 0) {
+    if (Object.keys(oldPathItems).length === 0) {
       delete document.paths[meta.path]
     }
   }
 
-  // Rebuild the sidebar with the updated order (if store is available)
-  if (store) {
-    const success = store.buildSidebar(documentName)
-    callback?.(success)
-  } else {
-    callback?.(true)
-  }
+  callback('success')
 }
 
 /**

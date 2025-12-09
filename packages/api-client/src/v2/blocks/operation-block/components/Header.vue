@@ -2,7 +2,6 @@
 import { ScalarIcon } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -25,8 +24,6 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
   hideClientButton?: boolean
   /** Client integration  */
   integration?: string | null
-  /** Operation entries map */
-  operationEntriesMap: OperationEntriesMap
   /** Openapi document url for `modal` mode to open the client app */
   documentUrl?: string
   /** Client source */
@@ -51,18 +48,6 @@ const { showSidebar = true, hideClientButton = false } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'execute'): void
-  (
-    e: 'update:path',
-    payload: {
-      value: string
-    },
-  ): void
-  (
-    e: 'update:method',
-    payload: {
-      value: HttpMethod
-    },
-  ): void
   (e: 'update:servers'): void
 }>()
 </script>
@@ -88,14 +73,11 @@ const emit = defineEmits<{
       :history
       :layout
       :method
-      :operationEntriesMap
       :path
       :percentage="requestLoadingPercentage"
       :server
       :servers
       @execute="emit('execute')"
-      @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)"
       @update:servers="emit('update:servers')" />
 
     <div

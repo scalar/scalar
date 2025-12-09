@@ -11,7 +11,6 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -21,7 +20,6 @@ import {
   ref,
   useId,
   useTemplateRef,
-  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -37,7 +35,6 @@ const {
   layout,
   eventBus,
   history,
-  operationEntriesMap,
   server,
   environment,
   percentage = 100,
@@ -46,8 +43,6 @@ const {
   path: string
   /** Current request method */
   method: HttpMethodType
-  /** Operation entries map to keep track of conflicts */
-  operationEntriesMap: OperationEntriesMap
   /** Currently selected server */
   server: ServerObject | null
   /** Server list available for operation/document */
@@ -67,18 +62,6 @@ const {
 const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
-  (
-    e: 'update:path',
-    payload: {
-      value: string
-    },
-  ): void
-  (
-    e: 'update:method',
-    payload: {
-      value: HttpMethodType
-    },
-  ): void
   (e: 'update:servers'): void
 }>()
 
@@ -90,53 +73,44 @@ const style = computed(() => ({
   transform: `translate3d(-${percentage}%,0,0)`,
 }))
 
-/**
- * Tracks a conflict when the user attempts to change the method or path
- * to a combination that already exists in the document.
- */
-type Conflict = {
-  method: HttpMethodType
-  path: string
-}
+const pathConflict = ref<string | null>(null)
+const methodConflict = ref<HttpMethodType | null>(null)
 
-const conflict = ref<Conflict | null>(null)
-
-/** Clear conflict when the props change externally (e.g., user navigates to a different request) */
-watch(
-  () => [method, path],
-  () => {
-    conflict.value = null
-  },
-)
-
-/**
- * Checks if a method + path combination would conflict with an existing operation.
- * Returns true if the combination exists in the map and differs from the current values.
- */
-const hasConflict = (newMethod: HttpMethodType, newPath: string): boolean =>
-  Boolean(operationEntriesMap.get(`${newPath}|${newMethod}`)) &&
-  (newMethod !== method || newPath !== path)
-
-/** Ensure we only update the method if it does not conflict, else enter error state */
-const handleMethodChange = (newMethod: HttpMethodType): void => {
-  if (hasConflict(newMethod, path)) {
-    conflict.value = { method: newMethod, path }
-    return
-  }
-
-  conflict.value = null
-  emit('update:method', { value: newMethod })
-}
-
-/** Ensure we only update the path if it does not conflict, else enter error state */
-const handlePathUpdate = (newPath: string): void => {
-  if (hasConflict(method, newPath)) {
-    conflict.value = { method, path: newPath }
-    return
-  }
-
-  conflict.value = null
-  emit('update:path', { value: newPath })
+/** Ensure we only update the method/path if it does not conflict, else enter error state */
+const handlePathMethodChange = (
+  newMethod: HttpMethodType | null = null,
+  newPath: string | null = null,
+): void => {
+  eventBus.emit(
+    'operation:update:pathMethod',
+    {
+      meta: {
+        method,
+        path,
+      },
+      payload: {
+        method: newMethod ?? methodConflict.value ?? method,
+        path: newPath ?? pathConflict.value ?? path,
+      },
+      callback: (status) => {
+        // Clear conflicts if the operation was successful or no change was made
+        if (status === 'success' || status === 'no-change') {
+          methodConflict.value = null
+          pathConflict.value = null
+        }
+        // Set the corresponding conflict if needed
+        else if (status === 'conflict') {
+          if (newMethod && newMethod !== methodConflict.value) {
+            methodConflict.value = newMethod
+          } else if (newPath && newPath !== pathConflict.value) {
+            pathConflict.value = newPath
+          }
+        }
+      },
+    },
+    /** Ensure we use the original path and method here */
+    { debounceKey: `operation:update:pathMethod-${path}-${method}` },
+  )
 }
 
 /** Handle focus events */
@@ -168,7 +142,8 @@ onBeforeUnmount(() => {
 })
 
 defineExpose({
-  conflict,
+  methodConflict,
+  pathConflict,
 })
 </script>
 <template>
@@ -179,7 +154,7 @@ defineExpose({
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
-        'outline-c-danger outline': conflict,
+        'outline-c-danger outline': methodConflict || pathConflict,
       }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
@@ -191,9 +166,9 @@ defineExpose({
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="conflict?.method ?? method"
+          :method="methodConflict ?? method"
           teleport
-          @change="handleMethodChange" />
+          @change="(newMethod) => handlePathMethodChange(newMethod)" />
       </div>
 
       <div
@@ -239,7 +214,9 @@ defineExpose({
               })
           "
           @submit="emit('execute')"
-          @update:modelValue="handlePathUpdate" />
+          @update:modelValue="
+            (newPath) => handlePathMethodChange(null, newPath)
+          " />
         <div class="fade-right" />
       </div>
 
@@ -248,15 +225,16 @@ defineExpose({
         :target="id" />
       <!-- Error message -->
       <div
-        v-if="conflict"
+        v-if="methodConflict || pathConflict"
         class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
             A
-            <em>{{ conflict.method.toUpperCase() }}</em> request to
-            <ScalarWrappingText :text="conflict.path" />
+            <em>{{ methodConflict?.toUpperCase() ?? method.toUpperCase() }}</em>
+            request to
+            <ScalarWrappingText :text="pathConflict ?? path" />
             already exists in this document
           </div>
         </div>

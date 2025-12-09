@@ -25,7 +25,6 @@ describe('Header', () => {
     history: [] as any[],
     requestLoadingPercentage: undefined as number | undefined,
     eventBus,
-    operationEntriesMap: new Map(),
     environment: {
       uid: 'env-1' as any,
       name: 'Test',
