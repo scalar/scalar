@@ -79,7 +79,8 @@ const activeDescendantId = computed(() => {
   <ScalarModal
     aria-label="Reference Search"
     :state="modalState"
-    variant="search">
+    variant="search"
+    @keydown.esc.stop="modalState.hide()">
     <div
       class="mb-0 flex flex-col"
       role="search">
