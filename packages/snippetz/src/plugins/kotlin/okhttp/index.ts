@@ -1,1 +1,1 @@
-export * from './okhttp'
+export { kotlinOkhttp } from './okhttp'

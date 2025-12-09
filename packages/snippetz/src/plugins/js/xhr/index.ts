@@ -1,1 +1,1 @@
-export * from './xhr'
+export { jsXhr } from './xhr'

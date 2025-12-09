@@ -1,1 +1,1 @@
-export * from './ofetch'
+export { jsOfetch } from './ofetch'

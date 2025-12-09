@@ -1,1 +1,1 @@
-export * from './undici'
+export { nodeUndici } from './undici'

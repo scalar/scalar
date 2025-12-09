@@ -1,6 +1,7 @@
-import { nethttp } from '@/httpsnippet-lite/esm/targets/java/nethttp/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { nethttp } from '@/httpsnippet-lite/targets/java/nethttp/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * java/nethttp

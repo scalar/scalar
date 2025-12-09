@@ -1,1 +1,1 @@
-export * from './python3'
+export { pythonPython3 } from './python3'

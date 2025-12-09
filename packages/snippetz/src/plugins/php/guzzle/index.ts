@@ -1,1 +1,1 @@
-export * from './guzzle'
+export { phpGuzzle } from './guzzle'

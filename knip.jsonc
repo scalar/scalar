@@ -17,7 +17,6 @@
     "packages/pre-post-request-scripts/**",
     "packages/react-renderer/**",
     "packages/sidebar/**",
-    "packages/snippetz/**",
     "packages/ts-to-openapi/**",
     "packages/void-server/**",
     "projects/**",
@@ -126,6 +125,9 @@
         "src/schemas/extensions/index.ts",
         "src/schemas/3.1/*/index.ts"
       ]
+    },
+    "packages/snippetz": {
+      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
     },
     "packages/types": {
       "entry": [

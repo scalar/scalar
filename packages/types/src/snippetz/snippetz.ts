@@ -1,7 +1,7 @@
 import type { Request as HarRequest } from 'har-format'
 import type { Writable } from 'type-fest'
 
-export type { Param as FormDataParam, Request as HarRequest } from 'har-format'
+export type { Param as FormDataParam, PostDataCommon, Request as HarRequest } from 'har-format'
 
 /**
  * List of available clients

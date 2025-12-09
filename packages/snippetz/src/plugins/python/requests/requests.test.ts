@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { pythonRequests } from './requests'
 
 describe('pythonRequests', () => {

@@ -1,1 +1,1 @@
-export * from './wget'
+export { shellWget } from './wget'

@@ -1,1 +1,1 @@
-export * from './cohttp'
+export { ocamlCohttp } from './cohttp'

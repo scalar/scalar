@@ -1,6 +1,7 @@
-import { unirest } from '@/httpsnippet-lite/esm/targets/java/unirest/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { unirest } from '@/httpsnippet-lite/targets/java/unirest/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * java/unirest

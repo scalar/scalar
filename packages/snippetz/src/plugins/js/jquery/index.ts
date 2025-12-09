@@ -1,1 +1,1 @@
-export * from './jquery'
+export { jsJquery } from './jquery'

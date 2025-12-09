@@ -1,5 +1,6 @@
-import { clients } from '@/clients'
 import type { ClientId, HarRequest, TargetId } from '@scalar/types/snippetz'
+
+import { clients } from '@/clients'
 
 /**
  * Generate code examples for HAR requests

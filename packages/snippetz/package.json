@@ -246,6 +246,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@types/stringify-object": "^4.0.5",
     "vite": "catalog:*"
   }
 }

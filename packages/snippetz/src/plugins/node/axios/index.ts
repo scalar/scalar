@@ -1,1 +1,1 @@
-export * from './axios'
+export { nodeAxios } from './axios'

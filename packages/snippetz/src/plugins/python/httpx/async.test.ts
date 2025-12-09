@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { pythonHttpxAsync } from './async'
 
 describe('pythonHttpxAsync', () => {

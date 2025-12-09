@@ -1,6 +1,7 @@
-import { okhttp } from '@/httpsnippet-lite/esm/targets/java/okhttp/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { okhttp } from '@/httpsnippet-lite/targets/java/okhttp/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * java/okhttp

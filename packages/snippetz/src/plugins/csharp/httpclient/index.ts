@@ -1,1 +1,1 @@
-export * from './httpclient'
+export { csharpHttpclient } from './httpclient'

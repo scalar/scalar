@@ -1,1 +1,1 @@
-export * from './http'
+export { dartHttp } from './http'

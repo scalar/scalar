@@ -1,1 +1,1 @@
-export * from './webrequest'
+export { powershellWebrequest } from './webrequest'
