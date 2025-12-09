@@ -70,6 +70,8 @@ type Props = {
   withVariables?: boolean
   /** Detect and emit curl commands */
   importCurl?: boolean
+  /** Emit change event even if the value is the same */
+  alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
   handleFieldChange?: (value: string) => void
   /** Custom submit handler, prevents default emit */
@@ -99,6 +101,7 @@ const {
   disableEnter = false,
   disableCloseBrackets = false,
   emitOnBlur = true,
+  alwaysEmitChange = false,
   withVariables = true,
   importCurl = false,
   handleFieldChange,
@@ -161,7 +164,7 @@ const defaultType = computed((): string | undefined => {
  * Detects curl commands and manages update flow.
  */
 const handleChange = (value: string): void => {
-  if (value === modelValue) {
+  if (!alwaysEmitChange && value === modelValue) {
     return
   }
 

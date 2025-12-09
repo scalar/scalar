@@ -76,41 +76,48 @@ const style = computed(() => ({
 const pathConflict = ref<string | null>(null)
 const methodConflict = ref<HttpMethodType | null>(null)
 
-/** Ensure we only update the method/path if it does not conflict, else enter error state */
-const handlePathMethodChange = (
-  newMethod: HttpMethodType | null = null,
-  newPath: string | null = null,
-): void => {
+/** Emit the path/method update event with conflict handling */
+const emitPathMethodUpdate = (
+  targetMethod: HttpMethodType,
+  targetPath: string,
+  /** We only want to debounce when the path changes */
+  emitOptions?: { debounceKey?: string },
+): void =>
   eventBus.emit(
     'operation:update:pathMethod',
     {
-      meta: {
-        method,
-        path,
-      },
-      payload: {
-        method: newMethod ?? methodConflict.value ?? method,
-        path: newPath ?? pathConflict.value ?? path,
-      },
+      meta: { method, path },
+      payload: { method: targetMethod, path: targetPath },
       callback: (status) => {
         // Clear conflicts if the operation was successful or no change was made
         if (status === 'success' || status === 'no-change') {
           methodConflict.value = null
           pathConflict.value = null
         }
-        // Set the corresponding conflict if needed
+        // Otherwise set the conflict if needed
         else if (status === 'conflict') {
-          if (newMethod && newMethod !== methodConflict.value) {
-            methodConflict.value = newMethod
-          } else if (newPath && newPath !== pathConflict.value) {
-            pathConflict.value = newPath
+          if (targetMethod !== method) {
+            methodConflict.value = targetMethod
+          }
+          if (targetPath !== path) {
+            pathConflict.value = targetPath
           }
         }
       },
     },
-    /** Ensure we use the original path and method here */
-    { debounceKey: `operation:update:pathMethod-${path}-${method}` },
+    emitOptions,
   )
+
+/** Update the operation's HTTP method, handling conflicts */
+const handleMethodChange = (newMethod: HttpMethodType): void =>
+  emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
+
+/** Update the operation's path, handling conflicts */
+const handlePathChange = (newPath: string): void => {
+  console.log('handlePathChange', newPath)
+  emitPathMethodUpdate(methodConflict.value ?? method, newPath, {
+    debounceKey: `operation:update:pathMethod-${path}-${method}`,
+  })
 }
 
 /** Handle focus events */
@@ -118,7 +125,6 @@ const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
-/** Focus the addressbar */
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
 ) => {
@@ -168,7 +174,7 @@ defineExpose({
           isSquare
           :method="methodConflict ?? method"
           teleport
-          @change="(newMethod) => handlePathMethodChange(newMethod)" />
+          @change="handleMethodChange" />
       </div>
 
       <div
@@ -192,6 +198,7 @@ defineExpose({
         <!-- Path + URL + env vars -->
         <CodeInput
           ref="addressBarRef"
+          alwaysEmitChange
           aria-label="Path"
           class="min-w-fit outline-none"
           disableCloseBrackets
@@ -214,9 +221,7 @@ defineExpose({
               })
           "
           @submit="emit('execute')"
-          @update:modelValue="
-            (newPath) => handlePathMethodChange(null, newPath)
-          " />
+          @update:modelValue="handlePathChange" />
         <div class="fade-right" />
       </div>
 
