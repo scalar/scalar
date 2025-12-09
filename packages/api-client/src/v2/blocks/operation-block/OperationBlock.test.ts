@@ -61,44 +61,6 @@ describe('OperationContainer', () => {
     expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex1' } })
   })
 
-  it('emits operation:update:method with new value when method is updated', () => {
-    const fn = vi.fn()
-    eventBus.on('operation:update:method', fn)
-
-    const wrapper = render({ path: '/pets', method: 'get' })
-    const header = wrapper.getComponent(Header)
-    header.vm.$emit('update:method', { value: 'put' })
-
-    expect(fn).toHaveBeenCalledTimes(1)
-
-    expect(fn).toHaveBeenCalledWith({
-      meta: { method: 'get', path: '/pets', exampleKey: 'default' },
-      payload: { method: 'put' },
-    })
-  })
-
-  it('emits operation:update:path with new value when path is updated', () => {
-    vi.useFakeTimers()
-    const fn = vi.fn()
-    eventBus.on('operation:update:path', fn)
-
-    const wrapper = render({ path: '/pets', method: 'get' })
-    const header = wrapper.getComponent(Header)
-    header.vm.$emit('update:path', { value: '/animals' })
-
-    // Path updates are debounced, so we need to advance timers
-    vi.advanceTimersByTime(400)
-
-    expect(fn).toHaveBeenCalledTimes(1)
-
-    expect(fn).toHaveBeenCalledWith({
-      meta: { method: 'get', path: '/pets', exampleKey: 'default' },
-      payload: { path: '/animals' },
-    })
-
-    vi.useRealTimers()
-  })
-
   it('emits operation:send:request when ResponseBlock sendRequest event is triggered', () => {
     const fn = vi.fn()
     eventBus.on('operation:send:request', fn)

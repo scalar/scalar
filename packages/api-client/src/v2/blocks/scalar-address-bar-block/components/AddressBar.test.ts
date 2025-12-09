@@ -1,6 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationEntriesMap } from '@scalar/workspace-store/navigation'
+import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -29,29 +28,6 @@ describe('AddressBar', () => {
     description: 'Production Server',
   }
 
-  /** Creates an operation entries map for testing conflicts */
-  const createOperationEntriesMap = (entries: Array<{ path: string; method: string }> = []): OperationEntriesMap => {
-    const map: OperationEntriesMap = new Map()
-    entries.forEach(({ path, method }, index) => {
-      const mockEntry = {
-        id: `test-operation-${index}`,
-        title: `${method.toUpperCase()} ${path}`,
-        type: 'operation' as const,
-        ref: `#/paths${path}/${method}`,
-        method: method as HttpMethod,
-        path,
-        parent: {
-          id: 'test-document',
-          title: 'Test Document',
-          type: 'document' as const,
-          name: 'Test Document',
-        },
-      }
-      map.set(`${path}|${method}`, [mockEntry])
-    })
-    return map
-  }
-
   const mountWithProps = (
     custom: Partial<{
       path: string
@@ -61,7 +37,6 @@ describe('AddressBar', () => {
       history: any[]
       layout: string
       percentage: number
-      operationEntriesMap: OperationEntriesMap
     }> = {},
   ) => {
     const eventBus = createWorkspaceEventBus()
@@ -75,7 +50,6 @@ describe('AddressBar', () => {
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
         percentage: custom.percentage ?? 100,
-        operationEntriesMap: custom.operationEntriesMap ?? createOperationEntriesMap(),
         eventBus,
         environment: baseEnvironment,
       },
@@ -95,8 +69,9 @@ describe('AddressBar', () => {
     document.body.appendChild(el)
   })
 
-  it('emits update:method when HttpMethod is clicked and changed', async () => {
-    const { wrapper } = mountWithProps()
+  it('emits operation:update:pathMethod via eventBus when HttpMethod is clicked and changed', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
     const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
 
@@ -118,21 +93,32 @@ describe('AddressBar', () => {
     await listbox.vm.$emit('update:modelValue', postOption)
     await nextTick()
 
-    const emitted = wrapper.emitted('update:method')
-    expect(emitted).toBeTruthy()
-    expect(emitted?.[0]).toEqual([{ value: 'post' }])
+    expect(emitSpy).toHaveBeenCalledWith(
+      'operation:update:pathMethod',
+      expect.objectContaining({
+        meta: { method: 'get', path: '/api/test' },
+        payload: { method: 'post', path: '/api/test' },
+      }),
+      undefined,
+    )
   })
 
-  it('emits update:path when CodeInput updates modelValue', async () => {
-    const { wrapper } = mountWithProps()
+  it('emits operation:update:pathMethod via eventBus when CodeInput updates modelValue', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
     const codeInput = wrapper.findComponent({ name: 'CodeInput' })
     await codeInput.vm.$emit('update:modelValue', '/api/users')
     await nextTick()
 
-    const emitted = wrapper.emitted('update:path')
-    expect(emitted).toBeTruthy()
-    expect(emitted?.[0]).toEqual([{ value: '/api/users' }])
+    expect(emitSpy).toHaveBeenCalledWith(
+      'operation:update:pathMethod',
+      expect.objectContaining({
+        meta: { method: 'get', path: '/api/test' },
+        payload: { method: 'get', path: '/api/users' },
+      }),
+      { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+    )
   })
 
   it('emits importCurl when CodeInput emits curl', async () => {
@@ -298,17 +284,21 @@ describe('AddressBar', () => {
   })
 
   describe('path and method conflict error state', () => {
-    it('shows error state when there is a conflict with path and method', async () => {
-      /**
-       * Create an operation entries map with an existing POST /api/test endpoint.
-       * When the user tries to change the method to POST, a conflict should be detected.
-       */
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
-
-      const { wrapper } = mountWithProps({
+    it('shows error state when callback returns conflict status', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
+      })
+
+      /**
+       * Mock the eventBus.emit to capture the callback and call it with 'conflict' status.
+       */
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('conflict')
+        }
+        return eventBus
       })
 
       const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
@@ -317,7 +307,7 @@ describe('AddressBar', () => {
       await nextTick()
 
       /**
-       * Select POST which conflicts with the existing POST /api/test operation.
+       * Select POST which will trigger the conflict callback.
        */
       const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
       const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
@@ -339,38 +329,20 @@ describe('AddressBar', () => {
        */
       const addressBar = wrapper.find('.address-bar-bg-states')
       expect(addressBar.classes()).toContain('outline-c-danger')
-
-      /**
-       * The update:method event should NOT be emitted when there is a conflict.
-       */
-      const emitted = wrapper.emitted('update:method')
-      expect(emitted).toBeFalsy()
     })
 
-    it('clears error state when selecting a non-conflicting method', async () => {
-      /**
-       * Create an operation entries map with an existing POST /api/test endpoint.
-       */
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
-
-      const { wrapper } = mountWithProps({
+    it('clears conflict refs when callback returns success status', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
       })
 
-      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
-      const button = httpMethod.find('button')
-      await button.trigger('click')
-      await nextTick()
-
-      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const componentInstance = wrapper.vm as any
 
       /**
-       * First, select POST which conflicts with the existing operation.
+       * Manually set the conflict state to simulate a previous conflict.
        */
-      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
-      await listbox.vm.$emit('update:modelValue', postOption)
+      componentInstance.methodConflict = 'post'
       await nextTick()
 
       /**
@@ -380,81 +352,46 @@ describe('AddressBar', () => {
       expect(errorMessage.exists()).toBe(true)
 
       /**
-       * Now select PUT which does not conflict with any existing operation.
+       * Mock the eventBus.emit to call the callback with 'success' status.
        */
-      await button.trigger('click')
-      await nextTick()
-
-      const putOption = { id: 'put', label: 'PUT', color: 'text-method-put' }
-      await listbox.vm.$emit('update:modelValue', putOption)
-      await nextTick()
-
-      /**
-       * The error state should be cleared and the update:method event should be emitted.
-       */
-      errorMessage = wrapper.find('.text-c-danger')
-      expect(errorMessage.exists()).toBe(false)
-
-      const emitted = wrapper.emitted('update:method')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]).toEqual([{ value: 'put' }])
-    })
-
-    it('clears error state when props for path and method change externally', async () => {
-      /**
-       * Create an operation entries map with an existing POST /api/test endpoint.
-       */
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
-
-      const { wrapper } = mountWithProps({
-        path: '/api/test',
-        method: 'get',
-        operationEntriesMap,
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('success')
+        }
+        return eventBus
       })
 
+      /**
+       * Trigger a method change which should clear the conflict.
+       */
       const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
-      const button = httpMethod.find('button')
-      await button.trigger('click')
+      await httpMethod.vm.$emit('change', 'put')
       await nextTick()
 
       /**
-       * Select POST which conflicts with the existing operation.
+       * The conflict should be cleared.
        */
-      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
-      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
-      await listbox.vm.$emit('update:modelValue', postOption)
-      await nextTick()
-
-      /**
-       * Verify the error state is shown.
-       */
-      let errorMessage = wrapper.find('.text-c-danger')
-      expect(errorMessage.exists()).toBe(true)
-
-      /**
-       * Simulate an external prop change (e.g., user navigates to a different request).
-       * The watcher on [method, path] should clear the error state.
-       */
-      await wrapper.setProps({ method: 'delete' })
-      await nextTick()
-
-      /**
-       * The error state should be cleared after the prop change.
-       */
+      expect(componentInstance.methodConflict).toBeNull()
       errorMessage = wrapper.find('.text-c-danger')
       expect(errorMessage.exists()).toBe(false)
     })
 
-    it('clears error state when path prop changes externally', async () => {
-      /**
-       * Create an operation entries map with an existing POST /api/test endpoint.
-       */
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'post' }])
-
-      const { wrapper } = mountWithProps({
+    it('exposes methodConflict and pathConflict refs', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
+      })
+
+      /**
+       * Mock the eventBus.emit to call the callback with 'conflict' status.
+       */
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('conflict')
+        }
+        return eventBus
       })
 
       const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
@@ -462,12 +399,30 @@ describe('AddressBar', () => {
       await button.trigger('click')
       await nextTick()
 
-      /**
-       * Select POST which conflicts with the existing operation.
-       */
       const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
       const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
       await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * The methodConflict should be set via the exposed ref.
+       */
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.methodConflict).toBe('post')
+    })
+
+    it('clears path conflict when callback returns success status', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const componentInstance = wrapper.vm as any
+
+      /**
+       * Manually set the path conflict state to simulate a previous conflict.
+       */
+      componentInstance.pathConflict = '/api/users'
       await nextTick()
 
       /**
@@ -477,29 +432,40 @@ describe('AddressBar', () => {
       expect(errorMessage.exists()).toBe(true)
 
       /**
-       * Simulate an external path prop change.
-       * The watcher on [method, path] should clear the error state.
+       * Mock the eventBus.emit to call the callback with 'success' status.
        */
-      await wrapper.setProps({ path: '/api/users' })
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('success')
+        }
+        return eventBus
+      })
+
+      /**
+       * Trigger a path change which should clear the conflict.
+       */
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '/api/products')
       await nextTick()
 
       /**
-       * The error state should be cleared after the path prop change.
+       * The conflict should be cleared.
        */
+      expect(componentInstance.pathConflict).toBeNull()
       errorMessage = wrapper.find('.text-c-danger')
       expect(errorMessage.exists()).toBe(false)
     })
   })
 
   describe('handleMethodChange', () => {
-    it('allows changing to the same method without triggering a conflict', async () => {
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
-
-      const { wrapper } = mountWithProps({
+    it('emits operation:update:pathMethod when changing method', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
       })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
       const button = httpMethod.find('button')
@@ -507,31 +473,40 @@ describe('AddressBar', () => {
       await nextTick()
 
       const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
-      const getOption = { id: 'get', label: 'GET', color: 'text-method-get' }
-      await listbox.vm.$emit('update:modelValue', getOption)
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
       await nextTick()
 
       /**
-       * Changing to the same method should emit update:method
-       * because the condition checks method !== newMethod.
+       * Should emit operation:update:pathMethod with new method and current path.
        */
-      const emitted = wrapper.emitted('update:method')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]).toEqual([{ value: 'get' }])
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          meta: { method: 'get', path: '/api/test' },
+          payload: { method: 'post', path: '/api/test' },
+        }),
+        undefined,
+      )
     })
   })
 
   describe('handlePathUpdate', () => {
-    it('does not emit update:path when updating to a conflicting path', async () => {
-      const operationEntriesMap = createOperationEntriesMap([
-        { path: '/api/users', method: 'get' },
-        { path: '/api/products', method: 'get' },
-      ])
-
-      const { wrapper } = mountWithProps({
+    it('sets pathConflict when callback returns conflict status', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
+      })
+
+      /**
+       * Mock the eventBus.emit to call the callback with 'conflict' status.
+       */
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('conflict')
+        }
+        return eventBus
       })
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
@@ -539,93 +514,89 @@ describe('AddressBar', () => {
       await nextTick()
 
       /**
-       * The update:path event should NOT be emitted due to conflict.
-       */
-      const emitted = wrapper.emitted('update:path')
-      expect(emitted).toBeFalsy()
-
-      /**
-       * conflict should be set with the conflicting path.
+       * pathConflict should be set with the conflicting path.
        */
       const componentInstance = wrapper.vm as any
-      expect(componentInstance.conflict?.path).toBe('/api/users')
+      expect(componentInstance.pathConflict).toBe('/api/users')
     })
 
-    it('allows updating to the same path without triggering a conflict', async () => {
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
-
-      const { wrapper } = mountWithProps({
+    it('emits operation:update:pathMethod with new path', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
       })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
       await codeInput.vm.$emit('update:modelValue', '/api/test')
       await nextTick()
 
       /**
-       * Updating to the same path should emit update:path
-       * because the condition checks newPath !== path.
+       * Should emit operation:update:pathMethod with the new path.
        */
-      const emitted = wrapper.emitted('update:path')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]).toEqual([{ value: '/api/test' }])
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          meta: { method: 'get', path: '/api/test' },
+          payload: { method: 'get', path: '/api/test' },
+        }),
+        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
     })
 
-    it('handles empty path gracefully', async () => {
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/test', method: 'get' }])
-
-      const { wrapper } = mountWithProps({
+    it('handles empty path and emits event', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
       })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
       await codeInput.vm.$emit('update:modelValue', '')
       await nextTick()
 
       /**
-       * Empty path should be allowed and emit update:path.
+       * Empty path should be emitted via eventBus.
        */
-      const emitted = wrapper.emitted('update:path')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]).toEqual([{ value: '' }])
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          meta: { method: 'get', path: '/api/test' },
+          payload: { method: 'get', path: '' },
+        }),
+        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
 
       const componentInstance = wrapper.vm as any
-      expect(componentInstance.conflict).toBeNull()
+      expect(componentInstance.pathConflict).toBeNull()
     })
 
-    it('handles paths with special characters and detects conflicts', async () => {
-      const operationEntriesMap = createOperationEntriesMap([{ path: '/api/users/{id}', method: 'get' }])
-
-      const { wrapper } = mountWithProps({
+    it('handles paths with special characters', async () => {
+      const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
-        operationEntriesMap,
       })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
 
       /**
-       * Update to a path with special characters that does not conflict.
+       * Update to a path with special characters.
        */
       await codeInput.vm.$emit('update:modelValue', '/api/users/{name}')
       await nextTick()
 
-      const emitted = wrapper.emitted('update:path')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]).toEqual([{ value: '/api/users/{name}' }])
-
-      /**
-       * Update to a path that does conflict.
-       */
-      await codeInput.vm.$emit('update:modelValue', '/api/users/{id}')
-      await nextTick()
-
-      const componentInstance = wrapper.vm as any
-      expect(componentInstance.conflict).toEqual({ method: 'get', path: '/api/users/{id}' })
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          meta: { method: 'get', path: '/api/test' },
+          payload: { method: 'get', path: '/api/users/{name}' },
+        }),
+        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
     })
   })
 })

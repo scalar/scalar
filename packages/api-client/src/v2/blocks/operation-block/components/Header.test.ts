@@ -38,24 +38,6 @@ describe('Header', () => {
     return mount(Header, { props })
   }
 
-  it('re-emits update:method from AddressBar', () => {
-    const wrapper = render()
-    const addressBar = wrapper.getComponent(AddressBar)
-    addressBar.vm.$emit('update:method', { value: 'post' })
-
-    const emitted = wrapper.emitted('update:method')
-    expect(emitted?.[0]?.[0]).toEqual({ value: 'post' })
-  })
-
-  it('re-emits update:path from AddressBar', () => {
-    const wrapper = render()
-    const addressBar = wrapper.getComponent(AddressBar)
-    addressBar.vm.$emit('update:path', { value: '/animals' })
-
-    const emitted = wrapper.emitted('update:path')
-    expect(emitted?.[0]?.[0]).toEqual({ value: '/animals' })
-  })
-
   it('emits execute when AddressBar emits execute', () => {
     const wrapper = render()
     const addressBar = wrapper.getComponent(AddressBar)
