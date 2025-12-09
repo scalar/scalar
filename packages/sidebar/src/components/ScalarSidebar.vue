@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 
+import { filterItems } from '@/helpers/filter-items'
 import type {
   DraggingItem,
   HoveredItem,
   UseDraggableOptions,
 } from '@/hooks/use-draggable'
-import type { Item } from '@/types'
+import type { Item, Layout } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
 
@@ -19,7 +20,7 @@ const {
    * Layout type for the sidebar.
    * Determines whether the sidebar should behave in 'client' or 'reference' mode.
    */
-  layout: 'client' | 'reference'
+  layout: Layout
   /**
    * List of items to render in the sidebar.
    */
@@ -103,7 +104,7 @@ const handleDragEnd = (
         <slot name="before" />
 
         <SidebarItem
-          v-for="item in items"
+          v-for="item in filterItems(layout, items)"
           :key="item.id"
           :isDraggable="layout === 'client'"
           :isDroppable="isDroppable"

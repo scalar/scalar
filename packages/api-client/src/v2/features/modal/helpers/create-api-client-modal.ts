@@ -1,4 +1,5 @@
 import { useModal } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp, reactive } from 'vue'
 
@@ -17,9 +18,9 @@ export type CreateApiClientModalOptions = {
 }
 
 /** Payload for routing and opening the API client modal */
-type RoutePayload = {
+export type RoutePayload = {
   path: string
-  method: string
+  method: HttpMethod
   example?: string
   documentSlug?: string
 }
@@ -32,15 +33,15 @@ export type ActiveEntities = Required<RoutePayload>
  * The new API Client Modal doesn't require a router, instead we can "route" by setting the active entities directly
  */
 export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = true }: CreateApiClientModalOptions) => {
-  const defaultEntities = {
+  const defaultEntities: RoutePayload = {
     path: 'default',
-    method: 'default',
+    method: 'get',
     example: 'default',
     documentSlug: workspaceStore.workspace['x-scalar-active-document'] || 'default',
   }
 
   /** Current active entities */
-  const activeEntities = reactive(defaultEntities)
+  const activeEntities: RoutePayload = reactive(defaultEntities)
 
   /** Controls the visibility of the modal */
   const modalState = useModal()
@@ -49,6 +50,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   const app = createApp(Modal, {
     workspaceStore,
     modalState,
+    routePayload: activeEntities,
   } satisfies ModalProps)
 
   // Set an id prefix for useId so we don't have collisions with other Vue apps

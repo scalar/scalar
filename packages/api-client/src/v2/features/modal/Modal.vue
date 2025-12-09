@@ -1,7 +1,10 @@
 <script lang="ts">
 export type ModalProps = {
-  // eslint-disable-next-line vue/no-unused-properties
+  /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
+  /** Payload for routing and opening the API client modal */
+  routePayload: RoutePayload
+  /** Controls the visibility of the modal */
   modalState: ModalState
 }
 
@@ -20,8 +23,10 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
+  computed,
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
@@ -30,7 +35,13 @@ import {
   watch,
 } from 'vue'
 
-const { modalState } = defineProps<ModalProps>()
+import { Sidebar } from '@/v2/components/sidebar'
+import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
+import { useSidebarState } from '@/v2/features/modal/hooks/use-sidebar-state'
+import Operation from '@/v2/features/operation/Operation.vue'
+import type { Workspace } from '@/v2/hooks/use-workspace-selector'
+
+const { modalState, routePayload, workspaceStore } = defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -90,10 +101,45 @@ onBeforeMount(() => addScalarClassesToHeadless())
 onBeforeUnmount(() => {
   cleanUpListeners()
 })
+
+/** Workspace event bus for handling workspace-level events. */
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
+
+const worksapceDocument = computed(
+  () => workspaceStore.workspace.documents[routePayload.documentSlug ?? ''],
+)
+
+const activeWorkspace: Workspace = {
+  name: 'default',
+  id: 'default',
+}
+
+/** Controls the visibility of the sidebar. */
+const isSidebarOpen = ref(true)
+
+/** Default sidebar width in pixels. */
+const DEFAULT_SIDEBAR_WIDTH = 288
+
+/** Width of the sidebar, with fallback to default. */
+const sidebarWidth = computed(
+  () =>
+    workspaceStore?.workspace?.['x-scalar-sidebar-width'] ??
+    DEFAULT_SIDEBAR_WIDTH,
+)
+
+/** Handler for sidebar width changes. */
+const handleSidebarWidthUpdate = (width: number) =>
+  workspaceStore?.update('x-scalar-sidebar-width', width)
+
+/** Sidebar state and selection handling. */
+const sidebarState = useSidebarState(() => worksapceDocument.value)
 </script>
 
 <template>
   <div
+    v-if="worksapceDocument"
     v-show="modalState.open"
     class="scalar scalar-app">
     <div class="scalar-container">
@@ -106,30 +152,51 @@ onBeforeUnmount(() => {
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
-          <main class="flex flex-1 flex-row">
-            <!-- <Sidebar
-              :activeWorkspace="{ name: 'Default', id: 'default' }"
-              :workspaces="[]"
-              v-show="isSidebarOpen"
+          <main class="flex flex-1">
+            <Sidebar
               v-model:isSidebarOpen="isSidebarOpen"
+              v-model:sidebarWidth="sidebarWidth"
+              :activeWorkspace="activeWorkspace"
+              :documents="[worksapceDocument]"
+              :eventBus="eventBus"
+              :isDroppable="false"
               layout="modal"
-              :sidebarState="sidebarState"
-              :sidebarWidth="
-                workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
-              "
-              @update:sidebarWidth="
-                (width) =>
-                  workspaceStore.update('x-scalar-sidebar-width', width)
-              " /> -->
-
-            <!-- Insert the operation page here -->
-            Insert operation page here
+              :sidebarState="sidebarState.state"
+              :workspaces="[]"
+              @update:sidebarWidth="handleSidebarWidthUpdate"></Sidebar>
+            <Operation
+              :activeWorkspace="activeWorkspace"
+              class="flex-1"
+              :document="worksapceDocument"
+              :documentSlug="routePayload.documentSlug ?? ''"
+              :environment="{
+                color: 'blue',
+                variables: [],
+                description: 'Test Environment',
+              }"
+              :eventBus="eventBus"
+              :exampleName="routePayload.example"
+              layout="modal"
+              :method="routePayload.method"
+              :path="routePayload.path"
+              :workspaceStore="workspaceStore" />
           </main>
         </ScalarTeleportRoot>
       </div>
       <div
         class="scalar-app-exit"
         @click="modalState.hide()"></div>
+    </div>
+  </div>
+  <div v-else>
+    <div class="scalar-container"></div>
+    <div class="scalar-app-layout">
+      <div class="scalar-app-header">
+        <h1>Document not found</h1>
+      </div>
+      <div class="scalar-app-body">
+        <p>The document you are looking for does not exist.</p>
+      </div>
     </div>
   </div>
 </template>

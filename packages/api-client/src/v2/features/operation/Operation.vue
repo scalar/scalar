@@ -76,6 +76,7 @@ const authMeta = computed<AuthMeta>(() => {
   } as const
 })
 
+// eslint-disable-next-line no-undef
 const APP_VERSION = PACKAGE_VERSION
 
 const router = useRouter()

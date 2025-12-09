@@ -108,7 +108,6 @@ useColorMode({ workspaceStore: store })
 /** Sidebar state and selection handling. */
 const sidebarState = useSidebarState({
   workspaceStore: store,
-  workspaceSlug,
   documentSlug,
   path,
   method,
