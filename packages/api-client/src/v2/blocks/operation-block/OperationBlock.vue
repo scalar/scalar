@@ -141,7 +141,7 @@ const handleUpdatePath = (payload: { value: string }) =>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
     <div
-      class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
+      class="lg:min-h-header flex w-full flex-wrap items-center justify-center">
       <!-- Address Bar -->
       <Header
         :documentUrl

@@ -88,6 +88,7 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
       :exampleKey="exampleName"
