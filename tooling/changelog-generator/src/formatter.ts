@@ -22,7 +22,7 @@ function containsPRLink(text: string): boolean {
   return prLinkPattern.test(text.trim())
 }
 
-export function getPRLink(githubInfo: GitHubInfo | null): string | null {
+function getPRLink(githubInfo: GitHubInfo | null): string | null {
   if (!githubInfo || !githubInfo.links.pull) {
     return null
   }
