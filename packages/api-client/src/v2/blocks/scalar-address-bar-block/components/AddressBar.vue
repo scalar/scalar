@@ -36,6 +36,7 @@ const {
   eventBus,
   history,
   server,
+  servers,
   environment,
   percentage = 100,
 } = defineProps<{
@@ -76,6 +77,9 @@ const style = computed(() => ({
 const pathConflict = ref<string | null>(null)
 const methodConflict = ref<HttpMethodType | null>(null)
 
+/** Whether there is a path or method conflict */
+const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
@@ -113,12 +117,10 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
 /** Update the operation's path, handling conflicts */
-const handlePathChange = (newPath: string): void => {
-  console.log('handlePathChange', newPath)
+const handlePathChange = (newPath: string): void =>
   emitPathMethodUpdate(methodConflict.value ?? method, newPath, {
     debounceKey: `operation:update:pathMethod-${path}-${method}`,
   })
-}
 
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
@@ -128,7 +130,7 @@ const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
 ) => {
-  // if its already has focus we just propagate native behaviour which should focus the browser address bar
+  // If it already has focus we just propagate native behaviour which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
@@ -160,7 +162,7 @@ defineExpose({
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
-        'outline-c-danger outline': methodConflict || pathConflict,
+        'outline-c-danger outline': hasConflict,
       }">
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
@@ -230,7 +232,7 @@ defineExpose({
         :target="id" />
       <!-- Error message -->
       <div
-        v-if="methodConflict || pathConflict"
+        v-if="hasConflict"
         class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
