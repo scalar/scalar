@@ -42,12 +42,14 @@ export const useSidebarState = ({
   path,
   method,
   exampleName,
+  singleDocument,
 }: {
   workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
   exampleName: MaybeRefOrGetter<string | undefined>
+  singleDocument?: boolean
 }): UseSidebarStateReturn => {
   const router = useRouter()
 
@@ -55,6 +57,12 @@ export const useSidebarState = ({
     const store = toValue(workspaceStore)
     if (!store) {
       return []
+    }
+
+    const documentName = toValue(documentSlug) ?? ''
+
+    if (singleDocument) {
+      return store.workspace.documents[documentName]?.['x-scalar-navigation']?.children ?? []
     }
 
     const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)

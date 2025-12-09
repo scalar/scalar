@@ -43,11 +43,15 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   /** Current active entities */
   const activeEntities: RoutePayload = reactive(defaultEntities)
 
+  /** "Route" to the specified path, method and example */
+  const route = (payload: RoutePayload) => Object.assign(activeEntities, defaultEntities, payload)
+
   /** Controls the visibility of the modal */
   const modalState = useModal()
 
   // Pass in our initial props at the top level
   const app = createApp(Modal, {
+    route,
     workspaceStore,
     modalState,
     routePayload: activeEntities,
@@ -72,9 +76,6 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   if (mountOnInitialize) {
     mount()
   }
-
-  /** "Route" to the specified path, method and example */
-  const route = (payload: RoutePayload) => Object.assign(activeEntities, defaultEntities, payload)
 
   return {
     /** The vue app instance for the modal, be careful with this */

@@ -1,5 +1,7 @@
 <script lang="ts">
 export type ModalProps = {
+  /** The route function to use for navigation */
+  route: (payload: RoutePayload) => void
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
   /** Payload for routing and opening the API client modal */
@@ -37,11 +39,14 @@ import {
 
 import { Sidebar } from '@/v2/components/sidebar'
 import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
-import { useSidebarState } from '@/v2/features/modal/hooks/use-sidebar-state'
+import { handleModalNavigation } from '@/v2/features/modal/helpers/handle-modal-navigation'
 import Operation from '@/v2/features/operation/Operation.vue'
+import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
+import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
-const { modalState, routePayload, workspaceStore } = defineProps<ModalProps>()
+const { modalState, routePayload, workspaceStore, route } =
+  defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -52,16 +57,38 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-// TODO: replace me
-// We probably will not use a router/sidebar for modal mode
-// const { sidebarState } = useSidebarState({
-//   workspaceStore,
-//   workspaceSlug: 'default',
-//   documentSlug: '',
-//   exampleName: '',
-//   method: 'get',
-//   path: '',
-// })
+/** Workspace event bus for handling workspace-level events. */
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
+
+const document = computed(
+  () =>
+    workspaceStore.workspace.documents[routePayload.documentSlug ?? ''] ?? null,
+)
+
+const activeWorkspace: Workspace = {
+  name: 'default',
+  id: 'default',
+}
+
+/** Sidebar state and selection handling. */
+const sidebarState = useSidebarState({
+  workspaceStore,
+  documentSlug: routePayload.documentSlug,
+  path: routePayload.path,
+  method: routePayload.method,
+  exampleName: routePayload.example,
+  singleDocument: true,
+})
+
+const handleSelectItem = (id: string) => {
+  handleModalNavigation({
+    id,
+    route,
+    sidebarState: sidebarState.state,
+  })
+}
 
 /**
  * Close the modal on escape
@@ -73,7 +100,7 @@ const onEscape = (ev: KeyboardEvent) => ev.key === 'Escape' && modalState.hide()
 /** Clean up listeners on modal close and unmount */
 const cleanUpListeners = () => {
   window.removeEventListener('keydown', onEscape)
-  document.documentElement.style.removeProperty('overflow')
+  window.document.documentElement.style.removeProperty('overflow')
   deactivateFocusTrap()
 }
 
@@ -85,7 +112,7 @@ watch(
       window.addEventListener('keydown', onEscape)
 
       // Disable scrolling
-      document.documentElement.style.overflow = 'hidden'
+      window.document.documentElement.style.overflow = 'hidden'
 
       // Focus trap the modal
       activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
@@ -95,29 +122,24 @@ watch(
   },
 )
 
+/** Controls the visibility of the sidebar. */
+const isSidebarOpen = ref(true)
+
+/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
+useWorkspaceClientEvents({
+  eventBus,
+  document,
+  workspaceStore: ref(workspaceStore),
+  isSidebarOpen,
+  sidebarState,
+})
+
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
 
 onBeforeUnmount(() => {
   cleanUpListeners()
 })
-
-/** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus({
-  debug: import.meta.env.DEV,
-})
-
-const worksapceDocument = computed(
-  () => workspaceStore.workspace.documents[routePayload.documentSlug ?? ''],
-)
-
-const activeWorkspace: Workspace = {
-  name: 'default',
-  id: 'default',
-}
-
-/** Controls the visibility of the sidebar. */
-const isSidebarOpen = ref(true)
 
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
@@ -132,14 +154,11 @@ const sidebarWidth = computed(
 /** Handler for sidebar width changes. */
 const handleSidebarWidthUpdate = (width: number) =>
   workspaceStore?.update('x-scalar-sidebar-width', width)
-
-/** Sidebar state and selection handling. */
-const sidebarState = useSidebarState(() => worksapceDocument.value)
 </script>
 
 <template>
   <div
-    v-if="worksapceDocument"
+    v-if="document"
     v-show="modalState.open"
     class="scalar scalar-app">
     <div class="scalar-container">
@@ -157,17 +176,18 @@ const sidebarState = useSidebarState(() => worksapceDocument.value)
               v-model:isSidebarOpen="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
-              :documents="[worksapceDocument]"
+              :documents="[document]"
               :eventBus="eventBus"
               :isDroppable="false"
               layout="modal"
               :sidebarState="sidebarState.state"
               :workspaces="[]"
+              @selectItem="handleSelectItem"
               @update:sidebarWidth="handleSidebarWidthUpdate"></Sidebar>
             <Operation
               :activeWorkspace="activeWorkspace"
               class="flex-1"
-              :document="worksapceDocument"
+              :document="document"
               :documentSlug="routePayload.documentSlug ?? ''"
               :environment="{
                 color: 'blue',
