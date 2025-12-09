@@ -1,4 +1,4 @@
-import { replaceEnvVariables, replaceVariables } from '@scalar/helpers/regex/replace-variables'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
