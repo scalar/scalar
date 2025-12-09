@@ -1,5 +1,16 @@
 # @scalar/workspace-store
 
+## 0.22.1
+
+### Patch Changes
+
+- [#7476](https://github.com/scalar/scalar/pull/7476) [`8842799`](https://github.com/scalar/scalar/commit/884279984b144082e85b699014e77ed71e9ae6a5) Thanks [@amritk](https://github.com/amritk)! - fix: remove slugging from path in operation id generation
+
+- Updated dependencies [[`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a)]:
+  - @scalar/helpers@0.2.0
+  - @scalar/json-magic@0.8.4
+  - @scalar/object-utils@1.2.14
+
 ## 0.22.0
 
 ### Minor Changes

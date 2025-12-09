@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.0
+
+### Minor Changes
+
+- [#7477](https://github.com/scalar/scalar/pull/7477) [`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: correctly sort documents on the workspace
+
 ## 0.1.3
 
 ### Patch Changes
