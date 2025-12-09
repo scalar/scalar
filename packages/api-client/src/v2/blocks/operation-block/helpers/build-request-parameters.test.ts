@@ -600,6 +600,31 @@ describe('buildRequestParameters', () => {
     })
   })
 
+  describe('environment variable replacement', () => {
+    it('replaces env var in parameter value', () => {
+      const params = [
+        createParameter({ name: 'X-Api-Key', in: 'header', value: '{{apiKey}}' }, { default: { value: '{{apiKey}}' } }),
+      ]
+
+      const result = buildRequestParameters(params, { apiKey: 'secret-key-123' })
+
+      expect(result.headers['X-Api-Key']).toBe('secret-key-123')
+    })
+
+    it('replaces env var in parameter name', () => {
+      const params = [
+        createParameter(
+          { name: '{{headerName}}', in: 'header', value: 'my-value' },
+          { default: { value: 'my-value' } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params, { headerName: 'X-Custom-Header' })
+
+      expect(result.headers['X-Custom-Header']).toBe('my-value')
+    })
+  })
+
   describe('edge cases', () => {
     it('handles parameter with undefined value', () => {
       const params = [

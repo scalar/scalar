@@ -50,27 +50,28 @@ export const buildRequestParameters = (
         return acc
       }
 
-      /** Replace environment variables in the example value */
+      /** Replace environment variables in the key and value */
       const replacedValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
+      const paramName = replaceEnvVariables(param.name, env)
 
       // Handle headers
       if (param.in === 'header') {
-        const lowerCaseKey = param.name.trim().toLowerCase()
+        const lowerCaseKey = paramName.trim().toLowerCase()
 
         // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
         if (lowerCaseKey !== 'content-type' || example.value !== 'multipart/form-data') {
           // headers only support simple style which means we separate the value by commas for multiple values
-          if (acc.headers[param.name]) {
-            acc.headers[param.name] += `,${replacedValue}`
+          if (acc.headers[paramName]) {
+            acc.headers[paramName] += `,${replacedValue}`
           } else {
-            acc.headers[param.name] = replacedValue
+            acc.headers[paramName] = replacedValue
           }
         }
       }
 
       // Handle path parameters
       if (param.in === 'path') {
-        acc.pathVariables[param.name] = replacedValue
+        acc.pathVariables[paramName] = replacedValue
       }
 
       // Handle query parameters (currently array only)
@@ -83,19 +84,19 @@ export const buildRequestParameters = (
 
         // explode=true only supported on form style
         if (explode) {
-          acc.urlParams.append(param.name, replacedValue)
+          acc.urlParams.append(paramName, replacedValue)
         }
 
         // handle the rest of the array styles
         else {
-          const existingValue = acc.urlParams.get(param.name)
+          const existingValue = acc.urlParams.get(paramName)
 
           // If the parameter already has a value, append the new value with the delimiter
           if (existingValue) {
             const delimiter = getDelimiter(style)
-            acc.urlParams.set(param.name, `${existingValue}${delimiter}${replacedValue}`)
+            acc.urlParams.set(paramName, `${existingValue}${delimiter}${replacedValue}`)
           } else {
-            acc.urlParams.set(param.name, replacedValue)
+            acc.urlParams.set(paramName, replacedValue)
           }
         }
       }
@@ -104,8 +105,8 @@ export const buildRequestParameters = (
       if (param.in === 'cookie') {
         acc.cookies.push(
           coerceValue(xScalarCookieSchema, {
-            name: param.name,
-            value: replaceVariables(example.value, env),
+            name: paramName,
+            value: replaceEnvVariables(example.value, env),
             path: '/',
           }),
         )
