@@ -387,6 +387,7 @@ export const updateOperationPathMethod = (
   // Prevent assigning dangerous keys to the path items object
   preventPollution(finalPath)
   preventPollution(meta.path)
+  preventPollution(finalMethod)
 
   // Move the operation to the new location
   document.paths[finalPath][finalMethod] = unpackProxyObject(operation)
