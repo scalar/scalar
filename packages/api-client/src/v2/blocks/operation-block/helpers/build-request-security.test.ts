@@ -152,7 +152,7 @@ describe('buildRequestSecurity', () => {
     })
 
     it('replaces environment variables in basic auth credentials', () => {
-      basic['x-scalar-secret-username'] = '{USERNAME}'
+      basic['x-scalar-secret-username'] = '{{USERNAME}}'
       basic['x-scalar-secret-password'] = '{{PASSWORD}}'
       const env = { USERNAME: 'admin', PASSWORD: 'super-secret' }
 
