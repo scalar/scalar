@@ -5,7 +5,7 @@ export type ModalProps = {
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
   /** Payload for routing and opening the API client modal */
-  routePayload: RoutePayload
+  routePayload: ComputedRef<Partial<RoutePayload>>
   /** Controls the visibility of the modal */
   modalState: ModalState
 }
@@ -35,6 +35,7 @@ import {
   ref,
   useId,
   watch,
+  type ComputedRef,
 } from 'vue'
 
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
@@ -66,7 +67,8 @@ const eventBus = createWorkspaceEventBus({
 
 const document = computed(
   () =>
-    workspaceStore.workspace.documents[routePayload.documentSlug ?? ''] ?? null,
+    workspaceStore.workspace.documents[routePayload.value.documentSlug ?? ''] ??
+    null,
 )
 
 const activeWorkspace: Workspace = {
@@ -77,10 +79,10 @@ const activeWorkspace: Workspace = {
 /** Sidebar state and selection handling. */
 const sidebarState = useSidebarState({
   workspaceStore,
-  documentSlug: routePayload.documentSlug,
-  path: routePayload.path,
-  method: routePayload.method,
-  exampleName: routePayload.example,
+  documentSlug: routePayload.value.documentSlug,
+  path: routePayload.value.path,
+  method: routePayload.value.method,
+  exampleName: routePayload.value.example,
   singleDocument: true,
 })
 
@@ -181,8 +183,11 @@ const environment = computed(() =>
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
+          <!-- If we have a document, path and method, render the operation -->
           <main
-            v-if="document"
+            v-if="
+              document && routePayload.value.path && routePayload.value.method
+            "
             class="relative flex flex-1">
             <SidebarToggle
               v-model="isSidebarOpen"
@@ -203,13 +208,13 @@ const environment = computed(() =>
               :activeWorkspace="activeWorkspace"
               class="flex-1"
               :document="document"
-              :documentSlug="routePayload.documentSlug ?? ''"
+              :documentSlug="routePayload.value.documentSlug ?? ''"
               :environment="environment"
               :eventBus="eventBus"
-              :exampleName="routePayload.example"
+              :exampleName="routePayload.value.example"
               layout="modal"
-              :method="routePayload.method"
-              :path="routePayload.path"
+              :method="routePayload.value.method"
+              :path="routePayload.value.path"
               :workspaceStore="workspaceStore" />
           </main>
           <!-- Empty state -->
