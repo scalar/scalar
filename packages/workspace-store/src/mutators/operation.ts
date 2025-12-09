@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
@@ -385,13 +386,14 @@ export const updateOperationPathMethod = (
 
   // Prevent assigning dangerous keys to the path items object
   preventPollution(finalPath)
+  preventPollution(meta.path)
 
   // Move the operation to the new location
   document.paths[finalPath][finalMethod] = unpackProxyObject(operation)
 
   // Remove the operation from the old location
   const oldPathItems = document.paths[meta.path]
-  if (oldPathItems) {
+  if (oldPathItems && isHttpMethod(meta.method)) {
     delete oldPathItems[meta.method]
 
     // If the old path has no more operations, remove the path entry
