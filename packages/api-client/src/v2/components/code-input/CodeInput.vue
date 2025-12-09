@@ -372,7 +372,9 @@ export default {
     class="text-c-2 flex cursor-default items-center justify-center"
     :class="layout === 'modal' ? 'font-code pr-2 pl-1 text-base' : 'px-2'"
     data-testid="code-input-disabled">
-    <span class="whitespace-nowrap">{{ modelValue }}</span>
+    <span class="cm-content cm-gutterElement whitespace-nowrap">{{
+      modelValue
+    }}</span>
   </div>
 
   <!-- Enum mode: select dropdown with predefined values -->

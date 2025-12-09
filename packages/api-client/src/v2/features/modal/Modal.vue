@@ -41,6 +41,7 @@ import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
 import { handleModalNavigation } from '@/v2/features/modal/helpers/handle-modal-navigation'
 import Operation from '@/v2/features/operation/Operation.vue'
+import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
@@ -155,6 +156,15 @@ const sidebarWidth = computed(
 /** Handler for sidebar width changes. */
 const handleSidebarWidthUpdate = (width: number) =>
   workspaceStore?.update('x-scalar-sidebar-width', width)
+
+/**
+ * Merged environment variables from workspace and document levels.
+ * Variables from both sources are combined, with document variables
+ * taking precedence in case of naming conflicts.
+ */
+const environment = computed(() =>
+  getActiveEnvironment(workspaceStore, document.value),
+)
 </script>
 
 <template>
@@ -194,11 +204,7 @@ const handleSidebarWidthUpdate = (width: number) =>
               class="flex-1"
               :document="document"
               :documentSlug="routePayload.documentSlug ?? ''"
-              :environment="{
-                color: 'blue',
-                variables: [],
-                description: 'Test Environment',
-              }"
+              :environment="environment"
               :eventBus="eventBus"
               :exampleName="routePayload.example"
               layout="modal"

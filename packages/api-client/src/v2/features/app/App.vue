@@ -12,11 +12,6 @@ import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  xScalarEnvironmentSchema,
-  type XScalarEnvironment,
-} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
@@ -25,6 +20,7 @@ import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
 import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
@@ -161,33 +157,9 @@ useDocumentWatcher({
  * Variables from both sources are combined, with document variables
  * taking precedence in case of naming conflicts.
  */
-const environment = computed<XScalarEnvironment>(() => {
-  if (store.value === null) {
-    return coerceValue(xScalarEnvironmentSchema, {})
-  }
-  const activeEnv = store.value.workspace['x-scalar-active-environment']
-
-  if (!activeEnv) {
-    return coerceValue(xScalarEnvironmentSchema, {})
-  }
-
-  const workspaceEnv = store.value.workspace['x-scalar-environments']?.[
-    activeEnv
-  ] ?? {
-    variables: [],
-  }
-  const documentEnv = document.value?.['x-scalar-environments']?.[
-    activeEnv
-  ] ?? {
-    variables: [],
-  }
-
-  return coerceValue(xScalarEnvironmentSchema, {
-    ...workspaceEnv,
-    ...documentEnv,
-    variables: [...workspaceEnv.variables, ...documentEnv.variables],
-  })
-})
+const environment = computed(() =>
+  getActiveEnvironment(store.value, document.value),
+)
 
 /** Generate the theme style tag for dynamic theme application. */
 const themeStyleTag = computed(() => {
