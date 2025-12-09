@@ -68,10 +68,6 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   request?: Request
   /** Total number of performed requests */
   totalPerformedRequests: number
-  /** Sidebar open state */
-  isSidebarOpen?: boolean
-  /** Controls sidebar visibility */
-  showSidebar?: boolean
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -150,14 +146,12 @@ const handleUpdatePath = (payload: { value: string }) =>
         :hideClientButton
         :history
         :integration
-        :isSidebarOpen
         :layout
         :method
         :path
         :percentage="requestLoadingPercentage"
         :server
         :servers
-        :showSidebar
         :source
         @execute="handleExecute"
         @update:method="handleUpdateMethod"
