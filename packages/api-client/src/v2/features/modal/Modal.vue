@@ -37,7 +37,7 @@ import {
   watch,
 } from 'vue'
 
-import { Sidebar } from '@/v2/components/sidebar'
+import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
 import { handleModalNavigation } from '@/v2/features/modal/helpers/handle-modal-navigation'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -158,7 +158,6 @@ const handleSidebarWidthUpdate = (width: number) =>
 
 <template>
   <div
-    v-if="document"
     v-show="modalState.open"
     class="scalar scalar-app">
     <div class="scalar-container">
@@ -171,9 +170,14 @@ const handleSidebarWidthUpdate = (width: number) =>
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
-          <main class="flex flex-1">
+          <main
+            v-if="document"
+            class="relative flex flex-1">
+            <SidebarToggle
+              v-model="isSidebarOpen"
+              class="absolute top-2 left-3 z-50" />
             <Sidebar
-              v-model:isSidebarOpen="isSidebarOpen"
+              v-show="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
               :documents="[document]"
@@ -201,22 +205,17 @@ const handleSidebarWidthUpdate = (width: number) =>
               :path="routePayload.path"
               :workspaceStore="workspaceStore" />
           </main>
+          <!-- Empty state -->
+          <div
+            v-else
+            class="flex h-full w-full items-center justify-center">
+            <span class="text-c-3">No document selected</span>
+          </div>
         </ScalarTeleportRoot>
       </div>
       <div
         class="scalar-app-exit"
         @click="modalState.hide()"></div>
-    </div>
-  </div>
-  <div v-else>
-    <div class="scalar-container"></div>
-    <div class="scalar-app-layout">
-      <div class="scalar-app-header">
-        <h1>Document not found</h1>
-      </div>
-      <div class="scalar-app-body">
-        <p>The document you are looking for does not exist.</p>
-      </div>
     </div>
   </div>
 </template>
