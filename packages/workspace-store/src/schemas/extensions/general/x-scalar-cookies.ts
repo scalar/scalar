@@ -4,6 +4,7 @@ export const xScalarCookieSchema = Type.Object({
   name: Type.String(),
   value: Type.String(),
   domain: Type.Optional(Type.String()),
+  path: Type.Optional(Type.String()),
   isDisabled: Type.Optional(Type.Boolean()),
 })
 
@@ -17,9 +18,13 @@ export type XScalarCookie = {
    */
   value: string
   /**
-   * Defines the host to which the cookie will be sent.
+   * Allows this domain and all subdomains, is less restrictive than not setting a domain
    */
   domain?: string
+  /**
+   * Will restrict this cookie to only be sent with requests that contain this path
+   */
+  path?: string
   /**
    * Indicates if the cookie is disabled.
    */
