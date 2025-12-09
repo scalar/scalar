@@ -213,6 +213,237 @@ describe('create-request-operation', () => {
     })
   })
 
+  it('encodes forward slashes in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/files/{path}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'path', value: 'folder/file.txt', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/files/folder%2Ffile.txt',
+    })
+  })
+
+  it('encodes multiple special characters in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/resources/{id}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'id', value: 'user/123?filter=active#top', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/resources/user%2F123%3Ffilter%3Dactive%23top',
+    })
+  })
+
+  it('encodes spaces in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/users/{name}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'name', value: 'John Doe', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    // Server decodes the URL, so we verify it received the encoded value correctly
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/users/John Doe',
+    })
+  })
+
+  it('encodes hash symbols in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/tags/{tag}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'tag', value: '#important', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/tags/%23important',
+    })
+  })
+
+  it('encodes question marks in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/search/{query}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'query', value: 'what?why', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/search/what%3Fwhy',
+    })
+  })
+
+  it('handles empty path parameter values', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/users/{id}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'id', value: '', enabled: true }],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    // Empty value should remain in path placeholder
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/users/{id}',
+    })
+  })
+
+  it('encodes environment variables with special characters in path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/files/{filePath}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [{ key: 'filePath', value: '{{envPath}}', enabled: true }],
+          },
+        },
+      }),
+      environment: { envPath: 'folder/subfolder/file.txt' },
+    })
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    // Forward slashes remain encoded in path (they're path delimiters)
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/files/folder%2Fsubfolder%2Ffile.txt',
+    })
+  })
+
+  it('encodes multiple path parameters', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '/users/{userId}/files/{filePath}' },
+        requestExamplePayload: {
+          parameters: {
+            path: [
+              { key: 'userId', value: 'user#123', enabled: true },
+              { key: 'filePath', value: 'docs/readme.md', enabled: true },
+            ],
+          },
+        },
+      }),
+    )
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/users/user%23123/files/docs%2Freadme.md',
+    })
+  })
+
   it('sends query parameters', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
