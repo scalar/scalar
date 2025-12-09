@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "scalar-build-rollup",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -25,7 +26,8 @@
     "@changesets/types": "^6.1.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "vite": "catalog:*"
   },
   "private": true,
   "license": "MIT"

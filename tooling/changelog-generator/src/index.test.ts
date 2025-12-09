@@ -112,7 +112,7 @@ describe('changelog functions', () => {
 
     expect(output.trim()).toBe(
       [
-        '### Updated Dependencies',
+        '#### Updated Dependencies',
         '',
         '- **@scalar/api-reference@1.0.1**',
         '  - [#10](https://github.com/scalar/scalar/pull/10): Fix api ref',
