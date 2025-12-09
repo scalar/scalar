@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.8.9
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/api-reference@1.40.3
+  - @scalar/types@0.5.2
+
 ## 0.8.8
 
 ### Patch Changes

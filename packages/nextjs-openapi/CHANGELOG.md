@@ -1,5 +1,13 @@
 # @scalar/nextjs-openapi
 
+## 0.2.29
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/types@0.5.2
+  - @scalar/nextjs-api-reference@0.9.5
+
 ## 0.2.28
 
 ### Patch Changes

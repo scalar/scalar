@@ -1,5 +1,12 @@
 # @scalar/astro
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @scalar/core@0.3.26
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/postman-to-openapi
 
+## 0.3.48
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a), [`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722), [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/oas-utils@0.6.7
+  - @scalar/helpers@0.2.1
+  - @scalar/openapi-types@0.5.3
+
 ## 0.3.47
 
 ### Patch Changes

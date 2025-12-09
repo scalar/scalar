@@ -1,5 +1,12 @@
 # @scalar/void-server
 
+## 2.2.13
+
+### Patch Changes
+
+- Updated dependencies [[`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722)]:
+  - @scalar/helpers@0.2.1
+
 ## 2.2.12
 
 ### Patch Changes
