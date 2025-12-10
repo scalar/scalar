@@ -9,7 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import { SidebarMenu } from '@/v2/components/sidebar'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 
 import DownloadAppButton from './DownloadAppButton.vue'
 

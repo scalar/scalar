@@ -4,7 +4,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
 import DesktopTab from '@/v2/features/app/components/DesktopTab.vue'
-import type { UseTabsReturn } from '@/v2/hooks/use-tabs'
+import type { UseTabsReturn } from '@/v2/features/app/hooks/use-tabs'
 
 const { tabsState, eventBus } = defineProps<{
   /** Tabs state */

@@ -7,7 +7,7 @@ import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persist
 import { flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 
-import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
+import { useWorkspaceSelector } from '@/v2/features/app/hooks/use-workspace-selector'
 
 const push = vi.fn()
 

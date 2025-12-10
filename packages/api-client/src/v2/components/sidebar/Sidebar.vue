@@ -13,8 +13,8 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { SearchButton } from '@/v2/features/search'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'

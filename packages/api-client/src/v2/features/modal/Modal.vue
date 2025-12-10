@@ -47,12 +47,12 @@ import {
 } from 'vue'
 
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
 import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
 
