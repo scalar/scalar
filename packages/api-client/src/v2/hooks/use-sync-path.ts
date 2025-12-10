@@ -94,14 +94,22 @@ export const useSyncPath = ({
       // Nagivate to the correct tab if the workspace has a tab already
       const { workspace: client } = result
       const index = client.workspace['x-scalar-active-tab'] ?? 0
-      const tab = client.workspace['x-scalar-tabs']?.[index]
+      const tabs = client.workspace['x-scalar-tabs']
+      const tab = tabs?.[index]
 
       if (tab) {
         await router.replace(tab.path)
       }
 
+      // Heal the active tab index if it is out of bounds
+      if (tabs && index >= tabs.length) {
+        eventBus.emit('tabs:update:tabs', {
+          'x-scalar-active-tab': 0,
+        })
+      }
+
       // Initialize the tabs if they does not exist
-      if (!client.workspace['x-scalar-tabs']) {
+      if (!tabs) {
         eventBus.emit('tabs:update:tabs', {
           'x-scalar-tabs': [tabsState.createTabFromCurrentRoute()],
           'x-scalar-active-tab': 0,
@@ -136,14 +144,16 @@ export const useSyncPath = ({
   watch(
     [() => route.path],
     async () => {
-      // Persist the current path to support reload and workspace session
-      workspaceStorage.setCurrentPath(route.path)
-
       const slug = route.params.workspaceSlug
 
       // If switching to a new workspace, handle loading and navigation
       if (typeof slug === 'string' && slug !== workspaceSelectorState.activeWorkspace.value?.id) {
         return await changeWorkspace(slug)
+      }
+
+      // Only persist the current path if have a selected workspace
+      if (typeof slug === 'string') {
+        workspaceStorage.setCurrentPath(route.path)
       }
 
       // For any route change (including in the same workspace), sync tab state with the route

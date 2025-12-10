@@ -108,7 +108,7 @@ export const closeTab = (workspace: Workspace | null, payload: TabEvents['tabs:c
    * If we closed a tab at the end, the active index needs to move back.
    * This ensures the active tab stays within bounds after removal.
    */
-  if (index >= tabs.length - 1) {
+  if (index >= tabs.length - 2) {
     workspace['x-scalar-active-tab'] = tabs.length - 2
   }
 
