@@ -1183,7 +1183,7 @@ jobs:
       - name: Build and push Aspire Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
-          context: integrations/dotnet/aspire
+          context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
           platforms: |
