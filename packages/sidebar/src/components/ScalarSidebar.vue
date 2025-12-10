@@ -45,7 +45,13 @@ const {
    */
   indent?: number
   /**
-   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   * Prevents this item from being dragged.
+   *
+   * @default true
+   */
+  isDraggable?: UseDraggableOptions['isDraggable']
+  /**
+   * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
    *
    * @default true
    */
@@ -106,7 +112,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="item in filterItems(layout, items)"
           :key="item.id"
-          :isDraggable="layout === 'client'"
+          :isDraggable="isDraggable ?? layout === 'client'"
           :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"

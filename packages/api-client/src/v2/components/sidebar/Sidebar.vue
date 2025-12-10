@@ -77,6 +77,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
       <ScalarSidebar
         class="flex w-auto flex-1 pt-2"
         :indent="15"
+        :isDraggable="layout !== 'modal'"
         :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
