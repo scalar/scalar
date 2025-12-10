@@ -54,7 +54,7 @@ defineProps<{
    */
   itemActiveBackground?: string
   /**
-   * Sets --scalar-sidebar-item-active-color
+   * Sets --scalar-sidebar-color-active
    * @default var(--scalar-color-1)
    */
   itemActiveColor?: string
@@ -105,7 +105,7 @@ const selected = defineModel<string>('selected')
         '--scalar-sidebar-item-hover-background': itemHoverBackground,
         '--scalar-sidebar-item-hover-color': itemHoverColor,
         '--scalar-sidebar-item-active-background': itemActiveBackground,
-        '--scalar-sidebar-item-active-color': itemActiveColor,
+        '--scalar-sidebar-color-active': itemActiveColor,
         '--scalar-sidebar-indent-border': indentBorder,
         '--scalar-sidebar-indent-border-hover': indentBorderHover,
         '--scalar-sidebar-indent-border-active': indentBorderActive,

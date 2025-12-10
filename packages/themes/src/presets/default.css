@@ -42,7 +42,7 @@
   --scalar-sidebar-item-hover-color: currentColor;
 
   --scalar-sidebar-item-active-background: var(--scalar-background-2);
-  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
   --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
   --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
