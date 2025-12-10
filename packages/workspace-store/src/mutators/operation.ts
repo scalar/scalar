@@ -504,7 +504,7 @@ export const deleteOperationExample = (
  *   document,
  *   type: 'query',
  *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
- *   payload: { key: 'q', value: 'john', isEnabled: true },
+ *   payload: { key: 'q', value: 'john', isDisabled: false },
  * })
  * ```
  */
@@ -536,7 +536,7 @@ export const addOperationParameter = (
     examples: {
       [meta.exampleKey]: {
         value: payload.value,
-        'x-disabled': !payload.isEnabled,
+        'x-disabled': Boolean(payload.isDisabled),
       },
     },
   })
@@ -555,7 +555,7 @@ export const addOperationParameter = (
  *   type: 'query',
  *   index: 0,
  *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
- *   payload: { value: 'alice', isEnabled: true },
+ *   payload: { value: 'alice', isDisabled: false },
  * })
  * ```
  */
@@ -599,14 +599,14 @@ export const updateOperationParameter = (
   if (!example) {
     parameter.examples[meta.exampleKey] = {
       value: payload.value ?? '',
-      'x-disabled': payload.isEnabled === undefined ? false : !payload.isEnabled,
+      'x-disabled': Boolean(payload.isDisabled),
     }
     return
   }
 
   // Update existing example value
   example.value = payload.value ?? example?.value ?? ''
-  example['x-disabled'] = payload.isEnabled === undefined ? example['x-disabled'] : !payload.isEnabled
+  example['x-disabled'] = Boolean(payload.isDisabled ?? example['x-disabled'])
 }
 
 /**
@@ -648,8 +648,11 @@ export const deleteOperationParameter = (
 
   const actualIndex = operation.parameters?.findIndex((it) => getResolvedRef(it) === parameter) as number
 
-  // Remove the parameter from the operation
-  operation.parameters?.splice(actualIndex, 1)
+  // We cannot call splice on a proxy object, so we unwrap the array and filter it
+  operation.parameters = unpackProxyObject(
+    operation.parameters?.filter((_, i) => i !== actualIndex),
+    { depth: 1 },
+  )
 }
 
 /**
@@ -810,14 +813,11 @@ export const addOperationRequestBodyFormRow = (
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
 
   let requestBody = getResolvedRef(operation.requestBody)
-
   if (!requestBody) {
     operation.requestBody = {
       content: {},
@@ -836,7 +836,6 @@ export const addOperationRequestBodyFormRow = (
   }
 
   const examples = getResolvedRef(requestBody!.content[contentType]!.examples)
-
   const example = getResolvedRef(examples[meta.exampleKey])
 
   if (!example || !Array.isArray(example.value)) {
@@ -845,6 +844,7 @@ export const addOperationRequestBodyFormRow = (
         {
           name: payload.key,
           value: payload.value,
+          isDisabled: false,
         },
       ],
     }
@@ -855,6 +855,7 @@ export const addOperationRequestBodyFormRow = (
   example.value.push({
     name: payload.key ?? '',
     value: payload.value ?? '',
+    isDisabled: false,
   })
 }
 
@@ -910,8 +911,8 @@ export const updateOperationRequestBodyFormRow = (
   }
 
   example.value[index] = {
-    name: payload.key ?? example.value[index]?.name ?? '',
-    value: payload.value === null ? undefined : (payload.value ?? example.value[index]?.value ?? ''),
+    ...example.value[index],
+    ...payload,
   }
 }
 
@@ -962,7 +963,11 @@ export const deleteOperationRequestBodyFormRow = (
     return
   }
 
-  example.value.splice(index, 1)
+  // We cannot call splice on a proxy object, so we unwrap the array and filter it
+  example.value = unpackProxyObject(
+    example.value.filter((_, i) => i !== index),
+    { depth: 1 },
+  )
 
   if (example.value.length === 0) {
     delete requestBody.content[contentType]!.examples![meta.exampleKey]
