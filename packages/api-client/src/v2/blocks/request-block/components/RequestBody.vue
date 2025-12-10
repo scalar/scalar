@@ -253,7 +253,7 @@ const tableRows = computed(() => {
                   contentType: selectedContentType,
                   index,
                   data: {
-                    value: null,
+                    value: undefined,
                   },
                 })
             "

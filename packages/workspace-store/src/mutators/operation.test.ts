@@ -836,7 +836,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'id', value: '123', isEnabled: false },
+      payload: { key: 'id', value: '123', isDisabled: true },
     })
 
     const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
@@ -1422,7 +1422,7 @@ describe('addOperationRequestBodyFormRow', () => {
     assert(examples)
     const ex = getResolvedRef(examples.default)
     assert(ex && Array.isArray(ex.value))
-    expect(ex.value).toEqual([{ name: 'file', value: expect.any(File) }])
+    expect(ex.value).toEqual([{ name: 'file', value: expect.any(File), isDisabled: false }])
   })
 
   it('appends a new row when example value is already an array', () => {
@@ -1452,7 +1452,7 @@ describe('addOperationRequestBodyFormRow', () => {
     const ex = getResolvedRef(rb.content?.['multipart/form-data']?.examples?.default)
     assert(ex && Array.isArray(ex.value))
     expect(ex.value).toHaveLength(2)
-    expect(ex.value[1]).toEqual({ name: 'description', value: 'Profile picture' })
+    expect(ex.value[1]).toEqual({ name: 'description', value: 'Profile picture', isDisabled: false })
   })
 
   it('no-ops when document is null', () => {
@@ -1479,7 +1479,7 @@ describe('addOperationRequestBodyFormRow', () => {
 })
 
 describe('updateOperationRequestBodyFormRow', () => {
-  it('updates an existing row by index; null value clears to undefined', () => {
+  it('updates an existing row by index; undefined value clears to undefined', () => {
     const document = createDocument({
       paths: {
         '/upload': {
@@ -1503,7 +1503,7 @@ describe('updateOperationRequestBodyFormRow', () => {
       index: 1,
       contentType: 'multipart/form-data',
       meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'desc', value: null },
+      payload: { key: 'desc', value: undefined },
     })
 
     const op = getResolvedRef(document.paths?.['/upload']?.post)
@@ -1511,7 +1511,7 @@ describe('updateOperationRequestBodyFormRow', () => {
     const rb2 = getResolvedRef(op.requestBody)
     const ex = getResolvedRef(rb2?.content?.['multipart/form-data']?.examples?.default)
     assert(ex && Array.isArray(ex.value))
-    expect(ex.value[1]).toEqual({ name: 'desc', value: undefined })
+    expect(ex.value[1]).toEqual({ name: 'desc', value: undefined, isDisabled: false })
   })
 
   it('no-ops when content type or example array is missing', () => {
@@ -1598,7 +1598,7 @@ describe('deleteOperationRequestBodyFormRow', () => {
     const ex = getResolvedRef(rb4?.content?.['multipart/form-data']?.examples?.default)
     assert(ex && Array.isArray(ex.value))
     expect(ex.value).toHaveLength(1)
-    expect(ex.value[0]).toEqual({ name: 'b', value: '2' })
+    expect(ex.value[0]).toEqual({ name: 'b', value: '2', isDisabled: false })
   })
 
   it('no-ops when document is null or operation does not exist', () => {
