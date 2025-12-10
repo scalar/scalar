@@ -51,6 +51,7 @@ import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
+import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
 import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
@@ -89,6 +90,9 @@ useWorkspaceClientModalEvents({
   modalState,
 })
 
+/** Register global hotkeys for the app, passing the workspace event bus and layout state */
+useGlobalHotKeys(eventBus, 'modal')
+
 const client = ref<HTMLElement | null>(null)
 const id = useId()
 
@@ -98,16 +102,8 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-/**
- * Close the modal on escape
- *
- * We must add a global listener here becuase sometimes the focus will be shifted to the body
- */
-const onEscape = (ev: KeyboardEvent) => ev.key === 'Escape' && modalState.hide()
-
 /** Clean up listeners on modal close and unmount */
 const cleanUpListeners = () => {
-  window.removeEventListener('keydown', onEscape)
   window.document.documentElement.style.removeProperty('overflow')
   deactivateFocusTrap()
 }
@@ -116,9 +112,6 @@ watch(
   () => modalState.open,
   (open) => {
     if (open) {
-      // Add the escape key listener
-      window.addEventListener('keydown', onEscape)
-
       // Disable scrolling
       window.document.documentElement.style.overflow = 'hidden'
 
