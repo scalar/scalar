@@ -7,6 +7,7 @@ import { filterItems } from './filter-items'
 describe('filter-items', () => {
   it('returns all items for reference layout', () => {
     const items: Item[] = [
+      { id: '0', title: 'Document', type: 'document', name: 'test-document' },
       { id: '1', title: 'Description', type: 'text' },
       { id: '2', title: 'Operation', type: 'operation', method: 'get', path: '/test', ref: '' },
       { id: '3', title: 'Schema', type: 'model', name: 'TestSchema', ref: '' },
@@ -18,11 +19,12 @@ describe('filter-items', () => {
     const result = filterItems('reference', items)
 
     expect(result).toEqual(items)
-    expect(result).toHaveLength(6)
+    expect(result).toHaveLength(7)
   })
 
-  it('filters to only operations, examples, and tags for client layout', () => {
+  it('filters to only documents, operations, examples, and tags for client layout', () => {
     const items: Item[] = [
+      { id: '0', title: 'Document', type: 'document', name: 'test-document' },
       { id: '1', title: 'Description', type: 'text' },
       { id: '2', title: 'Operation', type: 'operation', method: 'get', path: '/test', ref: '' },
       { id: '3', title: 'Schema', type: 'model', name: 'TestSchema', ref: '' },
@@ -33,8 +35,9 @@ describe('filter-items', () => {
 
     const result = filterItems('client', items)
 
-    expect(result).toHaveLength(3)
+    expect(result).toHaveLength(4)
     expect(result).toEqual([
+      { id: '0', title: 'Document', type: 'document', name: 'test-document' },
       { id: '2', title: 'Operation', type: 'operation', method: 'get', path: '/test', ref: '' },
       { id: '4', title: 'Tag', type: 'tag', name: 'test-tag', isGroup: false },
       { id: '6', title: 'Example', type: 'example', name: 'example-1' },
