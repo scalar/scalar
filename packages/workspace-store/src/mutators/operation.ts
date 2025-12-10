@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
@@ -910,9 +911,9 @@ export const updateOperationRequestBodyFormRow = (
     return
   }
 
-  example.value[index] = {
-    ...example.value[index],
-    ...payload,
+  // Only set the properties that are present in the payload
+  for (const key of objectKeys(payload)) {
+    example.value[index][key === 'key' ? 'name' : key] = payload[key]
   }
 }
 

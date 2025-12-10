@@ -810,7 +810,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'john', isEnabled: true },
+      payload: { key: 'q', value: 'john', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -855,7 +855,7 @@ describe('addOperationParameter', () => {
       addOperationParameter(null, {
         type: 'query',
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
-        payload: { key: 'q', value: 'x', isEnabled: true },
+        payload: { key: 'q', value: 'x', isDisabled: false },
       }),
     ).not.toThrow()
   })
@@ -870,7 +870,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
-      payload: { key: 'q', value: 'x', isEnabled: true },
+      payload: { key: 'q', value: 'x', isDisabled: false },
     })
 
     expect(document.paths?.['/missing']).toEqual({})
@@ -893,20 +893,20 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
 
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'p', value: 'two', isEnabled: false },
+      payload: { key: 'p', value: 'two', isDisabled: false },
     })
 
     updateOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isEnabled: true },
+      payload: { key: 'page', value: '2', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -940,7 +940,7 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
 
     updateOperationParameter(document, {
@@ -971,14 +971,14 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
 
     updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
-      payload: { key: 'query', value: 'new value', isEnabled: false },
+      payload: { key: 'query', value: 'new value', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1004,12 +1004,12 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'abc', isEnabled: true },
+      payload: { key: 'X-Trace', value: 'abc', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
 
     // index 0 for type 'query' refers to the second element in the raw array
@@ -1073,17 +1073,17 @@ describe('deleteOperationParameter', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'a', isEnabled: true },
+      payload: { key: 'X-Trace', value: 'a', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isEnabled: true },
+      payload: { key: 'page', value: '2', isDisabled: false },
     })
 
     // Delete the second query (index 1 within filtered query params)
@@ -1142,22 +1142,22 @@ describe('deleteAllOperationParameters', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'a', isEnabled: true },
+      payload: { key: 'X-Trace', value: 'a', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isEnabled: true },
+      payload: { key: 'q', value: 'one', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isEnabled: true },
+      payload: { key: 'page', value: '2', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'id', value: '123', isEnabled: true },
+      payload: { key: 'id', value: '123', isDisabled: false },
     })
 
     deleteAllOperationParameters(document, {
