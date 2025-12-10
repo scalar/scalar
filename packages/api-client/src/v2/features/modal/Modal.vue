@@ -102,9 +102,17 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
+/** Stores the initial overflow value to restore when modal closes */
+const initialOverflow = ref<string | null>(null)
+
 /** Clean up listeners on modal close and unmount */
 const cleanUpListeners = () => {
-  window.document.documentElement.style.removeProperty('overflow')
+  if (initialOverflow.value === null) {
+    window.document.documentElement.style.removeProperty('overflow')
+  } else {
+    window.document.documentElement.style.overflow = initialOverflow.value
+  }
+  initialOverflow.value = null
   deactivateFocusTrap()
 }
 
@@ -112,6 +120,10 @@ watch(
   () => modalState.open,
   (open) => {
     if (open) {
+      // Save initial overflow value before disabling scrolling
+      initialOverflow.value =
+        window.document.documentElement.style.overflow ?? null
+
       // Disable scrolling
       window.document.documentElement.style.overflow = 'hidden'
 
