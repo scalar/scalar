@@ -152,6 +152,11 @@ const handleSidebarWidthUpdate = (width: number) =>
 const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document.value),
 )
+
+defineExpose({
+  sidebarWidth,
+  environment,
+})
 </script>
 
 <template>

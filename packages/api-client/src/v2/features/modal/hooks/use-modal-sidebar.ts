@@ -5,7 +5,7 @@ import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 
-import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
+import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { generateLocationId } from '@/v2/helpers/generate-location-id'
 
 export type UseModalSidebarReturn = {
