@@ -7,14 +7,14 @@ import type { WorkspaceDocument } from '@/schemas'
 import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
+  createOperation,
   deleteAllOperationParameters,
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
-  updateOperationMethod,
   updateOperationParameter,
-  updateOperationPath,
+  updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormRow,
@@ -75,7 +75,7 @@ describe('updateOperationSummary', () => {
   })
 })
 
-describe('updateOperationMethod', () => {
+describe('updateOperationPathMethod (method only)', () => {
   const store = createWorkspaceStore()
 
   it('replaces the x-scalar-order with the new ID', async () => {
@@ -102,11 +102,16 @@ describe('updateOperationMethod', () => {
     const document = store.workspace.documents.test!
     expect(document['x-scalar-order']).toStrictEqual(['test/GET/users', 'test/POST/users'])
 
-    updateOperationMethod(document, store, {
-      meta: { method: 'get', path: '/users', exampleKey: 'default' },
-      payload: { method: 'put' },
-    })
-
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users' },
+        payload: { method: 'put', path: '/users' },
+        callback: (_status) => {},
+      },
+      (_status) => {},
+    )
     expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
 
     // The operation should now be under 'put'
@@ -167,10 +172,16 @@ describe('updateOperationMethod', () => {
       'test2/tag/products/DELETE/products',
     ])
 
-    updateOperationMethod(document, store, {
-      meta: { method: 'get', path: '/products', exampleKey: 'default' },
-      payload: { method: 'patch' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/products' },
+        payload: { method: 'patch', path: '/products' },
+        callback: (_status) => {},
+      },
+      (_status) => {},
+    )
 
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
       'test2/tag/products/PATCH/products',
@@ -211,43 +222,58 @@ describe('updateOperationMethod', () => {
     store.buildSidebar('test3')
     const document = store.workspace.documents.test3!
 
-    let callbackResult: boolean | undefined
+    let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
 
-    updateOperationMethod(
+    updateOperationPathMethod(
       document,
       store,
       {
-        meta: { method: 'get', path: '/items', exampleKey: 'default' },
-        payload: { method: 'post' },
+        meta: { method: 'get', path: '/items' },
+        payload: { method: 'post', path: '/items' },
+        callback: (status) => {
+          callbackResult = status
+        },
       },
-      (success) => {
-        callbackResult = success
+      (status) => {
+        callbackResult = status
       },
     )
 
-    expect(callbackResult).toBe(true)
+    expect(callbackResult).toBe('success')
     expect(document.paths?.['/items']?.post).toBeDefined()
     expect(document.paths?.['/items']?.get).toBeUndefined()
   })
 })
 
-describe('updateOperationPath', () => {
-  it('moves operation to a new path and removes from old path', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            description: 'Retrieve all users',
+describe('updateOperationPathMethod (path only)', () => {
+  it('moves operation to a new path and removes from old path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              description: 'Retrieve all users',
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { path: '/api/users' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users' },
+        payload: { method: 'get', path: '/api/users' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/api/users': {
@@ -259,35 +285,47 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('preserves all operation properties when moving to new path', () => {
-    const document = createDocument({
-      paths: {
-        '/posts': {
-          post: {
-            summary: 'Create post',
-            description: 'Creates a new post',
-            operationId: 'createPost',
-            tags: ['posts'],
-            parameters: [{ name: 'X-Api-Key', in: 'header' }],
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: { type: 'object' },
+  it('preserves all operation properties when moving to new path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/posts': {
+            post: {
+              summary: 'Create post',
+              description: 'Creates a new post',
+              operationId: 'createPost',
+              tags: ['posts'],
+              parameters: [{ name: 'X-Api-Key', in: 'header' }],
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: { type: 'object' },
+                  },
                 },
               },
-            },
-            responses: {
-              '201': { description: 'Created' },
+              responses: {
+                '201': { description: 'Created' },
+              },
             },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'post', path: '/posts' },
-      payload: { path: '/api/v2/posts' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'post', path: '/posts' },
+        payload: { method: 'post', path: '/api/v2/posts' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/api/v2/posts': {
@@ -312,24 +350,36 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('keeps other operations on old path when moving one operation', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-          },
-          post: {
-            summary: 'Create user',
+  it('keeps other operations on old path when moving one operation', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+            post: {
+              summary: 'Create user',
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { path: '/api/users' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users' },
+        payload: { method: 'get', path: '/api/users' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/users': {
@@ -345,25 +395,37 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('maintains the path params', () => {
-    const document = createDocument({
-      paths: {
-        '/users/{id}': {
-          get: {
-            summary: 'Get users',
-            parameters: [
-              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
-              { name: 'name', in: 'query' },
-            ],
+  it('maintains the path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users/{id}' },
-      payload: { path: '/events/{id}' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users/{id}' },
+        payload: { method: 'get', path: '/events/{id}' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/events/{id}': {
@@ -378,26 +440,38 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('maintains swapped path params', () => {
-    const document = createDocument({
-      paths: {
-        '/users/{id}/{limit}': {
-          get: {
-            summary: 'Get users',
-            parameters: [
-              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
-              { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
-              { name: 'name', in: 'query' },
-            ],
+  it('maintains swapped path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}/{limit}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users/{id}/{limit}' },
-      payload: { path: '/events/{limit}/{id}' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users/{id}/{limit}' },
+        payload: { method: 'get', path: '/events/{limit}/{id}' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/events/{limit}/{id}': {
@@ -413,25 +487,37 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('renames path params', () => {
-    const document = createDocument({
-      paths: {
-        '/users/{id}': {
-          get: {
-            summary: 'Get users',
-            parameters: [
-              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
-              { name: 'name', in: 'query' },
-            ],
+  it('renames path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users/{id}' },
-      payload: { path: '/users/{limit}' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users/{id}' },
+        payload: { method: 'get', path: '/users/{limit}' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/users/{limit}': {
@@ -446,25 +532,37 @@ describe('updateOperationPath', () => {
     })
   })
 
-  it('creates new path params', () => {
-    const document = createDocument({
-      paths: {
-        '/users/{id}': {
-          get: {
-            summary: 'Get users',
-            parameters: [
-              { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
-              { name: 'name', in: 'query' },
-            ],
+  it('creates new path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
           },
         },
-      },
+      }),
     })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
 
-    updateOperationPath(document, {
-      meta: { method: 'get', path: '/users/{id}' },
-      payload: { path: '/users/events/{limit}' },
-    })
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/users/{id}' },
+        payload: { method: 'get', path: '/users/events/{limit}' },
+        callback: () => {},
+      },
+      () => {},
+    )
 
     expect(document.paths).toStrictEqual({
       '/users/events/{limit}': {
@@ -477,6 +575,223 @@ describe('updateOperationPath', () => {
         },
       },
     })
+  })
+
+  it('calls callback with success status after updating path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/items': {
+            get: {
+              summary: 'Get items',
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
+
+    let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
+
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/items' },
+        payload: { method: 'get', path: '/api/items' },
+        callback: (status) => {
+          callbackResult = status
+        },
+      },
+      (status) => {
+        callbackResult = status
+      },
+    )
+
+    expect(callbackResult).toBe('success')
+    expect(document.paths?.['/api/items']?.get).toBeDefined()
+    expect(document.paths?.['/items']).toBeUndefined()
+  })
+
+  it('calls callback with conflict status when target path and method already exists', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/items': {
+            get: {
+              summary: 'Get items',
+            },
+          },
+          '/api/items': {
+            get: {
+              summary: 'Get API items',
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
+
+    let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
+
+    updateOperationPathMethod(
+      document,
+      store,
+      {
+        meta: { method: 'get', path: '/items' },
+        payload: { method: 'get', path: '/api/items' },
+        callback: (status) => {
+          callbackResult = status
+        },
+      },
+      (status) => {
+        callbackResult = status
+      },
+    )
+
+    expect(callbackResult).toBe('conflict')
+    // Original operations should remain unchanged
+    expect(document.paths?.['/items']?.get?.summary).toBe('Get items')
+    expect(document.paths?.['/api/items']?.get?.summary).toBe('Get API items')
+  })
+})
+
+describe('createOperation', () => {
+  it('creates a new operation at the specified path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    const normalizedPath = createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        description: 'Retrieve all users',
+      },
+    })
+
+    expect(normalizedPath).toBe('/users')
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.get).toEqual({
+      summary: 'Get users',
+      description: 'Retrieve all users',
+    })
+  })
+
+  it('normalizes path by adding leading slash', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    const normalizedPath = createOperation(store, {
+      documentName: 'test',
+      path: 'users',
+      method: 'post',
+      operation: {
+        summary: 'Create user',
+      },
+    })
+
+    expect(normalizedPath).toBe('/users')
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.post).toBeDefined()
+  })
+
+  it('calls callback with success status', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    let callbackResult: boolean | undefined
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/items',
+      method: 'get',
+      operation: {},
+      callback: (success) => {
+        callbackResult = success
+      },
+    })
+
+    expect(callbackResult).toBe(true)
+  })
+
+  it('returns undefined and calls callback with false when document does not exist', () => {
+    const store = createWorkspaceStore()
+
+    let callbackResult: boolean | undefined
+
+    const result = createOperation(store, {
+      documentName: 'nonexistent',
+      path: '/users',
+      method: 'get',
+      operation: {},
+      callback: (success) => {
+        callbackResult = success
+      },
+    })
+
+    expect(result).toBeUndefined()
+    expect(callbackResult).toBe(false)
+  })
+
+  it('returns undefined when store is null', () => {
+    const result = createOperation(null, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {},
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('adds operation to existing path with other methods', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'post',
+      operation: {
+        summary: 'Create user',
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.get).toEqual({ summary: 'Get users' })
+    expect(document.paths?.['/users']?.post).toEqual({ summary: 'Create user' })
   })
 })
 

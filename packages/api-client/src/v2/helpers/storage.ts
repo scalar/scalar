@@ -19,6 +19,10 @@ export const workspaceStorage = {
    * We keep the currently active path so we can reload it if needed
    */
   setCurrentPath: (path: string): void => {
+    // We have an infinite redirect loop if we set the current path to the root path
+    if (path === '/') {
+      return
+    }
     safeLocalStorage().setItem(CURRENT_PATH_KEY, path)
   },
 

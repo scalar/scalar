@@ -108,35 +108,6 @@ const handleExecute = () =>
   eventBus.emit('operation:send:request', {
     meta: { path, method, exampleKey },
   })
-
-/** Update the HTTP method for the operation, also recreates sidebar navigation */
-const handleUpdateMethod = (payload: { value: HttpMethodType }) =>
-  eventBus.emit('operation:update:method', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-    payload: {
-      method: payload.value,
-    },
-  })
-
-/** Update the path for the operation in its draft state */
-const handleUpdatePath = (payload: { value: string }) =>
-  eventBus.emit(
-    'operation:update:path',
-    {
-      meta: {
-        method,
-        path,
-      },
-      payload: {
-        path: payload.value,
-      },
-    },
-    { debounceKey: 'operation-update-path' },
-  )
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
@@ -160,8 +131,6 @@ const handleUpdatePath = (payload: { value: string }) =>
         :showSidebar
         :source
         @execute="handleExecute"
-        @update:method="handleUpdateMethod"
-        @update:path="handleUpdatePath"
         @update:servers="emit('update:servers')" />
     </div>
 
