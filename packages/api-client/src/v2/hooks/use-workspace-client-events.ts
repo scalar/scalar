@@ -77,7 +77,6 @@ export const useWorkspaceClientEvents = ({
   sidebarState: UseSidebarStateReturn
 }) => {
   /** Use route[r] for some redirect business */
-  const route = useRoute()
   const router = useRouter()
 
   /** Use route for the path variables */
@@ -122,8 +121,10 @@ export const useWorkspaceClientEvents = ({
    *
    * @param documentName - The name (id) of the document for which to rebuild the sidebar
    */
-  const rebuildSidebar = (documentName: string) => {
-    workspaceStore.value?.buildSidebar(documentName)
+  const rebuildSidebar = (documentName: string | undefined) => {
+    if (documentName) {
+      workspaceStore.value?.buildSidebar(documentName)
+    }
   }
 
   /**
@@ -293,7 +294,7 @@ export const useWorkspaceClientEvents = ({
         })
 
         // Rebuild the sidebar with the updated order
-        workspaceStore.value?.buildSidebar(document.value?.['x-scalar-navigation']?.id ?? '')
+        rebuildSidebar(document.value?.['x-scalar-navigation']?.id)
       }
       payload.callback(status)
     }),
