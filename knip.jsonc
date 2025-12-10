@@ -52,7 +52,6 @@
     "tailwindcss",
 
     // The following values needs to be re-checked once more packages are included
-    "rollup",
     "tsc-alias",
     "tsconfig-paths",
     "vue-tsc"
@@ -60,13 +59,7 @@
   "ignoreBinaries": ["netlify"],
   "workspaces": {
     "packages/build-tooling": {
-      "entry": [
-        //
-        "src/index.ts",
-        "src/esbuild/index.ts",
-        "src/rollup/index.ts",
-        "src/vite/index.ts"
-      ]
+      "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
     "packages/code-highlight": {
       "entry": [

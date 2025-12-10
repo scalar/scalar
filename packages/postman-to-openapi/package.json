@@ -30,8 +30,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check",
-    "watch": "scalar-build-rollup -w"
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "dist/index.js",

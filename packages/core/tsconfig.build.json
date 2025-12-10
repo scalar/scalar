@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["test", "vite.config.ts", "rollup.config.ts", "**/*.test.ts"],
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",

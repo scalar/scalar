@@ -19,7 +19,7 @@ To use these build tools effectively, all package.json files should include the 
 
 ```json
 "scripts": {
-  "build": "scalar-build-rollup",
+  "build": "scalar-build-esbuild",
   "types:check": "scalar-types-check",
   "types:build": "scalar-types-build",
   "format:check": "scalar-format-check",
@@ -43,33 +43,25 @@ For Vite/Vue we need a different build command that uses Vite and `vue-tsc`:
 }
 ```
 
-## Rollup
+## esbuild
 
-For non-Vue projects, we use Rollup for builds due to its superior tree-shaking capabilities. This approach optimizes our bundle size.
+`esbuild` is a fast JavaScript/TypeScript bundler and minifier used in this build tooling package for bundling pure TypeScript packages.
 
-Our Rollup configuration provides out-of-the-box support for importing JSON, YAML, and CSS files. Additionally, you can easily copy static files by specifying entries in the `copy` parameter.
-
-Here's an example of a basic `rollup.config.ts` file:
+- **Entry points**: The entries option maps your source files to the `package.json#exports` field, making it easy to define package exports.
+- **Platform flexibility**: Supports different platforms (`shared`, `node`, `browser`) for appropriate bundle optimization.
+- **Customizable**: Accepts additional `esbuild` options for fine-grained control over the build process.
 
 ```typescript
-import type { RollupOptions } from 'rollup'
-import { createRollupConfig } from '@scalar/build-tooling/rollup'
+import { build } from '@scalar/build-tooling/esbuild'
 
-const options: RollupOptions = {
-  // Specify the entry point(s) for your build
-  input: ['./src/index.ts'],
-  // Alternative: Use findEntryPoints for multiple entry points with TypeScript and CSS support
-  // input: await findEntryPoints({ allowCss: true }),
-  ...createRollupConfig({
-    // Enable TypeScript support
-    typescript: true,
-
-    // Additional options can be added here to customize the build
-  }),
-}
-
-// Export the Rollup configuration
-export default options
+await build({
+  entries: [
+    'src/index/.ts',
+    // other entries
+  ],
+  platform: 'shared', // 'node' or 'browser'
+  options: { /* esbuild options */ },
+})
 ```
 
 ## Vite

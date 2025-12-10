@@ -12,5 +12,5 @@
       "@test/*": ["./test/*"]
     }
   },
-  "include": ["src", "tests", "rollup.config.ts"]
+  "include": ["src", "tests"]
 }
