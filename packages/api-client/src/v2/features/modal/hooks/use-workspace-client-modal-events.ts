@@ -24,12 +24,12 @@ import {
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { ComputedRef, Ref } from 'vue'
 
-import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
+import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 
 /**
  * Top level event handling for the modal client
  */
-export const useWorkspaceClientEvents = ({
+export const useWorkspaceClientModalEvents = ({
   eventBus,
   document,
   isSidebarOpen,
@@ -39,7 +39,7 @@ export const useWorkspaceClientEvents = ({
   eventBus: WorkspaceEventBus
   document: ComputedRef<WorkspaceDocument | null>
   isSidebarOpen: Ref<boolean>
-  sidebarState: UseSidebarStateReturn
+  sidebarState: UseModalSidebarReturn
   modalState: ModalState
 }) => {
   //------------------------------------------------------------------------------------

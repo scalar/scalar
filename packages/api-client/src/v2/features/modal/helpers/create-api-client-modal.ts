@@ -6,7 +6,7 @@ import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { computed, createApp, reactive } from 'vue'
 
-import { useSidebarState } from '@/v2/features/modal/hooks/use-sidebar-state'
+import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
 // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   const document = computed(() => workspaceStore.workspace.documents[doucmentSlug.value ?? ''] ?? null)
 
   /** Sidebar state and selection handling. */
-  const sidebarState = useSidebarState({
+  const sidebarState = useModalSidebar({
     workspaceStore,
     documentSlug: doucmentSlug,
     path: path,

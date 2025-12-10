@@ -13,7 +13,7 @@ export type ModalProps = {
   /** Controls the visibility of the modal */
   modalState: ModalState
   /** The sidebar state must be initialized and passed in */
-  sidebarState: UseSidebarStateReturn
+  sidebarState: UseModalSidebarReturn
 }
 
 /**
@@ -47,15 +47,47 @@ import {
 } from 'vue'
 
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import { type UseSidebarStateReturn } from '@/v2/features/modal/hooks/use-sidebar-state'
+import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
-import { useWorkspaceClientEvents } from './hooks/use-workspace-client-events'
+import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
 
 const { modalState, workspaceStore, sidebarState, document } =
   defineProps<ModalProps>()
+
+/** Expose workspace store to window for debugging purposes. */
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => workspaceStore.value
+}
+
+/** Workspace event bus for handling workspace-level events. */
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
+
+/** Initialize color mode to ensure it is set on mount. */
+useColorMode({ workspaceStore })
+
+const activeWorkspace: Workspace = {
+  name: 'default',
+  id: 'default',
+}
+
+/** Controls the visibility of the sidebar. */
+const isSidebarOpen = ref(true)
+
+/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
+useWorkspaceClientModalEvents({
+  eventBus,
+  document,
+  isSidebarOpen,
+  sidebarState,
+  modalState,
+})
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -65,16 +97,6 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     allowOutsideClick: true,
     fallbackFocus: `#${id}`,
   })
-
-/** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus({
-  debug: import.meta.env.DEV,
-})
-
-const activeWorkspace: Workspace = {
-  name: 'default',
-  id: 'default',
-}
 
 /**
  * Close the modal on escape
@@ -107,18 +129,6 @@ watch(
     }
   },
 )
-
-/** Controls the visibility of the sidebar. */
-const isSidebarOpen = ref(true)
-
-/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
-useWorkspaceClientEvents({
-  eventBus,
-  document,
-  isSidebarOpen,
-  sidebarState,
-  modalState,
-})
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())

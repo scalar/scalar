@@ -8,7 +8,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-export type UseSidebarStateReturn = {
+export type UseAppSidebarReturn = {
   handleSelectItem: (id: string) => void
   state: ReturnType<typeof createSidebarState<TraversedEntry>>
   getEntryByLocation: (location: {
@@ -36,33 +36,25 @@ export type UseSidebarStateReturn = {
  *   exampleName,
  * })
  */
-export const useSidebarState = ({
+export const useAppSidebar = ({
   workspaceStore,
   documentSlug,
   path,
   method,
   exampleName,
-  singleDocument,
 }: {
   workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
   exampleName: MaybeRefOrGetter<string | undefined>
-  singleDocument?: boolean
-}): UseSidebarStateReturn => {
+}): UseAppSidebarReturn => {
   const router = useRouter()
 
   const entries = computed(() => {
     const store = toValue(workspaceStore)
     if (!store) {
       return []
-    }
-
-    const documentName = toValue(documentSlug) ?? ''
-
-    if (singleDocument) {
-      return store.workspace.documents[documentName]?.['x-scalar-navigation']?.children ?? []
     }
 
     const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
@@ -152,7 +144,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
+  const getEntryByLocation: UseAppSidebarReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(generateId(location))
 

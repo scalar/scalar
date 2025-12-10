@@ -51,13 +51,13 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import { type ComputedRef, type Ref, toValue } from 'vue'
 import { useRouter } from 'vue-router'
 
+import type { UseAppSidebarReturn } from '@/v2/features/app/hooks/use-app-sidebar'
 import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
-import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 
 /**
  * Top level state mutation handling for the workspace store in the client
  */
-export const useWorkspaceClientEvents = ({
+export const useWorkspaceClientAppEvents = ({
   eventBus,
   document,
   workspaceStore,
@@ -70,7 +70,7 @@ export const useWorkspaceClientEvents = ({
   workspaceStore: Ref<WorkspaceStore | null>
   isSidebarOpen: Ref<boolean>
   commandPaletteState: UseCommandPaletteStateReturn
-  sidebarState: UseSidebarStateReturn
+  sidebarState: UseAppSidebarReturn
 }) => {
   /** Use router for some redirects */
   const router = useRouter()

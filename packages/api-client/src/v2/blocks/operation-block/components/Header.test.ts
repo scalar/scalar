@@ -84,9 +84,9 @@ describe('Header', () => {
     expect(hiddenButton.findComponent(OpenApiClientButton).exists()).toBe(false)
   })
 
-  it('emits hide:modal on the event bus when close buttons are clicked in modal', async () => {
+  it('emits ui:close:client-modal on the event bus when close buttons are clicked in modal', async () => {
     const fn = vi.fn()
-    eventBus.on('hide:modal', fn)
+    eventBus.on('ui:close:client-modal', fn)
 
     const wrapper = render({ layout: 'modal' })
     const buttons = wrapper.findAll('button')

@@ -8,7 +8,7 @@ import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
 import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
 import { generateLocationId } from '@/v2/helpers/generate-location-id'
 
-export type UseSidebarStateReturn = {
+export type UseModalSidebarReturn = {
   handleSelectItem: (id: string) => void
   state: ReturnType<typeof createSidebarState<TraversedEntry>>
   getEntryByLocation: (location: {
@@ -36,7 +36,7 @@ export type UseSidebarStateReturn = {
  *   exampleName,
  * })
  */
-export const useSidebarState = ({
+export const useModalSidebar = ({
   workspaceStore,
   documentSlug,
   path,
@@ -50,7 +50,7 @@ export const useSidebarState = ({
   method: MaybeRefOrGetter<HttpMethod | undefined>
   exampleName: MaybeRefOrGetter<string | undefined>
   route: (payload: RoutePayload) => void
-}): UseSidebarStateReturn => {
+}): UseModalSidebarReturn => {
   const entries = computed(
     () =>
       toValue(workspaceStore)?.workspace.documents[toValue(documentSlug) ?? '']?.['x-scalar-navigation']?.children ??
@@ -99,7 +99,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
+  const getEntryByLocation: UseModalSidebarReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(
       generateLocationId({
@@ -174,13 +174,7 @@ export const useSidebarState = ({
 
   /** Keep the sidebar state in sync with the modal parameters */
   watch(
-    [
-      () => toValue(workspaceStore),
-      () => toValue(documentSlug),
-      () => toValue(path),
-      () => toValue(method),
-      () => toValue(exampleName),
-    ],
+    [() => toValue(documentSlug), () => toValue(path), () => toValue(method), () => toValue(exampleName)],
     () => {
       const newDocument = toValue(documentSlug)
       const newPath = toValue(path)
