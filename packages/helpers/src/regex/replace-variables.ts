@@ -1,7 +1,8 @@
 import { REGEX } from '@/regex/regex-helpers'
 
 /**
- * This function takes a string and replace {variables} with given values.
+ * This function takes a string and replaces both {single} and {{double}} curly brace variables with given values.
+ * Use the replacePathVariables and replaceEnvVariables functions if you only need to replace one type of variable.
  */
 export function replaceVariables(
   value: string,

@@ -71,7 +71,7 @@ export const buildRequestParameters = (
 
       // Handle path parameters
       if (param.in === 'path') {
-        acc.pathVariables[paramName] = replacedValue
+        acc.pathVariables[paramName] = encodeURIComponent(replacedValue)
       }
 
       // Handle query parameters (currently array only)

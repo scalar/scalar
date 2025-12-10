@@ -10,11 +10,20 @@ export type OperationEvents = {
   //------------------------------------------------------------------------------------
 
   /**
+   * The hotkey trigger for sending the request
+   * We handle this inside of the OperationBlock component so we can build the request first then fire the event
+   */
+  'operation:send:request:hotkey': undefined
+
+  /**
    * Fires when the user requests to send the operation (e.g., triggers "Try It" or sends a request).
    * Contains the OperationExampleMeta, which identifies the operation and the example variant to use.
    */
   'operation:send:request': {
     meta: OperationExampleMeta
+    payload: {
+      request: Request
+    }
   }
 
   //------------------------------------------------------------------------------------

@@ -27,11 +27,13 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { createStoreEvents } from '@/store/events'
+import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
@@ -93,15 +95,25 @@ const emit = defineEmits<{
 }>()
 
 /** Execute the current operation example */
-const handleExecute = () =>
-  eventBus.emit('operation:send:request', {
-    meta: { path, method, exampleKey },
-  })
+const handleExecute = () => {
+  buildRequest({ operation, method, path, exampleKey })
+  // eventBus.emit('operation:send:request', {
+  //   meta: { path, method, exampleKey },
+  // })
+}
+
+/** Handle the hotkey trigger to send the request */
+onMounted(() => {
+  eventBus.on('operation:send:request:hotkey', handleExecute)
+})
+onBeforeUnmount(() => {
+  eventBus.off('operation:send:request:hotkey', handleExecute)
+})
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
     <div
-      class="lg:min-h-header flex w-full flex-wrap items-center justify-center">
+      class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
       <!-- Address Bar -->
       <Header
         :documentUrl
@@ -121,7 +133,7 @@ const handleExecute = () =>
     </div>
 
     <ViewLayout>
-      <ViewLayoutContent class="flex flex-1">
+      <ViewLayoutContent class="flex-1">
         <!-- Request Section -->
         <RequestBlock
           :authMeta

@@ -4,7 +4,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
@@ -78,13 +78,24 @@ const contentTypes = {
   'none': 'None',
 } as const
 
-const selectedContentType = computed(() => {
-  return (
+/** Selected content type with default */
+const selectedContentType = computed(
+  () =>
     requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
     Object.keys(requestBody?.content ?? {})[0] ??
-    'other'
-  )
-})
+    'other',
+)
+
+watch(
+  () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
+  (contentType) => {
+    // If there's no selected content type, set it
+    if (!contentType) {
+      emits('update:contentType', { value: selectedContentType.value })
+    }
+  },
+  { immediate: true },
+)
 
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
@@ -126,13 +137,13 @@ const example = computed(
     getExampleFromBody(requestBody, selectedContentType.value, exampleKey),
 )
 
+/** TODO handle non-json examples + best guess conversion */
 const bodyValue = computed(() => {
   if (!example.value) {
     return ''
   }
 
   const value = example.value.value
-
   if (typeof value === 'string') {
     return value
   }
