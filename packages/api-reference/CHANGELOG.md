@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.40.4
+
+### Patch Changes
+
+- [#7513](https://github.com/scalar/scalar/pull/7513) [`2b46ee2`](https://github.com/scalar/scalar/commit/2b46ee2773023ca348e8691e1123970ca58090e5) Thanks [@bgrcs](https://github.com/bgrcs)! - clean-up exports
+
 ## 1.40.3
 
 ### Patch Changes
