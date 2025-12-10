@@ -174,11 +174,12 @@ const environment = computed(() =>
             class="relative flex flex-1">
             <SidebarToggle
               v-model="isSidebarOpen"
-              class="absolute top-2 left-3 z-50" />
+              class="absolute top-2 left-3 z-[10001]" />
             <Sidebar
               v-show="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
+              class="z-[10000] h-full max-md:absolute! max-md:w-full!"
               :documents="[document.value]"
               :eventBus="eventBus"
               :isDroppable="() => false"
@@ -186,7 +187,7 @@ const environment = computed(() =>
               :sidebarState="sidebarState.state"
               :workspaces="[]"
               @selectItem="sidebarState.handleSelectItem"
-              @update:sidebarWidth="handleSidebarWidthUpdate"></Sidebar>
+              @update:sidebarWidth="handleSidebarWidthUpdate" />
             <Operation
               :activeWorkspace="activeWorkspace"
               class="flex-1"
