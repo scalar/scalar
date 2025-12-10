@@ -31,8 +31,8 @@
   --scalar-border-color: #2d2d2d;
 }
 /* Document Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
+.light-mode,
+.dark-mode {
   --scalar-sidebar-background-1: var(--scalar-background-1);
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
