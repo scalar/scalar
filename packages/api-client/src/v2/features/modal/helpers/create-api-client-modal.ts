@@ -2,8 +2,11 @@ import { useModal } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getOperationEntries } from '@scalar/workspace-store/navigation'
+import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { computed, createApp, reactive } from 'vue'
 
+import { useSidebarState } from '@/v2/features/modal/hooks/use-sidebar-state'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
 // ---------------------------------------------------------------------------
@@ -99,6 +102,34 @@ const resolveMethod = (
   return method
 }
 
+const resolveExampleName = (
+  ctx: ResolverContext,
+  operation: TraversedEntry | undefined,
+  exampleKey: string | undefined,
+): string | undefined => {
+  const document = ctx.store.workspace.documents[ctx.documentSlug ?? '']
+  if (!document || !operation || operation.type !== 'operation') {
+    return 'default'
+  }
+
+  const isExample = (entry: TraversedEntry): entry is TraversedExample => {
+    return entry.type === 'example'
+  }
+
+  const examples = operation.children?.filter(isExample) ?? []
+  const example = examples.find((child) => child.name === exampleKey) as TraversedExample
+
+  if (example) {
+    return example.name
+  }
+
+  if (exampleKey === 'default') {
+    return examples[0]?.name ?? 'default'
+  }
+
+  return 'default'
+}
+
 /**
  * Resolves all route parameters from raw input values to their actual values.
  * Handles "default" placeholders by looking up actual values from the workspace store.
@@ -109,11 +140,25 @@ const resolveRouteParameters = (store: WorkspaceStore, params: DefaultEntities):
   const path = resolvePath(ctx, params.path)
   const method = resolveMethod(ctx, path, params.method)
 
+  const traversedDocument = store.workspace.documents[documentSlug ?? '']?.['x-scalar-navigation']
+  if (!traversedDocument) {
+    return {
+      documentSlug,
+      path,
+      method,
+      example: 'default',
+    }
+  }
+
+  const operations = getOperationEntries(traversedDocument)
+  const operation = operations.get(`${path}|${method}`)?.find((entry) => entry.type === 'operation')
+  const example = resolveExampleName(ctx, operation, params.example)
+
   return {
     documentSlug,
     path,
     method,
-    example: params.example,
+    example,
   }
 }
 
@@ -137,20 +182,40 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
 
   const parameters = reactive<DefaultEntities>({ ...defaultEntities })
 
-  const computedParameters = computed<Partial<RoutePayload>>(() => resolveRouteParameters(workspaceStore, parameters))
-
   /** Navigate to the specified path, method, and example. */
   const route = (payload: RoutePayload): void => {
     Object.assign(parameters, defaultEntities, payload)
   }
 
+  /** Resolved parameters from the workspace store. */
+  const resolvedParameters = computed(() => resolveRouteParameters(workspaceStore, parameters))
+  const doucmentSlug = computed(() => resolvedParameters.value.documentSlug)
+  const path = computed(() => resolvedParameters.value.path)
+  const method = computed(() => resolvedParameters.value.method)
+  const exampleName = computed(() => resolvedParameters.value.example)
+  /** The document from the workspace store. */
+  const document = computed(() => workspaceStore.workspace.documents[doucmentSlug.value ?? ''] ?? null)
+
+  /** Sidebar state and selection handling. */
+  const sidebarState = useSidebarState({
+    workspaceStore,
+    documentSlug: doucmentSlug,
+    path: path,
+    method: method,
+    exampleName: exampleName,
+    route,
+  })
+
   const modalState = useModal()
 
   const app = createApp(Modal, {
-    route,
     workspaceStore,
+    document,
     modalState,
-    routePayload: computedParameters,
+    sidebarState,
+    path,
+    method,
+    exampleName,
   } satisfies ModalProps)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

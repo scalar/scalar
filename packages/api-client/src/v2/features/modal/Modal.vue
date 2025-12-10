@@ -1,13 +1,19 @@
 <script lang="ts">
 export type ModalProps = {
-  /** The route function to use for navigation */
-  route: (payload: RoutePayload) => void
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
-  /** Payload for routing and opening the API client modal */
-  routePayload: ComputedRef<Partial<RoutePayload>>
+  /** The document must be initialized and passed in */
+  document: ComputedRef<WorkspaceDocument | null>
+  /** The path must be initialized and passed in */
+  path: ComputedRef<string | undefined>
+  /** The method must be initialized and passed in */
+  method: ComputedRef<HttpMethod | undefined>
+  /** The example name must be initialized and passed in */
+  exampleName: ComputedRef<string | undefined>
   /** Controls the visibility of the modal */
   modalState: ModalState
+  /** The sidebar state must be initialized and passed in */
+  sidebarState: UseSidebarStateReturn
 }
 
 /**
@@ -24,8 +30,10 @@ import {
   ScalarTeleportRoot,
   type ModalState,
 } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
   computed,
@@ -39,16 +47,14 @@ import {
 } from 'vue'
 
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
-import { handleModalNavigation } from '@/v2/features/modal/helpers/handle-modal-navigation'
+import { type UseSidebarStateReturn } from '@/v2/features/modal/hooks/use-sidebar-state'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
-import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
 import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 
 import { useWorkspaceClientEvents } from './hooks/use-workspace-client-events'
 
-const { modalState, routePayload, workspaceStore, route } =
+const { modalState, workspaceStore, sidebarState, document } =
   defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
@@ -65,33 +71,9 @@ const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
 })
 
-const document = computed(
-  () =>
-    workspaceStore.workspace.documents[routePayload.value.documentSlug ?? ''] ??
-    null,
-)
-
 const activeWorkspace: Workspace = {
   name: 'default',
   id: 'default',
-}
-
-/** Sidebar state and selection handling. */
-const sidebarState = useSidebarState({
-  workspaceStore,
-  documentSlug: routePayload.value.documentSlug,
-  path: routePayload.value.path,
-  method: routePayload.value.method,
-  exampleName: routePayload.value.example,
-  singleDocument: true,
-})
-
-const handleSelectItem = (id: string) => {
-  handleModalNavigation({
-    id,
-    route,
-    sidebarState: sidebarState.state,
-  })
 }
 
 /**
@@ -185,9 +167,7 @@ const environment = computed(() =>
         <ScalarTeleportRoot>
           <!-- If we have a document, path and method, render the operation -->
           <main
-            v-if="
-              document && routePayload.value.path && routePayload.value.method
-            "
+            v-if="document.value && path?.value && method?.value"
             class="relative flex flex-1">
             <SidebarToggle
               v-model="isSidebarOpen"
@@ -196,25 +176,25 @@ const environment = computed(() =>
               v-show="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
-              :documents="[document]"
+              :documents="[document.value]"
               :eventBus="eventBus"
-              :isDroppable="false"
+              :isDroppable="() => false"
               layout="modal"
               :sidebarState="sidebarState.state"
               :workspaces="[]"
-              @selectItem="handleSelectItem"
+              @selectItem="sidebarState.handleSelectItem"
               @update:sidebarWidth="handleSidebarWidthUpdate"></Sidebar>
             <Operation
               :activeWorkspace="activeWorkspace"
               class="flex-1"
-              :document="document"
-              :documentSlug="routePayload.value.documentSlug ?? ''"
+              :document="document.value"
+              :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
               :environment="environment"
               :eventBus="eventBus"
-              :exampleName="routePayload.value.example"
+              :exampleName="exampleName?.value"
               layout="modal"
-              :method="routePayload.value.method"
-              :path="routePayload.value.path"
+              :method="method?.value"
+              :path="path?.value"
               :workspaceStore="workspaceStore" />
           </main>
           <!-- Empty state -->

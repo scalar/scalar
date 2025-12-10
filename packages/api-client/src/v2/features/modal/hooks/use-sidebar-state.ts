@@ -1,12 +1,12 @@
-import { isDefined } from '@scalar/helpers/array/is-defined'
-import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
-import { useRouter } from 'vue-router'
+
+import type { RoutePayload } from '@/v2/features/modal/helpers/create-api-client-modal'
+import { generateLocationId } from '@/v2/helpers/generate-location-id'
 
 export type UseSidebarStateReturn = {
   handleSelectItem: (id: string) => void
@@ -42,91 +42,38 @@ export const useSidebarState = ({
   path,
   method,
   exampleName,
-  singleDocument,
+  route,
 }: {
   workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
   exampleName: MaybeRefOrGetter<string | undefined>
-  singleDocument?: boolean
+  route: (payload: RoutePayload) => void
 }): UseSidebarStateReturn => {
-  const router = useRouter()
-
-  const entries = computed(() => {
-    const store = toValue(workspaceStore)
-    if (!store) {
-      return []
-    }
-
-    const documentName = toValue(documentSlug) ?? ''
-
-    if (singleDocument) {
-      return store.workspace.documents[documentName]?.['x-scalar-navigation']?.children ?? []
-    }
-
-    const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
-
-    return sortByOrder(Object.keys(store.workspace.documents), order, (item) => item)
-      .map((doc) => store.workspace.documents[doc]?.['x-scalar-navigation'])
-      .filter(isDefined) as TraversedEntry[]
-  })
-
-  const state = createSidebarState(entries)
-
-  // Reset the sidebar state when the we switch workspace
-  watch(
-    () => toValue(workspaceStore),
-    () => {
-      state.reset()
-    },
-    {
-      immediate: true,
-    },
+  const entries = computed(
+    () =>
+      toValue(workspaceStore)?.workspace.documents[toValue(documentSlug) ?? '']?.['x-scalar-navigation']?.children ??
+      [],
   )
-
-  /**
-   * Generates a unique string ID for an API location, based on the document, path, method, and example.
-   * Filters out undefined values and serializes the composite array into a stable string.
-   *
-   * @param params - An object containing document, path, method, and optional example name.
-   * @returns A stringified array representing the unique location identifier.
-   *
-   * Example:
-   *   generateId({ document: 'mydoc', path: '/users', method: 'get', example: 'default' })
-   *   // => '["mydoc","/users","get","default"]'
-   */
-  const generateId = ({
-    document,
-    path,
-    method,
-    example,
-  }: {
-    document: string
-    path?: string
-    method?: HttpMethod
-    example?: string
-  }) => {
-    return JSON.stringify([document, path, method, example].filter(isDefined))
-  }
+  const state = createSidebarState(entries)
 
   /**
    * Computed index for fast lookup of sidebar nodes by their unique API location.
    *
-   * - Only indexes nodes of type 'document', 'operation', or 'example'.
-   * - The lookup key is a serialized array of: [documentName, operationPath, operationMethod, exampleName?].
+   * - Only indexes nodes of type 'operation', or 'example'.
+   * - The lookup key is a serialized array of: [operationPath, operationMethod, exampleName?].
    * - Supports precise resolution of sidebar entries given an API "location".
    */
   const locationIndex = computed(() =>
     generateReverseIndex({
       items: entries.value,
       nestedKey: 'children',
-      filter: (node) => node.type === 'document' || node.type === 'operation' || node.type === 'example',
+      filter: (node) => node.type === 'operation' || node.type === 'example',
       getId: (node) => {
-        const document = getParentEntry('document', node)
         const operation = getParentEntry('operation', node)
-        return generateId({
-          document: document?.name ?? '',
+        return generateLocationId({
+          document: toValue(documentSlug) ?? '',
           path: operation?.path,
           method: operation?.method,
           example: node.type === 'example' ? node.name : undefined,
@@ -154,7 +101,14 @@ export const useSidebarState = ({
    */
   const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
-    const entryWithExample = locationIndex.value.get(generateId(location))
+    const entryWithExample = locationIndex.value.get(
+      generateLocationId({
+        document: location.document,
+        path: location.path,
+        method: location.method,
+        example: location.example,
+      }),
+    )
 
     if (entryWithExample) {
       return entryWithExample
@@ -162,7 +116,7 @@ export const useSidebarState = ({
 
     // Fallback to the operation (ignoring example) if an example wasn't found or specified
     return locationIndex.value.get(
-      generateId({
+      generateLocationId({
         document: location.document,
         path: location.path,
         method: location.method,
@@ -184,67 +138,33 @@ export const useSidebarState = ({
       return
     }
 
-    // Navigate to the document overview page
-    if (entry.type === 'document') {
-      state.setSelected(id)
-      state.setExpanded(id, !state.isExpanded(id))
-      return router.push({
-        name: 'document.overview',
-        params: { documentSlug: entry.name },
-      })
-    }
-
     // Navigate to the example page
-    // TODO: temporary until we have the operation overview page
-    if (entry.type === 'operation') {
+    if (entry.type === 'operation' || entry.type === 'example') {
       // If we are already in the operation, just toggle expansion
       if (state.isSelected(id)) {
         state.setExpanded(id, !state.isExpanded(id))
         return
       }
 
-      const firstExample = entry.children?.find((child) => child.type === 'example')
+      const operation = getParentEntry('operation', entry)
+      const example = getChildEntry('example', entry)
 
-      if (firstExample) {
-        state.setSelected(firstExample.id)
-        state.setExpanded(firstExample.id, true)
+      if (example) {
+        state.setSelected(example.id)
+        state.setExpanded(example.id, true)
       } else {
         state.setSelected(id)
       }
 
-      return router.push({
-        name: 'example',
-        params: {
-          documentSlug: getParentEntry('document', entry)?.name,
-          pathEncoded: encodeURIComponent(entry.path),
-          method: entry.method,
-          exampleName: firstExample?.name ?? 'default',
-        },
-      })
-    }
+      if (!operation) {
+        return
+      }
 
-    // Navigate to the example page
-    if (entry.type === 'example') {
-      state.setSelected(id)
-      state.setExpanded(id, true)
-      const operation = getParentEntry('operation', entry)
-      return router.push({
-        name: 'example',
-        params: {
-          documentSlug: getParentEntry('document', entry)?.name,
-          pathEncoded: encodeURIComponent(operation?.path ?? ''),
-          method: operation?.method,
-          exampleName: entry.name,
-        },
-      })
-    }
-
-    if (entry.type === 'text') {
-      return router.push({
-        name: 'document.overview',
-        params: {
-          documentSlug: getParentEntry('document', entry)?.name,
-        },
+      return route({
+        documentSlug: toValue(documentSlug),
+        path: operation.path,
+        method: operation.method,
+        example: example?.name ?? 'default',
       })
     }
 
@@ -252,7 +172,7 @@ export const useSidebarState = ({
     return
   }
 
-  /** Keep the router and the sidebar state in sync */
+  /** Keep the sidebar state in sync with the modal parameters */
   watch(
     [
       () => toValue(workspaceStore),
@@ -274,7 +194,7 @@ export const useSidebarState = ({
       }
 
       const entry = getEntryByLocation({
-        document: newDocument as string,
+        document: newDocument,
         path: newPath as string,
         method: newMethod as HttpMethod,
         example: newExample as string,
