@@ -1,0 +1,5 @@
+export { default as DocumentSelector } from './multiple-documents/DocumentSelector.vue'
+export { Operation } from './Operation'
+export { default as SearchButton } from './Search/components/SearchButton.vue'
+export { getXKeysFromObject } from './specification-extension'
+export { default as ApiReferenceToolbar } from './toolbar/ApiReferenceToolbar.vue'
