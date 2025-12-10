@@ -8,6 +8,8 @@ import {
   addOperationParameter,
   addOperationRequestBodyFormRow,
   deleteAllOperationParameters,
+  deleteOperation,
+  deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
   updateOperationMethod,
@@ -1302,5 +1304,482 @@ describe('deleteOperationRequestBodyFormRow', () => {
     })
 
     expect(document.paths?.['/upload']).toEqual({})
+  })
+})
+
+describe('deleteOperation', () => {
+  it('deletes an operation from a path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+            post: {
+              summary: 'Create user',
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']?.get).toBeUndefined()
+    expect(document?.paths?.['/users']?.post).toBeDefined()
+  })
+
+  it('removes the path entry when the last operation is deleted', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']).toBeUndefined()
+  })
+
+  it('no-ops when store is null', () => {
+    expect(() =>
+      deleteOperation(null, {
+        documentName: 'test-doc',
+        meta: { method: 'get', path: '/users' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when document does not exist', () => {
+    const store = createWorkspaceStore()
+
+    expect(() =>
+      deleteOperation(store, {
+        documentName: 'non-existent',
+        meta: { method: 'get', path: '/users' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when path does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+
+    expect(() =>
+      deleteOperation(store, {
+        documentName: 'test-doc',
+        meta: { method: 'get', path: '/non-existent' },
+      }),
+    ).not.toThrow()
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']?.get).toBeDefined()
+  })
+
+  it('no-ops when operation does not exist on path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+
+    expect(() =>
+      deleteOperation(store, {
+        documentName: 'test-doc',
+        meta: { method: 'post', path: '/users' },
+      }),
+    ).not.toThrow()
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']?.get).toBeDefined()
+  })
+
+  it('deletes operation and leaves other paths intact', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: { summary: 'Get users' },
+            post: { summary: 'Create user' },
+          },
+          '/products': {
+            get: { summary: 'Get products' },
+          },
+        },
+      }),
+    })
+
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']?.get).toBeUndefined()
+    expect(document?.paths?.['/users']?.post).toBeDefined()
+    expect(document?.paths?.['/products']?.get).toBeDefined()
+  })
+
+  it('deletes multiple operations sequentially', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: { summary: 'Get users' },
+            post: { summary: 'Create user' },
+            delete: { summary: 'Delete user' },
+          },
+        },
+      }),
+    })
+
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users' },
+    })
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.paths?.['/users']?.get).toBeUndefined()
+    expect(document?.paths?.['/users']?.post).toBeUndefined()
+    expect(document?.paths?.['/users']?.delete).toBeDefined()
+  })
+})
+
+describe('deleteOperationExample', () => {
+  it('removes example from parameter-level examples', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    custom: { value: '50' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users', exampleKey: 'custom' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.get)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    assert(param && 'examples' in param)
+    expect(param.examples?.default).toBeDefined()
+    expect(param.examples?.custom).toBeUndefined()
+  })
+
+  it('removes example from request body content types', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      default: { value: '{"name":"John"}' },
+                      custom: { value: '{"name":"Jane"}' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const requestBody = getResolvedRef(operation?.requestBody)
+    const examples = requestBody?.content?.['application/json']?.examples
+    expect(examples?.default).toBeDefined()
+    expect(examples?.custom).toBeUndefined()
+  })
+
+  it('removes example from multiple content types in request body', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      default: { value: '{}' },
+                      custom: { value: '{"json":true}' },
+                    },
+                  },
+                  'application/xml': {
+                    examples: {
+                      default: { value: '<user/>' },
+                      custom: { value: '<user><name>Test</name></user>' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const requestBody = getResolvedRef(operation?.requestBody)
+    expect(requestBody?.content?.['application/json']?.examples?.default).toBeDefined()
+    expect(requestBody?.content?.['application/json']?.examples?.custom).toBeUndefined()
+    expect(requestBody?.content?.['application/xml']?.examples?.default).toBeDefined()
+    expect(requestBody?.content?.['application/xml']?.examples?.custom).toBeUndefined()
+  })
+
+  it('removes example from both parameters and request body', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              parameters: [
+                {
+                  name: 'X-Custom-Header',
+                  in: 'header',
+                  examples: {
+                    default: { value: 'header-default' },
+                    custom: { value: 'header-custom' },
+                  },
+                },
+              ],
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      default: { value: '{}' },
+                      custom: { value: '{"custom":true}' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    const requestBody = getResolvedRef(operation?.requestBody)
+
+    assert(param && 'examples' in param)
+    expect(param.examples?.default).toBeDefined()
+    expect(param.examples?.custom).toBeUndefined()
+    expect(requestBody?.content?.['application/json']?.examples?.default).toBeDefined()
+    expect(requestBody?.content?.['application/json']?.examples?.custom).toBeUndefined()
+  })
+
+  it('no-ops when store is null', () => {
+    expect(() =>
+      deleteOperationExample(null, {
+        documentName: 'test-doc',
+        meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when document does not exist', () => {
+    const store = createWorkspaceStore()
+
+    expect(() =>
+      deleteOperationExample(store, {
+        documentName: 'non-existent',
+        meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {},
+        },
+      }),
+    })
+
+    expect(() =>
+      deleteOperationExample(store, {
+        documentName: 'test-doc',
+        meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation has no request body', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    })
+
+    expect(() =>
+      deleteOperationExample(store, {
+        documentName: 'test-doc',
+        meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      }),
+    ).not.toThrow()
+
+    // Parameter example should still be deleted
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.get)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    assert(param && 'examples' in param)
+    expect(param.examples?.default).toBeUndefined()
+  })
+
+  it('leaves other examples intact when deleting one', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    small: { value: '5' },
+                    large: { value: '100' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users', exampleKey: 'small' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.get)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    assert(param && 'examples' in param)
+    expect(param.examples?.default).toBeDefined()
+    expect(param.examples?.small).toBeUndefined()
+    expect(param.examples?.large).toBeDefined()
   })
 })

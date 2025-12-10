@@ -53,16 +53,27 @@ export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
 }
 
 /** Scalar Sidebar Item Slots */
-export type ScalarSidebarItemSlots = {
+export type ScalarSidebarButtonSlots = {
   /** The main text content of the button */
   default?(): unknown
+  /** The indent to display before content */
+  indent?(): unknown
   /** Override the icon */
   icon?(): unknown
   /** The content to display to the right of the text content */
   aside?(): unknown
-  /** The indent to display before content */
-  indent?(): unknown
 }
+
+/** Scalar Sidebar Item Slots */
+export type ScalarSidebarItemSlots = Omit<ScalarSidebarButtonSlots, 'indent'> & {
+  /** Override the entire button */
+  button?(props: { level: SidebarGroupLevel }): unknown
+  /** Content to display before the button but inside the list item */
+  before?(): unknown
+  /** Content to display after the button but inside the list item */
+  after?(): unknown
+}
+
 /** Scalar Sidebar Item Slots */
 export type ScalarSidebarGroupSlots = {
   /** The text content of the toggle */
@@ -71,10 +82,12 @@ export type ScalarSidebarGroupSlots = {
   button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
   /** Icon for the sidebar group */
   icon?(props: { open: boolean }): unknown
-  /** Override the entire toggle button */
-  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
-  /** The content to display to the right of the text content */
+  /** Content to display to the right of the text content */
   aside?(props: { open: boolean }): unknown
+  /** Content to display before the button */
+  before?(props: { open: boolean }): unknown
+  /** Content to display after the button */
+  after?(props: { open: boolean }): unknown
   /** The list of sidebar subitems */
   items?(props: { open: boolean }): unknown
 }

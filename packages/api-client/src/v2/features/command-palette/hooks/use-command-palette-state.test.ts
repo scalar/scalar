@@ -289,7 +289,7 @@ describe('useCommandPaletteState', () => {
     state.open('create-document', undefined)
     expect(state.activeCommand.value).toBe('create-document')
 
-    state.open('add-tag', undefined)
+    state.open('add-tag', {})
     expect(state.activeCommand.value).toBe('add-tag')
   })
 

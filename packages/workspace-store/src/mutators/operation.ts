@@ -417,6 +417,89 @@ export const updateOperationPath = (
   }
 }
 
+/**
+ * Deletes an operation from the workspace
+ *
+ * Example:
+ * ```ts
+ * deleteOperation({
+ *   document,
+ *   meta: { method: 'get', path: '/users' },
+ * })
+ * ```
+ */
+export const deleteOperation = (
+  workspace: WorkspaceStore | null,
+  { meta, documentName }: OperationEvents['operation:delete:operation'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    return
+  }
+
+  preventPollution(meta.path)
+  preventPollution(meta.method)
+
+  delete document.paths?.[meta.path]?.[meta.method]
+
+  // If the path has no more operations, remove the path entry
+  if (Object.keys(document.paths?.[meta.path] ?? {}).length === 0) {
+    delete document.paths?.[meta.path]
+  }
+}
+
+/**
+ * Deletes an example with the given exampleKey from operation parameters and request body.
+ *
+ * - Finds the target operation within the specified document and path/method.
+ * - Removes example values matching exampleKey from both parameter-level and content-level examples.
+ * - Safely no-ops if the document, operation, or request body does not exist.
+ */
+export const deleteOperationExample = (
+  workspace: WorkspaceStore | null,
+  { meta: { path, method, exampleKey }, documentName }: OperationEvents['operation:delete:example'],
+) => {
+  // Find the document in workspace based on documentName
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    return
+  }
+
+  // Get the operation object for the given path and method
+  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  if (!operation) {
+    return
+  }
+
+  // Remove the example from all operation parameters
+  operation.parameters?.forEach((parameter) => {
+    const resolvedParameter = getResolvedRef(parameter)
+
+    // Remove from content-level examples (if parameter uses content)
+    if ('content' in resolvedParameter && resolvedParameter.content) {
+      Object.values(resolvedParameter.content).forEach((mediaType) => {
+        delete mediaType.examples?.[exampleKey]
+      })
+    }
+
+    // Remove from parameter-level examples
+    if ('examples' in resolvedParameter && resolvedParameter.examples) {
+      delete resolvedParameter.examples?.[exampleKey]
+    }
+  })
+
+  // Remove the example from request body content types (if requestBody exists)
+  const requestBody = getResolvedRef(operation.requestBody)
+  if (!requestBody) {
+    return
+  }
+
+  // For each media type, remove the example matching exampleKey
+  Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+    delete mediaType.examples?.[exampleKey]
+  })
+}
+
 /** ------------------------------------------------------------------------------------------------
  * Operation Parameters Mutators
  * ------------------------------------------------------------------------------------------------ */

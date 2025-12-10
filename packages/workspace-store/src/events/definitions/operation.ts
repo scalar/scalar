@@ -82,6 +82,26 @@ export type OperationEvents = {
     meta: OperationMeta
   }
 
+  /**
+   * Delete an operation from the workspace
+   */
+  'operation:delete:operation': {
+    /** The document name where the operation should be deleted */
+    documentName: string
+    /** Identifies the target operation by original method and path */
+    meta: OperationMeta
+  }
+
+  /**
+   * Delete an example from the operation
+   */
+  'operation:delete:example': {
+    /** The document name where the operation should be deleted */
+    documentName: string
+    /** Identifies the target operation by original method and path */
+    meta: OperationExampleMeta
+  }
+
   /** ------------------------------------------------------------------------------------------------
    * Operation Parameters Mutators
    * ------------------------------------------------------------------------------------------------ */
