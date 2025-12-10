@@ -3,14 +3,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { OpenApiClientButton } from '@/components'
-import { createStoreEvents } from '@/store/events'
 import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
 
 import Header from './Header.vue'
 
 describe('Header', () => {
   const eventBus = createWorkspaceEventBus()
-  const events = createStoreEvents()
 
   const defaultProps = {
     path: '/pets',
@@ -26,7 +24,6 @@ describe('Header', () => {
     servers: [] as any[],
     history: [] as any[],
     requestLoadingPercentage: undefined as number | undefined,
-    events,
     eventBus,
     environment: {
       uid: 'env-1' as any,
@@ -34,31 +31,12 @@ describe('Header', () => {
       color: 'blue',
       value: 'default',
     } as any,
-    envVariables: [] as any[],
   }
 
   const render = (overrides: Record<string, any> = {}) => {
     const props = { ...defaultProps, ...overrides }
     return mount(Header, { props })
   }
-
-  it('re-emits update:method from AddressBar', () => {
-    const wrapper = render()
-    const addressBar = wrapper.getComponent(AddressBar)
-    addressBar.vm.$emit('update:method', { value: 'post' })
-
-    const emitted = wrapper.emitted('update:method')
-    expect(emitted?.[0]?.[0]).toEqual({ value: 'post' })
-  })
-
-  it('re-emits update:path from AddressBar', () => {
-    const wrapper = render()
-    const addressBar = wrapper.getComponent(AddressBar)
-    addressBar.vm.$emit('update:path', { value: '/animals' })
-
-    const emitted = wrapper.emitted('update:path')
-    expect(emitted?.[0]?.[0]).toEqual({ value: '/animals' })
-  })
 
   it('emits execute when AddressBar emits execute', () => {
     const wrapper = render()

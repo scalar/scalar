@@ -8,6 +8,7 @@ import {
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
 
+import SidebarItemDecorator from '@/components/SidebarItemDecorator.vue'
 import { filterItems } from '@/helpers/filter-items'
 import {
   useDraggable,
@@ -61,7 +62,7 @@ const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
     isDroppable?: UseDraggableOptions['isDroppable']
   }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   /**
    * Emitted when the item is selected
    * @param id - The id of the selected item
@@ -75,7 +76,7 @@ const emits = defineEmits<{
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
-defineSlots<{
+const slots = defineSlots<{
   /**
    * Adds an optional decorator for each item, such as an edit menu.
    * The slot receives an object with the current item.
@@ -103,7 +104,7 @@ const isGroup = (
  * Handle drag end event and bubble it up to parent.
  */
 const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
-  emits('onDragEnd', draggingItem, hoveredItem)
+  emit('onDragEnd', draggingItem, hoveredItem)
 }
 const { draggableAttrs, draggableEvents } = useDraggable({
   id: item.id,
@@ -130,7 +131,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :layout="layout"
         :options="options"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emits('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)">
         <template #decorator="slotProps">
           <slot
             v-bind="slotProps"
@@ -148,10 +149,11 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     "
     :active="isSelected(item.id)"
     controlled
+    class="relative"
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
-    @click="() => emits('selectItem', item.id)">
+    @click="() => emit('selectItem', item.id)">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
@@ -164,18 +166,23 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     {{ item.title }}
     <template
-      v-if="'method' in item || $slots.decorator"
+      v-if="'method' in item"
       #aside>
-      <slot
-        v-if="$slots.decorator"
-        :item="item"
-        name="decorator" />
       <SidebarHttpBadge
         v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
+    </template>
+    <template
+      v-if="slots.decorator"
+      #after>
+      <SidebarItemDecorator>
+        <slot
+          :item
+          name="decorator" />
+      </SidebarItemDecorator>
     </template>
     <template #items>
       <SidebarItem
@@ -190,7 +197,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :options="options"
         :parentIds="[]"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emits('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)">
         <template #decorator="slotProps">
           <slot
             v-bind="slotProps"
@@ -203,9 +210,10 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     is="button"
     v-else
     v-bind="draggableAttrs"
+    class="relative"
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
-    @click="() => emits('selectItem', item.id)">
+    @click="() => emit('selectItem', item.id)">
     <template v-if="item.type === 'model'">
       <ScalarWrappingText
         preset="property"
@@ -220,18 +228,23 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         " />
     </template>
     <template
-      v-if="'method' in item || $slots.decorator"
+      v-if="'method' in item"
       #aside>
-      <slot
-        v-if="$slots.decorator"
-        :item="item"
-        name="decorator" />
       <SidebarHttpBadge
         v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
+    </template>
+    <template
+      v-if="slots.decorator"
+      #after>
+      <SidebarItemDecorator>
+        <slot
+          :item
+          name="decorator" />
+      </SidebarItemDecorator>
     </template>
   </ScalarSidebarItem>
 </template>

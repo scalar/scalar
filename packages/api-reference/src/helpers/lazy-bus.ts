@@ -43,7 +43,7 @@ type UnblockFn = () => void
  * Adds a unique identifier to the intersection blockers set
  * Intersection will not be enabled until the unblock callback is run
  */
-const blockIntersection = (): UnblockFn => {
+export const blockIntersection = (): UnblockFn => {
   const blockId = nanoid()
   intersectionBlockers.add(blockId)
 
@@ -72,20 +72,14 @@ const runLazyBus = () => {
    * Sets all the pending elements into the ready queue
    * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
    */
-  const executeRender = async () => {
+  const processQueue = async () => {
     if (pendingQueue.size > 0 || priorityQueue.size > 0) {
       isRunning.value = true
 
-      for (const id of pendingQueue.values()) {
+      for (const id of [...pendingQueue, ...priorityQueue]) {
         readyQueue.add(id)
         pendingQueue.delete(id)
         priorityQueue.delete(id)
-      }
-
-      for (const id of priorityQueue.values()) {
-        readyQueue.add(id)
-        priorityQueue.delete(id)
-        pendingQueue.delete(id)
       }
     }
 
@@ -99,10 +93,10 @@ const runLazyBus = () => {
   }
 
   if (window.requestIdleCallback) {
-    window.requestIdleCallback(executeRender, { timeout: 1500 })
+    window.requestIdleCallback(processQueue, { timeout: 1500 })
   } else {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-    nextTick(executeRender)
+    nextTick(processQueue)
   }
 }
 
@@ -128,7 +122,7 @@ watchDebounced(
  * We only make elements pending if they are not already in the priority or ready queue
  */
 const addToPendingQueue = (id: string | undefined) => {
-  if (!!id && !readyQueue.has(id) && !priorityQueue.has(id)) {
+  if (!!id && !priorityQueue.has(id)) {
     pendingQueue.add(id)
   }
 }
@@ -137,7 +131,7 @@ const addToPendingQueue = (id: string | undefined) => {
  * We only add elements to the priority queue if they are not already in the ready queue
  */
 const addToPriorityQueue = (id: string | undefined) => {
-  if (id && !readyQueue.has(id)) {
+  if (id) {
     priorityQueue.add(id)
   }
 }
@@ -191,6 +185,9 @@ export const scrollToLazy = (
   /**
    * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
    * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
+   *
+   * If the readyQueue does not have the item we must freeze it while it renders
+   * If the item has lazy children we must freeze the item while the children are (potentially) loaded
    */
   const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
 
@@ -202,7 +199,6 @@ export const scrollToLazy = (
   const { rawId } = getSchemaParamsFromId(id)
 
   addToPriorityQueue(id)
-
   addToPriorityQueue(rawId)
 
   // When there are children we ensure the first 2 are loaded

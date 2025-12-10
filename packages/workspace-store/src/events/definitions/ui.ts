@@ -10,11 +10,24 @@ type CommandPalettePayload = {
   /** Create a new document in the workspace */
   'create-document': undefined
   /** Add a new tag to organize requests */
-  'add-tag': undefined
+  'add-tag': {
+    /** The document id to add the tag to */
+    documentId?: string
+  }
   /** Create a new HTTP request */
-  'create-request': undefined
+  'create-request': {
+    /** The document id to create the request in */
+    documentId?: string
+    /** The tag id to add the request to (optional) */
+    tagId?: string
+  }
   /** Add a new example to an existing request */
-  'add-example': undefined
+  'add-example': {
+    /** The document id to add the example to */
+    documentId?: string
+    /** The operation id to add the example to */
+    operationId?: string
+  }
   /** Import a request from a cURL command string */
   'import-curl-command': {
     /** The cURL command string to parse and import */
@@ -85,8 +98,7 @@ export type UIEvents = {
    * Focus the address bar input field.
    * Typically triggered by keyboard shortcuts for quick navigation.
    */
-  'ui:focus:address-bar': KeyboardEventPayload
-
+  'ui:focus:address-bar': KeyboardEventPayload | undefined
   /**
    * Focus the send button to execute a request.
    * Useful for keyboard-driven workflows.

@@ -1,5 +1,17 @@
 # @scalar/use-hooks
 
+## 0.3.3
+
+### Patch Changes
+
+- [#7506](https://github.com/scalar/scalar/pull/7506) [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: use caret version for `zod`
+
+## 0.3.2
+
+### Patch Changes
+
+- [#7478](https://github.com/scalar/scalar/pull/7478) [`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove emtpy index file from exports
+
 ## 0.3.1
 
 ### Patch Changes

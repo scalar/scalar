@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.5.2
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a), [`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722), [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/workspace-store@0.22.2
+  - @scalar/helpers@0.2.1
+  - @scalar/use-hooks@0.3.3
+  - @scalar/components@0.16.7
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`8842799`](https://github.com/scalar/scalar/commit/884279984b144082e85b699014e77ed71e9ae6a5), [`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a), [`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c)]:
+  - @scalar/workspace-store@0.22.1
+  - @scalar/helpers@0.2.0
+  - @scalar/use-hooks@0.3.2
+  - @scalar/components@0.16.6
+
 ## 0.5.0
 
 ### Minor Changes

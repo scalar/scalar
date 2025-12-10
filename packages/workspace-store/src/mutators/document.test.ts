@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import type { WorkspaceDocument } from '@/schemas'
 
-import { toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
+import { deleteDocument, toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
 
 function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
   return {
@@ -257,5 +258,68 @@ describe('updateDocumentIcon', () => {
 
     expect(document['x-scalar-icon']).toBe('')
     expect(document['x-scalar-navigation']?.icon).toBe('')
+  })
+})
+
+describe('deleteDocument', () => {
+  it('no-ops when store is null', () => {
+    expect(() => deleteDocument(null, { name: 'test-doc' })).not.toThrow()
+  })
+
+  it('deletes an existing document from the workspace', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'doc-to-delete',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+      },
+    })
+
+    expect(store.workspace.documents['doc-to-delete']).toBeDefined()
+
+    deleteDocument(store, { name: 'doc-to-delete' })
+
+    expect(store.workspace.documents['doc-to-delete']).toBeUndefined()
+  })
+
+  it('does not throw when deleting a non-existent document', () => {
+    const store = createWorkspaceStore()
+
+    expect(() => deleteDocument(store, { name: 'non-existent' })).not.toThrow()
+  })
+
+  it('deletes only the specified document and leaves others intact', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'doc-1',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Doc 1', version: '1.0.0' },
+      },
+    })
+    await store.addDocument({
+      name: 'doc-2',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Doc 2', version: '1.0.0' },
+      },
+    })
+    await store.addDocument({
+      name: 'doc-3',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Doc 3', version: '1.0.0' },
+      },
+    })
+
+    expect(Object.keys(store.workspace.documents)).toHaveLength(3)
+
+    deleteDocument(store, { name: 'doc-2' })
+
+    expect(Object.keys(store.workspace.documents)).toHaveLength(2)
+    expect(store.workspace.documents['doc-1']).toBeDefined()
+    expect(store.workspace.documents['doc-2']).toBeUndefined()
+    expect(store.workspace.documents['doc-3']).toBeDefined()
   })
 })

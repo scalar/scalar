@@ -1,21 +1,30 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarSidebarItem } from '@scalar/components'
-import { ScalarIconGlobe } from '@scalar/icons'
+import {
+  ScalarButton,
+  ScalarIconButton,
+  ScalarModal,
+  ScalarSidebarItem,
+  useModal,
+} from '@scalar/components'
+import { ScalarIconDotsThree, ScalarIconGlobe } from '@scalar/icons'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { capitalize, computed } from 'vue'
+import { capitalize, computed, ref } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import ItemDecorator from '@/v2/features/app/components/ItemDecorator.vue'
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { sidebarState, layout, activeWorkspace, store } = defineProps<{
+const { sidebarState, layout, activeWorkspace, store, eventBus } = defineProps<{
   /**
    * The current layout of the app (e.g., 'desktop', 'web')
    */
@@ -108,89 +117,212 @@ const isDroppable = (
 ): boolean => {
   return dragHandlers.value.isDroppable(draggingItem, hoveredItem)
 }
+
+const selectedItem = ref<{
+  item: TraversedEntry
+  target: HTMLElement
+  isOpen: boolean
+} | null>(null)
+
+const deleteModalState = useModal()
+
+const deleteMessage = computed(() => {
+  const item = selectedItem.value?.item
+
+  if (item?.type === 'document') {
+    return "This cannot be undone. You're about to delete the document and all tags and operations inside it."
+  }
+
+  return `Are you sure you want to delete this ${item?.type ?? 'item'}? This action cannot be undone.`
+})
+
+const handleDelete = () => {
+  const item = selectedItem.value?.item
+
+  if (!item) {
+    return
+  }
+
+  const result = sidebarState.getEntryById(item.id)
+
+  const document = getParentEntry('document', result)
+  const operation = getParentEntry('operation', result)
+
+  if (!document) {
+    return
+  }
+
+  if (item.type === 'document') {
+    eventBus.emit('document:delete:document', { name: item.id })
+  } else if (item.type === 'tag') {
+    eventBus.emit('tag:delete:tag', {
+      documentName: document.id,
+      name: item.name,
+    })
+  } else if (item.type === 'operation') {
+    if (!operation) {
+      return
+    }
+
+    eventBus.emit('operation:delete:operation', {
+      meta: {
+        method: operation.method,
+        path: operation.path,
+      },
+      documentName: document.id,
+    })
+  } else if (item.type === 'example') {
+    if (!operation) {
+      return
+    }
+
+    eventBus.emit('operation:delete:example', {
+      meta: {
+        method: operation.method,
+        path: operation.path,
+        exampleKey: item.name,
+      },
+      documentName: document.id,
+    })
+  }
+
+  /** Clean up after deletion */
+  deleteModalState.hide()
+  selectedItem.value = null
+}
+
+const selectItem = (event: MouseEvent, item: TraversedEntry) => {
+  event.preventDefault()
+  event.stopPropagation()
+  selectedItem.value = {
+    item,
+    target: event.currentTarget as HTMLElement,
+    isOpen: true,
+  }
+}
+
+// Closes the decorator dropdown menu by setting isOpen to false on the selected item
+const handleCloseMenu = () => {
+  if (selectedItem.value) {
+    selectedItem.value.isOpen = false
+  }
+}
 </script>
 
 <template>
-  <Sidebar
-    v-model:isSidebarOpen="isSidebarOpen"
-    v-model:sidebarWidth="sidebarWidth"
-    :activeWorkspace="activeWorkspace"
-    :documents="Object.values(store.workspace.documents)"
-    :eventBus="eventBus"
-    :isDroppable="isDroppable"
-    :layout="layout"
-    :sidebarState="sidebarState"
-    :workspaces="workspaces"
-    @create:workspace="emit('create:workspace')"
-    @reorder="
-      (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
-    "
-    @select:workspace="(id) => emit('select:workspace', id)"
-    @selectItem="(id) => emit('selectItem', id)">
-    <!-- Workspace Identifier -->
-    <template #workspaceButton>
-      <ScalarSidebarItem
-        is="button"
-        :active="isWorkspaceOpen"
-        :icon="ScalarIconGlobe"
-        @click="emit('click:workspace')">
-        {{ workspaceLabel }}
-      </ScalarSidebarItem>
-    </template>
+  <div class="flex">
+    <Sidebar
+      v-model:isSidebarOpen="isSidebarOpen"
+      v-model:sidebarWidth="sidebarWidth"
+      :activeWorkspace="activeWorkspace"
+      :documents="Object.values(store.workspace.documents)"
+      :eventBus="eventBus"
+      :isDroppable="isDroppable"
+      :layout="layout"
+      :sidebarState="sidebarState"
+      :workspaces="workspaces"
+      @create:workspace="emit('create:workspace')"
+      @reorder="
+        (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
+      "
+      @select:workspace="(id) => emit('select:workspace', id)"
+      @selectItem="(id) => emit('selectItem', id)">
+      <!-- Workspace Identifier -->
+      <template #workspaceButton>
+        <ScalarSidebarItem
+          is="button"
+          :active="isWorkspaceOpen"
+          :icon="ScalarIconGlobe"
+          @click="emit('click:workspace')">
+          {{ workspaceLabel }}
+        </ScalarSidebarItem>
+      </template>
 
-    <!-- Getting started section -->
-    <template
-      v-if="layout !== 'modal'"
-      #footer>
-      <div
-        :class="{
-          'empty-sidebar-item border-t': showGettingStarted,
-        }">
+      <!-- Decorator dropdown menu -->
+      <template #decorator="{ item }">
+        <ScalarIconButton
+          :icon="ScalarIconDotsThree"
+          label="More options"
+          size="sm"
+          weight="bold"
+          @click="(e: MouseEvent) => selectItem(e, item)" />
+      </template>
+
+      <!-- Getting started section -->
+      <template
+        v-if="layout !== 'modal'"
+        #footer>
         <div
-          v-if="showGettingStarted"
-          class="empty-sidebar-item-content overflow-hidden px-2.5 py-2.5">
-          <div class="rabbit-ascii relative m-auto mt-2 h-[68px] w-[60px]">
-            <ScalarAsciiArt
-              :art="Rabbit"
-              class="rabbitsit font-bold" />
-            <ScalarAsciiArt
-              :art="RabbitJump"
-              class="rabbitjump absolute top-0 left-0 font-bold" />
-          </div>
-          <div class="mt-2 mb-2 text-center text-sm text-balance">
-            <b class="font-medium">Let's Get Started</b>
-            <p class="mt-2 leading-3">
-              Create request, folder, collection or import from OpenAPI/Postman
-            </p>
-          </div>
-        </div>
-
-        <div class="gap-1.5 p-2">
-          <ScalarButton
+          :class="{
+            'empty-sidebar-item border-t': showGettingStarted,
+          }">
+          <div
             v-if="showGettingStarted"
-            class="w-full"
-            size="sm"
-            @click="
-              eventBus.emit('ui:open:command-palette', {
-                action: 'import-from-openapi-swagger-postman-curl',
-                payload: undefined,
-              })
-            ">
-            Import Collection
-          </ScalarButton>
+            class="empty-sidebar-item-content overflow-hidden px-2.5 py-2.5">
+            <div class="rabbit-ascii relative m-auto mt-2 h-[68px] w-[60px]">
+              <ScalarAsciiArt
+                :art="Rabbit"
+                class="rabbitsit font-bold" />
+              <ScalarAsciiArt
+                :art="RabbitJump"
+                class="rabbitjump absolute top-0 left-0 font-bold" />
+            </div>
+            <div class="mt-2 mb-2 text-center text-sm text-balance">
+              <b class="font-medium">Let's Get Started</b>
+              <p class="mt-2 leading-3">
+                Create request, folder, collection or import from
+                OpenAPI/Postman
+              </p>
+            </div>
+          </div>
 
-          <ScalarButton
-            class="w-full"
-            hotkey="K"
-            size="sm"
-            variant="outlined"
-            @click="eventBus.emit('ui:open:command-palette')">
-            Add Item
-          </ScalarButton>
+          <div class="gap-1.5 p-2">
+            <ScalarButton
+              v-if="showGettingStarted"
+              class="w-full"
+              size="sm"
+              @click="
+                eventBus.emit('ui:open:command-palette', {
+                  action: 'import-from-openapi-swagger-postman-curl',
+                  payload: undefined,
+                })
+              ">
+              Import Collection
+            </ScalarButton>
+
+            <ScalarButton
+              class="w-full"
+              hotkey="K"
+              size="sm"
+              variant="outlined"
+              @click="eventBus.emit('ui:open:command-palette')">
+              Add Item
+            </ScalarButton>
+          </div>
         </div>
-      </div>
-    </template>
-  </Sidebar>
+      </template>
+    </Sidebar>
+    <ItemDecorator
+      v-if="selectedItem && selectedItem.isOpen"
+      :eventBus="eventBus"
+      :item="selectedItem.item"
+      :sidebarState="sidebarState"
+      :target="selectedItem.target"
+      @closeMenu="handleCloseMenu"
+      @showDeleteModal="deleteModalState.show()" />
+    <!-- Delete Modal -->
+    <ScalarModal
+      v-if="selectedItem"
+      :size="'xxs'"
+      :state="deleteModalState"
+      :title="`Delete ${selectedItem.item.title}`">
+      <DeleteSidebarListElement
+        :variableName="selectedItem.item.title"
+        :warningMessage="deleteMessage"
+        @close="deleteModalState.hide()"
+        @delete="handleDelete" />
+    </ScalarModal>
+  </div>
 </template>
 
 <style scoped>

@@ -178,10 +178,10 @@ catalogs:
       specifier: ^2.2.0
       version: 2.2.12
     yaml:
-      specifier: 2.8.0
+      specifier: ^2.8.0
       version: 2.8.0
     zod:
-      specifier: 4.1.11
+      specifier: ^4.1.11
       version: 4.1.11
 
 importers:

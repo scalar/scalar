@@ -64,6 +64,9 @@ const handleClick = (event: MouseEvent) => {
     v-bind="cx('group/item flex flex-col gap-px')"
     :is="is">
     <slot
+      name="before"
+      :open />
+    <slot
       :level="level"
       name="button"
       :open>
@@ -78,7 +81,7 @@ const handleClick = (event: MouseEvent) => {
         @click="handleClick">
         <template #indent>
           <ScalarSidebarIndent
-            class="mr-0"
+            class="mr-0 -my-2"
             :indent="level" />
         </template>
         <template #icon>
@@ -100,6 +103,9 @@ const handleClick = (event: MouseEvent) => {
         <slot :open />
       </ScalarSidebarButton>
     </slot>
+    <slot
+      name="after"
+      :open />
     <ul
       v-if="open"
       class="group/items flex flex-col gap-px">

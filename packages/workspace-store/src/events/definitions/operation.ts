@@ -1,7 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { OperationExampleMeta, OperationMeta } from '@/mutators'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Event definitions for the operation */
 export type OperationEvents = {
@@ -55,31 +55,41 @@ export type OperationEvents = {
   }
 
   /**
-   * Update the HTTP method for the operation.
-   * Triggers when the user changes the HTTP verb (e.g., from GET to POST) in the UI for a given operation.
+   * Update the HTTP method or path for the operation.
+   * Triggers when the user changes the HTTP verb (e.g., from GET to POST) or path in the UI for a given operation.
+   * We send the full payload each time
    */
-  'operation:update:method': {
+  'operation:update:pathMethod': {
     payload: {
-      /** The new method for the operation */
+      /** The new or old method for the operation */
       method: HttpMethod
-    }
-    /** Identifies the target operation by original method and path */
-    meta: OperationExampleMeta
-  }
-
-  /**
-   * Update the path for the operation.
-   * Triggers when the user changes the endpoint path for a given operation in the UI.
-   * - `payload.path` is the new path for the operation.
-   * - `meta` identifies the operation by its original method and path.
-   */
-  'operation:update:path': {
-    payload: {
-      /** The new path for the operation */
+      /** The new or old path for the operation */
       path: string
     }
     /** Identifies the target operation by original method and path */
     meta: OperationMeta
+    /** Callback, on completion */
+    callback: (status: 'conflict' | 'no-change' | 'success') => void
+  }
+
+  /**
+   * Delete an operation from the workspace
+   */
+  'operation:delete:operation': {
+    /** The document name where the operation should be deleted */
+    documentName: string
+    /** Identifies the target operation by original method and path */
+    meta: OperationMeta
+  }
+
+  /**
+   * Delete an example from the operation
+   */
+  'operation:delete:example': {
+    /** The document name where the operation should be deleted */
+    documentName: string
+    /** Identifies the target operation by original method and path */
+    meta: OperationExampleMeta
   }
 
   /** ------------------------------------------------------------------------------------------------

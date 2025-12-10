@@ -1,5 +1,18 @@
 # @scalar/core
 
+## 0.3.26
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/types@0.5.2
+
+## 0.3.25
+
+### Patch Changes
+
+- [#7494](https://github.com/scalar/scalar/pull/7494) [`daa5df4`](https://github.com/scalar/scalar/commit/daa5df45386fa2305275fbf0a7bbcede6bcf9edc) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: remove empty index file
+
 ## 0.3.24
 
 ### Patch Changes

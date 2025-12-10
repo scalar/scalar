@@ -40,9 +40,13 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore } = defineProps<{
+const { workspaceStore, documentId, operationId } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
+  /** Document id to create the example for */
+  documentId?: string
+  /** Preselected path and method to create the example for */
+  operationId?: string
 }>()
 
 const emit = defineEmits<{
@@ -76,10 +80,10 @@ const availableDocuments = computed(() =>
 )
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  availableDocuments.value[0] ?? undefined,
+  documentId
+    ? availableDocuments.value.find((document) => document.id === documentId)
+    : (availableDocuments.value[0] ?? undefined),
 )
-
-const selectedOperation = ref<OperationOption | undefined>(undefined)
 
 /**
  * Recursively traverse navigation entries to find all operations.
@@ -124,11 +128,23 @@ const availableOperations = computed(() => {
   }))
 })
 
+const selectedOperation = ref<OperationOption | undefined>(
+  operationId
+    ? availableOperations.value.find(
+        (operation) => operation.id === operationId,
+      )
+    : undefined,
+)
+
 /** Reset operation selection when document changes */
 watch(
   selectedDocument,
   () => {
-    selectedOperation.value = availableOperations.value[0] ?? undefined
+    selectedOperation.value = operationId
+      ? availableOperations.value.find(
+          (operation) => operation.id === operationId,
+        )
+      : (availableOperations.value[0] ?? undefined)
   },
   { immediate: true },
 )

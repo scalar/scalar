@@ -30,11 +30,13 @@ import { computed, ref } from 'vue'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus } = defineProps<{
+const { workspaceStore, eventBus, documentId } = defineProps<{
   /** The workspace store for accessing documents and tags */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting tag creation events */
   eventBus: WorkspaceEventBus
+  /** Preselected document id to create the tag in */
+  documentId?: string
 }>()
 
 const emit = defineEmits<{
@@ -58,7 +60,9 @@ const availableDocuments = computed(() =>
 )
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  availableDocuments.value[0] ?? undefined,
+  documentId
+    ? availableDocuments.value.find((document) => document.id === documentId)
+    : (availableDocuments.value[0] ?? undefined),
 )
 
 /**
@@ -101,11 +105,6 @@ const handleSubmit = (): void => {
   eventBus.emit('tag:create:tag', {
     name: nameTrimmed.value,
     documentName: selectedDocument.value.id,
-    callback: (success) => {
-      if (success) {
-        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
-      }
-    },
   })
 
   emit('close')

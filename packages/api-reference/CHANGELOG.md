@@ -1,5 +1,55 @@
 # @scalar/api-reference
 
+## 1.40.4
+
+### Patch Changes
+
+- [#7513](https://github.com/scalar/scalar/pull/7513) [`2b46ee2`](https://github.com/scalar/scalar/commit/2b46ee2773023ca348e8691e1123970ca58090e5) Thanks [@bgrcs](https://github.com/bgrcs)! - clean-up exports
+
+## 1.40.3
+
+### Patch Changes
+
+- [#7506](https://github.com/scalar/scalar/pull/7506) [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: use caret version for `zod`
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a), [`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722), [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/api-client@2.14.1
+  - @scalar/json-magic@0.8.5
+  - @scalar/oas-utils@0.6.7
+  - @scalar/openapi-parser@0.23.6
+  - @scalar/workspace-store@0.22.2
+  - @scalar/helpers@0.2.1
+  - @scalar/openapi-types@0.5.3
+  - @scalar/types@0.5.2
+  - @scalar/use-hooks@0.3.3
+  - @scalar/components@0.16.7
+  - @scalar/sidebar@0.5.2
+  - @scalar/object-utils@1.2.15
+  - @scalar/openapi-upgrader@0.1.6
+  - @scalar/snippetz@0.5.5
+
+## 1.40.2
+
+### Patch Changes
+
+- [#7496](https://github.com/scalar/scalar/pull/7496) [`08d137a`](https://github.com/scalar/scalar/commit/08d137a1d9172bd51a9a401fb0101ddf90d3b1a8) Thanks [@amritk](https://github.com/amritk)! - fix: disable intersection observer when opening tag
+
+- [#7483](https://github.com/scalar/scalar/pull/7483) [`f446bbc`](https://github.com/scalar/scalar/commit/f446bbc0b8aec7fa7314603fd48471f06c1318d5) Thanks [@hanspagel](https://github.com/hanspagel)! - fix: can not use relative URLs in oauth security schemes
+
+- [#7497](https://github.com/scalar/scalar/pull/7497) [`b77fa53`](https://github.com/scalar/scalar/commit/b77fa5356a1ad51766b6dd6b20e10c408924a8ff) Thanks [@geoffgscott](https://github.com/geoffgscott)! - Fix queue change logic
+
+- Updated dependencies [[`8842799`](https://github.com/scalar/scalar/commit/884279984b144082e85b699014e77ed71e9ae6a5), [`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a), [`cc4de25`](https://github.com/scalar/scalar/commit/cc4de2587b36f0d169b01c1bf312ba91b67e3e0c), [`f446bbc`](https://github.com/scalar/scalar/commit/f446bbc0b8aec7fa7314603fd48471f06c1318d5)]:
+  - @scalar/workspace-store@0.22.1
+  - @scalar/api-client@2.14.0
+  - @scalar/helpers@0.2.0
+  - @scalar/use-hooks@0.3.2
+  - @scalar/oas-utils@0.6.6
+  - @scalar/sidebar@0.5.1
+  - @scalar/components@0.16.6
+  - @scalar/json-magic@0.8.4
+  - @scalar/object-utils@1.2.14
+  - @scalar/openapi-parser@0.23.5
+
 ## 1.40.1
 
 ### Patch Changes

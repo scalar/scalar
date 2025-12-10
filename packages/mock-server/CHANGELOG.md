@@ -1,5 +1,27 @@
 # @scalar/mock-server
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a), [`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722), [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/json-magic@0.8.5
+  - @scalar/oas-utils@0.6.7
+  - @scalar/openapi-parser@0.23.6
+  - @scalar/helpers@0.2.1
+  - @scalar/openapi-types@0.5.3
+  - @scalar/openapi-upgrader@0.1.6
+
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a)]:
+  - @scalar/helpers@0.2.0
+  - @scalar/oas-utils@0.6.6
+  - @scalar/json-magic@0.8.4
+  - @scalar/openapi-parser@0.23.5
+
 ## 0.8.0
 
 ### Minor Changes

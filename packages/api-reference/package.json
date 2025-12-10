@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.40.1",
+  "version": "1.40.4",
   "engines": {
     "node": ">=20"
   },
@@ -61,6 +61,26 @@
       "import": "./dist/components/index.js",
       "types": "./dist/components/index.d.ts",
       "default": "./dist/components/index.js"
+    },
+    "./blocks": {
+      "import": "./dist/blocks/index.js",
+      "types": "./dist/blocks/index.d.ts",
+      "default": "./dist/blocks/index.js"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/index.js",
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
+    },
+    "./features": {
+      "import": "./dist/features/index.js",
+      "types": "./dist/features/index.d.ts",
+      "default": "./dist/features/index.js"
     },
     "./helpers": {
       "import": "./dist/helpers/index.js",

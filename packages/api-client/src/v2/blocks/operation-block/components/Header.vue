@@ -44,18 +44,6 @@ const { hideClientButton = false } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'execute'): void
-  (
-    e: 'update:path',
-    payload: {
-      value: string
-    },
-  ): void
-  (
-    e: 'update:method',
-    payload: {
-      value: HttpMethod
-    },
-  ): void
   (e: 'update:servers'): void
 }>()
 </script>
@@ -66,7 +54,7 @@ const emit = defineEmits<{
     <div
       class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <!--
-          Holds space for the sidebar toggle 
+          Holds space for the sidebar toggle
 
           Hidden for `modal` layout
       -->
@@ -83,13 +71,11 @@ const emit = defineEmits<{
       :server
       :servers
       @execute="emit('execute')"
-      @update:method="(payload) => emit('update:method', payload)"
-      @update:path="(payload) => emit('update:path', payload)"
       @update:servers="emit('update:servers')" />
 
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
-      <!-- 
+      <!--
           Open API Client Button
 
           Only shown in `modal` layout
@@ -102,7 +88,7 @@ const emit = defineEmits<{
         :source="source ?? 'api-reference'"
         :url="documentUrl" />
 
-      <!-- 
+      <!--
           Close Button
 
           Only shown in `modal` layout and hidden for GitBook Integration
@@ -119,7 +105,7 @@ const emit = defineEmits<{
         <span class="sr-only">Close Client</span>
       </button>
 
-      <!-- 
+      <!--
           Close Button for GitBook Integration
 
           Hidden by default and visible for GitBook Integration in `modal` layout

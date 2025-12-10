@@ -429,6 +429,12 @@
       "matchFileNames": ["integrations/java/**"],
       "matchPackageNames": ["org.springframework.boot:*"],
       "enabled": false
+    },
+    {
+      "description": "Disable updates for node docker images. We update images manually.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["node**"],
+      "enabled": false
     }
   ]
 }

@@ -1,5 +1,31 @@
 # @scalar/oas-utils
 
+## 0.6.7
+
+### Patch Changes
+
+- [#7506](https://github.com/scalar/scalar/pull/7506) [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: use caret version for `yaml`
+
+- [#7506](https://github.com/scalar/scalar/pull/7506) [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: use caret version for `zod`
+
+- Updated dependencies [[`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a), [`21aa62e`](https://github.com/scalar/scalar/commit/21aa62e2ebdd262cb5aa53658c3b659736660722), [`72cd82f`](https://github.com/scalar/scalar/commit/72cd82fb8df63a9e5d0db1202978aebfefd0457a)]:
+  - @scalar/json-magic@0.8.5
+  - @scalar/workspace-store@0.22.2
+  - @scalar/helpers@0.2.1
+  - @scalar/openapi-types@0.5.3
+  - @scalar/types@0.5.2
+  - @scalar/object-utils@1.2.15
+
+## 0.6.6
+
+### Patch Changes
+
+- Updated dependencies [[`8842799`](https://github.com/scalar/scalar/commit/884279984b144082e85b699014e77ed71e9ae6a5), [`9ec8adf`](https://github.com/scalar/scalar/commit/9ec8adfea017333dee5bc3949104232f7dc57f4a)]:
+  - @scalar/workspace-store@0.22.1
+  - @scalar/helpers@0.2.0
+  - @scalar/json-magic@0.8.4
+  - @scalar/object-utils@1.2.14
+
 ## 0.6.5
 
 ### Patch Changes
