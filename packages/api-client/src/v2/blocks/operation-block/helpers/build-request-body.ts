@@ -25,14 +25,32 @@ export const buildRequestBody = (
 
   // We got an example value or generated example from the schema
   if (example?.value) {
+    console.log('example', example)
+    console.log('selectedContentType', selectedContentType)
+    // Form data
+    if (selectedContentType === 'multipart/form-data' || selectedContentType === 'application/x-www-form-urlencoded') {
+      const form = selectedContentType === 'multipart/form-data' ? new FormData() : new URLSearchParams()
+
+      // Loop over all entries and add them to the form
+      example.value.forEach(({ name, value }: { name: string; value: string }) => {
+        if (!name) {
+          return
+        }
+
+        const replacedName = replaceEnvVariables(name, env)
+        // Handle file uploads
+        if (value instanceof File) {
+          console.log('file', value)
+        }
+
+        form.append(replaceEnvVariables(name, env), replaceEnvVariables(value, env))
+      })
+
+      return form
+    }
+
     return typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
   }
-
-  // if (example.body.activeBody === 'formData' && example.body.formData) {
-  //   const contentType =
-  //     example.body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'
-
-  //   const form = example.body.formData.encoding === 'form-data' ? new FormData() : new URLSearchParams()
 
   //   // Build formData
   //   example.body.formData.value.forEach((entry) => {
