@@ -63,6 +63,15 @@ const meta: Meta = {
   component: ScalarSidebar,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
+  args: {
+    indent: 20,
+    backgroundOne: 'var(--scalar-background-1)',
+    colorOne: 'var(--scalar-color-1)',
+    colorTwo: 'var(--scalar-color-2)',
+    borderColor: 'var(--scalar-border-color)',
+    itemHoverBackground: 'var(--scalar-background-2)',
+    itemHoverColor: 'currentColor',
+  },
   argTypes: {
     class: { control: 'text' },
     controlled: { control: 'boolean' },
@@ -75,6 +84,21 @@ const meta: Meta = {
         Audio: ScalarIconFileAudio,
       },
     },
+    indent: { control: 'number' },
+    backgroundOne: { control: 'color' },
+    colorOne: { control: 'color' },
+    colorTwo: { control: 'color' },
+    borderColor: { control: 'color' },
+    itemHoverBackground: { control: 'color' },
+    itemHoverColor: { control: 'color' },
+    itemActiveBackground: { control: 'color' },
+    itemActiveColor: { control: 'color' },
+    indentBorder: { control: 'color' },
+    indentBorderHover: { control: 'color' },
+    indentBorderActive: { control: 'color' },
+    searchBackground: { control: 'color' },
+    searchColor: { control: 'color' },
+    searchBorderColor: { control: 'color' },
   },
   render: (args) => ({
     components: { ScalarSidebarPlayground },
@@ -82,7 +106,7 @@ const meta: Meta = {
       return { args }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-bind="args">
 </ScalarSidebarPlayground>
 `,
   }),
@@ -109,7 +133,7 @@ export const WithNestedGroups: Story = {
       return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-model:selected="selected" :indent="args.indent">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     ${nestedItemGroups}
   </ScalarSidebarItems>
@@ -135,7 +159,7 @@ export const WithNestedSidebars: Story = {
       return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-model:selected="selected" :indent="args.indent">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     <ScalarSidebarNestedItems :controlled="args.controlled">
       Nested Items Level 1
@@ -191,9 +215,9 @@ export const WithFooterContent: Story = {
       return { args }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-bind="args">
   <template #footer>
-    <ScalarSidebarFooter v-bind="args">
+    <ScalarSidebarFooter>
       <span class="placeholder">Extra footer content</span>
     </ScalarSidebarFooter>
   </template>
@@ -217,7 +241,7 @@ export const WithSections: Story = {
       return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-model:selected="selected">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     <ScalarSidebarSection>
       Section 1
@@ -264,10 +288,10 @@ export const WithSearchButton: Story = {
       return { args }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-bind="args">
     <template #search>
       <div class="flex flex-col px-3 pt-3 sticky top-0 bg-sidebar-b-1">
-      <ScalarSidebarSearchButton v-bind="args">
+      <ScalarSidebarSearchButton>
         <template #shortcut>
           <span>⌘ K</span>
         </template>
