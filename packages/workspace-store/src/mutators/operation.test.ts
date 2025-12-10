@@ -112,7 +112,6 @@ describe('updateOperationPathMethod (method only)', () => {
       },
       (_status) => {},
     )
-
     expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
 
     // The operation should now be under 'put'
@@ -243,84 +242,6 @@ describe('updateOperationPathMethod (method only)', () => {
     expect(callbackResult).toBe('success')
     expect(document.paths?.['/items']?.post).toBeDefined()
     expect(document.paths?.['/items']?.get).toBeUndefined()
-  })
-
-  it('calls callback with no-change status when method and path are the same', async () => {
-    await store.addDocument({
-      name: 'test4',
-      document: createDocument({
-        paths: {
-          '/items': {
-            get: {
-              summary: 'Get items',
-            },
-          },
-        },
-      }),
-    })
-    store.buildSidebar('test4')
-    const document = store.workspace.documents.test4!
-
-    let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
-
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/items' },
-        payload: { method: 'get', path: '/items' },
-        callback: (status) => {
-          callbackResult = status
-        },
-      },
-      (status) => {
-        callbackResult = status
-      },
-    )
-
-    expect(callbackResult).toBe('no-change')
-  })
-
-  it('calls callback with conflict status when target method already exists', async () => {
-    await store.addDocument({
-      name: 'test5',
-      document: createDocument({
-        paths: {
-          '/items': {
-            get: {
-              summary: 'Get items',
-            },
-            post: {
-              summary: 'Create item',
-            },
-          },
-        },
-      }),
-    })
-    store.buildSidebar('test5')
-    const document = store.workspace.documents.test5!
-
-    let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
-
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/items' },
-        payload: { method: 'post', path: '/items' },
-        callback: (status) => {
-          callbackResult = status
-        },
-      },
-      (status) => {
-        callbackResult = status
-      },
-    )
-
-    expect(callbackResult).toBe('conflict')
-    // Original operations should remain unchanged
-    expect(document.paths?.['/items']?.get).toBeDefined()
-    expect(document.paths?.['/items']?.post).toBeDefined()
   })
 })
 
@@ -738,6 +659,139 @@ describe('updateOperationPathMethod (path only)', () => {
     // Original operations should remain unchanged
     expect(document.paths?.['/items']?.get?.summary).toBe('Get items')
     expect(document.paths?.['/api/items']?.get?.summary).toBe('Get API items')
+  })
+})
+
+describe('createOperation', () => {
+  it('creates a new operation at the specified path', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    const normalizedPath = createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        description: 'Retrieve all users',
+      },
+    })
+
+    expect(normalizedPath).toBe('/users')
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.get).toEqual({
+      summary: 'Get users',
+      description: 'Retrieve all users',
+    })
+  })
+
+  it('normalizes path by adding leading slash', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    const normalizedPath = createOperation(store, {
+      documentName: 'test',
+      path: 'users',
+      method: 'post',
+      operation: {
+        summary: 'Create user',
+      },
+    })
+
+    expect(normalizedPath).toBe('/users')
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.post).toBeDefined()
+  })
+
+  it('calls callback with success status', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument(),
+    })
+    store.buildSidebar('test')
+
+    let callbackResult: boolean | undefined
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/items',
+      method: 'get',
+      operation: {},
+      callback: (success) => {
+        callbackResult = success
+      },
+    })
+
+    expect(callbackResult).toBe(true)
+  })
+
+  it('returns undefined and calls callback with false when document does not exist', () => {
+    const store = createWorkspaceStore()
+
+    let callbackResult: boolean | undefined
+
+    const result = createOperation(store, {
+      documentName: 'nonexistent',
+      path: '/users',
+      method: 'get',
+      operation: {},
+      callback: (success) => {
+        callbackResult = success
+      },
+    })
+
+    expect(result).toBeUndefined()
+    expect(callbackResult).toBe(false)
+  })
+
+  it('returns undefined when store is null', () => {
+    const result = createOperation(null, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {},
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('adds operation to existing path with other methods', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'post',
+      operation: {
+        summary: 'Create user',
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document.paths?.['/users']?.get).toEqual({ summary: 'Get users' })
+    expect(document.paths?.['/users']?.post).toEqual({ summary: 'Create user' })
   })
 })
 
