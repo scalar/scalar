@@ -120,7 +120,7 @@ const handleDocumentDelete = () => {
         <ScalarButton
           class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
           :disabled="isDraftDocument"
-          :variant="'danger'"
+          variant="danger"
           @click="handleDeleteClick">
           Delete Collection
         </ScalarButton>
@@ -134,7 +134,7 @@ const handleDocumentDelete = () => {
     :title="`Delete ${title}`">
     <DeleteSidebarListElement
       :variableName="title ?? ''"
-      :warningMessage="'This action cannot be undone.'"
+      warningMessage="This action cannot be undone."
       @close="deleteModal.hide()"
       @delete="handleDocumentDelete" />
   </ScalarModal>
