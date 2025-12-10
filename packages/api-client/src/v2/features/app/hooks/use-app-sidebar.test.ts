@@ -1,7 +1,7 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import { useAppSidebar } from '@/v2/features/app/hooks/use-app-sidebar'
 
@@ -60,13 +60,13 @@ describe('use-app-sidebar', () => {
       document,
     })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>('/pets')
-    const method = ref<'get' | undefined>('get')
-    const exampleName = ref<string | undefined>('default')
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => '/pets')
+    const method = computed<'get' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => 'default')
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -88,13 +88,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>(undefined)
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => undefined)
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { handleSelectItem, state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -134,13 +134,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { handleSelectItem, state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -182,13 +182,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>('/pets')
-    const method = ref<'get' | undefined>('get')
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => '/pets')
+    const method = computed<'get' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { handleSelectItem, state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -222,13 +222,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { handleSelectItem, state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -252,13 +252,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { handleSelectItem } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -282,13 +282,13 @@ describe('use-app-sidebar', () => {
     await store.addDocument({ name: 'pets', document })
 
     const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>('/pets')
-    const method = ref<'get' | undefined>('get')
-    const exampleName = ref<string | undefined>(undefined)
+    const path = computed<string | undefined>(() => '/pets')
+    const method = computed<'get' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
-      documentSlug,
+      workspaceStore: ref(store),
+      documentSlug: computed(() => documentSlug.value),
       path,
       method,
       exampleName,
@@ -311,13 +311,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>('/pets')
-    const method = ref<'get' | undefined>('get')
-    const exampleName = ref<string | undefined>('nonexistent')
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => '/pets')
+    const method = computed<'get' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => 'nonexistent')
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -334,13 +334,13 @@ describe('use-app-sidebar', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document })
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -362,13 +362,13 @@ describe('use-app-sidebar', () => {
 
     store.update('x-scalar-order', ['dogs', 'birds', 'pets'])
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,
@@ -389,13 +389,13 @@ describe('use-app-sidebar', () => {
 
     store.update('x-scalar-order', ['dogs'])
 
-    const documentSlug = ref<string | undefined>('pets')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<'get' | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'pets')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useAppSidebar({
-      workspaceStore: store,
+      workspaceStore: ref(store),
       documentSlug,
       path,
       method,

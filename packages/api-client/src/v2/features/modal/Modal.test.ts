@@ -3,7 +3,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick } from 'vue'
 
 import 'fake-indexeddb/auto'
 
@@ -56,12 +56,12 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
 
   store.update('x-scalar-active-document', 'test-doc')
 
-  const documentSlug = ref('test-doc')
-  const path = ref<string | undefined>('/users')
-  const method = ref<'get' | 'post' | undefined>('get')
-  const exampleName = ref<string | undefined>('default')
+  const documentSlug = computed<string | undefined>(() => 'test-doc')
+  const path = computed<string | undefined>(() => '/users')
+  const method = computed<'get' | 'post' | undefined>(() => 'get')
+  const exampleName = computed<string | undefined>(() => 'default')
 
-  const document = computed(() => store.workspace.documents[documentSlug.value] ?? null)
+  const document = computed(() => store.workspace.documents[documentSlug.value ?? ''] ?? null)
   const modalState = useModal()
 
   const sidebarState = useModalSidebar({
@@ -180,10 +180,10 @@ describe('Modal', () => {
     const emptyDocument = computed(() => null)
     const sidebarState = useModalSidebar({
       workspaceStore: store,
-      documentSlug: ref(undefined),
-      path: ref(undefined),
-      method: ref(undefined),
-      exampleName: ref(undefined),
+      documentSlug: computed<string | undefined>(() => undefined),
+      path: computed<string | undefined>(() => undefined),
+      method: computed<'get' | 'post' | undefined>(() => undefined),
+      exampleName: computed<string | undefined>(() => undefined),
       route: vi.fn(),
     })
 
@@ -349,9 +349,6 @@ describe('Modal', () => {
 
   it('passes correct props to Operation component', async () => {
     const { props, modalState, path, method, exampleName } = await createModalProps()
-    path.value = '/pets'
-    method.value = 'get'
-    exampleName.value = 'example-1'
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -362,9 +359,9 @@ describe('Modal', () => {
      */
     const operation = wrapper.findComponent({ name: 'Operation' })
     expect(operation.exists()).toBe(true)
-    expect(operation.props('path')).toBe('/pets')
-    expect(operation.props('method')).toBe('get')
-    expect(operation.props('exampleName')).toBe('example-1')
+    expect(operation.props('path')).toBe(path.value)
+    expect(operation.props('method')).toBe(method.value)
+    expect(operation.props('exampleName')).toBe(exampleName.value)
     expect(operation.props('layout')).toBe('modal')
 
     wrapper.unmount()

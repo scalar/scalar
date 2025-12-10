@@ -52,17 +52,17 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
 
   /** Resolved parameters from the workspace store. */
   const resolvedParameters = computed(() => resolveRouteParameters(workspaceStore, parameters))
-  const doucmentSlug = computed(() => resolvedParameters.value.documentSlug)
+  const documentSlug = computed(() => resolvedParameters.value.documentSlug)
   const path = computed(() => resolvedParameters.value.path)
   const method = computed(() => resolvedParameters.value.method)
   const exampleName = computed(() => resolvedParameters.value.example)
   /** The document from the workspace store. */
-  const document = computed(() => workspaceStore.workspace.documents[doucmentSlug.value ?? ''] ?? null)
+  const document = computed(() => workspaceStore.workspace.documents[documentSlug.value ?? ''] ?? null)
 
   /** Sidebar state and selection handling. */
   const sidebarState = useModalSidebar({
     workspaceStore,
-    documentSlug: doucmentSlug,
+    documentSlug: documentSlug,
     path: path,
     method: method,
     exampleName: exampleName,

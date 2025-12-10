@@ -1,9 +1,8 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import 'fake-indexeddb/auto'
 
@@ -61,10 +60,10 @@ const createTestStore = async (documentOverrides: Partial<OpenApiDocument> = {})
 describe('use-modal-sidebar', () => {
   it('creates sidebar state from workspace entries', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useModalSidebar({
       workspaceStore: store,
@@ -87,10 +86,10 @@ describe('use-modal-sidebar', () => {
 
   it('returns empty entries when document slug is not set', async () => {
     const store = await createTestStore()
-    const documentSlug = ref<string | undefined>(undefined)
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => undefined)
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useModalSidebar({
       workspaceStore: store,
@@ -110,10 +109,10 @@ describe('use-modal-sidebar', () => {
   })
 
   it('returns empty entries when workspace store is null', async () => {
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { state } = useModalSidebar({
       workspaceStore: null,
@@ -134,10 +133,10 @@ describe('use-modal-sidebar', () => {
 
   it('finds entry by location with path and method', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
@@ -167,10 +166,10 @@ describe('use-modal-sidebar', () => {
 
   it('falls back to operation when example is not found', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
@@ -199,10 +198,10 @@ describe('use-modal-sidebar', () => {
 
   it('finds operation entry without example', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
@@ -230,10 +229,10 @@ describe('use-modal-sidebar', () => {
 
   it('returns undefined for non-existent location', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const { getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
@@ -260,10 +259,10 @@ describe('use-modal-sidebar', () => {
 
   it('handles item selection for operation entry', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const route = vi.fn()
 
@@ -300,10 +299,10 @@ describe('use-modal-sidebar', () => {
 
   it('handles item selection for different operation', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const route = vi.fn()
 
@@ -340,10 +339,10 @@ describe('use-modal-sidebar', () => {
 
   it('toggles expansion when selecting already selected item', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>('/pets')
-    const method = ref<HttpMethod | undefined>('get')
-    const exampleName = ref<string | undefined>('default')
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => '/pets')
+    const method = computed<'get' | 'post' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => 'default')
 
     const route = vi.fn()
 
@@ -383,10 +382,10 @@ describe('use-modal-sidebar', () => {
 
   it('warns when selecting non-existent entry', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const route = vi.fn()
@@ -426,10 +425,10 @@ describe('use-modal-sidebar', () => {
         },
       },
     })
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>(undefined)
-    const method = ref<HttpMethod | undefined>(undefined)
-    const exampleName = ref<string | undefined>(undefined)
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => undefined)
+    const method = computed<'get' | 'post' | undefined>(() => undefined)
+    const exampleName = computed<string | undefined>(() => undefined)
 
     const route = vi.fn()
 
@@ -460,17 +459,17 @@ describe('use-modal-sidebar', () => {
 
   it('syncs selection state when route parameters change', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
     const path = ref<string | undefined>('/users')
-    const method = ref<HttpMethod | undefined>('get')
+    const method = ref<'get' | 'post' | undefined>('get')
     const exampleName = ref<string | undefined>('default')
 
     const { state, getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
       documentSlug,
-      path,
-      method,
-      exampleName,
+      path: computed(() => path.value),
+      method: computed(() => method.value),
+      exampleName: computed(() => exampleName.value),
       route: vi.fn(),
     })
 
@@ -512,13 +511,13 @@ describe('use-modal-sidebar', () => {
   it('resets selection when document is cleared', async () => {
     const store = await createTestStore()
     const documentSlug = ref<string | undefined>('test-doc')
-    const path = ref<string | undefined>('/users')
-    const method = ref<HttpMethod | undefined>('get')
-    const exampleName = ref<string | undefined>('default')
+    const path = computed<string | undefined>(() => '/users')
+    const method = computed<'get' | 'post' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => 'default')
 
     const { state, getEntryByLocation } = useModalSidebar({
       workspaceStore: store,
-      documentSlug,
+      documentSlug: computed(() => documentSlug.value),
       path,
       method,
       exampleName,
@@ -551,10 +550,10 @@ describe('use-modal-sidebar', () => {
 
   it('expands entry when it is selected via route sync', async () => {
     const store = await createTestStore()
-    const documentSlug = ref('test-doc')
-    const path = ref<string | undefined>('/users')
-    const method = ref<HttpMethod | undefined>('get')
-    const exampleName = ref<string | undefined>('default')
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = computed<string | undefined>(() => '/users')
+    const method = computed<'get' | 'post' | undefined>(() => 'get')
+    const exampleName = computed<string | undefined>(() => 'default')
 
     const { state, getEntryByLocation } = useModalSidebar({
       workspaceStore: store,

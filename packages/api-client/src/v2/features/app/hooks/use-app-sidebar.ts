@@ -5,7 +5,7 @@ import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 export type UseAppSidebarReturn = {
@@ -43,11 +43,11 @@ export const useAppSidebar = ({
   method,
   exampleName,
 }: {
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
-  documentSlug: MaybeRefOrGetter<string | undefined>
-  path: MaybeRefOrGetter<string | undefined>
-  method: MaybeRefOrGetter<HttpMethod | undefined>
-  exampleName: MaybeRefOrGetter<string | undefined>
+  workspaceStore: Ref<WorkspaceStore | null>
+  documentSlug: ComputedRef<string | undefined>
+  path: ComputedRef<string | undefined>
+  method: ComputedRef<HttpMethod | undefined>
+  exampleName: ComputedRef<string | undefined>
 }): UseAppSidebarReturn => {
   const router = useRouter()
 
@@ -246,19 +246,8 @@ export const useAppSidebar = ({
 
   /** Keep the router and the sidebar state in sync */
   watch(
-    [
-      () => toValue(workspaceStore),
-      () => toValue(documentSlug),
-      () => toValue(path),
-      () => toValue(method),
-      () => toValue(exampleName),
-    ],
-    () => {
-      const newDocument = toValue(documentSlug)
-      const newPath = toValue(path)
-      const newMethod = toValue(method)
-      const newExample = toValue(exampleName)
-
+    [workspaceStore, documentSlug, path, method, exampleName],
+    ([_, newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
         state.setSelected(null)
@@ -266,10 +255,10 @@ export const useAppSidebar = ({
       }
 
       const entry = getEntryByLocation({
-        document: newDocument as string,
-        path: newPath as string,
-        method: newMethod as HttpMethod,
-        example: newExample as string,
+        document: newDocument,
+        path: newPath,
+        method: newMethod,
+        example: newExample,
       })
 
       if (entry) {

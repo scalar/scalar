@@ -3,7 +3,7 @@ import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
+import { type ComputedRef, computed, toValue, watch } from 'vue'
 
 import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { generateLocationId } from '@/v2/helpers/generate-location-id'
@@ -44,17 +44,15 @@ export const useModalSidebar = ({
   exampleName,
   route,
 }: {
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
-  documentSlug: MaybeRefOrGetter<string | undefined>
-  path: MaybeRefOrGetter<string | undefined>
-  method: MaybeRefOrGetter<HttpMethod | undefined>
-  exampleName: MaybeRefOrGetter<string | undefined>
+  workspaceStore: WorkspaceStore | null
+  documentSlug: ComputedRef<string | undefined>
+  path: ComputedRef<string | undefined>
+  method: ComputedRef<HttpMethod | undefined>
+  exampleName: ComputedRef<string | undefined>
   route: (payload: RoutePayload) => void
 }): UseModalSidebarReturn => {
   const entries = computed(
-    () =>
-      toValue(workspaceStore)?.workspace.documents[toValue(documentSlug) ?? '']?.['x-scalar-navigation']?.children ??
-      [],
+    () => workspaceStore?.workspace.documents[toValue(documentSlug) ?? '']?.['x-scalar-navigation']?.children ?? [],
   )
   const state = createSidebarState(entries)
 
@@ -174,13 +172,8 @@ export const useModalSidebar = ({
 
   /** Keep the sidebar state in sync with the modal parameters */
   watch(
-    [() => toValue(documentSlug), () => toValue(path), () => toValue(method), () => toValue(exampleName)],
-    () => {
-      const newDocument = toValue(documentSlug)
-      const newPath = toValue(path)
-      const newMethod = toValue(method)
-      const newExample = toValue(exampleName)
-
+    [documentSlug, path, method, exampleName],
+    ([newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
         state.setSelected(null)
@@ -189,9 +182,9 @@ export const useModalSidebar = ({
 
       const entry = getEntryByLocation({
         document: newDocument,
-        path: newPath as string,
-        method: newMethod as HttpMethod,
-        example: newExample as string,
+        path: newPath,
+        method: newMethod,
+        example: newExample,
       })
 
       if (entry) {
