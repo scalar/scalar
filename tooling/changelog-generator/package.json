@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
