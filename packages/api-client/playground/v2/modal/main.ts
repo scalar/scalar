@@ -24,7 +24,12 @@ const { open } = createApiClientModal({
 // Open the API client right-away
 open()
 
-document.getElementById('button')?.addEventListener('click', () => open())
+document.getElementById('button')?.addEventListener('click', () =>
+  open({
+    path: '/user/signup',
+    method: 'post',
+  }),
+)
 
 // Or: Open a specific operation
 // open({

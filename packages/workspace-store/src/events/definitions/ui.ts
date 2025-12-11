@@ -142,13 +142,7 @@ export type UIEvents = {
    * Close the API Client modal.
    * Typically triggered by escape key or clicking outside the modal.
    */
-  'ui:close:client-modal': KeyboardEventPayload
-
-  /**
-   * Hide the modal in modal mode.
-   * Generic close action for modal display contexts.
-   */
-  'hide:modal': undefined
+  'ui:close:client-modal': KeyboardEventPayload | undefined
 
   // ────────────────────────────────────────────────────────────
   // Command Palette Events

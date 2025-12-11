@@ -20,8 +20,8 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
 import ItemDecorator from '@/v2/features/app/components/ItemDecorator.vue'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { sidebarState, layout, activeWorkspace, store, eventBus } = defineProps<{
@@ -242,9 +242,9 @@ const handleCloseMenu = () => {
       <template #decorator="{ item }">
         <ScalarIconButton
           :icon="ScalarIconDotsThree"
-          weight="bold"
           label="More options"
           size="sm"
+          weight="bold"
           @click="(e: MouseEvent) => selectItem(e, item)" />
       </template>
 

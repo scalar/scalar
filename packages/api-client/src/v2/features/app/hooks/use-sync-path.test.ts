@@ -7,8 +7,9 @@ import 'fake-indexeddb/auto'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 
+import type { UseTabsReturn } from '@/v2/features/app/hooks/use-tabs'
+
 import { useSyncPath } from './use-sync-path'
-import type { UseTabsReturn } from './use-tabs'
 import type { UseWorkspaceSelectorReturn } from './use-workspace-selector'
 
 const mockRoute = reactive({

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 
+import { filterItems } from '@/helpers/filter-items'
 import type {
   DraggingItem,
   HoveredItem,
   UseDraggableOptions,
 } from '@/hooks/use-draggable'
-import type { Item } from '@/types'
+import type { Item, Layout } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
 
@@ -19,7 +20,7 @@ const {
    * Layout type for the sidebar.
    * Determines whether the sidebar should behave in 'client' or 'reference' mode.
    */
-  layout: 'client' | 'reference'
+  layout: Layout
   /**
    * List of items to render in the sidebar.
    */
@@ -44,7 +45,13 @@ const {
    */
   indent?: number
   /**
-   * Prevents sidebar items from being hovered and dropped into. Can be either a function or a boolean
+   * Prevents this item from being dragged.
+   *
+   * @default true
+   */
+  isDraggable?: UseDraggableOptions['isDraggable']
+  /**
+   * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
    *
    * @default true
    */
@@ -103,9 +110,9 @@ const handleDragEnd = (
         <slot name="before" />
 
         <SidebarItem
-          v-for="item in items"
+          v-for="item in filterItems(layout, items)"
           :key="item.id"
-          :isDraggable="layout === 'client'"
+          :isDraggable="isDraggable ?? layout === 'client'"
           :isDroppable="isDroppable"
           :isExpanded="isExpanded"
           :isSelected="isSelected"

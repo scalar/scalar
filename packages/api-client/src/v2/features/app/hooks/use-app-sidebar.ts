@@ -5,10 +5,10 @@ import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type MaybeRefOrGetter, computed, toValue, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, toValue, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-export type UseSidebarStateReturn = {
+export type UseAppSidebarReturn = {
   handleSelectItem: (id: string) => void
   state: ReturnType<typeof createSidebarState<TraversedEntry>>
   getEntryByLocation: (location: {
@@ -36,20 +36,19 @@ export type UseSidebarStateReturn = {
  *   exampleName,
  * })
  */
-export const useSidebarState = ({
+export const useAppSidebar = ({
   workspaceStore,
   documentSlug,
   path,
   method,
   exampleName,
 }: {
-  workspaceStore: MaybeRefOrGetter<WorkspaceStore | null>
-  workspaceSlug: MaybeRefOrGetter<string | undefined>
-  documentSlug: MaybeRefOrGetter<string | undefined>
-  path: MaybeRefOrGetter<string | undefined>
-  method: MaybeRefOrGetter<HttpMethod | undefined>
-  exampleName: MaybeRefOrGetter<string | undefined>
-}): UseSidebarStateReturn => {
+  workspaceStore: Ref<WorkspaceStore | null>
+  documentSlug: ComputedRef<string | undefined>
+  path: ComputedRef<string | undefined>
+  method: ComputedRef<HttpMethod | undefined>
+  exampleName: ComputedRef<string | undefined>
+}): UseAppSidebarReturn => {
   const router = useRouter()
 
   const entries = computed(() => {
@@ -145,7 +144,7 @@ export const useSidebarState = ({
    *     example: 'default',
    *   })
    */
-  const getEntryByLocation: UseSidebarStateReturn['getEntryByLocation'] = (location) => {
+  const getEntryByLocation: UseAppSidebarReturn['getEntryByLocation'] = (location) => {
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(generateId(location))
 
@@ -247,8 +246,8 @@ export const useSidebarState = ({
 
   /** Keep the router and the sidebar state in sync */
   watch(
-    [() => toValue(workspaceStore), documentSlug, path, method, exampleName],
-    ([_newWorkspace, newDocument, newPath, newMethod, newExample]) => {
+    [workspaceStore, documentSlug, path, method, exampleName],
+    ([_, newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
         state.setSelected(null)
@@ -256,10 +255,10 @@ export const useSidebarState = ({
       }
 
       const entry = getEntryByLocation({
-        document: newDocument as string,
-        path: newPath as string,
-        method: newMethod as HttpMethod,
-        example: newExample as string,
+        document: newDocument,
+        path: newPath,
+        method: newMethod,
+        example: newExample,
       })
 
       if (entry) {

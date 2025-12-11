@@ -9,13 +9,14 @@ import {
 import { LibraryIcon } from '@scalar/icons/library'
 
 import SidebarItemDecorator from '@/components/SidebarItemDecorator.vue'
+import { filterItems } from '@/helpers/filter-items'
 import {
   useDraggable,
   type DraggingItem,
   type HoveredItem,
   type UseDraggableOptions,
 } from '@/hooks/use-draggable'
-import type { Item } from '@/types'
+import type { Item, Layout } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
@@ -28,7 +29,7 @@ const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
     /**
      * The layout mode for the sidebar ('client' or 'reference').
      */
-    layout: 'client' | 'reference'
+    layout: Layout
     /**
      * Function to determine if an item is currently selected by id.
      */
@@ -99,17 +100,6 @@ const isGroup = (
   return 'isGroup' in currentItem && currentItem.isGroup
 }
 
-const filterItems = (items: Item[]) => {
-  if (layout === 'reference') {
-    return items
-  }
-
-  // For client layout, filter to only show and operations, examples, and tags
-  return items.filter(
-    (c) => c.type === 'operation' || c.type === 'example' || c.type === 'tag',
-  )
-}
-
 /**
  * Handle drag end event and bubble it up to parent.
  */
@@ -131,7 +121,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     {{ item.title }}
     <template #items>
       <SidebarItem
-        v-for="child in filterItems(item.children)"
+        v-for="child in filterItems(layout, item.children)"
         :key="child.id"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
@@ -196,7 +186,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     <template #items>
       <SidebarItem
-        v-for="child in filterItems(item.children)"
+        v-for="child in filterItems(layout, item.children)"
         :key="child.id"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"

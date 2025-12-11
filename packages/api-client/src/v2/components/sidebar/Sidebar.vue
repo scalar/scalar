@@ -13,12 +13,11 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { SearchButton } from '@/v2/features/search'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
-import SidebarToggle from './SidebarToggle.vue'
 
 const { sidebarState, layout } = defineProps<{
   /** All documents to display sidebar items for */
@@ -63,11 +62,6 @@ defineSlots<{
   footer?(): unknown
 }>()
 
-/** Controls the visibility of the sidebar */
-const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
-  required: true,
-})
-
 /** Controls the visibility of the search input */
 const isSearchVisible = ref(false)
 
@@ -85,6 +79,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
       <ScalarSidebar
         class="flex w-auto flex-1 pt-2"
         :indent="15"
+        :isDraggable="layout !== 'modal'"
         :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
@@ -106,10 +101,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 @create:workspace="emit('create:workspace')"
                 @select:workspace="(id) => emit('select:workspace', id)" />
 
-              <!-- Toggle the sidebar -->
-              <SidebarToggle
-                v-else-if="layout === 'modal'"
-                v-model="isSidebarOpen" />
+              <!-- Placeholder for the sidebar toggle in modal layout -->
+              <div v-else-if="layout === 'modal'"></div>
 
               <!-- Toggle search, always visible on web -->
               <ScalarIconButton

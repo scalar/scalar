@@ -2,10 +2,9 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import type { UseTabsReturn } from '@/v2/features/app/hooks/use-tabs'
+import { DEFAULT_WORKSPACE, type UseWorkspaceSelectorReturn } from '@/v2/features/app/hooks/use-workspace-selector'
 import { workspaceStorage } from '@/v2/helpers/storage'
-import { DEFAULT_WORKSPACE, type UseWorkspaceSelectorReturn } from '@/v2/hooks/use-workspace-selector'
-
-import type { UseTabsReturn } from './use-tabs'
 
 export const useSyncPath = ({
   workspaceSelectorState,
