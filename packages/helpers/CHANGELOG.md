@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.2
+
+### Patch Changes
+
+- [#7467](https://github.com/scalar/scalar/pull/7467) [`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c) Thanks [@amritk](https://github.com/amritk)! - feat: client v2 handle path change with routing and conflict
+
 ## 0.2.1
 
 ### Patch Changes

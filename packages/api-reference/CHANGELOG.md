@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.40.5
+
+### Patch Changes
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`10318b6`](https://github.com/scalar/scalar/commit/10318b6a59df49905225bdbd9e19044521cd4581), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`3f797b6`](https://github.com/scalar/scalar/commit/3f797b67489e07c4f3bf34a39b2175ed2d6f1465)]:
+  - @scalar/workspace-store@0.23.0
+  - @scalar/api-client@2.15.0
+  - @scalar/helpers@0.2.2
+  - @scalar/themes@0.13.26
+  - @scalar/sidebar@0.6.0
+  - @scalar/components@0.16.8
+  - @scalar/oas-utils@0.6.8
+  - @scalar/json-magic@0.8.6
+  - @scalar/object-utils@1.2.16
+  - @scalar/code-highlight@0.2.1
+  - @scalar/openapi-parser@0.23.7
+
 ## 1.40.4
 
 ### Patch Changes

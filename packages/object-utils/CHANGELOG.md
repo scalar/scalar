@@ -1,5 +1,12 @@
 # @scalar/object-utils
 
+## 1.2.16
+
+### Patch Changes
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c)]:
+  - @scalar/helpers@0.2.2
+
 ## 1.2.15
 
 ### Patch Changes
