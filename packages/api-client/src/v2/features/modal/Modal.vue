@@ -53,6 +53,7 @@ import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
 import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
 
@@ -102,31 +103,25 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-/** Stores the initial overflow value to restore when modal closes */
-const initialOverflow = ref<string | null>(null)
-
 /** Clean up listeners on modal close and unmount */
 const cleanUpListeners = () => {
-  if (initialOverflow.value === null) {
-    window.document.documentElement.style.removeProperty('overflow')
-  } else {
-    window.document.documentElement.style.overflow = initialOverflow.value
-  }
-  initialOverflow.value = null
   deactivateFocusTrap()
 }
+
+const isLocked = useScrollLock(() => {
+  if (typeof window !== 'undefined') {
+    return window.document.body
+  }
+  return null
+})
 
 watch(
   () => modalState.open,
   (open) => {
+    // Make sure scrolling is locked or unlocked when the modal is opened or closed
+    isLocked.value = open
+
     if (open) {
-      // Save initial overflow value before disabling scrolling
-      initialOverflow.value =
-        window.document.documentElement.style.overflow ?? null
-
-      // Disable scrolling
-      window.document.documentElement.style.overflow = 'hidden'
-
       // Focus trap the modal
       activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
     } else {
