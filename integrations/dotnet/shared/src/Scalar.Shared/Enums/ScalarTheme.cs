@@ -90,7 +90,7 @@ public enum ScalarTheme
     /// <summary>
     /// Elysia.js theme.
     /// </summary>
-    [Description("elysiaJs")]
+    [Description("elysiajs")]
     ElysiaJs,
 
     /// <summary>
