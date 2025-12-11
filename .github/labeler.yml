@@ -1,3 +1,0 @@
-# add `release` label to PRs that are created by changeset
-release:
-  - head-branch: ['^changeset-release']
