@@ -71,7 +71,9 @@ export const createRequestOperation = ({
     /** Parsed and evaluated values for path parameters */
     const pathVariables = example.parameters.path.reduce<Record<string, string>>((vars, param) => {
       if (param.enabled) {
-        vars[param.key] = replaceTemplateVariables(param.value, env)
+        // First substitute environment variables, then URL encode for path usage
+        const substitutedValue = replaceTemplateVariables(param.value, env)
+        vars[param.key] = encodeURIComponent(substitutedValue)
       }
 
       return vars
