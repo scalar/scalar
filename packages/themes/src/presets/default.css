@@ -31,18 +31,18 @@
   --scalar-border-color: #2d2d2d;
 }
 /* Document Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
+.light-mode,
+.dark-mode {
   --scalar-sidebar-background-1: var(--scalar-background-1);
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
   --scalar-sidebar-border-color: var(--scalar-border-color);
 
   --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-2);
 
   --scalar-sidebar-item-active-background: var(--scalar-background-2);
-  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
   --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
   --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);

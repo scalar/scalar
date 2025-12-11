@@ -79,10 +79,10 @@
   --color-sidebar-c-2: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 
   --color-sidebar-b-hover: var(--scalar-sidebar-item-hover-background, var(--scalar-background-2));
-  --color-sidebar-c-hover: var(--scalar-sidebar-item-hover-color, currentColor);
+  --color-sidebar-c-hover: var(--scalar-sidebar-item-hover-color, var(--scalar-sidebar-color-2));
 
   --color-sidebar-b-active: var(--scalar-sidebar-item-active-background, var(--scalar-background-2));
-  --color-sidebar-c-active: var(--scalar-sidebar-color-active, currentColor);
+  --color-sidebar-c-active: var(--scalar-sidebar-color-active, var(--scalar-sidebar-color-1));
 
   --color-sidebar-border: var(--scalar-sidebar-border-color, var(--scalar-border-color));
 

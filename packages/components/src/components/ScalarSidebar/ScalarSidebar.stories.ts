@@ -63,6 +63,23 @@ const meta: Meta = {
   component: ScalarSidebar,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
+  args: {
+    indent: 20,
+    backgroundOne: 'var(--scalar-background-1)',
+    colorOne: 'var(--scalar-color-1)',
+    colorTwo: 'var(--scalar-color-2)',
+    borderColor: 'var(--scalar-border-color)',
+    itemHoverBackground: 'var(--scalar-background-2)',
+    itemHoverColor: 'var(--scalar-sidebar-color-2)',
+    itemActiveBackground: 'var(--scalar-background-2)',
+    itemActiveColor: 'var(--scalar-sidebar-color-1)',
+    indentBorder: 'var(--scalar-border-color)',
+    indentBorderHover: 'var(--scalar-border-color)',
+    indentBorderActive: 'var(--scalar-color-accent)',
+    searchBackground: 'transparent',
+    searchColor: 'var(--scalar-color-3)',
+    searchBorderColor: 'var(--scalar-border-color)',
+  },
   argTypes: {
     class: { control: 'text' },
     controlled: { control: 'boolean' },
@@ -75,14 +92,92 @@ const meta: Meta = {
         Audio: ScalarIconFileAudio,
       },
     },
+    indent: { control: 'number' },
+    backgroundOne: { control: 'color' },
+    colorOne: { control: 'color' },
+    colorTwo: { control: 'color' },
+    borderColor: { control: 'color' },
+    itemHoverBackground: { control: 'color' },
+    itemHoverColor: { control: 'color' },
+    itemActiveBackground: { control: 'color' },
+    itemActiveColor: { control: 'color' },
+    indentBorder: { control: 'color' },
+    indentBorderHover: { control: 'color' },
+    indentBorderActive: { control: 'color' },
+    searchBackground: { control: 'color' },
+    searchColor: { control: 'color' },
+    searchBorderColor: { control: 'color' },
   },
   render: (args) => ({
-    components: { ScalarSidebarPlayground },
+    components: {
+      ScalarSidebar,
+      ScalarSidebarItem,
+      ScalarSidebarItems,
+      ScalarSidebarGroup,
+      ScalarSidebarNestedItems,
+      ScalarSidebarSection,
+      ScalarSidebarPlayground,
+    },
     setup() {
-      return { args }
+      const selected = ref('')
+      return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
+  <ScalarSidebarItems>
+    <ScalarSidebarSection>
+      Navigation
+      <template #items>
+        <ScalarSidebarNestedItems :controlled="args.controlled">
+          Nested Items Level 1
+          <template #back-label>
+            Top Level Sidebar
+          </template>
+          <template #items>
+            <ScalarSidebarNestedItems :controlled="args.controlled">
+              Nested Items Level 2
+              <template #items>
+                <ScalarSidebarNestedItems :controlled="args.controlled">
+                  Nested Items Level 3
+                  <template #items>
+                    ${nestedItemGroups}
+                  </template>
+                </ScalarSidebarNestedItems>
+                ${nestedItemGroups}
+              </template>
+            </ScalarSidebarNestedItems>
+            ${nestedItemGroups}
+          </template>
+        </ScalarSidebarNestedItems>
+        <ScalarSidebarGroup>
+          Group with Nested Sidebar
+          <template #items>
+            <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
+            <ScalarSidebarNestedItems :controlled="args.controlled">
+              Nested Items in a Group
+              <template #items>
+                ${nestedItemGroups}
+              </template>
+            </ScalarSidebarNestedItems>
+            <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 2'" @click="selected = 'Subitem 2'">Subitem 2</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+        ${nestedItemGroups}
+      </template>
+    </ScalarSidebarSection>
+    <ScalarSidebarSection>
+      Additional Items
+      <template #items>
+        <ScalarSidebarNestedItems>
+          More nested items
+          <template #items>
+            ${nestedItemGroups}
+          </template>
+        </ScalarSidebarNestedItems>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Standalone Item'" @click="selected = 'Standalone Item'">Standalone Item</ScalarSidebarItem>
+      </template>
+    </ScalarSidebarSection>
+  </ScalarSidebarItems>
 </ScalarSidebarPlayground>
 `,
   }),
@@ -92,6 +187,26 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const Themed: Story = {
+  args: {
+    indent: 32,
+    backgroundOne: '#27212e',
+    colorOne: '#fff',
+    colorTwo: '#b8b6ba',
+    borderColor: '#3d3843',
+    itemHoverBackground: '#322c39',
+    itemHoverColor: '#fff',
+    itemActiveBackground: '#322c39',
+    itemActiveColor: '#fff',
+    indentBorder: '#3d3843',
+    indentBorderHover: '#fff',
+    indentBorderActive: '#ed78c2',
+    searchBackground: '#322c39',
+    searchColor: '#706c74',
+    searchBorderColor: '#3d3843',
+  },
+}
 
 export const WithNestedGroups: Story = {
   argTypes: { indent: { control: 'number' } },
@@ -109,75 +224,9 @@ export const WithNestedGroups: Story = {
       return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-model:selected="selected" :indent="args.indent">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     ${nestedItemGroups}
-  </ScalarSidebarItems>
-</ScalarSidebarPlayground>
-`,
-  }),
-}
-
-export const WithNestedSidebars: Story = {
-  argTypes: { indent: { control: 'number' } },
-  args: { indent: 20 },
-  render: (args) => ({
-    components: {
-      ScalarSidebar,
-      ScalarSidebarItem,
-      ScalarSidebarItems,
-      ScalarSidebarGroup,
-      ScalarSidebarNestedItems,
-      ScalarSidebarPlayground,
-    },
-    setup() {
-      const selected = ref('')
-      return { args, selected }
-    },
-    template: `
-<ScalarSidebarPlayground v-model:selected="selected" :indent="args.indent">
-  <ScalarSidebarItems>
-    <ScalarSidebarNestedItems :controlled="args.controlled">
-      Nested Items Level 1
-      <template #back-label>
-        Top Level Sidebar
-      </template>
-      <template #items>
-        <ScalarSidebarNestedItems :controlled="args.controlled">
-          Nested Items Level 2
-          <template #items>
-            <ScalarSidebarNestedItems :controlled="args.controlled">
-              Nested Items Level 3
-              <template #items>
-                ${nestedItemGroups}
-              </template>
-            </ScalarSidebarNestedItems>
-            ${nestedItemGroups}
-          </template>
-        </ScalarSidebarNestedItems>
-        ${nestedItemGroups}
-      </template>
-    </ScalarSidebarNestedItems>
-    <ScalarSidebarGroup>
-      Group with Nested Items
-      <template #items>
-        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
-        <ScalarSidebarNestedItems :controlled="args.controlled">
-          Nested Items in a Group
-          <template #items>
-            ${nestedItemGroups}
-          </template>
-        </ScalarSidebarNestedItems>
-        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 2'" @click="selected = 'Subitem 2'">Subitem 2</ScalarSidebarItem>
-      </template>
-    </ScalarSidebarGroup>
-    ${nestedItemGroups}
-    <ScalarSidebarNestedItems>
-      More nested items
-      <template #items>
-        ${nestedItemGroups}
-      </template>
-    </ScalarSidebarNestedItems>
   </ScalarSidebarItems>
 </ScalarSidebarPlayground>
 `,
@@ -191,9 +240,9 @@ export const WithFooterContent: Story = {
       return { args }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-bind="args">
   <template #footer>
-    <ScalarSidebarFooter v-bind="args">
+    <ScalarSidebarFooter>
       <span class="placeholder">Extra footer content</span>
     </ScalarSidebarFooter>
   </template>
@@ -217,7 +266,7 @@ export const WithSections: Story = {
       return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-model:selected="selected">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     <ScalarSidebarSection>
       Section 1
@@ -264,10 +313,10 @@ export const WithSearchButton: Story = {
       return { args }
     },
     template: `
-<ScalarSidebarPlayground>
+<ScalarSidebarPlayground v-bind="args">
     <template #search>
       <div class="flex flex-col px-3 pt-3 sticky top-0 bg-sidebar-b-1">
-      <ScalarSidebarSearchButton v-bind="args">
+      <ScalarSidebarSearchButton>
         <template #shortcut>
           <span>⌘ K</span>
         </template>

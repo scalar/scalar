@@ -114,7 +114,7 @@ const handleClick = (event: MouseEvent) => {
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
-        class="text-c-1 font-sidebar-active"
+        class="text-sidebar-c-1 font-sidebar-active"
         :disabled
         :indent="level"
         :selected
@@ -130,7 +130,7 @@ const handleClick = (event: MouseEvent) => {
         <slot />
         <template #aside>
           <slot name="aside">
-            <ScalarIconArrowRight class="size-4 text-c-2" />
+            <ScalarIconArrowRight class="size-4 text-sidebar-c-2" />
           </slot>
         </template>
       </ScalarSidebarButton>
@@ -149,10 +149,10 @@ const handleClick = (event: MouseEvent) => {
           <slot name="back">
             <ScalarSidebarButton
               is="button"
-              class="text-c-1 font-sidebar-active"
+              class="text-sidebar-c-1 font-sidebar-active"
               @click="!controlled && (open = false)">
               <template #icon>
-                <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
+                <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
               </template>
               <slot name="back-label">Back</slot>
             </ScalarSidebarButton>
