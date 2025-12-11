@@ -22,6 +22,7 @@ import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   ServerObject,
@@ -41,7 +42,22 @@ import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
 
-const { eventBus, path, method, exampleKey, operation } = defineProps<{
+const {
+  cookies = [],
+  eventBus,
+  path,
+  method,
+  exampleKey,
+  operation,
+  environment,
+  server,
+  proxyUrl,
+  securitySchemes,
+  selectedSecurity,
+} = defineProps<{
+  /** Workspace/document cookies */
+  cookies: XScalarCookie[]
+  /** Event bus */
   eventBus: WorkspaceEventBus
   /** Application version */
   appVersion: string
@@ -96,7 +112,18 @@ const emit = defineEmits<{
 
 /** Execute the current operation example */
 const handleExecute = () => {
-  buildRequest({ operation, method, path, exampleKey })
+  buildRequest({
+    cookies,
+    environment,
+    exampleKey,
+    method,
+    operation,
+    path,
+    securitySchemes,
+    selectedSecurity,
+    server,
+    proxyUrl,
+  })
   // eventBus.emit('operation:send:request', {
   //   meta: { path, method, exampleKey },
   // })

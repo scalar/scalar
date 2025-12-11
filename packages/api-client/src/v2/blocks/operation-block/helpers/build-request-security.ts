@@ -1,11 +1,16 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SecuritySchemeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
 
 /**
@@ -13,8 +18,10 @@ import { encode } from 'js-base64'
  * In the future we can add customization for where the security is applied
  */
 export const buildRequestSecurity = (
-  /** Applicable security schemes */
-  securitySchemes: SecuritySchemeObject[] = [],
+  /** Document defined security schemes */
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
+  /** Currently selected security for the current operation */
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security'],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** Include this parameter to set the placeholder for empty tokens */
@@ -24,7 +31,20 @@ export const buildRequestSecurity = (
   const cookies: XScalarCookie[] = []
   const urlParams = new URLSearchParams()
 
-  securitySchemes.forEach((scheme) => {
+  /** Build the selected security schemes from the selected security */
+  const selectedSecuritySchemes: SecuritySchemeObject[] =
+    selectedSecurity?.selectedSchemes.flatMap((scheme) =>
+      objectKeys(scheme).flatMap((key) => {
+        const scheme = getResolvedRef(securitySchemes?.[key])
+        if (scheme) {
+          return scheme
+        }
+
+        return []
+      }),
+    ) ?? []
+
+  selectedSecuritySchemes.forEach((scheme) => {
     // Api key
     if (scheme.type === 'apiKey') {
       const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env) || emptyTokenPlaceholder

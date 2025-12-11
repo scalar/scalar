@@ -1,7 +1,8 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /**
  * The %x2F ("/") character is considered a directory separator, and subdirectories match as well.
@@ -81,7 +82,7 @@ export function setRequestCookies({
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
  */
-const determineCookieDomain = (url: string) => {
+export const determineCookieDomain = (url: string) => {
   const hostname = new URL(url.startsWith('http') ? url : `http://${url}`).hostname
 
   // If it's an IP, just return it
