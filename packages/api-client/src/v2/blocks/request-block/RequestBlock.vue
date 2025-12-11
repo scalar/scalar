@@ -224,18 +224,25 @@ const handleUpdateContentType = (payload: { value: string }): void =>
 /** Handle request body form row update */
 const handleUpdateFormRow = (payload: {
   index: number
-  data: Partial<{ key: string; value: string | File | null }>
+  data: Partial<{
+    key: string
+    value: string | File | null
+    isDisabled: boolean
+  }>
   contentType: string
 }): void =>
-  eventBus.emit('operation:update:requestBody:formRow', {
-    contentType: payload.contentType,
-    meta: meta.value,
-    index: payload.index,
-    payload: {
-      key: payload.data.key ?? '',
-      value: payload.data.value ?? '',
+  eventBus.emit(
+    'operation:update:requestBody:formRow',
+    {
+      contentType: payload.contentType,
+      meta: meta.value,
+      index: payload.index,
+      payload: payload.data,
     },
-  })
+    {
+      debounceKey: `update:requestBody:formRow-${payload.index}-${Object.keys(payload.data).join('-')}`,
+    },
+  )
 
 /** Handle request body value update */
 const handleUpdateBodyValue = (payload: {
@@ -278,85 +285,90 @@ const labelRequestNameId = useId()
         :filters="filters" />
     </template>
 
-    <!-- Auth Selector -->
-    <AuthSelector
-      v-show="isSectionVisible('Auth') && !isAuthHidden"
-      :id="filterIds.Auth"
-      :environment
-      :eventBus
-      :meta="authMeta"
-      :security
-      :securitySchemes
-      :selectedSecurity
-      :server
-      title="Authorization" />
+    <div
+      :id="filterIds.All"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col"
+      :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
+      <!-- Auth Selector -->
+      <AuthSelector
+        v-show="isSectionVisible('Auth') && !isAuthHidden"
+        :id="filterIds.Auth"
+        :environment
+        :eventBus
+        :meta="authMeta"
+        :security
+        :securitySchemes
+        :selectedSecurity
+        :server
+        title="Authorization" />
 
-    <!-- Variables (Path Parameters) -->
-    <RequestParams
-      v-show="isSectionVisible('Variables') && sections.path?.length"
-      :id="filterIds.Variables"
-      :environment
-      :exampleKey
-      :parameters="sections.path ?? []"
-      :showAddRowPlaceholder="false"
-      title="Variables"
-      v-on="parameterHandlers.path" />
+      <!-- Variables (Path Parameters) -->
+      <RequestParams
+        v-show="isSectionVisible('Variables') && sections.path?.length"
+        :id="filterIds.Variables"
+        :environment
+        :exampleKey
+        :parameters="sections.path ?? []"
+        :showAddRowPlaceholder="false"
+        title="Variables"
+        v-on="parameterHandlers.path" />
 
-    <!-- Cookies -->
-    <RequestParams
-      v-show="isSectionVisible('Cookies')"
-      :id="filterIds.Cookies"
-      :environment
-      :exampleKey
-      :parameters="sections.cookie ?? []"
-      :showAddRowPlaceholder="true"
-      title="Cookies"
-      v-on="parameterHandlers.cookie" />
+      <!-- Cookies -->
+      <RequestParams
+        v-show="isSectionVisible('Cookies')"
+        :id="filterIds.Cookies"
+        :environment
+        :exampleKey
+        :parameters="sections.cookie ?? []"
+        :showAddRowPlaceholder="true"
+        title="Cookies"
+        v-on="parameterHandlers.cookie" />
 
-    <!-- Headers -->
-    <RequestParams
-      v-show="isSectionVisible('Headers')"
-      :id="filterIds.Headers"
-      :environment
-      :exampleKey
-      :parameters="sections.header ?? []"
-      title="Headers"
-      v-on="parameterHandlers.header" />
+      <!-- Headers -->
+      <RequestParams
+        v-show="isSectionVisible('Headers')"
+        :id="filterIds.Headers"
+        :environment
+        :exampleKey
+        :parameters="sections.header ?? []"
+        title="Headers"
+        v-on="parameterHandlers.header" />
 
-    <!-- Query Parameters -->
-    <RequestParams
-      v-show="isSectionVisible('Query')"
-      :id="filterIds.Query"
-      :environment
-      :exampleKey
-      :parameters="sections.query ?? []"
-      title="Query Parameters"
-      v-on="parameterHandlers.query" />
+      <!-- Query Parameters -->
+      <RequestParams
+        v-show="isSectionVisible('Query')"
+        :id="filterIds.Query"
+        :environment
+        :exampleKey
+        :parameters="sections.query ?? []"
+        title="Query Parameters"
+        v-on="parameterHandlers.query" />
 
-    <!-- Request Body -->
-    <RequestBody
-      v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
-      :id="filterIds.Body"
-      :environment
-      :exampleKey
-      :requestBody="getResolvedRef(operation.requestBody)"
-      title="Request Body"
-      @add:formRow="handleAddFormRow"
-      @delete:fromRow="handleDeleteFormRow"
-      @update:contentType="handleUpdateContentType"
-      @update:formRow="handleUpdateFormRow"
-      @update:value="handleUpdateBodyValue" />
+      <!-- Request Body -->
+      <RequestBody
+        v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
+        :id="filterIds.Body"
+        :environment
+        :exampleKey
+        :requestBody="getResolvedRef(operation.requestBody)"
+        title="Request Body"
+        @add:formRow="handleAddFormRow"
+        @delete:fromRow="handleDeleteFormRow"
+        @update:contentType="handleUpdateContentType"
+        @update:formRow="handleUpdateFormRow"
+        @update:value="handleUpdateBodyValue" />
 
-    <!-- Inject request section plugin components -->
-    <ScalarErrorBoundary
-      v-for="(plugin, index) in plugins"
-      :key="index">
-      <component
-        :is="plugin.components.request"
-        v-if="plugin?.components?.request"
-        :operation
-        :selectedExample="exampleKey" />
-    </ScalarErrorBoundary>
+      <!-- Inject request section plugin components -->
+      <ScalarErrorBoundary
+        v-for="(plugin, index) in plugins"
+        :key="index">
+        <component
+          :is="plugin.components.request"
+          v-if="plugin?.components?.request"
+          :operation
+          :selectedExample="exampleKey" />
+      </ScalarErrorBoundary>
+    </div>
   </ViewLayoutSection>
 </template>
 <style scoped>

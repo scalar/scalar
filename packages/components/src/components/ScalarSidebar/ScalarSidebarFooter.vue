@@ -36,7 +36,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('flex flex-col gap-3 p-3 border-t')">
+  <div v-bind="cx('flex flex-col gap-3 p-3 border-t border-sidebar-border')">
     <slot />
     <div class="flex items-center">
       <div class="flex-1 min-w-0 flex items-center text-sm text-sidebar-c-2">

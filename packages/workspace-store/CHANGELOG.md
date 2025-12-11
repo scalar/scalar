@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.23.0
+
+### Minor Changes
+
+- [#7474](https://github.com/scalar/scalar/pull/7474) [`10318b6`](https://github.com/scalar/scalar/commit/10318b6a59df49905225bdbd9e19044521cd4581) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: implement sidebar actions
+
+### Patch Changes
+
+- [#7467](https://github.com/scalar/scalar/pull/7467) [`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c) Thanks [@amritk](https://github.com/amritk)! - feat: client v2 handle path change with routing and conflict
+
+- [#7519](https://github.com/scalar/scalar/pull/7519) [`3f797b6`](https://github.com/scalar/scalar/commit/3f797b67489e07c4f3bf34a39b2175ed2d6f1465) Thanks [@amritk](https://github.com/amritk)! - fix: client request param issues
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf)]:
+  - @scalar/helpers@0.2.2
+  - @scalar/themes@0.13.26
+  - @scalar/json-magic@0.8.6
+  - @scalar/object-utils@1.2.16
+  - @scalar/code-highlight@0.2.1
+
 ## 0.22.2
 
 ### Patch Changes

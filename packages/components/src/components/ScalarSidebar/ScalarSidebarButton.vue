@@ -37,15 +37,21 @@ defineSlots<ScalarSidebarButtonSlots>()
 const variants = cva({
   base: [
     'group/button peer/button flex items-stretch rounded p-2 ',
-    'font-sidebar leading-5 text-c-2 no-underline wrap-break-word',
+    'font-sidebar leading-5 text-sidebar-c-2 no-underline wrap-break-word',
   ],
   variants: {
-    active: { true: 'text-c-1 font-sidebar-active' },
+    active: { true: 'text-sidebar-c-active font-sidebar-active' },
     disabled: { true: 'cursor-auto' },
-    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
+    selected: {
+      true: 'cursor-auto bg-sidebar-b-active text-sidebar-c-active font-sidebar-active',
+    },
   },
   compoundVariants: [
-    { selected: false, disabled: false, class: 'hover:bg-b-2' },
+    {
+      selected: false,
+      disabled: false,
+      class: 'hover:bg-sidebar-b-hover hover:text-sidebar-c-hover',
+    },
   ],
   defaultVariants: { selected: false, disabled: false, active: false },
 })

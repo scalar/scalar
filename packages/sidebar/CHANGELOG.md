@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.6.0
+
+### Minor Changes
+
+- [#7474](https://github.com/scalar/scalar/pull/7474) [`10318b6`](https://github.com/scalar/scalar/commit/10318b6a59df49905225bdbd9e19044521cd4581) Thanks [@DemonHa](https://github.com/DemonHa)! - feat: implement sidebar actions
+
+### Patch Changes
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`10318b6`](https://github.com/scalar/scalar/commit/10318b6a59df49905225bdbd9e19044521cd4581), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`3f797b6`](https://github.com/scalar/scalar/commit/3f797b67489e07c4f3bf34a39b2175ed2d6f1465)]:
+  - @scalar/workspace-store@0.23.0
+  - @scalar/helpers@0.2.2
+  - @scalar/themes@0.13.26
+  - @scalar/components@0.16.8
+
 ## 0.5.2
 
 ### Patch Changes

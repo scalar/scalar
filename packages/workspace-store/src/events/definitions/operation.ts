@@ -112,7 +112,7 @@ export type OperationEvents = {
       /** The example value for the parameter to add */
       value: string
       /** Whether the parameter is enabled */
-      isEnabled: boolean
+      isDisabled: boolean
     }
     /** Identifies the target operation and example variant for the added parameter */
     meta: OperationExampleMeta
@@ -135,12 +135,12 @@ export type OperationEvents = {
      * Partial payload with new properties for the parameter (optional).
      * - key: The new name of the parameter (if being renamed).
      * - value: The new example value for the parameter.
-     * - isEnabled: Whether the parameter is marked as enabled.
+     * - isDisabled: Whether the parameter is marked as disabled.
      */
     payload: Partial<{
       key: string
       value: string
-      isEnabled: boolean
+      isDisabled: boolean
     }>
     /**
      * Identifies the target operation and example variant for the updated parameter.
@@ -224,7 +224,7 @@ export type OperationEvents = {
     /** The zero-based index of the form-data row to update within the operation. */
     index: number
     /** The payload containing the details of the form-data row to update */
-    payload: Partial<{ key: string; value?: string | File | null }>
+    payload: Partial<{ key: string; value: string | File | null; isDisabled: boolean }>
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated form-data row */

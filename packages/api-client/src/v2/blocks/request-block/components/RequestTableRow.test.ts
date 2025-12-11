@@ -81,7 +81,7 @@ describe('RequestTableRow', () => {
     await checkbox.vm.$emit('update:modelValue', false)
 
     expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ isEnabled: false })
+    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ isDisabled: true })
   })
 
   it('disables checkbox when hasCheckboxDisabled is true', () => {

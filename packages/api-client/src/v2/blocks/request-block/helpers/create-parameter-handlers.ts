@@ -15,7 +15,7 @@ export const createParameterHandlers = (
       payload: {
         key: payload.key ?? '',
         value: payload.value ?? '',
-        isEnabled: true,
+        isDisabled: false,
       },
       meta,
     }),
@@ -30,11 +30,17 @@ export const createParameterHandlers = (
       type,
       meta,
     }),
-  update: (payload: { index: number; payload: Partial<{ key: string; value: string; isEnabled: boolean }> }) =>
-    eventBus.emit('operation:update:parameter', {
-      type,
-      index: payload.index,
-      payload: payload.payload,
-      meta,
-    }),
+  update: (payload: { index: number; payload: Partial<{ key: string; value: string; isDisabled: boolean }> }) =>
+    eventBus.emit(
+      'operation:update:parameter',
+      {
+        type,
+        index: payload.index,
+        payload: payload.payload,
+        meta,
+      },
+      {
+        debounceKey: `update:parameter-${type}-${payload.index}-${Object.keys(payload.payload).join('-')}`,
+      },
+    ),
 })

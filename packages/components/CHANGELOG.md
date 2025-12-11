@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.16.8
+
+### Patch Changes
+
+- [#7520](https://github.com/scalar/scalar/pull/7520) [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf) Thanks [@hwkr](https://github.com/hwkr)! - refactor(components): apply sidebar variables
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf)]:
+  - @scalar/helpers@0.2.2
+  - @scalar/themes@0.13.26
+  - @scalar/oas-utils@0.6.8
+  - @scalar/code-highlight@0.2.1
+
 ## 0.16.7
 
 ### Patch Changes
