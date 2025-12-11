@@ -68,10 +68,6 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   request?: Request
   /** Total number of performed requests */
   totalPerformedRequests: number
-  /** Sidebar open state */
-  isSidebarOpen?: boolean
-  /** Controls sidebar visibility */
-  showSidebar?: boolean
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -112,7 +108,7 @@ const handleExecute = () =>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
     <div
-      class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
+      class="lg:min-h-header flex w-full flex-wrap items-center justify-center">
       <!-- Address Bar -->
       <Header
         :documentUrl
@@ -121,14 +117,12 @@ const handleExecute = () =>
         :hideClientButton
         :history
         :integration
-        :isSidebarOpen
         :layout
         :method
         :path
         :percentage="requestLoadingPercentage"
         :server
         :servers
-        :showSidebar
         :source
         @execute="handleExecute"
         @update:servers="emit('update:servers')" />

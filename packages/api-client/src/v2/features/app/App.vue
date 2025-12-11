@@ -12,32 +12,28 @@ import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  xScalarEnvironmentSchema,
-  type XScalarEnvironment,
-} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useAppSidebar } from '@/v2/features/app/hooks/use-app-sidebar'
+import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useSyncPath } from '@/v2/features/app/hooks/use-sync-path'
+import { useWorkspaceSelector } from '@/v2/features/app/hooks/use-workspace-selector'
 import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
 import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
-import { useDocumentWatcher } from '@/v2/hooks/use-document-watcher'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import { useSidebarState } from '@/v2/hooks/use-sidebar-state'
-import { useSyncPath } from '@/v2/hooks/use-sync-path'
-import { useWorkspaceClientEvents } from '@/v2/hooks/use-workspace-client-events'
-import { useWorkspaceSelector } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { useTabs } from '../../hooks/use-tabs'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
+import { useTabs } from './hooks/use-tabs'
+import { useWorkspaceClientAppEvents } from './hooks/use-workspace-client-app-events'
 
 const { layout } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
@@ -45,7 +41,6 @@ const { layout } = defineProps<{
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
   window.dataDumpWorkspace = () => store.value
 }
 
@@ -106,9 +101,8 @@ const { store, workspaces, activeWorkspace, setWorkspaceId, createWorkspace } =
 useColorMode({ workspaceStore: store })
 
 /** Sidebar state and selection handling. */
-const sidebarState = useSidebarState({
+const sidebarState = useAppSidebar({
   workspaceStore: store,
-  workspaceSlug,
   documentSlug,
   path,
   method,
@@ -136,7 +130,7 @@ const { isLoading: isSyncPathLoading } = useSyncPath({
 const commandPaletteState = useCommandPaletteState()
 
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
-useWorkspaceClientEvents({
+useWorkspaceClientAppEvents({
   eventBus,
   document,
   workspaceStore: store,
@@ -162,33 +156,9 @@ useDocumentWatcher({
  * Variables from both sources are combined, with document variables
  * taking precedence in case of naming conflicts.
  */
-const environment = computed<XScalarEnvironment>(() => {
-  if (store.value === null) {
-    return coerceValue(xScalarEnvironmentSchema, {})
-  }
-  const activeEnv = store.value.workspace['x-scalar-active-environment']
-
-  if (!activeEnv) {
-    return coerceValue(xScalarEnvironmentSchema, {})
-  }
-
-  const workspaceEnv = store.value.workspace['x-scalar-environments']?.[
-    activeEnv
-  ] ?? {
-    variables: [],
-  }
-  const documentEnv = document.value?.['x-scalar-environments']?.[
-    activeEnv
-  ] ?? {
-    variables: [],
-  }
-
-  return coerceValue(xScalarEnvironmentSchema, {
-    ...workspaceEnv,
-    ...documentEnv,
-    variables: [...workspaceEnv.variables, ...documentEnv.variables],
-  })
-})
+const environment = computed(() =>
+  getActiveEnvironment(store.value, document.value),
+)
 
 /** Generate the theme style tag for dynamic theme application. */
 const themeStyleTag = computed(() => {

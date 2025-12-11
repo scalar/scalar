@@ -5,8 +5,8 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { workspaceStorage } from '@/v2/helpers/storage'
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */

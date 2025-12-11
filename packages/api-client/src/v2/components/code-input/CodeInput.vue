@@ -484,8 +484,8 @@ export default {
 </template>
 <style scoped>
 /*
- Deep styling for customizing Codemirror
-*/
+   Deep styling for customizing Codemirror
+  */
 :deep(.cm-editor) {
   height: 100%;
   outline: none;

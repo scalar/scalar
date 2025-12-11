@@ -3,7 +3,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import { useTabs } from '@/v2/hooks/use-tabs'
+import { useTabs } from '@/v2/features/app/hooks/use-tabs'
 
 vi.mock('vue-router', () => ({
   useRoute: vi.fn().mockReturnValue({

@@ -63,6 +63,59 @@ describe('ScalarSidebar', () => {
       expect(sidebarItems.length).toBe(4)
       expect(sidebarItems[0]?.props('item')).toEqual(items[0])
     })
+
+    it('hides webhooks and models in client layout', () => {
+      const items: Item[] = [
+        {
+          id: '1',
+          title: 'Parent',
+          type: 'tag',
+          name: 'parent',
+          isGroup: true,
+          children: [
+            {
+              id: '2',
+              title: 'Operation',
+              type: 'operation',
+              ref: 'ref-2',
+              method: 'get',
+              path: '/operation',
+            },
+            {
+              id: '3',
+              title: 'Webhook',
+              type: 'webhook',
+              ref: 'ref-3',
+              method: 'post',
+              name: 'webhook',
+            },
+            {
+              id: '4',
+              title: 'Model',
+              type: 'model',
+              ref: 'ref-4',
+              name: 'model',
+            },
+          ],
+        },
+      ]
+
+      const state = createSidebarState(items)
+
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'client',
+          items: state.items.value,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+        },
+      })
+
+      const sidebarItems = wrapper.findAllComponents(SidebarItem)
+      // Should render the parent item
+      expect(sidebarItems.length).toBe(2)
+      expect(sidebarItems[0]?.props('item')).toEqual(items[0])
+    })
   })
 
   describe('state management on click', () => {

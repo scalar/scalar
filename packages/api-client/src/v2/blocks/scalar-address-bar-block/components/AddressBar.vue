@@ -210,6 +210,7 @@ defineExpose({
           :emitOnBlur="false"
           :environment="environment"
           importCurl
+          :layout="layout"
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL or cURL command'"
           server

@@ -91,7 +91,7 @@ export function useModal() {
         cx(
           size === 'full' ? 'scalar-modal-layout-full' : 'scalar-modal-layout',
           'fixed left-0 top-0 flex items-start justify-center',
-          'z-[1001] h-[100dvh] w-[100dvw]',
+          'z-overlay h-dvh w-dvw',
           'bg-backdrop opacity-0 dark:bg-backdrop-dark',
           size === 'full' && 'flex',
         )

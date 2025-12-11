@@ -76,6 +76,7 @@ const authMeta = computed<AuthMeta>(() => {
   } as const
 })
 
+// eslint-disable-next-line no-undef
 const APP_VERSION = PACKAGE_VERSION
 
 const router = useRouter()
@@ -87,6 +88,7 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
       :exampleKey="exampleName"

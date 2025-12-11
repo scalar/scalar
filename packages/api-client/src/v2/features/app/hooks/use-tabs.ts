@@ -5,8 +5,8 @@ import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue } from 'vue'
 import { useRoute } from 'vue-router'
 
+import type { UseAppSidebarReturn } from '@/v2/features/app/hooks/use-app-sidebar'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
-import type { UseSidebarStateReturn } from '@/v2/hooks/use-sidebar-state'
 
 /** Constants for workspace store keys */
 const TABS_KEY = 'x-scalar-tabs' as const
@@ -27,7 +27,7 @@ type UseTabsParams = {
   documentSlug: MaybeRefOrGetter<string | undefined>
   path: MaybeRefOrGetter<string | undefined>
   method: MaybeRefOrGetter<HttpMethod | undefined>
-  getEntryByLocation: UseSidebarStateReturn['getEntryByLocation']
+  getEntryByLocation: UseAppSidebarReturn['getEntryByLocation']
 }
 
 /**

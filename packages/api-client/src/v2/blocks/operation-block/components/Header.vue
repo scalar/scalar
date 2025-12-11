@@ -9,17 +9,13 @@ import { OpenApiClientButton } from '@/components'
 import type { ClientLayout } from '@/hooks'
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 
-const { showSidebar = true, hideClientButton = false } = defineProps<{
+const { hideClientButton = false } = defineProps<{
   /** Current request path */
   path: string
   /** Current request method */
   method: HttpMethod
   /** Client layout */
   layout: ClientLayout
-  /** Sidebar open state */
-  isSidebarOpen?: boolean
-  /** Controls sidebar visibility */
-  showSidebar?: boolean
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -62,10 +58,7 @@ const emit = defineEmits<{
 
           Hidden for `modal` layout
       -->
-      <div
-        v-if="showSidebar"
-        class="size-8"
-        :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
+      <div class="size-8"></div>
     </div>
     <AddressBar
       :environment
@@ -104,7 +97,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal' && source !== 'gitbook'"
         class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
-        @click="eventBus.emit('hide:modal')">
+        @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="lg"
@@ -121,7 +114,7 @@ const emit = defineEmits<{
         v-if="layout === 'modal' && source === 'gitbook'"
         class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
         type="button"
-        @click="eventBus.emit('hide:modal')">
+        @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="md"

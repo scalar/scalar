@@ -12,7 +12,7 @@ import { ScalarIconGear } from '@scalar/icons'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import type { Workspace } from '@/v2/hooks/use-workspace-selector'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 
 const { activeWorkspace, workspaces } = defineProps<{
   /**

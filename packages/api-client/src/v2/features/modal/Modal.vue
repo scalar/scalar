@@ -1,8 +1,19 @@
 <script lang="ts">
 export type ModalProps = {
-  // eslint-disable-next-line vue/no-unused-properties
+  /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
+  /** The document must be initialized and passed in */
+  document: ComputedRef<WorkspaceDocument | null>
+  /** The path must be initialized and passed in */
+  path: ComputedRef<string | undefined>
+  /** The method must be initialized and passed in */
+  method: ComputedRef<HttpMethod | undefined>
+  /** The example name must be initialized and passed in */
+  exampleName: ComputedRef<string | undefined>
+  /** Controls the visibility of the modal */
   modalState: ModalState
+  /** The sidebar state must be initialized and passed in */
+  sidebarState: UseModalSidebarReturn
 }
 
 /**
@@ -19,18 +30,68 @@ import {
   ScalarTeleportRoot,
   type ModalState,
 } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
+  computed,
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
   ref,
   useId,
   watch,
+  type ComputedRef,
 } from 'vue'
 
-const { modalState } = defineProps<ModalProps>()
+import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
+import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
+import Operation from '@/v2/features/operation/Operation.vue'
+import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
+import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
+
+import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
+
+const { modalState, workspaceStore, sidebarState, document } =
+  defineProps<ModalProps>()
+
+/** Expose workspace store to window for debugging purposes. */
+if (typeof window !== 'undefined') {
+  window.dataDumpWorkspace = () => workspaceStore
+}
+
+/** Workspace event bus for handling workspace-level events. */
+const eventBus = createWorkspaceEventBus({
+  debug: import.meta.env.DEV,
+})
+
+/** Initialize color mode to ensure it is set on mount. */
+useColorMode({ workspaceStore })
+
+const activeWorkspace: Workspace = {
+  name: 'default',
+  id: 'default',
+}
+
+/** Controls the visibility of the sidebar. */
+const isSidebarOpen = ref(true)
+
+/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
+useWorkspaceClientModalEvents({
+  eventBus,
+  document,
+  isSidebarOpen,
+  sidebarState,
+  modalState,
+})
+
+/** Register global hotkeys for the app, passing the workspace event bus and layout state */
+useGlobalHotKeys(eventBus, 'modal')
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
@@ -41,41 +102,25 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-// TODO: replace me
-// We probably will not use a router/sidebar for modal mode
-// const { sidebarState } = useSidebarState({
-//   workspaceStore,
-//   workspaceSlug: 'default',
-//   documentSlug: '',
-//   exampleName: '',
-//   method: 'get',
-//   path: '',
-// })
-
-/**
- * Close the modal on escape
- *
- * We must add a global listener here becuase sometimes the focus will be shifted to the body
- */
-const onEscape = (ev: KeyboardEvent) => ev.key === 'Escape' && modalState.hide()
-
 /** Clean up listeners on modal close and unmount */
 const cleanUpListeners = () => {
-  window.removeEventListener('keydown', onEscape)
-  document.documentElement.style.removeProperty('overflow')
   deactivateFocusTrap()
 }
+
+const isLocked = useScrollLock(() => {
+  if (typeof window !== 'undefined') {
+    return window.document.body
+  }
+  return null
+})
 
 watch(
   () => modalState.open,
   (open) => {
+    // Make sure scrolling is locked or unlocked when the modal is opened or closed
+    isLocked.value = open
+
     if (open) {
-      // Add the escape key listener
-      window.addEventListener('keydown', onEscape)
-
-      // Disable scrolling
-      document.documentElement.style.overflow = 'hidden'
-
       // Focus trap the modal
       activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
     } else {
@@ -89,6 +134,34 @@ onBeforeMount(() => addScalarClassesToHeadless())
 
 onBeforeUnmount(() => {
   cleanUpListeners()
+})
+
+/** Default sidebar width in pixels. */
+const DEFAULT_SIDEBAR_WIDTH = 288
+
+/** Width of the sidebar, with fallback to default. */
+const sidebarWidth = computed(
+  () =>
+    workspaceStore?.workspace?.['x-scalar-sidebar-width'] ??
+    DEFAULT_SIDEBAR_WIDTH,
+)
+
+/** Handler for sidebar width changes. */
+const handleSidebarWidthUpdate = (width: number) =>
+  workspaceStore?.update('x-scalar-sidebar-width', width)
+
+/**
+ * Merged environment variables from workspace and document levels.
+ * Variables from both sources are combined, with document variables
+ * taking precedence in case of naming conflicts.
+ */
+const environment = computed(() =>
+  getActiveEnvironment(workspaceStore, document.value),
+)
+
+defineExpose({
+  sidebarWidth,
+  environment,
 })
 </script>
 
@@ -106,25 +179,45 @@ onBeforeUnmount(() => {
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
-          <main class="flex flex-1 flex-row">
-            <!-- <Sidebar
-              :activeWorkspace="{ name: 'Default', id: 'default' }"
-              :workspaces="[]"
+          <!-- If we have a document, path and method, render the operation -->
+          <main
+            v-if="document.value && path?.value && method?.value"
+            class="relative flex flex-1">
+            <SidebarToggle
+              v-model="isSidebarOpen"
+              class="absolute top-2 left-3 z-[10001]" />
+            <Sidebar
               v-show="isSidebarOpen"
-              v-model:isSidebarOpen="isSidebarOpen"
+              v-model:sidebarWidth="sidebarWidth"
+              :activeWorkspace="activeWorkspace"
+              class="z-[10000] h-full max-md:absolute! max-md:w-full!"
+              :documents="[document.value]"
+              :eventBus="eventBus"
+              :isDroppable="() => false"
               layout="modal"
-              :sidebarState="sidebarState"
-              :sidebarWidth="
-                workspaceStore.workspace['x-scalar-sidebar-width'] ?? 288
-              "
-              @update:sidebarWidth="
-                (width) =>
-                  workspaceStore.update('x-scalar-sidebar-width', width)
-              " /> -->
-
-            <!-- Insert the operation page here -->
-            Insert operation page here
+              :sidebarState="sidebarState.state"
+              :workspaces="[]"
+              @selectItem="sidebarState.handleSelectItem"
+              @update:sidebarWidth="handleSidebarWidthUpdate" />
+            <Operation
+              :activeWorkspace="activeWorkspace"
+              class="flex-1"
+              :document="document.value"
+              :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
+              :environment="environment"
+              :eventBus="eventBus"
+              :exampleName="exampleName?.value"
+              layout="modal"
+              :method="method?.value"
+              :path="path?.value"
+              :workspaceStore="workspaceStore" />
           </main>
+          <!-- Empty state -->
+          <div
+            v-else
+            class="flex h-full w-full items-center justify-center">
+            <span class="text-c-3">No document selected</span>
+          </div>
         </ScalarTeleportRoot>
       </div>
       <div
