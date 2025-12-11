@@ -146,14 +146,14 @@ export const useSyncPath = ({
     async () => {
       const slug = route.params.workspaceSlug
 
-      // If switching to a new workspace, handle loading and navigation
-      if (typeof slug === 'string' && slug !== workspaceSelectorState.activeWorkspace.value?.id) {
-        return await changeWorkspace(slug)
-      }
-
       // Only persist the current path if have a selected workspace
       if (typeof slug === 'string') {
         workspaceStorage.setCurrentPath(route.path)
+      }
+
+      // If switching to a new workspace, handle loading and navigation
+      if (typeof slug === 'string' && slug !== workspaceSelectorState.activeWorkspace.value?.id) {
+        return await changeWorkspace(slug)
       }
 
       // For any route change (including in the same workspace), sync tab state with the route

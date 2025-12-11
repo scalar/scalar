@@ -95,21 +95,21 @@ export const closeTab = (workspace: Workspace | null, payload: TabEvents['tabs:c
     return false
   }
 
-  const tabs = getUnpackedTabs(workspace)
   const index = getInputIndex()
+  const filteredTabs = getUnpackedTabs(workspace).filter((_, i) => i !== index)
 
-  if (tabs.length <= 1) {
+  if (filteredTabs.length <= 0) {
     return false
   }
 
-  workspace['x-scalar-tabs'] = tabs.filter((_, i) => i !== index)
+  workspace['x-scalar-tabs'] = filteredTabs
 
   /**
    * If we closed a tab at the end, the active index needs to move back.
    * This ensures the active tab stays within bounds after removal.
    */
-  if (index >= tabs.length - 2) {
-    workspace['x-scalar-active-tab'] = tabs.length - 2
+  if (index >= filteredTabs.length) {
+    workspace['x-scalar-active-tab'] = filteredTabs.length - 1
   }
 
   return true
