@@ -399,7 +399,7 @@ describe('Modal', () => {
     /**
      * Page scrolling should be disabled when modal is open to prevent background scroll.
      */
-    expect(document.documentElement.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('hidden')
 
     // Close the modal
     modalState.open = false
