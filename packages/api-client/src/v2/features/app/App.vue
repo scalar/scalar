@@ -41,7 +41,6 @@ const { layout } = defineProps<{
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
   window.dataDumpWorkspace = () => store.value
 }
 

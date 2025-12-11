@@ -62,8 +62,7 @@ const { modalState, workspaceStore, sidebarState, document } =
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore.value
+  window.dataDumpWorkspace = () => workspaceStore
 }
 
 /** Workspace event bus for handling workspace-level events. */
