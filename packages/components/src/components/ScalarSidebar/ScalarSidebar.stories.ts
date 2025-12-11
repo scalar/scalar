@@ -70,7 +70,7 @@ const meta: Meta = {
     colorTwo: 'var(--scalar-color-2)',
     borderColor: 'var(--scalar-border-color)',
     itemHoverBackground: 'var(--scalar-background-2)',
-    itemHoverColor: 'currentColor',
+    itemHoverColor: 'var(--scalar-sidebar-color-2)',
     itemActiveBackground: 'var(--scalar-background-2)',
     itemActiveColor: 'var(--scalar-sidebar-color-1)',
     indentBorder: 'var(--scalar-border-color)',
@@ -109,12 +109,75 @@ const meta: Meta = {
     searchBorderColor: { control: 'color' },
   },
   render: (args) => ({
-    components: { ScalarSidebarPlayground },
+    components: {
+      ScalarSidebar,
+      ScalarSidebarItem,
+      ScalarSidebarItems,
+      ScalarSidebarGroup,
+      ScalarSidebarNestedItems,
+      ScalarSidebarSection,
+      ScalarSidebarPlayground,
+    },
     setup() {
-      return { args }
+      const selected = ref('')
+      return { args, selected }
     },
     template: `
-<ScalarSidebarPlayground v-bind="args">
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
+  <ScalarSidebarItems>
+    <ScalarSidebarSection>
+      Navigation
+      <template #items>
+        <ScalarSidebarNestedItems :controlled="args.controlled">
+          Nested Items Level 1
+          <template #back-label>
+            Top Level Sidebar
+          </template>
+          <template #items>
+            <ScalarSidebarNestedItems :controlled="args.controlled">
+              Nested Items Level 2
+              <template #items>
+                <ScalarSidebarNestedItems :controlled="args.controlled">
+                  Nested Items Level 3
+                  <template #items>
+                    ${nestedItemGroups}
+                  </template>
+                </ScalarSidebarNestedItems>
+                ${nestedItemGroups}
+              </template>
+            </ScalarSidebarNestedItems>
+            ${nestedItemGroups}
+          </template>
+        </ScalarSidebarNestedItems>
+        <ScalarSidebarGroup>
+          Group with Nested Sidebar
+          <template #items>
+            <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
+            <ScalarSidebarNestedItems :controlled="args.controlled">
+              Nested Items in a Group
+              <template #items>
+                ${nestedItemGroups}
+              </template>
+            </ScalarSidebarNestedItems>
+            <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 2'" @click="selected = 'Subitem 2'">Subitem 2</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+        ${nestedItemGroups}
+      </template>
+    </ScalarSidebarSection>
+    <ScalarSidebarSection>
+      Additional Items
+      <template #items>
+        <ScalarSidebarNestedItems>
+          More nested items
+          <template #items>
+            ${nestedItemGroups}
+          </template>
+        </ScalarSidebarNestedItems>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Standalone Item'" @click="selected = 'Standalone Item'">Standalone Item</ScalarSidebarItem>
+      </template>
+    </ScalarSidebarSection>
+  </ScalarSidebarItems>
 </ScalarSidebarPlayground>
 `,
   }),
@@ -124,6 +187,26 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const Themed: Story = {
+  args: {
+    indent: 32,
+    backgroundOne: '#27212e',
+    colorOne: '#fff',
+    colorTwo: '#b8b6ba',
+    borderColor: '#3d3843',
+    itemHoverBackground: '#322c39',
+    itemHoverColor: '#fff',
+    itemActiveBackground: '#322c39',
+    itemActiveColor: '#fff',
+    indentBorder: '#3d3843',
+    indentBorderHover: '#fff',
+    indentBorderActive: '#ed78c2',
+    searchBackground: '#322c39',
+    searchColor: '#706c74',
+    searchBorderColor: '#3d3843',
+  },
+}
 
 export const WithNestedGroups: Story = {
   argTypes: { indent: { control: 'number' } },
@@ -144,72 +227,6 @@ export const WithNestedGroups: Story = {
 <ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
   <ScalarSidebarItems>
     ${nestedItemGroups}
-  </ScalarSidebarItems>
-</ScalarSidebarPlayground>
-`,
-  }),
-}
-
-export const WithNestedSidebars: Story = {
-  argTypes: { indent: { control: 'number' } },
-  args: { indent: 20 },
-  render: (args) => ({
-    components: {
-      ScalarSidebar,
-      ScalarSidebarItem,
-      ScalarSidebarItems,
-      ScalarSidebarGroup,
-      ScalarSidebarNestedItems,
-      ScalarSidebarPlayground,
-    },
-    setup() {
-      const selected = ref('')
-      return { args, selected }
-    },
-    template: `
-<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
-  <ScalarSidebarItems>
-    <ScalarSidebarNestedItems :controlled="args.controlled">
-      Nested Items Level 1
-      <template #back-label>
-        Top Level Sidebar
-      </template>
-      <template #items>
-        <ScalarSidebarNestedItems :controlled="args.controlled">
-          Nested Items Level 2
-          <template #items>
-            <ScalarSidebarNestedItems :controlled="args.controlled">
-              Nested Items Level 3
-              <template #items>
-                ${nestedItemGroups}
-              </template>
-            </ScalarSidebarNestedItems>
-            ${nestedItemGroups}
-          </template>
-        </ScalarSidebarNestedItems>
-        ${nestedItemGroups}
-      </template>
-    </ScalarSidebarNestedItems>
-    <ScalarSidebarGroup>
-      Group with Nested Items
-      <template #items>
-        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
-        <ScalarSidebarNestedItems :controlled="args.controlled">
-          Nested Items in a Group
-          <template #items>
-            ${nestedItemGroups}
-          </template>
-        </ScalarSidebarNestedItems>
-        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 2'" @click="selected = 'Subitem 2'">Subitem 2</ScalarSidebarItem>
-      </template>
-    </ScalarSidebarGroup>
-    ${nestedItemGroups}
-    <ScalarSidebarNestedItems>
-      More nested items
-      <template #items>
-        ${nestedItemGroups}
-      </template>
-    </ScalarSidebarNestedItems>
   </ScalarSidebarItems>
 </ScalarSidebarPlayground>
 `,
