@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.26
+
+### Patch Changes
+
+- [#7520](https://github.com/scalar/scalar/pull/7520) [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf) Thanks [@hwkr](https://github.com/hwkr)! - feat(themes): apply sidebar variables at the top level
+
 ## 0.13.25
 
 ### Patch Changes

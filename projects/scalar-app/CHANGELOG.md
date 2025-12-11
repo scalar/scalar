@@ -1,5 +1,15 @@
 # scalar-app
 
+## 0.1.248
+
+### Patch Changes
+
+- Updated dependencies [[`f7c24e4`](https://github.com/scalar/scalar/commit/f7c24e4995580649dbc3cb87007a683f5dd91f7c), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`10318b6`](https://github.com/scalar/scalar/commit/10318b6a59df49905225bdbd9e19044521cd4581), [`4ac6227`](https://github.com/scalar/scalar/commit/4ac62278d4205c34a1a302b756ef3632185876cf), [`3f797b6`](https://github.com/scalar/scalar/commit/3f797b67489e07c4f3bf34a39b2175ed2d6f1465)]:
+  - @scalar/api-client@2.15.0
+  - @scalar/themes@0.13.26
+  - @scalar/components@0.16.8
+  - @scalar/import@0.4.39
+
 ## 0.1.247
 
 ### Patch Changes
