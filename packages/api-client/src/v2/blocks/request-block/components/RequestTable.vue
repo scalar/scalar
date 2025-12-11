@@ -35,14 +35,11 @@ const {
  */
 
 const emits = defineEmits<{
-  (
-    e: 'addRow',
-    payload: Partial<{ key: string; value: string; isEnabled: boolean }>,
-  ): void
+  (e: 'addRow', payload: Partial<{ key: string; value: string }>): void
   (
     e: 'updateRow',
     index: number,
-    payload: Partial<{ key: string; value: string; isEnabled: boolean }>,
+    payload: Partial<{ key: string; value: string; isDisabled: boolean }>,
   ): void
   (e: 'deleteRow', index: number): void
 
@@ -91,7 +88,7 @@ const updateOrAdd = ({
   payload,
 }: {
   index: number
-  payload: Partial<{ key: string; value: string; isEnabled: boolean }>
+  payload: Partial<{ key: string; value: string; isDisabled: boolean }>
 }) => {
   /** If the update happen on the last row, it means we need to add a new row */
   if (index >= data.length) {

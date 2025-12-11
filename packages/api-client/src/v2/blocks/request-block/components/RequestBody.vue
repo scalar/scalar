@@ -48,7 +48,11 @@ const emits = defineEmits<{
     e: 'update:formRow',
     payload: {
       index: number
-      data: Partial<{ key: string; value: string | File | null }>
+      data: Partial<{
+        key: string
+        value: string | File | null
+        isDisabled: boolean
+      }>
       contentType: string
     },
   ): void
@@ -249,7 +253,7 @@ const tableRows = computed(() => {
                   contentType: selectedContentType,
                   index,
                   data: {
-                    value: null,
+                    value: undefined,
                   },
                 })
             "

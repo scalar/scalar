@@ -37,7 +37,7 @@ const {
 const emits = defineEmits<{
   (
     e: 'updateRow',
-    payload: Partial<{ key: string; value: string; isEnabled: boolean }>,
+    payload: Partial<{ key: string; value: string; isDisabled: boolean }>,
   ): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
@@ -122,7 +122,7 @@ const valueModel = computed({
         class="!border-r"
         :disabled="hasCheckboxDisabled ?? false"
         :modelValue="!data.isDisabled"
-        @update:modelValue="(v) => emits('updateRow', { isEnabled: v })" />
+        @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
     </template>
     <!-- Key -->
     <DataTableCell>

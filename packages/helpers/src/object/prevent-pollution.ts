@@ -1,8 +1,8 @@
 /**
- * List of dangerous keys that can be used for prototype pollution attacks.
+ * Set of dangerous keys that can be used for prototype pollution attacks.
  * These keys should never be used as property names in dynamic object operations.
  */
-const PROTOTYPE_POLLUTION_KEYS = ['__proto__', 'prototype', 'constructor'] as const
+const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
 
 /**
  * Validates that a key is safe to use and does not pose a prototype pollution risk.
@@ -20,7 +20,7 @@ const PROTOTYPE_POLLUTION_KEYS = ['__proto__', 'prototype', 'constructor'] as co
  * ```
  */
 export const preventPollution = (key: string, context?: string): void => {
-  if (PROTOTYPE_POLLUTION_KEYS.includes(key as never)) {
+  if (PROTOTYPE_POLLUTION_KEYS.has(key)) {
     const errorMessage = context
       ? `Prototype pollution key detected: "${key}" in ${context}`
       : `Prototype pollution key detected: "${key}"`

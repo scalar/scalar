@@ -35,7 +35,7 @@ const emits = defineEmits<{
     e: 'update',
     payload: {
       index: number
-      payload: Partial<{ key: string; value: string; isEnabled: boolean }>
+      payload: Partial<{ key: string; value: string; isDisabled: boolean }>
     },
   ): void
   (e: 'delete', payload: { index: number }): void

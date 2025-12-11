@@ -211,21 +211,25 @@ describe('RequestBlock', () => {
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith({
           type: expectedType,
-          payload: { key: 'k', value: 'v', isEnabled: true },
+          payload: { key: 'k', value: 'v', isDisabled: false },
           meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
         })
         fn.mockReset()
       }
 
-      p.vm.$emit('update', { index: 1, payload: { key: 'x', value: 'y', isEnabled: true } })
+      // Update events are debounced, so we need to use fake timers
+      vi.useFakeTimers()
+      p.vm.$emit('update', { index: 1, payload: { key: 'x', value: 'y', isDisabled: false } })
+      vi.advanceTimersByTime(400)
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
         index: 1,
-        payload: { key: 'x', value: 'y', isEnabled: true },
+        payload: { key: 'x', value: 'y', isDisabled: false },
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()
+      vi.useRealTimers()
 
       p.vm.$emit('delete', { index: 2 })
       expect(fn).toHaveBeenCalledTimes(1)
@@ -311,8 +315,11 @@ describe('RequestBlock', () => {
     })
     fn.mockReset()
 
+    // Update form row events are debounced, so we need to use fake timers
+    vi.useFakeTimers()
     const updateFormRowPayload = { index: 1, data: { key: 'x', value: 'y' }, contentType: 'application/json' }
     body.vm.$emit('update:formRow', updateFormRowPayload)
+    vi.advanceTimersByTime(400)
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
       index: 1,
@@ -321,6 +328,7 @@ describe('RequestBlock', () => {
       meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
     })
     fn.mockReset()
+    vi.useRealTimers()
   })
 
   it('renders plugin component when provided', () => {
