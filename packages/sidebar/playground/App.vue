@@ -104,7 +104,7 @@ const log = (name: string, ...args: any[]) => {
         <template #icon>
           <ScalarIconPlus />
         </template>
-        <template #default>Add a new operation</template>
+        <template #default>Add operation</template>
       </ScalarSidebarItem>
     </template>
 

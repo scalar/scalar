@@ -54,13 +54,15 @@ const emit = defineEmits<{
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
-defineSlots<{
+const slots = defineSlots<{
   /** Slot to add the workspace button */
   workspaceButton?(): unknown
   /** Slot to add additional content to the decorator */
   decorator?(props: { item: TraversedEntry }): unknown
   /** Slot to add additional content to the footer */
   footer?(): unknown
+  /** Slot to add additional content to the empty folder */
+  empty?(props: { item: TraversedEntry }): unknown
 }>()
 
 /** Controls the visibility of the sidebar */
@@ -130,6 +132,15 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <slot
             v-bind="decoratorProps"
             name="decorator" />
+        </template>
+
+        <!-- Empty folder slot -->
+        <template
+          v-if="slots.empty"
+          #empty="emptyProps">
+          <slot
+            v-bind="emptyProps"
+            name="empty" />
         </template>
 
         <template #before>

@@ -6,7 +6,11 @@ import {
   ScalarSidebarItem,
   useModal,
 } from '@scalar/components'
-import { ScalarIconDotsThree, ScalarIconGlobe } from '@scalar/icons'
+import {
+  ScalarIconDotsThree,
+  ScalarIconGlobe,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -126,6 +130,7 @@ const selectedItem = ref<{
 
 const deleteModalState = useModal()
 
+/** Computes the message for the delete modal */
 const deleteMessage = computed(() => {
   const item = selectedItem.value?.item
 
@@ -136,6 +141,7 @@ const deleteMessage = computed(() => {
   return `Are you sure you want to delete this ${item?.type ?? 'item'}? This action cannot be undone.`
 })
 
+/** Deletes an item from the sidebar by emitting the appropriate event */
 const handleDelete = () => {
   const item = selectedItem.value?.item
 
@@ -191,6 +197,7 @@ const handleDelete = () => {
   selectedItem.value = null
 }
 
+/** Selects an item in the sidebar by setting the selectedItem state */
 const selectItem = (event: MouseEvent, item: TraversedEntry) => {
   event.preventDefault()
   event.stopPropagation()
@@ -201,11 +208,26 @@ const selectItem = (event: MouseEvent, item: TraversedEntry) => {
   }
 }
 
-// Closes the decorator dropdown menu by setting isOpen to false on the selected item
+/** Closes the decorator dropdown menu by setting isOpen to false on the selected item */
 const handleCloseMenu = () => {
   if (selectedItem.value) {
     selectedItem.value.isOpen = false
   }
+}
+
+/** Opens the command palette with the payload needed to create a request */
+const handleAddEmptyFolder = (item: TraversedEntry) => {
+  const itemWithParent = sidebarState.getEntryById(item.id)
+  const document = getParentEntry('document', itemWithParent)
+  const tag = getParentEntry('tag', itemWithParent)
+
+  eventBus.emit('ui:open:command-palette', {
+    action: 'create-request',
+    payload: {
+      documentId: document?.id,
+      tagId: tag?.id,
+    },
+  })
 }
 </script>
 
@@ -242,10 +264,20 @@ const handleCloseMenu = () => {
       <template #decorator="{ item }">
         <ScalarIconButton
           :icon="ScalarIconDotsThree"
-          weight="bold"
           label="More options"
           size="sm"
+          weight="bold"
           @click="(e: MouseEvent) => selectItem(e, item)" />
+      </template>
+
+      <!-- Empty folder slot -->
+      <template #empty="{ item }">
+        <ScalarSidebarItem @click="handleAddEmptyFolder(item)">
+          <template #icon>
+            <ScalarIconPlus />
+          </template>
+          <template #default>Add operation</template>
+        </ScalarSidebarItem>
       </template>
 
       <!-- Getting started section -->
