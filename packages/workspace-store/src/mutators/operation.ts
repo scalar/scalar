@@ -913,7 +913,10 @@ export const updateOperationRequestBodyFormRow = (
 
   // Only set the properties that are present in the payload
   for (const key of objectKeys(payload)) {
-    example.value[index][key === 'key' ? 'name' : key] = payload[key]
+    if (example.value[index]) {
+      preventPollution(key, 'updateOperationRequestBodyFormRow')
+      example.value[index][key === 'key' ? 'name' : key] = payload[key]
+    }
   }
 }
 

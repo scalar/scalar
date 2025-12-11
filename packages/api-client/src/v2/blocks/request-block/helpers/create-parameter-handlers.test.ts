@@ -26,7 +26,7 @@ describe('createParameterHandlers', () => {
       payload: {
         key: 'foo',
         value: 'bar',
-        isEnabled: true,
+        isDisabled: false,
       },
       meta: mockMeta,
     })
@@ -42,7 +42,7 @@ describe('createParameterHandlers', () => {
       payload: {
         key: '',
         value: '',
-        isEnabled: true,
+        isDisabled: false,
       },
       meta: mockMeta,
     })
@@ -56,7 +56,7 @@ describe('createParameterHandlers', () => {
       payload: {
         key: 'Authorization',
         value: '',
-        isEnabled: true,
+        isDisabled: false,
       },
       meta: mockMeta,
     })
@@ -93,50 +93,74 @@ describe('createParameterHandlers', () => {
     // Update only key
     handlers.update({ index: 1, payload: { key: 'updated-key' } })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:update:parameter', {
-      type: 'query',
-      index: 1,
-      payload: { key: 'updated-key' },
-      meta: mockMeta,
-    })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:update:parameter',
+      {
+        type: 'query',
+        index: 1,
+        payload: { key: 'updated-key' },
+        meta: mockMeta,
+      },
+      {
+        debounceKey: 'update:parameter-query-1-key',
+      },
+    )
 
     vi.clearAllMocks()
 
     // Update only value
     handlers.update({ index: 0, payload: { value: 'new-value' } })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:update:parameter', {
-      type: 'query',
-      index: 0,
-      payload: { value: 'new-value' },
-      meta: mockMeta,
-    })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:update:parameter',
+      {
+        type: 'query',
+        index: 0,
+        payload: { value: 'new-value' },
+        meta: mockMeta,
+      },
+      {
+        debounceKey: 'update:parameter-query-0-value',
+      },
+    )
 
     vi.clearAllMocks()
 
-    // Update only isEnabled
-    handlers.update({ index: 3, payload: { isEnabled: false } })
+    // Update only isDisabled
+    handlers.update({ index: 3, payload: { isDisabled: true } })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:update:parameter', {
-      type: 'query',
-      index: 3,
-      payload: { isEnabled: false },
-      meta: mockMeta,
-    })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:update:parameter',
+      {
+        type: 'query',
+        index: 3,
+        payload: { isDisabled: true },
+        meta: mockMeta,
+      },
+      {
+        debounceKey: 'update:parameter-query-3-isDisabled',
+      },
+    )
 
     vi.clearAllMocks()
 
     // Update all fields at once
     handlers.update({
       index: 2,
-      payload: { key: 'complete', value: 'update', isEnabled: true },
+      payload: { key: 'complete', value: 'update', isDisabled: false },
     })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:update:parameter', {
-      type: 'query',
-      index: 2,
-      payload: { key: 'complete', value: 'update', isEnabled: true },
-      meta: mockMeta,
-    })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:update:parameter',
+      {
+        type: 'query',
+        index: 2,
+        payload: { key: 'complete', value: 'update', isDisabled: false },
+        meta: mockMeta,
+      },
+      {
+        debounceKey: 'update:parameter-query-2-key-value-isDisabled',
+      },
+    )
   })
 })
