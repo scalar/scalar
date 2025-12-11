@@ -10,6 +10,8 @@ import { LibraryIcon } from '@scalar/icons/library'
 
 import SidebarItemDecorator from '@/components/SidebarItemDecorator.vue'
 import { filterItems } from '@/helpers/filter-items'
+import { hasChildren } from '@/helpers/has-children'
+import { isSidebarFolder } from '@/helpers/is-sidebar-folder'
 import {
   useDraggable,
   type DraggingItem,
@@ -89,53 +91,10 @@ const slots = defineSlots<{
   empty?(props: { item: Item }): unknown
 }>()
 
-const hasChildren = (
-  currentItem: Item,
-): currentItem is Item & { children: Item[] } => {
-  return (
-    'children' in currentItem &&
-    Array.isArray(currentItem.children) &&
-    currentItem.children.length > 0
-  )
-}
-
 const isGroup = (
   currentItem: Item,
 ): currentItem is Item & { isGroup: true } => {
   return 'isGroup' in currentItem && currentItem.isGroup
-}
-
-/**
- * Determines if an item should render as a collapsible group (folder).
- *
- * - In 'client' layout: all items with children are shown as groups
- * - In 'reference' layout: only non-operation/webhook items with children are shown as groups
- *   (operations and webhooks are rendered differently in reference layout)
- */
-const shouldShowAsGroup = (
-  currentItem: Item,
-): currentItem is Item & { children?: Item[] } => {
-  // If the item has no children, check if there is an empty slot.
-  if (!hasChildren(currentItem)) {
-    // For the client layout, if there is an empty slot, show the item as a group.
-    if (layout === 'client' && slots.empty) {
-      return item.type === 'document' || item.type === 'tag'
-    }
-    return false
-  }
-
-  const isOperationOrWebhook =
-    currentItem.type === 'operation' || currentItem.type === 'webhook'
-
-  if (layout === 'client') {
-    return true
-  }
-
-  if (layout === 'reference') {
-    return !isOperationOrWebhook
-  }
-
-  return false
 }
 
 /**
@@ -187,7 +146,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
 
   <!-- Sidebar group (folder) -->
   <ScalarSidebarGroup
-    v-else-if="shouldShowAsGroup(item)"
+    v-else-if="isSidebarFolder(layout, item, slots.empty !== undefined)"
     :active="isSelected(item.id)"
     class="relative"
     controlled
