@@ -83,8 +83,8 @@ export function htmlFromMarkdown(
       attributes: {
         ...defaultSchema.attributes,
         abbr: ['title'],
-        // Allow alert classes
-        div: ['class', ['className', /^markdown-alert(-.*)?$/]],
+        // Allow all class names (disable class filtering)
+        '*': ['className'],
       },
     })
     // Syntax highlighting
