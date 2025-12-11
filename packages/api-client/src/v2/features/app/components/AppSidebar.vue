@@ -225,7 +225,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
     action: 'create-request',
     payload: {
       documentId: document?.id,
-      tagId: tag?.id,
+      tagId: tag?.name,
     },
   })
 }
