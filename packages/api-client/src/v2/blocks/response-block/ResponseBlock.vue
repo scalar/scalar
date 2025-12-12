@@ -23,21 +23,17 @@ const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */
   response: ResponseInstance | null
   /** Original request instance */
-  request?: Request
-
+  request: Request | null
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Application version */
   appVersion: string
-
   /** Registered app plugins */
-  plugins?: ClientPlugin[]
-
+  plugins: ClientPlugin[]
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
-
   eventBus: WorkspaceEventBus
 }>()
 
@@ -125,7 +121,7 @@ const requestHeaders = computed(() =>
 const isSectionVisible = (
   section: (typeof responseSections)[number] | 'All',
 ) => {
-  if (section === 'All' || activeFilter.value === section) {
+  if (activeFilter.value === 'All' || activeFilter.value === section) {
     return true
   }
   return false

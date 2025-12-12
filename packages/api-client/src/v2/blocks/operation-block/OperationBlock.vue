@@ -86,8 +86,6 @@ const {
    * The amount remaining to load from 100 -> 0
    */
   requestLoadingPercentage?: number
-  /** Original request instance */
-  request?: Request
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Hides the client button on the header */
@@ -125,11 +123,10 @@ const emit = defineEmits<{
 
 const { toast } = useToasts()
 
-/** For cancelling requests */
+// Refs
 const abortController = ref<AbortController | null>(null)
-
-/** We temporarily store the response here until we sort out history, then we would send it to the store */
 const response = ref<ResponseInstance | null>(null)
+const request = ref<Request | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -155,8 +152,9 @@ const handleExecute = async () => {
     return
   }
 
-  // Store the abort controller
+  // Store the abort controller and request
   abortController.value = result.controller
+  request.value = result.request
 
   // TODO: send start event for animation
 
@@ -192,7 +190,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="bg-b-1 flex h-full flex-col">
     <div
-      class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-1">
+      class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-0">
       <!-- Address Bar -->
       <Header
         :documentUrl
