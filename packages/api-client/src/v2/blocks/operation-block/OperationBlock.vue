@@ -132,7 +132,7 @@ const handleExecute = async () => {
     return
   }
 
-  await fetch(result.request)
+  // await fetch(result.request)
 
   eventBus.emit('operation:send:request', {
     meta: { path, method, exampleKey },
