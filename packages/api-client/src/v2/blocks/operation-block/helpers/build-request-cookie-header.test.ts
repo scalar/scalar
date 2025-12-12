@@ -59,7 +59,14 @@ describe('getCookieHeader', () => {
 
   it('handles empty cookie params with original cookie header', () => {
     const cookieParams: XScalarCookie[] = []
-    expect(getCookieHeader(cookieParams, 'existing=value')).toBe('existing=value;')
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe('existing=value')
+  })
+
+  it('does not add trailing semicolon when cookieParams is empty but originalCookieHeader exists', () => {
+    const cookieParams: XScalarCookie[] = []
+    const result = getCookieHeader(cookieParams, 'session=abc123')
+    expect(result).toBe('session=abc123')
+    expect(result).not.toContain('session=abc123;')
   })
 
   it('handles original cookie header with multiple cookies', () => {

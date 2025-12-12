@@ -23,11 +23,12 @@ export const getCookieHeader = (cookieParams: XScalarCookie[], originalCookieHea
   const cookieHeader = cookieParams.map((c) => `${c.name}=${c.value}`).join('; ')
 
   // Merge with the original cookie header
-  if (originalCookieHeader) {
-    return `${originalCookieHeader}; ${cookieHeader}`.trim()
+  if (originalCookieHeader && cookieHeader) {
+    return `${originalCookieHeader}; ${cookieHeader}`
   }
 
-  return cookieHeader.trim()
+  // Return whichever one exists, or empty string if both are empty
+  return originalCookieHeader || cookieHeader || ''
 }
 
 /**

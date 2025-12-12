@@ -19,6 +19,7 @@ export default {
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -112,6 +113,8 @@ const emit = defineEmits<{
   (e: 'update:servers'): void
 }>()
 
+const { toast } = useToasts()
+
 /** Execute the current operation example */
 const handleExecute = async () => {
   const [error, result] = buildRequest({
@@ -127,8 +130,9 @@ const handleExecute = async () => {
     proxyUrl,
   })
 
+  // Toast the error
   if (error) {
-    // Toast the error
+    toast(error.message, 'error')
     return
   }
 
