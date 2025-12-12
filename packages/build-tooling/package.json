@@ -48,6 +48,10 @@
       "default": "./dist/vite/index.js"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "bin": {
     "scalar-build-esbuild": "scripts/build-esbuild.js",
     "scalar-build-rollup": "scripts/build-rollup.js",
