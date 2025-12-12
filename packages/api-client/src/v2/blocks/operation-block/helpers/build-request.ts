@@ -21,9 +21,16 @@ import { buildRequestParameters } from '@/v2/blocks/operation-block/helpers/buil
 import { buildRequestSecurity } from '@/v2/blocks/operation-block/helpers/build-request-security'
 
 /**
- * Build the fetch request object which can then be executed
+ * Builds a fully configured Request object ready for execution.
  *
- * @returns A request object and a controller to cancel the request
+ * This function processes an OpenAPI operation and constructs a fetch-compatible
+ * Request by resolving environment variables, applying security schemes, building
+ * headers and cookies, handling proxy redirection, and preparing the request body.
+ *
+ * The function handles special cases like Electron environments and proxy usage
+ * where custom cookie headers are required.
+ *
+ * @returns A tuple containing either an error or the request object with an abort controller
  */
 export const buildRequest = ({
   environment,

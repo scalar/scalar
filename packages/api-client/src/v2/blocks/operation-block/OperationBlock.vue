@@ -42,6 +42,7 @@ import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import type { ClientPlugin } from '@/v2/plugins'
 
 import Header from './components/Header.vue'
+import { applyBeforeRequestHooks } from './helpers/before-request-hook'
 
 const {
   environment,
@@ -51,6 +52,7 @@ const {
   method,
   operation,
   path,
+  plugins = [],
   proxyUrl,
   securitySchemes,
   selectedSecurity,
@@ -101,7 +103,7 @@ const {
   /** Required security for the operation/document */
   security: OpenApiDocument['security']
   /** Client plugins */
-  plugins?: ClientPlugin[]
+  plugins: ClientPlugin[]
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
   /** The proxy URL for cookie domain determination */
@@ -130,17 +132,17 @@ const handleExecute = async () => {
     proxyUrl,
   })
 
-  // Toast the error
   if (error) {
     toast(error.message, 'error')
     return
   }
 
-  // await fetch(result.request)
+  /** Apply any beforeRequest hooks from the plugins */
+  const modifiedRequest = await applyBeforeRequestHooks(result.request, plugins)
 
   eventBus.emit('operation:send:request', {
     meta: { path, method, exampleKey },
-    payload: { request: result.request },
+    payload: { request: modifiedRequest },
   })
 }
 

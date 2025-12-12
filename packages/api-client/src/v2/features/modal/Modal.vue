@@ -31,6 +31,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -179,6 +180,9 @@ defineExpose({
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
+          <!-- Toasts -->
+          <ScalarToasts />
+
           <!-- If we have a document, path and method, render the operation -->
           <main
             v-if="document.value && path?.value && method?.value"
