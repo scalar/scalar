@@ -211,7 +211,10 @@ export const createOperation = (
   for (const server of servers ?? []) {
     // If the server does not exist in the document, add it
     if (!document.servers?.some((s) => s.url === server.url)) {
-      document.servers?.push(unpackProxyObject(server))
+      if (!document.servers) {
+        document.servers = []
+      }
+      document.servers.push(unpackProxyObject(server))
     }
   }
 
