@@ -153,10 +153,10 @@ const handleDelete = () => {
   }
 
   if (item.type === 'document') {
-    eventBus.emit('document:delete:document', { name: item.id })
+    eventBus.emit('document:delete:document', { name: document.name })
   } else if (item.type === 'tag') {
     eventBus.emit('tag:delete:tag', {
-      documentName: document.id,
+      documentName: document.name,
       name: item.name,
     })
   } else if (item.type === 'operation') {
@@ -169,7 +169,7 @@ const handleDelete = () => {
         method: operation.method,
         path: operation.path,
       },
-      documentName: document.id,
+      documentName: document.name,
     })
   } else if (item.type === 'example') {
     if (!operation) {
@@ -182,7 +182,7 @@ const handleDelete = () => {
         path: operation.path,
         exampleKey: item.name,
       },
-      documentName: document.id,
+      documentName: document.name,
     })
   }
 
