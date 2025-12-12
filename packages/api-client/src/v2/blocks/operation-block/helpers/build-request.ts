@@ -113,8 +113,9 @@ export const buildRequest = ({
 
     // If we are running in Electron, we need to add a custom header
     // that's then forwarded as a `User-Agent` header.
-    if (isElectron() && headers['user-agent']) {
-      headers['X-Scalar-User-Agent'] = headers['user-agent']
+    const userAgentHeader = headers['User-Agent'] || headers['user-agent']
+    if (isElectron() && userAgentHeader) {
+      headers['X-Scalar-User-Agent'] = userAgentHeader
     }
 
     /** Build out the cookies header */
