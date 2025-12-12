@@ -6,7 +6,7 @@ import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
   it('returns null when requestBody is undefined', () => {
-    const result = buildRequestBody(undefined, 'default', 'application/json')
+    const result = buildRequestBody(undefined, {}, 'default', 'application/json')
     expect(result).toBe(null)
   })
 
@@ -18,7 +18,7 @@ describe('buildRequestBody', () => {
         },
       },
     })
-    const result = buildRequestBody(requestBody, 'default', 'application/json')
+    const result = buildRequestBody(requestBody, {}, 'default', 'application/json')
     expect(result).toBe(null)
   })
 
@@ -35,7 +35,7 @@ describe('buildRequestBody', () => {
       },
     }
     const env = { username: 'john_doe', userId: '12345' }
-    const result = buildRequestBody(requestBody, 'default', 'application/json', env)
+    const result = buildRequestBody(requestBody, env, 'default', 'application/json')
     expect(result).toBe('{"name": "john_doe", "id": "12345"}')
   })
 
@@ -55,7 +55,7 @@ describe('buildRequestBody', () => {
       },
     }
     const env = { user: 'john_doe' }
-    const result = buildRequestBody(requestBody, 'default', 'multipart/form-data', env)
+    const result = buildRequestBody(requestBody, env, 'default', 'multipart/form-data')
 
     expect(result).toBeInstanceOf(FormData)
     const formData = result as FormData
@@ -79,7 +79,7 @@ describe('buildRequestBody', () => {
       },
     }
     const env = { var1: 'dynamic_value' }
-    const result = buildRequestBody(requestBody, 'default', 'application/x-www-form-urlencoded', env)
+    const result = buildRequestBody(requestBody, env, 'default', 'application/x-www-form-urlencoded')
 
     expect(result).toBeInstanceOf(URLSearchParams)
     const params = result as URLSearchParams
@@ -103,7 +103,7 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, 'default', 'multipart/form-data')
+    const result = buildRequestBody(requestBody, {}, 'default', 'multipart/form-data')
 
     expect(result).toBeInstanceOf(FormData)
     const formData = result as FormData
@@ -128,7 +128,7 @@ describe('buildRequestBody', () => {
       },
     }
     const env = { fieldName: 'dynamic_field', envValue: 'replaced_value' }
-    const result = buildRequestBody(requestBody, 'default', 'multipart/form-data', env)
+    const result = buildRequestBody(requestBody, env, 'default', 'multipart/form-data')
 
     expect(result).toBeInstanceOf(FormData)
     const formData = result as FormData
@@ -166,7 +166,7 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, 'default', 'application/json')
+    const result = buildRequestBody(requestBody, {}, 'default', 'application/json')
     expect(result).toBe(JSON.stringify(exampleValue))
   })
 
@@ -187,7 +187,7 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, 'default', 'application/json')
+    const result = buildRequestBody(requestBody, {}, 'default', 'application/json')
     expect(result).toBe(JSON.stringify(exampleValue))
   })
 })

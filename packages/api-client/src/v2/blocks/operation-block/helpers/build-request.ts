@@ -98,7 +98,7 @@ export const buildRequest = ({
 
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
-    const body = buildRequestBody(requestBody, exampleKey, bodyContentType)
+    const body = buildRequestBody(requestBody, env, exampleKey, bodyContentType)
     const security = buildRequestSecurity(securitySchemes, selectedSecurity, env)
 
     // Combine the headers, cookies and url params

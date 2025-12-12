@@ -8,11 +8,12 @@ import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-reques
  */
 export const buildRequestBody = (
   requestBody: RequestBodyObject | undefined,
+  /** Environment variables flattened into a key-value object */
+  env: Record<string, string> = {},
+  /** The key of the current example */
   exampleKey = 'default',
   /** Selected content type for the body from the dropdown, stored as x-scalar-selected-content-type */
   bodyContentType: string,
-  /** Environment variables flattened into a key-value object */
-  env: Record<string, string> = {},
 ): BodyInit | null => {
   if (!requestBody) {
     return null
