@@ -15,10 +15,11 @@ import { objectEntries } from '@vueuse/core'
 
 import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
-import { buildRequestBody } from '@/v2/blocks/operation-block/helpers/build-request-body'
-import { buildRequestCookieHeader } from '@/v2/blocks/operation-block/helpers/build-request-cookie-header'
-import { buildRequestParameters } from '@/v2/blocks/operation-block/helpers/build-request-parameters'
-import { buildRequestSecurity } from '@/v2/blocks/operation-block/helpers/build-request-security'
+
+import { buildRequestBody } from './build-request-body'
+import { buildRequestCookieHeader } from './build-request-cookie-header'
+import { buildRequestParameters } from './build-request-parameters'
+import { buildRequestSecurity } from './build-request-security'
 
 /**
  * Builds a fully configured Request object ready for execution.
@@ -67,6 +68,7 @@ export const buildRequest = ({
 }): ErrorResponse<{
   controller: AbortController
   request: Request
+  isUsingProxy: boolean
 }> => {
   try {
     /** Flatten the environment variables array into a key-value object */
@@ -152,11 +154,12 @@ export const buildRequest = ({
     return [
       null,
       {
-        request,
         controller,
+        isUsingProxy,
+        request,
       },
     ]
   } catch (error) {
-    return [normalizeError(error), null]
+    return [normalizeError(error, ERRORS.BUILDING_REQUEST_FAILED), null]
   }
 }

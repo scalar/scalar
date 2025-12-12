@@ -22,7 +22,7 @@ import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vu
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { ClientPlugin } from '@/v2/plugins'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
   | 'All'

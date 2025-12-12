@@ -17,11 +17,11 @@ import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.v
 import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
-import type { ClientPlugin } from '@/v2/plugins'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */
-  response?: ResponseInstance
+  response: ResponseInstance | null
   /** Original request instance */
   request?: Request
 

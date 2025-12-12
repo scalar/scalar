@@ -29,20 +29,21 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
+import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
+import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { ClientPlugin } from '@/v2/plugins'
+import { type ClientPlugin } from '@/v2/helpers/plugins'
 
 import Header from './components/Header.vue'
-import { applyBeforeRequestHooks } from './helpers/before-request-hook'
 
 const {
   environment,
@@ -78,6 +79,13 @@ const {
   history: History[]
   /** Preprocessed response */
   response?: ResponseInstance
+  /**
+   * When the request is sent from the modal, this indicates the progress percentage
+   * of the request being sent.
+   *
+   * The amount remaining to load from 100 -> 0
+   */
+  requestLoadingPercentage?: number
   /** Original request instance */
   request?: Request
   /** Total number of performed requests */
@@ -117,6 +125,15 @@ const emit = defineEmits<{
 
 const { toast } = useToasts()
 
+/** For cancelling requests */
+const abortController = ref<AbortController | null>(null)
+
+/** We temporarily store the response here until we sort out history, then we would send it to the store */
+const response = ref<ResponseInstance | null>(null)
+
+/** Cancel the request */
+const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
+
 /** Execute the current operation example */
 const handleExecute = async () => {
   const [error, result] = buildRequest({
@@ -132,26 +149,44 @@ const handleExecute = async () => {
     proxyUrl,
   })
 
+  // Toast the error
   if (error) {
     toast(error.message, 'error')
     return
   }
 
-  /** Apply any beforeRequest hooks from the plugins */
-  const modifiedRequest = await applyBeforeRequestHooks(result.request, plugins)
+  // Store the abort controller
+  abortController.value = result.controller
 
-  eventBus.emit('operation:send:request', {
-    meta: { path, method, exampleKey },
-    payload: { request: modifiedRequest },
+  // TODO: send start event for animation
+
+  /** Execute the request */
+  const [sendError, sendResult] = await sendRequest({
+    isUsingProxy: result.isUsingProxy,
+    operation,
+    plugins,
+    request: result.request,
   })
+
+  // TODO: send stop event for animation
+
+  // Toast the execute error
+  if (sendError) {
+    toast(sendError.message, 'error')
+    return
+  }
+
+  // Store the response
+  response.value = sendResult.response
 }
 
-/** Handle the hotkey trigger to send the request */
 onMounted(() => {
   eventBus.on('operation:send:request:hotkey', handleExecute)
+  eventBus.on('operation:cancel:request', cancelRequest)
 })
 onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)
+  eventBus.off('operation:cancel:request', cancelRequest)
 })
 </script>
 <template>

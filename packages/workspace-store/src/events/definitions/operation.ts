@@ -15,16 +15,8 @@ export type OperationEvents = {
    */
   'operation:send:request:hotkey': undefined
 
-  /**
-   * Fires when the user requests to send the operation (e.g., triggers "Try It" or sends a request).
-   * Contains the OperationExampleMeta, which identifies the operation and the example variant to use.
-   */
-  'operation:send:request': {
-    meta: OperationExampleMeta
-    payload: {
-      request: Request
-    }
-  }
+  /** Cancel the in progress request */
+  'operation:cancel:request': undefined
 
   //------------------------------------------------------------------------------------
   // Operation Draft Mutators
