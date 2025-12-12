@@ -55,7 +55,7 @@ const {
   security: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
-  server: ServerObject | undefined
+  server: ServerObject | null
   title: string
 }>()
 

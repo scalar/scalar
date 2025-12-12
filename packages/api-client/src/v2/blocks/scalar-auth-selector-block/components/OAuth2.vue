@@ -24,7 +24,7 @@ const { environment, flows, type, selectedScopes, server, proxyUrl } =
     flows: OAuthFlowsObject
     type: keyof OAuthFlowsObject
     selectedScopes: string[]
-    server: ServerObject | undefined
+    server: ServerObject | null
     proxyUrl: string
   }>()
 

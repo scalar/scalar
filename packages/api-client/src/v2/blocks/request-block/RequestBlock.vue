@@ -52,15 +52,15 @@ const {
   method: HttpMethod
   path: string
   operation: OperationObject
-  authMeta?: AuthMeta
+  authMeta: AuthMeta
   exampleKey: string
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   security: OpenApiDocument['security']
-  server?: ServerObject
+  server: ServerObject | null
   layout: ClientLayout
   proxyUrl: string
-  plugins?: ClientPlugin[]
+  plugins: ClientPlugin[]
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
 }>()

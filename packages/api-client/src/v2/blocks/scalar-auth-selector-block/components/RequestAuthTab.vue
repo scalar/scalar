@@ -39,7 +39,7 @@ const {
   proxyUrl: string
   selectedSecuritySchemas: SecurityRequirementObject
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
-  server: ServerObject | undefined
+  server: ServerObject | null
 }>()
 
 const emits = defineEmits<{

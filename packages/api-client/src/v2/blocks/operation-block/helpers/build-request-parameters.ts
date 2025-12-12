@@ -8,7 +8,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getDelimiter } from '@/v2/blocks/operation-block/helpers/get-delimiter'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
@@ -56,7 +56,7 @@ export const buildRequestParameters = (
   // Loop over all parameters and build up our request segments
   return deReferencedParameters.reduce(
     (acc, param) => {
-      const example = getExample(param, exampleKey, contentType)
+      const example = getParameterExample(param, exampleKey, contentType)
 
       // Skip disabled examples
       if (!example || example['x-disabled']) {

@@ -39,7 +39,7 @@ const {
   /** OpenAPI security scheme definitions */
   securitySchemes: ComponentsObject['securitySchemes']
   /** Current server configuration */
-  server: ServerObject | undefined
+  server: ServerObject | null
   /** Event bus for authentication updates */
   eventBus: WorkspaceEventBus
   /** Metadata for authentication context */
