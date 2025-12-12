@@ -1,10 +1,11 @@
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getDelimiter } from '@/v2/blocks/operation-block/helpers/get-delimiter'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
@@ -23,7 +24,7 @@ import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
  */
 export const buildRequestParameters = (
   /** All parameters */
-  parameters: ParameterObject[] = [],
+  parameters: ReferenceType<ParameterObject>[] = [],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** The key of the current example */
@@ -42,7 +43,8 @@ export const buildRequestParameters = (
 } =>
   // Loop over all parameters and build up our request segments
   parameters.reduce(
-    (acc, param) => {
+    (acc, _param) => {
+      const param = getResolvedRef(_param)
       const example = getExample(param, exampleKey, contentType)
 
       // Skip disabled examples

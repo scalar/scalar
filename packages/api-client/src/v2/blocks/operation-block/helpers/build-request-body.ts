@@ -12,7 +12,7 @@ export const buildRequestBody = (
   contentType: string,
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
-) => {
+): BodyInit | null => {
   if (!requestBody) {
     return null
   }

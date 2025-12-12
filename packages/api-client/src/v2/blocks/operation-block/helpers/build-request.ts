@@ -8,7 +8,6 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 
 import { isElectron } from '@/libs/electron'
 import type { ErrorResponse } from '@/libs/errors'
-import type { PluginManager } from '@/plugins/plugin-manager'
 import { buildRequestBody } from '@/v2/blocks/operation-block/helpers/build-request-body'
 import { buildRequestParameters } from '@/v2/blocks/operation-block/helpers/build-request-parameters'
 import { buildRequestSecurity } from '@/v2/blocks/operation-block/helpers/build-request-security'
@@ -25,6 +24,7 @@ export const buildRequest = ({
   method,
   operation,
   path,
+  server,
   securitySchemes,
   selectedSecurity,
 }: {
@@ -62,7 +62,19 @@ export const buildRequest = ({
       {} as Record<string, string>,
     )
 
+    console.log('server', server)
+
+    /** Extract the server variables default values*/
+    const serverVariables = server?.variables.reduce(
+      (acc, curr) => {
+        acc[curr.name] = typeof curr.value === 'string' ? curr.value : curr.value.default
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+
     const requestBody = getResolvedRef(operation.requestBody)
+    const serverUrl = replaceVariables(server?.url ?? '', { ...env, ...server?.variables })
 
     /** Resolve the selected content type from the request body */
     const contentType =
@@ -71,22 +83,14 @@ export const buildRequest = ({
       'application/json'
 
     /** Build out the request parameters */
-    const params = buildRequestParameters(operation.parameters ?? [], {
-      env,
-      exampleKey,
-      contentType,
-      serverUrl: server?.url,
-      proxyUrl,
-    })
+    const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey, contentType)
     const body = buildRequestBody(requestBody, exampleKey, contentType)
     const security = buildRequestSecurity(securitySchemes, selectedSecurity, env)
 
     // Combine the headers, cookies and url params
     const headers = { ...params.headers, ...security.headers }
-    const unprocessedCookies = [...cookies, ...params.cookies, ...security.cookies]
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
-
-    const serverReplaced = replaceVariables(server?.url ?? '', { ...env, ...server?.variables })
+    const rawCookies = [...cookies, ...params.cookies, ...security.cookies]
     const pathReplaced = replaceVariables(path, { ...env, ...params.pathVariables })
 
     // If we are running in Electron, we need to add a custom header
@@ -108,7 +112,6 @@ export const buildRequest = ({
       method,
       headers,
       body,
-      cookies,
       urlParams,
     })
 
