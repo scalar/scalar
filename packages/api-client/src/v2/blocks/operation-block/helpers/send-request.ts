@@ -7,6 +7,7 @@ import { normalizeHeaders } from '@/libs/normalize-headers'
 import { type ClientPlugin, executeHook } from '@/v2/helpers/plugins'
 
 import { decodeBuffer } from './decode-buffer'
+import { getCookieHeaderKeys } from './get-cookie-header-keys'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -38,12 +39,17 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   )
 
 /**
- * Execute the built fetch request
+ * Execute the built fetch request and return a structured response.
  *
- * Mostly copied over from v1 with minimal changes, could use some upgrades
+ * This function handles the complete request lifecycle including plugin hooks,
+ * response processing, streaming detection, and error handling. It supports both
+ * standard responses and server-sent event streams.
  *
- * @param request the request build by the buildRequest helper
- * @returns a responseInsta
+ * @param request - The request built by the buildRequest helper
+ * @param operation - The OpenAPI operation being executed
+ * @param plugins - Array of client plugins to execute hooks
+ * @param isUsingProxy - Whether the request is being proxied for header handling
+ * @returns A tuple with either an error or the response data
  */
 export const sendRequest = async ({
   isUsingProxy,
@@ -66,35 +72,77 @@ export const sendRequest = async ({
     /** Apply any beforeRequest hooks from the plugins */
     const modifiedRequest = await executeHook(request, 'beforeRequest', plugins)
 
+    /** Execute the request and measure duration */
     const startTime = Date.now()
     const response = await fetch(modifiedRequest)
     const endTime = Date.now()
     const duration = endTime - startTime
+
+    /** Extract response metadata early for reuse */
     const contentType = response.headers.get('content-type')
-
-    /** Clone once to preserve the original as we cannot read the body twice */
-    const clonedResponse = response.clone()
-
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-    const responseType = contentType ?? 'text/plain;charset=UTF-8'
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
-
-    // Read the body from the clone
-    const arrayBuffer = await clonedResponse.arrayBuffer()
-    const responseData = decodeBuffer(arrayBuffer, responseType)
-
-    // Get statusText from the original response (no body reading needed)
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
+    const method = modifiedRequest.method as HttpMethod
 
-    // Skip the body when creating the normalized response if the status is 204, 205, 304
+    /** HTTP status codes that should not include a body */
     const shouldSkipBody = [204, 205, 304].includes(response.status)
 
     /**
-     * Create a new Response using the arrayBuffer we already read
-     * ArrayBuffers can be reused to create new Response objects
+     * Handle server-sent event streams separately.
+     * These responses need a reader instead of buffered data.
+     * We check this early to avoid unnecessary body reading.
      */
-    const normalizedResponse = new Response(!shouldSkipBody ? arrayBuffer : null, {
+    const isStreamingResponse = contentType?.startsWith('text/event-stream') && response.body
+
+    // Create a normalized response for plugin hooks without consuming the body
+    if (isStreamingResponse) {
+      const normalizedResponse = new Response(null, {
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      })
+
+      await executeHook(
+        { response: normalizedResponse, request: modifiedRequest, operation },
+        'responseReceived',
+        plugins,
+      )
+      const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
+
+      return [
+        null,
+        {
+          timestamp: endTime,
+          request: modifiedRequest,
+          response: {
+            ...normalizedResponse,
+            headers: responseHeaders,
+            cookieHeaderKeys,
+            reader: response.body.getReader(),
+            duration,
+            method,
+            path: fullPath,
+          },
+        },
+      ]
+    }
+
+    /**
+     * For standard responses, read the body once and reuse the buffer.
+     * Clone the response to preserve the original for body reading.
+     */
+    const clonedResponse = response.clone()
+    const arrayBuffer = await clonedResponse.arrayBuffer()
+    const responseType = contentType ?? 'text/plain;charset=UTF-8'
+    const responseData = decodeBuffer(arrayBuffer, responseType)
+
+    /**
+     * Create a new Response using the arrayBuffer we already read.
+     * ArrayBuffers can be reused to create new Response objects without additional memory.
+     */
+    const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
       status: response.status,
       statusText,
       headers: response.headers,
@@ -106,53 +154,21 @@ export const sendRequest = async ({
       'responseReceived',
       plugins,
     )
+    const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
-    /** Safely check for cookie headers */
-    const cookieHeaderKeys =
-      'getSetCookie' in normalizedResponse.headers && typeof normalizedResponse.headers.getSetCookie === 'function'
-        ? normalizedResponse.headers.getSetCookie()
-        : []
-
-    /**
-     * Checks if the response is streaming
-     * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
-     * content-type === 'text/plain' and transfer-encoding === 'chunked'
-     *
-     * Currently we are only checking for server sent events. In OpenApi 3.2.0 streams will be added to the spec
-     */
-    if (contentType?.startsWith('text/event-stream') && response.body) {
-      return [
-        null,
-        {
-          timestamp: endTime,
-          request: modifiedRequest,
-          response: {
-            ...normalizedResponse,
-            headers: responseHeaders,
-            cookieHeaderKeys,
-            reader: response.body?.getReader(),
-            duration,
-            method: modifiedRequest.method as HttpMethod,
-            path: fullPath,
-          },
-        },
-      ]
-    }
-
-    // Standard response
     return [
       null,
       {
-        timestamp: Date.now(),
+        timestamp: endTime,
         request: modifiedRequest,
         response: {
-          ...response,
+          ...normalizedResponse,
           headers: responseHeaders,
           cookieHeaderKeys,
           data: responseData,
           size: arrayBuffer.byteLength,
-          duration: Date.now() - startTime,
-          method: modifiedRequest.method as HttpMethod,
+          duration,
+          method,
           status: response.status,
           path: fullPath,
         },
