@@ -13,14 +13,14 @@ import ResponseBlock from './ResponseBlock.vue'
 
 const events = createStoreEvents()
 
-const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}) => {
+const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}): ResponseInstance => {
   return {
     ...new Response(),
     status: 200,
     headers: {},
     cookieHeaderKeys: [],
     duration: 0,
-    method: 'get',
+    method: 'get' as const,
     path: '/',
     reader: new ReadableStreamDefaultReader(new ReadableStream()),
     ...overrides,
@@ -30,6 +30,7 @@ const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}) => {
 describe('ResponseBlock', () => {
   const defaultLayout: ClientLayout = 'desktop'
   const defaultProps = {
+    response: null,
     layout: defaultLayout,
     totalPerformedRequests: 0,
     appVersion: '1.0.0',

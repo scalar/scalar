@@ -12,16 +12,20 @@ export const buildRequestBody = (
   env: Record<string, string> = {},
   /** The key of the current example */
   exampleKey = 'default',
-  /** Selected content type for the body from the dropdown, stored as x-scalar-selected-content-type */
-  bodyContentType: string,
 ): BodyInit | null => {
   if (!requestBody) {
     return null
   }
 
+  /** Selected content type for the body from the dropdown, stored as x-scalar-selected-content-type */
+  const bodyContentType =
+    requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
+    Object.keys(requestBody?.content ?? {})[0] ??
+    'application/json'
+
   /** An example value or generated example from the schema */
   const example = getExampleFromBody(requestBody, bodyContentType, exampleKey)
-  if (!example?.value) {
+  if (!example) {
     return null
   }
 

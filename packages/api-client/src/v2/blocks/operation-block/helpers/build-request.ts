@@ -99,15 +99,9 @@ export const buildRequest = ({
       throw ERRORS.URL_EMPTY
     }
 
-    /** Resolve the selected content type from the request body */
-    const bodyContentType =
-      requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
-      Object.keys(requestBody?.content ?? {})[0] ??
-      'application/json'
-
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
-    const body = buildRequestBody(requestBody, env, exampleKey, bodyContentType)
+    const body = buildRequestBody(requestBody, env, exampleKey)
     const security = buildRequestSecurity(securitySchemes, selectedSecurity, env)
 
     // Combine the headers, cookies and url params
