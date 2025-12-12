@@ -50,6 +50,15 @@ export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
    * </template>
    */
   controlled?: boolean
+  /**
+   * Enables separate buttons and events for the group toggle and item label
+   *
+   * @example
+   * <ScalarSidebarGroup discrete>
+   *   ...
+   * </ScalarSidebarGroup>
+   */
+  discrete?: boolean
 }
 
 /** Scalar Sidebar Item Slots */
