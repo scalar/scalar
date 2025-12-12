@@ -150,7 +150,7 @@ describe('executeHook', () => {
     // Test responseReceived hook with different payload structure
     const response = new Response('{}', { status: 200 })
     const operation = { operationId: 'testOp', method: 'GET' }
-    const responsePayload = { response, operation }
+    const responsePayload = { response, operation, request }
 
     const responsePlugin: ClientPlugin = {
       hooks: {
