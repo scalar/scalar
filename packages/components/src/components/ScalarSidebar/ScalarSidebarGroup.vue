@@ -33,11 +33,20 @@ import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { controlled, is = 'li' } = defineProps<ScalarSidebarGroupProps>()
+const {
+  controlled,
+  discrete,
+  is = 'li',
+} = defineProps<ScalarSidebarGroupProps>()
 
 const emit = defineEmits<{
   /** Emitted when the group toggle button is clicked */
   (e: 'click', event: MouseEvent): void
+  /**
+   * Emitted when the group toggle button is clicked
+   * Note: This is only emitted if the group is discrete
+   */
+  (e: 'toggle', event: MouseEvent): void
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -53,8 +62,18 @@ const { cx } = useBindCx()
 const handleClick = (event: MouseEvent) => {
   // Bubble up the click event
   emit('click', event)
-  if (!controlled) {
-    // Only toggle the open state if the group is uncontrolled
+  if (!controlled && !discrete) {
+    // Only toggle the open state if the group is uncontrolled and not discrete
+    open.value = !open.value
+  }
+}
+
+/** Handle the click event for the group toggle */
+const handleToggle = (event: MouseEvent) => {
+  // Bubble up the toggle event
+  emit('toggle', event)
+  if (!controlled && discrete) {
+    // Only toggle the open state if the group is uncontrolled and not discrete
     open.value = !open.value
   }
 }
@@ -63,49 +82,75 @@ const handleClick = (event: MouseEvent) => {
   <component
     v-bind="cx('group/item flex flex-col gap-px')"
     :is="is">
-    <slot
-      name="before"
-      :open />
-    <slot
-      :level="level"
-      name="button"
-      :open>
-      <ScalarSidebarButton
-        is="button"
-        :active
-        :aria-expanded="open"
-        class="group/group-button"
-        :disabled
-        :indent="level"
-        :selected
-        @click="handleClick">
-        <template #indent>
-          <ScalarSidebarIndent
-            class="mr-0 -my-2"
-            :indent="level" />
-        </template>
-        <template #icon>
+    <div class="group/group-button relative flex flex-col">
+      <slot
+        name="before"
+        :open />
+      <slot
+        :level="level"
+        name="button"
+        :open>
+        <ScalarSidebarButton
+          is="button"
+          :active
+          :aria-expanded="open"
+          :disabled
+          :indent="level"
+          :selected
+          @click="handleClick">
+          <template #indent>
+            <ScalarSidebarIndent
+              class="mr-0 -my-2"
+              :indent="level"
+              :selected />
+          </template>
+          <template #icon>
+            <div
+              v-if="discrete"
+              class="size-4" />
+            <slot
+              v-else
+              name="icon"
+              :open>
+              <ScalarSidebarGroupToggle
+                :icon
+                class="text-c-3"
+                :open />
+            </slot>
+          </template>
+          <template
+            v-if="$slots.aside"
+            #aside>
+            <slot
+              name="aside"
+              :open />
+          </template>
+          <slot :open />
+        </ScalarSidebarButton>
+        <button
+          v-if="discrete"
+          type="button"
+          :aria-expanded="open"
+          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded hover:bg-sidebar-b-hover left-[calc(4px+var(--scalar-sidebar-indent)*var(--scalar-sidebar-level))] text-c-3 hover:text-sidebar-c-1"
+          :style="{ '--scalar-sidebar-level': level }"
+          @click="handleToggle">
           <slot
             name="icon"
             :open>
             <ScalarSidebarGroupToggle
-              class="text-c-3"
-              :open />
+              :icon
+              :open>
+              <template #label>
+                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
+              </template>
+            </ScalarSidebarGroupToggle>
           </slot>
-        </template>
-        <template
-          v-if="$slots.aside"
-          #aside>
-          <slot
-            name="aside"
-            :open />
-        </template>
-        <slot :open />
-      </ScalarSidebarButton>
-    </slot>
-    <slot
-      name="after"
-      :open />
+        </button>
+      </slot>
+      <slot
+        name="after"
+        :open />
+    </div>
     <ul
       v-if="open"
       class="group/items flex flex-col gap-px">

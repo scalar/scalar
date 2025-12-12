@@ -19,4 +19,14 @@ test.describe('ScalarSidebar', () => {
     await page.getByRole('button', { name: 'Subitem 3' }).click()
     await snapshot('3-selected')
   })
+
+  test('Discrete Groups', async ({ page, snapshot }) => {
+    await snapshot('1-collapsed')
+
+    await page.getByRole('button', { name: 'Open Level 1 Group' }).click()
+    await snapshot('2-expanded')
+
+    await page.getByRole('button', { name: 'Level 2 Group', exact: true }).click()
+    await snapshot('3-selected')
+  })
 })
