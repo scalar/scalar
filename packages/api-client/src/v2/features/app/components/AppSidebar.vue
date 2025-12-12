@@ -272,7 +272,9 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
 
       <!-- Empty folder slot -->
       <template #empty="{ item }">
-        <ScalarSidebarItem @click="handleAddEmptyFolder(item)">
+        <ScalarSidebarItem
+          is="button"
+          @click="handleAddEmptyFolder(item)">
           <template #icon>
             <ScalarIconPlus />
           </template>

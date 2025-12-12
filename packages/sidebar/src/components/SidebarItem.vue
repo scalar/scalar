@@ -161,7 +161,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         class="text-c-3 block group-hover/group-button:hidden"
         :src="item.icon ?? 'interface-content-folder'" />
       <ScalarSidebarGroupToggle
-        class="text-c-3 hidden group-hover/group-button:block"
+        class="text-c-3 hidden group-hover/group-button:flex"
         :open="open" />
     </template>
     {{ item.title }}
