@@ -286,6 +286,9 @@ describe('RequestBlock', () => {
     const body = wrapper.findComponent(RequestBody)
     expect(body.exists()).toBe(true)
 
+    // Reset the mock to clear the initial contentType emission from the watcher
+    fn.mockReset()
+
     const contentTypePayload = { value: 'application/json' }
     body.vm.$emit('update:contentType', contentTypePayload)
     expect(fn).toHaveBeenCalledTimes(1)

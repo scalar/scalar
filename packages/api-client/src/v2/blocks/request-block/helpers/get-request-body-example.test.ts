@@ -1,3 +1,4 @@
+import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getExampleFromBody } from './get-request-body-example'
@@ -58,7 +59,7 @@ describe('get-request-body-example', () => {
           },
         },
       },
-    }
+    } satisfies RequestBodyObject
 
     const result = getExampleFromBody(requestBody, 'application/json', 'default')
 
@@ -72,7 +73,7 @@ describe('get-request-body-example', () => {
           schema: { type: 'object' },
         },
       },
-    }
+    } satisfies RequestBodyObject
 
     const result = getExampleFromBody(requestBody, 'application/json', 'default')
 
