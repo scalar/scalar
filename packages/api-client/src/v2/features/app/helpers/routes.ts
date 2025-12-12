@@ -6,6 +6,15 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
+import Authentication from '@/v2/features/collection/components/Authentication.vue'
+import Cookies from '@/v2/features/collection/components/Cookies.vue'
+import Environment from '@/v2/features/collection/components/Environment.vue'
+import Overview from '@/v2/features/collection/components/Overview.vue'
+import Servers from '@/v2/features/collection/components/Servers.vue'
+import Settings from '@/v2/features/collection/components/Settings.vue'
+import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
+import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
+import Operation from '@/v2/features/operation/Operation.vue'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -50,13 +59,13 @@ export const ROUTES = [
           {
             name: 'example',
             path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: () => import('@/v2/features/operation/Operation.vue'),
+            component: Operation,
           },
           // Document Page
           {
             name: 'document',
             path: '',
-            component: () => import('@/v2/features/collection/DocumentCollection.vue'),
+            component: DocumentCollection,
             children: [
               // Redirect to overview
               {
@@ -70,37 +79,37 @@ export const ROUTES = [
               {
                 name: 'document.overview',
                 path: 'overview',
-                component: () => import('@/v2/features/collection/components/Overview.vue'),
+                component: Overview,
               },
               // Document servers
               {
                 name: 'document.servers',
                 path: 'servers',
-                component: () => import('@/v2/features/collection/components/Servers.vue'),
+                component: Servers,
               },
               // Document environment
               {
                 name: 'document.environment',
                 path: 'environment',
-                component: () => import('@/v2/features/collection/components/Environment.vue'),
+                component: Environment,
               },
               // Document authentication
               {
                 name: 'document.authentication',
                 path: 'authentication',
-                component: () => import('@/v2/features/collection/components/Authentication.vue'),
+                component: Authentication,
               },
               // Document cookies
               {
                 name: 'document.cookies',
                 path: 'cookies',
-                component: () => import('@/v2/features/collection/components/Cookies.vue'),
+                component: Cookies,
               },
               // Document settings
               {
                 name: 'document.settings',
                 path: 'settings',
-                component: () => import('@/v2/features/collection/components/Settings.vue'),
+                component: Settings,
               },
             ],
           },
@@ -110,25 +119,25 @@ export const ROUTES = [
       {
         name: 'workspace',
         path: '',
-        component: () => import('@/v2/features/collection/WorkspaceCollection.vue'),
+        component: WorkspaceCollection,
         children: [
           // Workspace environment
           {
             name: 'workspace.environment',
             path: 'environment',
-            component: () => import('@/v2/features/collection/components/Environment.vue'),
+            component: Environment,
           },
           // Workspace cookies
           {
             name: 'workspace.cookies',
             path: 'cookies',
-            component: () => import('@/v2/features/collection/components/Cookies.vue'),
+            component: Cookies,
           },
           // Workspace settings
           {
             name: 'workspace.settings',
             path: 'settings',
-            component: () => import('@/v2/features/collection/components/Settings.vue'),
+            component: Settings,
           },
         ],
       },
