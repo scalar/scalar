@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.16.10
+
+### Patch Changes
+
+- [#7531](https://github.com/scalar/scalar/pull/7531) [`a82aeea`](https://github.com/scalar/scalar/commit/a82aeea7a4aeeebf2233923576149a8751212e71) Thanks [@hwkr](https://github.com/hwkr)! - feat(components): add discrete sidebar group buttons
+
 ## 0.16.9
 
 ### Patch Changes

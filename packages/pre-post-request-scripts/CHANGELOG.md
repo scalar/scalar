@@ -1,5 +1,12 @@
 # @scalar/scripts
 
+## 0.0.54
+
+### Patch Changes
+
+- Updated dependencies [[`a82aeea`](https://github.com/scalar/scalar/commit/a82aeea7a4aeeebf2233923576149a8751212e71)]:
+  - @scalar/components@0.16.10
+
 ## 0.0.53
 
 ### Patch Changes
