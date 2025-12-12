@@ -10,7 +10,7 @@ export type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEv
 
 /** Default hotkeys available in most contexts */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
-  Enter: { event: 'operation:send:request', modifiers: ['default'] },
+  Enter: { event: 'operation:send:request:hotkey', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
   p: { event: 'ui:open:command-palette', modifiers: ['shiftKey'] },
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },

@@ -13,14 +13,14 @@ import ResponseBlock from './ResponseBlock.vue'
 
 const events = createStoreEvents()
 
-const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}) => {
+const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}): ResponseInstance => {
   return {
     ...new Response(),
     status: 200,
     headers: {},
     cookieHeaderKeys: [],
     duration: 0,
-    method: 'get',
+    method: 'get' as const,
     path: '/',
     reader: new ReadableStreamDefaultReader(new ReadableStream()),
     ...overrides,
@@ -30,9 +30,12 @@ const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}) => {
 describe('ResponseBlock', () => {
   const defaultLayout: ClientLayout = 'desktop'
   const defaultProps = {
+    response: null,
+    request: null,
     layout: defaultLayout,
     totalPerformedRequests: 0,
     appVersion: '1.0.0',
+    plugins: [],
     events: events,
     eventBus: createWorkspaceEventBus(),
   }
@@ -319,6 +322,56 @@ describe('ResponseBlock', () => {
       expect(vm.responseCookies).toEqual([])
     })
 
+    it('responseCookies parses Set-Cookie header values correctly', () => {
+      const mockResponse = {
+        ...getDefaultResponse(),
+        cookieHeaderKeys: [
+          'sessionId=abc123; Path=/; HttpOnly',
+          'userId=xyz789; Path=/; Secure',
+          'theme=dark; Path=/; SameSite=Strict',
+        ],
+      }
+
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: mockResponse,
+        },
+      })
+
+      const vm = wrapper.vm
+      expect(vm.responseCookies).toEqual([
+        { name: 'sessionId', value: 'abc123; Path=/; HttpOnly' },
+        { name: 'userId', value: 'xyz789; Path=/; Secure' },
+        { name: 'theme', value: 'dark; Path=/; SameSite=Strict' },
+      ])
+    })
+
+    it('responseCookies filters out invalid cookie values', () => {
+      const mockResponse = {
+        ...getDefaultResponse(),
+        cookieHeaderKeys: [
+          'validCookie=value; Path=/',
+          'invalidcookie', // No equals sign
+          '=noname', // No name
+          'anotherValid=test; HttpOnly',
+        ],
+      }
+
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: mockResponse,
+        },
+      })
+
+      const vm = wrapper.vm
+      expect(vm.responseCookies).toEqual([
+        { name: 'validCookie', value: 'value; Path=/' },
+        { name: 'anotherValid', value: 'test; HttpOnly' },
+      ])
+    })
+
     it('requestHeaders returns empty array when no request', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
@@ -353,8 +406,8 @@ describe('ResponseBlock', () => {
   it('renders plugin component when provided', () => {
     const PluginResponseComponent = markRaw(
       defineComponent<{
-        request?: Request
-        response?: ResponseInstance
+        request: Request
+        response: ResponseInstance
       }>({
         template: '<div>Plugin Response Component</div>',
       }),
@@ -363,6 +416,7 @@ describe('ResponseBlock', () => {
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
+        request: new Request('https://example.com'),
         response: getDefaultResponse(),
         plugins: [
           {

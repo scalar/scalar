@@ -10,12 +10,13 @@ export type OperationEvents = {
   //------------------------------------------------------------------------------------
 
   /**
-   * Fires when the user requests to send the operation (e.g., triggers "Try It" or sends a request).
-   * Contains the OperationExampleMeta, which identifies the operation and the example variant to use.
+   * The hotkey trigger for sending the request
+   * We handle this inside of the OperationBlock component so we can build the request first then fire the event
    */
-  'operation:send:request': {
-    meta: OperationExampleMeta
-  }
+  'operation:send:request:hotkey': undefined
+
+  /** Cancel the in progress request */
+  'operation:cancel:request': undefined
 
   //------------------------------------------------------------------------------------
   // Operation Draft Mutators

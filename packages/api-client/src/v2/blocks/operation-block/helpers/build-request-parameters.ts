@@ -1,13 +1,14 @@
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getDelimiter } from '@/v2/blocks/operation-block/helpers/get-delimiter'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
@@ -23,27 +24,39 @@ import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
  */
 export const buildRequestParameters = (
   /** All parameters */
-  parameters: ParameterObject[] = [],
+  parameters: ReferenceType<ParameterObject>[] = [],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** The key of the current example */
   exampleKey: string = 'default',
-  /**
-   * Content type for content based parameters
-   *
-   * @see https://spec.openapis.org/oas/latest.html#fixed-fields-for-use-with-content
-   */
-  contentType: string = 'application/json',
 ): {
   cookies: XScalarCookie[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
   urlParams: URLSearchParams
-} =>
+} => {
+  const deReferencedParameters = [] as ParameterObject[]
+  let contentType = 'application/json'
+
+  // We gotta grab the content type first so we de-reference while were at it
+  for (const param of parameters) {
+    const deReferencedParam = getResolvedRef(param)
+    deReferencedParameters.push(deReferencedParam)
+
+    // Grab the content type from the headers
+    if (
+      deReferencedParam.in === 'header' &&
+      deReferencedParam.name.toLowerCase() === 'content-type' &&
+      'examples' in deReferencedParam
+    ) {
+      contentType = getResolvedRef(deReferencedParam?.examples?.[exampleKey])?.value ?? contentType
+    }
+  }
+
   // Loop over all parameters and build up our request segments
-  parameters.reduce(
+  return deReferencedParameters.reduce(
     (acc, param) => {
-      const example = getExample(param, exampleKey, contentType)
+      const example = getParameterExample(param, exampleKey, contentType)
 
       // Skip disabled examples
       if (!example || example['x-disabled']) {
@@ -56,22 +69,23 @@ export const buildRequestParameters = (
 
       // Handle headers
       if (param.in === 'header') {
-        const lowerCaseKey = paramName.trim().toLowerCase()
+        // Filter out Content-Type header when it is multipart/form-data
+        // The browser will automatically set this header with the proper boundary
+        if (paramName.toLowerCase() === 'content-type' && replacedValue === 'multipart/form-data') {
+          return acc
+        }
 
-        // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
-        if (lowerCaseKey !== 'content-type' || example.value !== 'multipart/form-data') {
-          // headers only support simple style which means we separate the value by commas for multiple values
-          if (acc.headers[paramName]) {
-            acc.headers[paramName] += `,${replacedValue}`
-          } else {
-            acc.headers[paramName] = replacedValue
-          }
+        // headers only support simple style which means we separate the value by commas for multiple values
+        if (acc.headers[paramName]) {
+          acc.headers[paramName] += `,${replacedValue}`
+        } else {
+          acc.headers[paramName] = replacedValue
         }
       }
 
       // Handle path parameters
       if (param.in === 'path') {
-        acc.pathVariables[paramName] = replacedValue
+        acc.pathVariables[paramName] = encodeURIComponent(replacedValue)
       }
 
       // Handle query parameters (currently array only)
@@ -106,7 +120,7 @@ export const buildRequestParameters = (
         acc.cookies.push(
           coerceValue(xScalarCookieSchema, {
             name: paramName,
-            value: replaceEnvVariables(example.value, env),
+            value: replacedValue,
             path: '/',
           }),
         )
@@ -121,3 +135,4 @@ export const buildRequestParameters = (
       urlParams: new URLSearchParams(),
     },
   )
+}

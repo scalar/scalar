@@ -3,7 +3,7 @@ import { createRouter as createVueRouter, createWebHashHistory, createWebHistory
 
 import App from '@/v2/features/app/App.vue'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
-import type { ClientPlugin } from '@/v2/plugins'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
 
 export type CreateApiClientOptions = {

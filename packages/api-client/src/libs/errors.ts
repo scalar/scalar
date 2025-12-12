@@ -1,5 +1,6 @@
 /** Centralized list of all error messages */
 export const ERRORS = {
+  BUILDING_REQUEST_FAILED: 'An error occurred while building the request',
   DEFAULT: 'An unknown error has occurred.',
   INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
   INVALID_HEADER: 'There is an invalid header present, please double check your params.',

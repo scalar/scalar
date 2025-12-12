@@ -218,7 +218,11 @@ describe('handle-hotkey-down', () => {
     const event = createKeyboardEvent('Enter', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:send:request', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:send:request:hotkey',
+      { event },
+      { skipUnpackProxy: true },
+    )
   })
 
   it('opens command palette with correct payload for addOperation', () => {

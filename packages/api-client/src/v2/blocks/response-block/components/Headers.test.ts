@@ -235,7 +235,7 @@ describe('Headers', () => {
 
       await expandHeaders(wrapper)
 
-      expect(wrapper.text()).toContain('No Headers')
+      expect(wrapper.text()).toContain('No headers')
     })
 
     it('shows data table when headers are present', async () => {
@@ -248,7 +248,7 @@ describe('Headers', () => {
       await expandHeaders(wrapper)
 
       // Should not show empty state
-      expect(wrapper.text()).not.toContain('No Headers')
+      expect(wrapper.text()).not.toContain('No headers')
     })
   })
 

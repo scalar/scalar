@@ -61,9 +61,9 @@ export const authorizeOauth2 = async (
   type: keyof OAuthFlowsObject,
   selectedScopes: string[],
   /** We use the active server to set a base for relative redirect uris */
-  activeServer: ServerObject | undefined,
+  activeServer: ServerObject | null,
   /** If we want to use the proxy */
-  proxyUrl?: string,
+  proxyUrl: string,
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
 
@@ -260,9 +260,9 @@ export const authorizeServers = async (
   }: {
     code?: string
     pkce?: PKCEState | null
-    proxyUrl?: string | undefined
+    proxyUrl?: string
   } = {},
-  activeServer: ServerObject | undefined,
+  activeServer: ServerObject | null,
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
 

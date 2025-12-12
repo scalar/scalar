@@ -1,21 +1,34 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { getParameterContentValue } from './get-parameter-content'
-
-/**
- * Extract example from parameter object
- */
-export const getParameterExample = (parameter: ParameterObject, exampleKey: string) => {
-  if ('examples' in parameter && parameter.examples) {
-    return getResolvedRef(parameter.examples[exampleKey])
+/** Grabs the example from both schema based and content based parameters */
+export const getParameterExample = (
+  param: ParameterObject,
+  exampleKey: string,
+  contentType?: string,
+): ExampleObject | null => {
+  // Content based parameters
+  if ('content' in param) {
+    return (
+      getResolvedRef(param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']?.examples?.[exampleKey]) ??
+      null
+    )
   }
 
-  const content = getParameterContentValue(parameter)
-
-  if (content?.examples) {
-    return getResolvedRef(content.examples[exampleKey])
+  // Schema based parameters
+  if ('examples' in param) {
+    if (param.examples?.[exampleKey]) {
+      return getResolvedRef(param.examples?.[exampleKey])
+    }
   }
 
-  return undefined
+  // Fallback to default
+  if ('schema' in param) {
+    const defaultValue = getResolvedRef(param.schema)?.default
+    if (typeof defaultValue !== 'undefined') {
+      return { value: defaultValue }
+    }
+  }
+
+  return null
 }
