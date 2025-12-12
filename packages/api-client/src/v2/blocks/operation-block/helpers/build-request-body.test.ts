@@ -39,23 +39,6 @@ describe('buildRequestBody', () => {
     expect(result).toBe('{"name": "john_doe", "id": "12345"}')
   })
 
-  it('returns object body as-is when example value is not a string', () => {
-    const exampleValue = { name: 'test', id: 123 }
-    const requestBody = {
-      content: {
-        'application/json': {
-          examples: {
-            default: {
-              value: exampleValue,
-            },
-          },
-        },
-      },
-    }
-    const result = buildRequestBody(requestBody, 'default', 'application/json')
-    expect(result).toBe(exampleValue)
-  })
-
   it('builds FormData for multipart/form-data content type', () => {
     const requestBody = {
       content: {
@@ -155,5 +138,56 @@ describe('buildRequestBody', () => {
     expect(formData.get('dynamic_field')).toBe('test_value')
     // Environment variable in value should be replaced
     expect(formData.get('normal_field')).toBe('replaced_value')
+  })
+
+  it('returns nested object body as-is when example value is a complex object', () => {
+    const exampleValue = {
+      user: {
+        name: 'John Doe',
+        email: 'john@example.com',
+        preferences: {
+          theme: 'dark',
+          notifications: true,
+        },
+      },
+      metadata: {
+        timestamp: 1234567890,
+        version: '1.0',
+      },
+    }
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            default: {
+              value: exampleValue,
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, 'default', 'application/json')
+    expect(result).toBe(JSON.stringify(exampleValue))
+  })
+
+  it('returns array of objects stringified when example value is an array', () => {
+    const exampleValue = [
+      { id: 1, name: 'Item 1', active: true },
+      { id: 2, name: 'Item 2', active: false },
+      { id: 3, name: 'Item 3', active: true },
+    ]
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            default: {
+              value: exampleValue,
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, 'default', 'application/json')
+    expect(result).toBe(JSON.stringify(exampleValue))
   })
 })

@@ -36,7 +36,7 @@ describe('get-example', () => {
     expect(result).toEqual({ value: 'admin-123' })
   })
 
-  it('returns undefined when parameter has neither content nor examples', () => {
+  it('returns null when parameter has neither content nor examples', () => {
     const param = {
       name: 'limit',
       in: 'query' as const,
@@ -45,10 +45,10 @@ describe('get-example', () => {
 
     const result = getExample(param, 'default', 'application/json')
 
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 
-  it('returns undefined when exampleKey does not exist', () => {
+  it('returns null when exampleKey does not exist', () => {
     const param = {
       name: 'status',
       in: 'query' as const,
@@ -59,7 +59,7 @@ describe('get-example', () => {
 
     const result = getExample(param, 'nonexistent', 'application/json')
 
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 
   it('resolves $ref values when example is a reference', () => {
@@ -177,7 +177,7 @@ describe('get-example', () => {
     expect(result).toEqual({ value: { status: 'active', limit: 20 } })
   })
 
-  it('returns undefined when schema has no default and no matching example', () => {
+  it('returns null when schema has no default and no matching example', () => {
     const param = {
       name: 'page',
       in: 'query' as const,
@@ -191,6 +191,6 @@ describe('get-example', () => {
 
     const result = getExample(param, 'nonexistent', 'application/json')
 
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 })

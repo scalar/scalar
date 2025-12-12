@@ -29,22 +29,33 @@ export const buildRequestParameters = (
   env: Record<string, string> = {},
   /** The key of the current example */
   exampleKey: string = 'default',
-  /**
-   * Content type for content based parameters
-   *
-   * @see https://spec.openapis.org/oas/latest.html#fixed-fields-for-use-with-content
-   */
-  contentType: string = 'application/json',
 ): {
   cookies: XScalarCookie[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
   urlParams: URLSearchParams
-} =>
+} => {
+  const deReferencedParameters = [] as ParameterObject[]
+  let contentType = 'application/json'
+
+  // We gotta grab the content type first so we de-reference while were at it
+  for (const param of parameters) {
+    const deReferencedParam = getResolvedRef(param)
+    deReferencedParameters.push(deReferencedParam)
+
+    // Grab the content type from the headers
+    if (
+      deReferencedParam.in === 'header' &&
+      deReferencedParam.name.toLowerCase() === 'content-type' &&
+      'examples' in deReferencedParam
+    ) {
+      contentType = getResolvedRef(deReferencedParam?.examples?.[exampleKey])?.value ?? contentType
+    }
+  }
+
   // Loop over all parameters and build up our request segments
-  parameters.reduce(
-    (acc, _param) => {
-      const param = getResolvedRef(_param)
+  return deReferencedParameters.reduce(
+    (acc, param) => {
       const example = getExample(param, exampleKey, contentType)
 
       // Skip disabled examples
@@ -118,3 +129,4 @@ export const buildRequestParameters = (
       urlParams: new URLSearchParams(),
     },
   )
+}
