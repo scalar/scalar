@@ -942,7 +942,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
         with:
           platforms: linux/amd64
 
@@ -993,7 +993,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
         with:
           platforms: |
             linux/amd64
@@ -1174,7 +1174,7 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@18cdb72d11863d893251661972f9948b7b2e5f55 # v1
+        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
         with:
           platforms: |
             linux/amd64
