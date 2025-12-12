@@ -1,5 +1,14 @@
 # @scalar/java-integration
 
+## 0.5.5
+
+### Patch Changes
+
+- [#7512](https://github.com/scalar/scalar/pull/7512) [`4e188bb`](https://github.com/scalar/scalar/commit/4e188bbeaeb1dbc9f2d0318ab92dddbf69f6400a) Thanks [@xC0dex](https://github.com/xC0dex)! - fix maven publish
+
+- Updated dependencies []:
+  - @scalar/api-reference@1.40.6
+
 ## 0.5.4
 
 ### Patch Changes

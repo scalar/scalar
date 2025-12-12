@@ -1,5 +1,12 @@
 # @scalar/core
 
+## 0.3.27
+
+### Patch Changes
+
+- Updated dependencies [[`bb52d9a`](https://github.com/scalar/scalar/commit/bb52d9a21e53628270bab93c0f03b5731c9c97c6)]:
+  - @scalar/types@0.5.3
+
 ## 0.3.26
 
 ### Patch Changes
