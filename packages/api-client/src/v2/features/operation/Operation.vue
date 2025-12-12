@@ -43,7 +43,7 @@ const security = computed(() =>
 )
 
 /** Combine the workspace and document cookies */
-const cookies = computed(() => [
+const globalCookies = computed(() => [
   ...(workspaceStore.workspace?.['x-scalar-cookies'] ?? []),
   ...(document?.['x-scalar-cookies'] ?? []),
 ])
@@ -102,11 +102,11 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
-      :cookies
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
       :exampleKey="exampleName"
+      :globalCookies
       :history="[]"
       :layout
       :method

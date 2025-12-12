@@ -1,6 +1,19 @@
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import {
+  type XScalarCookie,
+  xScalarCookieSchema,
+} from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
-import { determineCookieDomain } from '@/libs/send-request/set-request-cookies'
+import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+
+const CUSTOM_COOKIE_HEADER_WARNING =
+  "We're using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons."
+const COOKIE_HEADER_WARNING = `We're trying to add a Cookie header, but browsers often omit them for cross-origin requests for various security reasons. If it's not working, that's probably why. Here are the requirements for it to work:
+
+        - The browser URL must be on the same domain as the server URL.
+        - The connection must be made over HTTPS.
+        `
 
 /**
  * Generate a cookie header from the cookie params
@@ -25,7 +38,7 @@ export const buildRequestCookieHeader = ({
   globalCookies,
   env,
   originalCookieHeader,
-  domainUrl,
+  url,
   useCustomCookieHeader,
 }: {
   /** Parsed/replaced cookies from the parameters and security schemes */
@@ -36,39 +49,40 @@ export const buildRequestCookieHeader = ({
   env: Record<string, string>
   /** Cookie header that previously exists from the spec OR from the user */
   originalCookieHeader: string | undefined
-  /** The domain used to filter global cookies */
-  domainUrl: string
+  /** The url of the request used to filter global cookies by domain */
+  url: string
   /**
    * If we are running in Electron or using the proxy, we need to add a custom header
    * that's then forwarded as a `Cookie` header.
    */
   useCustomCookieHeader: boolean
 }): null | { name: string; value: string } => {
-  /** Try to add the target domain with a wildcard dot */
-  const defaultDomain = determineCookieDomain(domainUrl)
+  /** Filter the global cookies by domain + parse */
+  const filteredGlobalCookies = globalCookies.flatMap((cookie) => {
+    if (cookie.isDisabled || !cookie.name || (cookie.domain && !matchesDomain(url, cookie.domain))) {
+      return []
+    }
 
-  const filteredGlobalCookies = globalCookies.filter((c) => !c.isDisabled)
+    // Parse the cookie and replace environment variables
+    return coerceValue(xScalarCookieSchema, {
+      ...cookie,
+      name: replaceEnvVariables(cookie.name, env),
+      value: replaceEnvVariables(cookie.value, env),
+    })
+  })
+
+  /** Generate the cookie header */
   const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader)
 
   if (cookieHeader) {
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)
     if (useCustomCookieHeader) {
-      console.warn(
-        "We're using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.",
-      )
-
+      console.warn(CUSTOM_COOKIE_HEADER_WARNING)
       return { name: 'X-Scalar-Cookie', value: cookieHeader }
     }
 
     // or stick to the original header (which might be removed by the browser)
-    console.warn(
-      `We're trying to add a Cookie header, but browsers often omit them for cross-origin requests for various security reasons. If it's not working, that's probably why. Here are the requirements for it to work:
-
-        - The browser URL must be on the same domain as the server URL.
-        - The connection must be made over HTTPS.
-        `,
-    )
-
+    console.warn(COOKIE_HEADER_WARNING)
     return { name: 'Cookie', value: cookieHeader }
   }
 
