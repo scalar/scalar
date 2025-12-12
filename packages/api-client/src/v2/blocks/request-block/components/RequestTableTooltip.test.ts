@@ -292,4 +292,26 @@ describe('RequestTableTooltip', () => {
     expect(wrapper.text()).toContain('default: 5')
     expect(wrapper.text()).toContain('A number between 1 and 10')
   })
+
+  it('displays the description when it is provided', () => {
+    const wrapper = mount(RequestTableTooltip, {
+      props: {
+        value: '5',
+        schema: {
+          type: 'number',
+        },
+        description: 'A number between 1 and 10',
+      },
+      global: {
+        stubs: {
+          ScalarPopover: ScalarPopoverStub,
+          ScalarIconInfo: ScalarIconInfoStub,
+          ScalarIconWarning: ScalarIconWarningStub,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('number')
+    expect(wrapper.text()).toContain('A number between 1 and 10')
+  })
 })
