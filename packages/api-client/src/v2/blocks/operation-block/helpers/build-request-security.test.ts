@@ -204,4 +204,85 @@ describe('buildRequestSecurity', () => {
       expect(result.headers['Authorization']).toBe(`Basic ${encode('admin:super-secret')}`)
     })
   })
+
+  describe('complex security with multiple schemes', () => {
+    it('handles multiple security schemes applied simultaneously', () => {
+      // Create a second API key for a different header
+      const apiKey2 = coerceValue(SecuritySchemeObjectSchema, {
+        type: 'apiKey',
+        name: 'x-client-id',
+        in: 'header',
+        'x-scalar-secret-token': 'client-123',
+      }) as ApiKeyObject
+
+      const result = buildRequestSecurity(
+        { apiKeyScheme: apiKey, clientIdScheme: apiKey2 },
+        {
+          selectedIndex: 0,
+          selectedSchemes: [{ apiKeyScheme: [], clientIdScheme: [] }],
+        },
+      )
+
+      // Both headers should be present
+      expect(result.headers['x-api-key']).toBe('test-key')
+      expect(result.headers['x-client-id']).toBe('client-123')
+    })
+
+    it('handles apiKey and basic auth together', () => {
+      const result = buildRequestSecurity(
+        { apiKeyScheme: apiKey, basicScheme: basic },
+        {
+          selectedIndex: 0,
+          selectedSchemes: [{ apiKeyScheme: [], basicScheme: [] }],
+        },
+      )
+
+      // Both apiKey header and Authorization header should be present
+      expect(result.headers['x-api-key']).toBe('test-key')
+      expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
+    })
+
+    it('handles multiple schemes across different locations', () => {
+      // API key in header
+      const headerKey = coerceValue(SecuritySchemeObjectSchema, {
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+        'x-scalar-secret-token': 'header-key',
+      }) as ApiKeyObject
+
+      // API key in query
+      const queryKey = coerceValue(SecuritySchemeObjectSchema, {
+        type: 'apiKey',
+        name: 'api_key',
+        in: 'query',
+        'x-scalar-secret-token': 'query-key',
+      }) as ApiKeyObject
+
+      // API key in cookie
+      const cookieKey = coerceValue(SecuritySchemeObjectSchema, {
+        type: 'apiKey',
+        name: 'session',
+        in: 'cookie',
+        'x-scalar-secret-token': 'cookie-value',
+      }) as ApiKeyObject
+
+      const result = buildRequestSecurity(
+        { headerScheme: headerKey, queryScheme: queryKey, cookieScheme: cookieKey },
+        {
+          selectedIndex: 0,
+          selectedSchemes: [{ headerScheme: [], queryScheme: [], cookieScheme: [] }],
+        },
+      )
+
+      // All three locations should have their respective values
+      expect(result.headers['x-api-key']).toBe('header-key')
+      expect(result.urlParams.get('api_key')).toBe('query-key')
+      expect(result.cookies[0]).toEqual({
+        name: 'session',
+        value: 'cookie-value',
+        path: '/',
+      })
+    })
+  })
 })

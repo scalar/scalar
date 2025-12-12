@@ -5,9 +5,10 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import { objectEntries } from '@vueuse/core'
 
 import { isElectron } from '@/libs/electron'
-import type { ErrorResponse } from '@/libs/errors'
+import { type ErrorResponse, normalizeError } from '@/libs/errors'
 import { buildRequestBody } from '@/v2/blocks/operation-block/helpers/build-request-body'
 import { buildRequestParameters } from '@/v2/blocks/operation-block/helpers/build-request-parameters'
 import { buildRequestSecurity } from '@/v2/blocks/operation-block/helpers/build-request-security'
@@ -65,16 +66,18 @@ export const buildRequest = ({
     console.log('server', server)
 
     /** Extract the server variables default values*/
-    const serverVariables = server?.variables.reduce(
-      (acc, curr) => {
-        acc[curr.name] = typeof curr.value === 'string' ? curr.value : curr.value.default
+    const serverVariables = objectEntries(server?.variables ?? {}).reduce(
+      (acc, [name, variable]) => {
+        if (variable.default) {
+          acc[name] = variable.default
+        }
         return acc
       },
       {} as Record<string, string>,
     )
-
+    const serverUrl = server?.url ? replaceVariables(server?.url, { ...env, ...serverVariables }) : null
     const requestBody = getResolvedRef(operation.requestBody)
-    const serverUrl = replaceVariables(server?.url ?? '', { ...env, ...server?.variables })
+    console.log('serverUrl', serverUrl)
 
     /** Resolve the selected content type from the request body */
     const contentType =
@@ -99,7 +102,6 @@ export const buildRequest = ({
       headers['X-Scalar-User-Agent'] = headers['user-agent']
     }
 
-    // Global cookies
     // Normalize auth headers
     // normalize headers
     // normalize cookies
@@ -108,11 +110,10 @@ export const buildRequest = ({
     // Auth
     // Plugin manager
 
-    const request = new Request(path, {
+    const request = new Request(proxiedUrl, {
       method,
       headers,
       body,
-      urlParams,
     })
 
     return [
