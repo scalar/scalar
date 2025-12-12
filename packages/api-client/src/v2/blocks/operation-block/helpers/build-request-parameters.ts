@@ -58,16 +58,11 @@ export const buildRequestParameters = (
 
       // Handle headers
       if (param.in === 'header') {
-        const lowerCaseKey = paramName.trim().toLowerCase()
-
-        // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
-        if (lowerCaseKey !== 'content-type' || example.value !== 'multipart/form-data') {
-          // headers only support simple style which means we separate the value by commas for multiple values
-          if (acc.headers[paramName]) {
-            acc.headers[paramName] += `,${replacedValue}`
-          } else {
-            acc.headers[paramName] = replacedValue
-          }
+        // headers only support simple style which means we separate the value by commas for multiple values
+        if (acc.headers[paramName]) {
+          acc.headers[paramName] += `,${replacedValue}`
+        } else {
+          acc.headers[paramName] = replacedValue
         }
       }
 
@@ -108,7 +103,7 @@ export const buildRequestParameters = (
         acc.cookies.push(
           coerceValue(xScalarCookieSchema, {
             name: paramName,
-            value: replaceEnvVariables(example.value, env),
+            value: replacedValue,
             path: '/',
           }),
         )

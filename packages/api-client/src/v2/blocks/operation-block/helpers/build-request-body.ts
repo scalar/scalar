@@ -22,7 +22,10 @@ export const buildRequestBody = (
   // We got an example value or generated example from the schema
   if (example?.value) {
     // Form data
-    if (contentType === 'multipart/form-data' || contentType === 'application/x-www-form-urlencoded') {
+    if (
+      (contentType === 'multipart/form-data' || contentType === 'application/x-www-form-urlencoded') &&
+      Array.isArray(example.value)
+    ) {
       const form = contentType === 'multipart/form-data' ? new FormData() : new URLSearchParams()
 
       // Loop over all entries and add them to the form

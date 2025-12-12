@@ -47,18 +47,19 @@ export const buildRequestSecurity = (
   selectedSecuritySchemes.forEach((scheme) => {
     // Api key
     if (scheme.type === 'apiKey') {
+      const name = replaceEnvVariables(scheme.name, env)
       const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env) || emptyTokenPlaceholder
 
       if (scheme.in === 'header') {
-        headers[scheme.name] = value
+        headers[name] = value
       }
       if (scheme.in === 'query') {
-        urlParams.append(scheme.name, value)
+        urlParams.append(name, value)
       }
       if (scheme.in === 'cookie') {
         cookies.push(
           coerceValue(xScalarCookieSchema, {
-            name: scheme.name,
+            name,
             value,
             path: '/',
           }),
@@ -73,19 +74,22 @@ export const buildRequestSecurity = (
         const password = replaceEnvVariables(scheme['x-scalar-secret-password'], env)
         const value = `${username}:${password}`
 
-        headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
+        headers['authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
       } else {
         const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env)
-        headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
+        headers['authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
       }
     }
 
     // OAuth2
     if (scheme.type === 'oauth2') {
       const flows = Object.values(scheme.flows)
-      const token = flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token']
+      const token = replaceEnvVariables(
+        flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token'] ?? '',
+        env,
+      )
 
-      headers['Authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
+      headers['authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
     }
   })
 
