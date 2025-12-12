@@ -213,7 +213,7 @@ defineExpose({
           :key="index">
           <component
             :is="plugin.components.response"
-            v-if="plugin.components?.response"
+            v-if="plugin.components?.response && request && response"
             v-show="activeFilter === 'All'"
             :request="request"
             :response="response" />

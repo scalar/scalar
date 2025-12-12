@@ -16,7 +16,7 @@ export type ClientPluginHooks = {
 /** A type representing the components that a client plugin can define */
 export type ClientPluginComponents = {
   request: Component<{ operation: OperationObject; selectedExample?: string }>
-  response: Component<{ request?: Request; response?: ResponseInstance }>
+  response: Component<{ request: Request; response: ResponseInstance }>
 }
 
 /**
