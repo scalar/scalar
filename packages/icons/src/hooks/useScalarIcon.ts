@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+
 import type { ScalarIconProps, ScalarIconWeight } from '@/types'
 
 const defaultWeight: ScalarIconWeight = 'regular' as const

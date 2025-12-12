@@ -1,5 +1,5 @@
 /* GENERATED FILE */
-/* eslint-disable import/prefer-default-export */
+/* biome-ignore-all assist/source/organizeImports: generated file */
 
 import ScalarIconAcorn from './components/ScalarIconAcorn.vue'
 import ScalarIconAddressBook from './components/ScalarIconAddressBook.vue'

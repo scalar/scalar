@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
-import { useScalarIcon } from './useScalarIcon'
+
 import type { ScalarIconProps } from '@/types'
+
+import { useScalarIcon } from './useScalarIcon'
 
 describe('useScalarIcon', () => {
   // Create a test component that uses the hook
