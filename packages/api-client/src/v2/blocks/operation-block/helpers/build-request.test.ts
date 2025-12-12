@@ -1226,7 +1226,7 @@ describe('buildRequest', () => {
     })
 
     it('handles relative server url', () => {
-      const [error, result] = buildRequest({
+      const [error] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
