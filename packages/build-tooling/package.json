@@ -37,11 +37,6 @@
       "types": "./dist/esbuild/index.d.ts",
       "default": "./dist/esbuild/index.js"
     },
-    "./rollup": {
-      "import": "./dist/rollup/index.js",
-      "types": "./dist/rollup/index.d.ts",
-      "default": "./dist/rollup/index.js"
-    },
     "./vite": {
       "import": "./dist/vite/index.js",
       "types": "./dist/vite/index.d.ts",
@@ -54,7 +49,6 @@
   ],
   "bin": {
     "scalar-build-esbuild": "scripts/build-esbuild.js",
-    "scalar-build-rollup": "scripts/build-rollup.js",
     "scalar-build-vite": "scripts/build-vite.js",
     "scalar-format-check": "scripts/format-check.js",
     "scalar-format": "scripts/format.js",
@@ -66,18 +60,11 @@
     "scalar-types-check": "scripts/types-check.js"
   },
   "dependencies": {
-    "@rollup/plugin-alias": "^5.1.0",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@rollup/plugin-yaml": "^4.1.2",
     "ansis": "catalog:*",
     "chokidar": "catalog:*",
     "esbuild": "catalog:*",
     "fast-glob": "catalog:*",
-    "picomatch": "^4.0.2",
-    "rollup": "catalog:*",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-import-css": "^3.5.8"
+    "picomatch": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
