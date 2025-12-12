@@ -872,6 +872,113 @@ describe('SidebarItem', () => {
       const decoratorElements = wrapper.findAll('.custom-decorator')
       expect(decoratorElements.length).toBeGreaterThan(0)
     })
+
+    it('renders empty slot content when item has no children', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Empty Folder',
+        type: 'document',
+        name: 'emptyFolder',
+        children: [],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+          isExpanded: (id) => id === '1',
+        },
+        slots: {
+          empty: '<div class="empty-state">No items here</div>',
+        },
+      })
+
+      expect(wrapper.find('.empty-state').exists()).toBe(true)
+      expect(wrapper.text()).toContain('No items here')
+    })
+
+    it('passes item prop to empty slot', () => {
+      const item: Item = {
+        id: 'empty-folder-id',
+        title: 'Empty Folder',
+        type: 'document',
+        name: 'emptyFolder',
+        children: [],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+          isExpanded: (id) => id === 'empty-folder-id',
+        },
+        slots: {
+          empty: '<div class="empty-slot-test">{{ item.id }}</div>',
+        },
+      })
+
+      expect(wrapper.html()).toContain('empty-folder-id')
+    })
+
+    it('does not render empty slot when item has children', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Folder with Children',
+        type: 'document',
+        name: 'folderWithChildren',
+        children: [{ id: '2', title: 'Child', type: 'operation', ref: 'ref-2', method: 'get', path: '/child' }],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+          isExpanded: (id) => id === '1',
+        },
+        slots: {
+          empty: '<div class="empty-state">No items here</div>',
+        },
+      })
+
+      expect(wrapper.find('.empty-state').exists()).toBe(false)
+    })
+
+    it('passes empty slot to child items', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Parent',
+        type: 'document',
+        name: 'parent',
+        children: [
+          {
+            id: '2',
+            title: 'Empty Child Folder',
+            type: 'document',
+            name: 'emptyChildFolder',
+            children: [],
+          },
+        ],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+          isExpanded: (id) => id === '1' || id === '2',
+        },
+        slots: {
+          empty: '<div class="empty-state">Empty folder</div>',
+        },
+      })
+
+      // Empty slot should be rendered in the child folder that has no children
+      const emptyElements = wrapper.findAll('.empty-state')
+      expect(emptyElements.length).toBeGreaterThan(0)
+    })
   })
 
   describe('edge cases', () => {

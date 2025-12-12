@@ -2,9 +2,10 @@
 import {
   ScalarIconButton,
   ScalarSidebarFooter,
+  ScalarSidebarItem,
   ScalarSidebarSearchInput,
 } from '@scalar/components'
-import { ScalarIconDotsThree } from '@scalar/icons'
+import { ScalarIconDotsThree, ScalarIconPlus } from '@scalar/icons'
 
 import { createSidebarState, ScalarSidebar, type Item } from '@/index'
 
@@ -19,6 +20,28 @@ const client = createSidebarState([
     title: 'Root',
     children: galaxySidebar,
   },
+  {
+    type: 'document',
+    name: 'empty',
+    id: 'empty',
+    title: 'Empty Document',
+    children: [],
+  },
+  {
+    type: 'document',
+    name: 'empty-2',
+    id: 'empty-2',
+    title: 'Empty Document 2',
+    children: [
+      {
+        type: 'tag',
+        name: 'tag-1',
+        id: 'tag-1',
+        title: 'Tag 1',
+        isGroup: false,
+      },
+    ],
+  },
 ] satisfies Item[])
 
 // Default open the first level of items for better visibility in the playground
@@ -28,9 +51,7 @@ function handleSelectItem(
   sidebar: typeof reference | typeof client,
   id: string,
 ) {
-  if (sidebar.getEntryById(id)?.children) {
-    sidebar.setExpanded(id, !sidebar.isExpanded(id))
-  }
+  sidebar.setExpanded(id, !sidebar.isExpanded(id))
   sidebar.setSelected(id)
 }
 
@@ -67,13 +88,27 @@ const log = (name: string, ...args: any[]) => {
         <ScalarSidebarSearchInput />
       </div>
     </template>
+
+    <!-- Decorator slot -->
     <template #decorator>
       <ScalarIconButton
         :icon="ScalarIconDotsThree"
-        weight="bold"
         label="More options"
-        size="sm" />
+        size="sm"
+        weight="bold" />
     </template>
+
+    <!-- Empty folder slot -->
+    <template #empty>
+      <ScalarSidebarItem>
+        <template #icon>
+          <ScalarIconPlus />
+        </template>
+        <template #default>Add operation</template>
+      </ScalarSidebarItem>
+    </template>
+
+    <!-- Sidebar footer slot -->
     <template #footer>
       <ScalarSidebarFooter />
     </template>
