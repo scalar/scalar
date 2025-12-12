@@ -1,7 +1,10 @@
 ﻿# build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS publish
 WORKDIR /src
-COPY . .
+
+COPY Directory.Build.props .
+COPY ./aspire .
+
 WORKDIR "/src/src/Scalar.Aspire.Service"
 RUN dotnet publish "Scalar.Aspire.Service.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
