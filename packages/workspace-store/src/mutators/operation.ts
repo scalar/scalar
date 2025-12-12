@@ -207,7 +207,7 @@ export const createOperation = (
   const { servers } = operation
   const firstServer = unpackProxyObject(servers?.[0])
 
-  // For now we only suport document servers but in the future we might support operation servers
+  // For now we only support document servers but in the future we might support operation servers
   for (const server of servers ?? []) {
     // If the server does not exist in the document, add it
     if (!document.servers?.some((s) => s.url === server.url)) {
