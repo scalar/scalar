@@ -1,1 +1,1 @@
-export * from './restmethod'
+export { powershellRestmethod } from './restmethod'

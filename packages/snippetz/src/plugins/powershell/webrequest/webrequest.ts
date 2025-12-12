@@ -1,6 +1,7 @@
-import { webrequest } from '@/httpsnippet-lite/esm/targets/powershell/webrequest/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { webrequest } from '@/httpsnippet-lite/targets/powershell/webrequest/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * powershell/webrequest

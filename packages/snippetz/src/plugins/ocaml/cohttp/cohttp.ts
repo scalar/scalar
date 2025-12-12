@@ -1,6 +1,7 @@
-import { cohttp } from '@/httpsnippet-lite/esm/targets/ocaml/cohttp/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { cohttp } from '@/httpsnippet-lite/targets/ocaml/cohttp/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * ocaml/cohttp

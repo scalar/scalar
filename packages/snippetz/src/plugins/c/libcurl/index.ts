@@ -1,1 +1,1 @@
-export * from './libcurl'
+export { cLibcurl } from './libcurl'

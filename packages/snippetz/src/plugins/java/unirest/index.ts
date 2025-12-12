@@ -1,1 +1,1 @@
-export * from './unirest'
+export { javaUnirest } from './unirest'

@@ -1,1 +1,1 @@
-export * from './httpclient'
+export { fsharpHttpclient } from './httpclient'

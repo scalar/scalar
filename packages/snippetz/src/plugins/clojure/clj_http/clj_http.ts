@@ -1,6 +1,7 @@
-import { clj_http } from '@/httpsnippet-lite/esm/targets/clojure/clj_http/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { clj_http } from '@/httpsnippet-lite/targets/clojure/clj_http/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * clojure/clj_http

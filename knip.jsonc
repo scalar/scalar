@@ -17,7 +17,6 @@
     "packages/pre-post-request-scripts/**",
     "packages/react-renderer/**",
     "packages/sidebar/**",
-    "packages/snippetz/**",
     "packages/ts-to-openapi/**",
     "packages/void-server/**",
     "projects/**",
@@ -52,7 +51,6 @@
     "tailwindcss",
 
     // The following values needs to be re-checked once more packages are included
-    "rollup",
     "tsc-alias",
     "tsconfig-paths",
     "vue-tsc"
@@ -60,13 +58,7 @@
   "ignoreBinaries": ["netlify"],
   "workspaces": {
     "packages/build-tooling": {
-      "entry": [
-        //
-        "src/index.ts",
-        "src/esbuild/index.ts",
-        "src/rollup/index.ts",
-        "src/vite/index.ts"
-      ]
+      "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
     "packages/code-highlight": {
       "entry": [
@@ -126,6 +118,9 @@
         "src/schemas/extensions/index.ts",
         "src/schemas/3.1/*/index.ts"
       ]
+    },
+    "packages/snippetz": {
+      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
     },
     "packages/types": {
       "entry": [

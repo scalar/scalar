@@ -378,6 +378,14 @@
     },
 
     {
+      "description": "Group official patch and minor updates for official GitHub actions",
+      "matchDepTypes": ["action"],
+      "matchPackageNames": ["actions/**"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "official-github-actions"
+    },
+
+    {
       "description": "Disable engine updates like node, github runner, and uses-with",
       "matchDepTypes": ["engines", "github-runner", "uses-with"],
       "enabled": false

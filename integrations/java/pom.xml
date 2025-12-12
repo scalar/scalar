@@ -192,6 +192,16 @@
           </configuration>
         </plugin>
 
+        <!-- Skip deploying the parent POM to Maven Central -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+
         <!-- Spring Boot Maven Plugin -->
         <plugin>
           <groupId>org.springframework.boot</groupId>

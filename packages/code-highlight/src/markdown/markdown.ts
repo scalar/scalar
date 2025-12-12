@@ -83,9 +83,11 @@ export function htmlFromMarkdown(
       attributes: {
         ...defaultSchema.attributes,
         abbr: ['title'],
-        // Allow alert classes
-        div: ['class', ['className', /^markdown-alert(-.*)?$/]],
+        // Allow all class names while preserving the existing default attributes
+        '*': [...(defaultSchema.attributes?.['*'] ?? []), 'className'],
       },
+      // Strip content of dangerous elements, not just the tags
+      strip: ['script', 'style', 'object', 'embed', 'form'],
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
