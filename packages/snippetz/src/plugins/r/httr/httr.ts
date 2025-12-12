@@ -1,6 +1,7 @@
-import { httr } from '@/httpsnippet-lite/esm/targets/r/httr/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { httr } from '@/httpsnippet-lite/targets/r/httr/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * r/httr

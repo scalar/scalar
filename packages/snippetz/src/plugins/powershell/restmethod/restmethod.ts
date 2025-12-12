@@ -1,6 +1,7 @@
-import { restmethod } from '@/httpsnippet-lite/esm/targets/powershell/restmethod/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { restmethod } from '@/httpsnippet-lite/targets/powershell/restmethod/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * powershell/restmethod

@@ -1,1 +1,1 @@
-export * from './native'
+export { rubyNative } from './native'

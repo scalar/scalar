@@ -1,1 +1,1 @@
-export * from './nsurlsession'
+export { swiftNsurlsession } from './nsurlsession'

@@ -1,1 +1,1 @@
-export * from './clj_http'
+export { clojureCljhttp } from './clj_http'

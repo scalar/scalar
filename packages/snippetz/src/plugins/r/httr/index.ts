@@ -1,1 +1,1 @@
-export * from './httr'
+export { rHttr } from './httr'

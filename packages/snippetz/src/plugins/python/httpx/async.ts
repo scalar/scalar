@@ -1,4 +1,5 @@
 import type { Plugin } from '@scalar/types/snippetz'
+
 import { requestsLikeGenerate } from '@/plugins/python/requestsLike'
 
 /**

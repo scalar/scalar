@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
-import type { Request } from '@/httpsnippet-lite/types/httpsnippet'
+import type { SnippetRequest } from '@/httpsnippet-lite/helpers/snippet-request'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
@@ -115,10 +115,10 @@ export function convertWithHttpSnippetLite(
     fullUrl: harRequest.url,
     queryObj: queryObj ?? {},
     cookiesObj: cookiesObj ?? {},
-  } as Request
+  } as SnippetRequest
 
   // If the request is a JSON request, parse the text as JSON
-  if (convertRequest.postData?.mimeType === 'application/json' && convertRequest.postData?.text) {
+  if (convertRequest.postData?.mimeType === 'application/json' && convertRequest.postData!.text) {
     try {
       convertRequest.postData.jsonObj = JSON.parse(convertRequest.postData.text)
     } catch (error) {

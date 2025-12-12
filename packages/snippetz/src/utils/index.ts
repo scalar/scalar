@@ -1,1 +1,1 @@
-export * from './convertWithHttpSnippetLite'
+export { convertWithHttpSnippetLite } from './convertWithHttpSnippetLite'

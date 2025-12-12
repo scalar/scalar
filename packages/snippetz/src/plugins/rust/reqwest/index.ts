@@ -1,1 +1,1 @@
-export * from './reqwest'
+export { rustReqwest } from './reqwest'

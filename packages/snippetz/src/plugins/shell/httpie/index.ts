@@ -1,1 +1,1 @@
-export * from './httpie'
+export { shellHttpie } from './httpie'

@@ -1,1 +1,1 @@
-export * from './restsharp'
+export { csharpRestsharp } from './restsharp'

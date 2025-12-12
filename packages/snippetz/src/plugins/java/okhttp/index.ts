@@ -1,1 +1,1 @@
-export * from './okhttp'
+export { javaOkhttp } from './okhttp'

@@ -1,6 +1,7 @@
-import { xhr } from '@/httpsnippet-lite/esm/targets/javascript/xhr/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { xhr } from '@/httpsnippet-lite/targets/javascript/xhr/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * js/xhr

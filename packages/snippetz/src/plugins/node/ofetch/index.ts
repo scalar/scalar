@@ -1,1 +1,1 @@
-export * from './ofetch'
+export { nodeOfetch } from './ofetch'

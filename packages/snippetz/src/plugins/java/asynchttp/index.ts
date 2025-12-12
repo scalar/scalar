@@ -1,1 +1,1 @@
-export * from './asynchttp'
+export { javaAsynchttp } from './asynchttp'

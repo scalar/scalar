@@ -8,6 +8,7 @@ export type {
   HarRequest,
   Plugin,
   PluginConfiguration,
+  PostDataCommon,
   Target,
   TargetId,
 } from './snippetz'

@@ -1,1 +1,1 @@
-export * from './curl'
+export { shellCurl } from './curl'

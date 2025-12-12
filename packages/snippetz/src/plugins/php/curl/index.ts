@@ -1,1 +1,1 @@
-export * from './curl'
+export { phpCurl } from './curl'

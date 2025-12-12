@@ -1,6 +1,7 @@
-import { native } from '@/httpsnippet-lite/esm/targets/go/native/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 import type { Plugin } from '@scalar/types/snippetz'
+
+import { native } from '@/httpsnippet-lite/targets/go/native/client'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * go/native

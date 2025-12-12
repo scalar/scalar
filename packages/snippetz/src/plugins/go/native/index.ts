@@ -1,1 +1,1 @@
-export * from './native'
+export { goNative } from './native'

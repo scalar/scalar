@@ -1,1 +1,1 @@
-export * from './requests'
+export { pythonRequests } from './requests'

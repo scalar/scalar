@@ -1,1 +1,1 @@
-export * from './nethttp'
+export { javaNethttp } from './nethttp'
