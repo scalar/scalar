@@ -6,7 +6,12 @@ import { createStoreEvents } from '@/store/events'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 
 import Header from './components/Header.vue'
+import * as buildRequestModule from './helpers/build-request'
 import OperationBlock from './OperationBlock.vue'
+
+vi.mock('./helpers/build-request', () => ({
+  buildRequest: vi.fn(),
+}))
 
 describe('OperationContainer', () => {
   const eventBus = createWorkspaceEventBus()
@@ -49,6 +54,14 @@ describe('OperationContainer', () => {
     return mount(OperationBlock, { props })
   }
 
+  const mockRequest = new Request('https://api.example.com/pets', { method: 'GET' })
+  const mockController = new AbortController()
+
+  vi.mocked(buildRequestModule.buildRequest).mockReturnValue([
+    null,
+    { request: mockRequest, controller: mockController },
+  ])
+
   it('emits operation:send:request via event bus when execute is triggered', () => {
     const fn = vi.fn()
     eventBus.on('operation:send:request', fn)
@@ -59,7 +72,10 @@ describe('OperationContainer', () => {
 
     expect(fn).toHaveBeenCalledTimes(1)
 
-    expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex1' } })
+    expect(fn).toHaveBeenCalledWith({
+      meta: { path: '/pets', method: 'get', exampleKey: 'ex1' },
+      payload: { request: mockRequest },
+    })
   })
 
   it('emits operation:send:request when ResponseBlock sendRequest event is triggered', () => {
@@ -72,6 +88,9 @@ describe('OperationContainer', () => {
 
     expect(fn).toHaveBeenCalledTimes(1)
 
-    expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex2' } })
+    expect(fn).toHaveBeenCalledWith({
+      meta: { path: '/pets', method: 'get', exampleKey: 'ex2' },
+      payload: { request: mockRequest },
+    })
   })
 })
