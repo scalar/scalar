@@ -69,6 +69,12 @@ export const buildRequestParameters = (
 
       // Handle headers
       if (param.in === 'header') {
+        // Filter out Content-Type header when it is multipart/form-data
+        // The browser will automatically set this header with the proper boundary
+        if (paramName.toLowerCase() === 'content-type' && replacedValue === 'multipart/form-data') {
+          return acc
+        }
+
         // headers only support simple style which means we separate the value by commas for multiple values
         if (acc.headers[paramName]) {
           acc.headers[paramName] += `,${replacedValue}`

@@ -645,6 +645,23 @@ describe('buildRequestParameters', () => {
       // No matching content type, so no example found, parameter skipped
       expect(result.headers).not.toHaveProperty('X-Payload')
     })
+
+    it('filters out Content-Type header when value is multipart/form-data', () => {
+      const params = [
+        createParameter(
+          { name: 'Content-Type', in: 'header', value: 'multipart/form-data' },
+          { default: { value: 'multipart/form-data' } },
+        ),
+        createParameter({ name: 'X-Api-Key', in: 'header', value: 'secret' }, { default: { value: 'secret' } }),
+      ]
+
+      const result = buildRequestParameters(params, {}, 'default')
+
+      // Content-Type should be filtered out for multipart/form-data
+      expect(result.headers).not.toHaveProperty('Content-Type')
+      // Other headers should still be present
+      expect(result.headers['X-Api-Key']).toBe('secret')
+    })
   })
 
   describe('environment variable replacement', () => {
