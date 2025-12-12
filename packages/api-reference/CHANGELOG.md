@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.40.6
+
+### Patch Changes
+
+- Updated dependencies [[`93ffb63`](https://github.com/scalar/scalar/commit/93ffb63e9d97c7a4ea810d9eeb95cc416c368806), [`099237a`](https://github.com/scalar/scalar/commit/099237ad9cba4d29dcc5e742e39c3e42429a5817), [`2658415`](https://github.com/scalar/scalar/commit/2658415511787dd4554f6d6b47342bdf76d2cca8), [`bb52d9a`](https://github.com/scalar/scalar/commit/bb52d9a21e53628270bab93c0f03b5731c9c97c6), [`bb52d9a`](https://github.com/scalar/scalar/commit/bb52d9a21e53628270bab93c0f03b5731c9c97c6), [`2f3a5bf`](https://github.com/scalar/scalar/commit/2f3a5bf26a16bf0733a9eb8bf0f47e2db161414f), [`a06c824`](https://github.com/scalar/scalar/commit/a06c824653af58839d897e9495f7489d6b5d12b9)]:
+  - @scalar/code-highlight@0.2.2
+  - @scalar/workspace-store@0.23.1
+  - @scalar/api-client@2.15.1
+  - @scalar/types@0.5.3
+  - @scalar/snippetz@0.6.0
+  - @scalar/components@0.16.9
+  - @scalar/oas-utils@0.6.9
+  - @scalar/sidebar@0.6.1
+  - @scalar/openapi-parser@0.23.7
+  - @scalar/openapi-upgrader@0.1.6
+  - @scalar/helpers@0.2.2
+  - @scalar/icons@0.5.0
+  - @scalar/json-magic@0.8.6
+  - @scalar/object-utils@1.2.16
+  - @scalar/openapi-types@0.5.3
+  - @scalar/themes@0.13.26
+  - @scalar/use-hooks@0.3.3
+  - @scalar/use-toasts@0.9.1
+
 ## 1.40.5
 
 ### Patch Changes

@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 2.15.1
+
+### Patch Changes
+
+- [#7510](https://github.com/scalar/scalar/pull/7510) [`099237a`](https://github.com/scalar/scalar/commit/099237ad9cba4d29dcc5e742e39c3e42429a5817) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: make sure the tabs does not get out of bound
+
+- [#7532](https://github.com/scalar/scalar/pull/7532) [`2658415`](https://github.com/scalar/scalar/commit/2658415511787dd4554f6d6b47342bdf76d2cca8) Thanks [@DemonHa](https://github.com/DemonHa)! - fix: get the correct document using the navigation document name
+
+- [#7534](https://github.com/scalar/scalar/pull/7534) [`2f3a5bf`](https://github.com/scalar/scalar/commit/2f3a5bf26a16bf0733a9eb8bf0f47e2db161414f) Thanks [@DemonHa](https://github.com/DemonHa)! - chore: remove dynamic imports
+
+- [#7502](https://github.com/scalar/scalar/pull/7502) [`a06c824`](https://github.com/scalar/scalar/commit/a06c824653af58839d897e9495f7489d6b5d12b9) Thanks [@Smyrcu](https://github.com/Smyrcu)! - fix(api-client): URL encode path parameters
+
+- Updated dependencies [[`099237a`](https://github.com/scalar/scalar/commit/099237ad9cba4d29dcc5e742e39c3e42429a5817), [`bb52d9a`](https://github.com/scalar/scalar/commit/bb52d9a21e53628270bab93c0f03b5731c9c97c6), [`bb52d9a`](https://github.com/scalar/scalar/commit/bb52d9a21e53628270bab93c0f03b5731c9c97c6)]:
+  - @scalar/workspace-store@0.23.1
+  - @scalar/types@0.5.3
+  - @scalar/snippetz@0.6.0
+  - @scalar/components@0.16.9
+  - @scalar/oas-utils@0.6.9
+  - @scalar/sidebar@0.6.1
+  - @scalar/openapi-parser@0.23.7
+  - @scalar/analytics-client@1.0.1
+  - @scalar/draggable@0.3.0
+  - @scalar/helpers@0.2.2
+  - @scalar/icons@0.5.0
+  - @scalar/import@0.4.39
+  - @scalar/json-magic@0.8.6
+  - @scalar/object-utils@1.2.16
+  - @scalar/openapi-types@0.5.3
+  - @scalar/postman-to-openapi@0.3.50
+  - @scalar/themes@0.13.26
+  - @scalar/use-codemirror@0.13.3
+  - @scalar/use-hooks@0.3.3
+  - @scalar/use-toasts@0.9.1
+
 ## 2.15.0
 
 ### Minor Changes
