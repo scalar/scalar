@@ -72,16 +72,16 @@ export const sendRequest = async ({
   }>
 > => {
   try {
-    /** Apply any beforeRequest hooks from the plugins */
+    // Apply any beforeRequest hooks from the plugins
     const modifiedRequest = await executeHook(request, 'beforeRequest', plugins)
 
-    /** Execute the request and measure duration */
+    // Execute the request and measure duration
     const startTime = Date.now()
     const response = await fetch(modifiedRequest)
     const endTime = Date.now()
     const duration = endTime - startTime
 
-    /** Extract response metadata early for reuse */
+    // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
     const responseUrl = new URL(response.url)
