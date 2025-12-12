@@ -5,7 +5,11 @@ import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SecurityRequirementObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { objectEntries } from '@vueuse/core'
 
@@ -50,7 +54,7 @@ export const buildRequest = ({
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Currently selected security for the current operation */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecurity: SecurityRequirementObject[]
   /** The server object */
   server: ServerObject | null
 }): ErrorResponse<{
@@ -119,7 +123,7 @@ export const buildRequest = ({
       globalCookies,
       env,
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
-      domainUrl: serverUrl || path,
+      url: serverUrl || path,
       useCustomCookieHeader: isElectron() || isUsingProxy,
     })
     if (cookiesHeader) {

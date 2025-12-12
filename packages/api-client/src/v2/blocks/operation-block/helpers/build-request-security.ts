@@ -9,6 +9,7 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OpenApiDocument,
+  SecurityRequirementObject,
   SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
@@ -21,7 +22,7 @@ export const buildRequestSecurity = (
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
   /** Currently selected security for the current operation */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security'],
+  selectedSecurity: SecurityRequirementObject[],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** Include this parameter to set the placeholder for empty tokens */
@@ -33,7 +34,7 @@ export const buildRequestSecurity = (
 
   /** Build the selected security schemes from the selected security */
   const selectedSecuritySchemes: SecuritySchemeObject[] =
-    selectedSecurity?.selectedSchemes.flatMap((scheme) =>
+    selectedSecurity.flatMap((scheme) =>
       objectKeys(scheme).flatMap((key) => {
         const scheme = getResolvedRef(securitySchemes?.[key])
         if (scheme) {
@@ -74,10 +75,10 @@ export const buildRequestSecurity = (
         const password = replaceEnvVariables(scheme['x-scalar-secret-password'], env)
         const value = `${username}:${password}`
 
-        headers['authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
+        headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
       } else {
         const value = replaceEnvVariables(scheme['x-scalar-secret-token'], env)
-        headers['authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
+        headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
       }
     }
 
@@ -89,7 +90,7 @@ export const buildRequestSecurity = (
         env,
       )
 
-      headers['authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
+      headers['Authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
     }
   })
 

@@ -40,7 +40,7 @@ describe('buildRequestSecurity', () => {
   })
 
   it('returns empty objects when no security schemes are provided', () => {
-    const result = buildRequestSecurity({}, undefined)
+    const result = buildRequestSecurity({}, [])
 
     expect(result.headers).toEqual({})
     expect(result.cookies).toEqual([])
@@ -49,28 +49,19 @@ describe('buildRequestSecurity', () => {
 
   describe('apiKey security', () => {
     it('handles apiKey in header', () => {
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey },
-        { selectedIndex: 0, selectedSchemes: [{ apiKeyScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
       expect(result.headers['x-api-key']).toBe('test-key')
     })
 
     it('handles apiKey in query', () => {
       apiKey.in = 'query'
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey },
-        { selectedIndex: 0, selectedSchemes: [{ apiKeyScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
       expect(result.urlParams.get('x-api-key')).toBe('test-key')
     })
 
     it('handles apiKey in cookie', () => {
       apiKey.in = 'cookie'
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey },
-        { selectedIndex: 0, selectedSchemes: [{ apiKeyScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
 
       expect(result.cookies[0]).toEqual({
         name: 'x-api-key',
@@ -83,20 +74,14 @@ describe('buildRequestSecurity', () => {
   describe('http security', () => {
     it('handles basic auth', () => {
       basic.scheme = 'basic'
-      const result = buildRequestSecurity(
-        { basicScheme: basic },
-        { selectedIndex: 0, selectedSchemes: [{ basicScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ basicScheme: basic }, [{ basicScheme: [] }])
       expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
     })
 
     it('handles basic auth with empty credentials', () => {
       basic['x-scalar-secret-username'] = ''
       basic['x-scalar-secret-password'] = ''
-      const result = buildRequestSecurity(
-        { basicScheme: basic },
-        { selectedIndex: 0, selectedSchemes: [{ basicScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ basicScheme: basic }, [{ basicScheme: [] }])
       expect(result.headers['Authorization']).toBe('Basic username:password')
     })
 
@@ -104,10 +89,7 @@ describe('buildRequestSecurity', () => {
       basic['x-scalar-secret-username'] = 'żółć'
       basic['x-scalar-secret-password'] = 'тест'
 
-      const result = buildRequestSecurity(
-        { basicScheme: basic },
-        { selectedIndex: 0, selectedSchemes: [{ basicScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ basicScheme: basic }, [{ basicScheme: [] }])
 
       // The credentials are properly encoded as base64
       const expectedBase64 = 'xbzDs8WCxIc60YLQtdGB0YI='
@@ -117,10 +99,7 @@ describe('buildRequestSecurity', () => {
     it('handles bearer auth', () => {
       basic.scheme = 'bearer'
       basic['x-scalar-secret-token'] = 'test-token'
-      const result = buildRequestSecurity(
-        { bearerScheme: basic },
-        { selectedIndex: 0, selectedSchemes: [{ bearerScheme: [] }] },
-      )
+      const result = buildRequestSecurity({ bearerScheme: basic }, [{ bearerScheme: [] }])
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
   })
@@ -132,18 +111,12 @@ describe('buildRequestSecurity', () => {
           'x-scalar-secret-token': 'test-token',
         } as OAuthFlowImplicit,
       }
-      const result = buildRequestSecurity(
-        { oauth2Scheme: oauth2 },
-        { selectedIndex: 0, selectedSchemes: [{ oauth2Scheme: [] }] },
-      )
+      const result = buildRequestSecurity({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
 
     it('handles oauth2 without token', () => {
-      const result = buildRequestSecurity(
-        { oauth2Scheme: oauth2 },
-        { selectedIndex: 0, selectedSchemes: [{ oauth2Scheme: [] }] },
-      )
+      const result = buildRequestSecurity({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
       expect(result.headers['Authorization']).toBe('Bearer ')
     })
 
@@ -157,22 +130,14 @@ describe('buildRequestSecurity', () => {
         } as OAuthFlowAuthorizationCode,
       }
 
-      const result = buildRequestSecurity(
-        { oauth2Scheme: oauth2 },
-        { selectedIndex: 0, selectedSchemes: [{ oauth2Scheme: [] }] },
-      )
+      const result = buildRequestSecurity({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
       expect(result.headers['Authorization']).toBe('Bearer test-token-implicit')
     })
   })
 
   it('handles empty token placeholder', () => {
     apiKey['x-scalar-secret-token'] = ''
-    const result = buildRequestSecurity(
-      { apiKeyScheme: apiKey },
-      { selectedIndex: 0, selectedSchemes: [{ apiKeyScheme: [] }] },
-      {},
-      'NO_VALUE',
-    )
+    const result = buildRequestSecurity({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }], {}, 'NO_VALUE')
     expect(result.headers['x-api-key']).toBe('NO_VALUE')
   })
 
@@ -181,11 +146,7 @@ describe('buildRequestSecurity', () => {
       apiKey['x-scalar-secret-token'] = '{{API_KEY}}'
       const env = { API_KEY: 'my-secret-key-123' }
 
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey },
-        { selectedIndex: 0, selectedSchemes: [{ apiKeyScheme: [] }] },
-        env,
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }], env)
 
       expect(result.headers['x-api-key']).toBe('my-secret-key-123')
     })
@@ -195,11 +156,7 @@ describe('buildRequestSecurity', () => {
       basic['x-scalar-secret-password'] = '{{PASSWORD}}'
       const env = { USERNAME: 'admin', PASSWORD: 'super-secret' }
 
-      const result = buildRequestSecurity(
-        { basicScheme: basic },
-        { selectedIndex: 0, selectedSchemes: [{ basicScheme: [] }] },
-        env,
-      )
+      const result = buildRequestSecurity({ basicScheme: basic }, [{ basicScheme: [] }], env)
 
       expect(result.headers['Authorization']).toBe(`Basic ${encode('admin:super-secret')}`)
     })
@@ -215,13 +172,9 @@ describe('buildRequestSecurity', () => {
         'x-scalar-secret-token': 'client-123',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey, clientIdScheme: apiKey2 },
-        {
-          selectedIndex: 0,
-          selectedSchemes: [{ apiKeyScheme: [], clientIdScheme: [] }],
-        },
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey, clientIdScheme: apiKey2 }, [
+        { apiKeyScheme: [], clientIdScheme: [] },
+      ])
 
       // Both headers should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -229,13 +182,9 @@ describe('buildRequestSecurity', () => {
     })
 
     it('handles apiKey and basic auth together', () => {
-      const result = buildRequestSecurity(
-        { apiKeyScheme: apiKey, basicScheme: basic },
-        {
-          selectedIndex: 0,
-          selectedSchemes: [{ apiKeyScheme: [], basicScheme: [] }],
-        },
-      )
+      const result = buildRequestSecurity({ apiKeyScheme: apiKey, basicScheme: basic }, [
+        { apiKeyScheme: [], basicScheme: [] },
+      ])
 
       // Both apiKey header and Authorization header should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -267,13 +216,9 @@ describe('buildRequestSecurity', () => {
         'x-scalar-secret-token': 'cookie-value',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurity(
-        { headerScheme: headerKey, queryScheme: queryKey, cookieScheme: cookieKey },
-        {
-          selectedIndex: 0,
-          selectedSchemes: [{ headerScheme: [], queryScheme: [], cookieScheme: [] }],
-        },
-      )
+      const result = buildRequestSecurity({ headerScheme: headerKey, queryScheme: queryKey, cookieScheme: cookieKey }, [
+        { headerScheme: [], queryScheme: [], cookieScheme: [] },
+      ])
 
       // All three locations should have their respective values
       expect(result.headers['x-api-key']).toBe('header-key')

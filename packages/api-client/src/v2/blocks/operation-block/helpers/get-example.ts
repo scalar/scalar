@@ -16,7 +16,7 @@ export const getExample = (param: ParameterObject, exampleKey: string, contentTy
 
     // Fallback to default
     const defaultValue = getResolvedRef(param.schema)?.default
-    if (defaultValue) {
+    if (typeof defaultValue !== 'undefined') {
       return { value: defaultValue }
     }
   }
