@@ -135,7 +135,7 @@ export const useWorkspaceClientAppEvents = ({
    * consistent (e.g., after adding a new example via the UI).
    */
   const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-    const documentName = document.value?.['x-scalar-navigation']?.id
+    const documentName = document.value?.['x-scalar-navigation']?.name
     if (!documentName) {
       return
     }
@@ -294,13 +294,13 @@ export const useWorkspaceClientAppEvents = ({
         })
 
         // Rebuild the sidebar with the updated order
-        rebuildSidebar(document.value?.['x-scalar-navigation']?.id)
+        rebuildSidebar(document.value?.['x-scalar-navigation']?.name)
       }
       payload.callback(status)
     }),
   )
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
-  eventBus.on('operation:delete:operation', (payload) => {
+  eventBus.on('operation:delete:operation', async (payload) => {
     deleteOperation(workspaceStore.value, payload)
     rebuildSidebar(payload.documentName)
     if (
@@ -310,7 +310,7 @@ export const useWorkspaceClientAppEvents = ({
         method: payload.meta.method,
       })
     ) {
-      router.replace({
+      await router.replace({
         name: 'document.overview',
         params: {
           documentSlug: payload.documentName,
@@ -318,7 +318,7 @@ export const useWorkspaceClientAppEvents = ({
       })
     }
   })
-  eventBus.on('operation:delete:example', (payload) => {
+  eventBus.on('operation:delete:example', async (payload) => {
     deleteOperationExample(workspaceStore.value, payload)
     rebuildSidebar(payload.documentName)
     if (
@@ -329,7 +329,7 @@ export const useWorkspaceClientAppEvents = ({
         exampleName: payload.meta.exampleKey,
       })
     ) {
-      router.replace({
+      await router.replace({
         name: 'example',
         params: {
           pathEncoded: encodeURIComponent(payload.meta.path),
