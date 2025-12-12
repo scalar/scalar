@@ -31,7 +31,7 @@ describe('OperationContainer', () => {
     selectedContentType: 'application/json',
     authMeta: { type: 'document' } as any,
     securitySchemes: {},
-    selectedSecurity: { selectedIndex: 0, selectedSchemes: [] } as any,
+    selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
     security: [],
     events,
     plugins: [],
@@ -41,6 +41,7 @@ describe('OperationContainer', () => {
       description: 'Test Environment',
     },
     envVariables: [],
+    globalCookies: [],
   }
 
   const render = (overrides: Record<string, any> = {}) => {
