@@ -20,8 +20,16 @@ import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
 
-const { document, layout, eventBus, path, method, environment, exampleName } =
-  defineProps<RouteProps>()
+const {
+  document,
+  layout,
+  eventBus,
+  path,
+  method,
+  environment,
+  exampleName,
+  workspaceStore,
+} = defineProps<RouteProps>()
 
 const operation = computed(() =>
   path && method
@@ -33,6 +41,12 @@ const operation = computed(() =>
 const security = computed(() =>
   getSecurityRequirements(document, operation.value),
 )
+
+/** Combine the workspace and document cookies */
+const cookies = computed(() => [
+  ...(workspaceStore.workspace?.['x-scalar-cookies'] ?? []),
+  ...(document?.['x-scalar-cookies'] ?? []),
+])
 
 /** Compute the selected server for the document only for now */
 const selectedServer = computed(
@@ -88,6 +102,7 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :cookies
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus

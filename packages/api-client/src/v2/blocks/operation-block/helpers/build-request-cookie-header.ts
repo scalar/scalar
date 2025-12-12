@@ -48,7 +48,7 @@ export const buildRequestCookieHeader = ({
   const defaultDomain = determineCookieDomain(domainUrl)
 
   const filteredGlobalCookies = globalCookies.filter((c) => !c.isDisabled)
-  const cookieHeader = getCookieHeader([...paramCookies, ...filteredGlobalCookies], originalCookieHeader)
+  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader)
 
   if (cookieHeader) {
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)

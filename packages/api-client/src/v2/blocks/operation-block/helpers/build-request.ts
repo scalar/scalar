@@ -22,9 +22,9 @@ import { buildRequestSecurity } from '@/v2/blocks/operation-block/helpers/build-
  * @returns A request object and a controller to cancel the request
  */
 export const buildRequest = ({
-  cookies,
   environment,
   exampleKey = 'default',
+  globalCookies,
   method,
   operation,
   path,
@@ -33,12 +33,12 @@ export const buildRequest = ({
   securitySchemes,
   selectedSecurity,
 }: {
-  /** Workspace/document cookies */
-  cookies: XScalarCookie[]
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
   /** The key of the current example */
   exampleKey: string
+  /** Workspace + document cookies */
+  globalCookies: XScalarCookie[]
   /** The HTTP method of the operation */
   method: HttpMethod
   /** The operation object */
@@ -57,8 +57,6 @@ export const buildRequest = ({
   controller: AbortController
   request: Request
 }> => {
-  console.log(cookies)
-  console.log(operation.parameters)
   try {
     /** Flatten the environment variables array into a key-value object */
     const env = environment.variables.reduce(
@@ -118,7 +116,7 @@ export const buildRequest = ({
     /** Build out the cookies header */
     const cookiesHeader = buildRequestCookieHeader({
       paramCookies: [...params.cookies, ...security.cookies],
-      globalCookies: cookies,
+      globalCookies,
       env,
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
       domainUrl: serverUrl || path,
