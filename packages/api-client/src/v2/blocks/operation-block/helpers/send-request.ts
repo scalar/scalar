@@ -38,6 +38,9 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
       }
   )
 
+/** HTTP status codes that should not include a response body */
+const NO_BODY_STATUS_CODES = [204, 205, 304]
+
 /**
  * Execute the built fetch request and return a structured response.
  *
@@ -85,96 +88,182 @@ export const sendRequest = async ({
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = modifiedRequest.method as HttpMethod
-
-    /** HTTP status codes that should not include a body */
-    const shouldSkipBody = [204, 205, 304].includes(response.status)
+    const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
      * Handle server-sent event streams separately.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    const isStreamingResponse = contentType?.startsWith('text/event-stream') && response.body
-
-    // Create a normalized response for plugin hooks without consuming the body
-    if (isStreamingResponse) {
-      const normalizedResponse = new Response(null, {
-        status: response.status,
-        statusText,
-        headers: response.headers,
-      })
-
-      await executeHook(
-        { response: normalizedResponse, request: modifiedRequest, operation },
-        'responseReceived',
+    if (contentType?.startsWith('text/event-stream') && response.body) {
+      return buildStreamingResponse({
+        response,
+        modifiedRequest,
+        operation,
         plugins,
-      )
-      const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
-
-      return [
-        null,
-        {
-          timestamp: endTime,
-          request: modifiedRequest,
-          response: {
-            ...normalizedResponse,
-            headers: responseHeaders,
-            cookieHeaderKeys,
-            reader: response.body.getReader(),
-            duration,
-            method,
-            path: fullPath,
-          },
-        },
-      ]
+        endTime,
+        duration,
+        responseHeaders,
+        statusText,
+        method,
+        fullPath,
+      })
     }
 
-    /**
-     * For standard responses, read the body once and reuse the buffer.
-     * Clone the response to preserve the original for body reading.
-     */
-    const clonedResponse = response.clone()
-    const arrayBuffer = await clonedResponse.arrayBuffer()
-    const responseType = contentType ?? 'text/plain;charset=UTF-8'
-    const responseData = decodeBuffer(arrayBuffer, responseType)
-
-    /**
-     * Create a new Response using the arrayBuffer we already read.
-     * ArrayBuffers can be reused to create new Response objects without additional memory.
-     */
-    const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
-      status: response.status,
-      statusText,
-      headers: response.headers,
-    })
-
-    /** Apply any responseReceived hooks from the plugins */
-    await executeHook(
-      { response: normalizedResponse, request: modifiedRequest, operation },
-      'responseReceived',
+    return buildStandardResponse({
+      response,
+      modifiedRequest,
+      operation,
       plugins,
-    )
-    const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
-
-    return [
-      null,
-      {
-        timestamp: endTime,
-        request: modifiedRequest,
-        response: {
-          ...normalizedResponse,
-          headers: responseHeaders,
-          cookieHeaderKeys,
-          data: responseData,
-          size: arrayBuffer.byteLength,
-          duration,
-          method,
-          status: response.status,
-          path: fullPath,
-        },
-      },
-    ]
+      endTime,
+      duration,
+      responseHeaders,
+      statusText,
+      method,
+      fullPath,
+      contentType,
+      shouldSkipBody,
+    })
   } catch (error) {
     return [normalizeError(error, ERRORS.REQUEST_FAILED), null]
   }
+}
+
+/**
+ * Build a streaming response for server-sent events.
+ * Streaming responses use a reader instead of buffering the entire body.
+ */
+const buildStreamingResponse = async ({
+  response,
+  modifiedRequest,
+  operation,
+  plugins,
+  endTime,
+  duration,
+  responseHeaders,
+  statusText,
+  method,
+  fullPath,
+}: {
+  response: Response
+  modifiedRequest: Request
+  operation: OperationObject
+  plugins: ClientPlugin[]
+  endTime: number
+  duration: number
+  responseHeaders: Record<string, string>
+  statusText: string
+  method: HttpMethod
+  fullPath: string
+}): Promise<
+  ErrorResponse<{
+    response: ResponseInstance
+    request: Request
+    timestamp: number
+  }>
+> => {
+  const normalizedResponse = new Response(null, {
+    status: response.status,
+    statusText,
+    headers: response.headers,
+  })
+
+  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
+  const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
+
+  return [
+    null,
+    {
+      timestamp: endTime,
+      request: modifiedRequest,
+      response: {
+        ...normalizedResponse,
+        headers: responseHeaders,
+        cookieHeaderKeys,
+        reader: response.body!.getReader(),
+        duration,
+        method,
+        path: fullPath,
+      },
+    },
+  ]
+}
+
+/**
+ * Build a standard response with buffered body data.
+ * This handles all non-streaming responses including JSON, text, and binary data.
+ */
+const buildStandardResponse = async ({
+  response,
+  modifiedRequest,
+  operation,
+  plugins,
+  endTime,
+  duration,
+  responseHeaders,
+  statusText,
+  method,
+  fullPath,
+  contentType,
+  shouldSkipBody,
+}: {
+  response: Response
+  modifiedRequest: Request
+  operation: OperationObject
+  plugins: ClientPlugin[]
+  endTime: number
+  duration: number
+  responseHeaders: Record<string, string>
+  statusText: string
+  method: HttpMethod
+  fullPath: string
+  contentType: string | null
+  shouldSkipBody: boolean
+}): Promise<
+  ErrorResponse<{
+    response: ResponseInstance
+    request: Request
+    timestamp: number
+  }>
+> => {
+  /**
+   * Clone the response to preserve the original for body reading.
+   * Read the body once and reuse the buffer for both decoding and creating a new Response.
+   */
+  const clonedResponse = response.clone()
+  const arrayBuffer = await clonedResponse.arrayBuffer()
+  const responseType = contentType ?? 'text/plain;charset=UTF-8'
+  const responseData = decodeBuffer(arrayBuffer, responseType)
+
+  /**
+   * Create a new Response using the arrayBuffer we already read.
+   * ArrayBuffers can be reused to create new Response objects without additional memory.
+   */
+  const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
+    status: response.status,
+    statusText,
+    headers: response.headers,
+  })
+
+  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
+  const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
+
+  return [
+    null,
+    {
+      timestamp: endTime,
+      request: modifiedRequest,
+      response: {
+        ...normalizedResponse,
+        headers: responseHeaders,
+        cookieHeaderKeys,
+        data: responseData,
+        size: arrayBuffer.byteLength,
+        duration,
+        method,
+        status: response.status,
+        path: fullPath,
+      },
+    },
+  ]
 }
