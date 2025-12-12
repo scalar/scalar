@@ -137,7 +137,6 @@ const example = computed(
     getExampleFromBody(requestBody, selectedContentType.value, exampleKey),
 )
 
-/** TODO handle non-json examples + best guess conversion */
 const bodyValue = computed(() => {
   if (!example.value) {
     return ''
