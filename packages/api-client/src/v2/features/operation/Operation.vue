@@ -113,6 +113,7 @@ const router = useRouter()
       :operation
       :path
       :plugins="[]"
+      :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedSecurity

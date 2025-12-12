@@ -28,6 +28,7 @@ type SecurityItem = {
 const {
   environment,
   isStatic,
+  proxyUrl,
   selectedSecuritySchemas,
   securitySchemes,
   server,
@@ -35,6 +36,7 @@ const {
   environment: XScalarEnvironment
   /** Controls the display of certain borders which are used when we are non-collapsible */
   isStatic: boolean
+  proxyUrl: string
   selectedSecuritySchemas: SecurityRequirementObject
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
   server: ServerObject | undefined
@@ -276,7 +278,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           v-if="isFlowActive(key, ind)"
           :environment
           :flows="scheme.flows"
-          proxyUrl=""
+          :proxyUrl
           :selectedScopes="scopes"
           :server="server"
           :type="key"

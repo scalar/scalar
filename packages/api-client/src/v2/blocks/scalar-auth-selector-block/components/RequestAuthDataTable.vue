@@ -34,6 +34,8 @@ const {
   selectedSchemeOptions: SecuritySchemeOption[]
   /** Index of the currently active authentication tab */
   activeAuthIndex: number
+  /** Proxy URL */
+  proxyUrl: string
   /** OpenAPI security scheme definitions */
   securitySchemes: ComponentsObject['securitySchemes']
   /** Current server configuration */
@@ -128,6 +130,7 @@ defineExpose({
       <RequestAuthTab
         :environment="environment"
         :isStatic
+        :proxyUrl
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"
         :server

@@ -112,8 +112,8 @@ const {
   plugins: ClientPlugin[]
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
-  /** The proxy URL for cookie domain determination */
-  proxyUrl?: string
+  /** The proxy URL for sending requests */
+  proxyUrl: string
 }>()
 
 const emit = defineEmits<{
@@ -222,6 +222,7 @@ onBeforeUnmount(() => {
           :operation
           :path
           :plugins
+          :proxyUrl
           :security
           :securitySchemes
           :selectedSecurity />

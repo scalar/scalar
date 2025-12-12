@@ -43,6 +43,7 @@ const {
   security,
   eventBus,
   environment,
+  proxyUrl,
   server,
   selectedSecurity,
   plugins,
@@ -58,6 +59,7 @@ const {
   security: OpenApiDocument['security']
   server?: ServerObject
   layout: ClientLayout
+  proxyUrl: string
   plugins?: ClientPlugin[]
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
@@ -296,6 +298,7 @@ const labelRequestNameId = useId()
         :environment
         :eventBus
         :meta="authMeta"
+        :proxyUrl
         :security
         :securitySchemes
         :selectedSecurity

@@ -37,6 +37,7 @@ const {
   isReadOnly = false,
   isStatic = false,
   meta,
+  proxyUrl,
   security,
   securitySchemes,
   selectedSecurity,
@@ -50,6 +51,7 @@ const {
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
+  proxyUrl: string
   security: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
@@ -287,6 +289,7 @@ defineExpose({
       :eventBus
       :isStatic
       :meta
+      :proxyUrl
       :securitySchemes
       :selectedSchemeOptions="activeSchemeOptions"
       :server />

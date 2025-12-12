@@ -58,7 +58,7 @@ export const buildRequest = ({
   /** The path of the operation */
   path: string
   /** The proxy URL for cookie domain determination */
-  proxyUrl: string | undefined
+  proxyUrl: string
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Currently selected security for the current operation */
