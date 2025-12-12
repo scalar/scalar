@@ -30,15 +30,9 @@ const { hideClientButton = false } = defineProps<{
   servers: ServerObject[]
   /** List of request history */
   history: History[]
-  /**
-   * When the request is sent from the modal, this indicates the progress percentage
-   * of the request being sent.
-   *
-   * The amount remaining to load from 100 -> 0
-   */
-  requestLoadingPercentage?: number
   /** Event bus */
   eventBus: WorkspaceEventBus
+  /** Environment variables */
   environment: XScalarEnvironment
 }>()
 
@@ -67,7 +61,6 @@ const emit = defineEmits<{
       :layout
       :method
       :path
-      :percentage="requestLoadingPercentage"
       :server
       :servers
       @execute="emit('execute')"

@@ -55,13 +55,6 @@ const { eventBus, path, method, exampleKey, operation } = defineProps<{
   servers: ServerObject[]
   /** List of request history */
   history: History[]
-  /**
-   * When the request is sent from the modal, this indicates the progress percentage
-   * of the request being sent.
-   *
-   * The amount remaining to load from 100 -> 0
-   */
-  requestLoadingPercentage?: number
   /** Preprocessed response */
   response?: ResponseInstance
   /** Original request instance */
@@ -120,7 +113,6 @@ const handleExecute = () =>
         :layout
         :method
         :path
-        :percentage="requestLoadingPercentage"
         :server
         :servers
         :source
