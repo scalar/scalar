@@ -48,6 +48,7 @@ const emits = defineEmits<{
 export type TableRow = {
   name: string
   value: string | File | null
+  description?: string
   globalRoute?: string
   isDisabled?: boolean
   schema?: SchemaObject
@@ -172,6 +173,7 @@ const valueModel = computed({
           </ScalarButton>
           <RequestTableTooltip
             v-if="data.schema"
+            :description="data.description"
             :schema="data.schema"
             :value="data.value" />
         </template>
