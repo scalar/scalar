@@ -203,6 +203,26 @@ export const createOperation = (
   /** Create the operation in the document */
   document.paths[normalizedPath][method] = operation
 
+  // Make sure that we are selecting the new operation server
+  const { servers } = operation
+  const firstServer = unpackProxyObject(servers?.[0])
+
+  // For now we only support document servers but in the future we might support operation servers
+  for (const server of servers ?? []) {
+    // If the server does not exist in the document, add it
+    if (!document.servers?.some((s) => s.url === server.url)) {
+      if (!document.servers) {
+        document.servers = []
+      }
+      document.servers.push(unpackProxyObject(server))
+    }
+  }
+
+  // Update the selected server to the first server of the created operation
+  if (firstServer) {
+    document['x-scalar-selected-server'] = firstServer.url
+  }
+
   payload.callback?.(true)
   return normalizedPath
 }
