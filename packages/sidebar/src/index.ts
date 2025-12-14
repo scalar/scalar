@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: It's a library entrypoint */
 import './style.css'
 
 export { default as HttpMethod } from './components/HttpMethod.vue'

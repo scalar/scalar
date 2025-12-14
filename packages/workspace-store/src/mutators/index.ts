@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: Mutators entry point */
 import type { WorkspaceStore } from '@/client'
 import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'

@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
 /** Re-exported here for ease of use but we should use the other ones directly */
 export {
   type Oauth2Flow,
