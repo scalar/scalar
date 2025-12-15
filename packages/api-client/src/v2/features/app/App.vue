@@ -11,6 +11,7 @@ export default {}
 import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getThemeStyles } from '@scalar/themes'
+import { ScalarToasts } from '@scalar/use-toasts'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
@@ -234,6 +235,9 @@ const createWorkspaceModalState = useModal()
     v-if="store !== null && activeWorkspace !== null && !isSyncPathLoading">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
+      <!-- Toasts -->
+      <ScalarToasts />
+
       <!-- Desktop App Tabs -->
       <DesktopTabs
         v-if="layout === 'desktop'"

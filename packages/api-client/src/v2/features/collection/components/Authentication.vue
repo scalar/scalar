@@ -13,10 +13,11 @@ const useDocumentSecurity = computed(
 )
 
 /** Grab the currently selected server for relative auth URIs */
-const server = computed(() =>
-  document?.servers?.find(
-    ({ url }) => url === document?.['x-scalar-selected-server'],
-  ),
+const server = computed(
+  () =>
+    document?.servers?.find(
+      ({ url }) => url === document?.['x-scalar-selected-server'],
+    ) ?? null,
 )
 </script>
 
@@ -52,10 +53,11 @@ const server = computed(() =>
         :eventBus="eventBus"
         isStatic
         :meta="{ type: 'document' }"
+        :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
         :security="document?.security ?? []"
         :securitySchemes="document?.components?.securitySchemes ?? {}"
         :selectedSecurity="document?.['x-scalar-selected-security']"
-        :server="server"
+        :server
         title="Authentication" />
     </div>
   </div>

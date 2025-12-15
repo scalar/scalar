@@ -1,7 +1,7 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
@@ -24,7 +24,10 @@ const defaultProps = {
     variables: [],
     description: 'Test Environment',
   },
-  envVariables: [],
+  authMeta: { type: 'document' as const },
+  server: null,
+  proxyUrl: '',
+  plugins: [],
   eventBus: createWorkspaceEventBus(),
 }
 
@@ -286,6 +289,9 @@ describe('RequestBlock', () => {
     const body = wrapper.findComponent(RequestBody)
     expect(body.exists()).toBe(true)
 
+    // Reset the mock to clear the initial contentType emission from the watcher
+    fn.mockReset()
+
     const contentTypePayload = { value: 'application/json' }
     body.vm.$emit('update:contentType', contentTypePayload)
     expect(fn).toHaveBeenCalledTimes(1)
@@ -338,13 +344,15 @@ describe('RequestBlock', () => {
         plugins: [
           {
             components: {
-              request: defineComponent({
-                props: {
-                  operation: { type: Object, required: true },
-                  selectedExample: { type: String, required: false },
-                },
-                template: '<div>Plugin Request Component</div>',
-              }),
+              request: markRaw(
+                defineComponent({
+                  props: {
+                    operation: { type: Object, required: true },
+                    selectedExample: { type: String, required: false },
+                  },
+                  template: '<div>Plugin Request Component</div>',
+                }),
+              ),
             },
           },
         ],

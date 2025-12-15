@@ -22,7 +22,7 @@ import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vu
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { ClientPlugin } from '@/v2/plugins'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
   | 'All'
@@ -43,6 +43,7 @@ const {
   security,
   eventBus,
   environment,
+  proxyUrl,
   server,
   selectedSecurity,
   plugins,
@@ -51,14 +52,15 @@ const {
   method: HttpMethod
   path: string
   operation: OperationObject
-  authMeta?: AuthMeta
+  authMeta: AuthMeta
   exampleKey: string
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   security: OpenApiDocument['security']
-  server?: ServerObject
+  server: ServerObject | null
   layout: ClientLayout
-  plugins?: ClientPlugin[]
+  proxyUrl: string
+  plugins: ClientPlugin[]
   eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
 }>()
@@ -296,6 +298,7 @@ const labelRequestNameId = useId()
         :environment
         :eventBus
         :meta="authMeta"
+        :proxyUrl
         :security
         :securitySchemes
         :selectedSecurity

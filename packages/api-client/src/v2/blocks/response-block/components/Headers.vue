@@ -61,8 +61,8 @@ const findHeaderInfo = (name: string) => {
     <!-- Empty state -->
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-12 items-center justify-center rounded border px-4 text-base">
-      No Headers
+      class="text-c-3 bg-b-1 flex min-h-[64px] items-center justify-center border-t px-4 text-sm">
+      No headers
     </div>
   </CollapsibleSection>
 </template>

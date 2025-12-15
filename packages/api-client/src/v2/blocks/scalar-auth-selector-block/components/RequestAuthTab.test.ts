@@ -45,6 +45,7 @@ describe('RequestAuthTab', () => {
     return mount(RequestAuthTab, {
       attachTo: document.body,
       props: {
+        proxyUrl: '',
         environment: custom.environment ?? baseEnvironment,
         isStatic: custom.isStatic ?? true,
         selectedSecuritySchemas,
