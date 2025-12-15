@@ -451,7 +451,7 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Bi-directional Git Sync</div>
+              <div class="pricing-table-column">Git Integration</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
