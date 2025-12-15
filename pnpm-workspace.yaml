@@ -66,7 +66,7 @@ catalogs:
     jsdom: 26.1.0
     microdiff: ^1.5.0
     nanoid: 5.1.5
-    next: ^16.0.10
+    next: ^15.2.8
     picomatch: ^4.0.2
     postcss: ^8.4.38
     react-dom: ^19.1.0

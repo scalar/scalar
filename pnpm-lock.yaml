@@ -124,7 +124,7 @@ catalogs:
       specifier: 5.1.5
       version: 5.1.5
     next:
-      specifier: ^15.5.7
+      specifier: ^15.2.8
       version: 15.5.7
     picomatch:
       specifier: ^4.0.2
@@ -14234,6 +14234,7 @@ packages:
   next@15.5.7:
     resolution: {integrity: sha512-+t2/0jIJ48kUpGKkdlhgkv+zPTEOoXyr60qXe68eB/pl3CMJaLeIGjzp5D6Oqt25hCBiBTt8wEeeAzfJvUKnPQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/security-update-2025-12-11 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
