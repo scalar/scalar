@@ -24,6 +24,7 @@ import {
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
+import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
 
@@ -38,7 +39,6 @@ const {
   server,
   servers,
   environment,
-  percentage = 100,
 } = defineProps<{
   /** Current request path */
   path: string
@@ -52,8 +52,6 @@ const {
   history: History[]
   /** Client layout */
   layout: ClientLayout
-  /** The amount remaining to load from 100 -> 0 */
-  percentage?: number
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Environment */
@@ -67,11 +65,12 @@ const emit = defineEmits<{
 }>()
 
 const id = useId()
+const { percentage, startLoading, stopLoading } = useLoadingAnimation()
 
 /** Calculate the style for the address bar */
 const style = computed(() => ({
   backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
-  transform: `translate3d(-${percentage}%,0,0)`,
+  transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 
 const pathConflict = ref<string | null>(null)
@@ -130,7 +129,7 @@ const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
 ) => {
-  // If it already has focus we just propagate native behaviour which should focus the browser address bar
+  // If it already has focus we just propagate native behavior which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
@@ -142,11 +141,19 @@ const handleFocusAddressBar = (
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
+  eventBus.on('hooks:on:request:sent', startLoading)
+  eventBus.on('hooks:on:request:complete', stopLoading)
 })
 
 onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
+  eventBus.off('hooks:on:request:sent', startLoading)
+  eventBus.off('hooks:on:request:complete', stopLoading)
+
+  // Stop the animation when the component is unmounted
+  // This is to prevent the animation from continuing after the component is unmounted
+  stopLoading()
 })
 
 defineExpose({

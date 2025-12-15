@@ -1,4 +1,5 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
+import type { HooksEvents } from '@/events/definitions/hooks'
 import type { TabEvents } from '@/events/definitions/tabs'
 import type { TagEvents } from '@/events/definitions/tag'
 import type { WorkspaceEvents } from '@/events/definitions/workspace'
@@ -23,7 +24,8 @@ export type ApiReferenceEvents = AuthEvents &
   ServerEvents &
   TabEvents &
   UIEvents &
-  TagEvents
+  TagEvents &
+  HooksEvents
 
 export type { CollectionType } from './common'
 export type { CommandPaletteAction } from './ui'
