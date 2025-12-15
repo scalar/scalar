@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO remove this when we come back to this file
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Expression,
@@ -113,7 +111,7 @@ export const generateResponses = (node: Node | undefined, typeChecker: TypeCheck
       const [payload, options] = statement.expression.arguments
 
       // Grab payload and options schemas
-      const schema = getSchemaFromNode(payload, typeChecker)
+      const schema = getSchemaFromNode(payload!, typeChecker)
       const optionsSchema = options ? getSchemaFromNode(options, typeChecker) : null
       const status = (optionsSchema?.properties?.status as OpenAPIV3_1.SchemaObject)?.example ?? 200
 

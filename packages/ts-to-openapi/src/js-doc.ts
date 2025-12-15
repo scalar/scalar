@@ -7,7 +7,7 @@ import type { JSDoc, Node } from 'typescript'
  * - figure out how to narrow type using helpers
  * - return all tags
  */
-export const getJSDocFromNode = (node: Node) => {
+export const getJSDocFromNode = (node: Node): { title: string; description: string } => {
   // Set default values
   let title = 'use to set the summary'
   let description = 'use jsdoc tag to set the description'

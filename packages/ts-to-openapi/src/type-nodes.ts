@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO remove this when we come back to this file
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Program,
@@ -219,7 +217,7 @@ export const getSchemaFromTypeNode = (
       return {
         type: 'array',
         items: typeNode.typeArguments?.length
-          ? getSchemaFromTypeNode(typeNode.typeArguments?.[0], program, fileNameResolver)
+          ? getSchemaFromTypeNode(typeNode.typeArguments[0]!, program, fileNameResolver)
           : {},
       }
     }

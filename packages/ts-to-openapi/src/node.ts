@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO remove this when we come back to this file
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Node,
@@ -23,7 +21,7 @@ import {
 } from 'typescript'
 
 /** Add a sign to negative numbers */
-const signNumber = (operator: PrefixUnaryOperator, operand: UnaryExpression) =>
+const signNumber = (operator: PrefixUnaryOperator, operand: UnaryExpression): number | UnaryExpression =>
   operator === SyntaxKind.MinusToken && isNumericLiteral(operand) ? -1 * Number(operand.text) : operand
 
 /**
@@ -110,7 +108,7 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
       type: 'array',
       example: node.elements.map((elem) => getSchemaFromNode(elem, typeChecker).example),
       // Not sure how the spec handles mixed arrays
-      items: node.elements.map((element) => getSchemaFromNode(element, typeChecker))[0],
+      items: node.elements.map((element) => getSchemaFromNode(element, typeChecker))[0]!,
     }
   }
   // Property assignment
@@ -136,7 +134,7 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
     if (isIdentifier(node.expression) && node.expression.escapedText === 'BigInt') {
       return {
         type: 'integer',
-        example: node.arguments[0].getText() + 'n',
+        example: node.arguments[0]!.getText() + 'n',
       }
     }
   }

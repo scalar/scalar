@@ -3,7 +3,7 @@ import type { ExternalType } from './more-testing-types'
 const num = 20
 
 /**
- * Encompases anything we may see as both input/output data for an API call
+ * Encompasses anything we may see as both input/output data for an API call
  *
  * But we shall also test the jsDoc capabilities and see what comes of this
  *
@@ -74,7 +74,7 @@ export type SuperDataType = {
   unionNumericLiteral: 1 | 2 | 3
   unionBoolean: true | false
   unionMixed: string | number | boolean
-  inersection: string & number
+  intersection: string & number
   optional: { a: number; b?: string }
   deep: { a: { b: { c: number } } }
   unionMixedObject: string | { [key: string]: any }

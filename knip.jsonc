@@ -16,7 +16,6 @@
     "packages/pre-post-request-scripts/**",
     "packages/react-renderer/**",
     "packages/sidebar/**",
-    "packages/ts-to-openapi/**",
     "packages/void-server/**",
     "projects/**",
     "integrations/docker/**",
@@ -30,8 +29,7 @@
     "integrations/nextjs/**",
     "integrations/nuxt/**",
     "integrations/rust/**",
-    "integrations/sveltekit/**",
-    "tooling/changelog-generator/**"
+    "integrations/sveltekit/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -46,6 +44,7 @@
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
+    // Used by `.changeset/config.json`
     "@scalar-internal/changelog-generator",
 
     // Required on root to have proper format with prettier
@@ -125,6 +124,10 @@
     },
     "packages/snippetz": {
       "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
+    },
+    "packages/ts-to-openapi": {
+      "entry": ["src/index.ts"],
+      "ignoreFiles": ["test/fixtures/*"]
     },
     "packages/types": {
       "entry": [
