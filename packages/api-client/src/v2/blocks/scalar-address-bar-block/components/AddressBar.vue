@@ -70,7 +70,7 @@ const { percentage, startLoading, stopLoading } = useLoadingAnimation()
 /** Calculate the style for the address bar */
 const style = computed(() => ({
   backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
-  transform: `translate3d(-${percentage.value ?? 0}%,0,0)`,
+  transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 
 const pathConflict = ref<string | null>(null)
