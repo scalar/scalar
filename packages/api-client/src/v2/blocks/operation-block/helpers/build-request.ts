@@ -126,6 +126,7 @@ export const buildRequest = ({
       paramCookies: [...params.cookies, ...security.cookies],
       globalCookies,
       env,
+      path: processedPath,
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
       url: serverUrl || path,
       useCustomCookieHeader: isElectron() || isUsingProxy,

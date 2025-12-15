@@ -78,15 +78,6 @@ const {
   servers: ServerObject[]
   /** List of request history */
   history: History[]
-  /** Preprocessed response */
-  response?: ResponseInstance
-  /**
-   * When the request is sent from the modal, this indicates the progress percentage
-   * of the request being sent.
-   *
-   * The amount remaining to load from 100 -> 0
-   */
-  requestLoadingPercentage?: number
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Hides the client button on the header */
