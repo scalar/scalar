@@ -43,7 +43,14 @@ export const mergeObjects = <R>(
       const aValue = a[key]
       const bValue = b[key]
 
-      if (typeof aValue === 'object' && aValue !== null && typeof bValue === 'object' && bValue !== null) {
+      if (
+        typeof aValue === 'object' &&
+        aValue !== null &&
+        !Array.isArray(aValue) &&
+        typeof bValue === 'object' &&
+        bValue !== null &&
+        !Array.isArray(bValue)
+      ) {
         const rawA = getRaw(aValue as UnknownObject)
         const rawB = getRaw(bValue as UnknownObject)
 

@@ -134,4 +134,18 @@ describe('mergeObjects', () => {
       b: 2,
     })
   })
+
+  it('should deeply merge the objects with the correct value for the array', () => {
+    const a = {
+      arr: [1, 2, 3],
+    }
+
+    const b = {
+      arr: [],
+    }
+
+    expect(mergeObjects(a, b)).toEqual({
+      arr: [],
+    })
+  })
 })
