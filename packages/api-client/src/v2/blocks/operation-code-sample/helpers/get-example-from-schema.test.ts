@@ -890,6 +890,46 @@ describe('getExampleFromSchema', () => {
     ).toBe(null)
   })
 
+  it('handles boolean true schema in oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [true],
+      } as SchemaObject),
+    ).toStrictEqual({})
+  })
+
+  it('handles boolean true schema in anyOf', () => {
+    expect(
+      getExampleFromSchema({
+        anyOf: [true],
+      } as SchemaObject),
+    ).toStrictEqual({})
+  })
+
+  it('handles boolean false schema in oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [false],
+      } as SchemaObject),
+    ).toBe(null)
+  })
+
+  it('prefers boolean true over other schemas in oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [true, { type: 'string' }],
+      } as SchemaObject),
+    ).toStrictEqual({})
+  })
+
+  it('skips boolean false and uses next schema in oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [false, { type: 'string' }],
+      } as SchemaObject),
+    ).toBe('')
+  })
+
   it('works with allOf', () => {
     expect(
       getExampleFromSchema(
