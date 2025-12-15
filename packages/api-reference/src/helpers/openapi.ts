@@ -1,15 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { isDereferenced } from '@scalar/openapi-types/helpers'
+import { isDereferenced, isSchemaObject } from '@scalar/openapi-types/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-/**
- * Type guard to check if a SchemaObject is an object (not a boolean).
- * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
- */
-const isSchemaObject = (schema: OpenAPIV3_1.SchemaObject): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
-  return typeof schema === 'object' && schema !== null
-}
 
 /**
  * Formats a property object into a string.

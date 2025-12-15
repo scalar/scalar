@@ -349,14 +349,17 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'multipleOf',
   ]
 
-  return schemaProperties.reduce((acc, property) => {
-    if (Object.hasOwn(obj, property)) {
-      acc[property] = obj[property]
-      delete obj[property]
-    }
+  return schemaProperties.reduce(
+    (acc, property) => {
+      if (Object.hasOwn(obj, property)) {
+        acc[property] = obj[property]
+        delete obj[property]
+      }
 
-    return acc
-  }, {} as OpenAPIV3.SchemaObject)
+      return acc
+    },
+    {} as Record<string, unknown>,
+  ) as OpenAPIV3.SchemaObject
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {

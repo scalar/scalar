@@ -9,19 +9,17 @@
 
 /** any other attribute, for example x-* extensions */
 type AnyOtherAttribute = {
-  /** OpenAPI extension */
-  [customExtension: `x-${string}`]: any
   /** Unknown attribute */
   [key: string]: any
+} & SpecificationExtension
+
+type SpecificationExtension = {
+  /** OpenAPI Specification Extension */
+  [customExtension: `x-${string}`]: any
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
 export namespace OpenAPI {
-  // OpenAPI extensions can be declared using generics
-  // e.g.:
-  // OpenAPI.Document<{
-  //   'x-foobar': Foobar
-  // }>
   export type Document<T extends AnyOtherAttribute = {}> =
     | OpenAPIV2.Document<T>
     | OpenAPIV3.Document<T>
@@ -206,7 +204,8 @@ export namespace OpenAPIV3_2 {
       discriminator?: DiscriminatorObject
       xml?: XMLObject
     }
-  >
+  > &
+    SpecificationExtension
 
   export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & {
     defaultMapping?: string
@@ -492,7 +491,8 @@ export namespace OpenAPIV3_1 {
       xml?: XMLObject
       const?: any
     }
-  >
+  > &
+    SpecificationExtension
 
   export type DiscriminatorObject = OpenAPIV3.DiscriminatorObject
 
@@ -704,7 +704,7 @@ export namespace OpenAPIV3 {
   }
   export type NonArraySchemaObjectType = 'boolean' | 'object' | 'number' | 'string' | 'integer'
   export type ArraySchemaObjectType = 'array'
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject) & AnyOtherAttribute
+  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject) & SpecificationExtension
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType

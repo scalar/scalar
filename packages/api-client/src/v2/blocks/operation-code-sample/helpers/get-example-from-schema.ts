@@ -9,7 +9,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
  * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
  * At runtime, getResolvedRef may return boolean values even if TypeScript types don't reflect this.
  */
-const isSchemaObject = (schema: SchemaObject | boolean): schema is SchemaObject => {
+const isSchemaObject = (schema: SchemaObject): schema is Exclude<SchemaObject, boolean> => {
   return typeof schema === 'object' && schema !== null
 }
 

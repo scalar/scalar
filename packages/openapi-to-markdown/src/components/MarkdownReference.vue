@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isSchemaObject } from '@scalar/openapi-types/helpers'
 
 // import { snippetz, type HarRequest } from '@scalar/snippetz'
 
@@ -11,16 +12,6 @@ import XmlOrJson from './XmlOrJson.vue'
 const { content } = defineProps<{
   content: OpenAPIV3_1.Document
 }>()
-
-/**
- * Type guard to check if a SchemaObject is an object (not a boolean).
- * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
- */
-const isSchemaObject = (
-  schema: OpenAPIV3_1.SchemaObject,
-): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
-  return typeof schema === 'object' && schema !== null
-}
 
 // const getRequestExample = (harRequest: Partial<HarRequest>) => {
 //   const snippet = snippetz().print('shell', 'curl', {

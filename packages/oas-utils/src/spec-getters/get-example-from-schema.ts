@@ -1,16 +1,9 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isSchemaObject } from '@scalar/openapi-types/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
-
-/**
- * Type guard to check if a SchemaObject is an object (not a boolean).
- * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
- */
-const isSchemaObject = (schema: OpenAPIV3_1.SchemaObject): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
-  return typeof schema === 'object' && schema !== null
-}
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -274,7 +267,7 @@ const handleObjectSchema = (
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
     const additionalName =
-      typeof additional === 'object' &&
+      isSchemaObject(additional) &&
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0

@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isSchemaObject } from '@scalar/openapi-types/helpers'
 import { computed } from 'vue'
 
 const props = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
 }>()
-
-/**
- * Type guard to check if a SchemaObject is an object (not a boolean).
- * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
- */
-const isSchemaObject = (
-  schema: OpenAPIV3_1.SchemaObject,
-): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
-  return typeof schema === 'object' && schema !== null
-}
 
 /**
  * Computed property that returns the schema if it's an object, or null otherwise.

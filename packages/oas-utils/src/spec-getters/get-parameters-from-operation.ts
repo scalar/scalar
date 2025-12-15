@@ -1,4 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isSchemaObject } from '@scalar/openapi-types/helpers'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 import type { Operation } from '@/entities/spec'
 import { getExampleFromSchema } from './get-example-from-schema'
@@ -30,7 +32,10 @@ export function getParametersFromOperation(
       value: parameter.example
         ? parameter.example
         : parameter.schema
-          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
+          ? (() => {
+              const resolved = getResolvedRef(parameter.schema)
+              return isSchemaObject(resolved) ? getExampleFromSchema(resolved, { mode: 'write' }) : ''
+            })()
           : '',
       required: parameter.required ?? false,
       enabled: parameter.required ?? false,
