@@ -9,18 +9,18 @@ export type OperationCodeSampleProps = {
    *
    * @defaults to shell/curl or a custom sample if one is available
    */
-  selectedClient?: AvailableClients[number]
+  selectedClient: AvailableClients[number]
   /**
    * Which server from the spec to use for the code example
    */
-  selectedServer?: ServerObject | undefined
+  selectedServer: ServerObject | null
   /**
    * The selected content type from the requestBody.content, this will determine which examples are available
    * as well as the content type of the code example
    *
    * @defaults to the first content type if not provided
    */
-  selectedContentType?: string
+  selectedContentType: string
   /**
    * Example name to use for resolving example values for parameters AND requestBody
    *
@@ -49,11 +49,11 @@ export type OperationCodeSampleProps = {
    *
    * ```
    */
-  selectedExample?: string
+  selectedExample: string
   /**
    * The security schemes which are applicable to this operation
    */
-  securitySchemes?: SecuritySchemeObject[]
+  securitySchemes: SecuritySchemeObject[]
   /**
    * HTTP method of the operation
    */
@@ -161,7 +161,7 @@ const requestBodyExamples = computed(() => {
 
 /** The currently selected example key */
 const selectedExampleKey = ref<string>(
-  selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? '',
+  selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? 'default',
 )
 
 /** Grab any custom code samples from the operation */

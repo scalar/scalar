@@ -20,6 +20,7 @@ export default {
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -29,6 +30,7 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { Config } from '@scalar/workspace-store/schemas/workspace-specification/config'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
@@ -49,6 +51,7 @@ const {
   authMeta,
   environment,
   eventBus,
+  config,
   exampleKey,
   globalCookies = [],
   method,
@@ -57,9 +60,11 @@ const {
   plugins = [],
   proxyUrl,
   securitySchemes,
+  selectedClient,
   selectedSecurity,
   server,
 } = defineProps<{
+  config: Config
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Application version */
@@ -74,6 +79,8 @@ const {
   layout: ClientLayout
   /** Currently selected server */
   server: ServerObject | null
+  /** Currently selected client */
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
   /** List of request history */
@@ -112,6 +119,8 @@ const emit = defineEmits<{
   /** Route to the appropriate server page */
   (e: 'update:servers'): void
 }>()
+
+console.log('config', config)
 
 const { toast } = useToasts()
 
@@ -228,6 +237,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :proxyUrl
           :security
           :securitySchemes
+          :selectedClient
           :selectedSecurity
           :server />
 

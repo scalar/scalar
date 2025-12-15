@@ -3,6 +3,8 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
@@ -18,6 +20,7 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
+import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
@@ -34,35 +37,37 @@ type Filter =
   | 'Body'
 
 const {
-  operation,
-  method,
-  layout,
-  securitySchemes,
-  path,
-  exampleKey,
-  security,
-  eventBus,
-  environment,
-  proxyUrl,
-  server,
-  selectedSecurity,
-  plugins,
   authMeta = { type: 'document' },
+  environment,
+  eventBus,
+  exampleKey,
+  layout,
+  method,
+  operation,
+  path,
+  plugins,
+  proxyUrl,
+  security,
+  securitySchemes,
+  selectedClient,
+  selectedSecurity,
+  server,
 } = defineProps<{
-  method: HttpMethod
-  path: string
-  operation: OperationObject
   authMeta: AuthMeta
-  exampleKey: string
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
-  security: OpenApiDocument['security']
-  server: ServerObject | null
-  layout: ClientLayout
-  proxyUrl: string
-  plugins: ClientPlugin[]
-  eventBus: WorkspaceEventBus
   environment: XScalarEnvironment
+  eventBus: WorkspaceEventBus
+  exampleKey: string
+  layout: ClientLayout
+  method: HttpMethod
+  operation: OperationObject
+  path: string
+  plugins: ClientPlugin[]
+  proxyUrl: string
+  security: OpenApiDocument['security']
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  server: ServerObject | null
 }>()
 
 /** Operation metadata used across event emissions */
@@ -371,6 +376,20 @@ const labelRequestNameId = useId()
           :operation
           :selectedExample="exampleKey" />
       </ScalarErrorBoundary>
+
+      <!-- Spacer -->
+      <div class="flex flex-grow" />
+
+      <!-- Code Snippet -->
+      <RequestCodeSnippet
+        v-show="selectedFilter === 'All'"
+        :hiddenClients
+        :method
+        :operation
+        :path
+        :securitySchemes
+        :selectedClient
+        :selectedServer="server" />
     </div>
   </ViewLayoutSection>
 </template>

@@ -132,6 +132,7 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :config="workspaceStore.config"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
@@ -146,6 +147,7 @@ const router = useRouter()
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
+      :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :selectedSecurity
       :server="selectedServer"
       :servers="document?.servers ?? []"
