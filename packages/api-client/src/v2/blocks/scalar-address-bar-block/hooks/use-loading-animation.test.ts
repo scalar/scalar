@@ -169,6 +169,49 @@ describe('useLoadingAnimation', () => {
     expect(midCyclePercentage).toBeLessThan(100)
   })
 
+  it('handles startLoading called during finishing animation', () => {
+    const { startLoading, stopLoading, percentage } = useLoadingAnimation()
+
+    // Start first request
+    startLoading()
+    vi.advanceTimersByTime(100)
+
+    // Stop first request, starting the finishing animation
+    stopLoading()
+    const percentageWhenStopped = percentage.value
+
+    // Advance partway through the finishing animation
+    vi.advanceTimersByTime(100)
+
+    // Percentage should decrease during finishing animation
+    expect(percentage.value).toBeLessThan(percentageWhenStopped)
+    const percentageDuringFinishing = percentage.value
+
+    // Start a new request while finishing animation is still running
+    startLoading()
+
+    // Advance time - animation should continue but switch back to asymptotic mode
+    vi.advanceTimersByTime(100)
+
+    // Percentage should still be decreasing
+    expect(percentage.value).toBeLessThan(percentageDuringFinishing)
+
+    // Advance a lot of time without calling stopLoading
+    // The animation should not complete (asymptotic mode stops near 15%)
+    vi.advanceTimersByTime(10000)
+
+    // Animation should not have completed, staying above asymptotic limit
+    expect(percentage.value).toBeGreaterThan(14)
+    expect(percentage.value).toBeLessThan(100)
+
+    // Now stop the second request
+    stopLoading()
+    vi.advanceTimersByTime(500)
+
+    // Now it should complete
+    expect(percentage.value).toBe(100)
+  })
+
   it('handles stopLoading called multiple times', () => {
     const { startLoading, stopLoading, percentage } = useLoadingAnimation()
 

@@ -72,10 +72,14 @@ export const useLoadingAnimation = (): {
 
   /**
    * Starts the loading animation.
-   * Does nothing if the animation is already running to prevent multiple intervals.
+   * If called while the finishing animation is running, it switches back to requesting mode.
+   * This handles the case where a new request starts before the previous animation completes.
    */
   const startLoading = (): void => {
     if (interval.value) {
+      // Switch back to requesting mode if we are in finishing mode.
+      // This prevents the animation from completing while a new request is active.
+      isRequesting.value = true
       return
     }
     isRequesting.value = true

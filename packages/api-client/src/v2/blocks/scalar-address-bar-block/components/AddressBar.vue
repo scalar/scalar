@@ -129,7 +129,7 @@ const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
 ) => {
-  // If it already has focus we just propagate native behaviour which should focus the browser address bar
+  // If it already has focus we just propagate native behavior which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
@@ -150,6 +150,10 @@ onBeforeUnmount(() => {
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
   eventBus.off('hooks:on:request:sent', startLoading)
   eventBus.off('hooks:on:request:complete', stopLoading)
+
+  // Stop the animation when the component is unmounted
+  // This is to prevent the animation from continuing after the component is unmounted
+  stopLoading()
 })
 
 defineExpose({
