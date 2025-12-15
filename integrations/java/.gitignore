@@ -3,3 +3,4 @@ target/
 scalar.js
 
 .idea/
+.flattened-pom.xml
