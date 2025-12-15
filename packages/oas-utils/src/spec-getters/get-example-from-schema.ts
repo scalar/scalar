@@ -631,7 +631,13 @@ export const getExampleFromSchema = (
     // Find the first non-null type without allocating intermediate arrays
     for (const item of discriminate) {
       const resolved = getResolvedRef(item)
-      if (resolved && isSchemaObject(resolved) && (!('type' in resolved) || resolved.type !== 'null')) {
+      // Allow boolean schemas (true/false)
+      // For object schemas, skip null types
+      if (
+        resolved &&
+        (typeof resolved === 'boolean' ||
+          (isSchemaObject(resolved) && (!('type' in resolved) || resolved.type !== 'null')))
+      ) {
         seen.delete(targetValue)
         return cache(
           _schema,
