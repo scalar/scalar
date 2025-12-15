@@ -107,7 +107,7 @@ const sortProperties = (
             <li>
               <strong>
                 <code>{{ propName }}</code>
-                <span v-if="schemaObject.required?.includes(propName)">
+                <span v-if="schemaObject.required?.includes(String(propName))">
                   (required)
                 </span>
               </strong>
