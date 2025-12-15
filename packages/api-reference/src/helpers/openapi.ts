@@ -1,19 +1,33 @@
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+/**
+ * Type guard to check if a SchemaObject is an object (not a boolean).
+ * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
+ */
+const isSchemaObject = (schema: OpenAPIV3_1.SchemaObject): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
+  return typeof schema === 'object' && schema !== null
+}
 
 /**
  * Formats a property object into a string.
  */
 export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
   let output = key
+
+  // Check if obj is a schema object (not a boolean)
+  if (!isSchemaObject(obj)) {
+    return output + ' optional '
+  }
+
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
   const property = getResolvedRef(obj.properties?.[key])
 
-  // Check existence before accessing
-  if (property) {
+  // Check existence and if it's a schema object before accessing
+  if (property && isSchemaObject(property)) {
     output += property.type
     if (property.description) {
       output += ' ' + property.description
@@ -30,7 +44,12 @@ function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
   const results: string[] = ['Body']
   const schema = getResolvedRef(obj?.schema)
 
-  const properties = schema?.properties
+  // Check if schema exists and is a schema object (not a boolean)
+  if (!schema || !isSchemaObject(schema)) {
+    return results
+  }
+
+  const properties = schema.properties
   if (properties) {
     Object.keys(properties).forEach((key) => {
       if (!obj.schema) {
@@ -40,11 +59,17 @@ function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
       results.push(formatProperty(key, schema))
 
       const property = getResolvedRef(properties[key])
-      const isNestedObject = property.type === 'object' && Boolean(property.properties)
-      if (isNestedObject && property.properties) {
-        Object.keys(property.properties).forEach((subKey) => {
-          results.push(`${subKey} ${getResolvedRef(property.properties?.[subKey])?.type}`)
-        })
+      // Check if property exists and is a schema object before accessing its properties
+      if (property && isSchemaObject(property)) {
+        const isNestedObject = property.type === 'object' && Boolean(property.properties)
+        if (isNestedObject && property.properties) {
+          Object.keys(property.properties).forEach((subKey) => {
+            const subProperty = getResolvedRef(property.properties?.[subKey])
+            if (subProperty && isSchemaObject(subProperty)) {
+              results.push(`${subKey} ${subProperty.type}`)
+            }
+          })
+        }
       }
     })
   }
@@ -83,30 +108,6 @@ export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
   }
 
   return target
-}
-
-/**
- * Creates an empty specification object.
- * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
- */
-export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.Document>) {
-  return deepMerge(partialSpecification ?? {}, {
-    info: {
-      title: '',
-      description: '',
-      termsOfService: '',
-      version: '',
-      license: {
-        name: '',
-        url: '',
-      },
-      contact: {
-        email: '',
-      },
-    },
-    servers: [],
-    tags: [],
-  }) as OpenAPI.Document
 }
 
 export type ParameterMap = {
