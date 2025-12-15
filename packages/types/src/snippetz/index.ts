@@ -1,7 +1,6 @@
 export type {
   AvailableClient,
   AvailableClients,
-  AvailableClientsArray,
   ClientId,
   FormDataParam,
   HarRequest,
@@ -11,4 +10,4 @@ export type {
   Target,
   TargetId,
 } from './snippetz'
-export { AVAILABLE_CLIENTS } from './snippetz'
+export { AVAILABLE_CLIENTS, GROUPED_CLIENTS } from './snippetz'

@@ -1,3 +1,4 @@
+import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { DocumentConfiguration } from '@scalar/workspace-store/schemas/workspace-specification/config'
 
@@ -35,6 +36,7 @@ export const mapConfiguration = (config: Partial<ApiReferenceConfiguration>) => 
         loadDefaultFonts: config.withDefaultFonts,
         theme: config.theme,
       },
+      httpClients: generateClientOptions(config.hiddenClients),
       routing: {
         // Routing configuration
         basePath: config.pathRouting?.basePath,

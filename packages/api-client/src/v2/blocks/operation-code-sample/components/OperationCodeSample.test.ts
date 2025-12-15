@@ -1,5 +1,4 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { AvailableClients } from '@scalar/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,

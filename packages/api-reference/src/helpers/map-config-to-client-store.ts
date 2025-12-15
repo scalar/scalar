@@ -92,6 +92,7 @@ export function mapConfigToClientStore({
       }
 
       const clientConfig = toValue(config)
+      console.log('clientConfig', clientConfig)
 
       /** Initialize the client */
       const mount = createApiClientModal({
