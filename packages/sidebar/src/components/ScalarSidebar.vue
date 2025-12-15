@@ -84,6 +84,8 @@ defineSlots<{
   footer?(): unknown
   /** Places content before the first item in the items list */
   before?(): unknown
+  /** Places content when an item is empty */
+  empty?(props: { item: Item }): unknown
 }>()
 
 /**
@@ -124,6 +126,11 @@ const handleDragEnd = (
           <template #decorator="props">
             <slot
               name="decorator"
+              v-bind="props" />
+          </template>
+          <template #empty="props">
+            <slot
+              name="empty"
               v-bind="props" />
           </template>
         </SidebarItem>

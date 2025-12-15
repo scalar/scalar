@@ -10,6 +10,8 @@ import { LibraryIcon } from '@scalar/icons/library'
 
 import SidebarItemDecorator from '@/components/SidebarItemDecorator.vue'
 import { filterItems } from '@/helpers/filter-items'
+import { hasChildren } from '@/helpers/has-children'
+import { isSidebarFolder } from '@/helpers/is-sidebar-folder'
 import {
   useDraggable,
   type DraggingItem,
@@ -82,17 +84,12 @@ const slots = defineSlots<{
    * The slot receives an object with the current item.
    */
   decorator?(props: { item: Item }): unknown
+  /**
+   * Adds an optional empty state for an item.
+   * The slot receives an object with the current item.
+   */
+  empty?(props: { item: Item }): unknown
 }>()
-
-const hasChildren = (
-  currentItem: Item,
-): currentItem is Item & { children: Item[] } => {
-  return (
-    'children' in currentItem &&
-    Array.isArray(currentItem.children) &&
-    currentItem.children.length > 0
-  )
-}
 
 const isGroup = (
   currentItem: Item,
@@ -114,6 +111,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
 })
 </script>
 <template>
+  <!-- Sidebar section -->
   <ScalarSidebarSection
     v-if="hasChildren(item) && isGroup(item)"
     v-bind="draggableAttrs"
@@ -137,19 +135,21 @@ const { draggableAttrs, draggableEvents } = useDraggable({
             v-bind="slotProps"
             name="decorator" />
         </template>
+        <template #empty="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="empty" />
+        </template>
       </SidebarItem>
     </template>
   </ScalarSidebarSection>
+
+  <!-- Sidebar group (folder) -->
   <ScalarSidebarGroup
-    v-else-if="
-      hasChildren(item) &&
-      ((layout === 'reference' &&
-        !(item.type === 'operation' || item.type === 'webhook')) ||
-        layout === 'client')
-    "
+    v-else-if="isSidebarFolder(layout, item, slots.empty !== undefined)"
     :active="isSelected(item.id)"
-    controlled
     class="relative"
+    controlled
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
@@ -161,7 +161,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         class="text-c-3 block group-hover/group-button:hidden"
         :src="item.icon ?? 'interface-content-folder'" />
       <ScalarSidebarGroupToggle
-        class="text-c-3 hidden group-hover/group-button:block"
+        class="text-c-3 hidden group-hover/group-button:flex"
         :open="open" />
     </template>
     {{ item.title }}
@@ -186,7 +186,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     <template #items>
       <SidebarItem
-        v-for="child in filterItems(layout, item.children)"
+        v-for="child in filterItems(layout, item.children ?? [])"
         :key="child.id"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
@@ -203,9 +203,21 @@ const { draggableAttrs, draggableEvents } = useDraggable({
             v-bind="slotProps"
             name="decorator" />
         </template>
+        <template #empty="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="empty" />
+        </template>
       </SidebarItem>
+      <template v-if="slots.empty && (item.children?.length ?? 0) === 0">
+        <slot
+          :item
+          name="empty" />
+      </template>
     </template>
   </ScalarSidebarGroup>
+
+  <!-- Sidebar item (leaf node) -->
   <ScalarSidebarItem
     is="button"
     v-else
@@ -223,8 +235,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       <ScalarWrappingText
         :text="
           options?.operationTitleSource === 'path' && 'path' in item
-            ? item.path
-            : item.title
+            ? (item.path as string)
+            : (item.title as string)
         " />
     </template>
     <template
