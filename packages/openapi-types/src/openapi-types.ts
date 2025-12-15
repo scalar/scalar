@@ -17,7 +17,7 @@ type AnyOtherAttribute = {
  * OpenAPI Specification Extension
  **/
 type SpecificationExtension = {
-  [customExtension: `x-${string}`]: any
+  [customExtension: `x-${string}`]: unknown
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
