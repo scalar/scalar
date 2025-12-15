@@ -1,5 +1,6 @@
-import type { LibraryIconDefinition } from './types'
 import type { Component } from 'vue'
+
+import type { LibraryIconDefinition } from './types'
 
 const iconsImported: Record<string, Component> = import.meta.glob('./icons/*.svg', {
   eager: true,

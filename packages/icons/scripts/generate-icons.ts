@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
 import path from 'node:path'
-import chalk from 'chalk'
 import * as url from 'node:url'
 
 import { icons } from '@phosphor-icons/core'
+import chalk from 'chalk'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 const prefix = 'ScalarIcon'
 
-const ASSETS_PATH = path.join(__dirname, '../../node_modules/@phosphor-icons/core/assets')
-const COMPONENTS_PATH = path.join(__dirname, '../components')
-const INDEX_PATH = path.join(__dirname, '../index.ts')
+const ASSETS_PATH = path.join(__dirname, '../node_modules/@phosphor-icons/core/assets')
+const COMPONENTS_PATH = path.join(__dirname, '../src/components')
+const INDEX_PATH = path.join(__dirname, '../src/index.ts')
 
 if (!fs.existsSync(ASSETS_PATH)) {
   console.error(
@@ -181,7 +181,7 @@ function generateExports(mappings: Record<string, Record<string, string>>) {
   })
 
   const indexString = `/* GENERATED FILE */
-/* eslint-disable import/prefer-default-export */
+/* biome-ignore-all assist/source/organizeImports: generated file */
 
 ${imports.join('\n')}
 

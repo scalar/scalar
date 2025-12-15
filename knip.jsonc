@@ -10,7 +10,6 @@
     "packages/components/**",
     "packages/draggable/**",
     "packages/galaxy/**",
-    "packages/icons/**",
     "packages/nextjs-openapi/**",
     "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
@@ -77,6 +76,9 @@
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
+    },
+    "packages/icons": {
+      "ignoreFiles": ["src/library/.svglintrc.js"]
     },
     "packages/json-magic": {
       "entry": [
