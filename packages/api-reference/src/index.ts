@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 export type { ApiReferenceConfiguration } from '@scalar/types/api-reference'

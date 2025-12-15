@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: re-exports utilities */
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { AnyObject } from '@/types/index'
@@ -9,6 +8,7 @@ import { addMissingTags } from './utils/addMissingTags'
 import { normalizeSecuritySchemes } from './utils/normalizeSecuritySchemes'
 import { rejectSwaggerDocuments } from './utils/rejectSwaggerDocuments'
 
+// biome-ignore lint/performance/noBarrelFile: re-exports utilities
 export { DEFAULT_TITLE } from './utils/addInfoObject'
 export { DEFAULT_OPENAPI_VERSION } from './utils/addLatestOpenApiVersion'
 

@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/performance/noBarrelFile: entrypoint */
 export { XAdditionalPropertiesNameSchema } from './x-additional-properties-name'
 export { type XCodeSample, XCodeSampleSchema, XCodeSamplesSchema } from './x-code-samples'
 export { XEnumDescriptionsSchema } from './x-enum-descriptions'

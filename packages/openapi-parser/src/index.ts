@@ -1,10 +1,15 @@
-/** biome-ignore-all lint/performance/noBarrelFile: entrypoint file */
-/** @deprecated Please import from @scalar/json-magic/helpers/escape-json-pointer instead */
-export { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
-/** @deprecated Please import from @scalar/openapi-upgrader/2.0-to-3.0 instead */
-export { upgradeFromTwoToThree } from '@scalar/openapi-upgrader/2.0-to-3.0'
-/** @deprecated Please import from @scalar/openapi-upgrader/3.0-to-3.1 instead */
-export { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
+export {
+  /** @deprecated Please import from @scalar/json-magic/helpers/escape-json-pointer instead */
+  escapeJsonPointer,
+} from '@scalar/json-magic/helpers/escape-json-pointer'
+export {
+  /** @deprecated Please import from @scalar/openapi-upgrader/2.0-to-3.0 instead */
+  upgradeFromTwoToThree,
+} from '@scalar/openapi-upgrader/2.0-to-3.0'
+export {
+  /** @deprecated Please import from @scalar/openapi-upgrader/3.0-to-3.1 instead */
+  upgradeFromThreeToThreeOne,
+} from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 export type { AnyObject, ErrorObject, Filesystem, LoadResult } from './types'
 export { type DereferenceOptions, dereference } from './utils/dereference'
