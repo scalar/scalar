@@ -144,11 +144,11 @@ const handleExecute = async () => {
     return
   }
 
-  // Store the abort controller and request
+  // Store the abort controller for cancellation
   abortController.value = result.controller
-  request.value = result.request
 
-  // TODO: send start event for animation
+  // Start the animation
+  eventBus.emit('hooks:on:request:sent')
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
@@ -158,7 +158,8 @@ const handleExecute = async () => {
     request: result.request,
   })
 
-  // TODO: send stop event for animation
+  // Stop the animation
+  eventBus.emit('hooks:on:request:complete')
 
   // Toast the execute error
   if (sendError) {
@@ -168,6 +169,7 @@ const handleExecute = async () => {
 
   // Store the response
   response.value = sendResult.response
+  request.value = sendResult.request
 }
 
 onMounted(() => {
