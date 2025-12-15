@@ -1,9 +1,28 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
 }>()
+
+/**
+ * Type guard to check if a SchemaObject is an object (not a boolean).
+ * In OpenAPI 3.1, SchemaObject can be a boolean (true/false) or an object.
+ */
+const isSchemaObject = (
+  schema: OpenAPIV3_1.SchemaObject,
+): schema is Exclude<OpenAPIV3_1.SchemaObject, boolean> => {
+  return typeof schema === 'object' && schema !== null
+}
+
+/**
+ * Computed property that returns the schema if it's an object, or null otherwise.
+ * This ensures type narrowing works properly in the template.
+ */
+const schemaObject = computed(() => {
+  return isSchemaObject(props.schema) ? props.schema : null
+})
 
 // Sort properties to show required fields first, then optional, then metadata
 const sortProperties = (
@@ -22,89 +41,93 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="schema">
+  <section v-if="schemaObject">
     <!-- Composition keywords -->
-    <template v-if="schema.allOf">
+    <template v-if="schemaObject.allOf">
       <section>
         <header>
           <strong>All of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.allOf"
+          v-for="(subSchema, index) in schemaObject.allOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.anyOf">
+    <template v-else-if="schemaObject.anyOf">
       <section>
         <header>
           <strong>Any of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.anyOf"
+          v-for="(subSchema, index) in schemaObject.anyOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.oneOf">
+    <template v-else-if="schemaObject.oneOf">
       <section>
         <header>
           <strong>One of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.oneOf"
+          v-for="(subSchema, index) in schemaObject.oneOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.not">
+    <template v-else-if="schemaObject.not">
       <section>
         <header>
           <strong>Not:</strong>
         </header>
         <section>
-          <Schema :schema="schema.not" />
+          <Schema :schema="schemaObject.not" />
         </section>
       </section>
     </template>
 
     <!-- Object type -->
-    <template v-else-if="schema.type === 'object' || schema.properties">
+    <template
+      v-else-if="schemaObject.type === 'object' || schemaObject.properties">
       <section>
         <ul>
           <template
             v-for="(propSchema, propName) in sortProperties(
-              schema.properties || {},
-              schema.required,
+              schemaObject.properties || {},
+              schemaObject.required,
             )"
             :key="propName">
             <li>
               <strong>
                 <code>{{ propName }}</code>
-                <span v-if="schema.required?.includes(propName)">
+                <span v-if="schemaObject.required?.includes(propName)">
                   (required)
                 </span>
               </strong>
               <p>
                 <code>
                   {{
-                    Array.isArray(propSchema.type)
+                    isSchemaObject(propSchema) && Array.isArray(propSchema.type)
                       ? propSchema.type.join(' | ')
-                      : propSchema.type || 'object'
+                      : isSchemaObject(propSchema) && propSchema.type
+                        ? propSchema.type
+                        : 'object'
                   }}
                 </code>
-                <template v-if="propSchema.format">
+                <template
+                  v-if="isSchemaObject(propSchema) && propSchema.format">
                   <span
                     >, format: <code>{{ propSchema.format }}</code></span
                   >
                 </template>
-                <template v-if="propSchema.enum">
+                <template v-if="isSchemaObject(propSchema) && propSchema.enum">
                   <span
                     >, possible values:
                     <code>{{
@@ -114,20 +137,33 @@ const sortProperties = (
                     }}</code>
                   </span>
                 </template>
-                <template v-if="propSchema.default !== undefined">
+                <template
+                  v-if="
+                    isSchemaObject(propSchema) &&
+                    propSchema.default !== undefined
+                  ">
                   <span
                     >, default:
                     <code>{{ JSON.stringify(propSchema.default) }}</code></span
                   >
                 </template>
-                <template v-if="propSchema.description">
+                <template
+                  v-if="isSchemaObject(propSchema) && propSchema.description">
                   <span> — {{ propSchema.description }}</span>
                 </template>
               </p>
               <Schema
-                v-if="propSchema.type === 'object' || propSchema.properties"
+                v-if="
+                  isSchemaObject(propSchema) &&
+                  (propSchema.type === 'object' || propSchema.properties)
+                "
                 :schema="propSchema" />
-              <template v-if="propSchema.type === 'array' && propSchema.items">
+              <template
+                v-if="
+                  isSchemaObject(propSchema) &&
+                  propSchema.type === 'array' &&
+                  propSchema.items
+                ">
                 <section>
                   <header>
                     <strong>Items:</strong>
@@ -142,27 +178,29 @@ const sortProperties = (
     </template>
 
     <!-- Array type -->
-    <template v-else-if="schema.type === 'array' && schema.items">
+    <template v-else-if="schemaObject.type === 'array' && schemaObject.items">
       <section>
         <header>
           <strong>Array of:</strong>
         </header>
         <section>
-          <Schema :schema="schema.items" />
+          <Schema :schema="schemaObject.items" />
         </section>
         <ul
           v-if="
-            schema.minItems !== undefined ||
-            schema.maxItems !== undefined ||
-            schema.uniqueItems
+            schemaObject.minItems !== undefined ||
+            schemaObject.maxItems !== undefined ||
+            schemaObject.uniqueItems
           ">
-          <li v-if="schema.minItems !== undefined">
-            Min items: <code>{{ schema.minItems }}</code>
+          <li v-if="schemaObject.minItems !== undefined">
+            Min items: <code>{{ schemaObject.minItems }}</code>
           </li>
-          <li v-if="schema.maxItems !== undefined">
-            Max items: <code>{{ schema.maxItems }}</code>
+          <li v-if="schemaObject.maxItems !== undefined">
+            Max items: <code>{{ schemaObject.maxItems }}</code>
           </li>
-          <li v-if="schema.uniqueItems">Unique items: <code>true</code></li>
+          <li v-if="schemaObject.uniqueItems">
+            Unique items: <code>true</code>
+          </li>
         </ul>
       </section>
     </template>
@@ -171,30 +209,30 @@ const sortProperties = (
     <template v-else>
       <section>
         <p>
-          <code>{{ schema.type }}</code>
-          <template v-if="schema.format">
+          <code>{{ schemaObject.type }}</code>
+          <template v-if="schemaObject.format">
             <span
-              >, format: <code>{{ schema.format }}</code></span
+              >, format: <code>{{ schemaObject.format }}</code></span
             >
           </template>
-          <template v-if="schema.enum">
+          <template v-if="schemaObject.enum">
             <span
               >, possible values:
               <code>{{
-                (schema.enum as unknown[])
+                (schemaObject.enum as unknown[])
                   .map((e: unknown) => JSON.stringify(e))
                   .join(', ')
               }}</code>
             </span>
           </template>
-          <template v-if="schema.default !== undefined">
+          <template v-if="schemaObject.default !== undefined">
             <span
               >, default:
-              <code>{{ JSON.stringify(schema.default) }}</code></span
+              <code>{{ JSON.stringify(schemaObject.default) }}</code></span
             >
           </template>
-          <template v-if="schema.description">
-            <span> — {{ schema.description }}</span>
+          <template v-if="schemaObject.description">
+            <span> — {{ schemaObject.description }}</span>
           </template>
         </p>
       </section>
