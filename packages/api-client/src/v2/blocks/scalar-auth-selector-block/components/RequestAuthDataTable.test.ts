@@ -64,6 +64,7 @@ describe('RequestAuthDataTable', () => {
 
     return mount(RequestAuthDataTable, {
       props: {
+        proxyUrl: '',
         selectedSchemeOptions,
         securitySchemes,
         isStatic,

@@ -1,4 +1,5 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -99,12 +100,23 @@ const createMockOperation = (overrides: Partial<OperationObject> = {}): Operatio
   }) as OperationObject
 
 /**
+ * Creates a minimal mock authMeta for testing.
+ * This represents the authentication metadata for the operation.
+ */
+const createMockAuthMeta = (): AuthMeta => ({
+  type: 'operation',
+  path: '/api/users',
+  method: 'get',
+})
+
+/**
  * Creates default props for mounting the OperationBlock component.
  * These props represent the minimum required to render the component.
  */
 const createDefaultProps = () => ({
   eventBus: createMockEventBus(),
   appVersion: '1.0.0',
+  proxyUrl: '',
   globalCookies: [] as XScalarCookie[],
   path: '/api/users',
   method: 'get' as const,
@@ -115,6 +127,7 @@ const createDefaultProps = () => ({
   totalPerformedRequests: 0,
   operation: createMockOperation(),
   exampleKey: 'default',
+  authMeta: createMockAuthMeta(),
   securitySchemes: {},
   selectedSecurity: undefined,
   security: [],
