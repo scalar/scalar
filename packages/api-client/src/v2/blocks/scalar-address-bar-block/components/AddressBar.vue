@@ -141,15 +141,15 @@ const handleFocusAddressBar = (
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
-  eventBus.on('on:request:sent', startLoading)
-  eventBus.on('on:request:complete', stopLoading)
+  eventBus.on('hooks:on:request:sent', startLoading)
+  eventBus.on('hooks:on:request:complete', stopLoading)
 })
 
 onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
-  eventBus.off('on:request:sent', startLoading)
-  eventBus.off('on:request:complete', stopLoading)
+  eventBus.off('hooks:on:request:sent', startLoading)
+  eventBus.off('hooks:on:request:complete', stopLoading)
 })
 
 defineExpose({
