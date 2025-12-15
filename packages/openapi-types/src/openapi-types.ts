@@ -13,8 +13,10 @@ type AnyOtherAttribute = {
   [key: string]: any
 } & SpecificationExtension
 
+/**
+ * OpenAPI Specification Extension
+ **/
 type SpecificationExtension = {
-  /** OpenAPI Specification Extension */
   [customExtension: `x-${string}`]: any
 }
 
