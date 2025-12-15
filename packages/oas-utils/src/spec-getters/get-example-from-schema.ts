@@ -225,11 +225,12 @@ const handleObjectSchema = (
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
       const propertySchema = getResolvedRef(schema.properties[propertyName])
-      if (!propertySchema || !isSchemaObject(propertySchema)) {
+      if (!propertySchema) {
         continue
       }
 
-      const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
+      const propertyXmlName =
+        options?.xml && isSchemaObject(propertySchema) && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
       const value = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
