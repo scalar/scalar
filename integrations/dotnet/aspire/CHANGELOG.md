@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.8.5
+
+### Patch Changes
+
+- [#7511](https://github.com/scalar/scalar/pull/7511) [`54096c2`](https://github.com/scalar/scalar/commit/54096c24e1e5a434dd99f20a7c80ec1c4bfb27d6) Thanks [@xC0dex](https://github.com/xC0dex)! - fix: enum serialization
+
+- Updated dependencies []:
+  - @scalar/api-reference@1.40.6
+  - @scalar/dotnet-shared@0.1.1
+
 ## 0.8.4
 
 ### Patch Changes

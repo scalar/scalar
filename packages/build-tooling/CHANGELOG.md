@@ -1,5 +1,15 @@
 # @scalar/build-tooling
 
+## 0.4.0
+
+### Minor Changes
+
+- [#7516](https://github.com/scalar/scalar/pull/7516) [`f5b0ed4`](https://github.com/scalar/scalar/commit/f5b0ed42906801362464d23a8dd16c9634be2060) Thanks [@marcalexiei](https://github.com/marcalexiei)! - feat: remove `rollup`
+
+### Patch Changes
+
+- [#7518](https://github.com/scalar/scalar/pull/7518) [`bd529a1`](https://github.com/scalar/scalar/commit/bd529a1ee2bf9f34756ab3df3f41aec3af93be65) Thanks [@marcalexiei](https://github.com/marcalexiei)! - fix: include only relevant files in published package
+
 ## 0.3.1
 
 ### Patch Changes

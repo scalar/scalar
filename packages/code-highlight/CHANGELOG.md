@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.2.2
+
+### Patch Changes
+
+- [#7527](https://github.com/scalar/scalar/pull/7527) [`93ffb63`](https://github.com/scalar/scalar/commit/93ffb63e9d97c7a4ea810d9eeb95cc416c368806) Thanks [@amritk](https://github.com/amritk)! - feat: allow all classes in markdown
+
 ## 0.2.1
 
 ### Patch Changes

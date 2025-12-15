@@ -114,7 +114,7 @@ const handleClick = (event: MouseEvent) => {
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
-        class="text-sidebar-c-1 font-sidebar-active"
+        class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
         :disabled
         :indent="level"
         :selected
