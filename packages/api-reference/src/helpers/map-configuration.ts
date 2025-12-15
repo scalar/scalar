@@ -1,6 +1,7 @@
-import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { DocumentConfiguration } from '@scalar/workspace-store/schemas/workspace-specification/config'
+
+import { mapHiddenClientsConfig } from './map-hidden-clients-config'
 
 /**
  * Maps a partial ApiReferenceConfigurationWithMultipleSources object to a DocumentConfiguration
@@ -36,7 +37,7 @@ export const mapConfiguration = (config: Partial<ApiReferenceConfiguration>) => 
         loadDefaultFonts: config.withDefaultFonts,
         theme: config.theme,
       },
-      httpClients: generateClientOptions(config.hiddenClients),
+      httpClients: mapHiddenClientsConfig(config.hiddenClients),
       routing: {
         // Routing configuration
         basePath: config.pathRouting?.basePath,

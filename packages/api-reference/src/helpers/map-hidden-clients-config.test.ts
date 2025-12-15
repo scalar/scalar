@@ -155,6 +155,7 @@ describe('mapHiddenClientsConfig', () => {
     expect(undefinedResult).toEqual(AVAILABLE_CLIENTS)
     expect(undefinedResult.length).toBe(AVAILABLE_CLIENTS.length)
 
+    // @ts-expect-error - Testing null case even though type does not allow it
     const nullResult = mapHiddenClientsConfig(null)
     expect(nullResult).toEqual(AVAILABLE_CLIENTS)
 

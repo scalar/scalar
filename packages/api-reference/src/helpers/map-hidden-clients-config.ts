@@ -4,6 +4,11 @@ import { AVAILABLE_CLIENTS, type AvailableClients, GROUPED_CLIENTS } from '@scal
 
 /** Map the old hiddenClients config to the new httpClients config */
 export const mapHiddenClientsConfig = (hiddenClients: ApiReferenceConfiguration['hiddenClients']): AvailableClients => {
+  // Handle boolean config
+  if (hiddenClients === true) {
+    return []
+  }
+
   const clientsSet = new Set(AVAILABLE_CLIENTS)
 
   // Handle array config
@@ -23,8 +28,6 @@ export const mapHiddenClientsConfig = (hiddenClients: ApiReferenceConfiguration[
         clientsSet.delete(client as AvailableClient)
       }
     })
-
-    return Array.from(clientsSet)
   }
 
   // Handle object config
@@ -40,19 +43,13 @@ export const mapHiddenClientsConfig = (hiddenClients: ApiReferenceConfiguration[
           clientsSet.delete(`${targetId}/${client}` as AvailableClient)
         })
       }
-
       // Boolean
-      if (clients === true) {
+      else if (clients === true) {
         GROUPED_CLIENTS[targetId as TargetId].forEach((client) => {
           clientsSet.delete(client as AvailableClient)
         })
       }
     })
-  }
-
-  // Handle boolean config
-  if (hiddenClients === true) {
-    return []
   }
 
   return Array.from(clientsSet)
