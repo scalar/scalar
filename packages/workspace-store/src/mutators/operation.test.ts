@@ -793,6 +793,130 @@ describe('createOperation', () => {
     expect(document.paths?.['/users']?.get).toEqual({ summary: 'Get users' })
     expect(document.paths?.['/users']?.post).toEqual({ summary: 'Create user' })
   })
+
+  it('adds operation server to document servers when it does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        servers: [{ url: 'https://existing.example.com' }],
+      }),
+    })
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        servers: [{ url: 'https://new.example.com' }],
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document.servers).toHaveLength(2)
+    expect(document.servers).toContainEqual({ url: 'https://existing.example.com' })
+    expect(document.servers).toContainEqual({ url: 'https://new.example.com' })
+  })
+
+  it('does not duplicate server when operation server already exists in document', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        servers: [{ url: 'https://api.example.com' }],
+      }),
+    })
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        servers: [{ url: 'https://api.example.com' }],
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document.servers).toHaveLength(1)
+    expect(document.servers?.[0]?.url).toBe('https://api.example.com')
+  })
+
+  it('adds multiple operation servers to document servers', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        servers: [{ url: 'https://existing.example.com' }],
+      }),
+    })
+    store.buildSidebar('test')
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        servers: [{ url: 'https://server1.example.com' }, { url: 'https://server2.example.com' }],
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document.servers).toHaveLength(3)
+    expect(document.servers).toContainEqual({ url: 'https://existing.example.com' })
+    expect(document.servers).toContainEqual({ url: 'https://server1.example.com' })
+    expect(document.servers).toContainEqual({ url: 'https://server2.example.com' })
+  })
+
+  it('updates selected server to first operation server', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        servers: [{ url: 'https://existing.example.com' }],
+        'x-scalar-selected-server': 'https://existing.example.com',
+      }),
+    })
+    store.buildSidebar('test')
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+        servers: [{ url: 'https://new.example.com' }],
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document['x-scalar-selected-server']).toBe('https://new.example.com')
+  })
+
+  it('does not update selected server when operation has no servers', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        servers: [{ url: 'https://existing.example.com' }],
+        'x-scalar-selected-server': 'https://existing.example.com',
+      }),
+    })
+
+    createOperation(store, {
+      documentName: 'test',
+      path: '/users',
+      method: 'get',
+      operation: {
+        summary: 'Get users',
+      },
+    })
+
+    const document = store.workspace.documents.test!
+    expect(document['x-scalar-selected-server']).toBe('https://existing.example.com')
+  })
 })
 
 describe('addOperationParameter', () => {
