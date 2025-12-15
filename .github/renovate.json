@@ -29,7 +29,7 @@
       "description": "Group minor and patch dependencies",
       "matchUpdateTypes": ["patch", "minor"],
       "matchPackageNames": ["*"],
-      "groupName": "dependencies"
+      "groupName": "minor patch dependencies"
     },
 
     {
@@ -381,7 +381,7 @@
       "description": "Group official patch and minor updates for official GitHub actions",
       "matchDepTypes": ["action"],
       "matchPackageNames": ["actions/**"],
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": ["patch", "minor", "digest"],
       "groupName": "official-github-actions"
     },
 
@@ -438,6 +438,7 @@
       "matchPackageNames": ["org.springframework.boot:*"],
       "enabled": false
     },
+
     {
       "description": "Disable updates for node docker images. We update images manually.",
       "matchDatasources": ["docker"],
