@@ -30,7 +30,8 @@
     "integrations/nextjs/**",
     "integrations/nuxt/**",
     "integrations/rust/**",
-    "integrations/sveltekit/**"
+    "integrations/sveltekit/**",
+    "tooling/changelog-generator/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -45,6 +46,7 @@
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
+    "@scalar-internal/changelog-generator",
 
     // Required on root to have proper format with prettier
     "tailwindcss",

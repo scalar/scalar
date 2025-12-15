@@ -4,6 +4,7 @@ packages:
   - packages/**/*
   - playwright
   - tooling/scripts
+  - tooling/changelog-generator
   - projects/**/*
   - '!**/.next/**'
   - '!**/dist/**'
