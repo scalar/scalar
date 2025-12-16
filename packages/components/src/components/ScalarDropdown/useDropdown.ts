@@ -1,36 +1,21 @@
-import { type InjectionKey, type Reactive, type Ref, inject, provide, reactive, ref } from 'vue'
-
-/** Might be an element or undefined */
-export type MaybeElement = Element | undefined | null
-
-export type DropdownContext = {
-  /** The id of the currently active dropdown item */
-  active: Ref<string | undefined>
-  /**
-   * The list of dropdown items
-   * The id is the key and the value is the element
-   */
-  items: Reactive<Record<string, HTMLElement>>
-}
+import { type InjectionKey, type Ref, inject, provide, ref } from 'vue'
 
 /** The symbol for the dropdown context */
-const CONTEXT_SYMBOL = Symbol() as InjectionKey<DropdownContext>
+const ACTIVE_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
 
+/** Provides a ref for the currently active dropdown item */
 export function useDropdown() {
-  // Create a new context for the dropdown and provide it to any sub-components
-  const context: DropdownContext = {
-    active: ref<string>(),
-    items: reactive({}),
-  }
-  provide(CONTEXT_SYMBOL, context)
+  const active = ref<string>()
+  provide(ACTIVE_SYMBOL, active)
 
-  return context
+  return { active }
 }
 
+/** Injects the ref for the currently active dropdown item */
 export function useDropdownItem() {
-  const context = inject(CONTEXT_SYMBOL)
-  if (!context) {
-    throw new Error('useDropdownItem must be used within a ScalarDropdown')
+  const active = inject(ACTIVE_SYMBOL)
+  if (!active) {
+    console.warn('useDropdownItem must be used within a ScalarDropdown')
   }
-  return context
+  return { active }
 }

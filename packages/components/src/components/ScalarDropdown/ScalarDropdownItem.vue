@@ -13,7 +13,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useDropdownItem } from '@/components/ScalarDropdown/useDropdown'
-import { onBeforeUnmount, ref, useId, watch } from 'vue'
+import { useId } from 'vue'
 
 import ScalarDropdownButton from './ScalarDropdownButton.vue'
 
@@ -26,22 +26,11 @@ defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
 
-const item = ref<HTMLElement>()
-
-const { active, items } = useDropdownItem()
-
-watch(item, (newItem) => {
-  if (newItem) {
-    items[id] = newItem
-  }
-})
-
-onBeforeUnmount(() => delete items[id])
+const { active } = useDropdownItem()
 </script>
 <template>
   <li
     class="contents"
-    ref="item"
     role="menuitem"
     :id
     :aria-disabled="disabled">
