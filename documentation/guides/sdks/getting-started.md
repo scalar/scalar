@@ -212,7 +212,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="getting-started footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -279,7 +279,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
   }
   .hero-animation  {
     position: absolute;
-    top: -88px;
+    top: var(--scalar-header-height);
     transform: scaleY(-1);
     margin-top: 0 !important;
   }
@@ -300,7 +300,11 @@ Once created, you will get redirected to the SDK Overview page where you can:
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  :not(.getting-started).footer,
+  .t-editor .page-header,
+  .content .page-nav,
+  .t-doc__toc {
     display: none;
   }
   .t-doc .layout-header {
@@ -332,7 +336,9 @@ Once created, you will get redirected to the SDK Overview page where you can:
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -351,6 +357,9 @@ Once created, you will get redirected to the SDK Overview page where you can:
     );
     width: calc(100dvw - var(--scalar-sidebar-width));
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+  }
+  .t-editor.page {
+    margin-right: unset;
   }
   .container {
     width: 900px;

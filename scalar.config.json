@@ -1,0 +1,648 @@
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
+  "info": {
+    "title": "Scalar Documentation",
+    "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
+  },
+  "publishOnMerge": true,
+  "assetsDir": "documentation/assets",
+  "publishPreviews": false,
+  "pullRequestComments": false,
+  "insertPageTitles": false,
+  "siteConfig": {
+    "subdomain": "guides-v2",
+    "head": {
+      "scripts": [
+        {
+          "path": "documentation/assets/tailwind-cdn.js"
+        },
+        {
+          "path": "documentation/assets/landing.js"
+        }
+      ],
+      "styles": [
+        {
+          "path": "documentation/assets/styles.css"
+        }
+      ],
+      "meta": [
+        {
+          "name": "description",
+          "content": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
+        },
+        {
+          "property": "og:image",
+          "name": "og:image",
+          "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
+        }
+      ],
+      "links": [
+        {
+            "rel": "icon",
+            "href": "/favicon.png"
+          }
+      ]
+    },
+    "logo": {
+      "darkMode": "https://cdn.scalar.com/marketing/landing/logo-dark.svg",
+      "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
+    },
+    "routing": {
+      "redirects": [
+        {
+          "from": "/scalar/scalar-registry/github-workflows",
+          "to": "/registry/github-actions"
+        },
+        {
+          "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
+          "to": "/registry/github-actions"
+        },
+        {
+          "from": "/scalar/introduction",
+          "to": "/"
+        },
+        {
+          "from": "/scalar",
+          "to": "/"
+        },
+        {
+          "from": "/scalar-api",
+          "to": "/scalar-api/description/introduction"
+        }
+      ]
+    }
+  },
+  "navigation": {
+    "header": [
+      {
+        "title": "Log in",
+        "url": "https://dashboard.scalar.com/login"
+      },
+      {
+        "title": "Register",
+        "url": "https://dashboard.scalar.com/register"
+      }
+    ],
+    "routes": {
+      "/": {
+        "type": "group",
+        "title": "Scalar",
+        "children": {
+          "": {
+            "type": "page",
+            "filepath": "documentation/guides/introduction.md",
+            "title": "Introduction",
+            "description": "Introduction to Scalar",
+            "icon": "phosphor/regular/house",
+            "layout": {
+              "toc": false
+            }
+          },
+          "/pricing": {
+            "title": "Pricing",
+            "icon": "phosphor/regular/coin-vertical",
+            "filepath": "documentation/guides/pricing.md",
+            "type": "page",
+            "layout": {
+              "toc": false
+            }
+          },
+          "/docs": {
+            "title": "Scalar Docs",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/book",
+            "children": {
+              "getting-started": {
+                "filepath": "documentation/guides/docs/getting-started.md",
+                "type": "page",
+                "title": "Getting Started",
+                "layout": {
+                  "header": false
+                }
+              },
+              "github-sync": {
+                "filepath": "documentation/guides/docs/github-sync.md",
+                "type": "page",
+                "title": "Github Sync"
+              },
+              "github-actions": {
+                "filepath": "documentation/guides/docs/github-actions.md",
+                "type": "page",
+                "title": "Github Actions"
+              },
+              "redirects": {
+                "filepath": "documentation/guides/docs/redirects.md",
+                "type": "page",
+                "title": "Redirects"
+              },
+              "components": {
+                "title": "Components",
+                "type": "group",
+                "mode": "folder",
+                "open": true,
+                "icon": "phosphor/regular/puzzle-piece",
+                "children": {
+                  "markdown-support": {
+                    "filepath": "documentation/guides/docs/components/markdown-support.md",
+                    "type": "page",
+                    "title": "Markdown Support"
+                  },
+                  "buttons": {
+                    "filepath": "documentation/guides/docs/components/buttons.md",
+                    "type": "page",
+                    "title": "Buttons"
+                  },
+                  "callouts": {
+                    "filepath": "documentation/guides/docs/components/callouts.md",
+                    "type": "page",
+                    "title": "Callouts"
+                  },
+                  "math": {
+                    "filepath": "documentation/guides/docs/components/math.md",
+                    "type": "page",
+                    "title": "Math"
+                  },
+                  "embeds": {
+                    "filepath": "documentation/guides/docs/components/embeds.md",
+                    "type": "page",
+                    "title": "Embeds"
+                  },
+                  "code-blocks": {
+                    "filepath": "documentation/guides/docs/components/code-blocks.md",
+                    "type": "page",
+                    "title": "Code Blocks"
+                  },
+                  "images": {
+                    "filepath": "documentation/guides/docs/components/images.md",
+                    "type": "page",
+                    "title": "Images"
+                  },
+                  "icons": {
+                    "filepath": "documentation/guides/docs/components/icons.md",
+                    "type": "page",
+                    "title": "Icons"
+                  },
+                  "tabs": {
+                    "filepath": "documentation/guides/docs/components/tabs.md",
+                    "type": "page",
+                    "title": "Tabs"
+                  },
+                  "steps": {
+                    "filepath": "documentation/guides/docs/components/steps.md",
+                    "type": "page",
+                    "title": "Steps"
+                  },
+                  "cards": {
+                    "filepath": "documentation/guides/docs/components/cards.md",
+                    "type": "page",
+                    "title": "Cards"
+                  },
+                  "details": {
+                    "filepath": "documentation/guides/docs/components/details.md",
+                    "type": "page",
+                    "title": "Details"
+                  },
+                  "page-link": {
+                    "filepath": "documentation/guides/docs/components/page-link.md",
+                    "type": "page",
+                    "title": "Page Link"
+                  },
+                  "row": {
+                    "filepath": "documentation/guides/docs/components/row.md",
+                    "type": "page",
+                    "title": "Row"
+                  }
+                }
+              }
+            }
+          },
+          "/sdks": {
+            "title": "Scalar SDKs",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/package",
+            "children": {
+              "getting-started": {
+                "filepath": "documentation/guides/sdks/getting-started.md",
+                "type": "page",
+                "title": "Getting Started"
+              },
+              "configuration": {
+                "title": "Configuration",
+                "type": "group",
+                "mode": "folder",
+                "open": true,
+                "icon": "phosphor/regular/plug",
+                "children": {
+                  "typescript": {
+                    "title": "TypeScript",
+                    "filepath": "documentation/guides/sdks/configuration/typescript.md",
+                    "type": "page"
+                  },
+                  "python": {
+                    "title": "Python",
+                    "filepath": "documentation/guides/sdks/configuration/python.md",
+                    "type": "page"
+                  },
+                  "go": {
+                    "title": "Go",
+                    "filepath": "documentation/guides/sdks/configuration/go.md",
+                    "type": "page"
+                  },
+                  "java": {
+                    "title": "Java",
+                    "filepath": "documentation/guides/sdks/configuration/java.md",
+                    "type": "page"
+                  },
+                  "csharp": {
+                    "title": "C#",
+                    "filepath": "documentation/guides/sdks/configuration/csharp.md",
+                    "type": "page"
+                  },
+                  "php": {
+                    "title": "PHP",
+                    "filepath": "documentation/guides/sdks/configuration/php.md",
+                    "type": "page"
+                  },
+                  "ruby": {
+                    "title": "Ruby",
+                    "filepath": "documentation/guides/sdks/configuration/ruby.md",
+                    "type": "page"
+                  },
+                  "swift": {
+                    "title": "Swift",
+                    "filepath": "documentation/guides/sdks/configuration/swift.md",
+                    "type": "page"
+                  }
+                }
+              }
+            }
+          },
+          "/registry": {
+            "title": "Scalar Registry",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/seal-check",
+            "children": {
+              "getting-started": {
+                "filepath": "documentation/guides/registry/getting-started.md",
+                "type": "page",
+                "title": "Getting Started"
+              },
+              "upload": {
+                "title": "Upload",
+                "filepath": "documentation/guides/registry/upload.md",
+                "type": "page"
+              },
+              "cli": {
+                "filepath": "documentation/guides/registry/cli.md",
+                "type": "page",
+                "title": "CLI"
+              },
+              "github-actions": {
+                "title": "GitHub Actions",
+                "filepath": "documentation/guides/registry/github-actions.md",
+                "type": "page"
+              },
+              "gitlab-ci": {
+                "title": "GitLab CI/CD",
+                "filepath": "documentation/guides/registry/gitlab-ci.md",
+                "type": "page"
+              }
+            }
+          },
+          "access": {
+            "title": "Access",
+            "icon": "phosphor/regular/lock-simple",
+            "filepath": "documentation/guides/access.md",
+            "type": "page"
+          },
+          "/cli": {
+            "title": "Scalar CLI",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/terminal",
+            "children": {
+              "getting-started": {
+                "filepath": "documentation/guides/cli/getting-started.md",
+                "type": "page",
+                "title": "Getting Started"
+              },
+              "commands": {
+                "filepath": "documentation/guides/cli/commands.md",
+                "type": "page",
+                "title": "Commands"
+              }
+            }
+          },
+          "/api-references": {
+            "title": "Scalar API References",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/scroll",
+            "children": {
+              "getting-started": {
+                "title": "Getting Started",
+                "filepath": "documentation/guides/api-references/getting-started.md",
+                "type": "page"
+              },
+              "configuration": {
+                "title": "Configuration",
+                "filepath": "documentation/configuration.md",
+                "type": "page"
+              },
+              "themes": {
+                "title": "Themes",
+                "filepath": "documentation/themes.md",
+                "type": "page"
+              },
+              "plugins": {
+                "title": "Plugins",
+                "filepath": "documentation/plugins.md",
+                "type": "page"
+              },
+              "openapi": {
+                "title": "OpenAPI",
+                "filepath": "documentation/openapi.md",
+                "type": "page"
+              },
+              "asyncapi": {
+                "title": "AsyncAPI",
+                "filepath": "documentation/asyncapi.md",
+                "type": "page"
+              },
+              "markdown": {
+                "title": "Markdown",
+                "filepath": "documentation/markdown.md",
+                "type": "page"
+              },
+              "integrations": {
+                "title": "Integrations",
+                "type": "group",
+                "mode": "folder",
+                "open": true,
+                "icon": "phosphor/regular/plug",
+                "children": {
+                  "html-js": {
+                    "title": "HTML/JS",
+                    "filepath": "documentation/integrations/html-js.md",
+                    "type": "page"
+                  },
+                  "aspire": {
+                    "title": ".NET Aspire",
+                    "filepath": "documentation/integrations/aspire.md",
+                    "type": "page"
+                  },
+                  "aspnetcore": {
+                    "title": ".NET ASP.NET Core",
+                    "type": "group",
+                    "mode": "folder",
+                    "children": {
+                      "integration": {
+                        "title": "Integration",
+                        "filepath": "documentation/integrations/aspnetcore/integration.md",
+                        "type": "page"
+                      },
+                      "build-time-generation": {
+                        "title": "Build-Time Generation",
+                        "filepath": "documentation/integrations/aspnetcore/build-time-generation.md",
+                        "type": "page"
+                      },
+                      "openapi-extensions": {
+                        "title": "OpenAPI Extensions",
+                        "filepath": "documentation/integrations/aspnetcore/openapi-extensions.md",
+                        "type": "page"
+                      },
+                      "legacy-integration": {
+                        "title": "Legacy Integration",
+                        "filepath": "documentation/integrations/aspnetcore/legacy-integration.md",
+                        "type": "page"
+                      }
+                    }
+                  },
+                  "adonisjs": {
+                    "title": "AdonisJS",
+                    "filepath": "documentation/integrations/adonisjs.md",
+                    "type": "page"
+                  },
+                  "astro": {
+                    "title": "Astro",
+                    "filepath": "documentation/integrations/astro.md",
+                    "type": "page"
+                  },
+                  "django": {
+                    "title": "Django",
+                    "filepath": "documentation/integrations/django.md",
+                    "type": "page"
+                  },
+                  "django-ninja": {
+                    "title": "Django Ninja",
+                    "filepath": "documentation/integrations/django-ninja.md",
+                    "type": "page"
+                  },
+                  "docker": {
+                    "title": "Docker",
+                    "filepath": "documentation/integrations/docker.md",
+                    "type": "page"
+                  },
+                  "docusaurus": {
+                    "title": "Docusaurus",
+                    "filepath": "documentation/integrations/docusaurus.md",
+                    "type": "page"
+                  },
+                  "elixir": {
+                    "title": "Elixir",
+                    "filepath": "documentation/integrations/elixir.md",
+                    "type": "page"
+                  },
+                  "elysiajs": {
+                    "title": "ElysiaJS",
+                    "filepath": "documentation/integrations/elysiajs.md",
+                    "type": "page"
+                  },
+                  "express": {
+                    "title": "Express",
+                    "filepath": "documentation/integrations/express.md",
+                    "type": "page"
+                  },
+                  "fastapi": {
+                    "title": "FastAPI",
+                    "filepath": "documentation/integrations/fastapi.md",
+                    "type": "page"
+                  },
+                  "fastify": {
+                    "title": "Fastify",
+                    "filepath": "documentation/integrations/fastify.md",
+                    "type": "page"
+                  },
+                  "flask": {
+                    "title": "Flask",
+                    "filepath": "documentation/integrations/flask.md",
+                    "type": "page"
+                  },
+                  "go": {
+                    "title": "Go",
+                    "filepath": "documentation/integrations/go.md",
+                    "type": "page"
+                  },
+                  "hapi": {
+                    "title": "Hapi",
+                    "filepath": "documentation/integrations/hapi.md",
+                    "type": "page"
+                  },
+                  "hono": {
+                    "title": "Hono",
+                    "filepath": "documentation/integrations/hono.md",
+                    "type": "page"
+                  },
+                  "java": {
+                    "title": "Java",
+                    "filepath": "documentation/integrations/java.md",
+                    "type": "page"
+                  },
+                  "laravel": {
+                    "title": "Laravel",
+                    "filepath": "documentation/integrations/laravel.md",
+                    "type": "page"
+                  },
+                  "laravel-scribe": {
+                    "title": "Laravel Scribe",
+                    "filepath": "documentation/integrations/laravel-scribe.md",
+                    "type": "page"
+                  },
+                  "micronaut": {
+                    "title": "Micronaut",
+                    "filepath": "documentation/integrations/micronaut.md",
+                    "type": "page"
+                  },
+                  "nextjs": {
+                    "title": "Next.js",
+                    "filepath": "documentation/integrations/nextjs.md",
+                    "type": "page"
+                  },
+                  "nestjs": {
+                    "title": "NestJS",
+                    "filepath": "documentation/integrations/nestjs.md",
+                    "type": "page"
+                  },
+                  "nitro": {
+                    "title": "Nitro",
+                    "filepath": "documentation/integrations/nitro.md",
+                    "type": "page"
+                  },
+                  "nuxt": {
+                    "title": "Nuxt",
+                    "filepath": "documentation/integrations/nuxt.md",
+                    "type": "page"
+                  },
+                  "platformatic": {
+                    "title": "Platformatic",
+                    "filepath": "documentation/integrations/platformatic.md",
+                    "type": "page"
+                  },
+                  "python": {
+                    "title": "Python",
+                    "filepath": "documentation/integrations/python.md",
+                    "type": "page"
+                  },
+                  "react": {
+                    "title": "React",
+                    "filepath": "documentation/integrations/react.md",
+                    "type": "page"
+                  },
+                  "ruby-on-rails": {
+                    "title": "Ruby on Rails",
+                    "filepath": "documentation/integrations/ruby-on-rails.md",
+                    "type": "page"
+                  },
+                  "rust": {
+                    "title": "Rust",
+                    "type": "group",
+                    "mode": "folder",
+                    "children": {
+                      "": {
+                        "title": "Rust",
+                        "filepath": "documentation/integrations/rust.md",
+                        "type": "page"
+                      },
+                      "axum": {
+                        "title": "Axum",
+                        "filepath": "documentation/integrations/axum.md",
+                        "type": "page"
+                      },
+                      "actix-web": {
+                        "title": "Actix-web",
+                        "filepath": "documentation/integrations/actix-web.md",
+                        "type": "page"
+                      },
+                      "warp": {
+                        "title": "Warp",
+                        "filepath": "documentation/integrations/warp.md",
+                        "type": "page"
+                      },
+                      "aide": {
+                        "title": "Aide",
+                        "filepath": "documentation/integrations/aide.md",
+                        "type": "page"
+                      }
+                    }
+                  },
+                  "spring-boot": {
+                    "title": "Spring Boot",
+                    "filepath": "documentation/integrations/spring-boot.md",
+                    "type": "page"
+                  },
+                  "sveltekit": {
+                    "title": "SvelteKit",
+                    "filepath": "documentation/integrations/sveltekit.md",
+                    "type": "page"
+                  },
+                  "tsed": {
+                    "title": "Ts.ED",
+                    "filepath": "documentation/integrations/tsed.md",
+                    "type": "page"
+                  },
+                  "vue": {
+                    "title": "Vue.js",
+                    "filepath": "documentation/integrations/vue.md",
+                    "type": "page"
+                  }
+                }
+              }
+            }
+          },
+          "/mock-server": {
+            "title": "Scalar Mock Server",
+            "type": "group",
+            "mode": "folder",
+            "icon": "phosphor/regular/jar",
+            "children": {
+              "getting-started": {
+                "title": "Getting Started",
+                "filepath": "documentation/guides/mock-server/getting-started.md",
+                "type": "page"
+              },
+              "custom-request-handler": {
+                "title": "Custom Request Handlers",
+                "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                "type": "page"
+              },
+              "data-seeding": {
+                "title": "Data Seeding",
+                "filepath": "documentation/guides/mock-server/data-seeding.md",
+                "type": "page"
+              }
+            }
+          },
+          "scalar-api": {
+            "type": "openapi",
+            "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+            "mode": "nested"
+          }
+        }
+      }
+    }
+  }
+}
