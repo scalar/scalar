@@ -31,7 +31,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Config } from '@scalar/workspace-store/schemas/workspace-specification/config'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -40,6 +40,7 @@ import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
@@ -120,7 +121,10 @@ const emit = defineEmits<{
   (e: 'update:servers'): void
 }>()
 
-console.log('config', config)
+/** Hoist up client generation so it doesn't get re-generated on every operation */
+const clientOptions = computed(() =>
+  generateClientOptions(config['x-scalar-reference-config']?.httpClients),
+)
 
 const { toast } = useToasts()
 
@@ -226,6 +230,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         <!-- Request Section -->
         <RequestBlock
           :authMeta
+          :clientOptions
           :environment
           :eventBus
           :exampleKey

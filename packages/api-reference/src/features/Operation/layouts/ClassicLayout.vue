@@ -221,9 +221,9 @@ const { copyToClipboard } = useClipboard()
             :method="method"
             :operation="operation"
             :path="path"
-            :securitySchemes="securitySchemes"
             :selectedClient="xScalarDefaultClient"
-            :selectedServer="server" />
+            :selectedSecuritySchemes="securitySchemes"
+            :selectedServer="server ?? null" />
         </ScalarErrorBoundary>
       </div>
     </div>

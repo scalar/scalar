@@ -3,7 +3,6 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -19,6 +18,8 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
+import { getSelectedSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
+import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
@@ -43,6 +44,7 @@ const {
   exampleKey,
   layout,
   method,
+  clientOptions,
   operation,
   path,
   plugins,
@@ -59,6 +61,7 @@ const {
   exampleKey: string
   layout: ClientLayout
   method: HttpMethod
+  clientOptions: ClientOptionGroup[]
   operation: OperationObject
   path: string
   plugins: ClientPlugin[]
@@ -263,6 +266,14 @@ const handleUpdateBodyValue = (payload: {
   })
 
 const labelRequestNameId = useId()
+
+/** Selected security schemes for the request */
+const selectedSecuritySchemes = computed(() =>
+  getSelectedSecuritySchemes(
+    securitySchemes,
+    selectedSecurity?.selectedSchemes ?? [],
+  ),
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -383,12 +394,12 @@ const labelRequestNameId = useId()
       <!-- Code Snippet -->
       <RequestCodeSnippet
         v-show="selectedFilter === 'All'"
-        :hiddenClients
+        :clientOptions
         :method
         :operation
         :path
-        :securitySchemes
         :selectedClient
+        :selectedSecuritySchemes
         :selectedServer="server" />
     </div>
   </ViewLayoutSection>

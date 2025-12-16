@@ -910,7 +910,8 @@ const colorMode = computed(() => {
             headingSlugGenerator:
               mergedConfig.generateHeadingSlug ??
               ((heading) => `${activeSlug}/description/${heading.slug}`),
-            hiddenClients: mergedConfig.hiddenClients,
+            httpClients:
+              workspaceStore.config['x-scalar-reference-config']?.httpClients,
             layout: mergedConfig.layout,
             persistAuth: mergedConfig.persistAuth,
             showOperationId: mergedConfig.showOperationId,

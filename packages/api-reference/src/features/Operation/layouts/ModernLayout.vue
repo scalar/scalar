@@ -186,9 +186,9 @@ const labelId = useId()
                 :method="method"
                 :operation="operation"
                 :path="path"
-                :securitySchemes="securitySchemes"
                 :selectedClient="xScalarDefaultClient"
-                :selectedServer="server">
+                :selectedSecuritySchemes="securitySchemes"
+                :selectedServer="server ?? null">
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
