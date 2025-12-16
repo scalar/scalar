@@ -340,19 +340,9 @@ const id = useId()
   <!-- No card view used in the client -->
   <div
     v-if="simpleView"
-    class="code-snippet border-t text-sm">
-    <!-- Virtual view if the code is too large -->
-    <ScalarVirtualText
-      v-if="shouldVirtualize"
-      containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-      contentClass="language-plaintext whitespace-pre"
-      :lineHeight="20"
-      :text="generatedCode" />
-
+    class="code-snippet text-base">
     <!-- Generated code -->
     <ScalarCodeBlock
-      v-else
-      class="bg-red"
       :content="generatedCode"
       :hideCredentials="secretCredentials"
       :lang="codeBlockLanguage"
