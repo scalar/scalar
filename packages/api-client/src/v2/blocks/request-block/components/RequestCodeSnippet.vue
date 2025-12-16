@@ -30,7 +30,7 @@ const {
   selectedContentType,
   selectedServer,
   selectedExample,
-  securitySchemes = [],
+  securitySchemes,
   selectedClient,
 } = defineProps<OperationCodeSampleProps & { eventBus: WorkspaceEventBus }>()
 
@@ -62,7 +62,7 @@ watch(
 )
 
 /** Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(securitySchemes))
+const secretCredentials = computed(() => getSecrets(securitySchemes ?? []))
 
 /** Handle client change */
 const handleClientChange = (option: ClientOption | undefined) => {

@@ -399,9 +399,9 @@ const selectedSecuritySchemes = computed(() =>
         :method
         :operation
         :path
+        :securitySchemes="selectedSecuritySchemes"
         :selectedClient
-        :selectedSecuritySchemes
-        :selectedServer="server" />
+        :selectedServer="server ?? undefined" />
     </div>
   </ViewLayoutSection>
 </template>

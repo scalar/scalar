@@ -48,8 +48,9 @@ const objectToFormParams = (obj: object): Param[] => {
 
 /**
  * Processes the request body and returns the processed data
+ * Returns undefined if no example is found
  */
-export const processBody = ({ requestBody, contentType, example }: ProcessBodyProps): PostData => {
+export const processBody = ({ requestBody, contentType, example }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
 
   // Check if this is a form data content type
@@ -79,7 +80,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
 
     return {
       mimeType: _contentType,
-      text: JSON.stringify(_example),
+      text: typeof _example === 'string' ? _example : JSON.stringify(_example),
     }
   }
 
@@ -113,8 +114,5 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
     }
   }
 
-  return {
-    mimeType: _contentType,
-    text: 'null',
-  }
+  return undefined
 }
