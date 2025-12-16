@@ -85,7 +85,8 @@ const emitPathMethodUpdate = (
   targetPath: string,
   /** We only want to debounce when the path changes */
   emitOptions?: { debounceKey?: string },
-): void =>
+): void => {
+  const position = addressBarRef.value?.cursorPosition()
   eventBus.emit(
     'operation:update:pathMethod',
     {
@@ -96,6 +97,9 @@ const emitPathMethodUpdate = (
         if (status === 'success' || status === 'no-change') {
           methodConflict.value = null
           pathConflict.value = null
+        }
+        if (status === 'success') {
+          eventBus.emit('ui:focus:address-bar', { position })
         }
         // Otherwise set the conflict if needed
         else if (status === 'conflict') {
@@ -110,6 +114,7 @@ const emitPathMethodUpdate = (
     },
     emitOptions,
   )
+}
 
 /** Update the operation's HTTP method, handling conflicts */
 const handleMethodChange = (newMethod: HttpMethodType): void =>
@@ -134,8 +139,12 @@ const handleFocusAddressBar = (
     return
   }
 
-  addressBarRef.value?.focus(true)
-  payload?.event.preventDefault()
+  const position = payload && 'position' in payload ? payload.position : 'end'
+  addressBarRef.value?.focus(position)
+
+  if (payload && 'event' in payload) {
+    payload.event.preventDefault()
+  }
 }
 
 onMounted(() => {

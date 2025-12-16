@@ -357,20 +357,25 @@ defineExpose({
    *
    * @param cursorAtEnd boolean place the cursor at the end of the input
    */
-  focus: (cursorAtEnd?: boolean) => {
+  focus: (position: 'start' | 'end' | number = 'end') => {
     if (!codeMirror.value) {
       return
     }
     codeMirror.value.focus()
 
-    if (!cursorAtEnd) {
-      return
-    }
+    const anchor = (() => {
+      if (position === 'start') {
+        return 0
+      }
+      if (position === 'end') {
+        return codeMirror.value.state.doc.length
+      }
+      return position
+    })()
 
-    // Move the cursor to the end of the element
-    const length = codeMirror.value.state.doc.length
+    // Move the cursor to the specified position
     codeMirror.value.dispatch({
-      selection: { anchor: length },
+      selection: { anchor },
       scrollIntoView: true,
     })
   },
@@ -381,6 +386,7 @@ defineExpose({
   booleanOptions,
   codeMirror,
   modelValue,
+  cursorPosition: () => codeMirror.value?.state.selection.main.head,
 })
 </script>
 <script lang="ts">
