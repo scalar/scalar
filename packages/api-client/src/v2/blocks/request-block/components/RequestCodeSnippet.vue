@@ -65,11 +65,11 @@ watch(
 const secretCredentials = computed(() => getSecrets(securitySchemes))
 
 /** Handle client change */
-const handleClientChange = (option: ClientOption) => {
+const handleClientChange = (option: ClientOption | undefined) => {
   localSelectedClient.value = option
 
   // Emit the change if it's not a custom example
-  if (!option.id.startsWith('custom')) {
+  if (option && !option.id.startsWith('custom')) {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }
@@ -102,16 +102,19 @@ const generatedCode = computed<string>(() =>
         <template #actions>
           <div class="flex flex-1">
             <ScalarCombobox
-              :modelValue="selectedPlugin"
-              :options="snippets.options"
+              :modelValue="localSelectedClient"
+              :options="clients"
               placement="bottom-end"
-              @update:modelValue="handleClientChange">
+              @update:modelValue="
+                (ev) => handleClientChange(ev as ClientOption | undefined)
+              ">
               <ScalarButton
-                class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.25 py-0.75 font-normal"
+                class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
+                data-testid="client-picker"
                 variant="ghost">
-                <span>{{ selectedPlugin?.label }}</span>
+                {{ localSelectedClient?.title }}
                 <ScalarIconCaretDown
-                  class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+                  class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
                   weight="bold" />
               </ScalarButton>
             </ScalarCombobox>

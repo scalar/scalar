@@ -395,6 +395,7 @@ const selectedSecuritySchemes = computed(() =>
       <RequestCodeSnippet
         v-show="selectedFilter === 'All'"
         :clientOptions
+        :eventBus
         :method
         :operation
         :path

@@ -106,7 +106,7 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { type AvailableClients } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -119,9 +119,7 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
-import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
 import { generateCode } from '@/v2/blocks/operation-code-sample/helpers/generate-code'
-import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
 import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
