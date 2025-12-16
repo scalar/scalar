@@ -130,12 +130,16 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :options="options"
         @onDragEnd="onDragEnd"
         @selectItem="(id) => emit('selectItem', id)">
-        <template #decorator="slotProps">
+        <template
+          v-if="slots.decorator"
+          #decorator="slotProps">
           <slot
             v-bind="slotProps"
             name="decorator" />
         </template>
-        <template #empty="slotProps">
+        <template
+          v-if="slots.empty"
+          #empty="slotProps">
           <slot
             v-bind="slotProps"
             name="empty" />
@@ -172,6 +176,11 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
+        :class="{
+          // Hide the badge when we're showing the decorator
+          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
+            slots.decorator,
+        }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
     </template>
@@ -198,12 +207,16 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :parentIds="[]"
         @onDragEnd="onDragEnd"
         @selectItem="(id) => emit('selectItem', id)">
-        <template #decorator="slotProps">
+        <template
+          v-if="slots.decorator"
+          #decorator="slotProps">
           <slot
             v-bind="slotProps"
             name="decorator" />
         </template>
-        <template #empty="slotProps">
+        <template
+          v-if="slots.empty"
+          #empty="slotProps">
           <slot
             v-bind="slotProps"
             name="empty" />
@@ -246,6 +259,11 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
+        :class="{
+          // Hide the badge when we're showing the decorator
+          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
+            slots.decorator,
+        }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
     </template>

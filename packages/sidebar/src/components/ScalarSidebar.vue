@@ -110,7 +110,6 @@ const handleDragEnd = (
       <ScalarSidebarItems class="custom-scroll pt-0">
         <!-- First item -->
         <slot name="before" />
-
         <SidebarItem
           v-for="item in filterItems(layout, items)"
           :key="item.id"
@@ -123,12 +122,16 @@ const handleDragEnd = (
           :options="options"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emit('selectItem', id)">
-          <template #decorator="props">
+          <template
+            v-if="$slots.decorator"
+            #decorator="props">
             <slot
               name="decorator"
               v-bind="props" />
           </template>
-          <template #empty="props">
+          <template
+            v-if="$slots.empty"
+            #empty="props">
             <slot
               name="empty"
               v-bind="props" />
