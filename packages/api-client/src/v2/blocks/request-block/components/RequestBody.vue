@@ -162,7 +162,6 @@ const tableRows = computed(() => {
   <CollapsibleSection>
     <template #title>{{ title }}</template>
     <DataTable
-      class="border-b"
       :columns="['']"
       presentational>
       <DataTableHeader

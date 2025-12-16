@@ -92,7 +92,7 @@ const generatedCode = computed<string>(() =>
 
 <template>
   <CollapsibleSection
-    class="group/preview w-full border-b-0"
+    class="group/preview w-full border-t"
     :defaultOpen="false">
     <template #title>Code Snippet</template>
 
@@ -128,7 +128,7 @@ const generatedCode = computed<string>(() =>
         :columns="['']"
         presentational>
         <DataTableRow>
-          <div class="overflow-hidden border-t">
+          <div class="overflow-hidden">
             <ScalarCodeBlock
               class="text-base -outline-offset-2"
               :content="generatedCode"
