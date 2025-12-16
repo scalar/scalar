@@ -1108,7 +1108,7 @@ const colorMode = computed(() => {
 @media (max-width: 1000px) {
   /* Stack view on mobile */
   .references-layout {
-    grid-template-columns: auto;
+    grid-template-columns: 100%;
     grid-template-rows: var(--scalar-header-height, 0px) 0px auto auto;
 
     grid-template-areas:
