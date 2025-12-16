@@ -62,6 +62,7 @@ describe('Operation', () => {
       id: 'test-workspace',
       name: 'Test Workspace',
     },
+    plugins: [],
   }
 
   const render = (overrides: Partial<RouteProps> = {}) => {

@@ -37,9 +37,9 @@ import WebTopNav from './components/WebTopNav.vue'
 import { useTabs } from './hooks/use-tabs'
 import { useWorkspaceClientAppEvents } from './hooks/use-workspace-client-app-events'
 
-const { layout, plugins } = defineProps<{
+const { layout, plugins = [] } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
-  plugins: ClientPlugin[]
+  plugins?: ClientPlugin[]
 }>()
 
 /** Expose workspace store to window for debugging purposes. */

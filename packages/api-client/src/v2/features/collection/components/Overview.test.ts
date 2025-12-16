@@ -50,6 +50,7 @@ describe('Overview', () => {
           id: 'test-workspace',
           name: 'Test Workspace',
         },
+        plugins: [],
       },
     })
   }

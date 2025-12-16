@@ -59,6 +59,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -80,6 +81,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -104,6 +106,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -127,6 +130,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -155,6 +159,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -176,6 +181,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
@@ -204,6 +210,7 @@ describe('Environment', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       })
 
