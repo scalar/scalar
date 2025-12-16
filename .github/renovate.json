@@ -19,13 +19,6 @@
     },
 
     {
-      "description": "Group major dependencies",
-      "matchUpdateTypes": ["major"],
-      "matchPackageNames": ["*"],
-      "groupName": "major dependencies"
-    },
-
-    {
       "description": "Group minor and patch dependencies",
       "matchUpdateTypes": ["patch", "minor"],
       "matchPackageNames": ["*"],
