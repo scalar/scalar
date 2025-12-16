@@ -357,11 +357,15 @@ defineExpose({
    *
    * @param cursorAtEnd boolean place the cursor at the end of the input
    */
-  focus: (position: 'start' | 'end' | number = 'end') => {
+  focus: (position?: 'start' | 'end' | number) => {
     if (!codeMirror.value) {
       return
     }
     codeMirror.value.focus()
+
+    if (!position) {
+      return
+    }
 
     const anchor = (() => {
       if (position === 'start') {
