@@ -6,9 +6,10 @@ import { computed } from 'vue'
 
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
 
-const { schema, value } = defineProps<{
+const { schema, value, description } = defineProps<{
   schema?: SchemaObject
   value: string | File | null
+  description?: string
 }>()
 
 const invalidParameterMessage = computed(() => validateParameter(schema, value))
@@ -56,10 +57,10 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
           <span v-if="'default' in schema">default: {{ schema.default }}</span>
         </div>
         <span
-          v-if="schema?.description && !isInvalid"
+          v-if="(description || schema?.description) && !isInvalid"
           class="text-sm leading-snug text-pretty"
           :style="{ maxWidth: '16rem' }">
-          {{ schema.description }}
+          {{ description ?? schema?.description }}
         </span>
       </div>
     </template>
