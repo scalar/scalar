@@ -1,8 +1,6 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Component } from 'vue'
 
-import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
-
 /** A type representing the hooks that a client plugin can define */
 export type ClientPluginHooks = {
   beforeRequest: (payload: Request) => Request | Promise<Request>
@@ -15,8 +13,8 @@ export type ClientPluginHooks = {
 
 /** A type representing the components that a client plugin can define */
 export type ClientPluginComponents = {
-  request: Component<{ operation: OperationObject; selectedExample?: string }>
-  response: Component<{ request: Request; response: ResponseInstance }>
+  request: Component
+  response: Component
 }
 
 /**

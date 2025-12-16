@@ -9,6 +9,7 @@ import {
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,6 +24,8 @@ export type CreateApiClientModalOptions = {
   mountOnInitialize?: boolean
   /** The workspace store must be initialized and passed in. */
   workspaceStore: WorkspaceStore
+  /** Api client plugins to include in the modal */
+  plugins?: ClientPlugin[]
 }
 
 // ---------------------------------------------------------------------------
@@ -35,7 +38,12 @@ export type CreateApiClientModalOptions = {
  * The modal does not require a router. Instead, navigation is handled by setting
  * active entities directly through the returned `route` function.
  */
-export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = true }: CreateApiClientModalOptions) => {
+export const createApiClientModal = ({
+  el,
+  workspaceStore,
+  mountOnInitialize = true,
+  plugins,
+}: CreateApiClientModalOptions) => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
     method: 'default',
@@ -79,6 +87,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
     path,
     method,
     exampleName,
+    plugins,
   } satisfies ModalProps)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

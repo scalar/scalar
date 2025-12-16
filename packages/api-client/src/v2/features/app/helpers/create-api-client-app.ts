@@ -36,9 +36,12 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 /**
  * Create the API Client with router and passes in the workspace store as a prop
  */
-export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop' }: CreateApiClientOptions) => {
+export const createApiClientApp = (
+  el: HTMLElement | null,
+  { layout = 'desktop', plugins = [] }: CreateApiClientOptions,
+) => {
   // Pass in our initial props at the top level
-  const app = createApp(App, { layout })
+  const app = createApp(App, { layout, plugins })
 
   // Add the router
   app.use(createAppRouter(layout))

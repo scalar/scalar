@@ -26,6 +26,7 @@ import { useWorkspaceSelector } from '@/v2/features/app/hooks/use-workspace-sele
 import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
 import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -36,8 +37,9 @@ import WebTopNav from './components/WebTopNav.vue'
 import { useTabs } from './hooks/use-tabs'
 import { useWorkspaceClientAppEvents } from './hooks/use-workspace-client-app-events'
 
-const { layout } = defineProps<{
+const { layout, plugins } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
+  plugins: ClientPlugin[]
 }>()
 
 /** Expose workspace store to window for debugging purposes. */
@@ -224,6 +226,7 @@ const routerViewProps = computed(
       path: path.value,
       workspaceStore: store.value!,
       activeWorkspace: activeWorkspace.value!,
+      plugins,
     }) satisfies RouteProps,
 )
 
