@@ -225,7 +225,7 @@ const openMenu = async (
   menuTarget.value?.el.dispatchEvent(cloned)
 }
 
-/** Closes the dropdown menu by clearing the menu target */
+/** Closes the dropdown menu */
 const closeMenu = () => {
   if (menuTarget.value) {
     menuTarget.value.showMenu = false

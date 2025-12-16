@@ -2,9 +2,6 @@
 /**
  * Scalar dropdown component
  *
- * Uses the headlessui Menu component under the hood
- * @see https://headlessui.com/v1/vue/menu
- *
  * @example
  * <ScalarDropdown>
  *   <ScalarButton>Click Me</ScalarButton>
