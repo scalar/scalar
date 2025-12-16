@@ -2,7 +2,6 @@ FROM node:22-slim
 
 ENV NODE_ENV=production
 
-# Use default non-root user from the node image
 WORKDIR /app
 
 # Set rights for the node user
@@ -19,6 +18,7 @@ RUN mkdir -p /tmp && chown node:node /tmp
 
 EXPOSE 3000
 
+# Switch to the non-root user
 USER node
 
 # Use docker-entrypoint.js as the entrypoint
