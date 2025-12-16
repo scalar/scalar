@@ -24,7 +24,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -69,7 +69,7 @@ jobs:
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Check whether integration files were modified
         id: changed-integration-files
@@ -144,10 +144,10 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
       - name: Setup Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -169,10 +169,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
       - name: Setup Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -188,7 +188,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Setup Node
         uses: ./.github/actions/setup-node
       - name: Install dependencies
@@ -202,7 +202,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -220,7 +220,7 @@ jobs:
         shard-index: [1, 2]
         shard-total: [2]
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -247,7 +247,7 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -263,9 +263,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Setup Go
-        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -290,7 +290,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -339,7 +339,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -391,7 +391,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -440,7 +440,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -489,7 +489,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           fetch-depth: 0
       - name: Generate release tag
@@ -550,7 +550,7 @@ jobs:
     needs: [required-jobs-main]
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -594,7 +594,7 @@ jobs:
     needs: [build, test-packages]
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -630,7 +630,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Check which files were touched
         id: changed-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
@@ -699,7 +699,7 @@ jobs:
     needs: [build, test-packages]
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build
         with:
@@ -742,7 +742,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Build
         uses: ./.github/actions/build
@@ -785,7 +785,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Build
         uses: ./.github/actions/build
@@ -843,7 +843,7 @@ jobs:
       preview-url: ${{ steps.set-preview-url.outputs.url }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build
@@ -927,7 +927,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -973,7 +973,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Get version from package.json
         id: package-version
@@ -1026,7 +1026,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -1044,13 +1044,13 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
+        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
         with:
           dotnet-version: |
             10.x
@@ -1081,7 +1081,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Git Status
         run: git status
@@ -1106,13 +1106,13 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
+        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
         with:
           dotnet-version: 10.x
 
@@ -1142,7 +1142,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Git Status
         run: git status
@@ -1198,13 +1198,13 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - name: Cache NuGet packages
-        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
+        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
         with:
           dotnet-version: 10.x
 
@@ -1228,10 +1228,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
         with:
           python-version: '3.11'
 
@@ -1260,10 +1260,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
         with:
           python-version: '3.11'
 
@@ -1290,10 +1290,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
         with:
           python-version: '3.11'
 
@@ -1322,10 +1322,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
         with:
           python-version: '3.11'
 
@@ -1352,7 +1352,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -1367,7 +1367,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             ~/.cargo/registry
@@ -1411,7 +1411,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -1426,7 +1426,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             ~/.cargo/registry
@@ -1462,14 +1462,14 @@ jobs:
       contents: read
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -1490,14 +1490,14 @@ jobs:
       contents: read
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5
         with:
           distribution: 'temurin'
           java-version: '17'
