@@ -711,6 +711,75 @@ export const deleteAllOperationParameters = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
+ * Sets a header parameter value for a specific example key.
+ * Creates the header parameter if it does not exist, otherwise updates the existing one.
+ *
+ * Note: This function does not handle parameters with content (ParameterWithContentObject).
+ * Those cases are currently unsupported and will no-op.
+ */
+export const setHeader = ({
+  operation,
+  type,
+  name,
+  value,
+  exampleKey,
+}: {
+  operation: OperationObject
+  type: ParameterObject['in']
+  name: string
+  value: string
+  exampleKey: string
+}) => {
+  // Initialize parameters array if it does not exist
+  if (!operation.parameters) {
+    operation.parameters = []
+  }
+
+  // Find existing header parameter (case-insensitive name match)
+  const existingParameter = operation.parameters.find((param) => {
+    const resolvedParam = getResolvedRef(param)
+    return resolvedParam.name.toLowerCase() === name.toLowerCase() && resolvedParam.in === type
+  })
+
+  if (!existingParameter) {
+    // Create a new header parameter with the example value
+    operation.parameters.push({
+      in: type,
+      name,
+      examples: {
+        [exampleKey]: {
+          value,
+        },
+      },
+    })
+    return
+  }
+
+  const resolvedParameter = getResolvedRef(existingParameter)
+
+  // We do not handle parameters with content
+  if (isContentTypeParameterObject(resolvedParameter)) {
+    return
+  }
+
+  // Initialize examples if they do not exist
+  if (!resolvedParameter.examples) {
+    resolvedParameter.examples = {}
+  }
+
+  // Initialize the specific example if it does not exist
+  if (!resolvedParameter.examples[exampleKey]) {
+    resolvedParameter.examples[exampleKey] = {}
+  }
+
+  // Update the example value
+  getResolvedRef(resolvedParameter.examples[exampleKey]).value = value
+  return
+}
+
+const SKIP_CONTENT_TYPE_HEADERS = ['other', 'none']
+
+/**
  * Sets the selected request-body content type for the current `exampleKey`.
  * This stores the selection under `x-scalar-selected-content-type` on the
  * resolved requestBody. Safely no-ops if the document or operation does not exist.
@@ -750,6 +819,17 @@ export const updateOperationRequestBodyContentType = (
   }
 
   requestBody!['x-scalar-selected-content-type'][meta.exampleKey] = payload.contentType
+
+  // Try to also set the content-type header in the operation parameters
+  if (!SKIP_CONTENT_TYPE_HEADERS.includes(payload.contentType)) {
+    setHeader({
+      operation,
+      name: 'Content-Type',
+      type: 'header',
+      exampleKey: meta.exampleKey,
+      value: payload.contentType,
+    })
+  }
 }
 
 /**

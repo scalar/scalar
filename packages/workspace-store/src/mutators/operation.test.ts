@@ -3,6 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
+import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import {
   addOperationParameter,
@@ -13,6 +14,7 @@ import {
   deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
+  setHeader,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
@@ -108,9 +110,13 @@ describe('updateOperationPathMethod (method only)', () => {
       {
         meta: { method: 'get', path: '/users' },
         payload: { method: 'put', path: '/users' },
-        callback: (_status) => {},
+        callback: (_status) => {
+          return
+        },
       },
-      (_status) => {},
+      (_status) => {
+        return
+      },
     )
     expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
 
@@ -178,9 +184,13 @@ describe('updateOperationPathMethod (method only)', () => {
       {
         meta: { method: 'get', path: '/products' },
         payload: { method: 'patch', path: '/products' },
-        callback: (_status) => {},
+        callback: (_status) => {
+          return
+        },
       },
-      (_status) => {},
+      (_status) => {
+        return
+      },
     )
 
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
@@ -270,9 +280,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users' },
         payload: { method: 'get', path: '/api/users' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -322,9 +336,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'post', path: '/posts' },
         payload: { method: 'post', path: '/api/v2/posts' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -376,9 +394,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users' },
         payload: { method: 'get', path: '/api/users' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -422,9 +444,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users/{id}' },
         payload: { method: 'get', path: '/events/{id}' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -468,9 +494,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users/{id}/{limit}' },
         payload: { method: 'get', path: '/events/{limit}/{id}' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -514,9 +544,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users/{id}' },
         payload: { method: 'get', path: '/users/{limit}' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -559,9 +593,13 @@ describe('updateOperationPathMethod (path only)', () => {
       {
         meta: { method: 'get', path: '/users/{id}' },
         payload: { method: 'get', path: '/users/events/{limit}' },
-        callback: () => {},
+        callback: () => {
+          return
+        },
       },
-      () => {},
+      () => {
+        return
+      },
     )
 
     expect(document.paths).toStrictEqual({
@@ -1399,6 +1437,31 @@ describe('updateOperationRequestBodyContentType', () => {
 
     expect(document.paths?.['/upload']).toEqual({})
   })
+
+  it('sets the content-type header in the operation parameters', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {},
+        },
+      },
+    })
+
+    updateOperationRequestBodyContentType(document, {
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: { contentType: 'application/json' },
+    })
+
+    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    assert(op)
+    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
+    expect(params).toHaveLength(1)
+    expect(params[0]).toMatchObject({
+      name: 'Content-Type',
+      in: 'header',
+      examples: { default: { value: 'application/json' } },
+    })
+  })
 })
 
 describe('updateOperationRequestBodyExample', () => {
@@ -2220,5 +2283,357 @@ describe('deleteOperationExample', () => {
     expect(param.examples?.default).toBeDefined()
     expect(param.examples?.small).toBeUndefined()
     expect(param.examples?.large).toBeDefined()
+  })
+})
+
+describe('setHeader', () => {
+  it('creates a new header parameter when it does not exist', () => {
+    const operation = {} as OperationObject
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header',
+      value: 'custom-value',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toHaveLength(1)
+    const param = getResolvedRef(operation.parameters?.[0])
+    expect(param).toMatchObject({
+      in: 'header',
+      name: 'X-Custom-Header',
+    })
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('custom-value')
+  })
+
+  it('initializes parameters array when it does not exist', () => {
+    const operation = {} as OperationObject
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'Authorization',
+      value: 'Bearer token123',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toBeDefined()
+    expect(Array.isArray(operation.parameters)).toBe(true)
+    expect(operation.parameters).toHaveLength(1)
+  })
+
+  it('updates an existing header parameter value', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'X-Custom-Header',
+          examples: {
+            default: { value: 'old-value' },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header',
+      value: 'new-value',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toHaveLength(1)
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('new-value')
+  })
+
+  it('matches header names case-insensitively', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'Content-Type',
+          examples: {
+            default: { value: 'application/json' },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'content-type',
+      value: 'application/xml',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toHaveLength(1)
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('application/xml')
+  })
+
+  it('creates a new example for a different exampleKey', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'X-Api-Key',
+          examples: {
+            default: { value: 'key123' },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Api-Key',
+      value: 'key456',
+      exampleKey: 'production',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('key123')
+    expect(getResolvedRef((param.examples as any).production)?.value).toBe('key456')
+  })
+
+  it('initializes examples object when it does not exist on existing parameter', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'X-Custom-Header',
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header',
+      value: 'new-value',
+      exampleKey: 'default',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef((param.examples as any).default)?.value).toBe('new-value')
+  })
+
+  it('no-ops when parameter has content property', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'X-Custom-Header',
+          content: {
+            'application/json': {
+              schema: { type: 'string' },
+            },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header',
+      value: 'new-value',
+      exampleKey: 'default',
+    })
+
+    // Parameter should remain unchanged
+    const param = getResolvedRef(operation.parameters?.[0])
+    expect(param).toMatchObject({
+      in: 'header',
+      name: 'X-Custom-Header',
+      content: {
+        'application/json': {
+          schema: { type: 'string' },
+        },
+      },
+    })
+    assert(param && 'content' in param)
+    expect('examples' in param).toBe(false)
+  })
+
+  it('preserves other parameters when creating a new header', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'query' as const,
+          name: 'page',
+          examples: { default: { value: '1' } },
+        },
+        {
+          in: 'header' as const,
+          name: 'X-Existing-Header',
+          examples: { default: { value: 'existing' } },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-New-Header',
+      value: 'new-value',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toHaveLength(3)
+    const queryParam = getResolvedRef(operation.parameters?.[0])
+    const existingHeader = getResolvedRef(operation.parameters?.[1])
+    const newHeader = getResolvedRef(operation.parameters?.[2])
+
+    expect(queryParam?.name).toBe('page')
+    expect(existingHeader?.name).toBe('X-Existing-Header')
+    expect(newHeader?.name).toBe('X-New-Header')
+  })
+
+  it('preserves other parameters when updating an existing header', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'query' as const,
+          name: 'page',
+          examples: { default: { value: '1' } },
+        },
+        {
+          in: 'header' as const,
+          name: 'X-Custom-Header',
+          examples: { default: { value: 'old' } },
+        },
+        {
+          in: 'path' as const,
+          name: 'id',
+          examples: { default: { value: '123' } },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header',
+      value: 'new',
+      exampleKey: 'default',
+    })
+
+    expect(operation.parameters).toHaveLength(3)
+    const queryParam = getResolvedRef(operation.parameters?.[0])
+    const headerParam = getResolvedRef(operation.parameters?.[1])
+    const pathParam = getResolvedRef(operation.parameters?.[2])
+
+    expect(queryParam?.name).toBe('page')
+    expect(pathParam?.name).toBe('id')
+    assert(headerParam && 'examples' in headerParam && headerParam.examples)
+    expect(getResolvedRef(headerParam.examples.default)?.value).toBe('new')
+  })
+
+  it('handles multiple example keys for the same header', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'Authorization',
+          examples: {
+            default: { value: 'Bearer token1' },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'Authorization',
+      value: 'Bearer token2',
+      exampleKey: 'staging',
+    })
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'Authorization',
+      value: 'Bearer token3',
+      exampleKey: 'production',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('Bearer token1')
+    expect(getResolvedRef((param.examples as any).staging)?.value).toBe('Bearer token2')
+    expect(getResolvedRef((param.examples as any).production)?.value).toBe('Bearer token3')
+  })
+
+  it('updates only the specified example without affecting others', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          in: 'header' as const,
+          name: 'X-Api-Version',
+          examples: {
+            v1: { value: '1.0' },
+            v2: { value: '2.0' },
+            v3: { value: '3.0' },
+          },
+        },
+      ],
+    }
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Api-Version',
+      value: '2.1',
+      exampleKey: 'v2',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.v1)?.value).toBe('1.0')
+    expect(getResolvedRef(param.examples.v2)?.value).toBe('2.1')
+    expect(getResolvedRef(param.examples.v3)?.value).toBe('3.0')
+  })
+
+  it('handles empty string values', () => {
+    const operation = {} as OperationObject
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Empty-Header',
+      value: '',
+      exampleKey: 'default',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('')
+  })
+
+  it('handles special characters in header names', () => {
+    const operation = {} as OperationObject
+
+    setHeader({
+      operation,
+      type: 'header',
+      name: 'X-Custom-Header-123',
+      value: 'test-value',
+      exampleKey: 'default',
+    })
+
+    const param = getResolvedRef(operation.parameters?.[0])
+    expect(param?.name).toBe('X-Custom-Header-123')
   })
 })
