@@ -91,53 +91,53 @@ const generatedCode = computed<string>(() =>
 </script>
 
 <template>
-  <ScalarErrorBoundary>
-    <div class="w-full">
-      <CollapsibleSection
-        class="group/preview w-full border-b-0"
-        :defaultOpen="false">
-        <template #title>Code Snippet</template>
+  <CollapsibleSection
+    class="group/preview w-full border-b-0"
+    :defaultOpen="false">
+    <template #title>Code Snippet</template>
 
-        <!-- Client selector -->
-        <template #actions>
-          <div class="flex flex-1">
-            <ScalarCombobox
-              :modelValue="localSelectedClient"
-              :options="clients"
-              placement="bottom-end"
-              @update:modelValue="
-                (ev) => handleClientChange(ev as ClientOption | undefined)
-              ">
-              <ScalarButton
-                class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
-                data-testid="client-picker"
-                variant="ghost">
-                {{ localSelectedClient?.title }}
-                <ScalarIconCaretDown
-                  class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
-                  weight="bold" />
-              </ScalarButton>
-            </ScalarCombobox>
+    <!-- Client selector -->
+    <template #actions>
+      <div class="flex flex-1">
+        <ScalarCombobox
+          :modelValue="localSelectedClient"
+          :options="clients"
+          placement="bottom-end"
+          @update:modelValue="
+            (ev) => handleClientChange(ev as ClientOption | undefined)
+          ">
+          <template #default="{ open }">
+            <ScalarButton
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
+              data-testid="client-picker"
+              variant="ghost">
+              {{ localSelectedClient?.title }}
+              <ScalarIconCaretDown
+                class="mt-0.25 size-3 transition-transform duration-100"
+                :class="open && 'rotate-180'"
+                weight="bold" />
+            </ScalarButton>
+          </template>
+        </ScalarCombobox>
+      </div>
+    </template>
+
+    <!-- Code snippet -->
+    <ScalarErrorBoundary>
+      <DataTable
+        :columns="['']"
+        presentational>
+        <DataTableRow>
+          <div class="overflow-hidden border-t">
+            <ScalarCodeBlock
+              class="text-base -outline-offset-2"
+              :content="generatedCode"
+              :hideCredentials="secretCredentials"
+              :lang="localSelectedClient?.lang ?? 'plaintext'"
+              lineNumbers />
           </div>
-        </template>
-
-        <!-- Code snippet -->
-        <DataTable
-          :columns="['']"
-          presentational>
-          <DataTableRow>
-            <div
-              class="bg-b-1 flex items-center justify-center overflow-hidden border-t">
-              <ScalarCodeBlock
-                class="bg-b-2 -outline-offset-2"
-                :content="generatedCode"
-                :hideCredentials="secretCredentials"
-                :lang="localSelectedClient?.lang ?? 'plaintext'"
-                lineNumbers />
-            </div>
-          </DataTableRow>
-        </DataTable>
-      </CollapsibleSection>
-    </div>
-  </ScalarErrorBoundary>
+        </DataTableRow>
+      </DataTable>
+    </ScalarErrorBoundary>
+  </CollapsibleSection>
 </template>
