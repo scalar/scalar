@@ -719,11 +719,13 @@ export const deleteAllOperationParameters = (
  */
 export const setHeader = ({
   operation,
+  type,
   name,
   value,
   exampleKey,
 }: {
   operation: OperationObject
+  type: ParameterObject['in']
   name: string
   value: string
   exampleKey: string
@@ -734,9 +736,10 @@ export const setHeader = ({
   }
 
   // Find existing header parameter (case-insensitive name match)
-  const existingParameter = operation.parameters.find(
-    (param) => getResolvedRef(param).name.toLowerCase() === name.toLowerCase(),
-  )
+  const existingParameter = operation.parameters.find((param) => {
+    const resolvedParam = getResolvedRef(param)
+    return resolvedParam.name.toLowerCase() === name.toLowerCase() && resolvedParam.in === type
+  })
 
   if (!existingParameter) {
     // Create a new header parameter with the example value
@@ -822,6 +825,7 @@ export const updateOperationRequestBodyContentType = (
     setHeader({
       operation,
       name: 'Content-Type',
+      type: 'header',
       exampleKey: meta.exampleKey,
       value: payload.contentType,
     })

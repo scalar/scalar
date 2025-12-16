@@ -2292,6 +2292,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header',
       value: 'custom-value',
       exampleKey: 'default',
@@ -2312,6 +2313,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'Authorization',
       value: 'Bearer token123',
       exampleKey: 'default',
@@ -2337,6 +2339,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header',
       value: 'new-value',
       exampleKey: 'default',
@@ -2363,6 +2366,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'content-type',
       value: 'application/xml',
       exampleKey: 'default',
@@ -2389,6 +2393,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Api-Key',
       value: 'key456',
       exampleKey: 'production',
@@ -2412,6 +2417,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header',
       value: 'new-value',
       exampleKey: 'default',
@@ -2439,6 +2445,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header',
       value: 'new-value',
       exampleKey: 'default',
@@ -2477,6 +2484,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-New-Header',
       value: 'new-value',
       exampleKey: 'default',
@@ -2515,6 +2523,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header',
       value: 'new',
       exampleKey: 'default',
@@ -2546,6 +2555,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'Authorization',
       value: 'Bearer token2',
       exampleKey: 'staging',
@@ -2553,6 +2563,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'Authorization',
       value: 'Bearer token3',
       exampleKey: 'production',
@@ -2582,6 +2593,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Api-Version',
       value: '2.1',
       exampleKey: 'v2',
@@ -2599,6 +2611,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Empty-Header',
       value: '',
       exampleKey: 'default',
@@ -2614,6 +2627,7 @@ describe('setHeader', () => {
 
     setHeader({
       operation,
+      type: 'header',
       name: 'X-Custom-Header-123',
       value: 'test-value',
       exampleKey: 'default',
