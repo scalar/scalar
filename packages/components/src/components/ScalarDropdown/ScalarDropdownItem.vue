@@ -29,20 +29,16 @@ defineEmits<{
 const { active } = useDropdownItem()
 </script>
 <template>
-  <li
-    class="contents"
+  <ScalarDropdownButton
+    :active="active === id"
+    tabindex="-1"
+    :disabled
     role="menuitem"
     :id
-    :aria-disabled="disabled">
-    <ScalarDropdownButton
-      :active="active === id"
-      tabindex="-1"
-      :disabled
-      @mouseenter="active = id"
-      @click="(e: MouseEvent) => $emit('click', e)">
-      <slot />
-    </ScalarDropdownButton>
-  </li>
+    @mouseenter="active = id"
+    @click="(e: MouseEvent) => $emit('click', e)">
+    <slot />
+  </ScalarDropdownButton>
 </template>
 <style scoped>
 .dark-mode .scalar-dropdown-item:hover {

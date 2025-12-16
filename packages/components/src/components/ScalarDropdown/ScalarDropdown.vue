@@ -61,7 +61,7 @@ async function handleTargetClick() {
 /** Handle keydown events on the target */
 async function handleTargetKeydown(event: KeyboardEvent) {
   // Only handle the keys that are relevant to the dropdown
-  if (['ArrowDown', 'ArrowUp', 'Space', 'Enter'].includes(event.key))
+  if (['ArrowDown', 'ArrowUp', ' ', 'Enter'].includes(event.key))
     event.preventDefault()
   else return
 
@@ -75,7 +75,7 @@ async function handleTargetKeydown(event: KeyboardEvent) {
   menuRef.value?.focus()
 
   // Move the active item if the key is an arrow key or space or enter
-  if (['ArrowDown', 'Space', 'Enter'].includes(event.key)) moveActive(1)
+  if (['ArrowDown', ' ', 'Enter'].includes(event.key)) moveActive(1)
   else if (event.key === 'ArrowUp') moveActive(-1)
 }
 
@@ -137,11 +137,11 @@ async function handleClose() {
 function handleSelected() {
   if (!active.value || !menuRef.value) return
 
-  const button = menuRef.value.querySelector<HTMLButtonElement>(
-    `#${active.value}[role="menuitem"]:not([aria-disabled="true"]) button`,
+  const button = menuRef.value.querySelector<HTMLElement>(
+    `#${active.value}[role="menuitem"]:not([aria-disabled="true"])`,
   )
 
-  if (!button || button.disabled) return
+  if (!button) return
 
   button.click()
 
@@ -205,7 +205,7 @@ const { cx } = useBindCx()
         :style="{ width }"
         v-bind="cx('max-h-[inherit] max-w-[inherit]')">
         <template #menu>
-          <ul
+          <div
             class="flex flex-col p-0.75 outline-none"
             ref="menuRef"
             role="menu"
@@ -223,7 +223,7 @@ const { cx } = useBindCx()
             <slot
               name="items"
               :open />
-          </ul>
+          </div>
         </template>
       </ScalarDropdownMenu>
     </template>

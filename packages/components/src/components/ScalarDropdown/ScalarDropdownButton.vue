@@ -46,6 +46,7 @@ const variants = cva({
   <component
     :is="is"
     class="item"
+    :aria-disabled="disabled"
     :class="cx('scalar-dropdown-item', variants({ active, disabled }))"
     :type="is === 'button' ? 'button' : undefined">
     <slot />

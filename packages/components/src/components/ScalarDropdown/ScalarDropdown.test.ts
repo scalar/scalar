@@ -193,8 +193,8 @@ describe('ScalarDropdown', () => {
       await nextTick()
 
       const trigger = wrapper.get('button#trigger')
-      // Component checks for 'Space' key name, not ' ' character
-      await trigger.trigger('keydown', { key: 'Space' })
+      // Browser sends ' ' (space character) for Space key, not 'Space'
+      await trigger.trigger('keydown', { key: ' ' })
 
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
@@ -628,7 +628,7 @@ describe('ScalarDropdown', () => {
       expect(disabled!.attributes('aria-disabled')).toBe('true')
 
       // Click enabled first item triggers the provided handler and closes menu
-      await items[0]!.get('button').trigger('click')
+      await items[0]!.trigger('click')
       await nextTick()
       expect(onFirst).toHaveBeenCalledTimes(1)
 
@@ -655,7 +655,7 @@ describe('ScalarDropdownItem', () => {
     await nextTick()
 
     const item = wrapper.get('[role="menuitem"]')
-    await item.get('button').trigger('click')
+    await item.trigger('click')
     await nextTick()
     expect(onClick).toHaveBeenCalledTimes(1)
   })
