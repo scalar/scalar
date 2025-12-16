@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId } from 'vue'
@@ -17,27 +18,24 @@ import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.v
 import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
-import type { ClientPlugin } from '@/v2/plugins'
+import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */
-  response?: ResponseInstance
+  response: ResponseInstance | null
   /** Original request instance */
-  request?: Request
-
+  request: Request | null
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Application version */
   appVersion: string
-
   /** Registered app plugins */
-  plugins?: ClientPlugin[]
-
+  plugins: ClientPlugin[]
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
-
   eventBus: WorkspaceEventBus
 }>()
 
@@ -60,16 +58,9 @@ const responseHeaders = computed(() => {
 // Cookies
 const responseCookies = computed(
   () =>
-    response?.cookieHeaderKeys.flatMap((key) => {
-      const value = response?.headers?.[key]
-
-      return value
-        ? {
-            name: key,
-            value,
-          }
-        : []
-    }) ?? [],
+    response?.cookieHeaderKeys
+      .map((setCookieValue) => parseSetCookie(setCookieValue))
+      .filter(isDefined) ?? [],
 )
 
 const responseSections = ['Cookies', 'Headers', 'Body'] as const
@@ -125,7 +116,7 @@ const requestHeaders = computed(() =>
 const isSectionVisible = (
   section: (typeof responseSections)[number] | 'All',
 ) => {
-  if (section === 'All' || activeFilter.value === section) {
+  if (activeFilter.value === 'All' || activeFilter.value === section) {
     return true
   }
   return false
@@ -217,7 +208,7 @@ defineExpose({
           :key="index">
           <component
             :is="plugin.components.response"
-            v-if="plugin.components?.response"
+            v-if="plugin.components?.response && request && response"
             v-show="activeFilter === 'All'"
             :request="request"
             :response="response" />

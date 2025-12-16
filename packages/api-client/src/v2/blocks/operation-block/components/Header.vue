@@ -30,15 +30,9 @@ const { hideClientButton = false } = defineProps<{
   servers: ServerObject[]
   /** List of request history */
   history: History[]
-  /**
-   * When the request is sent from the modal, this indicates the progress percentage
-   * of the request being sent.
-   *
-   * The amount remaining to load from 100 -> 0
-   */
-  requestLoadingPercentage?: number
   /** Event bus */
   eventBus: WorkspaceEventBus
+  /** Environment variables */
   environment: XScalarEnvironment
 }>()
 
@@ -50,7 +44,7 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center border-b p-2 pt-2 lg:p-1 lg:pt-1">
+    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
     <div
       class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <!--
@@ -67,7 +61,6 @@ const emit = defineEmits<{
       :layout
       :method
       :path
-      :percentage="requestLoadingPercentage"
       :server
       :servers
       @execute="emit('execute')"

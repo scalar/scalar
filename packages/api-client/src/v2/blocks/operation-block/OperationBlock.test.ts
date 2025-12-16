@@ -1,76 +1,494 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createStoreEvents } from '@/store/events'
-import { ResponseBlock } from '@/v2/blocks/response-block'
+import type { ClientLayout } from '@/hooks/useLayout'
+import { ERRORS } from '@/libs/errors'
 
-import Header from './components/Header.vue'
+import { buildRequest } from './helpers/build-request'
+import { type ResponseInstance, sendRequest } from './helpers/send-request'
 import OperationBlock from './OperationBlock.vue'
 
-describe('OperationContainer', () => {
-  const eventBus = createWorkspaceEventBus()
-  const events = createStoreEvents()
+vi.mock('./helpers/build-request')
+vi.mock('./helpers/send-request')
 
-  const defaultOperation = {
+/**
+ * Mock the toast composable to capture toast calls in tests.
+ */
+const mockToast = vi.fn()
+vi.mock('@scalar/use-toasts', () => ({
+  useToasts: () => ({
+    toast: mockToast,
+  }),
+}))
+
+/**
+ * Mock the child components to avoid rendering issues in tests.
+ * We focus on testing the OperationBlock logic, not the child components.
+ */
+vi.mock('./components/Header.vue', () => ({
+  default: {
+    name: 'Header',
+    template: '<div data-test="header"></div>',
+  },
+}))
+
+vi.mock('@/v2/blocks/request-block', () => ({
+  RequestBlock: {
+    name: 'RequestBlock',
+    template: '<div data-test="request-block"></div>',
+  },
+}))
+
+vi.mock('@/v2/blocks/response-block', () => ({
+  ResponseBlock: {
+    name: 'ResponseBlock',
+    template: '<div data-test="response-block"></div>',
+  },
+}))
+
+vi.mock('@/components/ViewLayout/ViewLayout.vue', () => ({
+  default: {
+    name: 'ViewLayout',
+    template: '<div data-test="view-layout"><slot /></div>',
+  },
+}))
+
+vi.mock('@/components/ViewLayout/ViewLayoutContent.vue', () => ({
+  default: {
+    name: 'ViewLayoutContent',
+    template: '<div data-test="view-layout-content"><slot /></div>',
+  },
+}))
+
+/**
+ * Creates a minimal mock event bus for testing.
+ * We only implement the methods that OperationBlock uses.
+ */
+const createMockEventBus = (): WorkspaceEventBus => ({
+  on: vi.fn(),
+  off: vi.fn(),
+  emit: vi.fn(),
+})
+
+/**
+ * Creates a minimal mock environment for testing.
+ * This represents the environment variables available during request execution.
+ */
+const createMockEnvironment = (): XScalarEnvironment => ({
+  color: 'blue',
+  variables: [],
+})
+
+/**
+ * Creates a minimal mock operation for testing.
+ * This represents an OpenAPI operation object.
+ */
+const createMockOperation = (overrides: Partial<OperationObject> = {}): OperationObject =>
+  ({
+    operationId: 'test-operation',
+    summary: 'Test operation',
+    description: 'Test operation description',
+    tags: [],
+    parameters: [],
     responses: {},
-  } as any
+    ...overrides,
+  }) as OperationObject
 
-  const defaultProps = {
-    eventBus,
-    appVersion: 'test-version',
-    path: '/pets',
-    method: 'get' as const,
-    layout: 'web' as const,
-    server: null,
-    servers: [],
-    history: [],
-    totalPerformedRequests: 0,
-    operation: defaultOperation,
-    exampleKey: 'default',
-    selectedContentType: 'application/json',
-    authMeta: { type: 'document' } as any,
-    securitySchemes: {},
-    selectedSecurity: { selectedIndex: 0, selectedSchemes: [] } as any,
-    security: [],
-    events,
-    plugins: [],
-    environment: {
-      color: 'blue',
-      variables: [],
-      description: 'Test Environment',
-    },
-    envVariables: [],
-  }
+/**
+ * Creates a minimal mock authMeta for testing.
+ * This represents the authentication metadata for the operation.
+ */
+const createMockAuthMeta = (): AuthMeta => ({
+  type: 'operation',
+  path: '/api/users',
+  method: 'get',
+})
 
-  const render = (overrides: Record<string, any> = {}) => {
-    const props = { ...defaultProps, ...overrides }
-    return mount(OperationBlock, { props })
-  }
+/**
+ * Creates default props for mounting the OperationBlock component.
+ * These props represent the minimum required to render the component.
+ */
+const createDefaultProps = () => ({
+  eventBus: createMockEventBus(),
+  appVersion: '1.0.0',
+  proxyUrl: '',
+  globalCookies: [] as XScalarCookie[],
+  path: '/api/users',
+  method: 'get' as const,
+  layout: 'desktop' as ClientLayout,
+  server: { url: 'https://api.example.com' },
+  servers: [{ url: 'https://api.example.com' }],
+  history: [],
+  totalPerformedRequests: 0,
+  operation: createMockOperation(),
+  exampleKey: 'default',
+  authMeta: createMockAuthMeta(),
+  securitySchemes: {},
+  selectedSecurity: undefined,
+  security: [],
+  plugins: [],
+  environment: createMockEnvironment(),
+})
 
-  it('emits operation:send:request via event bus when execute is triggered', () => {
-    const fn = vi.fn()
-    eventBus.on('operation:send:request', fn)
-
-    const wrapper = render({ path: '/pets', method: 'get', exampleKey: 'ex1' })
-    const header = wrapper.getComponent(Header)
-    header.vm.$emit('execute')
-
-    expect(fn).toHaveBeenCalledTimes(1)
-
-    expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex1' } })
+describe('OperationBlock', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockToast.mockClear()
   })
 
-  it('emits operation:send:request when ResponseBlock sendRequest event is triggered', () => {
-    const fn = vi.fn()
-    eventBus.on('operation:send:request', fn)
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
-    const wrapper = render({ path: '/pets', method: 'get', exampleKey: 'ex2' })
-    const responseBlock = wrapper.getComponent(ResponseBlock)
-    responseBlock.vm.$emit('sendRequest')
+  it('renders without errors with minimal props', () => {
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
 
-    expect(fn).toHaveBeenCalledTimes(1)
+    expect(wrapper.exists()).toBe(true)
+  })
 
-    expect(fn).toHaveBeenCalledWith({ meta: { path: '/pets', method: 'get', exampleKey: 'ex2' } })
+  it('registers event listeners on mount and unregisters on unmount', () => {
+    const mockEventBus = createMockEventBus()
+    const props = createDefaultProps()
+    props.eventBus = mockEventBus
+
+    const wrapper = mount(OperationBlock, { props })
+
+    expect(mockEventBus.on).toHaveBeenCalledWith('operation:send:request:hotkey', expect.any(Function))
+    expect(mockEventBus.on).toHaveBeenCalledWith('operation:cancel:request', expect.any(Function))
+
+    wrapper.unmount()
+
+    expect(mockEventBus.off).toHaveBeenCalledWith('operation:send:request:hotkey', expect.any(Function))
+    expect(mockEventBus.off).toHaveBeenCalledWith('operation:cancel:request', expect.any(Function))
+  })
+
+  it('executes request when handleExecute is called', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"success": true}',
+      size: 20,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(buildRequest).toHaveBeenCalledOnce()
+    expect(sendRequest).toHaveBeenCalledOnce()
+  })
+
+  it('displays toast error when buildRequest fails', async () => {
+    const mockError = new Error('Invalid URL')
+    vi.mocked(buildRequest).mockReturnValue([mockError, null])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(mockToast).toHaveBeenCalledWith('Invalid URL', 'error')
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it('displays toast error when sendRequest fails', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    const mockError = new Error(ERRORS.REQUEST_FAILED)
+    vi.mocked(sendRequest).mockResolvedValue([mockError, null])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(mockToast).toHaveBeenCalledWith(ERRORS.REQUEST_FAILED, 'error')
+  })
+
+  it('stores abort controller when request is initiated', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: {} as ResponseInstance,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    const abortController = instance.abortController
+    expect(abortController).toBe(mockController)
+  })
+
+  it('cancels request when cancelRequest is called', async () => {
+    const mockController = new AbortController()
+    const abortSpy = vi.spyOn(mockController, 'abort')
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: {} as ResponseInstance,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+    instance.cancelRequest()
+
+    expect(abortSpy).toHaveBeenCalledWith(ERRORS.REQUEST_ABORTED)
+  })
+
+  it('passes all required props to buildRequest', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: {} as ResponseInstance,
+      },
+    ])
+
+    const mockCookie: XScalarCookie = { name: 'session', value: 'abc123', domain: 'example.com' }
+    const mockSelectedSecurity = { selectedIndex: 0, selectedSchemes: [{ apiKey: [] }] }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        globalCookies: [mockCookie],
+        proxyUrl: 'https://proxy.example.com',
+        selectedSecurity: mockSelectedSecurity,
+      },
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(buildRequest).toHaveBeenCalledWith({
+      environment: wrapper.props().environment,
+      exampleKey: 'default',
+      globalCookies: [mockCookie],
+      method: 'get',
+      operation: wrapper.props().operation,
+      path: '/api/users',
+      securitySchemes: {},
+      selectedSecurity: [{ apiKey: [] }],
+      server: wrapper.props().server,
+      proxyUrl: 'https://proxy.example.com',
+    })
+  })
+
+  it('passes plugins to sendRequest', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: true,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: {} as ResponseInstance,
+      },
+    ])
+
+    const mockPlugin = {
+      hooks: {
+        beforeRequest: vi.fn((req: Request) => req),
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        plugins: [mockPlugin],
+      },
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(sendRequest).toHaveBeenCalledWith({
+      isUsingProxy: true,
+      operation: wrapper.props().operation,
+      plugins: [mockPlugin],
+      request: mockRequest,
+    })
+  })
+
+  it('stores response after successful request execution', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: { 'content-type': 'application/json' },
+      cookieHeaderKeys: [],
+      duration: 150,
+      method: 'get',
+      path: '/api/users',
+      data: '{"users": []}',
+      size: 14,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    const response = instance.response
+    expect(response).toStrictEqual(mockResponse)
+    expect(response.status).toBe(200)
+    expect(response.data).toBe('{"users": []}')
   })
 })

@@ -166,32 +166,6 @@ describe('AddressBar', () => {
     expect(wrapper.emitted('execute')?.length).toBe(2)
   })
 
-  it('disables Send button when percentage is below 100', async () => {
-    const { wrapper } = mountWithProps({ percentage: 50 })
-    await nextTick()
-
-    /**
-     * ScalarButton receives the disabled prop when percentage < 100.
-     * ScalarButton renders aria-disabled when the disabled prop is true.
-     */
-    const buttons = wrapper.findAll('button')
-    const sendButton = buttons.find((btn) => btn.text().includes('Send') || btn.html().includes('Play'))
-
-    expect(sendButton).toBeDefined()
-    expect(sendButton?.attributes('aria-disabled')).toBe('true')
-
-    /**
-     * Verify the button is not disabled when percentage is 100.
-     */
-    const { wrapper: wrapperEnabled } = mountWithProps({ percentage: 100 })
-    await nextTick()
-
-    const enabledButtons = wrapperEnabled.findAll('button')
-    const enabledSendButton = enabledButtons.find((btn) => btn.text().includes('Send') || btn.html().includes('Play'))
-
-    expect(enabledSendButton?.attributes('aria-disabled')).toBeUndefined()
-  })
-
   it('renders ServerDropdown only when servers are provided', () => {
     /**
      * ServerDropdown should render when servers array has items.

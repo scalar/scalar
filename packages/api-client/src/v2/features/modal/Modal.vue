@@ -31,6 +31,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -102,9 +103,10 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-/** Clean up listeners on modal close and unmount */
-const cleanUpListeners = () => {
+/** Clean up on close */
+const cleanUp = () => {
   deactivateFocusTrap()
+  eventBus.emit('operation:cancel:request')
 }
 
 const isLocked = useScrollLock(() => {
@@ -124,17 +126,14 @@ watch(
       // Focus trap the modal
       activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
     } else {
-      cleanUpListeners()
+      cleanUp()
     }
   },
 )
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
-
-onBeforeUnmount(() => {
-  cleanUpListeners()
-})
+onBeforeUnmount(() => cleanUp())
 
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
@@ -179,6 +178,9 @@ defineExpose({
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
+          <!-- Toasts -->
+          <ScalarToasts />
+
           <!-- If we have a document, path and method, render the operation -->
           <main
             v-if="document.value && path?.value && method?.value"

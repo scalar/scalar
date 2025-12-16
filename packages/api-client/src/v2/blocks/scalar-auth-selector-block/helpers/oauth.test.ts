@@ -71,7 +71,7 @@ describe('oauth', () => {
     } satisfies OAuthFlowsObject
 
     it('should handle successful authorization code flow', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
 
       // Test the window.open call
@@ -152,7 +152,7 @@ describe('oauth', () => {
       // Mock crypto.subtle.digest
       vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       await flushPromises()
 
       // Test the window.open call
@@ -216,7 +216,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
       const code = 'auth_code_123'
 
@@ -257,7 +257,7 @@ describe('oauth', () => {
 
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
 
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
@@ -277,7 +277,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      void authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      void authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
 
       // Test the window.open call for full redirect
       expect(window.open).toHaveBeenCalledWith(
@@ -303,7 +303,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
 
       // Test the window.open call uses absolute URL
@@ -346,7 +346,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
 
       // Mock redirect back from login
@@ -402,7 +402,7 @@ describe('oauth', () => {
         writable: true,
       })
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, undefined)
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, null, '')
       const accessToken = 'access_token_123'
 
       // Test the window.open call uses window.location as base
@@ -461,7 +461,7 @@ describe('oauth', () => {
 
     // State mismatch
     it('blow up on state mismatch', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer)
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
 
       // Mock redirect with bad state
       mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=bad_state`
@@ -551,7 +551,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -572,7 +572,7 @@ describe('oauth', () => {
 
     it('should handle token request failure', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
-      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
@@ -590,7 +590,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ custom_access_token: 'custom_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('custom_token_123')
     })
@@ -610,7 +610,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -643,7 +643,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -673,7 +673,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -703,7 +703,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -735,7 +735,7 @@ describe('oauth', () => {
     } satisfies OAuthFlowsObject
 
     it('should handle successful implicit flow', async () => {
-      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer)
+      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
       expect(window.open).toHaveBeenCalledWith(
         new URL(
           `${scheme.implicit.authorizationUrl}?${new URLSearchParams({
@@ -771,7 +771,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
 
       // Redirect with custom token name
       mockWindow.location.href = `${flows.implicit['x-scalar-secret-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
@@ -794,7 +794,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer)
+      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
 
       // Test the window.open call uses absolute URL
       expect(window.open).toHaveBeenCalledWith(
@@ -850,7 +850,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(scheme, 'password', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -887,7 +887,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -929,7 +929,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -968,7 +968,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -1007,7 +1007,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer)
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 

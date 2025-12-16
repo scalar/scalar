@@ -77,8 +77,32 @@ describe('buildRequestParameters', () => {
         } as ParameterObject,
       ]
 
-      const jsonResult = buildRequestParameters(params, {}, 'default', 'application/json')
-      const xmlResult = buildRequestParameters(params, {}, 'default', 'text/xml')
+      const jsonParams: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/json' },
+          },
+        } as ParameterObject,
+        ...params,
+      ]
+
+      const xmlParams: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/xml' },
+          },
+        } as ParameterObject,
+        ...params,
+      ]
+
+      const jsonResult = buildRequestParameters(jsonParams, {}, 'default')
+      const xmlResult = buildRequestParameters(xmlParams, {}, 'default')
 
       expect(jsonResult.headers['X-Payload']).toBe('{"type":"json"}')
       expect(xmlResult.headers['X-Payload']).toBe('<type>xml</type>')
@@ -86,6 +110,14 @@ describe('buildRequestParameters', () => {
 
     it('returns undefined when content type does not exist in content-based parameter', () => {
       const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/xml' },
+          },
+        } as ParameterObject,
         {
           name: 'X-Missing-Content-Type',
           in: 'header',
@@ -100,7 +132,7 @@ describe('buildRequestParameters', () => {
       ]
 
       // Request with a content type that does not exist in the parameter
-      const result = buildRequestParameters(params, {}, 'default', 'application/xml')
+      const result = buildRequestParameters(params, {}, 'default')
 
       // Should skip the parameter since no example is found
       expect(result.headers).not.toHaveProperty('X-Missing-Content-Type')
@@ -189,12 +221,16 @@ describe('buildRequestParameters', () => {
 
     it('builds header from content-based parameter', () => {
       const params = [
+        createParameter(
+          { name: 'Content-Type', in: 'header', value: 'application/json' },
+          { default: { value: 'application/json' } },
+        ),
         createContentParameter({ name: 'X-Custom-Header', in: 'header', value: 'custom-value' }, 'application/json', {
           default: { value: 'custom-value' },
         }),
       ]
 
-      const result = buildRequestParameters(params, {}, 'default', 'application/json')
+      const result = buildRequestParameters(params, {}, 'default')
 
       expect(result.headers['X-Custom-Header']).toBe('custom-value')
     })
@@ -576,27 +612,55 @@ describe('buildRequestParameters', () => {
     it('extracts example from content with matching content type', () => {
       const params = [
         {
+          name: 'Content-Type',
+          in: 'header',
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/json' },
+          },
+        },
+        {
           name: 'X-Payload',
           in: 'header',
           content: { 'application/json': { examples: { default: { value: 'stuff' } } } },
         },
       ] satisfies ParameterObject[]
-      const result = buildRequestParameters(params, {}, 'default', 'application/json')
+      const result = buildRequestParameters(params, {}, 'default')
 
       expect(result.headers['X-Payload']).toBe('stuff')
     })
 
     it('returns empty when content type does not match', () => {
       const params = [
+        createParameter(
+          { name: 'Content-Type', in: 'header', value: 'text/plain' },
+          { default: { value: 'text/plain' } },
+        ),
         createContentParameter({ name: 'X-Payload', in: 'header', value: '{"key":"value"}' }, 'application/json', {
           default: { value: { key: 'value' } },
         }),
       ]
-
-      const result = buildRequestParameters(params, {}, 'default', 'text/plain')
+      const result = buildRequestParameters(params, {}, 'default')
 
       // No matching content type, so no example found, parameter skipped
-      expect(result.headers).toEqual({})
+      expect(result.headers).not.toHaveProperty('X-Payload')
+    })
+
+    it('filters out Content-Type header when value is multipart/form-data', () => {
+      const params = [
+        createParameter(
+          { name: 'Content-Type', in: 'header', value: 'multipart/form-data' },
+          { default: { value: 'multipart/form-data' } },
+        ),
+        createParameter({ name: 'X-Api-Key', in: 'header', value: 'secret' }, { default: { value: 'secret' } }),
+      ]
+
+      const result = buildRequestParameters(params, {}, 'default')
+
+      // Content-Type should be filtered out for multipart/form-data
+      expect(result.headers).not.toHaveProperty('Content-Type')
+      // Other headers should still be present
+      expect(result.headers['X-Api-Key']).toBe('secret')
     })
   })
 

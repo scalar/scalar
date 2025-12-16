@@ -72,6 +72,7 @@ describe('AuthSelector', () => {
         security,
         selectedSecurity,
         securitySchemes,
+        proxyUrl: '',
         server,
         title,
         eventBus: createWorkspaceEventBus(),
