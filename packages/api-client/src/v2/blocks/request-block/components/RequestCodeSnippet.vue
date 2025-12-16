@@ -10,27 +10,13 @@ import {
 import { OperationCodeSample } from '@/v2/blocks/operation-code-sample'
 import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
 import { CodeInput } from '@/v2/components/code-input'
-import {
-  DataTable,
-  DataTableHeader,
-  DataTableRow,
-} from '@/v2/components/data-table'
+import { DataTable, DataTableRow } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 const props = defineProps<OperationCodeSampleProps>()
 </script>
 
 <template>
-  <!-- <CollapsibleSection :defaultOpen="true">
-    <template #title>Code Snippet</template>
-    <template #actions></template>
-    <ScalarErrorBoundary>
-      <OperationCodeSample
-        v-bind="props"
-        simpleView />
-    </ScalarErrorBoundary>
-  </CollapsibleSection> -->
-
   <div class="w-full">
     <CollapsibleSection
       class="group/preview w-full border-b-0"
@@ -38,7 +24,7 @@ const props = defineProps<OperationCodeSampleProps>()
       <template #title>Code Snippet</template>
       <template #actions>
         <div class="flex flex-1">
-          <!-- <ScalarCombobox
+          <ScalarCombobox
             :modelValue="selectedPlugin"
             :options="snippets.options"
             placement="bottom-end"
@@ -51,7 +37,7 @@ const props = defineProps<OperationCodeSampleProps>()
                 icon="ChevronDown"
                 size="md" />
             </ScalarButton>
-          </ScalarCombobox> -->
+          </ScalarCombobox>
         </div>
       </template>
       <DataTable

@@ -5,26 +5,22 @@ export type OperationCodeSampleProps = {
    */
   clientOptions: ClientOptionGroup[]
   /**
-   * If true, render the code snippet only and not the card + header wrapper
-   */
-  simpleView?: boolean
-  /**
    * Pre-selected client, this will determine which client is initially selected in the dropdown
    *
-   * @defaults to the first available client if not provided
+   * @defaults to shell/curl or a custom sample if one is available
    */
-  selectedClient?: AvailableClient | undefined
+  selectedClient?: AvailableClients[number]
   /**
    * Which server from the spec to use for the code example
    */
-  selectedServer: ServerObject | null
+  selectedServer?: ServerObject | undefined
   /**
    * The selected content type from the requestBody.content, this will determine which examples are available
    * as well as the content type of the code example
    *
    * @defaults to the first content type if not provided
    */
-  selectedContentType?: string | undefined
+  selectedContentType?: string
   /**
    * Example name to use for resolving example values for parameters AND requestBody
    *
@@ -35,7 +31,7 @@ export type OperationCodeSampleProps = {
    *   in: 'query',
    *   examples: {
    *     limited: {
-   *       value: 10,
+   *       dataValue: 10,
    *     }
    *   }
    * },
@@ -44,7 +40,7 @@ export type OperationCodeSampleProps = {
    *     'application/json': {
    *       examples: {
    *         limited: {
-   *           value: { foo: 'bar' },
+   *           dataValue: { foo: 'bar' },
    *         }
    *       }
    *     }
@@ -57,7 +53,7 @@ export type OperationCodeSampleProps = {
   /**
    * The security schemes which are applicable to this operation
    */
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  securitySchemes?: SecuritySchemeObject[]
   /**
    * HTTP method of the operation
    */
@@ -110,7 +106,8 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { type AvailableClient, type TargetId } from '@scalar/snippetz'
+import { type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -134,12 +131,11 @@ import ExamplePicker from './ExamplePicker.vue'
 
 const {
   clientOptions,
-  simpleView = false,
   selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
   selectedExample,
-  selectedSecuritySchemes = [],
+  securitySchemes = [],
   method,
   path,
   operation,
@@ -165,7 +161,7 @@ const requestBodyExamples = computed(() => {
 
 /** The currently selected example key */
 const selectedExampleKey = ref<string>(
-  selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? 'default',
+  selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? '',
 )
 
 /** Grab any custom code samples from the operation */
@@ -266,8 +262,8 @@ const generatedCode = computed<string>(() => {
       clientId,
       operation,
       method,
-      server: selectedServer ?? undefined,
-      securitySchemes: selectedSecuritySchemes,
+      server: selectedServer,
+      securitySchemes,
       contentType: selectedContentType,
       path,
       example: selectedExampleKey.value,
@@ -302,7 +298,7 @@ const webhookLanguage = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(selectedSecuritySchemes))
+const secretCredentials = computed(() => getSecrets(securitySchemes))
 
 /** Grab the ref to freeze the ui as the clients change so there's no jump as the size of the dom changes */
 const elem = ref<ComponentPublicInstance | null>(null)
@@ -320,9 +316,9 @@ const selectClient = (option: ClientOption) => {
   localSelectedClient.value = option
 
   // Emit the change if it's not a custom example
-  // if (!option.id.startsWith('custom')) {
-  //   emitCustomEvent(elem.value?.$el, 'scalar-update-selected-client', option.id)
-  // }
+  if (!option.id.startsWith('custom')) {
+    emitCustomEvent(elem.value?.$el, 'scalar-update-selected-client', option.id)
+  }
 }
 
 // Virtualize the code block if it's too large
@@ -337,21 +333,8 @@ const shouldVirtualize = computed(() => {
 const id = useId()
 </script>
 <template>
-  <!-- No card view used in the client -->
-  <div
-    v-if="simpleView"
-    class="code-snippet text-base">
-    <!-- Generated code -->
-    <ScalarCodeBlock
-      :content="generatedCode"
-      :hideCredentials="secretCredentials"
-      :lang="codeBlockLanguage"
-      lineNumbers />
-  </div>
-
-  <!-- Card view used in the references -->
   <ScalarCard
-    v-else-if="generatedCode"
+    v-if="generatedCode"
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
@@ -423,12 +406,11 @@ const id = useId()
             v-model="selectedExampleKey"
             :examples="requestBodyExamples"
             @update:modelValue="
-              console.log('update:modelValue', $event)
-              // emitCustomEvent(
-              //   elem?.$el,
-              //   'scalar-update-selected-example',
-              //   $event,
-              // )
+              emitCustomEvent(
+                elem?.$el,
+                'scalar-update-selected-example',
+                $event,
+              )
             " />
         </template>
       </div>
