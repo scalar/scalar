@@ -744,7 +744,7 @@ export const setHeader = ({
   if (!existingParameter) {
     // Create a new header parameter with the example value
     operation.parameters.push({
-      in: 'header',
+      in: type,
       name,
       examples: {
         [exampleKey]: {
