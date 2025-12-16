@@ -19,6 +19,10 @@ export default {
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import {
+  AVAILABLE_CLIENTS,
+  type AvailableClients,
+} from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -30,7 +34,6 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { Config } from '@scalar/workspace-store/schemas/workspace-specification/config'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
@@ -52,9 +55,9 @@ const {
   authMeta,
   environment,
   eventBus,
-  config,
   exampleKey,
   globalCookies = [],
+  httpClients = AVAILABLE_CLIENTS,
   method,
   operation,
   path,
@@ -65,7 +68,6 @@ const {
   selectedSecurity,
   server,
 } = defineProps<{
-  config: Config
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Application version */
@@ -76,6 +78,8 @@ const {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** HTTP clients */
+  httpClients: AvailableClients
   /** Client layout */
   layout: ClientLayout
   /** Currently selected server */
@@ -122,9 +126,7 @@ const emit = defineEmits<{
 }>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
-const clientOptions = computed(() =>
-  generateClientOptions(config['x-scalar-reference-config']?.httpClients),
-)
+const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
 

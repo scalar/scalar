@@ -4,7 +4,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { getParameterExample } from '@/v2/blocks/request-block/helpers/get-parameter-example'
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { CollapsibleSection } from '@/v2/components/layout'
 
@@ -44,7 +44,7 @@ const emits = defineEmits<{
 
 const tableRows = computed<TableRow[]>(() =>
   parameters.map((param) => {
-    const example = getParameterExample(param, exampleKey)
+    const example = getExample(param, exampleKey, undefined)
 
     return {
       name: param.name,

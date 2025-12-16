@@ -9,7 +9,7 @@ import type {
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
-type Props = {
+export type GenerateCodeSnippetProps = {
   clientId: AvailableClients[number]
   operation: OperationObject
   example?: string | undefined
@@ -30,7 +30,7 @@ export const generateCodeSnippet = ({
   contentType,
   server,
   securitySchemes,
-}: Props): string => {
+}: GenerateCodeSnippetProps): string => {
   try {
     const harRequest = operationToHar({
       operation,

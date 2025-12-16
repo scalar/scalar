@@ -120,7 +120,10 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
+import { generateCode } from '@/v2/blocks/operation-code-sample/helpers/generate-code'
 import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
+import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
+import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import type {
   ClientOption,
@@ -165,45 +168,12 @@ const selectedExampleKey = ref<string>(
 )
 
 /** Grab any custom code samples from the operation */
-const customRequestExamples = computed(() => {
-  const customCodeKeys = [
-    'x-custom-examples',
-    'x-codeSamples',
-    'x-code-samples',
-  ] as const
+const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 
-  return customCodeKeys.flatMap((key) => operation[key] ?? [])
-})
-
-/**
- * Group plugins by target/language to show in a dropdown
- */
-const clients = computed(() => {
-  // Handle custom code examples
-  if (customRequestExamples.value.length) {
-    const customClients = customRequestExamples.value.map((sample) => {
-      const id = generateCustomId(sample)
-      const label = sample.label || sample.lang || id
-
-      return {
-        id,
-        lang: (sample.lang as TargetId) || 'plaintext',
-        title: label,
-        label,
-      } as ClientOption // We yolo assert this as the other properties are only needed in the top selector
-    })
-
-    return [
-      {
-        label: 'Code Examples',
-        options: customClients,
-      },
-      ...clientOptions,
-    ]
-  }
-
-  return clientOptions
-})
+/** Merge custom code samples with the client options */
+const clients = computed(() =>
+  getClients(customCodeSamples.value, clientOptions),
+)
 
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption | undefined>(
@@ -240,38 +210,21 @@ const webhookHar = computed(() => {
 
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
-  try {
-    const clientId = localSelectedClient.value?.id
-    if (!clientId) return ''
-
-    // Use the selected custom example
-    if (clientId.startsWith('custom')) {
-      return (
-        customRequestExamples.value.find(
-          (example) =>
-            generateCustomId(example) === localSelectedClient.value?.id,
-        )?.source ?? 'Custom example not found'
-      )
-    }
-
-    if (isWebhook) {
-      return webhookHar.value?.postData?.text ?? ''
-    }
-
-    return generateCodeSnippet({
-      clientId,
-      operation,
-      method,
-      server: selectedServer,
-      securitySchemes,
-      contentType: selectedContentType,
-      path,
-      example: selectedExampleKey.value,
-    })
-  } catch (error) {
-    console.error('[generateSnippet]', error)
-    return ''
+  if (isWebhook) {
+    return webhookHar.value?.postData?.text ?? ''
   }
+
+  return generateCode({
+    clientId: localSelectedClient.value?.id,
+    customCodeSamples: customCodeSamples.value,
+    operation,
+    method,
+    path,
+    contentType: selectedContentType,
+    server: selectedServer,
+    securitySchemes,
+    example: selectedExample,
+  })
 })
 
 /** The language for the code block, used for syntax highlighting */

@@ -4,8 +4,11 @@ import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
+/** Type of custom code sample IDs */
+export type CustomCodeSampleId = `custom/${string}`
+
 /** Helper to generate an ID for custom code samples */
-export const generateCustomId = (example: XCodeSample) => `custom/${example.lang}`
+export const generateCustomId = (example: XCodeSample): CustomCodeSampleId => `custom/${example.lang}`
 
 /**
  * Generate client options for the request example block by filtering by allowed clients

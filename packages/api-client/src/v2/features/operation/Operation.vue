@@ -132,13 +132,15 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
-      :config="workspaceStore.config"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
       :exampleKey="exampleName"
       :globalCookies
       :history="[]"
+      :httpClients="
+        workspaceStore.config['x-scalar-reference-config']?.httpClients
+      "
       :layout
       :method
       :operation

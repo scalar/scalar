@@ -4,7 +4,8 @@ import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/str
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Param, PostData } from 'har-format'
 
-import { getExampleValue } from './get-example-value'
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+
 import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
@@ -58,7 +59,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
   const isXml = _contentType === 'application/xml'
 
   // Get the example value
-  const _example = getExampleValue(requestBody, example, contentType)
+  const _example = getExample(requestBody, example, contentType)?.value
 
   // Return the provided top level example
   if (typeof _example !== 'undefined') {

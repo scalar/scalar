@@ -27,3 +27,20 @@ export const updateTheme = (workspace: Workspace | null, payload: WorkspaceEvent
   }
   workspace['x-scalar-theme'] = payload
 }
+
+/**
+ * Updates the selected http client on the workspace
+ *
+ * @param workspace - The workspace to update the selected http client in
+ * @param payload - The payload to update the selected client with
+ * @returns
+ */
+export const updateSelectedClient = (
+  workspace: Workspace | undefined,
+  payload: WorkspaceEvents['workspace:update:selected-client'],
+) => {
+  if (!workspace) {
+    return
+  }
+  workspace['x-scalar-default-client'] = payload
+}
