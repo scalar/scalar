@@ -43,7 +43,7 @@ defineOptions({ inheritAttrs: false })
 const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
-const targetRef = computed(() => {
+const targetRef = computed<HTMLElement | undefined>(() => {
   if (typeof window !== 'undefined' && wrapperRef.value) {
     // If target is a string (id), try to find it in the document
     if (typeof target === 'string') {
@@ -58,7 +58,11 @@ const targetRef = computed(() => {
       return target
     }
     // Fallback to div wrapper if no child element is provided
-    return wrapperRef.value.children?.[0] || wrapperRef.value
+    const firstChild = wrapperRef.value.children?.[0]
+    if (firstChild instanceof HTMLElement) {
+      return firstChild
+    }
+    return wrapperRef.value
   }
   // Return undefined if nothing is found
   return undefined
@@ -98,6 +102,11 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     }),
     ...middleware,
   ]),
+})
+
+defineExpose({
+  /** The resolved target element */
+  targetRef,
 })
 </script>
 <template>

@@ -29,18 +29,21 @@ const meta = {
       ScalarButton,
     },
     setup() {
-      return { args }
+      const onClick = (event: MouseEvent) => {
+        console.log('Clicked', (event.target as HTMLElement).textContent)
+      }
+      return { args, onClick }
     },
     template: `
 <div class="flex flex-col items-center w-full min-h-96">
   <ScalarDropdown v-bind="args">
     <ScalarButton>Click Me</ScalarButton>
     <template #items>
-      <ScalarDropdownItem>An item</ScalarDropdownItem>
-      <ScalarDropdownItem>Another item</ScalarDropdownItem>
+      <ScalarDropdownItem @click="onClick">An item</ScalarDropdownItem>
+      <ScalarDropdownItem @click="onClick">Another item</ScalarDropdownItem>
       <ScalarDropdownDivider />
-      <ScalarDropdownItem>An item with a long label that needs to be truncated</ScalarDropdownItem>
-      <ScalarDropdownItem disabled>A disabled item</ScalarDropdownItem>
+      <ScalarDropdownItem @click="onClick">An item with a long label that needs to be truncated</ScalarDropdownItem>
+      <ScalarDropdownItem @click="onClick" disabled>A disabled item</ScalarDropdownItem>
     </template>
   </ScalarDropdown>
 </div>

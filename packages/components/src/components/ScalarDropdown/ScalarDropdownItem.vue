@@ -12,29 +12,48 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { MenuItem } from '@headlessui/vue'
+import { useDropdownItem } from '@/components/ScalarDropdown/useDropdown'
+import { onBeforeUnmount, ref, useId, watch } from 'vue'
 
 import ScalarDropdownButton from './ScalarDropdownButton.vue'
 
-defineProps<{
+const { id = useId(), disabled } = defineProps<{
+  id?: string
   disabled?: boolean
 }>()
 
 defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
+
+const item = ref<HTMLElement>()
+
+const { active, items } = useDropdownItem()
+
+watch(item, (newItem) => {
+  if (newItem) {
+    items[id] = newItem
+  }
+})
+
+onBeforeUnmount(() => delete items[id])
 </script>
 <template>
-  <MenuItem
-    v-slot="{ active }"
-    :disabled="disabled">
+  <li
+    class="contents"
+    ref="item"
+    role="menuitem"
+    :id
+    :aria-disabled="disabled">
     <ScalarDropdownButton
-      :active="active"
-      :disabled="disabled"
+      :active="active === id"
+      tabindex="-1"
+      :disabled
+      @mouseenter="active = id"
       @click="(e: MouseEvent) => $emit('click', e)">
       <slot />
     </ScalarDropdownButton>
-  </MenuItem>
+  </li>
 </template>
 <style scoped>
 .dark-mode .scalar-dropdown-item:hover {
