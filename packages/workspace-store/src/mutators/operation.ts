@@ -774,6 +774,8 @@ export const setHeader = ({
   return
 }
 
+const SKIP_CONTENT_TYPE_HEADERS = ['other', 'none']
+
 /**
  * Sets the selected request-body content type for the current `exampleKey`.
  * This stores the selection under `x-scalar-selected-content-type` on the
@@ -816,12 +818,14 @@ export const updateOperationRequestBodyContentType = (
   requestBody!['x-scalar-selected-content-type'][meta.exampleKey] = payload.contentType
 
   // Try to also set the content-type header in the operation parameters
-  setHeader({
-    operation,
-    name: 'Content-Type',
-    exampleKey: meta.exampleKey,
-    value: payload.contentType,
-  })
+  if (!SKIP_CONTENT_TYPE_HEADERS.includes(payload.contentType)) {
+    setHeader({
+      operation,
+      name: 'Content-Type',
+      exampleKey: meta.exampleKey,
+      value: payload.contentType,
+    })
+  }
 }
 
 /**
