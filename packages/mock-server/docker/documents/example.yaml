@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: Blog API
+  version: 1.0.0
+paths:
+  /posts:
+    get:
+      summary: List all posts
+      operationId: listPosts
+      x-handler: |
+        return store.list('Post')
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a new post
+      operationId: createPost
+      x-handler: |
+        return store.create('Post', {
+          id: faker.string.uuid(),
+          title: req.body.title,
+          content: req.body.content,
+          author: req.body.author || faker.person.fullName(),
+          publishedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        })
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a post by ID
+      operationId: getPost
+      x-handler: |
+        return store.get('Post', req.params.id)
+      responses:
+        '200':
+          description: Post found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+    put:
+      summary: Update a post
+      operationId: updatePost
+      x-handler: |
+        return store.update('Post', req.params.id, {
+          ...req.body,
+          updatedAt: new Date().toISOString()
+        })
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePost'
+      responses:
+        '200':
+          description: Post updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+    delete:
+      summary: Delete a post
+      operationId: deletePost
+      x-handler: |
+        return store.delete('Post', req.params.id)
+      responses:
+        '204':
+          description: Post deleted
+        '404':
+          description: Post not found
+components:
+  securitySchemes:
+    oAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth/authorize
+          tokenUrl: /oauth/token
+          scopes:
+            read: Read access
+            write: Write access
+            admin: Admin access
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      x-seed: |
+        seed.count(3, () => ({
+          id: faker.string.uuid(),
+          title: faker.lorem.sentence(),
+          content: faker.lorem.paragraphs(4),
+          author: faker.person.fullName(),
+          publishedAt: faker.date.past().toISOString(),
+          createdAt: faker.date.past().toISOString(),
+          updatedAt: faker.date.past().toISOString()
+        }))
+    NewPost:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: string
+    UpdatePost:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string

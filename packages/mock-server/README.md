@@ -13,6 +13,58 @@ A powerful Node.js mock server that automatically generates realistic API respon
 npx @scalar/cli document mock openapi.json --watch
 ```
 
+## Docker
+
+The mock server is also available as a Docker image. You can provide your OpenAPI document in three different ways:
+
+### Via Volume Binding
+
+Mount your OpenAPI document into the `/docs` directory:
+
+```bash
+docker run -v ./my-api.yaml:/docs/api.yaml -p 3000:3000 scalar/mock-server
+```
+
+The container will automatically scan the `/docs` directory for OpenAPI documents (`.yaml`, `.yml`, or `.json` files) and use the first one found.
+
+### Via Environment Variable
+
+Pass the OpenAPI document content directly as an environment variable:
+
+```bash
+docker run -e OPENAPI_DOCUMENT="$(cat my-api.yaml)" -p 3000:3000 scalar/mock-server
+```
+
+### Via URL
+
+Provide a URL to fetch the OpenAPI document from:
+
+```bash
+docker run -e OPENAPI_URL=https://example.com/api.yaml -p 3000:3000 scalar/mock-server
+```
+
+### Building the Docker Image
+
+The Docker image is built from a separate package in `packages/mock-server/docker/`. See the [Docker package README](docker/README.md) for detailed instructions.
+
+Quick start:
+
+```bash
+cd packages/mock-server/docker
+pnpm install
+pnpm build
+docker build -t scalar-mock-server .
+```
+
+### Configuration
+
+- **Port**: The server runs on port 3000 by default. You can change it using the `PORT` environment variable:
+  ```bash
+  docker run -e PORT=8080 -p 8080:8080 scalar/mock-server
+  ```
+
+- **API Reference**: The API Reference UI is automatically available at the root path (`/`) when the container starts.
+
 ## Documentation
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-mock-server/getting-started)
