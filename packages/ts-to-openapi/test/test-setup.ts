@@ -1,6 +1,7 @@
-import fg from 'fast-glob'
-import { readFileSync } from 'node:fs'
+import fs from 'node:fs'
 import path from 'node:path'
+
+import fg from 'fast-glob'
 import {
   type CompilerHost,
   JSDocParsingMode,
@@ -17,16 +18,16 @@ const compilerHost: CompilerHost = {
   getDefaultLibFileName: () => '',
   getNewLine: () => '\n',
   getSourceFile: (filename) =>
-    createSourceFile(filename, readFileSync(filename).toString(), ScriptTarget.Latest, false, ScriptKind.TS),
+    createSourceFile(filename, fs.readFileSync(filename).toString(), ScriptTarget.Latest, false, ScriptKind.TS),
   jsDocParsingMode: JSDocParsingMode.ParseAll,
   readFile: () => undefined,
   useCaseSensitiveFileNames: () => true,
   writeFile: () => null,
 }
 
-const programFileNames = await fg(__dirname + '/fixtures/*.ts')
+const programFileNames = await fg(path.join(import.meta.dirname, 'fixtures/*.ts'))
 
-// Intialize typescript program
+// Initialize typescript program
 export const program = createProgram(
   programFileNames,
   {
@@ -36,7 +37,7 @@ export const program = createProgram(
   compilerHost,
 )
 
-export const fileNameResolver = (source: string, target: string) => {
+export const fileNameResolver = (source: string, target: string): string => {
   const sourceExt = path.extname(source)
   const targetExt = path.extname(target)
 

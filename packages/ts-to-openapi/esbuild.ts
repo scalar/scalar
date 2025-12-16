@@ -1,6 +1,6 @@
 import { build } from '@scalar/build-tooling/esbuild'
 
 build({
-  entries: 'auto',
+  entries: ['src/index.ts'],
   platform: 'shared',
 })

@@ -1,11 +1,14 @@
+import path from 'node:path'
+
 import { isTypeAliasDeclaration } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-import { fileNameResolver, program } from './test-setup'
+import { fileNameResolver, program } from '../test/test-setup'
 import { getSchemaFromTypeNode } from './type-nodes'
 
 describe('getSchemaFromTypeNode', () => {
-  const sourceFile = program.getSourceFile(__dirname + '/fixtures/testing-types.ts')
+  const sourceFilePath = path.join(import.meta.dirname, '../test/fixtures/testing-types.ts')
+  const sourceFile = program.getSourceFile(sourceFilePath)
   // Just hard coded, change this if we add/remove in the testing types file
   const type = sourceFile?.statements[2]
 
@@ -312,7 +315,7 @@ describe('getSchemaFromTypeNode', () => {
       }))
 
     it('should handle an intersection type', () =>
-      expect(schema.properties!['inersection']).toEqual({
+      expect(schema.properties!['intersection']).toEqual({
         allOf: [
           {
             type: 'string',

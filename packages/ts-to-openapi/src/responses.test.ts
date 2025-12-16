@@ -1,12 +1,13 @@
-// @ts-nocheck
-// TODO remove this when we come back to this file
+import path from 'node:path'
+
 import { type ReturnStatement, SyntaxKind, isArrowFunction, isCallExpression, isVariableStatement } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
+import { program } from '../test/test-setup'
 import { generateResponses, getReturnStatements } from './responses'
-import { program } from './test-setup'
 
-const sourceFile = program.getSourceFile(__dirname + '/fixtures/test-responses.ts')
+const sourceFilePath = path.join(import.meta.dirname, '../test/fixtures/test-responses.ts')
+const sourceFile = program.getSourceFile(sourceFilePath)
 
 // First we get to the body
 const getNode = sourceFile?.statements[0]
@@ -14,7 +15,7 @@ if (!getNode || !isVariableStatement(getNode)) {
   throw 'Not a variable statement'
 }
 
-const initializer = getNode.declarationList.declarations[0].initializer
+const initializer = getNode.declarationList.declarations[0]!.initializer
 if (!initializer || !isArrowFunction(initializer)) {
   throw 'Not an arrow function'
 }

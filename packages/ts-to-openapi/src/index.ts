@@ -1,3 +1,3 @@
-export * from './js-doc'
-export * from './responses'
-export * from './type-nodes'
+export { getJSDocFromNode } from './js-doc'
+export { generateResponses, getReturnStatements } from './responses'
+export { getSchemaFromTypeNode } from './type-nodes'
