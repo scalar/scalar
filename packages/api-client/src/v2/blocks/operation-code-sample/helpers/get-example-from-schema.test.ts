@@ -1664,4 +1664,48 @@ describe('getExampleFromSchema', () => {
       },
     ])
   })
+
+  describe('caching', () => {
+    it('returns different results when different options are passed', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: {
+            type: 'string',
+          },
+          age: {
+            type: 'number',
+          },
+          email: {
+            type: 'string',
+          },
+        },
+      })
+
+      const withoutOmit = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: false,
+      })
+      const withOmit = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: true,
+      })
+      const withoutOmitAgain = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: false,
+      })
+
+      expect(withoutOmit).toStrictEqual({
+        name: '',
+        age: 1,
+        email: '',
+      })
+      expect(withOmit).toStrictEqual({
+        name: '',
+      })
+      expect(withoutOmitAgain).toStrictEqual({
+        name: '',
+        age: 1,
+        email: '',
+      })
+    })
+  })
 })
