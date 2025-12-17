@@ -15,7 +15,6 @@
     "packages/postman-to-openapi/**",
     "packages/pre-post-request-scripts/**",
     "packages/react-renderer/**",
-    "packages/sidebar/**",
     "packages/void-server/**",
     "projects/**",
     "integrations/docker/**",
@@ -120,6 +119,16 @@
         "src/helpers/index.ts",
         "src/schemas/extensions/index.ts",
         "src/schemas/3.1/*/index.ts"
+      ]
+    },
+    "packages/sidebar": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/main.ts"
+      ],
+      "ignoreDependencies": [
+        "@scalar/themes" // Used by src/style.css
       ]
     },
     "packages/snippetz": {

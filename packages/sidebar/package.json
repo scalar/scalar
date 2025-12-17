@@ -17,8 +17,8 @@
   "scripts": {
     "build": "scalar-build-vite",
     "dev": "vite ./playground -c ./vite.config.ts",
-    "format": "pnpm prettier --write .",
-    "format:check": "pnpm prettier --check .",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -32,7 +32,8 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./style.css": "./dist/style.css"
   },
@@ -58,7 +59,6 @@
     "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
 }
