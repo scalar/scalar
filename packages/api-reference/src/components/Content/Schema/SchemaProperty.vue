@@ -36,8 +36,6 @@ const props = withDefaults(
     noncollapsible?: boolean
     level?: number
     name?: string
-    /** Additional examples from the parent object schema */
-    additionalExamples?: unknown[] | undefined
     required?: boolean
     compact?: boolean
     discriminator?: DiscriminatorObject
@@ -100,23 +98,7 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
   value?.enum || value?.items?.enum || []
 
 /** Simplified composition with `null` type. */
-const optimizedValue = computed(() => {
-  const optimized = optimizeValueForDisplay(props.schema)
-
-  // Merge additional examples uniquely
-  if (optimized && props.additionalExamples) {
-    const examplesSet = new Set([
-      ...(optimized.examples || []),
-      ...props.additionalExamples,
-    ])
-    return {
-      ...optimized,
-      examples: [...examplesSet],
-    }
-  }
-
-  return optimized
-})
+const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
 
 const displayDescription = computed(() => {
   const value = optimizedValue.value
@@ -304,21 +286,21 @@ const compositionsToRender = computed(() => {
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               <ScalarWrappingText
-                preset="property"
-                :text="name" />
+                :text="name"
+                preset="property" />
             </span>
           </template>
           <template v-else-if="variant === 'additionalProperties'">
             <span class="property-name-additional-properties">
               <ScalarWrappingText
-                preset="property"
-                :text="name" />
+                :text="name"
+                preset="property" />
             </span>
           </template>
           <template v-else>
             <ScalarWrappingText
-              preset="property"
-              :text="name" />
+              :text="name"
+              preset="property" />
           </template>
         </WithBreadcrumb>
       </template>
