@@ -32,7 +32,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
     return c.text(document)
   })
 
-  // API Reference at root path
+  // API Reference at /scalar
   app.get('/scalar', Scalar({ url: endpoint, theme: 'default' }))
 
   serve(
