@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseMdTable } from './md-utils'
+import { parseMdTable } from './markdown'
 
 describe('md-utils', () => {
   it('parses markdown table with all supported headers', () => {
