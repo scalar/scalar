@@ -7,9 +7,7 @@
 
 # Scalar Mock Server - Docker
 
-[![Version](https://img.shields.io/npm/v/@scalar/mock-server-docker)](https://www.npmjs.com/package/@scalar/mock-server-docker)
-[![Downloads](https://img.shields.io/npm/dm/@scalar/mock-server-docker)](https://www.npmjs.com/package/@scalar/mock-server-docker)
-[![License](https://img.shields.io/npm/l/@scalar/mock-server-docker)](https://www.npmjs.com/package/@scalar/mock-server-docker)
+[![Docker Pulls](https://img.shields.io/docker/pulls/scalarapi/mock-server)](https://hub.docker.com/r/scalarapi/mock-server)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 Docker image for the Scalar Mock Server

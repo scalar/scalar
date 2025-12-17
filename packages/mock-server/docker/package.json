@@ -28,13 +28,8 @@
     "title": "Scalar Mock Server - Docker",
     "badges": [
       {
-        "type": "npm-version"
-      },
-      {
-        "type": "npm-downloads"
-      },
-      {
-        "type": "npm-license"
+        "type": "docker-pulls",
+        "package": "scalarapi/mock-server"
       }
     ],
     "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/getting-started"
