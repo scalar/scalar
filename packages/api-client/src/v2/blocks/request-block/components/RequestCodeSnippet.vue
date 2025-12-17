@@ -12,9 +12,10 @@ import { computed, ref, watch } from 'vue'
 import {
   findClient,
   type ClientOption,
+  type CustomClientOption,
 } from '@/v2/blocks/operation-code-sample'
 import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
-import { generateCode } from '@/v2/blocks/operation-code-sample/helpers/generate-code'
+import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
 import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
@@ -46,7 +47,7 @@ const clients = computed(() =>
  * The locally selected client which would include code samples from this operation only
  * Must be local state because it contains custom code samples from this operation only
  */
-const localSelectedClient = ref<ClientOption | undefined>(
+const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
 )
 
@@ -76,7 +77,7 @@ const handleClientChange = (option: ClientOption | undefined) => {
 
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() =>
-  generateCode({
+  generateCodeSnippet({
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,

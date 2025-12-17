@@ -119,15 +119,16 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
-import { generateCode } from '@/v2/blocks/operation-code-sample/helpers/generate-code'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
 import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import type {
   ClientOption,
   ClientOptionGroup,
+  CustomClientOption,
 } from '@/v2/blocks/operation-code-sample/types'
 
+import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'
 
 const {
@@ -174,7 +175,7 @@ const clients = computed(() =>
 )
 
 /** The locally selected client which would include code samples from this operation only */
-const localSelectedClient = ref<ClientOption | undefined>(
+const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
 )
 
@@ -212,7 +213,7 @@ const generatedCode = computed<string>(() => {
     return webhookHar.value?.postData?.text ?? ''
   }
 
-  return generateCode({
+  return generateCodeSnippet({
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,
@@ -221,7 +222,7 @@ const generatedCode = computed<string>(() => {
     contentType: selectedContentType,
     server: selectedServer,
     securitySchemes,
-    example: selectedExample,
+    example: selectedExampleKey.value,
   })
 })
 

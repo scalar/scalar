@@ -44,11 +44,13 @@ const selectClient = (option: ClientOption) => {
   }, 300)
 
   // Update the store
-  emitCustomEvent(
-    containerRef.value,
-    'scalar-update-selected-client',
-    option.id,
-  )
+  if (option.clientKey !== 'custom') {
+    emitCustomEvent(
+      containerRef.value,
+      'scalar-update-selected-client',
+      option.id,
+    )
+  }
 }
 
 /** Calculates the targetKey from the selected client id */

@@ -21,10 +21,22 @@ export type ClientOption = ScalarComboboxOption & {
   clientKey: ClientId<TargetId>
 }
 
+/** Better type safety when we have custom clients in the selector */
+export type CustomClientOption = ScalarComboboxOption & {
+  /** A custom ID */
+  id: `custom/${string}`
+  /** Programming language or tool for code generation (e.g., 'javascript', 'python', 'curl') */
+  lang: TargetId | 'curl' | 'plaintext'
+  /** Title shows when the client is selected in the dropdown */
+  title: string
+  /** Client key for the client */
+  clientKey: 'custom'
+}
+
 /**
  * Augments the base combobox option group with ClientOptions
  */
 export type ClientOptionGroup = Omit<ScalarComboboxOptionGroup, 'options'> & {
   /** Array of client options that belong to this group */
-  options: ClientOption[]
+  options: (ClientOption | CustomClientOption)[]
 }

@@ -1,7 +1,7 @@
 import type { TargetId } from '@scalar/types/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 
-import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
+import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
 
 /**
@@ -20,13 +20,15 @@ export const getClients = (
     const customClients = customCodeSamples.map((sample) => {
       const id = generateCustomId(sample)
       const label = sample.label || sample.lang || id
+      const lang = (sample.lang as TargetId) || 'plaintext'
 
       return {
         id,
-        lang: (sample.lang as TargetId) || 'plaintext',
+        lang,
         title: label,
         label,
-      } as ClientOption // We yolo assert this as the other properties are only needed in the top selector
+        clientKey: 'custom',
+      } satisfies CustomClientOption
     })
 
     return [
