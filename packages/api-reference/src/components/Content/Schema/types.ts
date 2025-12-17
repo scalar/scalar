@@ -14,6 +14,4 @@ export type SchemaOptions = {
   orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
   /** Order required properties first */
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
-  /** Show examples for object properties */
-  showObjectExamples?: boolean
 }
