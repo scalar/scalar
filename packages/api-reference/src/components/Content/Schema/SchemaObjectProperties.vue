@@ -11,7 +11,6 @@ import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
-import SchemaObjectExampleCodeBlock from './SchemaObjectExampleCodeBlock.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 const { schema, discriminator, options } = defineProps<{
@@ -88,9 +87,6 @@ const getAdditionalPropertiesValue = (
 </script>
 
 <template>
-  <!-- Object examples -->
-  <SchemaObjectExampleCodeBlock :schema="schema" />
-
   <!-- Properties -->
   <template v-if="isTypeObject(schema) && schema.properties">
     <SchemaProperty
