@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.8.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.40.7**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+  - [#7550](https://github.com/scalar/scalar/pull/7550): Fix content width in mobile layout
+
 ## 0.8.5
 
 ### Patch Changes

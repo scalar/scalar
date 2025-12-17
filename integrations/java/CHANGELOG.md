@@ -1,5 +1,17 @@
 # @scalar/java-integration
 
+## 0.5.6
+
+### Patch Changes
+
+- [#7548](https://github.com/scalar/scalar/pull/7548): FINALLY fixed the maven publish job
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.40.7**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+  - [#7550](https://github.com/scalar/scalar/pull/7550): Fix content width in mobile layout
+
 ## 0.5.5
 
 ### Patch Changes

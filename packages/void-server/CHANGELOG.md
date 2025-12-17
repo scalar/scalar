@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.2.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
 ## 2.2.14
 
 ### Patch Changes

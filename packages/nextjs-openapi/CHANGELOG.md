@@ -1,5 +1,16 @@
 # @scalar/nextjs-openapi
 
+## 0.2.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/ts-to-openapi@0.1.1**
+  - [#7558](https://github.com/scalar/scalar/pull/7558): fix: exclude test files from `dist` folder
+
+- **@scalar/nextjs-api-reference@0.9.6**
+
 ## 0.2.30
 
 ### Patch Changes

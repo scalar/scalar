@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.16.10
+
+### Patch Changes
+
+- [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
+
+#### Updated Dependencies
+
+- **@scalar/icons@0.5.1**
+  - [#7542](https://github.com/scalar/scalar/pull/7542): fix: move `generate-icons` script outside of src folder
+
+No need to include it in published packages
+
+- [#7542](https://github.com/scalar/scalar/pull/7542): fix: use named instead of star exports
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/oas-utils@0.6.10**
+
 ## 0.16.9
 
 ### Patch Changes

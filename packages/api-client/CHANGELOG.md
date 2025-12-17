@@ -1,5 +1,60 @@
 # @scalar/api-client
 
+## 2.16.0
+
+### Minor Changes
+
+- [#7564](https://github.com/scalar/scalar/pull/7564): feat: restore cursor position after path/method update
+- [#7528](https://github.com/scalar/scalar/pull/7528): feat: empty sidebar folders state
+- [#7561](https://github.com/scalar/scalar/pull/7561): feat: add accept header by default on the operation paramters
+- [#7549](https://github.com/scalar/scalar/pull/7549): feat: send request animation
+- [#7572](https://github.com/scalar/scalar/pull/7572): feat: clear request and response state when switching operations or examples
+
+### Patch Changes
+
+- [#7573](https://github.com/scalar/scalar/pull/7573): fix: ensure paths always start with a leading slash
+- [#7563](https://github.com/scalar/scalar/pull/7563): fix: propagate client plugins to operation view
+- [#7535](https://github.com/scalar/scalar/pull/7535): fix: display the parameter description on the tooltip
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.0**
+  - [#7564](https://github.com/scalar/scalar/pull/7564): feat: restore cursor position after path/method update
+  - [#7530](https://github.com/scalar/scalar/pull/7530): fix: handle operation level servers when adding a new operation
+  - [#7559](https://github.com/scalar/scalar/pull/7559): feat: set the content-type header when switching body content-type
+  - [#7549](https://github.com/scalar/scalar/pull/7549): feat: send request animation
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/sidebar@0.7.0**
+  - [#7528](https://github.com/scalar/scalar/pull/7528): feat: empty sidebar folders state
+
+- **@scalar/icons@0.5.1**
+  - [#7542](https://github.com/scalar/scalar/pull/7542): fix: move `generate-icons` script outside of src folder
+
+No need to include it in published packages
+
+- [#7542](https://github.com/scalar/scalar/pull/7542): fix: use named instead of star exports
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/components@0.16.10**
+  - [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
+
+- **@scalar/oas-utils@0.6.10**
+
+- **@scalar/import@0.4.40**
+
+- **@scalar/json-magic@0.8.7**
+
+- **@scalar/object-utils@1.2.17**
+
+- **@scalar/postman-to-openapi@0.3.51**
+
+- **@scalar/use-codemirror@0.13.4**
+
+- **@scalar/openapi-parser@0.23.8**
+
 ## 2.15.1
 
 ### Patch Changes

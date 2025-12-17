@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.0.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.10**
+  - [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
+
+- **@scalar/oas-utils@0.6.10**
+
 ## 0.0.53
 
 ### Patch Changes

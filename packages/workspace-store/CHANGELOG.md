@@ -1,5 +1,27 @@
 # @scalar/workspace-store
 
+## 0.24.0
+
+### Minor Changes
+
+- [#7564](https://github.com/scalar/scalar/pull/7564): feat: restore cursor position after path/method update
+- [#7559](https://github.com/scalar/scalar/pull/7559): feat: set the content-type header when switching body content-type
+- [#7549](https://github.com/scalar/scalar/pull/7549): feat: send request animation
+
+### Patch Changes
+
+- [#7530](https://github.com/scalar/scalar/pull/7530): fix: handle operation level servers when adding a new operation
+- [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/json-magic@0.8.7**
+
+- **@scalar/object-utils@1.2.17**
+
 ## 0.23.1
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @scalar/api-client-react
 
+## 1.3.57
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.16.0**
+  - [#7564](https://github.com/scalar/scalar/pull/7564): feat: restore cursor position after path/method update
+  - [#7528](https://github.com/scalar/scalar/pull/7528): feat: empty sidebar folders state
+  - [#7561](https://github.com/scalar/scalar/pull/7561): feat: add accept header by default on the operation paramters
+  - [#7549](https://github.com/scalar/scalar/pull/7549): feat: send request animation
+  - [#7573](https://github.com/scalar/scalar/pull/7573): fix: ensure paths always start with a leading slash
+  - [#7563](https://github.com/scalar/scalar/pull/7563): fix: propagate client plugins to operation view
+  - [#7535](https://github.com/scalar/scalar/pull/7535): fix: display the parameter description on the tooltip
+  - [#7572](https://github.com/scalar/scalar/pull/7572): feat: clear request and response state when switching operations or examples
+
 ## 1.3.56
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.10**
+  - [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
+
 ## 0.13.3
 
 ### Patch Changes

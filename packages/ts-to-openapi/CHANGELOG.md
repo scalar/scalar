@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.1.1
+
+### Patch Changes
+
+- [#7558](https://github.com/scalar/scalar/pull/7558): fix: exclude test files from `dist` folder
+
 ## 0.1.0
 
 ### Minor Changes
