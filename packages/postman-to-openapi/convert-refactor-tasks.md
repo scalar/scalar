@@ -2,8 +2,8 @@
 - [x] Tighten `extractTags` typing (no `any`); ensure folder items are strongly typed and avoid shared mutation.
 - [x] Add safe parsing for string input with a clear, typed error message when JSON is invalid.
 - [x] Validate `collection.info` early; fail with a descriptive error if `info` or `name` is missing.
-- [ ] Introduce a small helper to initialize and merge `openapi.components`/`securitySchemes` instead of repeating inline merges.
-- [ ] Review path merge behavior after `normalizePath`: decide and enforce how to handle duplicate path+method collisions (overwrite vs error/log).
+- [x] Introduce a small helper to initialize and merge `openapi.components`/`securitySchemes` instead of repeating inline merges.
+- [x] Review path merge behavior after `normalizePath`: decide and enforce how to handle duplicate path+method collisions (overwrite vs error/log).
 - [ ] Extract the method-level cleanup (parameters, requestBody, description pruning) into a focused helper to simplify the final sweep.
 - [ ] Revisit `removeUndefined`: scope cleanup to known optional fields to avoid full-document churn.
 - [ ] Clarify tag generation: document intent for nested folder tags (separator, deduplication); adjust implementation if needed.

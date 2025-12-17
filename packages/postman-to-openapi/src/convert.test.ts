@@ -148,6 +148,71 @@ describe('convert', () => {
     ).toThrowError(/missing required info.name/i)
   })
 
+  it('merges global and request-level security schemes', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Security',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      auth: {
+        type: 'bearer',
+      },
+      item: [
+        {
+          name: 'Users',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/users',
+            auth: {
+              type: 'basic',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toEqual([{ bearerAuth: [] }])
+    expect(result.components?.securitySchemes).toEqual({
+      bearerAuth: {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      basicAuth: {
+        scheme: 'basic',
+        type: 'http',
+      },
+    })
+  })
+
+  it('throws when duplicate operations share the same path and method', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate operations',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'First',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/users',
+          },
+        },
+        {
+          name: 'Second',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/users',
+          },
+        },
+      ],
+    }
+
+    expect(() => convert(collection)).toThrowError(/duplicate operation for GET \/users/i)
+  })
+
   it('converts collection with servers', () => {
     expect(convert(JSON.parse(collections.SimplePost ?? '') as PostmanCollection)).toEqual(
       JSON.parse(expected.SimplePost ?? ''),

@@ -10,6 +10,17 @@ import { parseServers } from './helpers/servers'
 import { normalizePath } from './helpers/urls'
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
+const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+]
+
 const normalizeDescription = (description?: Description): string | undefined => {
   if (typeof description === 'string') {
     return description
@@ -71,6 +82,49 @@ const extractTags = (items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] 
   return items.flatMap((item) => collectTags(item))
 }
 
+const mergeSecuritySchemes = (
+  openapi: OpenAPIV3_1.Document,
+  securitySchemes?: OpenAPIV3_1.ComponentsObject['securitySchemes'],
+): void => {
+  if (!securitySchemes || Object.keys(securitySchemes).length === 0) {
+    return
+  }
+
+  openapi.components = openapi.components || {}
+  openapi.components.securitySchemes = {
+    ...(openapi.components.securitySchemes ?? {}),
+    ...securitySchemes,
+  }
+}
+
+const mergePathItem = (
+  paths: OpenAPIV3_1.PathsObject,
+  normalizedPathKey: string,
+  pathItem: OpenAPIV3_1.PathItemObject,
+): void => {
+  const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
+
+  for (const [key, value] of Object.entries(pathItem) as [
+    keyof OpenAPIV3_1.PathItemObject,
+    OpenAPIV3_1.PathItemObject[keyof OpenAPIV3_1.PathItemObject],
+  ][]) {
+    if (value === undefined) {
+      continue
+    }
+
+    const isOperationKey = OPERATION_KEYS.includes(key)
+
+    if (isOperationKey && targetPath[key]) {
+      const operationName = typeof key === 'string' ? key.toUpperCase() : String(key)
+      throw new Error(`Duplicate operation for ${operationName} ${normalizedPathKey}`)
+    }
+
+    targetPath[key] = value
+  }
+
+  paths[normalizedPathKey] = targetPath
+}
+
 /**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
@@ -120,11 +174,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   // Process authentication if present in the collection
   if (collection.auth) {
     const { securitySchemes, security } = processAuth(collection.auth)
-    openapi.components = openapi.components || {}
-    openapi.components.securitySchemes = {
-      ...openapi.components.securitySchemes,
-      ...securitySchemes,
-    }
+    mergeSecuritySchemes(openapi, securitySchemes)
     openapi.security = security
   }
 
@@ -149,23 +199,12 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
           continue
         }
 
-        if (!openapi.paths[normalizedPathKey]) {
-          openapi.paths[normalizedPathKey] = pathItem
-        } else {
-          openapi.paths[normalizedPathKey] = {
-            ...openapi.paths[normalizedPathKey],
-            ...pathItem,
-          }
-        }
+        mergePathItem(openapi.paths, normalizedPathKey, pathItem)
       }
 
       // Merge security schemes from the current item
       if (itemComponents?.securitySchemes) {
-        openapi.components = openapi.components || {}
-        openapi.components.securitySchemes = {
-          ...openapi.components.securitySchemes,
-          ...itemComponents.securitySchemes,
-        }
+        mergeSecuritySchemes(openapi, itemComponents.securitySchemes)
       }
     })
   }
