@@ -213,6 +213,89 @@ describe('convert', () => {
     expect(() => convert(collection)).toThrowError(/duplicate operation for GET \/users/i)
   })
 
+  it('handles collections without items', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Empty',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [],
+    }
+
+    const result = convert(collection)
+
+    expect(result.paths).toEqual({})
+    expect(result.components).toBeUndefined()
+    expect(result.tags).toBeUndefined()
+  })
+
+  it('keeps security undefined when collection has no auth', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Authless',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Ping',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/ping',
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toBeUndefined()
+    expect(result.components).toBeUndefined()
+  })
+
+  it('defaults requestBody content to text/plain when extractor returns empty content', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Empty body content',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Upload',
+          request: {
+            method: 'POST',
+            url: 'https://api.scalar.com/upload',
+            body: {
+              mode: 'file',
+              file: { src: null },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const postOperation = result.paths?.['/upload']?.post
+
+    expect(postOperation?.requestBody).toBeDefined()
+    expect(postOperation?.requestBody && 'content' in postOperation.requestBody).toBe(true)
+    if (postOperation?.requestBody && 'content' in postOperation.requestBody) {
+      expect(postOperation.requestBody.content).toEqual({ 'text/plain': {} })
+    }
+  })
+
+  it('throws when item is not an array', () => {
+    expect(() =>
+      convert({
+        info: {
+          name: 'Bad item',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        },
+        // @ts-expect-error invalid runtime shape
+        item: {},
+      }),
+    ).toThrowError(/item must be an array/i)
+  })
+
   it('converts collection with servers', () => {
     expect(convert(JSON.parse(collections.SimplePost ?? '') as PostmanCollection)).toEqual(
       JSON.parse(expected.SimplePost ?? ''),

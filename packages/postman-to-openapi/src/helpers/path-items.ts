@@ -11,6 +11,24 @@ import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 
+function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
+  const content = requestBody.content ?? {}
+
+  if (Object.keys(content).length === 0) {
+    requestBody.content = {
+      'text/plain': {},
+    }
+    return
+  }
+
+  if ('text/plain' in content) {
+    const textContent = content['text/plain']
+    if (!textContent?.schema || (textContent.schema && Object.keys(textContent.schema).length === 0)) {
+      content['text/plain'] = {}
+    }
+  }
+}
+
 /**
  * Processes a Postman collection item or item group and returns
  * the corresponding OpenAPI paths and components.
@@ -153,7 +171,9 @@ export function processItem(
   }
 
   if (['post', 'put', 'patch'].includes(method) && typeof request !== 'string' && request.body) {
-    operationObject.requestBody = extractRequestBody(request.body)
+    const requestBody = extractRequestBody(request.body)
+    ensureRequestBodyContent(requestBody)
+    operationObject.requestBody = requestBody
   }
 
   if (!paths[path]) {

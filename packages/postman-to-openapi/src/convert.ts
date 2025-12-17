@@ -29,7 +29,7 @@ const normalizeDescription = (description?: Description): string | undefined => 
   return description?.content
 }
 
-const parseCollectionInput = (postmanCollection: PostmanCollection | string): PostmanCollection => {
+const parseCollectionInput = (postmanCollection: PostmanCollection | string): unknown => {
   if (typeof postmanCollection !== 'string') {
     return postmanCollection
   }
@@ -44,18 +44,44 @@ const parseCollectionInput = (postmanCollection: PostmanCollection | string): Po
   }
 }
 
-const assertCollectionInfo = (collection: PostmanCollection): void => {
-  if (!collection?.info) {
+const validateCollectionShape = (collection: unknown): PostmanCollection => {
+  if (!collection || typeof collection !== 'object') {
+    throw new Error('Invalid Postman collection: expected an object')
+  }
+
+  const candidate = collection as Partial<PostmanCollection>
+
+  if (!candidate.info) {
     throw new Error('Missing required info on Postman collection')
   }
 
-  if (!collection.info.name) {
+  if (!candidate.item || !Array.isArray(candidate.item)) {
+    throw new Error('Invalid Postman collection: item must be an array')
+  }
+
+  if (typeof candidate.info !== 'object') {
+    throw new Error('Invalid Postman collection: info must be an object')
+  }
+
+  if (!candidate.info.name) {
     throw new Error('Missing required info.name on Postman collection')
   }
+
+  if (!candidate.info.schema) {
+    throw new Error('Invalid Postman collection: missing info.schema')
+  }
+
+  if (candidate.variable && !Array.isArray(candidate.variable)) {
+    throw new Error('Invalid Postman collection: variable must be an array when provided')
+  }
+
+  return candidate as PostmanCollection
 }
 
 /**
- * Extracts tags from Postman collection folders
+ * Extracts tags from Postman collection folders.
+ * We keep folder nesting using " > " so tag names stay readable while preserving hierarchy.
+ * Requests do not produce tags; only folders are reflected as tags.
  */
 const isItemGroup = (item: Item | ItemGroup): item is ItemGroup => 'item' in item && Array.isArray(item.item)
 
@@ -125,14 +151,46 @@ const mergePathItem = (
   paths[normalizedPathKey] = targetPath
 }
 
+const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
+  Object.values(paths).forEach((pathItem) => {
+    if (!pathItem) {
+      return
+    }
+
+    OPERATION_KEYS.forEach((operationKey) => {
+      const operation = pathItem[operationKey]
+      if (!operation) {
+        return
+      }
+
+      if ('parameters' in operation && operation.parameters?.length === 0) {
+        delete operation.parameters
+      }
+
+      if ('requestBody' in operation && operation.requestBody && 'content' in operation.requestBody) {
+        const content = operation.requestBody.content
+        if (content && 'text/plain' in content) {
+          const text = content['text/plain']
+          if (!text?.schema || (text.schema && Object.keys(text.schema).length === 0)) {
+            content['text/plain'] = {}
+          }
+        }
+      }
+
+      if (!operation.description) {
+        delete operation.description
+      }
+    })
+  })
+}
+
 /**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
  */
 export function convert(postmanCollection: PostmanCollection | string): OpenAPIV3_1.Document {
-  const collection = parseCollectionInput(postmanCollection)
-  assertCollectionInfo(collection)
+  const collection = validateCollectionShape(parseCollectionInput(postmanCollection))
 
   // Extract title from collection info, fallback to 'API' if not provided
   const title = collection.info.name || 'API'
@@ -211,41 +269,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
 
   // Clean up the generated paths
   if (openapi.paths) {
-    Object.values(openapi.paths).forEach((path) => {
-      if (path) {
-        Object.values(path).forEach((method) => {
-          if (method && 'parameters' in method) {
-            // Remove empty parameters array to keep spec clean
-            if (method.parameters?.length === 0) {
-              delete method.parameters
-            }
-
-            // Handle request bodies
-            if (method.requestBody?.content) {
-              const content = method.requestBody.content
-              if (Object.keys(content).length === 0) {
-                // Keep an empty requestBody with text/plain content
-                method.requestBody = {
-                  content: {
-                    'text/plain': {},
-                  },
-                }
-              } else if ('text/plain' in content) {
-                // Preserve schema if it exists, otherwise keep an empty object
-                if (!content['text/plain'].schema || Object.keys(content['text/plain'].schema).length === 0) {
-                  content['text/plain'] = {}
-                }
-              }
-            }
-
-            // Ensure all methods have a description, but don't add an empty one if it doesn't exist
-            if (!method.description) {
-              delete method.description
-            }
-          }
-        })
-      }
-    })
+    cleanupOperations(openapi.paths)
   }
 
   // Remove empty components object
@@ -254,20 +278,20 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   }
 
   // Remove undefined properties recursively
-  const removeUndefined = (obj: any): any => {
-    if (Array.isArray(obj)) {
-      return obj.map(removeUndefined).filter((item) => item !== undefined)
+  const removeUndefined = <T>(value: T): T => {
+    if (Array.isArray(value)) {
+      return value.map(removeUndefined).filter((item) => item !== undefined) as unknown as T
     }
 
-    if (obj && typeof obj === 'object') {
-      return Object.fromEntries(
-        Object.entries(obj)
-          .map(([key, value]) => [key, removeUndefined(value)])
-          .filter(([_, value]) => value !== undefined),
-      )
+    if (value && typeof value === 'object') {
+      const cleanedEntries = Object.entries(value as Record<string, unknown>)
+        .map(([key, entryValue]) => [key, removeUndefined(entryValue)])
+        .filter(([, entryValue]) => entryValue !== undefined)
+
+      return Object.fromEntries(cleanedEntries) as unknown as T
     }
 
-    return obj
+    return value
   }
 
   return removeUndefined(openapi)
