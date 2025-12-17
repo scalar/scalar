@@ -135,7 +135,7 @@ describe('mergeObjects', () => {
     })
   })
 
-  it('should deeply merge the objects with the correct value for the array', () => {
+  it('should replace the first array with the second when replaceArray is true', () => {
     const a = {
       arr: [1, 2, 3],
     }
