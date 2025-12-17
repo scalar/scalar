@@ -5,7 +5,6 @@ import { createMockServer } from '@scalar/mock-server'
 export interface ServerConfig {
   document: string
   format: 'json' | 'yaml'
-  hostname?: string
   port?: number
 }
 
