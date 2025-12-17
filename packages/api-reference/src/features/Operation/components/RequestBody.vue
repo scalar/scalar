@@ -96,7 +96,7 @@ const partitionedSchema = computed(() => {
 </script>
 <template>
   <div
-    v-if="requestBody"
+    v-if="requestBody && Object.keys(requestBody.content ?? {}).length > 0"
     aria-label="Request Body"
     class="request-body"
     role="group">
