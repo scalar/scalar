@@ -1,8 +1,9 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { processAuth } from './helpers/auth'
+import { processContact } from './helpers/contact'
 import { processExternalDocs } from './helpers/external-docs'
-import { processLicenseAndContact } from './helpers/licenseContactHelper'
+import { processLicense } from './helpers/license'
 import { processLogo } from './helpers/logo'
 import { processItem } from './helpers/path-items'
 import { parseServers } from './helpers/servers'
@@ -57,7 +58,8 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
       : collection.info.description?.content || ''
 
   // Process license and contact information
-  const { license, contact } = processLicenseAndContact(collection)
+  const license = processLicense(collection)
+  const contact = processContact(collection)
 
   // Process logo information
   const logo = processLogo(collection)
