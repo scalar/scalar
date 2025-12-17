@@ -1,5 +1,5 @@
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { Request as HarRequest } from 'har-format'
-import type { Split } from 'type-fest'
 
 export type {
   Param as FormDataParam,
@@ -15,34 +15,36 @@ export type {
  * This is the source of truth for all supported code generation targets.
  */
 export const GROUPED_CLIENTS = {
-  c: ['c/libcurl'],
-  clojure: ['clojure/clj_http'],
-  csharp: ['csharp/httpclient', 'csharp/restsharp'],
-  dart: ['dart/http'],
-  fsharp: ['fsharp/httpclient'],
-  go: ['go/native'],
-  http: ['http/http1.1'],
-  java: ['java/asynchttp', 'java/nethttp', 'java/okhttp', 'java/unirest'],
-  js: ['js/axios', 'js/fetch', 'js/jquery', 'js/ofetch', 'js/xhr'],
-  kotlin: ['kotlin/okhttp'],
-  node: ['node/axios', 'node/fetch', 'node/ofetch', 'node/undici'],
-  objc: ['objc/nsurlsession'],
-  ocaml: ['ocaml/cohttp'],
-  php: ['php/curl', 'php/guzzle'],
-  powershell: ['powershell/restmethod', 'powershell/webrequest'],
-  python: ['python/python3', 'python/requests', 'python/httpx_sync', 'python/httpx_async'],
-  r: ['r/httr'],
-  ruby: ['ruby/native'],
-  rust: ['rust/reqwest'],
-  shell: ['shell/curl', 'shell/httpie', 'shell/wget'],
-  swift: ['swift/nsurlsession'],
+  c: ['libcurl'],
+  clojure: ['clj_http'],
+  csharp: ['httpclient', 'restsharp'],
+  dart: ['http'],
+  fsharp: ['httpclient'],
+  go: ['native'],
+  http: ['http1.1'],
+  java: ['asynchttp', 'nethttp', 'okhttp', 'unirest'],
+  js: ['axios', 'fetch', 'jquery', 'ofetch', 'xhr'],
+  kotlin: ['okhttp'],
+  node: ['axios', 'fetch', 'ofetch', 'undici'],
+  objc: ['nsurlsession'],
+  ocaml: ['cohttp'],
+  php: ['curl', 'guzzle'],
+  powershell: ['restmethod', 'webrequest'],
+  python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
+  r: ['httr'],
+  ruby: ['native'],
+  rust: ['reqwest'],
+  shell: ['curl', 'httpie', 'wget'],
+  swift: ['nsurlsession'],
 } as const
 
 /**
  * Flat array of all available client identifiers.
  * Each identifier follows the format `target/client` (e.g., `js/fetch`, `python/requests`).
  */
-export const AVAILABLE_CLIENTS = Object.values(GROUPED_CLIENTS).flat()
+export const AVAILABLE_CLIENTS = objectEntries(GROUPED_CLIENTS).flatMap(([group, clients]) =>
+  clients.map((client) => `${group}/${client}` as const),
+)
 
 /**
  * All available client identifiers in array format
@@ -77,7 +79,7 @@ export type TargetId = keyof typeof GROUPED_CLIENTS
  *
  * @template T - The target identifier (e.g., `js`, `python`)
  */
-export type ClientId<T extends TargetId> = Split<(typeof GROUPED_CLIENTS)[T][number], '/'>[1]
+export type ClientId<T extends TargetId> = (typeof GROUPED_CLIENTS)[T][number]
 
 /**
  * Configuration for a specific target (language/environment).

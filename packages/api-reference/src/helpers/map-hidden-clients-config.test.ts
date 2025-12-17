@@ -26,6 +26,18 @@ describe('mapHiddenClientsConfig', () => {
     expect(result.length).toBe(AVAILABLE_CLIENTS.length - 3)
   })
 
+  /** Array format - hiding cross language clients */
+  it('filters out groups of clients when hiddenClients is an array', () => {
+    const hiddenClients = ['fetch', 'axios', 'ruby']
+    const result = mapHiddenClientsConfig(hiddenClients)
+
+    // Should not include the hidden clients
+    expect(result).not.toContain('js/axios')
+    expect(result).not.toContain('js/fetch')
+    expect(result).not.toContain('node/fetch')
+    expect(result).not.toContain('node/axios')
+  })
+
   /** Array format - hiding whole groups */
   it('filters out groups of clients when hiddenClients is an array', () => {
     const hiddenClients = ['js', 'java', 'ruby']
