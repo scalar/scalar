@@ -46,7 +46,36 @@ describe('parameters', () => {
       })
     })
 
-    it('extracts path parameters from URL variables', () => {
+    it('extracts path parameters from URL variables as strings', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/:userId',
+          variable: [
+            {
+              key: 'userId',
+              value: 'testId',
+            },
+          ],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        name: 'userId',
+        in: 'path',
+        required: true,
+        description: undefined,
+        example: 'testId',
+        schema: {
+          type: 'string',
+        },
+      })
+    })
+
+    it('keeps path parameters as strings even for numeric-looking values', () => {
       const request: Request = {
         method: 'GET',
         url: {
@@ -63,16 +92,29 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(1)
-      expect(result[0]).toEqual({
-        name: 'userId',
-        in: 'path',
-        required: true,
-        description: undefined,
-        example: '123',
-        schema: {
-          type: 'integer',
+      expect(result[0].schema.type).toBe('string')
+      expect(result[0].example).toBe('123')
+    })
+
+    it('keeps path parameters as strings for empty values', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/:userId',
+          variable: [
+            {
+              key: 'userId',
+              value: '',
+            },
+          ],
         },
-      })
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].schema.type).toBe('string')
+      expect(result[0].example).toBe('')
     })
 
     it('extracts path parameters from path array', () => {
@@ -198,10 +240,10 @@ describe('parameters', () => {
       })
     })
 
-    it('creates path parameter object with required flag', () => {
+    it('creates path parameter object with required flag and string type', () => {
       const param = {
         key: 'userId',
-        value: '123',
+        value: 'testId',
       }
 
       const result = createParameterObject(param, 'path')
@@ -211,11 +253,35 @@ describe('parameters', () => {
         in: 'path',
         required: true,
         description: undefined,
-        example: '123',
+        example: 'testId',
         schema: {
-          type: 'integer',
+          type: 'string',
         },
       })
+    })
+
+    it('keeps path parameters as strings even for numeric string values', () => {
+      const param = {
+        key: 'userId',
+        value: '123',
+      }
+
+      const result = createParameterObject(param, 'path')
+
+      expect(result.schema.type).toBe('string')
+      expect(result.example).toBe('123')
+    })
+
+    it('uses number type for path parameters only when value is explicitly numeric', () => {
+      const param = {
+        key: 'userId',
+        value: 123,
+      }
+
+      const result = createParameterObject(param, 'path')
+
+      expect(result.schema.type).toBe('integer')
+      expect(result.example).toBe(123)
     })
 
     it('creates header parameter object', () => {

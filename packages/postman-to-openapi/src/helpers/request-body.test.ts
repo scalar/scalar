@@ -60,7 +60,7 @@ describe('request-body', () => {
         'text/plain': {
           schema: {
             type: 'string',
-            examples: [''],
+            examples: undefined,
           },
         },
       },
@@ -223,5 +223,112 @@ describe('request-body', () => {
       },
       tags: ['admin', 'user'],
     })
+  })
+
+  it('extracts JSON from pre-request script when body contains variables', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{{bodyData}}',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
+    }
+
+    const preRequestScript = [
+      'pm.environment.set("bodyData", JSON.stringify({',
+      '    "data": {',
+      '        "modelId": "mistral.mistral-7b-instruct-v0:2",',
+      '        "payload": {',
+      '            "prompt": "<s>[INST] Hello [/INST]",',
+      '            "max_tokens": 500',
+      '        }',
+      '    },',
+      '    "SSMSecret": "SSMSecretValue"',
+      '}))',
+    ]
+
+    const result = extractRequestBody(body, preRequestScript)
+
+    expect(result.content?.['application/json']).toBeDefined()
+    const example = result.content?.['application/json']?.schema?.example as any
+    expect(example).toBeDefined()
+    expect(example.data).toBeDefined()
+    expect(example.data.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
+    expect(example.SSMSecret).toBe('SSMSecretValue')
+  })
+
+  it('creates JSON schema placeholder when body has variables but script extraction fails', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{{bodyData}}',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
+    }
+
+    const preRequestScript = ['some invalid script']
+
+    const result = extractRequestBody(body, preRequestScript)
+
+    expect(result.content?.['application/json']).toBeDefined()
+    expect(result.content?.['application/json']?.schema?.type).toBe('object')
+    expect(result.content?.['application/json']?.schema?.description).toBe('Body data set via pre-request script')
+  })
+
+  it('handles body with variables but no pre-request script', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{{bodyData}}',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
+    }
+
+    const result = extractRequestBody(body)
+
+    expect(result.content?.['application/json']).toBeDefined()
+    expect(result.content?.['application/json']?.schema?.type).toBe('object')
+  })
+
+  it('handles body with variables but non-JSON language', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{{bodyData}}',
+      options: {
+        raw: {
+          language: 'text',
+        },
+      },
+    }
+
+    const result = extractRequestBody(body)
+
+    expect(result.content?.['text/plain']).toBeDefined()
+  })
+
+  it('extracts JSON from single-line pre-request script', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{{bodyData}}',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
+    }
+
+    const preRequestScript = 'pm.environment.set("bodyData", JSON.stringify({"key": "value"}))'
+
+    const result = extractRequestBody(body, preRequestScript)
+
+    expect(result.content?.['application/json']).toBeDefined()
+    const example = result.content?.['application/json']?.schema?.example as any
+    expect(example).toEqual({ key: 'value' })
   })
 })

@@ -47,7 +47,7 @@ describe('auth', () => {
     expect(result.security).toEqual([{ bearerAuth: [] }])
   })
 
-  it('returns OAuth2 security configuration with defaults', () => {
+  it('returns OAuth2 security configuration with defaults when no attributes provided', () => {
     const auth = { type: 'oauth2' } satisfies Auth
 
     const result = processAuth(auth)
@@ -65,6 +65,97 @@ describe('auth', () => {
       },
     })
     expect(result.security).toEqual([{ oauth2Auth: [] }])
+  })
+
+  it('extracts OAuth2 authorization URL from auth attributes', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [
+        { key: 'authUrl', value: 'https://login.example.com/oauth/authorize' },
+        { key: 'accessTokenUrl', value: 'https://login.example.com/oauth/token' },
+      ],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.authorizationUrl).toBe(
+      'https://login.example.com/oauth/authorize',
+    )
+  })
+
+  it('extracts OAuth2 token URL from auth attributes', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [
+        { key: 'authUrl', value: 'https://login.example.com/oauth/authorize' },
+        { key: 'accessTokenUrl', value: 'https://login.example.com/oauth/token' },
+      ],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.tokenUrl).toBe(
+      'https://login.example.com/oauth/token',
+    )
+  })
+
+  it('extracts OAuth2 scopes from auth attributes', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [{ key: 'scope', value: 'read write admin' }],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    const scopes = result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.scopes
+    expect(scopes).toEqual({
+      read: 'read',
+      write: 'write',
+      admin: 'admin',
+    })
+    expect(result.security[0]?.oauth2Auth).toEqual(['read', 'write', 'admin'])
+  })
+
+  it('handles comma-separated OAuth2 scopes', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [{ key: 'scope', value: 'read,write,admin' }],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    const scopes = result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.scopes
+    expect(scopes).toEqual({
+      read: 'read',
+      write: 'write',
+      admin: 'admin',
+    })
+  })
+
+  it('uses tokenUrl as fallback for accessTokenUrl', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [{ key: 'tokenUrl', value: 'https://login.example.com/oauth/token' }],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.tokenUrl).toBe(
+      'https://login.example.com/oauth/token',
+    )
+  })
+
+  it('uses authorizationUrl as fallback for authUrl', () => {
+    const auth = {
+      type: 'oauth2',
+      oauth2: [{ key: 'authorizationUrl', value: 'https://login.example.com/oauth/authorize' }],
+    } satisfies Auth
+
+    const result = processAuth(auth)
+
+    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.authorizationUrl).toBe(
+      'https://login.example.com/oauth/authorize',
+    )
   })
 
   it('returns empty configuration for no authentication', () => {

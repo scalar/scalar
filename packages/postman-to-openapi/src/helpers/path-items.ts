@@ -170,10 +170,17 @@ export function processItem(
     operationObject.security.push(...security)
   }
 
-  if (['post', 'put', 'patch'].includes(method) && typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body)
+  // Extract pre-request script if present
+  const preRequestScript = item.event?.find((e) => e.listen === 'prerequest')?.script?.exec
+
+  // Allow request bodies for all methods (including GET) if body is present
+  if (typeof request !== 'string' && request.body) {
+    const requestBody = extractRequestBody(request.body, preRequestScript)
     ensureRequestBodyContent(requestBody)
-    operationObject.requestBody = requestBody
+    // Only add requestBody if it has content
+    if (requestBody.content && Object.keys(requestBody.content).length > 0) {
+      operationObject.requestBody = requestBody
+    }
   }
 
   if (!paths[path]) {

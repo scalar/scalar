@@ -62,20 +62,43 @@ function createBearerConfig(): SecurityConfig {
 
 /**
  * Creates security configuration for OAuth2 authentication
+ * Extracts actual OAuth2 URLs and scopes from the Postman auth object
  */
-function createOAuth2Config(): SecurityConfig {
+function createOAuth2Config(auth: Auth): SecurityConfig {
+  const oauth2Attrs = auth.oauth2 || []
+  const attrMap = new Map<string, string>()
+
+  oauth2Attrs.forEach((attr) => {
+    if (attr.key && attr.value !== undefined) {
+      attrMap.set(attr.key, String(attr.value))
+    }
+  })
+
+  const authUrl = attrMap.get('authUrl') || attrMap.get('authorizationUrl') || OAUTH2_DEFAULTS.AUTHORIZE_URL
+  const tokenUrl = attrMap.get('accessTokenUrl') || attrMap.get('tokenUrl') || OAUTH2_DEFAULTS.TOKEN_URL
+  const scopeValue = attrMap.get('scope') || ''
+
+  // Parse scopes from the scope value (can be space or comma separated)
+  const scopes: Record<string, string> = {}
+  if (scopeValue) {
+    const scopeList = scopeValue.split(/[,\s]+/).filter(Boolean)
+    scopeList.forEach((scope) => {
+      scopes[scope] = scope
+    })
+  }
+
   return {
     scheme: {
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          authorizationUrl: OAUTH2_DEFAULTS.AUTHORIZE_URL,
-          tokenUrl: OAUTH2_DEFAULTS.TOKEN_URL,
-          scopes: {},
+          authorizationUrl: authUrl,
+          tokenUrl,
+          scopes,
         },
       },
     },
-    requirement: { [AUTH_SCHEMES.OAUTH2]: [] },
+    requirement: { [AUTH_SCHEMES.OAUTH2]: Object.keys(scopes) },
   }
 }
 
@@ -92,7 +115,7 @@ function createNoAuthConfig(): SecurityConfig {
 /**
  * Maps authentication types to their configuration creators
  */
-const AUTH_TYPE_HANDLERS: Record<string, () => SecurityConfig> = {
+const AUTH_TYPE_HANDLERS: Record<string, (auth?: Auth) => SecurityConfig> = {
   apikey: createApiKeyConfig,
   basic: createBasicConfig,
   bearer: createBearerConfig,
@@ -118,7 +141,7 @@ export function processAuth(auth: Auth): {
       throw new Error(`Unsupported authentication type: ${auth.type}`)
     }
 
-    const { scheme, requirement } = handler()
+    const { scheme, requirement } = handler(auth)
 
     // Only add security schemes and requirements if they're not empty
     if (Object.keys(scheme).length > 0) {

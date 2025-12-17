@@ -207,7 +207,7 @@ describe('path-items', () => {
       description: undefined,
       example: '123',
       schema: {
-        type: 'integer',
+        type: 'string',
       },
     })
   })
@@ -419,7 +419,7 @@ describe('path-items', () => {
     expect(result.paths[pathKey].patch?.requestBody).toBeDefined()
   })
 
-  it('does not add request body for GET request', () => {
+  it('adds request body for GET request when body is provided', () => {
     const item: Item = {
       name: 'Get User',
       request: {
@@ -430,6 +430,65 @@ describe('path-items', () => {
         body: {
           mode: 'raw',
           raw: '{}',
+        },
+      },
+    }
+
+    const result = processItem(item)
+
+    expect(result.paths['/users'].get?.requestBody).toBeDefined()
+    expect(result.paths['/users'].get?.requestBody?.content?.['application/json']).toBeDefined()
+  })
+
+  it('allows GET requests to have request bodies', () => {
+    const item: Item = {
+      name: 'Get with Body',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/bedrock',
+        },
+        body: {
+          mode: 'raw',
+          raw: '{{bodyData}}',
+          options: {
+            raw: {
+              language: 'json',
+            },
+          },
+        },
+      },
+      event: [
+        {
+          listen: 'prerequest',
+          script: {
+            exec: [
+              'pm.environment.set("bodyData", JSON.stringify({',
+              '    "data": {',
+              '        "modelId": "mistral.mistral-7b-instruct-v0:2"',
+              '    }',
+              '}))',
+            ],
+          },
+        },
+      ],
+    }
+
+    const result = processItem(item)
+
+    expect(result.paths['/bedrock'].get?.requestBody).toBeDefined()
+    expect(result.paths['/bedrock'].get?.requestBody?.content?.['application/json']).toBeDefined()
+    const example = result.paths['/bedrock'].get?.requestBody?.content?.['application/json']?.schema?.example as any
+    expect(example?.data?.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
+  })
+
+  it('does not add requestBody when body is empty', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/users',
         },
       },
     }
