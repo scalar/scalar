@@ -1044,7 +1044,7 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: packages/mock-server/docker
-        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download mock server docker entrypoint artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
