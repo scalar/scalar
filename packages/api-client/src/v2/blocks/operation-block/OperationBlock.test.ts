@@ -491,4 +491,193 @@ describe('OperationBlock', () => {
     expect(response.status).toBe(200)
     expect(response.data).toBe('{"users": []}')
   })
+
+  it('clears response and request when path changes', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"success": true}',
+      size: 20,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(instance.response).not.toBeNull()
+    expect(instance.request).not.toBeNull()
+
+    await wrapper.setProps({ path: '/api/posts' })
+    await wrapper.vm.$nextTick()
+
+    expect(instance.response).toBeNull()
+    expect(instance.request).toBeNull()
+  })
+
+  it('clears response and request when method changes', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"success": true}',
+      size: 20,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(instance.response).not.toBeNull()
+    expect(instance.request).not.toBeNull()
+
+    await wrapper.setProps({ method: 'post' })
+    await wrapper.vm.$nextTick()
+
+    expect(instance.response).toBeNull()
+    expect(instance.request).toBeNull()
+  })
+
+  it('clears response and request when exampleKey changes', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"success": true}',
+      size: 20,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(instance.response).not.toBeNull()
+    expect(instance.request).not.toBeNull()
+
+    await wrapper.setProps({ exampleKey: 'alternative-example' })
+    await wrapper.vm.$nextTick()
+
+    expect(instance.response).toBeNull()
+    expect(instance.request).toBeNull()
+  })
 })
