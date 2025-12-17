@@ -185,35 +185,14 @@ describe('RequestTableTooltip', () => {
     expect(wrapper.text()).toContain('default: default-value')
   })
 
-  it('displays schema description when value is valid', () => {
-    const wrapper = mount(RequestTableTooltip, {
-      props: {
-        value: 'test',
-        schema: {
-          type: 'string',
-          description: 'This is a test parameter',
-        },
-      },
-      global: {
-        stubs: {
-          ScalarPopover: ScalarPopoverStub,
-          ScalarIconInfo: ScalarIconInfoStub,
-          ScalarIconWarning: ScalarIconWarningStub,
-        },
-      },
-    })
-
-    expect(wrapper.text()).toContain('This is a test parameter')
-  })
-
   it('does not display description when value is invalid', () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
         value: 'invalid',
         schema: {
           type: 'number',
-          description: 'This is a test parameter',
         },
+        description: 'This is a test parameter',
       },
       global: {
         stubs: {
@@ -273,7 +252,6 @@ describe('RequestTableTooltip', () => {
           minimum: 1,
           maximum: 10,
           default: 5,
-          description: 'A number between 1 and 10',
         },
       },
       global: {
@@ -290,7 +268,6 @@ describe('RequestTableTooltip', () => {
     expect(wrapper.text()).toContain('min: 1')
     expect(wrapper.text()).toContain('max: 10')
     expect(wrapper.text()).toContain('default: 5')
-    expect(wrapper.text()).toContain('A number between 1 and 10')
   })
 
   it('displays the description when it is provided', () => {
