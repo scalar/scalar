@@ -21,6 +21,10 @@ You can have a mock server up and running in seconds:
 npx @scalar/cli document mock openapi.json --watch
 ```
 
+### Docker
+
+Alternatively, you can run the mock server in a Docker container. See the [Docker documentation](https://guides.scalar.com/scalar/scalar-mock-server/docker) for more details. 
+
 ## Installation
 
 For advanced use cases, you can integrate the mock server directly into your Node.js application for full control:
