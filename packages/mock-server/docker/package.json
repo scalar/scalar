@@ -4,6 +4,7 @@
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
+  "private": true,
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
     "type": "git",
