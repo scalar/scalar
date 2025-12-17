@@ -54,8 +54,14 @@ export const getExample = (
   }
 
   // Fallback to default
-  if ('schema' in param && param.schema && 'default' in param.schema && typeof param.schema.default !== 'undefined') {
-    return { value: getResolvedRefDeep(param.schema).default }
+  const resolvedParam = getResolvedRefDeep(param)
+  if (
+    'schema' in resolvedParam &&
+    resolvedParam.schema &&
+    'default' in resolvedParam.schema &&
+    typeof resolvedParam.schema.default !== 'undefined'
+  ) {
+    return { value: resolvedParam.schema.default }
   }
 
   return undefined
