@@ -1,6 +1,6 @@
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/snippetz'
 
-import type { ClientOption, ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample/types'
+import type { ClientOption, CustomClientOption, CustomClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
 export const DEFAULT_CLIENT = 'shell/curl'
 
@@ -42,7 +42,7 @@ export const isClient = (id: any): id is AvailableClients[number] => AVAILABLE_C
  * ```
  */
 export const findClient = (
-  clientGroups: ClientOptionGroup[],
+  clientGroups: CustomClientOptionGroup[],
   clientId?: AvailableClients[number] | undefined,
 ): ClientOption | CustomClientOption | undefined => {
   const firstOption = clientGroups[0]?.options[0]

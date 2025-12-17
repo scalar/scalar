@@ -21,6 +21,14 @@ export type ClientOption = ScalarComboboxOption & {
   clientKey: ClientId<TargetId>
 }
 
+/**
+ * Augments the base combobox option group with ClientOptions
+ */
+export type ClientOptionGroup = Omit<ScalarComboboxOptionGroup, 'options'> & {
+  /** Array of client options that belong to this group */
+  options: ClientOption[]
+}
+
 /** Better type safety when we have custom clients in the selector */
 export type CustomClientOption = ScalarComboboxOption & {
   /** A custom ID */
@@ -33,10 +41,8 @@ export type CustomClientOption = ScalarComboboxOption & {
   clientKey: 'custom'
 }
 
-/**
- * Augments the base combobox option group with ClientOptions
- */
-export type ClientOptionGroup = Omit<ScalarComboboxOptionGroup, 'options'> & {
+/** Augments the base combobox option group with CustomClientOptions */
+export type CustomClientOptionGroup = Omit<ScalarComboboxOptionGroup, 'options'> & {
   /** Array of client options that belong to this group */
   options: (ClientOption | CustomClientOption)[]
 }

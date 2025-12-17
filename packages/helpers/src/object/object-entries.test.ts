@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { objectEntries } from './object-entries'
 
@@ -18,17 +18,19 @@ describe('objectEntries', () => {
     const entries = objectEntries(obj)
 
     // TypeScript should infer entries as [('name' | 'age'), string | number][]
-    type Entries = typeof entries
     type ExpectedKey = 'name' | 'age'
     type ExpectedValue = 'John' | 30
 
     // Type check: keys should be the union of object keys
-    const _keyCheck: ExpectedKey = entries[0][0]
-    _keyCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: ExpectedKey = firstEntry[0]
+      _keyCheck
 
-    // Type check: values should be the union of object values
-    const _valueCheck: ExpectedValue = entries[0][1]
-    _valueCheck
+      // Type check: values should be the union of object values
+      const _valueCheck: ExpectedValue = firstEntry[1]
+      _valueCheck
+    }
   })
 
   it('handles objects with mixed value types correctly', () => {
@@ -67,15 +69,19 @@ describe('objectEntries', () => {
     const successResult: Result = { status: 'success', data: 'hello' }
     const entries = objectEntries(successResult)
 
-    // Type check: entries should maintain the discriminated union type
-    type Entries = typeof entries
-    type ExpectedKey = keyof Result
-    type ExpectedValue = Result[keyof Result]
+    // Type check: entries should work with discriminated unions
+    // Note: keyof Result only includes common keys ('status')
+    // For all possible keys, we need to use keyof Success | keyof Error
+    type AllKeys = keyof Success | keyof Error
+    type AllValues = Success[keyof Success] | Error[keyof Error]
 
-    const _keyCheck: ExpectedKey = entries[0][0]
-    const _valueCheck: ExpectedValue = entries[0][1]
-    _keyCheck
-    _valueCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: AllKeys = firstEntry[0]
+      const _valueCheck: AllValues = firstEntry[1]
+      _keyCheck
+      _valueCheck
+    }
 
     // Runtime check
     expect(entries).toContainEqual(['status', 'success'])
@@ -99,10 +105,12 @@ describe('objectEntries', () => {
     const entries = objectEntries(userWithOptional)
 
     // Type check: keys should include optional properties
-    type Entries = typeof entries
     type ExpectedKey = keyof User
-    const _keyCheck: ExpectedKey = entries[0][0]
-    _keyCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: ExpectedKey = firstEntry[0]
+      _keyCheck
+    }
 
     // Runtime check
     expect(entries).toHaveLength(3)
@@ -134,14 +142,16 @@ describe('objectEntries', () => {
     const entries = objectEntries(obj)
 
     // Type check: should work with readonly objects
-    type Entries = typeof entries
     type ExpectedKey = 'a' | 'b'
     type ExpectedValue = 1 | 2
 
-    const _keyCheck: ExpectedKey = entries[0][0]
-    const _valueCheck: ExpectedValue = entries[0][1]
-    _keyCheck
-    _valueCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: ExpectedKey = firstEntry[0]
+      const _valueCheck: ExpectedValue = firstEntry[1]
+      _keyCheck
+      _valueCheck
+    }
 
     // Runtime check
     expect(entries).toEqual([
@@ -160,18 +170,29 @@ describe('objectEntries', () => {
     const entries = objectEntries(obj)
 
     // Type check: functions should be preserved in the type
-    type Entries = typeof entries
     type ExpectedKey = 'name' | 'execute' | 'compute'
-    const _keyCheck: ExpectedKey = entries[0][0]
-    _keyCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: ExpectedKey = firstEntry[0]
+      _keyCheck
+    }
 
     // Runtime check
     expect(entries).toHaveLength(3)
-    expect(entries[0]).toEqual(['name', 'test'])
-    expect(entries[1][0]).toBe('execute')
-    expect(typeof entries[1][1]).toBe('function')
-    expect(entries[2][0]).toBe('compute')
-    expect(typeof entries[2][1]).toBe('function')
+    const entry0 = entries[0]
+    const entry1 = entries[1]
+    const entry2 = entries[2]
+    if (entry0) {
+      expect(entry0).toEqual(['name', 'test'])
+    }
+    if (entry1) {
+      expect(entry1[0]).toBe('execute')
+      expect(typeof entry1[1]).toBe('function')
+    }
+    if (entry2) {
+      expect(entry2[0]).toBe('compute')
+      expect(typeof entry2[1]).toBe('function')
+    }
   })
 
   it('handles nested objects without flattening', () => {
@@ -191,10 +212,12 @@ describe('objectEntries', () => {
     const entries = objectEntries(obj)
 
     // Type check: nested objects should remain as objects in the value type
-    type Entries = typeof entries
     type ExpectedKey = 'user' | 'settings'
-    const _keyCheck: ExpectedKey = entries[0][0]
-    _keyCheck
+    const firstEntry = entries[0]
+    if (firstEntry) {
+      const _keyCheck: ExpectedKey = firstEntry[0]
+      _keyCheck
+    }
 
     // Runtime check: nested objects should not be flattened
     expect(entries).toHaveLength(2)

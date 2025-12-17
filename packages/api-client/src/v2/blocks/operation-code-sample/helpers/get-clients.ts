@@ -3,6 +3,7 @@ import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/ope
 
 import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
+import type { CustomClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
 /**
  * Merges custom code samples with the client options
@@ -14,7 +15,7 @@ import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/gene
 export const getClients = (
   customCodeSamples: XCodeSample[],
   clientOptions: ClientOptionGroup[],
-): ClientOptionGroup[] => {
+): CustomClientOptionGroup[] => {
   // Handle custom code examples
   if (customCodeSamples.length) {
     const customClients = customCodeSamples.map((sample) => {

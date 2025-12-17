@@ -1,5 +1,5 @@
-import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
@@ -146,7 +146,8 @@ describe('generateClientOptions', () => {
       const result = generateClientOptions(['js/fetch'])
 
       const jsGroup = result[0]
-      const fetchOption = jsGroup.options[0]
+      expect(jsGroup).toBeDefined()
+      const fetchOption = jsGroup!.options[0]
 
       expect(fetchOption).toHaveProperty('id')
       expect(fetchOption).toHaveProperty('lang')
@@ -173,17 +174,21 @@ describe('generateClientOptions', () => {
       const result = generateClientOptions(['js/fetch', 'js/axios', 'js/ofetch'])
 
       expect(result).toHaveLength(1)
-      expect(result[0].label).toBe('JavaScript')
-      expect(result[0].options).toHaveLength(3)
-      expect(result[0].options.map((opt) => opt.id)).toEqual(['js/fetch', 'js/axios', 'js/ofetch'])
+      const jsGroup = result[0]
+      expect(jsGroup).toBeDefined()
+      expect(jsGroup!.label).toBe('JavaScript')
+      expect(jsGroup!.options).toHaveLength(3)
+      expect(jsGroup!.options.map((opt) => opt.id)).toEqual(['js/fetch', 'js/axios', 'js/ofetch'])
     })
 
     it('groups multiple Node.js clients together', () => {
       const result = generateClientOptions(['node/fetch', 'node/axios', 'node/undici', 'node/ofetch'])
 
       expect(result).toHaveLength(1)
-      expect(result[0].label).toBe('Node.js')
-      expect(result[0].options).toHaveLength(4)
+      const nodeGroup = result[0]
+      expect(nodeGroup).toBeDefined()
+      expect(nodeGroup!.label).toBe('Node.js')
+      expect(nodeGroup!.options).toHaveLength(4)
     })
   })
 
@@ -192,7 +197,9 @@ describe('generateClientOptions', () => {
       const result = generateClientOptions(['js/fetch'])
 
       expect(result).toHaveLength(1)
-      expect(result[0].options).toHaveLength(1)
+      const group = result[0]
+      expect(group).toBeDefined()
+      expect(group!.options).toHaveLength(1)
     })
 
     it('handles clients from many different targets', () => {
