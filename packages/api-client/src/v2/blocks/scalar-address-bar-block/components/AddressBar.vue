@@ -121,10 +121,12 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
 /** Update the operation's path, handling conflicts */
-const handlePathChange = (newPath: string): void =>
-  emitPathMethodUpdate(methodConflict.value ?? method, newPath, {
+const handlePathChange = (newPath: string): void => {
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
     debounceKey: `operation:update:pathMethod-${path}-${method}`,
   })
+}
 
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')

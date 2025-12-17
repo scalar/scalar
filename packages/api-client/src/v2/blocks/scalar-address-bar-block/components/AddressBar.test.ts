@@ -519,7 +519,7 @@ describe('AddressBar', () => {
       )
     })
 
-    it('handles empty path and emits event', async () => {
+    it('handles empty path by normalizing to slash', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -532,13 +532,13 @@ describe('AddressBar', () => {
       await nextTick()
 
       /**
-       * Empty path should be emitted via eventBus.
+       * Empty path should be normalized to slash.
        */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
           meta: { method: 'get', path: '/api/test' },
-          payload: { method: 'get', path: '' },
+          payload: { method: 'get', path: '/' },
         }),
         { debounceKey: 'operation:update:pathMethod-/api/test-get' },
       )
@@ -568,6 +568,50 @@ describe('AddressBar', () => {
         expect.objectContaining({
           meta: { method: 'get', path: '/api/test' },
           payload: { method: 'get', path: '/api/users/{name}' },
+        }),
+        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
+    })
+  })
+
+  describe('path normalization', () => {
+    it('keeps path unchanged when it already starts with slash', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '/api/users')
+      await nextTick()
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          payload: { method: 'get', path: '/api/users' },
+        }),
+        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
+    })
+
+    it('prepends slash to path without leading slash', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', 'api/users')
+      await nextTick()
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          payload: { method: 'get', path: '/api/users' },
         }),
         { debounceKey: 'operation:update:pathMethod-/api/test-get' },
       )
