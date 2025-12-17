@@ -34,6 +34,11 @@ import type { UnknownObject } from '@/helpers/general'
 export const mergeObjects = <R>(
   a: Record<string, unknown>,
   b: Record<string, unknown>,
+  /**
+   * By default we overwrite array indexes, our store is built on this assumption when coercing the document
+   * Alternatively we may want to prevent this behaviour when merging with defaults and replace the whole array instead
+   */
+  replaceArrays = false,
   cache: Set<unknown> = new Set(),
 ): R => {
   for (const key in b) {
@@ -43,13 +48,15 @@ export const mergeObjects = <R>(
       const aValue = a[key]
       const bValue = b[key]
 
+      /** Replace whole array instead of replacing each index */
+      const shouldReplaceArrays = replaceArrays && (Array.isArray(aValue) || Array.isArray(bValue))
+
       if (
         typeof aValue === 'object' &&
         aValue !== null &&
-        !Array.isArray(aValue) &&
         typeof bValue === 'object' &&
         bValue !== null &&
-        !Array.isArray(bValue)
+        !shouldReplaceArrays
       ) {
         const rawA = getRaw(aValue as UnknownObject)
         const rawB = getRaw(bValue as UnknownObject)
@@ -64,7 +71,7 @@ export const mergeObjects = <R>(
         cache.add(rawA)
         cache.add(rawB)
 
-        mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>, cache)
+        mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>, replaceArrays, cache)
       } else {
         try {
           a[key] = bValue // Overwrite with b's value if not an object

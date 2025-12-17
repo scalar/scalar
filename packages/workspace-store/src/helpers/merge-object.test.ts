@@ -144,7 +144,7 @@ describe('mergeObjects', () => {
       arr: [],
     }
 
-    expect(mergeObjects(a, b)).toEqual({
+    expect(mergeObjects(a, b, true)).toEqual({
       arr: [],
     })
   })
