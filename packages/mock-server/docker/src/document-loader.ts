@@ -2,26 +2,22 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { join } from 'node:path'
 
 const DOCS_DIR = '/docs'
-const TEMP_DOCUMENT = '/tmp/openapi.yaml'
+const TEMP_DOCUMENT_JSON = '/tmp/openapi.json'
+const TEMP_DOCUMENT_YAML = '/tmp/openapi.yaml'
 
-export async function loadDocument(): Promise<string> {
+export interface DocumentInfo {
+  path: string
+  format: 'json' | 'yaml'
+}
+
+export function loadDocument(): DocumentInfo {
   // First priority: OPENAPI_DOCUMENT environment variable
   if (process.env.OPENAPI_DOCUMENT) {
     console.log('✓ Using OpenAPI document from OPENAPI_DOCUMENT environment variable')
-    writeFileSync(TEMP_DOCUMENT, process.env.OPENAPI_DOCUMENT, 'utf8')
-    return TEMP_DOCUMENT
-  }
-
-  // Second priority: OPENAPI_URL environment variable
-  if (process.env.OPENAPI_URL) {
-    console.log(`✓ Fetching OpenAPI document from ${process.env.OPENAPI_URL}`)
-    const response = await fetch(process.env.OPENAPI_URL)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch document: ${response.statusText}`)
-    }
-    const content = await response.text()
-    writeFileSync(TEMP_DOCUMENT, content, 'utf8')
-    return TEMP_DOCUMENT
+    const format = detectDocumentFormat(process.env.OPENAPI_DOCUMENT)
+    const tempPath = format === 'json' ? TEMP_DOCUMENT_JSON : TEMP_DOCUMENT_YAML
+    writeFileSync(tempPath, process.env.OPENAPI_DOCUMENT, 'utf8')
+    return { path: tempPath, format }
   }
 
   // Third priority: Volume scan
@@ -29,7 +25,9 @@ export async function loadDocument(): Promise<string> {
   const document = scanForDocument(DOCS_DIR)
   if (document) {
     console.log(`✓ Found OpenAPI document: ${document}`)
-    return document
+    const content = readFileSync(document, 'utf8')
+    const format = detectDocumentFormat(content)
+    return { path: document, format }
   }
 
   throw new Error(
@@ -78,4 +76,20 @@ function isOpenApiDocument(filePath: string): boolean {
   } catch {
     return false
   }
+}
+
+function detectDocumentFormat(content: string): 'json' | 'yaml' {
+  // Try to parse as JSON first
+  try {
+    const trimmed = content.trim()
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      JSON.parse(content)
+      return 'json'
+    }
+  } catch {
+    // Not valid JSON, continue to check YAML
+  }
+
+  // Default to YAML if not JSON
+  return 'yaml'
 }

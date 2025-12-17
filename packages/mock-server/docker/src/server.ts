@@ -4,12 +4,13 @@ import { createMockServer } from '@scalar/mock-server'
 
 export interface ServerConfig {
   document: string
-  port: number
+  format: 'json' | 'yaml'
   hostname?: string
+  port?: number
 }
 
 export async function startMockServer(config: ServerConfig): Promise<void> {
-  const { document, port, hostname = '0.0.0.0' } = config
+  const { document, format, port = 3000 } = config
 
   console.log()
   console.log('Starting mock server...')
@@ -22,23 +23,27 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
     },
   })
 
-  // Serve the OpenAPI document at /openapi.yaml for the API Reference
-  app.get('/openapi.yaml', (c) => {
+  // Determine endpoint and content type based on format
+  const endpoint = format === 'json' ? '/openapi.json' : '/openapi.yaml'
+  const contentType = format === 'json' ? 'application/json' : 'application/yaml; charset=UTF-8'
+
+  // Serve the OpenAPI document at the appropriate endpoint for the API Reference
+  app.get(endpoint, (c) => {
+    c.header('Content-Type', contentType)
     return c.text(document)
   })
 
   // API Reference at root path
-  app.get('/scalar', Scalar({ url: '/openapi.yaml', theme: 'default' }))
+  app.get('/scalar', Scalar({ url: endpoint, theme: 'default' }))
 
   serve(
     {
       fetch: app.fetch,
       port,
-      hostname,
     },
     (info) => {
-      console.log(`🚀 Mock Server listening on http://${hostname}:${info.port}`)
-      console.log(`📖 API Reference: http://${hostname}:${info.port}/scalar`)
+      console.log(`🚀 Mock Server listening on http://${info.address}:${info.port}`)
+      console.log(`📖 API Reference: http://${info.address}:${info.port}/scalar`)
     },
   )
 }
