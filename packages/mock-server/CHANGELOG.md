@@ -1,5 +1,20 @@
 # @scalar/mock-server
 
+## 0.8.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/oas-utils@0.6.10**
+
+- **@scalar/json-magic@0.8.7**
+
+- **@scalar/openapi-parser@0.23.8**
+
 ## 0.8.4
 
 ### Patch Changes

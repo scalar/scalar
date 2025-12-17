@@ -1,5 +1,15 @@
 # @scalar/icons
 
+## 0.5.1
+
+### Patch Changes
+
+- [#7542](https://github.com/scalar/scalar/pull/7542): fix: move `generate-icons` script outside of src folder
+
+No need to include it in published packages
+
+- [#7542](https://github.com/scalar/scalar/pull/7542): fix: use named instead of star exports
+
 ## 0.5.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @scalar/postman-to-openapi
 
+## 0.3.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/oas-utils@0.6.10**
+
 ## 0.3.50
 
 ### Patch Changes

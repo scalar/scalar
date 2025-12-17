@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.8.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
 ## 0.8.6
 
 ### Patch Changes

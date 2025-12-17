@@ -1,5 +1,21 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
+- **@scalar/components@0.16.10**
+  - [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
+
+- **@scalar/oas-utils@0.6.10**
+
+- **@scalar/openapi-parser@0.23.8**
+
 ## 0.3.9
 
 ### Patch Changes

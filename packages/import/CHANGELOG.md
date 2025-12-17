@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.4.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.3**
+  - [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
 ## 0.4.39
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.3
+
+### Patch Changes
+
+- [#7575](https://github.com/scalar/scalar/pull/7575): feat: add support for object examples + hide body when empty
+
 ## 0.2.2
 
 ### Patch Changes
