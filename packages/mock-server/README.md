@@ -35,27 +35,6 @@ Pass the OpenAPI document content directly as an environment variable:
 docker run -e OPENAPI_DOCUMENT="$(cat my-api.yaml)" -p 3000:3000 scalar/mock-server
 ```
 
-### Via URL
-
-Provide a URL to fetch the OpenAPI document from:
-
-```bash
-docker run -e OPENAPI_URL=https://example.com/api.yaml -p 3000:3000 scalar/mock-server
-```
-
-### Building the Docker Image
-
-The Docker image is built from a separate package in `packages/mock-server/docker/`. See the [Docker package README](docker/README.md) for detailed instructions.
-
-Quick start:
-
-```bash
-cd packages/mock-server/docker
-pnpm install
-pnpm build
-docker build -t scalar-mock-server .
-```
-
 ### Configuration
 
 - **Port**: The server runs on port 3000 by default. You can change it using the `PORT` environment variable:
@@ -63,7 +42,7 @@ docker build -t scalar-mock-server .
   docker run -e PORT=8080 -p 8080:8080 scalar/mock-server
   ```
 
-- **API Reference**: The API Reference UI is automatically available at the root path (`/`) when the container starts.
+- **API Reference**: The API Reference UI is automatically available at the root path (`/scalar`) when the container starts.
 
 ## Documentation
 

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { loadDocument } from './document-loader'
 import { startMockServer } from './server'
 
-const PORT = process.env.PORT || 3000
+const PORT = 3000
 
 async function main(): Promise<void> {
   const documentPath = await loadDocument()
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
 
   await startMockServer({
     document,
-    port: Number(PORT),
+    port: PORT,
   })
 }
 

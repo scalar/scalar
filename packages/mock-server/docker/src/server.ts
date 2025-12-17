@@ -28,7 +28,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   })
 
   // API Reference at root path
-  app.get('/', Scalar({ url: '/openapi.yaml', theme: 'default' }))
+  app.get('/scalar', Scalar({ url: '/openapi.yaml', theme: 'default' }))
 
   serve(
     {
@@ -38,7 +38,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
     },
     (info) => {
       console.log(`🚀 Mock Server listening on http://${hostname}:${info.port}`)
-      console.log(`📖 API Reference: http://${hostname}:${info.port}/`)
+      console.log(`📖 API Reference: http://${hostname}:${info.port}/scalar`)
     },
   )
 }
