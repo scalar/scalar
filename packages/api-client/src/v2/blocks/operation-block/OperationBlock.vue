@@ -185,14 +185,10 @@ onBeforeUnmount(() => {
  * When the path, method, or example key changes, clear the response and request
  * TODO: maybe in the future this will be hooked into the history api but for now we'll just clear the response and request
  */
-watch(
-  [() => path, () => method, () => exampleKey],
-  () => {
-    response.value = null
-    request.value = null
-  },
-  { immediate: true },
-)
+watch([() => path, () => method, () => exampleKey], () => {
+  response.value = null
+  request.value = null
+})
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
