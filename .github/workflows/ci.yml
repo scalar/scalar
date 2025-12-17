@@ -1065,18 +1065,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Build and Push Docker image
-      #   uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
-      #   with:
-      #     context: packages/mock-server/docker
-      #     file: packages/mock-server/docker/Dockerfile
-      #     push: true
-      #     platforms: |
-      #       linux/amd64
-      #       linux/arm64
-      #     tags: |
-      #       scalarapi/mock-server:latest
-      #       scalarapi/mock-server:${{ steps.package-version.outputs.VERSION }}
+      - name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: packages/mock-server/docker
+          file: packages/mock-server/docker/Dockerfile
+          #push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/mock-server:latest
+            scalarapi/mock-server:${{ steps.package-version.outputs.VERSION }}
 
   dotnet-build-test:
     if: needs.check-changes.outputs.dotnet_changed == 'true'
