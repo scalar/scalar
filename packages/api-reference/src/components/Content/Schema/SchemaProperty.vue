@@ -414,11 +414,6 @@ const compositionsToRender = computed(() => {
   padding-top: 0;
 }
 
-/* increase z-index for example hovers */
-.property:hover {
-  z-index: 1;
-}
-
 .property--compact.property--level-0,
 .property--compact.property--level-1 {
   padding: 8px 0;
