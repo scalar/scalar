@@ -1,8 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { HeaderList, Item, Response } from '../types'
-import { inferSchemaFromExample } from './schemaHelpers'
-import { extractStatusCodesFromTests } from './statusCodeHelpers'
+import { inferSchemaFromExample } from './schemas'
+import { extractStatusCodesFromTests } from './status-codes'
 
 /**
  * Extracts and converts Postman response objects to OpenAPI response objects.

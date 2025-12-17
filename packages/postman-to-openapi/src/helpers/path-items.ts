@@ -1,13 +1,13 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Item, ItemGroup } from '../types'
-import { processAuth } from './authHelpers'
+import { processAuth } from './auth'
 import { parseMdTable } from './md-utils'
-import { extractParameters } from './parameterHelpers'
-import { processPostResponseScripts } from './postResponseScripts'
-import { extractRequestBody } from './requestBodyHelpers'
-import { extractResponses } from './responseHelpers'
-import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urlHelpers'
+import { extractParameters } from './parameters'
+import { processPostResponseScripts } from './post-response-scripts'
+import { extractRequestBody } from './request-body'
+import { extractResponses } from './responses'
+import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 

@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Header, Request } from '../types'
-import { inferSchemaType } from './schemaHelpers'
+import { inferSchemaType } from './schemas'
 
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.

@@ -1,12 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { processAuth } from './helpers/authHelpers'
-import { processExternalDocs } from './helpers/externalDocsHelper'
-import { processItem } from './helpers/itemHelpers'
+import { processAuth } from './helpers/auth'
+import { processExternalDocs } from './helpers/external-docs'
 import { processLicenseAndContact } from './helpers/licenseContactHelper'
 import { processLogo } from './helpers/logoHelper'
-import { parseServers } from './helpers/serverHelpers'
-import { normalizePath } from './helpers/urlHelpers'
+import { processItem } from './helpers/path-items'
+import { parseServers } from './helpers/servers'
+import { normalizePath } from './helpers/urls'
 import type { PostmanCollection } from './types'
 
 /**

@@ -1,0 +1,338 @@
+import { describe, expect, it } from 'vitest'
+
+import type { Request } from '../types'
+import { createParameterObject, extractParameters } from './parameters'
+
+describe('parameters', () => {
+  describe('extractParameters', () => {
+    it('extracts query parameters from URL', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users?page=1&limit=10',
+          query: [
+            {
+              key: 'page',
+              value: '1',
+            },
+            {
+              key: 'limit',
+              value: '10',
+            },
+          ],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(2)
+      expect(result.find((p) => p.name === 'page')).toEqual({
+        name: 'page',
+        in: 'query',
+        description: undefined,
+        example: '1',
+        schema: {
+          type: 'integer',
+        },
+      })
+      expect(result.find((p) => p.name === 'limit')).toEqual({
+        name: 'limit',
+        in: 'query',
+        description: undefined,
+        example: '10',
+        schema: {
+          type: 'integer',
+        },
+      })
+    })
+
+    it('extracts path parameters from URL variables', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/:userId',
+          variable: [
+            {
+              key: 'userId',
+              value: '123',
+            },
+          ],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        name: 'userId',
+        in: 'path',
+        required: true,
+        description: undefined,
+        example: '123',
+        schema: {
+          type: 'integer',
+        },
+      })
+    })
+
+    it('extracts path parameters from path array', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/{{userId}}/posts',
+          path: ['users', '{{userId}}', 'posts'],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        name: 'userId',
+        in: 'path',
+        required: true,
+        schema: {
+          type: 'string',
+        },
+      })
+    })
+
+    it('extracts header parameters', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users',
+        },
+        header: [
+          {
+            key: 'Authorization',
+            value: 'Bearer token',
+          },
+          {
+            key: 'X-Request-ID',
+            value: '12345',
+          },
+        ],
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(2)
+      expect(result.find((p) => p.name === 'Authorization')).toEqual({
+        name: 'Authorization',
+        in: 'header',
+        example: 'Bearer token',
+        schema: {
+          type: 'string',
+        },
+      })
+      expect(result.find((p) => p.name === 'X-Request-ID')).toEqual({
+        name: 'X-Request-ID',
+        in: 'header',
+        description: undefined,
+        example: '12345',
+        schema: {
+          type: 'integer',
+        },
+      })
+    })
+
+    it('returns empty array for string request', () => {
+      const request: Request = 'https://example.com/users'
+
+      const result = extractParameters(request)
+
+      expect(result).toEqual([])
+    })
+
+    it('returns empty array when URL is missing', () => {
+      const request: Request = {
+        method: 'GET',
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toEqual([])
+    })
+
+    it('deduplicates parameters with same name', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/:userId',
+          variable: [
+            {
+              key: 'userId',
+              value: '123',
+            },
+          ],
+          path: ['users', '{{userId}}'],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('userId')
+    })
+  })
+
+  describe('createParameterObject', () => {
+    it('creates query parameter object', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+        description: 'Page number',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result).toEqual({
+        name: 'page',
+        in: 'query',
+        description: 'Page number',
+        example: '1',
+        schema: {
+          type: 'integer',
+        },
+      })
+    })
+
+    it('creates path parameter object with required flag', () => {
+      const param = {
+        key: 'userId',
+        value: '123',
+      }
+
+      const result = createParameterObject(param, 'path')
+
+      expect(result).toEqual({
+        name: 'userId',
+        in: 'path',
+        required: true,
+        description: undefined,
+        example: '123',
+        schema: {
+          type: 'integer',
+        },
+      })
+    })
+
+    it('creates header parameter object', () => {
+      const param = {
+        key: 'Authorization',
+        value: 'Bearer token',
+      }
+
+      const result = createParameterObject(param, 'header')
+
+      expect(result).toEqual({
+        name: 'Authorization',
+        in: 'header',
+        example: 'Bearer token',
+        schema: {
+          type: 'string',
+        },
+      })
+    })
+
+    it('marks query parameter as required when description contains [required]', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+        description: 'Page number [required]',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.required).toBe(true)
+      expect(result.description).toBe('Page number')
+    })
+
+    it('marks query parameter as required when key is "required"', () => {
+      const param = {
+        key: 'required',
+        value: 'true',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.required).toBe(true)
+    })
+
+    it('removes [required] marker from description', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+        description: 'Page number [required]',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.description).toBe('Page number')
+      expect(result.description).not.toContain('[required]')
+    })
+
+    it('infers integer type from numeric value', () => {
+      const param = {
+        key: 'count',
+        value: '42',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.schema).toEqual({
+        type: 'integer',
+      })
+    })
+
+    it('infers number type from float value', () => {
+      const param = {
+        key: 'price',
+        value: '3.14',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.schema).toEqual({
+        type: 'number',
+      })
+    })
+
+    it('infers boolean type from boolean string', () => {
+      const param = {
+        key: 'active',
+        value: 'true',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.schema).toEqual({
+        type: 'boolean',
+      })
+    })
+
+    it('defaults to string type when value is missing', () => {
+      const param = {
+        key: 'name',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.schema).toEqual({
+        type: 'string',
+      })
+    })
+
+    it('handles empty key', () => {
+      const param = {
+        key: '',
+        value: 'test',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result.name).toBe('')
+    })
+  })
+})
