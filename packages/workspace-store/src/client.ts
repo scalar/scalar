@@ -959,6 +959,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return mergeObjects<typeof defaultConfig>(
       mergeObjects(deepClone(defaultConfig), workspaceProps?.config ?? {}),
       documentConfigs[name] ?? {},
+      true,
     )
   }
 
