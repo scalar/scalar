@@ -29,7 +29,7 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -180,6 +180,19 @@ onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)
   eventBus.off('operation:cancel:request', cancelRequest)
 })
+
+/**
+ * When the path, method, or example key changes, clear the response and request
+ * TODO: maybe in the future this will be hooked into the history api but for now we'll just clear the response and request
+ */
+watch(
+  [() => path, () => method, () => exampleKey],
+  () => {
+    response.value = null
+    request.value = null
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div class="bg-b-1 flex h-full flex-col">
