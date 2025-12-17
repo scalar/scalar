@@ -1,6 +1,6 @@
 {
   "name": "@scalar/mock-server-docker",
-  "description": "Docker deployment for Scalar Mock Server",
+  "description": "Docker image for the Scalar Mock Server",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -24,6 +24,21 @@
   },
   "type": "module",
   "main": "dist/docker-entrypoint.js",
+  "readme": {
+    "title": "Scalar Mock Server - Docker",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/getting-started"
+  },
   "dependencies": {
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",

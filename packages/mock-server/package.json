@@ -45,6 +45,21 @@
     "./dist",
     "CHANGELOG.md"
   ],
+  "readme": {
+    "title": "Scalar Mock Server",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/getting-started"
+  },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
     "@scalar/helpers": "workspace:*",

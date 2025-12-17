@@ -24,6 +24,10 @@ This integration provides three Maven packages:
 - `com.scalar.maven:scalar-webmvc` - Spring Boot WebMVC integration for Scalar API Reference
 - `com.scalar.maven:scalar-webflux` - Spring Boot WebFlux integration for Scalar API Reference
 
+## Changelog
+
+See [CHANGELOG.md](https://github.com/scalar/scalar/blob/main/integrations/java/CHANGELOG.md) for a list of changes.
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
