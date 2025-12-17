@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Item, ItemGroup, PostmanCollection } from '../types'
+import type { Item, ItemGroup, PostmanCollection } from '@/types'
 
 /**
  * Recursively processes collection items to extract server URLs

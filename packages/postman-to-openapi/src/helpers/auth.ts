@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Auth } from '../types'
+import type { Auth } from '@/types'
 
 // Constants for security scheme names and URLs
 const AUTH_SCHEMES = {

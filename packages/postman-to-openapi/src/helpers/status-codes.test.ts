@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Item } from '../types'
+import type { Item } from '@/types'
+
 import { extractStatusCodesFromTests } from './status-codes'
 
 describe('status-codes', () => {

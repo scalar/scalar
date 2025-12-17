@@ -1,4 +1,4 @@
-import type { PostmanCollection } from '../types'
+import type { PostmanCollection } from '@/types'
 
 /**
  * Processes logo information from a Postman Collection.

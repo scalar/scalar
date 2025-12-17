@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { RequestBody } from '../types'
+import type { RequestBody } from '@/types'
+
 import { extractRequestBody } from './request-body'
 
 describe('request-body', () => {

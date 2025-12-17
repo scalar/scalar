@@ -3,8 +3,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const bucketName = 'scalar-test-fixtures'
-const BASE_URL = `https://storage.googleapis.com/${bucketName}`
+const TEST_FIXTURES_BUCKET_NAME = 'scalar-test-fixtures'
+const BASE_URL = `https://storage.googleapis.com/${TEST_FIXTURES_BUCKET_NAME}`
 
 describe('convert', () => {
   // Define all file content variables

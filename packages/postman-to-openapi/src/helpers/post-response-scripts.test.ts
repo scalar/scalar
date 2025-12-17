@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Event } from '../types'
+import type { Event } from '@/types'
+
 import { processPostResponseScripts } from './post-response-scripts'
 
 describe('post-response-scripts', () => {

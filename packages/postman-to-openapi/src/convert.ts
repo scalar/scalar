@@ -1,13 +1,14 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { processAuth } from './helpers/auth'
-import { processContact } from './helpers/contact'
-import { processExternalDocs } from './helpers/external-docs'
-import { processLicense } from './helpers/license'
-import { processLogo } from './helpers/logo'
-import { processItem } from './helpers/path-items'
-import { parseServers } from './helpers/servers'
-import { normalizePath } from './helpers/urls'
+import { processAuth } from '@/helpers/auth'
+import { processContact } from '@/helpers/contact'
+import { processExternalDocs } from '@/helpers/external-docs'
+import { processLicense } from '@/helpers/license'
+import { processLogo } from '@/helpers/logo'
+import { processItem } from '@/helpers/path-items'
+import { parseServers } from '@/helpers/servers'
+import { normalizePath } from '@/helpers/urls'
+
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
 const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [

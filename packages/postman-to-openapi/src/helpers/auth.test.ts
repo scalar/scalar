@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Auth } from '../types'
+import type { Auth } from '@/types'
+
 import { processAuth } from './auth'
 
 describe('auth', () => {

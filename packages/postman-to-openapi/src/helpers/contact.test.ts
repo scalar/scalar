@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { PostmanCollection } from '../types'
+import type { PostmanCollection } from '@/types'
+
 import { processContact } from './contact'
 
 describe('contact', () => {

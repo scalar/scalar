@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { convert } from '../src/convert'
+import { convert } from '@/convert'
+
 import scalarVoidCollection from './scalar-void.json'
 
 describe('convert', () => {

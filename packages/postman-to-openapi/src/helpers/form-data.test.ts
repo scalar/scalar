@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { FormParameter } from '../types'
+import type { FormParameter } from '@/types'
+
 import { processFormDataSchema } from './form-data'
 
 describe('form-data', () => {

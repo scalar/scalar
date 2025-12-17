@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { HeaderList, Item, Response } from '../types'
+import type { HeaderList, Item, Response } from '@/types'
+
 import { inferSchemaFromExample } from './schemas'
 import { extractStatusCodesFromTests } from './status-codes'
 

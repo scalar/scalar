@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Item, ItemGroup } from '../types'
+import type { Item, ItemGroup } from '@/types'
+
 import { processAuth } from './auth'
 import { parseMdTable } from './markdown'
 import { extractParameters } from './parameters'

@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { FormParameter, RequestBody, UrlEncodedParameter } from '../types'
+import type { FormParameter, RequestBody, UrlEncodedParameter } from '@/types'
+
 import { processFormDataSchema } from './form-data'
 import { createParameterObject } from './parameters'
 

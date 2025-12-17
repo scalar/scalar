@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Item, Response } from '../types'
+import type { Item, Response } from '@/types'
+
 import { extractResponses } from './responses'
 
 describe('responses', () => {

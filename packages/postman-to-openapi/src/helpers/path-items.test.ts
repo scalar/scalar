@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Item, ItemGroup } from '../types'
+import type { Item, ItemGroup } from '@/types'
+
 import { processItem } from './path-items'
 
 describe('path-items', () => {

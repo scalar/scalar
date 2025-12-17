@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Request } from '../types'
+import type { Request } from '@/types'
+
 import { createParameterObject, extractParameters } from './parameters'
 
 describe('parameters', () => {
