@@ -20,7 +20,7 @@ export function loadDocument(): DocumentInfo {
     return { path: tempPath, format }
   }
 
-  // Third priority: Volume scan
+  // Second priority: Volume scan
   console.log(`Scanning ${DOCS_DIR} for OpenAPI documents...`)
   const document = scanForDocument(DOCS_DIR)
   if (document) {
@@ -30,9 +30,7 @@ export function loadDocument(): DocumentInfo {
     return { path: document, format }
   }
 
-  throw new Error(
-    'No OpenAPI document found. Please provide via OPENAPI_DOCUMENT, OPENAPI_URL, or volume mount to /docs',
-  )
+  throw new Error(`No OpenAPI document found. Please provide via OPENAPI_DOCUMENT, or volume mount to ${DOCS_DIR}`)
 }
 
 function scanForDocument(dir: string): string | null {
