@@ -249,7 +249,7 @@ function parseParametersFromDescription(description: string): {
         in: row.object,
         description: row.description,
         required: row.required === 'true',
-        schema: row.type ? { type: row.type } : undefined,
+        schema: { type: row.type || 'string' },
       }
 
       if (row.example) {

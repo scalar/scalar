@@ -186,7 +186,7 @@ describe('convert', () => {
     })
   })
 
-  it('throws when duplicate operations share the same path and method', () => {
+  it('overwrites duplicate operations with last-write-wins policy', () => {
     const collection: PostmanCollection = {
       info: {
         name: 'Duplicate operations',
@@ -210,7 +210,11 @@ describe('convert', () => {
       ],
     }
 
-    expect(() => convert(collection)).toThrowError(/duplicate operation for GET \/users/i)
+    const result = convert(collection)
+    const operation = result.paths['/users']?.get
+
+    expect(operation).toBeDefined()
+    expect(operation?.summary).toBe('Second')
   })
 
   it('handles collections without items', () => {

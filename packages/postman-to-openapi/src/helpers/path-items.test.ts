@@ -325,6 +325,37 @@ describe('path-items', () => {
     expect(result.paths['/users'].get?.description).not.toContain('|')
   })
 
+  it('defaults parameter type to string when type is missing from markdown table', () => {
+    const item: Item = {
+      name: 'Get Users',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/users',
+        },
+        description: `Get a list of users
+
+| object | name | description | example | required |
+|--------|------|-------------|---------|----------|
+| query  | filter | Filter string | test | true |`,
+      },
+    }
+
+    const result = processItem(item)
+
+    const params = result.paths['/users'].get?.parameters
+    expect(params?.find((p) => p.name === 'filter')).toEqual({
+      name: 'filter',
+      in: 'query',
+      description: 'Filter string',
+      required: true,
+      example: 'test',
+      schema: {
+        type: 'string',
+      },
+    })
+  })
+
   it('processes POST request with request body', () => {
     const item: Item = {
       name: 'Create User',

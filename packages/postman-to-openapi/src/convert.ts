@@ -142,7 +142,9 @@ const mergePathItem = (
 
     if (isOperationKey && targetPath[key]) {
       const operationName = typeof key === 'string' ? key.toUpperCase() : String(key)
-      throw new Error(`Duplicate operation for ${operationName} ${normalizedPathKey}`)
+      console.warn(
+        `Duplicate operation detected for ${operationName} ${normalizedPathKey}. Last operation will overwrite previous.`,
+      )
     }
 
     targetPath[key] = value
