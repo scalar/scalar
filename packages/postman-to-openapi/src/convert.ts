@@ -8,31 +8,67 @@ import { processLogo } from './helpers/logo'
 import { processItem } from './helpers/path-items'
 import { parseServers } from './helpers/servers'
 import { normalizePath } from './helpers/urls'
-import type { PostmanCollection } from './types'
+import type { Description, Item, ItemGroup, PostmanCollection } from './types'
+
+const normalizeDescription = (description?: Description): string | undefined => {
+  if (typeof description === 'string') {
+    return description
+  }
+
+  return description?.content
+}
+
+const parseCollectionInput = (postmanCollection: PostmanCollection | string): PostmanCollection => {
+  if (typeof postmanCollection !== 'string') {
+    return postmanCollection
+  }
+
+  try {
+    return JSON.parse(postmanCollection) as PostmanCollection
+  } catch (error) {
+    const details = error instanceof Error ? error.message : 'Unknown parse error'
+    const parseError = new Error(`Invalid Postman collection JSON: ${details}`)
+    parseError.name = 'PostmanCollectionParseError'
+    throw parseError
+  }
+}
+
+const assertCollectionInfo = (collection: PostmanCollection): void => {
+  if (!collection?.info) {
+    throw new Error('Missing required info on Postman collection')
+  }
+
+  if (!collection.info.name) {
+    throw new Error('Missing required info.name on Postman collection')
+  }
+}
 
 /**
  * Extracts tags from Postman collection folders
  */
-function extractTags(items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] {
-  const tags: OpenAPIV3_1.TagObject[] = []
+const isItemGroup = (item: Item | ItemGroup): item is ItemGroup => 'item' in item && Array.isArray(item.item)
 
-  function processTagItem(item: any, parentPath: string = '') {
-    if (item.item) {
-      const currentPath = parentPath ? `${parentPath} > ${item.name}` : item.name
-
-      // Add tag for the current folder
-      tags.push({
-        name: currentPath,
-        ...(item.description && { description: item.description }),
-      })
-
-      // Process nested folders
-      item.item.forEach((subItem: any) => processTagItem(subItem, currentPath))
+const extractTags = (items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] => {
+  const collectTags = (item: Item | ItemGroup, parentPath: string = ''): OpenAPIV3_1.TagObject[] => {
+    if (!isItemGroup(item)) {
+      return []
     }
+
+    const nextPath = item.name ? (parentPath ? `${parentPath} > ${item.name}` : item.name) : parentPath
+    const description = normalizeDescription(item.description)
+    const currentTag: OpenAPIV3_1.TagObject[] = item.name?.length
+      ? [
+          {
+            name: nextPath,
+            ...(description && { description }),
+          },
+        ]
+      : []
+
+    return [...currentTag, ...item.item.flatMap((subItem) => collectTags(subItem, nextPath))]
   }
 
-  items.forEach((item) => processTagItem(item))
-  return tags
+  return items.flatMap((item) => collectTags(item))
 }
 
 /**
@@ -41,9 +77,8 @@ function extractTags(items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] 
  * and items to create a corresponding OpenAPI structure.
  */
 export function convert(postmanCollection: PostmanCollection | string): OpenAPIV3_1.Document {
-  // Parse string input if provided
-  const collection: PostmanCollection =
-    typeof postmanCollection === 'string' ? JSON.parse(postmanCollection) : postmanCollection
+  const collection = parseCollectionInput(postmanCollection)
+  assertCollectionInfo(collection)
 
   // Extract title from collection info, fallback to 'API' if not provided
   const title = collection.info.name || 'API'
@@ -52,10 +87,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   const version = (collection.variable?.find((v) => v.key === 'version')?.value as string) || '1.0.0'
 
   // Handle different description formats in Postman
-  const description =
-    typeof collection.info.description === 'string'
-      ? collection.info.description
-      : collection.info.description?.content || ''
+  const description = normalizeDescription(collection.info.description) || ''
 
   // Process license and contact information
   const license = processLicense(collection)

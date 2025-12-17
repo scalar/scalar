@@ -97,6 +97,57 @@ describe('convert', () => {
     )
   })
 
+  it('creates tags from nested folders without mutating the input collection', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Parent',
+          description: 'Parent folder',
+          item: [
+            {
+              name: 'Child',
+              item: [
+                {
+                  name: 'Leaf request',
+                  request: 'https://api.scalar.com/users',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'Standalone request',
+          request: 'https://api.scalar.com/status',
+        },
+      ],
+    }
+
+    const snapshot = JSON.parse(JSON.stringify(collection))
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+    expect(collection).toEqual(snapshot)
+  })
+
+  it('fails fast when string input is not valid JSON', () => {
+    expect(() => convert('{"info": {"name": "Broken"')).toThrowError(/invalid postman collection json/i)
+  })
+
+  it('errors when required collection info is missing', () => {
+    expect(() => convert({} as PostmanCollection)).toThrowError(/missing required info/i)
+    expect(() =>
+      convert({
+        // @ts-expect-error testing runtime validation
+        info: { schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+        item: [],
+      }),
+    ).toThrowError(/missing required info.name/i)
+  })
+
   it('converts collection with servers', () => {
     expect(convert(JSON.parse(collections.SimplePost ?? '') as PostmanCollection)).toEqual(
       JSON.parse(expected.SimplePost ?? ''),

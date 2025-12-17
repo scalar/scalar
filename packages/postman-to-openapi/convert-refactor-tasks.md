@@ -1,0 +1,17 @@
+- Note: All changes should be accompanied by tests that cover new behavior and guard against regressions.
+- [x] Tighten `extractTags` typing (no `any`); ensure folder items are strongly typed and avoid shared mutation.
+- [x] Add safe parsing for string input with a clear, typed error message when JSON is invalid.
+- [x] Validate `collection.info` early; fail with a descriptive error if `info` or `name` is missing.
+- [ ] Introduce a small helper to initialize and merge `openapi.components`/`securitySchemes` instead of repeating inline merges.
+- [ ] Review path merge behavior after `normalizePath`: decide and enforce how to handle duplicate path+method collisions (overwrite vs error/log).
+- [ ] Extract the method-level cleanup (parameters, requestBody, description pruning) into a focused helper to simplify the final sweep.
+- [ ] Revisit `removeUndefined`: scope cleanup to known optional fields to avoid full-document churn.
+- [ ] Clarify tag generation: document intent for nested folder tags (separator, deduplication); adjust implementation if needed.
+- [ ] Move requestBody defaulting (empty `text/plain`) closer to `processItem` so request body shaping is centralized.
+- [ ] Add targeted tests for edge cases: invalid JSON input, missing `info`, empty `item`, conflicting paths/verbs, auth-less collections, empty requestBody content handling.
+- [ ] Add a type guard for parsed collection input to ensure `info`, `item`, and `variable` shapes before continuing, avoiding unchecked object access.
+- [ ] Make `removeUndefined` generic and typed to return `T`, eliminating `any` and keeping the document shape intact through inference.
+- [ ] Replace `Object.entries` loops that currently rely on implicit `any` with typed helpers (e.g., `mergePaths`, `mergeSecuritySchemes`) to preserve OpenAPI typings.
+- [ ] Explicitly type internal helper functions in this file (e.g., `processTagItem`) and avoid implicit `any` in callback parameters.
+- [ ] Ensure all merges use typed aliases for OpenAPI structures (e.g., `OpenAPIV3_1.PathsObject`, `SecuritySchemesObject`) to improve readability and editor help.
+
