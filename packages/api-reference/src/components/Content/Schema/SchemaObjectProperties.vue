@@ -7,6 +7,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { extractObjectExamples } from '@/components/Content/Schema/helpers/extract-object-examples'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
@@ -32,6 +33,9 @@ const { schema, discriminator, options } = defineProps<{
 const sortedProperties = computed(() =>
   sortPropertyNames(schema, discriminator, options),
 )
+
+/** Extract additional examples for each property from the parent object */
+const additionalExamples = computed(() => extractObjectExamples(schema))
 
 /**
  * Get the display name for additional properties.
@@ -92,6 +96,7 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="property in sortedProperties"
       :key="property"
+      :additionalExamples="additionalExamples?.get(property)"
       :breadcrumb
       :compact
       :discriminator

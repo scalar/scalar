@@ -10,6 +10,7 @@ import {
 } from '@/schemas/extensions/schema/x-additional-properties-name'
 import { type XEnumDescriptions, XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
 import { type XEnumVarNames, XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
+import { type XExamples, XExamplesSchema } from '@/schemas/extensions/schema/x-examples'
 import { type XVariable, XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
 import type { XMLObject } from '@/schemas/v3.1/strict/xml'
@@ -65,6 +66,7 @@ const Extensions = compose(
   XScalarIgnoreSchema,
   XInternalSchema,
   XVariableSchema,
+  XExamplesSchema,
   XEnumDescriptionsSchema,
   XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
@@ -76,6 +78,7 @@ type Extensions = XScalarIgnore &
   XVariable &
   XEnumDescriptions &
   XEnumVarNames &
+  XExamples &
   XAdditionalPropertiesName &
   XTags
 
