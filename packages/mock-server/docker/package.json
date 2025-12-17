@@ -19,6 +19,7 @@
     "docker:build": "pnpm build && docker build --no-cache -t scalarapi/mock-server .",
     "docker:run": "docker run -v ./documents:/docs:ro -p 3000:3000 --rm --init scalarapi/mock-server",
     "docker:run:env": "docker run -e OPENAPI_DOCUMENT=\"$(cat ./documents/example.yaml)\" -p 3000:3000 --rm --init scalarapi/mock-server",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
