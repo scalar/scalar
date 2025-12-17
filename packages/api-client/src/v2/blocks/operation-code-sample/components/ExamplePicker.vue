@@ -9,7 +9,7 @@ import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { computed } from 'vue'
 
 const { examples = {} } = defineProps<{
-  examples?: MediaTypeObject['examples']
+  examples?: MediaTypeObject['examples'] | Record<string, string>
 }>()
 
 const selectedExampleKey = defineModel<string>({

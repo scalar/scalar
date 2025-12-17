@@ -93,10 +93,24 @@ const partitionedSchema = computed(() => {
     },
   }
 })
+
+/**
+ * We don't want to render the request body if its completely empty
+ * @example
+ * {
+ *   "content": {},
+ * }
+ */
+const shouldRenderRequestBody = computed(
+  () =>
+    Object.keys(requestBody?.content ?? {}).length > 0 ||
+    requestBody?.description ||
+    requestBody?.required,
+)
 </script>
 <template>
   <div
-    v-if="requestBody"
+    v-if="requestBody && shouldRenderRequestBody"
     aria-label="Request Body"
     class="request-body"
     role="group">
