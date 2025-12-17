@@ -444,6 +444,10 @@ const { copyToClipboard } = useClipboard()
   border-radius: var(--scalar-radius-lg);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+.operation-details-card
+  :deep(.request-body .schema-card--level-0 > .schema-card-description) {
+  padding-inline: 9px;
+}
 
 .operation-details-card :deep(.request-body-header) {
   padding-bottom: 0;
@@ -458,6 +462,9 @@ const { copyToClipboard } = useClipboard()
   :deep(.schema-card--open + .schema-card:not(.schema-card--open)) {
   margin-inline: 9px;
   margin-bottom: 9px;
+}
+.operation-details-card :deep(.request-body-schema .property--level-0) {
+  padding: 0;
 }
 .operation-details-card :deep(.request-body-schema .property--level-0) {
   padding: 0;

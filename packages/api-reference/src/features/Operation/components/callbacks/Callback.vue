@@ -83,6 +83,10 @@ const { method, name, url } = defineProps<{
   border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
   background: color-mix(in srgb, var(--scalar-background-2) 50%, transparent);
 }
+.callback-operation-container
+  :deep(.request-body-schema > .schema-card > .schema-card-description) {
+  padding-inline: 8px;
+}
 .callback-operation-container :deep(ul li.property.property--level-1) {
   padding: 8px;
 }
