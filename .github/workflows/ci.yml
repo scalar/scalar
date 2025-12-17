@@ -39,6 +39,12 @@ jobs:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
+      - name: Upload mock server docker entrypoint artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: mock-server-docker-entrypoint
+          path: packages/mock-server/docker/dist/docker-entrypoint.js
+          retention-days: 3
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
@@ -66,6 +72,7 @@ jobs:
       rust_package_changed: ${{ steps.set-outputs.outputs.rust_package_changed }}
       java_package_changed: ${{ steps.set-outputs.outputs.java_package_changed }}
       docker_package_changed: ${{ steps.set-outputs.outputs.docker_package_changed }}
+      mock_server_docker_package_changed: ${{ steps.set-outputs.outputs.mock_server_docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
     steps:
@@ -119,6 +126,8 @@ jobs:
               - integrations/java/package.json
             docker_package:
               - integrations/docker/package.json
+            mock_server_docker_package:
+              - packages/mock-server/docker/package.json
 
       - name: Set job outputs
         id: set-outputs
@@ -136,6 +145,7 @@ jobs:
           echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "java_package_changed=${{ steps.changed-package-files.outputs.java_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
+          echo "mock_server_docker_package_changed=${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
 
@@ -1017,6 +1027,56 @@ jobs:
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+
+  mock-server-docker-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: mock-server-docker-publish
+      cancel-in-progress: false
+    needs: [required-jobs-main, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: packages/mock-server/docker
+        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
+      - name: Download mock server docker entrypoint artifact
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: mock-server-docker-entrypoint
+          path: packages/mock-server/docker/dist/docker-entrypoint.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        with:
+          context: packages/mock-server/docker
+          file: packages/mock-server/docker/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/mock-server:latest
+            scalarapi/mock-server:${{ steps.package-version.outputs.VERSION }}
 
   dotnet-build-test:
     if: needs.check-changes.outputs.dotnet_changed == 'true'
