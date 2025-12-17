@@ -117,9 +117,7 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 
 /** Update the operation's path, handling conflicts */
 const handlePathChange = (newPath: string): void => {
-  const normalizedPath = newPath.trim().startsWith('/')
-    ? newPath
-    : `/${newPath}`
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
   emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
     debounceKey: `operation:update:pathMethod-${path}-${method}`,
   })
