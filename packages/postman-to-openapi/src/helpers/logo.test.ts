@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { PostmanCollection } from '../types'
-import { processLogo } from './logoHelper'
+import { processLogo } from './logo'
 
 describe('logoHelper', () => {
   it('returns logo object when logo variables are present', () => {
