@@ -186,6 +186,15 @@ export function processItem(
 }
 
 // Helper function to parse parameters from the description if it is markdown
+type ParameterRow = {
+  object?: 'query' | 'header' | 'path' | string
+  name?: string
+  description?: string
+  required?: string
+  type?: string
+  example?: string
+}
+
 function parseParametersFromDescription(description: string): {
   descriptionWithoutTable: string
   parametersFromTable: OpenAPIV3_1.ParameterObject[]
@@ -224,25 +233,32 @@ function parseParametersFromDescription(description: string): {
 
   const tableMarkdown = tableLines.join('\n')
   const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable).map((paramData: any) => {
-    const paramIn = paramData.object as 'query' | 'header' | 'path'
+  const parametersFromTable = Object.values(parsedTable)
+    .map((paramData) => {
+      const row = paramData as ParameterRow
+      if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {
+        return undefined
+      }
 
-    const param: OpenAPIV3_1.ParameterObject = {
-      name: paramData.name,
-      in: paramIn,
-      description: paramData.description,
-      required: paramData.required === 'true',
-      schema: {
-        type: paramData.type,
-      },
-    }
+      if (!row.name) {
+        return undefined
+      }
 
-    if (paramData.example) {
-      param.example = paramData.example
-    }
+      const param: OpenAPIV3_1.ParameterObject = {
+        name: row.name,
+        in: row.object,
+        description: row.description,
+        required: row.required === 'true',
+        schema: row.type ? { type: row.type } : undefined,
+      }
 
-    return param
-  })
+      if (row.example) {
+        param.example = row.example
+      }
+
+      return param
+    })
+    .filter((param): param is OpenAPIV3_1.ParameterObject => Boolean(param))
 
   const descriptionWithoutTable = descriptionLines.join('\n')
   return { descriptionWithoutTable, parametersFromTable }

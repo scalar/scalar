@@ -5,13 +5,13 @@
 - [x] Introduce a small helper to initialize and merge `openapi.components`/`securitySchemes` instead of repeating inline merges.
 - [x] Review path merge behavior after `normalizePath`: decide and enforce how to handle duplicate path+method collisions (overwrite vs error/log).
 - [x] Extract the method-level cleanup (parameters, requestBody, description pruning) into a focused helper to simplify the final sweep.
-- [ ] Revisit `removeUndefined`: scope cleanup to known optional fields to avoid full-document churn.
+- [x] Revisit `removeUndefined`: scope cleanup to known optional fields to avoid full-document churn.
 - [x] Clarify tag generation: document intent for nested folder tags (separator, deduplication); adjust implementation if needed.
 - [x] Move requestBody defaulting (empty `text/plain`) closer to `processItem` so request body shaping is centralized.
 - [x] Add targeted tests for edge cases: invalid JSON input, missing `info`, empty `item`, conflicting paths/verbs, auth-less collections, empty requestBody content handling.
 - [x] Add a type guard for parsed collection input to ensure `info`, `item`, and `variable` shapes before continuing, avoiding unchecked object access.
 - [x] Make `removeUndefined` generic and typed to return `T`, eliminating `any` and keeping the document shape intact through inference.
-- [ ] Replace `Object.entries` loops that currently rely on implicit `any` with typed helpers (e.g., `mergePaths`, `mergeSecuritySchemes`) to preserve OpenAPI typings.
-- [ ] Explicitly type internal helper functions in this file (e.g., `processTagItem`) and avoid implicit `any` in callback parameters.
-- [ ] Ensure all merges use typed aliases for OpenAPI structures (e.g., `OpenAPIV3_1.PathsObject`, `SecuritySchemesObject`) to improve readability and editor help.
+- [x] Replace `Object.entries` loops that currently rely on implicit `any` with typed helpers (e.g., `mergePaths`, `mergeSecuritySchemes`) to preserve OpenAPI typings.
+- [x] Explicitly type internal helper functions in this file (e.g., `processTagItem`) and avoid implicit `any` in callback parameters.
+- [x] Ensure all merges use typed aliases for OpenAPI structures (e.g., `OpenAPIV3_1.PathsObject`, `SecuritySchemesObject`) to improve readability and editor help.
 

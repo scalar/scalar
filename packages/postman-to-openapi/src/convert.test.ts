@@ -296,6 +296,20 @@ describe('convert', () => {
     ).toThrowError(/item must be an array/i)
   })
 
+  it('errors when variables are not an array', () => {
+    expect(() =>
+      convert({
+        info: {
+          name: 'Bad variable',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        },
+        item: [],
+        // @ts-expect-error invalid runtime shape
+        variable: {},
+      }),
+    ).toThrowError(/variable must be an array/i)
+  })
+
   it('converts collection with servers', () => {
     expect(convert(JSON.parse(collections.SimplePost ?? '') as PostmanCollection)).toEqual(
       JSON.parse(expected.SimplePost ?? ''),

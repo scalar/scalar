@@ -184,6 +184,28 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
   })
 }
 
+const pruneDocument = (document: OpenAPIV3_1.Document): OpenAPIV3_1.Document => {
+  const cleaned: OpenAPIV3_1.Document = { ...document }
+
+  if (cleaned.tags?.length === 0) {
+    delete cleaned.tags
+  }
+
+  if (cleaned.security?.length === 0) {
+    delete cleaned.security
+  }
+
+  if (cleaned.components && Object.keys(cleaned.components).length === 0) {
+    delete cleaned.components
+  }
+
+  if (cleaned.externalDocs === undefined) {
+    delete cleaned.externalDocs
+  }
+
+  return cleaned
+}
+
 /**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
@@ -277,22 +299,5 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     delete openapi.components
   }
 
-  // Remove undefined properties recursively
-  const removeUndefined = <T>(value: T): T => {
-    if (Array.isArray(value)) {
-      return value.map(removeUndefined).filter((item) => item !== undefined) as unknown as T
-    }
-
-    if (value && typeof value === 'object') {
-      const cleanedEntries = Object.entries(value as Record<string, unknown>)
-        .map(([key, entryValue]) => [key, removeUndefined(entryValue)])
-        .filter(([, entryValue]) => entryValue !== undefined)
-
-      return Object.fromEntries(cleanedEntries) as unknown as T
-    }
-
-    return value
-  }
-
-  return removeUndefined(openapi)
+  return pruneDocument(openapi)
 }
