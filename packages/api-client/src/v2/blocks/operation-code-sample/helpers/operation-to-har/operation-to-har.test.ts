@@ -758,8 +758,7 @@ describe('operationToHar', () => {
         path: '/api/users',
       })
 
-      expect(result.postData?.mimeType).toBe('')
-      expect(result.postData?.text).toBe('null')
+      expect(result.postData).toBeUndefined()
     })
 
     it('should handle contentType parameter with no matching content', () => {

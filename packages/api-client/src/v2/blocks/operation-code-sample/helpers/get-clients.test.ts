@@ -1,7 +1,7 @@
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
-import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
+import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
 
 import { getClients } from './get-clients'
 
@@ -19,7 +19,7 @@ describe('getClients', () => {
         source: 'print("Hello World")',
       },
       {
-        lang: 'javascript',
+        lang: 'js',
         label: 'Custom JS Example',
         source: 'console.log("Hello World")',
       },
@@ -54,16 +54,18 @@ describe('getClients', () => {
         {
           id: 'custom/python',
           lang: 'python',
+          clientKey: 'custom',
           title: 'Custom Python Example',
           label: 'Custom Python Example',
         },
         {
-          id: 'custom/javascript',
-          lang: 'javascript',
+          id: 'custom/js',
+          lang: 'js',
+          clientKey: 'custom',
           title: 'Custom JS Example',
           label: 'Custom JS Example',
         },
-      ],
+      ] satisfies CustomClientOption[],
     })
 
     // Original client options should follow

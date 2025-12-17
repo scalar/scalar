@@ -29,6 +29,8 @@ const defaultProps = {
   proxyUrl: '',
   plugins: [],
   eventBus: createWorkspaceEventBus(),
+  clientOptions: [],
+  selectedClient: 'shell/curl' as const,
 }
 
 describe('RequestBlock', () => {

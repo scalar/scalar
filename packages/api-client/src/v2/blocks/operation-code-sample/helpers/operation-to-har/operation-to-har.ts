@@ -107,7 +107,7 @@ export const operationToHar = ({
   if (body?.content) {
     const postData = processBody({ requestBody: body, contentType, example })
 
-    if (postData?.text) {
+    if (postData) {
       harRequest.postData = postData
       harRequest.bodySize = postData.text?.length ?? -1
 
