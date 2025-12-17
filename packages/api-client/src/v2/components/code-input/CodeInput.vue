@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,
@@ -357,20 +358,29 @@ defineExpose({
    *
    * @param cursorAtEnd boolean place the cursor at the end of the input
    */
-  focus: (cursorAtEnd?: boolean) => {
+  focus: (position?: 'start' | 'end' | number) => {
     if (!codeMirror.value) {
       return
     }
     codeMirror.value.focus()
 
-    if (!cursorAtEnd) {
+    if (!isDefined(position)) {
       return
     }
 
-    // Move the cursor to the end of the element
-    const length = codeMirror.value.state.doc.length
+    const anchor = (() => {
+      if (position === 'start') {
+        return 0
+      }
+      if (position === 'end') {
+        return codeMirror.value.state.doc.length
+      }
+      return position
+    })()
+
+    // Move the cursor to the specified position
     codeMirror.value.dispatch({
-      selection: { anchor: length },
+      selection: { anchor },
       scrollIntoView: true,
     })
   },
@@ -381,6 +391,7 @@ defineExpose({
   booleanOptions,
   codeMirror,
   modelValue,
+  cursorPosition: () => codeMirror.value?.state.selection.main.head,
 })
 </script>
 <script lang="ts">

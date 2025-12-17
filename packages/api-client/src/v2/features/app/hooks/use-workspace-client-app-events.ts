@@ -295,9 +295,6 @@ export const useWorkspaceClientAppEvents = ({
 
         // Rebuild the sidebar with the updated order
         rebuildSidebar(document.value?.['x-scalar-navigation']?.name)
-
-        // Focus the address bar
-        eventBus.emit('ui:focus:address-bar')
       }
       payload.callback(status)
     }),
