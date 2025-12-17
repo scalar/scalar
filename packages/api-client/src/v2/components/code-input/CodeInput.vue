@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,
@@ -363,7 +364,7 @@ defineExpose({
     }
     codeMirror.value.focus()
 
-    if (!position) {
+    if (!isDefined(position)) {
       return
     }
 
