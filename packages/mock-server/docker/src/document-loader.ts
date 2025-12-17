@@ -5,7 +5,7 @@ const DOCS_DIR = '/docs'
 const TEMP_DOCUMENT_JSON = '/tmp/openapi.json'
 const TEMP_DOCUMENT_YAML = '/tmp/openapi.yaml'
 
-export interface DocumentInfo {
+interface DocumentInfo {
   path: string
   format: 'json' | 'yaml'
 }

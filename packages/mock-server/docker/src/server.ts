@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 
-export interface ServerConfig {
+interface ServerConfig {
   document: string
   format: 'json' | 'yaml'
   port?: number
