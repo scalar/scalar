@@ -32,7 +32,7 @@
         "package": "scalarapi/mock-server"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/getting-started"
+    "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/docker"
   },
   "dependencies": {
     "@scalar/hono-api-reference": "workspace:*",

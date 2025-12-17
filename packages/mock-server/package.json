@@ -1,6 +1,6 @@
 {
   "name": "@scalar/mock-server",
-  "description": "OpenAPI mock server server",
+  "description": "A powerful Node.js mock server that automatically generates realistic API responses from your OpenAPI/Swagger documents",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

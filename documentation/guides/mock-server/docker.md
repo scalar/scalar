@@ -1,6 +1,6 @@
 # Docker
 
-Run the Scalar Mock Server in a Docker container for easy deployment, consistent environments, and seamless integration with your existing infrastructure.
+Run the Scalar Mock Server in a Docker container.
 
 ## Quick Start
 

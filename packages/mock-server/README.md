@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/npm/l/@scalar/mock-server)](https://www.npmjs.com/package/@scalar/mock-server)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-OpenAPI mock server server
+A powerful Node.js mock server that automatically generates realistic API responses from your OpenAPI/Swagger documents
 
 ## Documentation
 
