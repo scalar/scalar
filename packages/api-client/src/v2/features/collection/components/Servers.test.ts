@@ -70,6 +70,7 @@ describe('Servers', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       }),
       eventBus,

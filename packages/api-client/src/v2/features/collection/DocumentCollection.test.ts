@@ -65,6 +65,7 @@ describe('DocumentCollection', () => {
           id: 'test-workspace',
           name: 'Test Workspace',
         },
+        plugins: [],
       },
       global: {
         plugins: [router],

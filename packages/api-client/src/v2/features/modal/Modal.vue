@@ -14,6 +14,8 @@ export type ModalProps = {
   modalState: ModalState
   /** The sidebar state must be initialized and passed in */
   sidebarState: UseModalSidebarReturn
+  /** Api client plugins to include in the modal */
+  plugins?: ClientPlugin[]
 }
 
 /**
@@ -52,14 +54,20 @@ import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
 import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
 
-const { modalState, workspaceStore, sidebarState, document } =
-  defineProps<ModalProps>()
+const {
+  modalState,
+  workspaceStore,
+  sidebarState,
+  document,
+  plugins = [],
+} = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -212,6 +220,7 @@ defineExpose({
               layout="modal"
               :method="method?.value"
               :path="path?.value"
+              :plugins="plugins"
               :workspaceStore="workspaceStore" />
           </main>
           <!-- Empty state -->

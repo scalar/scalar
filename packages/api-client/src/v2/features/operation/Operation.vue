@@ -30,6 +30,7 @@ const {
   environment,
   exampleName,
   workspaceStore,
+  plugins,
 } = defineProps<RouteProps>()
 
 const operation = computed(() =>
@@ -141,7 +142,7 @@ const router = useRouter()
       :method
       :operation
       :path
-      :plugins="[]"
+      :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"

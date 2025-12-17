@@ -72,6 +72,7 @@ describe('Authentication', () => {
             id: 'test-workspace',
             name: 'Test Workspace',
           },
+          plugins: [],
         },
       }),
       eventBus,

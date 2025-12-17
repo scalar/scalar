@@ -15,6 +15,7 @@ import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
 import Operation from '@/v2/features/operation/Operation.vue'
+import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -30,6 +31,7 @@ export type RouteProps = {
   environment: XScalarEnvironment
   workspaceStore: WorkspaceStore
   activeWorkspace: Workspace
+  plugins: ClientPlugin[]
   // workspaceSlug: string
   // documentSlug?: string
 }
