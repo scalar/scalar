@@ -6,6 +6,7 @@ export {
   Models,
   Schema,
   SchemaHeading,
+  SchemaObjectExampleCodeBlock,
   SchemaProperty,
   Tag,
   TraversedEntry,
