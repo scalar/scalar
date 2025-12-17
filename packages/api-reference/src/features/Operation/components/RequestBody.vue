@@ -109,7 +109,6 @@ const shouldRenderRequestBody = computed(
 )
 </script>
 <template>
-  <!-- If the request body is completely empty, we don't want to render it -->
   <div
     v-if="requestBody && shouldRenderRequestBody"
     aria-label="Request Body"
