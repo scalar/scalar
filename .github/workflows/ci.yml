@@ -1029,13 +1029,13 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   mock-server-docker-publish:
-    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
       group: mock-server-docker-publish
       cancel-in-progress: false
-    needs: [build, check-changes]
+    needs: [required-jobs-main, check-changes]
     permissions:
       contents: read
     steps:
@@ -1070,7 +1070,7 @@ jobs:
         with:
           context: packages/mock-server/docker
           file: packages/mock-server/docker/Dockerfile
-          #push: true
+          push: true
           platforms: |
             linux/amd64
             linux/arm64
