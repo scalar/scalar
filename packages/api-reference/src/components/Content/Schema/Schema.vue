@@ -266,12 +266,6 @@ button.schema-card-title:hover {
 .schema-card-description + .schema-properties {
   margin-top: 8px;
 }
-.schema-empty-object {
-  padding-top: 8px;
-}
-.schema-empty-object + .schema-properties {
-  margin-top: 0px;
-}
 
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
