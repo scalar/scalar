@@ -2,6 +2,7 @@
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
+import { useWorkspaceClientModalEvents } from '@scalar/api-client/v2/features/modal'
 import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
@@ -639,6 +640,16 @@ const { getSecuritySchemes, openClient } = mapConfigToClientStore({
   root,
   dereferencedDocument: dereferenced,
   documentUrl,
+})
+
+// @TODO temp new modal events while we migrate
+useWorkspaceClientModalEvents({
+  eventBus,
+  document: computed(() => workspaceStore.workspace.activeDocument ?? null),
+  isSidebarOpen,
+  // sidebarState,
+  // modalState,
+  workspaceStore,
 })
 
 // ---------------------------------------------------------------------------

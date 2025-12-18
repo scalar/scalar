@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

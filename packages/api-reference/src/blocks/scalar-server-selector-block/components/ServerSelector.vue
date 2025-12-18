@@ -1,7 +1,9 @@
 <script lang="ts">
 export type SelectorProps = {
-  /** The selected server URL */
-  xSelectedServer?: string
+  /** The event bus to use for emitting events */
+  eventBus: WorkspaceEventBus
+  /** The selected server  */
+  selectedServer: ServerObject | null
   /** Available servers */
   servers: ServerObject[]
 }
@@ -12,7 +14,8 @@ export type SelectorProps = {
  * Core component for rendering a server selector block.
  * Handles server selection and emits a 'scalar-update-selected-server' event when the selected server changes.
  *
- * @event scalar-update-selected-server - Emitted when the selected server changes
+ * @event server:update:selected - Emitted when the selected server changes
+ * @event server:update:variables - Emitted when a server variable changes
  */
 export default {}
 </script>
@@ -20,61 +23,37 @@ export default {}
 <script lang="ts" setup>
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { templateRef } from '@vueuse/core'
-import { computed, nextTick, useId, watch } from 'vue'
+import { useId } from 'vue'
 
 import Selector from './Selector.vue'
 
-const { servers, xSelectedServer } = defineProps<SelectorProps>()
+const { eventBus, servers, selectedServer } = defineProps<SelectorProps>()
+
 const id = useId()
+
+/** Update the selected server */
 const updateServer = (newServer: string) => {
-  emitCustomEvent(containerRef.value, 'scalar-update-selected-server', {
-    value: newServer,
+  eventBus.emit('server:update:selected', {
+    url: selectedServer?.url === newServer ? '' : newServer,
   })
 }
 
+/** Update the server variable */
 const updateServerVariable = (key: string, value: string) => {
-  if (!containerRef.value) {
+  /** Find the index of the selected server */
+  const index = servers.findIndex((s) => s.url === selectedServer?.url)
+  if (index === -1) {
     return
   }
 
-  emitCustomEvent(
-    containerRef.value,
-    'scalar-update-selected-server-variables',
-    { key, value },
-  )
+  eventBus.emit('server:update:variables', {
+    index,
+    key,
+    value,
+  })
 }
-
-const server = computed(() => {
-  return servers.find((s) => s.url === xSelectedServer)
-})
-
-// Automatically select the first server if none is currently selected
-watch(
-  () => servers,
-  (newServers) => {
-    if (!newServers.length) {
-      return
-    }
-
-    if (xSelectedServer) {
-      return
-    }
-
-    // Wait for next tick to ensure containerRef is available
-    nextTick(() => {
-      if (newServers[0]) {
-        updateServer(newServers[0].url)
-      }
-    })
-  },
-  { immediate: true },
-)
-
-/** Reference to the main container element for event emission */
-const containerRef = templateRef('containerRef')
 </script>
 
 <template>
@@ -84,26 +63,26 @@ const containerRef = templateRef('containerRef')
   </label>
   <div
     :id="id"
-    ref="containerRef"
     class="border"
     :class="{
-      'rounded-b-lg': !server?.description && !server?.variables,
+      'rounded-b-lg':
+        !selectedServer?.description && !selectedServer?.variables,
     }">
     <Selector
       v-if="servers.length"
+      :selectedServer
       :servers="servers"
       :target="id"
-      :xSelectedServer="xSelectedServer"
       @update:modelValue="updateServer" />
   </div>
   <ServerVariablesForm
     layout="reference"
-    :variables="server?.variables"
+    :variables="selectedServer?.variables"
     @update:variable="updateServerVariable" />
 
   <!-- Description -->
   <ScalarMarkdown
-    v-if="server?.description"
+    v-if="selectedServer?.description"
     class="text-c-3 rounded-b-lg border border-t-0 px-3 py-1.5"
-    :value="server.description" />
+    :value="selectedServer.description" />
 </template>
