@@ -1,5 +1,30 @@
 # @scalar/sidebar
 
+## 0.7.1
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+- [#7576](https://github.com/scalar/scalar/pull/7576): fix: remove cjs file from index export
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.1**
+  - [#7580](https://github.com/scalar/scalar/pull/7580): feat: added default auth on client v2
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+  - [#7568](https://github.com/scalar/scalar/pull/7568): fix: object merge replacing arrays
+
+- **@scalar/components@0.16.11**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/helpers@0.2.4**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/icons@0.5.2**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
 ## 0.7.0
 
 ### Minor Changes

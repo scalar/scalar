@@ -1,5 +1,34 @@
 # @scalar/workspace-store
 
+## 0.24.1
+
+### Patch Changes
+
+- [#7580](https://github.com/scalar/scalar/pull/7580): feat: added default auth on client v2
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+- [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+- [#7568](https://github.com/scalar/scalar/pull/7568): fix: object merge replacing arrays
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.4**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/json-magic@0.8.8**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/object-utils@1.2.18**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/snippetz@0.6.1**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.24.0
 
 ### Minor Changes

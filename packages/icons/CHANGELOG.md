@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.5.2
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
 ## 0.5.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/aspire
 
+## 0.8.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.40.8**
+  - [#7577](https://github.com/scalar/scalar/pull/7577): fix(api-reference): add padding to card intro in callbacks
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 0.8.6
 
 ### Patch Changes

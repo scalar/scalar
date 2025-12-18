@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.6.1
+
+### Patch Changes
+
+- [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 0.6.0
 
 ### Minor Changes

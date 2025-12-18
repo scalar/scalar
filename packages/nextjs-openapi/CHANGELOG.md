@@ -1,5 +1,21 @@
 # @scalar/nextjs-openapi
 
+## 0.2.32
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/ts-to-openapi@0.1.2**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/nextjs-api-reference@0.9.7**
+
 ## 0.2.31
 
 ### Patch Changes

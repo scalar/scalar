@@ -1,5 +1,12 @@
 # @scalar/helpers
 
+## 0.2.4
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+- [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 0.2.3
 
 ### Patch Changes
