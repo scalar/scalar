@@ -133,7 +133,7 @@ const createDefaultProps = () => ({
   authMeta: createMockAuthMeta(),
   securitySchemes: {},
   selectedSecurity: undefined,
-  security: [],
+  securityRequirements: [],
   plugins: [],
   environment: createMockEnvironment(),
 })
