@@ -6,7 +6,7 @@ import {
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconWarningCircle } from '@scalar/icons'
+import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
@@ -167,6 +167,10 @@ onBeforeUnmount(() => {
   stopLoading()
 })
 
+const copyUrl = () => {
+  navigator.clipboard.writeText(`${server?.url ?? ''}${path}`)
+}
+
 defineExpose({
   methodConflict,
   pathConflict,
@@ -245,6 +249,16 @@ defineExpose({
           @update:modelValue="handlePathChange" />
         <div class="fade-right" />
       </div>
+
+      <!-- Copy url button -->
+      <ScalarButton
+        class="hover:bg-b-3 mx-1"
+        size="xs"
+        variant="ghost"
+        @click="copyUrl">
+        <ScalarIconCopy />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
 
       <AddressBarHistory
         :history="history"
