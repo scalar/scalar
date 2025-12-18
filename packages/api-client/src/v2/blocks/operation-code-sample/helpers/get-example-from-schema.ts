@@ -83,7 +83,7 @@ const guessFromFormat = (
  * WeakMap cache for memoizing resolved example results.
  * Uses the resolved schema object as the key for efficient lookups.
  */
-const resultCache = new WeakMap<object, unknown>()
+const resultCache = new WeakMap<object, Map<string, unknown>>()
 
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
@@ -117,13 +117,19 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
 /**
  * Cache the result for a schema if it is an object type.
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
+ * Stores a map of cacheKey strings which is made up of the options object.
  */
 const cache = (schema: SchemaObject, result: unknown, cacheKey: string) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }
-  // Store the result in the cache using the raw schema object as the key
-  resultCache.set({ schema: getRaw(unpackOverridesProxy(schema)), cacheKey }, result)
+  const rawSchema = getRaw(unpackOverridesProxy(schema))
+
+  const cacheMap = resultCache.get(rawSchema) ?? new Map()
+  if (cacheMap) {
+    cacheMap.set(cacheKey, result)
+  }
+  resultCache.set(rawSchema, cacheMap)
   return result
 }
 
@@ -505,9 +511,10 @@ export const getExampleFromSchema = (
   const cacheKey = JSON.stringify({ options })
 
   // Check cache first for performance - avoid recomputing the same schema
-  if (resultCache.has({ schema: targetValue, cacheKey })) {
+  const cached = resultCache.get(targetValue)?.get(cacheKey)
+  if (typeof cached !== 'undefined') {
     seen.delete(targetValue)
-    return resultCache.get({ schema: targetValue, cacheKey })
+    return cached
   }
 
   // Prevent infinite recursion in circular references
