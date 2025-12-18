@@ -115,8 +115,10 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
         { 'border-t': additionalProperties && open },
       ]">
       <!-- Schema description -->
-      <div class="schema-card-description">
-        <ScalarMarkdown :value="schemaDescription ?? 'jello'" />
+      <div
+        v-if="schemaDescription"
+        class="schema-card-description">
+        <ScalarMarkdown :value="schemaDescription" />
       </div>
       <div
         v-if="isEmptySchemaObject(schema)"
@@ -264,6 +266,13 @@ button.schema-card-title:hover {
 .schema-card-description + .schema-properties {
   margin-top: 8px;
 }
+.schema-empty-object {
+  padding-top: 8px;
+}
+.schema-empty-object + .schema-properties {
+  margin-top: 0px;
+}
+
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
   width: 100%;
