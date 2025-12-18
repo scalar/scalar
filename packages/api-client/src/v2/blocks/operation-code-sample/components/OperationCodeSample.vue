@@ -278,9 +278,9 @@ const selectClient = (option: ClientOption) => {
 // We set a lower threshold here as code examples can get quite large
 const VIRTUALIZATION_THRESHOLD = 20_000
 
-const shouldVirtualize = computed(() => {
-  return (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD
-})
+const shouldVirtualize = computed(
+  () => (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD,
+)
 
 const id = useId()
 </script>

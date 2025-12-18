@@ -83,7 +83,7 @@ const guessFromFormat = (
  * WeakMap cache for memoizing resolved example results.
  * Uses the resolved schema object as the key for efficient lookups.
  */
-const resultCache = new WeakMap<object, unknown>()
+const resultCache = new WeakMap<object, Map<string, unknown>>()
 
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
@@ -117,13 +117,19 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
 /**
  * Cache the result for a schema if it is an object type.
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
+ * Stores a map of cacheKey strings which is made up of the options object.
  */
-const cache = (schema: SchemaObject, result: unknown) => {
+const cache = (schema: SchemaObject, result: unknown, cacheKey: string) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }
-  // Store the result in the cache using the raw schema object as the key
-  resultCache.set(getRaw(unpackOverridesProxy(schema)), result)
+  const rawSchema = getRaw(unpackOverridesProxy(schema))
+
+  const cacheMap = resultCache.get(rawSchema) ?? new Map()
+  if (cacheMap) {
+    cacheMap.set(cacheKey, result)
+  }
+  resultCache.set(rawSchema, cacheMap)
   return result
 }
 
@@ -141,8 +147,17 @@ const shouldOmitProperty = (
   schema: SchemaObject,
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
-  options: { omitEmptyAndOptionalProperties?: boolean } | undefined,
+  options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
 ): boolean => {
+  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly)
+  if (
+    schema.deprecated ||
+    (options?.mode === 'write' && schema.readOnly) ||
+    (options?.mode === 'read' && schema.writeOnly)
+  ) {
+    return true
+  }
+
   if (options?.omitEmptyAndOptionalProperties !== true) {
     return false
   }
@@ -195,6 +210,7 @@ const handleObjectSchema = (
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
   seen: WeakSet<object>,
+  cacheKey: string,
 ): unknown => {
   const response: Record<string, unknown> = {}
 
@@ -305,10 +321,10 @@ const handleObjectSchema = (
   if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
     const wrapped: Record<string, unknown> = {}
     wrapped[schema.xml.name] = response
-    return cache(schema, wrapped)
+    return cache(schema, wrapped, cacheKey)
   }
 
-  return cache(schema, response)
+  return cache(schema, response, cacheKey)
 }
 
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
@@ -317,13 +333,14 @@ const handleArraySchema = (
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
   seen: WeakSet<object>,
+  cacheKey: string,
 ) => {
   const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
-    return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
+    return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example, cacheKey)
   }
 
   if (items && typeof items === 'object') {
@@ -338,7 +355,7 @@ const handleArraySchema = (
           parentSchema: schema,
           seen,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged])
+        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey)
       }
 
       const examples = allOf
@@ -353,6 +370,7 @@ const handleArraySchema = (
       return cache(
         schema,
         wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
+        cacheKey,
       )
     }
 
@@ -364,7 +382,7 @@ const handleArraySchema = (
         parentSchema: schema,
         seen,
       })
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
     }
   }
 
@@ -378,10 +396,10 @@ const handleArraySchema = (
       level: level + 1,
       seen,
     })
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
   }
 
-  return cache(schema, [])
+  return cache(schema, [], cacheKey)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
@@ -433,6 +451,29 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
   return undefined
 }
 
+type GetExampleFromSchemaOptions = {
+  /** Fallback string for empty string values. */
+  emptyString?: string
+  /** Whether to use XML tag names as keys. */
+  xml?: boolean
+  /** Whether to show read-only/write-only properties. */
+  mode?: 'read' | 'write'
+  /** Dynamic variables which can replace values via x-variable. */
+  variables?: Record<string, unknown>
+  /** Whether to omit empty and optional properties. */
+  omitEmptyAndOptionalProperties?: boolean
+}
+
+/** Create stable cache key from the options object */
+const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
+  JSON.stringify({
+    emptyString: options?.emptyString,
+    xml: options?.xml,
+    mode: options?.mode,
+    variables: options?.variables,
+    omitEmptyAndOptionalProperties: options?.omitEmptyAndOptionalProperties,
+  })
+
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
@@ -450,27 +491,19 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
  */
 export const getExampleFromSchema = (
   schema: SchemaObject,
-  options?: {
-    /** Fallback string for empty string values. */
-    emptyString?: string
-    /** Whether to use XML tag names as keys. */
-    xml?: boolean
-    /** Whether to show read-only/write-only properties. */
-    mode?: 'read' | 'write'
-    /** Dynamic variables which can replace values via x-variable. */
-    variables?: Record<string, unknown>
-    /** Whether to omit empty and optional properties. */
-    omitEmptyAndOptionalProperties?: boolean
-  },
-  args?: Partial<{
+  options?: GetExampleFromSchemaOptions,
+  {
+    level = 0,
+    parentSchema,
+    name,
+    seen = new WeakSet(),
+  }: Partial<{
     level: number
     parentSchema: SchemaObject
     name: string
     seen: WeakSet<object>
-  }>,
+  }> = {},
 ): unknown => {
-  const { level = 0, parentSchema, name, seen = new WeakSet() } = args ?? {}
-
   // Resolve any $ref references to get the actual schema
   const _schema = getResolvedRef(schema)
   if (!isDefined(_schema)) {
@@ -484,10 +517,14 @@ export const getExampleFromSchema = (
   }
   seen.add(targetValue)
 
+  /** Make the cache key unique per options */
+  const cacheKey = createOptionsCacheKey(options)
+
   // Check cache first for performance - avoid recomputing the same schema
-  if (resultCache.has(targetValue)) {
+  const cached = resultCache.get(targetValue)?.get(cacheKey)
+  if (typeof cached !== 'undefined') {
     seen.delete(targetValue)
-    return resultCache.get(targetValue)
+    return cached
   }
 
   // Prevent infinite recursion in circular references
@@ -500,12 +537,7 @@ export const getExampleFromSchema = (
   const makeUpRandomData = !!options?.emptyString
 
   // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
-  if (
-    _schema.deprecated ||
-    (options?.mode === 'write' && _schema.readOnly) ||
-    (options?.mode === 'read' && _schema.writeOnly) ||
-    shouldOmitProperty(_schema, parentSchema, name, options)
-  ) {
+  if (shouldOmitProperty(_schema, parentSchema, name, options)) {
     seen.delete(targetValue)
     return undefined
   }
@@ -517,45 +549,45 @@ export const getExampleFromSchema = (
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
         seen.delete(targetValue)
-        return cache(_schema, Number(value))
+        return cache(_schema, Number(value), cacheKey)
       }
       seen.delete(targetValue)
-      return cache(_schema, value)
+      return cache(_schema, value, cacheKey)
     }
   }
 
   // Priority order: examples > example > default > const > enum
   if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.examples[0])
+    return cache(_schema, _schema.examples[0], cacheKey)
   }
   if (_schema.example !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.example)
+    return cache(_schema, _schema.example, cacheKey)
   }
   if (_schema.default !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.default)
+    return cache(_schema, _schema.default, cacheKey)
   }
   if (_schema.const !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.const)
+    return cache(_schema, _schema.const, cacheKey)
   }
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.enum[0])
+    return cache(_schema, _schema.enum[0], cacheKey)
   }
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey)
     seen.delete(targetValue)
     return result
   }
 
   // Handle array types
   if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
-    const result = handleArraySchema(_schema, options, level, seen)
+    const result = handleArraySchema(_schema, options, level, seen, cacheKey)
     seen.delete(targetValue)
     return result
   }
@@ -564,7 +596,7 @@ export const getExampleFromSchema = (
   const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, primitive)
+    return cache(_schema, primitive, cacheKey)
   }
 
   // Handle composition schemas (oneOf, anyOf) at root level
@@ -581,11 +613,12 @@ export const getExampleFromSchema = (
             level: level + 1,
             seen,
           }),
+          cacheKey,
         )
       }
     }
     seen.delete(targetValue)
-    return cache(_schema, null)
+    return cache(_schema, null, cacheKey)
   }
 
   // Handle allOf at root level (non-object/array schemas)
@@ -608,17 +641,17 @@ export const getExampleFromSchema = (
       }
     }
     seen.delete(targetValue)
-    return cache(_schema, merged ?? null)
+    return cache(_schema, merged ?? null, cacheKey)
   }
 
   // Handle union types (array of types)
   const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, unionPrimitive)
+    return cache(_schema, unionPrimitive, cacheKey)
   }
 
   // Default fallback
   seen.delete(targetValue)
-  return cache(_schema, null)
+  return cache(_schema, null, cacheKey)
 }

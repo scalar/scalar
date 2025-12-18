@@ -1664,4 +1664,81 @@ describe('getExampleFromSchema', () => {
       },
     ])
   })
+
+  describe('caching', () => {
+    it('returns different results when different options are passed', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: {
+            type: 'string',
+          },
+          age: {
+            type: 'number',
+          },
+          email: {
+            type: 'string',
+          },
+        },
+      })
+
+      const withoutOmit = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: false,
+      })
+      const withOmit = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: true,
+      })
+      const withoutOmitAgain = getExampleFromSchema(schema, {
+        omitEmptyAndOptionalProperties: false,
+      })
+
+      expect(withoutOmit).toStrictEqual({
+        name: '',
+        age: 1,
+        email: '',
+      })
+      expect(withOmit).toStrictEqual({
+        name: '',
+      })
+      expect(withoutOmitAgain).toStrictEqual({
+        name: '',
+        age: 1,
+        email: '',
+      })
+    })
+
+    it('returns the same cached object reference for identical calls', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          user: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'number',
+                example: 123,
+              },
+              name: {
+                type: 'string',
+                example: 'John Doe',
+              },
+            },
+          },
+        },
+      })
+
+      const firstCall = getExampleFromSchema(schema)
+      const secondCall = getExampleFromSchema(schema)
+      const thirdCall = getExampleFromSchema(schema)
+
+      // All calls should return the exact same object reference from cache
+      expect(firstCall).toBe(secondCall)
+      expect(secondCall).toBe(thirdCall)
+
+      // Verify the nested object is also cached
+      expect((firstCall as any).user).toBe((secondCall as any).user)
+      expect((secondCall as any).user).toBe((thirdCall as any).user)
+    })
+  })
 })
