@@ -75,6 +75,10 @@ export function extractServerFromUrl(url: string | undefined): string | undefine
   }
 
   try {
+    // Check if URL has a protocol
+    const protocolMatch = url.match(/^(https?:\/\/)/i)
+    const protocol = protocolMatch ? protocolMatch[1] : null
+
     // Extract domain from URL
     const urlMatch = url.match(/^(?:https?:\/\/)?([^/?#]+)/i)
     if (!urlMatch?.[1]) {
@@ -82,10 +86,8 @@ export function extractServerFromUrl(url: string | undefined): string | undefine
     }
 
     const hostPart = urlMatch[1]
-    // Ensure we have the protocol
-    const serverUrl = hostPart.startsWith('http')
-      ? hostPart.replace(/\/$/, '')
-      : `https://${hostPart}`.replace(/\/$/, '')
+    // Preserve the original protocol if present, otherwise default to https
+    const serverUrl = protocol ? `${protocol}${hostPart}`.replace(/\/$/, '') : `https://${hostPart}`.replace(/\/$/, '')
 
     return serverUrl
   } catch (error) {

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { extractPathFromUrl, extractPathParameterNames, getDomainFromUrl, normalizePath } from './urls'
+import {
+  extractPathFromUrl,
+  extractPathParameterNames,
+  extractServerFromUrl,
+  getDomainFromUrl,
+  normalizePath,
+} from './urls'
 
 describe('urls', () => {
   it('extracts domain with port when present', () => {
@@ -85,5 +91,47 @@ describe('urls', () => {
   it('removes default HTTPS port', () => {
     // URL constructor removes default ports
     expect(getDomainFromUrl('https://example.com:443/path')).toBe('https://example.com')
+  })
+
+  describe('extractServerFromUrl', () => {
+    it('preserves HTTP protocol', () => {
+      expect(extractServerFromUrl('http://api.example.com/users')).toBe('http://api.example.com')
+    })
+
+    it('preserves HTTPS protocol', () => {
+      expect(extractServerFromUrl('https://api.example.com/users')).toBe('https://api.example.com')
+    })
+
+    it('defaults to HTTPS when protocol is missing', () => {
+      expect(extractServerFromUrl('api.example.com/users')).toBe('https://api.example.com')
+    })
+
+    it('preserves HTTP protocol with port', () => {
+      expect(extractServerFromUrl('http://api.example.com:8080/users')).toBe('http://api.example.com:8080')
+    })
+
+    it('preserves HTTPS protocol with port', () => {
+      expect(extractServerFromUrl('https://api.example.com:8443/users')).toBe('https://api.example.com:8443')
+    })
+
+    it('removes trailing slash', () => {
+      expect(extractServerFromUrl('http://api.example.com/')).toBe('http://api.example.com')
+    })
+
+    it('strips query parameters and hash', () => {
+      expect(extractServerFromUrl('http://api.example.com/users?page=1#section')).toBe('http://api.example.com')
+    })
+
+    it('returns undefined for empty string', () => {
+      expect(extractServerFromUrl('')).toBeUndefined()
+    })
+
+    it('returns undefined for undefined input', () => {
+      expect(extractServerFromUrl(undefined)).toBeUndefined()
+    })
+
+    it('handles URL with only domain', () => {
+      expect(extractServerFromUrl('http://example.com')).toBe('http://example.com')
+    })
   })
 })

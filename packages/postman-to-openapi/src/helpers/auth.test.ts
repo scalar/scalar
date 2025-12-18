@@ -58,8 +58,8 @@ describe('auth', () => {
         type: 'oauth2',
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://example.com/oauth/authorize',
-            tokenUrl: 'https://example.com/oauth/token',
+            authorizationUrl: '/oauth/authorize',
+            tokenUrl: '/oauth/token',
             scopes: {},
           },
         },
