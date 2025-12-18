@@ -42,4 +42,12 @@ describe('isEmptySchemaObject', () => {
   it('returns false for undefined schema', () => {
     expect(isEmptySchemaObject(undefined)).toBe(false)
   })
+
+  it('returns true for schema with type object nullable', () => {
+    expect(
+      isEmptySchemaObject({
+        type: ['object', 'null'],
+      }),
+    ).toBe(true)
+  })
 })

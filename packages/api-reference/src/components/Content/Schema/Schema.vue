@@ -271,7 +271,6 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-card--open {
   width: 100%;
 }
-
 .schema-properties {
   display: flex;
   flex-direction: column;
