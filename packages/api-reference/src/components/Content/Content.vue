@@ -2,7 +2,6 @@
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -62,7 +61,7 @@ const documentExtensions = computed(() => getXKeysFromObject(document))
 /** Computed property to get all OpenAPI extension fields from the document's info object */
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
-/** Compute the selected server for the document only for now */
+/** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() => getSelectedServer(document ?? null))
 </script>
 <template>
@@ -88,21 +87,23 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
           layout: options.layout,
         }">
         <template #selectors>
+          <!-- Server Selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
               v-if="document?.servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
-                :servers="document?.servers ?? []"
-                :xSelectedServer="document?.['x-scalar-active-server']" />
+                :eventBus
+                :selectedServer
+                :servers="document?.servers ?? []" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
+
+          <!-- Auth selector -->
           <ScalarErrorBoundary>
-            <!-- Auth selector currently requires an active collection -->
             <IntroductionCardItem
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <!-- References auth wrapper -->
               <Auth
                 :document
                 :environment
@@ -139,7 +140,6 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       v-if="items.length"
-      :activeServer="selectedServer"
       :entries="items"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -157,6 +157,7 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
       :paths="document?.paths ?? {}"
       :schemas="document?.components?.schemas ?? {}"
       :security="document?.security"
+      :selectedServer
       :webhooks="document?.webhooks ?? {}"
       :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>

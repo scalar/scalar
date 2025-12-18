@@ -88,7 +88,7 @@ watch(
   { immediate: true },
 )
 
-/** Compute what the security requirements should be for a request */
+/** Compute what the security requirements should be for an operation */
 const securityRequirements = computed(() =>
   getSecurityRequirements(document, operation.value),
 )
