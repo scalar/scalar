@@ -888,7 +888,9 @@ jobs:
   preview-comment:
     # Only run for PRs from the same repository
     if: |
-      always() &&
+      (needs.deploy-api-reference.result == 'success' ||
+       needs.deploy-components.result == 'success' ||
+       needs.galaxy-registry-preview.result == 'success') &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(github.actor, '[bot]')
@@ -901,20 +903,30 @@ jobs:
       - name: Build comment message
         id: build-message
         run: |
-          MESSAGE="**Preview Examples**
+          MESSAGE=""
+
+          if [ "${{ needs.deploy-api-reference.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview Examples**
 
           ${{ needs.deploy-api-reference.outputs.preview-url }}
 
-          **Preview Storybook**
+          "
+          fi
 
-          ${{ needs.deploy-components.outputs.preview-url }}"
+          if [ "${{ needs.deploy-components.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview Storybook**
+
+          ${{ needs.deploy-components.outputs.preview-url }}
+
+          "
+          fi
 
           if [ "${{ needs.galaxy-registry-preview.result }}" == "success" ]; then
-            MESSAGE="$MESSAGE
+            MESSAGE="$MESSAGE**Scalar Registry Preview**
 
-          **Scalar Registry Preview**
+          ${{ needs.galaxy-registry-preview.outputs.preview-url }}
 
-          ${{ needs.galaxy-registry-preview.outputs.preview-url }}"
+          "
           fi
 
           echo "message<<EOF" >> $GITHUB_OUTPUT
