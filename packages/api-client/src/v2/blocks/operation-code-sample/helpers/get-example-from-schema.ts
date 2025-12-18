@@ -508,7 +508,7 @@ export const getExampleFromSchema = (
   seen.add(targetValue)
 
   /** Make the cache key unique per options */
-  const cacheKey = JSON.stringify({ options })
+  const cacheKey = JSON.stringify(options ?? {})
 
   // Check cache first for performance - avoid recomputing the same schema
   const cached = resultCache.get(targetValue)?.get(cacheKey)
