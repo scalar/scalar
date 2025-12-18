@@ -52,11 +52,23 @@
       "redirects": [
         {
           "from": "/scalar/scalar-registry/github-workflows",
-          "to": "/scalar/scalar-registry/github-actions"
+          "to": "/registry/github-actions"
         },
         {
           "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
-          "to": "/scalar/scalar-docs/github-actions"
+          "to": "/registry/github-actions"
+        },
+        {
+          "from": "/scalar/introduction",
+          "to": "/"
+        },
+        {
+          "from": "/scalar",
+          "to": "/"
+        },
+        {
+          "from": "/scalar-api",
+          "to": "/scalar-api/description/introduction"
         }
       ]
     }
