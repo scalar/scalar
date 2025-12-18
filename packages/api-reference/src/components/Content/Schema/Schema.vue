@@ -11,6 +11,7 @@ import { computed } from 'vue'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
+import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
@@ -114,10 +115,13 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
         { 'border-t': additionalProperties && open },
       ]">
       <!-- Schema description -->
+      <div class="schema-card-description">
+        <ScalarMarkdown :value="schemaDescription ?? 'jello'" />
+      </div>
       <div
-        v-if="schemaDescription"
-        class="schema-card-description">
-        <ScalarMarkdown :value="schemaDescription" />
+        v-if="isEmptySchemaObject(schema)"
+        class="pt-2">
+        Empty object
       </div>
       <div
         class="schema-properties"
