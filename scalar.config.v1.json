@@ -519,6 +519,11 @@
               "name": "Data Seeding",
               "path": "documentation/guides/mock-server/data-seeding.md",
               "type": "page"
+            },
+            {
+              "name": "Docker Image",
+              "path": "documentation/guides/mock-server/docker.md",
+              "type": "page"
             }
           ]
         }
