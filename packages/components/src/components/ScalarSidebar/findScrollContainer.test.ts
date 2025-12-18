@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+
 import { findScrollContainer } from './findScrollContainer'
 
 describe('findScrollContainer', () => {

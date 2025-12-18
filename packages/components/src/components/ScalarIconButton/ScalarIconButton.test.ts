@@ -1,13 +1,12 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { nextTick } from 'vue'
-import { markRaw } from 'vue'
 import { ScalarIconAcorn } from '@scalar/icons'
+import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { markRaw, nextTick } from 'vue'
 
-import ScalarIconButton from './ScalarIconButton.vue'
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
-import { cleanupTooltipElement } from '../ScalarTooltip/useTooltip'
 import { ELEMENT_ID } from '../ScalarTooltip/constants'
+import { cleanupTooltipElement } from '../ScalarTooltip/useTooltip'
+import ScalarIconButton from './ScalarIconButton.vue'
 
 describe('ScalarIconButton', () => {
   beforeEach(() => {
