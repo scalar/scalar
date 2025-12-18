@@ -16,6 +16,7 @@ import type {
   ComponentsObject,
   PathsObject,
   SecurityRequirementObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
@@ -43,7 +44,8 @@ const {
   schemas: ComponentsObject['schemas']
   /** The security requirements from the document `document.security` */
   security: SecurityRequirementObject[] | undefined
-  activeServer: Server | undefined
+  /** Currently selected server for the document */
+  selectedServer: ServerObject | null
   getSecuritySchemes: SecuritySchemeGetter
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
@@ -116,7 +118,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
         :security="security"
-        :server="activeServer"
+        :server="selectedServer"
         :xScalarDefaultClient="xScalarDefaultClient" />
     </SectionContainer>
 
@@ -131,7 +133,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
-          :activeServer
           :entries="entry.children"
           :eventBus="eventBus"
           :expandedItems="expandedItems"
@@ -141,6 +142,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :paths="paths"
           :schemas="schemas"
           :security="security"
+          :selectedServer
           :webhooks="webhooks"
           :xScalarDefaultClient="xScalarDefaultClient">
         </TraversedEntry>
@@ -150,7 +152,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <!-- Tag Group -->
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
-      :activeServer
       :entries="entry.children || []"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -160,6 +161,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :paths="paths"
       :schemas="schemas"
       :security="security"
+      :selectedServer
       :webhooks="webhooks"
       :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>
@@ -177,7 +179,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
       }">
       <TraversedEntry
-        :activeServer
         :entries="entry.children || []"
         :eventBus="eventBus"
         :expandedItems="expandedItems"
@@ -187,6 +188,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :paths="paths"
         :schemas="schemas"
         :security="security"
+        :selectedServer
         :webhooks="webhooks"
         :xScalarDefaultClient="xScalarDefaultClient">
       </TraversedEntry>

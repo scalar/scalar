@@ -71,13 +71,13 @@ export function mapConfigToClientStore({
   const activeEntities = createActiveEntitiesStore(store)
 
   /** @deprecated Injected to provision api-client */
-  provide(WORKSPACE_SYMBOL, store)
+  // provide(WORKSPACE_SYMBOL, store)
 
   /** @deprecated Injected to provision api-client */
-  provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
+  // provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
 
   /** Update the old store to keep it in sync with the new store */
-  useLegacyStoreEvents(workspaceStore, store, activeEntities, root)
+  // useLegacyStoreEvents(workspaceStore, store, activeEntities, root)
 
   // ---------------------------------------------------------------------------
 

@@ -21,6 +21,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
 import { getSelectedSecurity } from '@/v2/features/operation/helpers/get-selected-security'
+import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
 const {
   document,
@@ -47,12 +48,7 @@ const globalCookies = computed(() => [
 ])
 
 /** Compute the selected server for the document only for now */
-const selectedServer = computed(
-  () =>
-    document?.servers?.find(
-      ({ url }) => url === document?.['x-scalar-selected-server'],
-    ) ?? null,
-)
+const selectedServer = computed(() => getSelectedServer(document))
 
 onMounted(() => {
   /** Select the first server if the user has not specifically unselected it */

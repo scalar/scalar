@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -26,8 +25,8 @@ const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
-  /** Active server*/
-  server: Server | undefined
+  /** Currently selected server for the document */
+  server: ServerObject | null
   /** Document level security requirements */
   security: SecurityRequirementObject[] | undefined
   /** Temporary getter function to handle overlap with the client store */
@@ -78,12 +77,12 @@ const selectedSecuritySchemes = computed(() =>
 /**
  * Determine the effective server for the code examples.
  */
-const selectedServer = computed<ServerObject | undefined>(() =>
+const selectedServer = computed<ServerObject | null>(() =>
   getFirstServer(
     // 1) Operation
-    operation.value?.servers,
+    operation.value?.servers ?? null,
     // 2) Path Item
-    pathValue?.servers,
+    pathValue?.servers ?? null,
     // 3) Document
     server,
   ),
