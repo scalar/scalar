@@ -1,9 +1,13 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import { useDraggable } from './use-draggable'
 
 describe('useDraggable', () => {
+  beforeEach(() => {
+    vi.useRealTimers()
+  })
+
   it('initializes with default values', () => {
     const {
       draggableAttrs: draggableProps,
@@ -151,6 +155,8 @@ describe('useDraggable', () => {
   })
 
   it('sets and removes data-dragging attribute during drag lifecycle', async () => {
+    vi.useFakeTimers()
+
     const onDragEnd = vi.fn()
     const draggable1 = useDraggable({
       id: 'test-1',
@@ -214,7 +220,7 @@ describe('useDraggable', () => {
 
     draggable2.draggableEvents.dragover(dragOverEvent)
     // Wait for throttle to execute
-    await new Promise((resolve) => setTimeout(resolve, 30))
+    await vi.advanceTimersByTimeAsync(30)
 
     // Verify hover state is set (required for handleDragEnd to clean up)
     expect(draggable1.hoveredItem.value).not.toBeNull()

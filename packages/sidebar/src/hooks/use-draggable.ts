@@ -2,19 +2,13 @@ import { cva } from '@scalar/use-hooks/useBindCx'
 import { type MaybeRef, type Ref, computed, ref, toValue } from 'vue'
 
 /**
- * Drag offset options
- */
-export const DRAG_OFFSETS = [
-  'before', // Insert before the hovered item
-  'after', // Insert after the hovered item
-  'into', // Drop into the hovered item
-] as const
-
-/**
  * Drag offsets
- *
  */
-export type DragOffset = (typeof DRAG_OFFSETS)[number] | null
+export type DragOffset =
+  | 'before' // Insert before the hovered item
+  | 'after' // Insert after the hovered item
+  | 'into' // Drop into the hovered item
+  | null
 
 /**
  * Item you are currently dragging over
@@ -33,10 +27,13 @@ export type DraggingItem = Omit<HoveredItem, 'offset'>
 /**
  * Simple throttle function to avoid package dependencies
  */
-const throttle = (callback: (...args: any) => void, limit: number) => {
+const throttle = <TArgs extends Array<unknown>>(
+  callback: (...args: TArgs) => void,
+  limit: number,
+): ((...args: TArgs) => void) => {
   let wait = false
 
-  return (...args: unknown[]) => {
+  return (...args: TArgs) => {
     if (wait) {
       return
     }
@@ -128,7 +125,7 @@ export function useDraggable(options: UseDraggableOptions) {
   const parentId = computed(() => parentIds.at(-1) ?? null)
 
   /** Check if isDroppable guard */
-  const _isDroppable = (offset: DragOffset | null): boolean =>
+  const _isDroppable = (offset: DragOffset): boolean =>
     typeof isDroppable === 'function'
       ? isDroppable(draggingItem.value!, {
           id: id,
@@ -164,7 +161,7 @@ export function useDraggable(options: UseDraggableOptions) {
     const height = (ev.target as HTMLDivElement).offsetHeight
     const _floor = floor * height
     const _ceiling = ceiling * height
-    let offset: DragOffset | null = null
+    let offset: DragOffset = null
 
     // handle negative offset to be previous offset
     if (ev.offsetY <= 0 && previousOffset && previousOffset !== 'after') {
