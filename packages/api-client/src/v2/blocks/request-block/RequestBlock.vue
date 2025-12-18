@@ -258,12 +258,24 @@ const handleUpdateFormRow = (payload: {
 const handleUpdateBodyValue = (payload: {
   value?: string | File
   contentType: string
-}): void =>
-  eventBus.emit('operation:update:requestBody:value', {
-    contentType: payload.contentType,
-    payload: { value: payload.value ?? '' },
-    meta: meta.value,
-  })
+}): void => {
+  const debounceKey =
+    typeof payload.value === 'string'
+      ? `update:requestBody:value-${payload.contentType}`
+      : undefined
+
+  eventBus.emit(
+    'operation:update:requestBody:value',
+    {
+      contentType: payload.contentType,
+      payload: { value: payload.value ?? '' },
+      meta: meta.value,
+    },
+    {
+      debounceKey,
+    },
+  )
+}
 
 const labelRequestNameId = useId()
 
