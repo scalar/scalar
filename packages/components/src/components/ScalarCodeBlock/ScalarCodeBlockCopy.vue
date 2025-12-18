@@ -63,11 +63,11 @@ const variants = cva({
       )
     ">
     <ScalarButton
+      :aria-controls="controls"
+      aria-label="Copy"
       :class="cx(variants({ showCopied }))"
       type="button"
       variant="ghost"
-      :aria-controls="controls"
-      aria-label="Copy"
       @click="handleCopy">
       <ScalarIconCopy
         class="copy-icon size-4"
@@ -78,8 +78,8 @@ const variants = cva({
     </ScalarButton>
     <div
       v-if="showCopied"
-      role="alert"
-      class="sr-only">
+      class="sr-only"
+      role="alert">
       Copied
     </div>
   </div>

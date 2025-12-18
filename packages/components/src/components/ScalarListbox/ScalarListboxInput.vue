@@ -16,7 +16,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 
 import { ScalarFormInput } from '../ScalarForm'
 
-defineProps<{ open?: Boolean }>()
+defineProps<{ open?: boolean }>()
 </script>
 <template>
   <ScalarFormInput>

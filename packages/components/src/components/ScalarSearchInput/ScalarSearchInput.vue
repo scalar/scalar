@@ -51,6 +51,8 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
     <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input
       ref="inputRef"
+      v-bind="otherAttrs"
+      v-model="model"
       :aria-label="label ?? 'Enter search query'"
       autocapitalize="off"
       autocomplete="off"
@@ -58,9 +60,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
       placeholder="Search..."
       spellcheck="false"
-      type="search"
-      v-bind="otherAttrs"
-      v-model="model" />
+      type="search" />
     <ScalarLoading
       v-if="loader && loader.isActive"
       class="self-center"
