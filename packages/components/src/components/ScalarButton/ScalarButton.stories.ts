@@ -1,5 +1,5 @@
 import { ScalarIconCube } from '@scalar/icons'
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import type { ButtonSize, ButtonVariant } from '@/components/ScalarButton/types'
 

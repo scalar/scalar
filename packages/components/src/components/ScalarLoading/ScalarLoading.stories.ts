@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import { ScalarFormInput, ScalarFormInputGroup } from '../ScalarForm'
 import { ScalarLoading, useLoadingState } from './'

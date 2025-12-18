@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 import ScalarCodeBlockCopy from './ScalarCodeBlockCopy.vue'
