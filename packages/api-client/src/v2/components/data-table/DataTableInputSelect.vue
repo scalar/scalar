@@ -11,9 +11,9 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
-    modelValue: string | number
+    modelValue: string | number | boolean
     value?: string[]
-    default?: string | number | undefined
+    default?: string | number | boolean | undefined
     canAddCustomValue?: boolean
     type?: string | undefined
   }>(),
@@ -105,9 +105,9 @@ const updateSelectedOptions = (selectedOptions: any) => {
               : 'Select a value'
           }}</span>
           <ScalarIcon
+            class="min-w-4"
             icon="ChevronDown"
-            size="md"
-            class="min-w-4" />
+            size="md" />
         </ScalarButton>
       </ScalarComboboxMultiselect>
     </template>
@@ -129,7 +129,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
           class="size-full justify-start gap-1.5 overflow-auto px-2 py-1.5 font-normal whitespace-nowrap outline-none"
           variant="ghost">
           <span class="text-c-1 overflow-hidden text-ellipsis">{{
-            initialValue || 'Select a value'
+            initialValue ?? 'Select a value'
           }}</span>
           <ScalarIcon
             icon="ChevronDown"
