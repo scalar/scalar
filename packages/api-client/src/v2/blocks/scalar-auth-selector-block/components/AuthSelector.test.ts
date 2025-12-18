@@ -50,7 +50,7 @@ describe('AuthSelector', () => {
       environment: any
       envVariables: any[]
       isStatic: boolean
-      security: any
+      securityRequirements: any
       selectedSecurity: any
       securitySchemes: any
       server: any
@@ -59,7 +59,7 @@ describe('AuthSelector', () => {
   ) => {
     const environment = custom.environment ?? baseEnvironment
     const isStatic = custom.isStatic ?? true
-    const security = custom.security ?? [{ BearerAuth: [] }]
+    const securityRequirements = custom.securityRequirements ?? [{ BearerAuth: [] }]
     const selectedSecurity = custom.selectedSecurity ?? { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] }
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
     const server = custom.server ?? baseServer
@@ -69,7 +69,7 @@ describe('AuthSelector', () => {
       props: {
         environment,
         isStatic,
-        security,
+        securityRequirements,
         selectedSecurity,
         securitySchemes,
         proxyUrl: '',
@@ -109,7 +109,7 @@ describe('AuthSelector', () => {
   describe('authentication indicator', () => {
     it('shows required indicator for required auth', () => {
       const wrapper = mountWithProps({
-        security: [{ BearerAuth: [] }],
+        securityRequirements: [{ BearerAuth: [] }],
       })
 
       const vm = wrapper.vm
@@ -121,7 +121,7 @@ describe('AuthSelector', () => {
 
     it('shows optional indicator for optional auth', () => {
       const wrapper = mountWithProps({
-        security: [{ BearerAuth: [] }, {}],
+        securityRequirements: [{ BearerAuth: [] }, {}],
       })
 
       const vm = wrapper.vm
@@ -133,7 +133,7 @@ describe('AuthSelector', () => {
 
     it('shows required indicator for complex auth requirements', () => {
       const wrapper = mountWithProps({
-        security: [{ BearerAuth: [], ApiKeyAuth: [] }],
+        securityRequirements: [{ BearerAuth: [], ApiKeyAuth: [] }],
       })
 
       const vm = wrapper.vm
@@ -145,7 +145,7 @@ describe('AuthSelector', () => {
 
     it('returns null when no security requirements', () => {
       const wrapper = mountWithProps({
-        security: [],
+        securityRequirements: [],
       })
 
       const vm = wrapper.vm
@@ -154,7 +154,7 @@ describe('AuthSelector', () => {
 
     it('displays auth indicator in template when present', () => {
       const wrapper = mountWithProps({
-        security: [{ BearerAuth: [] }],
+        securityRequirements: [{ BearerAuth: [] }],
       })
 
       const indicator = wrapper.find('[data-testid="auth-indicator"]')
@@ -222,7 +222,7 @@ describe('AuthSelector', () => {
   describe('scheme options computation', () => {
     it('computes scheme options from security and securitySchemes', () => {
       const wrapper = mountWithProps({
-        security: [{ BearerAuth: [] }],
+        securityRequirements: [{ BearerAuth: [] }],
         securitySchemes: baseSecuritySchemes,
       })
 
@@ -233,7 +233,7 @@ describe('AuthSelector', () => {
 
     it('handles empty security array', () => {
       const wrapper = mountWithProps({
-        security: [],
+        securityRequirements: [],
         securitySchemes: baseSecuritySchemes,
       })
 

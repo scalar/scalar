@@ -26,12 +26,12 @@ export const SecurityRequirementObjectSchemaDefinition = Type.Union([
  *
  * When the security field is defined on the OpenAPI Object or Operation Object and contains multiple Security Requirement Objects, only one of the entries in the list needs to be satisfied to authorize the request. This enables support for scenarios where the API allows multiple, independent security schemes.
  *
- * An empty Security Requirement Object ({}) indicates anonymous access is supported.
+ * The partial allows for an empty Security Requirement Object ({}) to be included.
  */
-export type SecurityRequirementObject =
-  | Record<
-      /** Each name MUST correspond to a security scheme which is declared in the Security Schemes under the Components Object. If the security scheme is of type "oauth2" or "openIdConnect", then the value is a list of scope names required for the execution, and the list MAY be empty if authorization does not require a specified scope. For other security scheme types, the array MAY contain a list of role names which are required for the execution, but are not otherwise defined or exchanged in-band. */
-      string,
-      string[]
-    >
-  | {}
+export type SecurityRequirementObject = Partial<
+  Record<
+    /** Each name MUST correspond to a security scheme which is declared in the Security Schemes under the Components Object. If the security scheme is of type "oauth2" or "openIdConnect", then the value is a list of scope names required for the execution, and the list MAY be empty if authorization does not require a specified scope. For other security scheme types, the array MAY contain a list of role names which are required for the execution, but are not otherwise defined or exchanged in-band. */
+    string,
+    string[]
+  >
+>
