@@ -84,7 +84,7 @@
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
     "plugins": "^0.4.2",
-    "storybook": "^8.0.8",
+    "storybook": "^8.6.15",
     "storybook-dark-mode": "^4.0.1",
     "svglint": "^2.7.1",
     "tailwindcss": "catalog:*",
