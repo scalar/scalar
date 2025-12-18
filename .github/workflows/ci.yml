@@ -544,11 +544,13 @@ jobs:
       group: npm-publish
       cancel-in-progress: false
     permissions:
+      # Required for creating a release pull request
       contents: write
       pull-requests: write
       repository-projects: write
+      # Required for npm provenance statements
+      id-token: write
     needs: [required-jobs-main]
-
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Build
