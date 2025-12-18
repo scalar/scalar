@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarPopover } from '@scalar/components'
+import { ScalarMarkdown, ScalarPopover } from '@scalar/components'
 import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -56,12 +56,10 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
           <span v-if="'maximum' in schema">max: {{ schema.maximum }}</span>
           <span v-if="'default' in schema">default: {{ schema.default }}</span>
         </div>
-        <span
-          v-if="(description || schema?.description) && !isInvalid"
-          class="text-sm leading-snug text-pretty"
-          :style="{ maxWidth: '16rem' }">
-          {{ description ?? schema?.description }}
-        </span>
+        <ScalarMarkdown
+          v-if="description && !isInvalid"
+          class="max-w-[16rem]"
+          :value="description" />
       </div>
     </template>
   </ScalarPopover>
