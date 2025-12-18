@@ -2,6 +2,7 @@
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
+import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -89,7 +90,7 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const eventBus = createWorkspaceEventBus({ debug: false })
+const eventBus = createWorkspaceEventBus({ debug: import.meta.env.DEV })
 
 if (typeof window !== 'undefined') {
   // @ts-expect-error - For debugging purposes expose the store
@@ -418,6 +419,14 @@ mapConfigToWorkspaceStore({
   isDarkMode,
 })
 
+/** Merged environment variables from workspace and document levels */
+const environment = computed(() =>
+  getActiveEnvironment(
+    workspaceStore,
+    workspaceStore.workspace.activeDocument ?? null,
+  ),
+)
+
 // ---------------------------------------------------------------------------
 // Document Management
 
@@ -623,16 +632,14 @@ const documentUrl = computed(() => {
  *
  * Handles resetting the client store when the document changes
  */
-const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
-  {
-    workspaceStore,
-    config: mergedConfig,
-    el: modal,
-    root,
-    dereferencedDocument: dereferenced,
-    documentUrl,
-  },
-)
+const { getSecuritySchemes, openClient } = mapConfigToClientStore({
+  workspaceStore,
+  config: mergedConfig,
+  el: modal,
+  root,
+  dereferencedDocument: dereferenced,
+  documentUrl,
+})
 
 // ---------------------------------------------------------------------------
 // Top level event handlers and user specified callbacks
@@ -899,9 +906,9 @@ const colorMode = computed(() => {
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :activeServer="activeServer"
           :document="workspaceStore.workspace.activeDocument"
-          :eventBus="eventBus"
+          :environment
+          :eventBus
           :expandedItems="sidebarState.expandedItems.value"
           :getSecuritySchemes="getSecuritySchemes"
           :infoSectionId="infoSectionId ?? 'description/introduction'"
@@ -921,6 +928,7 @@ const colorMode = computed(() => {
             orderRequiredPropertiesFirst:
               mergedConfig.orderRequiredPropertiesFirst,
             orderSchemaPropertiesBy: mergedConfig.orderSchemaPropertiesBy,
+            proxyUrl: workspaceStore.workspace['x-scalar-active-proxy'] ?? null,
             documentDownloadType: mergedConfig.documentDownloadType,
           }"
           :xScalarDefaultClient="

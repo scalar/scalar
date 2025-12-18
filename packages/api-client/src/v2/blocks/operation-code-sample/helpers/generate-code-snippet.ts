@@ -16,11 +16,11 @@ export type GenerateCodeSnippetProps = {
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */
   clientId: AvailableClient | CustomCodeSampleId | undefined
   /** The Content-Type header value for the request body (e.g., 'application/json'). */
-  contentType?: string | undefined
+  contentType: string | undefined
   /** Array of custom code samples defined in the OpenAPI x-codeSamples extension. */
   customCodeSamples: XCodeSample[]
   /** The specific example value to use when generating the code snippet. */
-  example?: string | undefined
+  example: string | undefined
   /** The HTTP method for the operation (e.g., GET, POST, PUT). */
   method: HttpMethod
   /** The OpenAPI operation object containing request/response details. */
@@ -28,9 +28,9 @@ export type GenerateCodeSnippetProps = {
   /** The API endpoint path (e.g., '/users/{id}'). */
   path: string
   /** Array of security schemes to apply to the request (e.g., API keys, OAuth). */
-  securitySchemes?: SecuritySchemeObject[] | undefined
+  securitySchemes: SecuritySchemeObject[]
   /** The server object defining the base URL for the API request. */
-  server?: ServerObject | undefined
+  server: ServerObject | null
 }
 
 /** Generate the code snippet for the selected example OR operation */

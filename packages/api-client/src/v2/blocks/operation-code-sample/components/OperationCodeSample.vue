@@ -13,7 +13,7 @@ export type OperationCodeSampleProps = {
   /**
    * Which server from the spec to use for the code example
    */
-  selectedServer?: ServerObject | undefined
+  selectedServer?: ServerObject | null
   /**
    * The selected content type from the requestBody.content, this will determine which examples are available
    * as well as the content type of the code example
@@ -53,7 +53,7 @@ export type OperationCodeSampleProps = {
   /**
    * The security schemes which are applicable to this operation
    */
-  securitySchemes?: SecuritySchemeObject[]
+  securitySchemes: SecuritySchemeObject[]
   /**
    * HTTP method of the operation
    */
@@ -134,7 +134,7 @@ import ExamplePicker from './ExamplePicker.vue'
 const {
   clientOptions,
   selectedClient,
-  selectedServer = { url: '/' },
+  selectedServer = null,
   selectedContentType,
   selectedExample,
   securitySchemes = [],

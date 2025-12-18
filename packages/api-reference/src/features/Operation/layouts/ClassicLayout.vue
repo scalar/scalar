@@ -53,7 +53,7 @@ const { operation, path } = defineProps<{
   method: HttpMethodType
   operation: OperationObject
   // pathServers: ServerObject[] | undefined
-  server: ServerObject | undefined
+  server: ServerObject | null
   securitySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   isCollapsed: boolean

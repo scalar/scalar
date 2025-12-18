@@ -44,13 +44,18 @@ import SpecificationExtension from '@/features/specification-extension/Specifica
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { path, operation, method } = defineProps<{
+const {
+  path,
+  operation,
+  method,
+  server = null,
+} = defineProps<{
   id: string
   path: string
   method: HttpMethodType
   operation: OperationObject
   securitySchemes: SecuritySchemeObject[]
-  server: ServerObject | undefined
+  server: ServerObject | null
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   eventBus: WorkspaceEventBus | null
   /** Global options that can be derived from the top level config or assigned at a block level */

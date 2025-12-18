@@ -29,7 +29,7 @@ const {
   method,
   path,
   selectedContentType,
-  selectedServer,
+  selectedServer = null,
   selectedExample,
   securitySchemes,
   selectedClient,
