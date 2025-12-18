@@ -41,6 +41,11 @@ export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.Sc
       property.example = item.value
     }
 
+    // Add x-scalar-disabled extension if parameter is disabled
+    if (item.disabled === true) {
+      property['x-scalar-disabled'] = true
+    }
+
     schema.properties[item.key] = property
   })
 

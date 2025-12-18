@@ -401,5 +401,154 @@ describe('parameters', () => {
 
       expect(result.name).toBe('')
     })
+
+    it('adds x-scalar-disabled extension for disabled query parameter', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+        disabled: true,
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result['x-scalar-disabled']).toBe(true)
+      expect(result.name).toBe('page')
+      expect(result.example).toBe('1')
+    })
+
+    it('adds x-scalar-disabled extension for disabled path parameter', () => {
+      const param = {
+        key: 'userId',
+        value: '123',
+        disabled: true,
+      }
+
+      const result = createParameterObject(param, 'path')
+
+      expect(result['x-scalar-disabled']).toBe(true)
+      expect(result.name).toBe('userId')
+      expect(result.required).toBe(true)
+    })
+
+    it('adds x-scalar-disabled extension for disabled header parameter', () => {
+      const param = {
+        key: 'X-Custom-Header',
+        value: 'value',
+        disabled: true,
+      }
+
+      const result = createParameterObject(param, 'header')
+
+      expect(result['x-scalar-disabled']).toBe(true)
+      expect(result.name).toBe('X-Custom-Header')
+      expect(result.example).toBe('value')
+    })
+
+    it('does not add x-scalar-disabled extension when disabled is false', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+        disabled: false,
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('does not add x-scalar-disabled extension when disabled is undefined', () => {
+      const param = {
+        key: 'page',
+        value: '1',
+      }
+
+      const result = createParameterObject(param, 'query')
+
+      expect(result['x-scalar-disabled']).toBeUndefined()
+    })
+  })
+
+  describe('extractParameters with disabled parameters', () => {
+    it('includes disabled query parameters in output', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users?page=1&limit=10',
+          query: [
+            {
+              key: 'page',
+              value: '1',
+              disabled: true,
+            },
+            {
+              key: 'limit',
+              value: '10',
+            },
+          ],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(2)
+      const pageParam = result.find((p) => p.name === 'page')
+      expect(pageParam).toBeDefined()
+      expect(pageParam?.['x-scalar-disabled']).toBe(true)
+      const limitParam = result.find((p) => p.name === 'limit')
+      expect(limitParam).toBeDefined()
+      expect(limitParam?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('includes disabled header parameters in output', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users',
+        },
+        header: [
+          {
+            key: 'Authorization',
+            value: 'Bearer token',
+            disabled: true,
+          },
+          {
+            key: 'X-Request-ID',
+            value: '12345',
+          },
+        ],
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(2)
+      const authParam = result.find((p) => p.name === 'Authorization')
+      expect(authParam).toBeDefined()
+      expect(authParam?.['x-scalar-disabled']).toBe(true)
+      const requestIdParam = result.find((p) => p.name === 'X-Request-ID')
+      expect(requestIdParam).toBeDefined()
+      expect(requestIdParam?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('includes disabled path parameters in output', () => {
+      const request: Request = {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/users/:userId',
+          variable: [
+            {
+              key: 'userId',
+              value: '123',
+              disabled: true,
+            },
+          ],
+        },
+      }
+
+      const result = extractParameters(request)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]['x-scalar-disabled']).toBe(true)
+      expect(result[0].name).toBe('userId')
+    })
   })
 })

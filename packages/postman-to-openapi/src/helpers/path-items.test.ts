@@ -658,4 +658,245 @@ describe('path-items', () => {
 
     expect(result.paths['/users'].get?.tags).toBeUndefined()
   })
+
+  describe('disabled parameters and headers', () => {
+    it('preserves disabled query parameters in operation', () => {
+      const item: Item = {
+        name: 'Get Users',
+        request: {
+          method: 'GET',
+          url: {
+            raw: 'https://api.example.com/users?page=1&limit=10',
+            query: [
+              {
+                key: 'page',
+                value: '1',
+                disabled: true,
+              },
+              {
+                key: 'limit',
+                value: '10',
+              },
+            ],
+          },
+          description: 'Get users with pagination',
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const params = result.paths[pathKey]?.get?.parameters
+      const pageParam = params?.find((p) => p.name === 'page')
+      const limitParam = params?.find((p) => p.name === 'limit')
+
+      expect(pageParam).toBeDefined()
+      expect((pageParam as any)?.['x-scalar-disabled']).toBe(true)
+      expect(limitParam).toBeDefined()
+      expect((limitParam as any)?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('preserves disabled header parameters in operation', () => {
+      const item: Item = {
+        name: 'Get Users',
+        request: {
+          method: 'GET',
+          url: {
+            raw: 'https://api.example.com/users',
+          },
+          header: [
+            {
+              key: 'X-Custom-Header',
+              value: 'value',
+              disabled: true,
+            },
+            {
+              key: 'X-Another-Header',
+              value: 'another',
+            },
+          ],
+          description: 'Get users with custom headers',
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const params = result.paths[pathKey]?.get?.parameters
+      const customHeader = params?.find((p) => p.name === 'X-Custom-Header')
+      const anotherHeader = params?.find((p) => p.name === 'X-Another-Header')
+
+      expect(customHeader).toBeDefined()
+      expect((customHeader as any)?.['x-scalar-disabled']).toBe(true)
+      expect(anotherHeader).toBeDefined()
+      expect((anotherHeader as any)?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('preserves disabled path parameters in operation', () => {
+      const item: Item = {
+        name: 'Get User',
+        request: {
+          method: 'GET',
+          url: {
+            raw: 'https://api.example.com/users/:userId',
+            variable: [
+              {
+                key: 'userId',
+                value: '123',
+                disabled: true,
+              } as any,
+            ],
+          },
+          description: 'Get a specific user',
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      const params = result.paths[pathKey]?.get?.parameters
+      const userIdParam = params?.find((p) => p.name === 'userId')
+
+      expect(userIdParam).toBeDefined()
+      expect((userIdParam as any)?.['x-scalar-disabled']).toBe(true)
+      expect(userIdParam?.required).toBe(true)
+    })
+
+    it('preserves disabled urlencoded parameters in request body', () => {
+      const item: Item = {
+        name: 'Create User',
+        request: {
+          method: 'POST',
+          url: {
+            raw: 'https://api.example.com/users',
+          },
+          body: {
+            mode: 'urlencoded',
+            urlencoded: [
+              {
+                key: 'name',
+                value: 'John',
+                disabled: true,
+              },
+              {
+                key: 'email',
+                value: 'john@example.com',
+              },
+            ],
+          },
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const requestBody = result.paths[pathKey]?.post?.requestBody
+      const schema = requestBody?.content?.['application/x-www-form-urlencoded']?.schema
+
+      expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
+      expect(schema?.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('preserves disabled formdata parameters in request body', () => {
+      const item: Item = {
+        name: 'Upload File',
+        request: {
+          method: 'POST',
+          url: {
+            raw: 'https://api.example.com/upload',
+          },
+          body: {
+            mode: 'formdata',
+            formdata: [
+              {
+                key: 'file',
+                type: 'file',
+                src: null,
+                disabled: true,
+              },
+              {
+                key: 'description',
+                value: 'File description',
+                type: 'text',
+              },
+            ],
+          },
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const requestBody = result.paths[pathKey]?.post?.requestBody
+      const schema = requestBody?.content?.['multipart/form-data']?.schema
+
+      expect(schema?.properties?.file?.['x-scalar-disabled']).toBe(true)
+      expect(schema?.properties?.description?.['x-scalar-disabled']).toBeUndefined()
+    })
+
+    it('handles mixed enabled and disabled parameters correctly', () => {
+      const item: Item = {
+        name: 'Get Users',
+        request: {
+          method: 'GET',
+          url: {
+            raw: 'https://api.example.com/users?enabled=1&disabled=0',
+            query: [
+              {
+                key: 'enabled',
+                value: '1',
+              },
+              {
+                key: 'disabled',
+                value: '0',
+                disabled: true,
+              },
+            ],
+          },
+          header: [
+            {
+              key: 'X-Enabled-Header',
+              value: 'enabled',
+            },
+            {
+              key: 'X-Disabled-Header',
+              value: 'disabled',
+              disabled: true,
+            },
+          ],
+          description: 'Get users with mixed parameters',
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const params = result.paths[pathKey]?.get?.parameters
+
+      const enabledQuery = params?.find((p) => p.name === 'enabled')
+      const disabledQuery = params?.find((p) => p.name === 'disabled')
+      const enabledHeader = params?.find((p) => p.name === 'X-Enabled-Header')
+      const disabledHeader = params?.find((p) => p.name === 'X-Disabled-Header')
+
+      expect((enabledQuery as any)?.['x-scalar-disabled']).toBeUndefined()
+      expect((disabledQuery as any)?.['x-scalar-disabled']).toBe(true)
+      expect((enabledHeader as any)?.['x-scalar-disabled']).toBeUndefined()
+      expect((disabledHeader as any)?.['x-scalar-disabled']).toBe(true)
+    })
+  })
 })

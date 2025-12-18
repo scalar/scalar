@@ -176,11 +176,16 @@ function handleUrlEncodedBody(urlencoded: UrlEncodedParameter[], requestBody: Op
   urlencoded.forEach((item: UrlEncodedParameter) => {
     if (schema.properties) {
       const paramObject = createParameterObject(item, 'query')
-      schema.properties[item.key] = {
+      const property: OpenAPIV3_1.SchemaObject = {
         type: 'string',
         examples: [item.value],
         description: paramObject.description,
       }
+      // Add x-scalar-disabled extension if parameter is disabled
+      if (item.disabled === true) {
+        property['x-scalar-disabled'] = true
+      }
+      schema.properties[item.key] = property
       if (paramObject.required) {
         schema.required?.push(item.key)
       }

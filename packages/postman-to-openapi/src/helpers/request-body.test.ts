@@ -332,4 +332,70 @@ describe('request-body', () => {
     const example = result.content?.['application/json']?.schema?.example as any
     expect(example).toEqual({ key: 'value' })
   })
+
+  it('adds x-scalar-disabled extension for disabled urlencoded parameters', () => {
+    const body: RequestBody = {
+      mode: 'urlencoded',
+      urlencoded: [
+        {
+          key: 'name',
+          value: 'John',
+          disabled: true,
+        },
+        {
+          key: 'email',
+          value: 'john@example.com',
+        },
+      ],
+    }
+
+    const result = extractRequestBody(body)
+
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
+    expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
+    expect(schema?.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+  })
+
+  it('includes disabled urlencoded parameters in schema properties', () => {
+    const body: RequestBody = {
+      mode: 'urlencoded',
+      urlencoded: [
+        {
+          key: 'disabledField',
+          value: 'value',
+          disabled: true,
+        },
+      ],
+    }
+
+    const result = extractRequestBody(body)
+
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
+    expect(schema?.properties?.disabledField).toBeDefined()
+    expect(schema?.properties?.disabledField?.['x-scalar-disabled']).toBe(true)
+    expect(schema?.properties?.disabledField?.type).toBe('string')
+  })
+
+  it('preserves other properties when urlencoded parameter is disabled', () => {
+    const body: RequestBody = {
+      mode: 'urlencoded',
+      urlencoded: [
+        {
+          key: 'name',
+          value: 'John',
+          disabled: true,
+          description: 'User name',
+        },
+      ],
+    }
+
+    const result = extractRequestBody(body)
+
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
+    const property = schema?.properties?.name
+    expect(property?.['x-scalar-disabled']).toBe(true)
+    expect(property?.type).toBe('string')
+    expect(property?.examples).toEqual(['John'])
+    expect(property?.description).toBe('User name')
+  })
 })

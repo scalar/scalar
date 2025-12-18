@@ -134,5 +134,10 @@ export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'h
     parameter.schema = { type: 'string' } // Default to string if no value is provided
   }
 
+  // Add x-scalar-disabled extension if parameter is disabled
+  if (param.disabled === true) {
+    parameter['x-scalar-disabled'] = true
+  }
+
   return parameter
 }

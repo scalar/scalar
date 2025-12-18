@@ -191,4 +191,107 @@ describe('form-data', () => {
     })
     expect(result.required).toBeUndefined()
   })
+
+  it('adds x-scalar-disabled extension for disabled formdata parameters', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'name',
+        value: 'John Doe',
+        type: 'text',
+        disabled: true,
+      },
+      {
+        key: 'email',
+        value: 'john@example.com',
+        type: 'text',
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    expect(result.properties?.name?.['x-scalar-disabled']).toBe(true)
+    expect(result.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+  })
+
+  it('includes disabled formdata parameters in schema properties', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'disabledField',
+        value: 'value',
+        type: 'text',
+        disabled: true,
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    expect(result.properties?.disabledField).toBeDefined()
+    expect(result.properties?.disabledField?.['x-scalar-disabled']).toBe(true)
+    expect(result.properties?.disabledField?.type).toBe('string')
+  })
+
+  it('preserves other properties when formdata parameter is disabled', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'name',
+        value: 'John Doe',
+        type: 'text',
+        disabled: true,
+        description: 'User full name',
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    const property = result.properties?.name
+    expect(property?.['x-scalar-disabled']).toBe(true)
+    expect(property?.type).toBe('string')
+    expect(property?.example).toBe('John Doe')
+    expect(property?.description).toBe('User full name')
+  })
+
+  it('adds x-scalar-disabled extension for disabled file type formdata parameters', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'document',
+        type: 'file',
+        src: null,
+        disabled: true,
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    expect(result.properties?.document?.['x-scalar-disabled']).toBe(true)
+    expect(result.properties?.document?.format).toBe('binary')
+  })
+
+  it('does not add x-scalar-disabled extension when disabled is false', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'name',
+        value: 'John Doe',
+        type: 'text',
+        disabled: false,
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    expect(result.properties?.name?.['x-scalar-disabled']).toBeUndefined()
+  })
+
+  it('does not add x-scalar-disabled extension when disabled is undefined', () => {
+    const formdata: FormParameter[] = [
+      {
+        key: 'name',
+        value: 'John Doe',
+        type: 'text',
+      },
+    ]
+
+    const result = processFormDataSchema(formdata)
+
+    expect(result.properties?.name?.['x-scalar-disabled']).toBeUndefined()
+  })
 })
