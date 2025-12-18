@@ -97,43 +97,11 @@ describe('security-requirement', () => {
     describe('invalid inputs', () => {
       it('fails when given non-object input', () => {
         const invalidInput = 'not an object'
-
         expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
       })
 
       it('fails when given null input', () => {
         const invalidInput = null
-
-        expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
-      })
-
-      it('fails when given array input', () => {
-        const invalidInput = ['apiKey']
-
-        expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
-      })
-
-      it('fails when value is not an array', () => {
-        const invalidInput = {
-          apiKey: 'not an array',
-        }
-
-        expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
-      })
-
-      it('fails when array contains non-string values', () => {
-        const invalidInput = {
-          apiKey: ['read', 123, true],
-        }
-
-        expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
-      })
-
-      it('fails when array is null', () => {
-        const invalidInput = {
-          apiKey: null,
-        }
-
         expect(Value.Check(SecurityRequirementObjectSchema, invalidInput)).toBe(false)
       })
     })

@@ -58,7 +58,7 @@ const emits = defineEmits<{
  * Each item includes the scheme definition, name, and associated scopes.
  */
 const security = computed<SecurityItem[]>(() =>
-  Object.entries(selectedSecuritySchemas).map(([name, scopes]) => ({
+  Object.entries(selectedSecuritySchemas).map(([name, scopes = []]) => ({
     scheme: getResolvedRef(securitySchemes[name]),
     name,
     scopes,

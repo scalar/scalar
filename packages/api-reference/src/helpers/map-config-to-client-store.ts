@@ -226,7 +226,7 @@ export function mapConfigToClientStore({
   /** Gets the security schemes for a target operation */
   const getSecuritySchemes: SecuritySchemeGetter = (operationSecurity, documentSecurity) => {
     return filterSecurityRequirements(
-      operationSecurity || documentSecurity || [],
+      (operationSecurity || documentSecurity || []) as Record<string, string[]>[],
       activeCollection.value?.selectedSecuritySchemeUids || [],
       store.securitySchemes,
     ).map(convertSecurityScheme)
