@@ -54,7 +54,7 @@ const server = computed(
         isStatic
         :meta="{ type: 'document' }"
         :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-        :security="document?.security ?? []"
+        :securityRequirements="document?.security ?? []"
         :securitySchemes="document?.components?.securitySchemes ?? {}"
         :selectedSecurity="document?.['x-scalar-selected-security']"
         :server

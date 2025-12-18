@@ -9,7 +9,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
  *
  * Otherwise we generally go operation -> document security.
  */
-export const getSecurityRequirements = (document: OpenApiDocument | null, operation?: OperationObject) => {
+export const getSecurityRequirements = (document: OpenApiDocument | null, operation: OperationObject | null) => {
   if (!document) {
     return []
   }
