@@ -322,21 +322,13 @@ describe('processBody', () => {
   it('handles operation without requestBody', () => {
     const content = {}
     const result = processBody({ requestBody: { content } })
-
-    expect(result).toEqual({
-      mimeType: '',
-      text: 'null',
-    })
+    expect(result).toBeUndefined()
   })
 
   it('handles operation with empty content', () => {
     const content = {}
     const result = processBody({ requestBody: { content } })
-
-    expect(result).toEqual({
-      mimeType: '',
-      text: 'null',
-    })
+    expect(result).toBeUndefined()
   })
 
   it('handles schema without examples', () => {

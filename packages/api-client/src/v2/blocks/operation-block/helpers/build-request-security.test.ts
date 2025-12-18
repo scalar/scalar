@@ -12,7 +12,7 @@ import type { OAuth2Object } from '@scalar/workspace-store/schemas/v3.1/strict/s
 import { encode } from 'js-base64'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { buildRequestSecurity } from './build-request-security'
+import { buildRequestSecurity, getSelectedSecuritySchemes } from './build-request-security'
 
 describe('buildRequestSecurity', () => {
   let apiKey: ApiKeyObject
@@ -229,5 +229,51 @@ describe('buildRequestSecurity', () => {
         path: '/',
       })
     })
+  })
+})
+
+describe('getSelectedSecuritySchemes', () => {
+  it('returns an empty array when no security is selected', () => {
+    const securitySchemes = {
+      apiKey: coerceValue(SecuritySchemeObjectSchema, {
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+        'x-scalar-secret-token': 'test-key',
+      }) as ApiKeyObject,
+    }
+
+    const result = getSelectedSecuritySchemes(securitySchemes, [])
+
+    expect(result).toEqual([])
+  })
+
+  it('returns the correct security schemes when multiple schemes are selected', () => {
+    const apiKey = coerceValue(SecuritySchemeObjectSchema, {
+      type: 'apiKey',
+      name: 'x-api-key',
+      in: 'header',
+      'x-scalar-secret-token': 'test-key',
+    }) as ApiKeyObject
+
+    const basic = coerceValue(SecuritySchemeObjectSchema, {
+      type: 'http',
+      scheme: 'basic',
+      'x-scalar-secret-username': 'user',
+      'x-scalar-secret-password': 'pass',
+    }) as HttpObject
+
+    const securitySchemes = {
+      apiKeyScheme: apiKey,
+      basicScheme: basic,
+    }
+
+    const selectedSecurity = [{ apiKeyScheme: [], basicScheme: [] }]
+
+    const result = getSelectedSecuritySchemes(securitySchemes, selectedSecurity)
+
+    expect(result).toHaveLength(2)
+    expect(result[0]).toEqual(apiKey)
+    expect(result[1]).toEqual(basic)
   })
 })

@@ -67,6 +67,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "nanoid": "catalog:*",
     "type-fest": "catalog:*",
     "zod": "catalog:*"

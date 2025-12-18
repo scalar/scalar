@@ -2,7 +2,6 @@ export {
   AVAILABLE_CLIENTS,
   type AvailableClient,
   type AvailableClients,
-  type AvailableClientsArray,
   type ClientId,
   type FormDataParam,
   type HarRequest,

@@ -15,6 +15,25 @@ import type {
 import { encode } from 'js-base64'
 
 /**
+ * Get the selected security schemes from the selected security.
+ * Takes security requirement objects and resolves them to actual security scheme objects.
+ */
+export const getSelectedSecuritySchemes = (
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
+  selectedSecurity: SecurityRequirementObject[],
+): SecuritySchemeObject[] =>
+  selectedSecurity.flatMap((scheme) =>
+    objectKeys(scheme).flatMap((key) => {
+      const scheme = getResolvedRef(securitySchemes?.[key])
+      if (scheme) {
+        return scheme
+      }
+
+      return []
+    }),
+  ) ?? []
+
+/**
  * Generates the headers, cookies and query params for selected security schemes
  * In the future we can add customization for where the security is applied
  */
@@ -33,17 +52,7 @@ export const buildRequestSecurity = (
   const urlParams = new URLSearchParams()
 
   /** Build the selected security schemes from the selected security */
-  const selectedSecuritySchemes: SecuritySchemeObject[] =
-    selectedSecurity.flatMap((scheme) =>
-      objectKeys(scheme).flatMap((key) => {
-        const scheme = getResolvedRef(securitySchemes?.[key])
-        if (scheme) {
-          return scheme
-        }
-
-        return []
-      }),
-    ) ?? []
+  const selectedSecuritySchemes = getSelectedSecuritySchemes(securitySchemes, selectedSecurity)
 
   selectedSecuritySchemes.forEach((scheme) => {
     // Api key

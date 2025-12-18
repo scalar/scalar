@@ -1,32 +1,24 @@
-import { type AvailableClients, snippetz } from '@scalar/snippetz'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
+/** Type of custom code sample IDs */
+export type CustomCodeSampleId = `custom/${string}`
+
 /** Helper to generate an ID for custom code samples */
-export const generateCustomId = (example: XCodeSample) => `custom/${example.lang}`
+export const generateCustomId = (example: XCodeSample): CustomCodeSampleId => `custom/${example.lang}`
 
 /**
- * Generates client options for the request example block by filtering and organizing
- * built-in snippets based on the hiddenClients configuration. This function creates
- * a structured list of available client options that can be used to generate code
- * examples for different programming languages and frameworks.
+ * Generate client options for the request example block by filtering by allowed clients
  *
- * The function filters built-in clients based on the hiddenClients parameter and
- * groups them by their category (e.g., JavaScript, Python, etc.). The hiddenClients
- * parameter supports multiple formats:
- * - boolean: true to hide all clients
- * - array: ['fetch', 'axios'] to hide specific clients across all categories
- * - object: { node: true, python: ['requests'] } to hide entire categories or specific clients within categories
+ * @param allowedClients - The list of allowed clients to include in the options
+ * @returns A list of client option groups
  */
-export const generateClientOptions = (
-  hiddenClients: ApiReferenceConfiguration['hiddenClients'],
-): ClientOptionGroup[] => {
-  if (hiddenClients === true) {
-    return []
-  }
+export const generateClientOptions = (allowedClients: AvailableClients = AVAILABLE_CLIENTS): ClientOptionGroup[] => {
+  /** Create set of allowlist for quicker lookups */
+  const allowedClientsSet = new Set(allowedClients)
 
   const options = snippetz()
     .clients()
@@ -34,26 +26,9 @@ export const generateClientOptions = (
       const options = group.clients.flatMap((plugin) => {
         const id = `${group.key}/${plugin.client}` as AvailableClients[number]
 
-        // Hide specific clients across all categories
-        // ex: hiddenClients: ['fetch', 'axios']
-        if (Array.isArray(hiddenClients) && hiddenClients.includes(plugin.client)) {
+        // If the client is not allowed, skip it
+        if (!allowedClientsSet.has(id)) {
           return []
-        }
-
-        if (typeof hiddenClients === 'object' && hiddenClients !== null) {
-          const groupConfig = hiddenClients[group.key as keyof typeof hiddenClients]
-
-          // Hide entire category if value is true
-          // ex: hiddenClients: { node: true, python: true }
-          if (groupConfig === true) {
-            return []
-          }
-
-          // Hide specific clients within category if value is an array
-          // ex: hiddenClients: { node: ['fetch', 'axios'], js: ['fetch'] }
-          if (Array.isArray(groupConfig) && groupConfig.includes(plugin.client)) {
-            return []
-          }
         }
 
         return {

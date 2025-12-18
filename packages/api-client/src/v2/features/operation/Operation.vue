@@ -138,6 +138,9 @@ const router = useRouter()
       :exampleKey="exampleName"
       :globalCookies
       :history="[]"
+      :httpClients="
+        workspaceStore.config['x-scalar-reference-config']?.httpClients
+      "
       :layout
       :method
       :operation
@@ -146,6 +149,7 @@ const router = useRouter()
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
       :security="security"
       :securitySchemes="document?.components?.securitySchemes ?? {}"
+      :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :selectedSecurity
       :server="selectedServer"
       :servers="document?.servers ?? []"

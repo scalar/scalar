@@ -1,4 +1,5 @@
 import type { ModalState } from '@scalar/components'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   addOperationParameter,
@@ -15,6 +16,7 @@ import {
   updateOperationRequestBodyFormRow,
   updateSecurityScheme,
   updateSelectedAuthTab,
+  updateSelectedClient,
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
   updateSelectedServer,
@@ -35,12 +37,14 @@ export const useWorkspaceClientModalEvents = ({
   isSidebarOpen,
   sidebarState,
   modalState,
+  workspaceStore,
 }: {
   eventBus: WorkspaceEventBus
   document: ComputedRef<WorkspaceDocument | null>
   isSidebarOpen: Ref<boolean>
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
+  workspaceStore: WorkspaceStore
 }) => {
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers
@@ -100,4 +104,9 @@ export const useWorkspaceClientModalEvents = ({
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
+
+  //------------------------------------------------------------------------------------
+  // Workspace Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('workspace:update:selected-client', (payload) => updateSelectedClient(workspaceStore.workspace, payload))
 }

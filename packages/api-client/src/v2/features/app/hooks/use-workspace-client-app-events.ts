@@ -39,6 +39,7 @@ import {
   updateOperationSummary,
   updateSecurityScheme,
   updateSelectedAuthTab,
+  updateSelectedClient,
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
   updateSelectedServer,
@@ -199,6 +200,9 @@ export const useWorkspaceClientAppEvents = ({
     updateColorMode(workspaceStore.value?.workspace ?? null, payload),
   )
   eventBus.on('workspace:update:theme', (payload) => updateTheme(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('workspace:update:selected-client', (payload) =>
+    updateSelectedClient(workspaceStore.value?.workspace, payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers

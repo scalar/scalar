@@ -5,7 +5,7 @@ import {
   type ClientOptionGroup,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
-import type { AvailableClients } from '@scalar/snippetz'
+import type { AvailableClient } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
@@ -27,7 +27,7 @@ const {
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
-  xSelectedClient?: AvailableClients[number]
+  xSelectedClient?: AvailableClient
 }>()
 
 const headingId = useId()

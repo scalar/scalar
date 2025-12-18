@@ -1,4 +1,5 @@
 import type { ThemeId } from '@scalar/themes'
+import type { AvailableClient } from '@scalar/types/snippetz'
 
 import type { ColorMode } from '@/schemas/workspace'
 
@@ -16,4 +17,8 @@ export type WorkspaceEvents = {
    * Update the theme of the workspace
    */
   'workspace:update:theme': ThemeId
+  /**
+   * Update the selected client on the workspace
+   */
+  'workspace:update:selected-client': AvailableClient
 }

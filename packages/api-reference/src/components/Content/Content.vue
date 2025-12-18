@@ -2,6 +2,7 @@
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/spec'
+import type { AvailableClients } from '@scalar/snippetz'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -35,7 +36,7 @@ const { options, document, items } = defineProps<{
   expandedItems: Record<string, boolean>
   eventBus: WorkspaceEventBus
   options: {
-    hiddenClients: ApiReferenceConfiguration['hiddenClients']
+    httpClients: AvailableClients
     layout: 'modern' | 'classic'
     persistAuth: boolean
     showOperationId?: boolean | undefined
@@ -49,17 +50,13 @@ const { options, document, items } = defineProps<{
   }
 }>()
 
-/**
- * Generate all client options so that it can be shared between the top client picker and the operations
- */
-const clientOptions = computed(() =>
-  generateClientOptions(options.hiddenClients),
-)
+/** Generate all client options so that it can be shared between the top client picker and the operations */
+const clientOptions = computed(() => generateClientOptions(options.httpClients))
 
-// Computed property to get all OpenAPI extension fields from the root document object
+/** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
 
-// Computed property to get all OpenAPI extension fields from the document's info object
+/** Computed property to get all OpenAPI extension fields from the document's info object */
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 </script>
 <template>
@@ -112,7 +109,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="options.hiddenClients !== true && clientOptions.length"
+              v-if="clientOptions.length"
               class="introduction-card-item scalar-reference-intro-clients">
               <ClientSelector
                 class="introduction-card-item scalar-reference-intro-clients"

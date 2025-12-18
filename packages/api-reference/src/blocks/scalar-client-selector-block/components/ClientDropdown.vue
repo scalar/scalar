@@ -4,6 +4,7 @@ import {
   findClient,
   type ClientOption,
   type ClientOptionGroup,
+  type CustomClientOption,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCombobox, ScalarIcon } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
@@ -32,7 +33,7 @@ const getIconByLanguageKey = (targetKey: TargetId) =>
   `programming-language-${targetKey === 'js' ? 'javascript' : targetKey}` as const
 
 /** Set custom example, or update the selected HTTP client globally */
-const selectClient = (option: ClientOption) => {
+const selectClient = (option: ClientOption | CustomClientOption) => {
   if (!containerRef.value) {
     return
   }
@@ -44,11 +45,13 @@ const selectClient = (option: ClientOption) => {
   }, 300)
 
   // Update the store
-  emitCustomEvent(
-    containerRef.value,
-    'scalar-update-selected-client',
-    option.id,
-  )
+  if (option.clientKey !== 'custom') {
+    emitCustomEvent(
+      containerRef.value,
+      'scalar-update-selected-client',
+      option.id,
+    )
+  }
 }
 
 /** Calculates the targetKey from the selected client id */

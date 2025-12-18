@@ -1,22 +1,15 @@
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
 
 describe('generateClientOptions', () => {
-  describe('when hiddenClients is true', () => {
-    it('should return an empty array', () => {
-      const result = generateClientOptions(true)
-      expect(result).toEqual([])
-    })
-  })
-
-  describe('when hiddenClients is undefined', () => {
-    it('should return all available clients', () => {
-      const result = generateClientOptions(undefined)
+  describe('with all clients allowed', () => {
+    it('returns all available clients grouped by target', () => {
+      const result = generateClientOptions(AVAILABLE_CLIENTS)
 
       expect(result).toHaveLength(21)
-      // Test the group labels
       expect(result.map((group) => group.label)).toEqual([
         'C',
         'C#',
@@ -40,7 +33,11 @@ describe('generateClientOptions', () => {
         'Shell',
         'Swift',
       ])
-      // Test the first group structure
+    })
+
+    it('structures each group correctly', () => {
+      const result = generateClientOptions(AVAILABLE_CLIENTS)
+
       expect(result[0]).toEqual({
         label: 'C',
         options: [
@@ -56,169 +53,66 @@ describe('generateClientOptions', () => {
         ],
       })
     })
-  })
 
-  describe('when hiddenClients is an array', () => {
-    it('should hide specific clients across all categories', () => {
-      const results = generateClientOptions(['fetch', 'axios'])
+    it('returns 39 total client options', () => {
+      const result = generateClientOptions(AVAILABLE_CLIENTS)
+      const allOptions = result.flatMap((group) => group.options)
 
-      // Check that fetch and axios are hidden from node and js groups
-      expect(results.find((group) => group.label === 'JavaScript')?.options).toStrictEqual([
-        {
-          id: 'js/ofetch',
-          lang: 'js',
-          title: 'JavaScript ofetch',
-          label: 'ofetch',
-          clientKey: 'ofetch',
-          targetKey: 'js',
-          targetTitle: 'JavaScript',
-        },
-        {
-          id: 'js/jquery',
-          lang: 'js',
-          title: 'JavaScript jQuery',
-          label: 'jQuery',
-          clientKey: 'jquery',
-          targetKey: 'js',
-          targetTitle: 'JavaScript',
-        },
-        {
-          id: 'js/xhr',
-          lang: 'js',
-          title: 'JavaScript XHR',
-          label: 'XHR',
-          clientKey: 'xhr',
-          targetKey: 'js',
-          targetTitle: 'JavaScript',
-        },
-      ])
-      expect(results.find((group) => group.label === 'Node.js')?.options).toStrictEqual([
-        {
-          id: 'node/ofetch',
-          lang: 'node',
-          title: 'Node.js ofetch',
-          label: 'ofetch',
-          clientKey: 'ofetch',
-          targetKey: 'node',
-          targetTitle: 'Node.js',
-        },
-        {
-          id: 'node/undici',
-          lang: 'node',
-          title: 'Node.js undici',
-          label: 'undici',
-          clientKey: 'undici',
-          targetKey: 'node',
-          targetTitle: 'Node.js',
-        },
-      ])
-    })
-
-    it('should handle empty array (show all clients)', () => {
-      expect(generateClientOptions([])).toStrictEqual(generateClientOptions(undefined))
+      expect(allOptions).toHaveLength(39)
     })
   })
 
-  describe('when hiddenClients is an object', () => {
-    it('should hide entire categories when value is true', () => {
-      const result = generateClientOptions({ js: true, python: true })
+  describe('with subset of clients allowed', () => {
+    it('includes only allowed clients', () => {
+      const result = generateClientOptions(['js/fetch', 'js/axios', 'node/fetch', 'python/requests'])
 
-      expect(result).toHaveLength(19) // 20 - 2 hidden groups
-      expect(result.map((group) => group.label)).not.toContain('JavaScript')
-      expect(result.map((group) => group.label)).not.toContain('Python')
-    })
+      expect(result).toHaveLength(3)
+      expect(result.map((group) => group.label)).toEqual(['JavaScript', 'Node.js', 'Python'])
 
-    it('should hide specific clients within categories', () => {
-      const result = generateClientOptions({
-        js: ['fetch', 'axios'],
-        node: ['undici'],
-      })
-
-      // Check js group - only jquery, ofetch, and xhr should remain
       const jsGroup = result.find((group) => group.label === 'JavaScript')
-      expect(jsGroup?.options).toHaveLength(3)
-      expect(jsGroup?.options.map((option) => option.id)).toEqual(['js/ofetch', 'js/jquery', 'js/xhr'])
+      expect(jsGroup?.options).toHaveLength(2)
+      expect(jsGroup?.options.map((option) => option.id)).toEqual(['js/fetch', 'js/axios'])
 
-      // Check node group - fetch, axios, and ofetch should remain, undici should be hidden
       const nodeGroup = result.find((group) => group.label === 'Node.js')
-      expect(nodeGroup?.options).toHaveLength(3)
-      expect(nodeGroup?.options.map((option) => option.id)).toEqual(['node/fetch', 'node/axios', 'node/ofetch'])
-    })
+      expect(nodeGroup?.options).toHaveLength(1)
+      expect(nodeGroup?.options.map((option) => option.id)).toEqual(['node/fetch'])
 
-    it('should handle mixed boolean and array values', () => {
-      const result = generateClientOptions({
-        js: true, // Hide entire js category
-        node: ['fetch'], // Hide only fetch from node
-        python: ['requests'], // Hide only requests from python
-      })
-
-      expect(result).toHaveLength(20) // js is completely hidden
-      expect(result.map((group) => group.label)).not.toContain('JavaScript')
-
-      // Check node group - axios, ofetch, and undici should remain
-      const nodeGroup = result.find((group) => group.label === 'Node.js')
-      expect(nodeGroup?.options).toHaveLength(3)
-      expect(nodeGroup?.options.map((option) => option.id)).toEqual(['node/axios', 'node/ofetch', 'node/undici'])
-
-      // Check python group - python3, httpx_sync, and httpx_async should remain
       const pythonGroup = result.find((group) => group.label === 'Python')
-      expect(pythonGroup?.options).toHaveLength(3)
-      expect(pythonGroup?.options.map((option) => option.id)).toEqual([
-        'python/python3',
-        'python/httpx_sync',
-        'python/httpx_async',
-      ])
+      expect(pythonGroup?.options).toHaveLength(1)
+      expect(pythonGroup?.options.map((option) => option.id)).toEqual(['python/requests'])
     })
 
-    it('should handle empty object (show all clients)', () => {
-      const result = generateClientOptions({})
+    it('excludes clients not in the allowed list', () => {
+      const result = generateClientOptions(['js/fetch', 'js/axios'])
 
-      expect(result).toHaveLength(21)
-      const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(39) // All clients should be present
+      const jsGroup = result.find((group) => group.label === 'JavaScript')
+      const clientIds = jsGroup?.options.map((option) => option.id) ?? []
+
+      expect(clientIds).not.toContain('js/ofetch')
+      expect(clientIds).not.toContain('js/jquery')
+      expect(clientIds).not.toContain('js/xhr')
+    })
+
+    it('filters out groups with no allowed clients', () => {
+      const result = generateClientOptions(['js/fetch', 'python/requests'])
+
+      expect(result.map((group) => group.label)).not.toContain('Node.js')
+      expect(result.map((group) => group.label)).not.toContain('Ruby')
+      expect(result.map((group) => group.label)).not.toContain('Go')
     })
   })
 
-  describe('edge cases', () => {
-    it('should handle non-existent client names in arrays', () => {
-      const result = generateClientOptions(['nonexistent', 'also-nonexistent'])
+  describe('with empty allowed list', () => {
+    it('returns empty array', () => {
+      const result = generateClientOptions([])
 
-      expect(result).toHaveLength(21)
-      const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(39) // All clients should still be present
-    })
-
-    it('should handle non-existent category names in objects', () => {
-      const result = generateClientOptions({
-        nonexistent: true,
-        alsoNonexistent: ['fetch'],
-      })
-
-      expect(result).toHaveLength(21)
-      const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(39) // All clients should still be present
-    })
-
-    it('should handle non-existent client names in object arrays', () => {
-      const result = generateClientOptions({
-        js: ['nonexistent', 'fetch'],
-        node: ['also-nonexistent'],
-      })
-
-      // fetch should be hidden from js, but other clients should remain
-      const jsGroup = result.find((group) => group.label === 'JavaScript')
-      expect(jsGroup?.options).toHaveLength(4) // axios, ofetch, jquery, xhr should remain
-      expect(jsGroup?.options.map((option) => option.id)).toEqual(['js/axios', 'js/ofetch', 'js/jquery', 'js/xhr'])
-
-      // node group should be unchanged since the client doesn't exist
-      const nodeGroup = result.find((group) => group.label === 'Node.js')
-      expect(nodeGroup?.options).toHaveLength(4) // All node clients should remain
+      expect(result).toEqual([])
     })
   })
 
   describe('curl special handling', () => {
-    it('should set lang to "curl" for curl client', () => {
-      const result = generateClientOptions(undefined)
+    it('sets lang to "curl" for curl client', () => {
+      const result = generateClientOptions(['shell/curl'])
 
       const shellGroup = result.find((group) => group.label === 'Shell')
       const curlOption = shellGroup?.options.find((option) => option.id === 'shell/curl')
@@ -226,34 +120,107 @@ describe('generateClientOptions', () => {
       expect(curlOption?.lang).toBe('curl')
     })
 
-    it('should set lang to group key for non-curl clients', () => {
-      const result = generateClientOptions(undefined)
+    it('sets lang to group key for non-curl clients', () => {
+      const result = generateClientOptions(['js/fetch'])
 
       const jsGroup = result.find((group) => group.label === 'JavaScript')
       const fetchOption = jsGroup?.options.find((option) => option.id === 'js/fetch')
 
       expect(fetchOption?.lang).toBe('js')
     })
+
+    it('sets lang to group key for other shell clients', () => {
+      const result = generateClientOptions(['shell/httpie', 'shell/wget'])
+
+      const shellGroup = result.find((group) => group.label === 'Shell')
+      const httpieOption = shellGroup?.options.find((option) => option.id === 'shell/httpie')
+      const wgetOption = shellGroup?.options.find((option) => option.id === 'shell/wget')
+
+      expect(httpieOption?.lang).toBe('shell')
+      expect(wgetOption?.lang).toBe('shell')
+    })
   })
 
-  describe('group filtering', () => {
-    it('should remove groups that have no visible clients', () => {
-      const result = generateClientOptions({
-        js: ['fetch', 'axios', 'ofetch', 'jquery', 'xhr'], // Hide all js clients
-      })
+  describe('option structure', () => {
+    it('includes all required fields for each option', () => {
+      const result = generateClientOptions(['js/fetch'])
 
-      expect(result).toHaveLength(20) // js group should be removed
-      expect(result.map((group) => group.label)).not.toContain('JavaScript')
+      const jsGroup = result[0]
+      expect(jsGroup).toBeDefined()
+      const fetchOption = jsGroup!.options[0]
+
+      expect(fetchOption).toHaveProperty('id')
+      expect(fetchOption).toHaveProperty('lang')
+      expect(fetchOption).toHaveProperty('title')
+      expect(fetchOption).toHaveProperty('label')
+      expect(fetchOption).toHaveProperty('targetKey')
+      expect(fetchOption).toHaveProperty('targetTitle')
+      expect(fetchOption).toHaveProperty('clientKey')
     })
 
-    it('should keep groups that have at least one visible client', () => {
-      const result = generateClientOptions({
-        js: ['fetch', 'axios'], // Hide only fetch and axios, keep ofetch, jquery, xhr
-      })
+    it('formats titles correctly', () => {
+      const result = generateClientOptions(['js/fetch', 'python/requests', 'node/axios'])
 
-      expect(result).toHaveLength(21) // All groups should remain
-      const jsGroup = result.find((group) => group.label === 'JavaScript')
-      expect(jsGroup?.options).toHaveLength(3) // Only ofetch, jquery, xhr should remain
+      const allOptions = result.flatMap((group) => group.options)
+
+      expect(allOptions.find((opt) => opt.id === 'js/fetch')?.title).toBe('JavaScript Fetch')
+      expect(allOptions.find((opt) => opt.id === 'python/requests')?.title).toBe('Python Requests')
+      expect(allOptions.find((opt) => opt.id === 'node/axios')?.title).toBe('Node.js Axios')
+    })
+  })
+
+  describe('multiple clients from same target', () => {
+    it('groups multiple JavaScript clients together', () => {
+      const result = generateClientOptions(['js/fetch', 'js/axios', 'js/ofetch'])
+
+      expect(result).toHaveLength(1)
+      const jsGroup = result[0]
+      expect(jsGroup).toBeDefined()
+      expect(jsGroup!.label).toBe('JavaScript')
+      expect(jsGroup!.options).toHaveLength(3)
+      expect(jsGroup!.options.map((opt) => opt.id)).toEqual(['js/fetch', 'js/axios', 'js/ofetch'])
+    })
+
+    it('groups multiple Node.js clients together', () => {
+      const result = generateClientOptions(['node/fetch', 'node/axios', 'node/undici', 'node/ofetch'])
+
+      expect(result).toHaveLength(1)
+      const nodeGroup = result[0]
+      expect(nodeGroup).toBeDefined()
+      expect(nodeGroup!.label).toBe('Node.js')
+      expect(nodeGroup!.options).toHaveLength(4)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('handles single client', () => {
+      const result = generateClientOptions(['js/fetch'])
+
+      expect(result).toHaveLength(1)
+      const group = result[0]
+      expect(group).toBeDefined()
+      expect(group!.options).toHaveLength(1)
+    })
+
+    it('handles clients from many different targets', () => {
+      const result = generateClientOptions([
+        'c/libcurl',
+        'go/native',
+        'java/unirest',
+        'python/requests',
+        'ruby/native',
+        'rust/reqwest',
+      ])
+
+      expect(result).toHaveLength(6)
+      expect(result.map((group) => group.label)).toEqual(['C', 'Go', 'Java', 'Python', 'Ruby', 'Rust'])
+    })
+
+    it('maintains consistent ordering', () => {
+      const result1 = generateClientOptions(['python/requests', 'js/fetch', 'node/axios'])
+      const result2 = generateClientOptions(['node/axios', 'js/fetch', 'python/requests'])
+
+      expect(result1.map((g) => g.label)).toEqual(result2.map((g) => g.label))
     })
   })
 })

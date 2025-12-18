@@ -3,4 +3,4 @@ export { default as OperationCodeSample } from './components/OperationCodeSample
 export { DEFAULT_CLIENT, findClient, isClient } from './helpers/find-client'
 export { generateClientOptions } from './helpers/generate-client-options'
 export { getExampleFromSchema } from './helpers/get-example-from-schema'
-export type { ClientOption, ClientOptionGroup } from './types'
+export type { ClientOption, ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from './types'

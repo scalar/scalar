@@ -1,10 +1,12 @@
-import type { AvailableClients } from '@scalar/snippetz'
+import type { AvailableClient } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { consoleErrorSpy } from '@test/vitest.setup'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { generateCodeSnippet } from './generate-code-snippet'
 
-describe('generate-code-snippet', () => {
+describe('generateCodeSnippet', () => {
   const mockOperation: OperationObject = {
     responses: {
       '200': {
@@ -15,65 +17,117 @@ describe('generate-code-snippet', () => {
 
   const mockServer = { url: 'https://api.example.com' }
 
+  const baseParams = {
+    operation: mockOperation,
+    method: 'get' as const,
+    path: '/users',
+    server: mockServer,
+    customCodeSamples: [] as XCodeSample[],
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  describe('generateCodeSnippet', () => {
-    it('returns generated code snippet when successful', () => {
-      const result = generateCodeSnippet({
-        clientId: 'js/fetch',
-        operation: mockOperation,
-        method: 'get',
-        path: '/users/{userId}',
-        server: mockServer,
-      })
-
-      expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
+  it('returns empty string when clientId is undefined', () => {
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: undefined,
     })
 
-    it('returns error message when getSnippet fails', () => {
-      const result = generateCodeSnippet({
-        clientId: 'js/fetch',
-        // @ts-expect-error - testing undefined
-        operation: undefined,
-        method: 'get',
-        path: '/users',
-        server: mockServer,
-      })
+    expect(result).toBe('')
+  })
 
-      expect(result).toBe('Error generating code snippet')
+  it('returns generated code snippet when successful', () => {
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      path: '/users/{userId}',
     })
 
-    it('calls operationToHar with all provided parameters', () => {
-      const code = generateCodeSnippet({
-        clientId: 'python/requests',
-        operation: {
-          ...mockOperation,
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    name: {
-                      type: 'string',
-                      default: 'Marc',
-                    },
+    expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
+  })
+
+  it('returns custom code sample source when clientId starts with "custom"', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'Python Example',
+        source: 'import requests\nresponse = requests.get("https://api.example.com")',
+      },
+      {
+        lang: 'javascript',
+        label: 'JavaScript Example',
+        source: 'fetch("https://api.example.com")',
+      },
+    ]
+
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'custom/python',
+      customCodeSamples,
+    })
+
+    expect(result).toBe('import requests\nresponse = requests.get("https://api.example.com")')
+  })
+
+  it('returns "Custom example not found" when custom clientId does not match any custom code sample', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'Python Example',
+        source: 'import requests',
+      },
+    ]
+
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'custom/ruby',
+      customCodeSamples,
+    })
+
+    expect(result).toBe('Custom example not found')
+  })
+
+  it('returns error message when getSnippet fails', () => {
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      // @ts-expect-error - testing undefined
+      operation: undefined,
+    })
+
+    expect(result).toBe('Error generating code snippet')
+  })
+
+  it('generates code snippet with request body and content type', () => {
+    const code = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'python/requests',
+      operation: {
+        ...mockOperation,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    default: 'Marc',
                   },
                 },
               },
             },
           },
         },
-        method: 'post',
-        path: '/users',
-        contentType: 'application/json',
-        server: mockServer,
-        securitySchemes: [],
-      })
+      },
+      method: 'post',
+      contentType: 'application/json',
+      securitySchemes: [],
+    })
 
-      expect(code).toBe(`requests.post("https://api.example.com/users",
+    expect(code).toBe(`requests.post("https://api.example.com/users",
     headers={
       "Content-Type": "application/json"
     },
@@ -81,18 +135,15 @@ describe('generate-code-snippet', () => {
       "name": "Marc"
     }
 )`)
+  })
+
+  it('generates code snippet with different client formats', () => {
+    const code = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'node/axios',
     })
 
-    it('calls getSnippet with split clientId and harRequest', () => {
-      const code = generateCodeSnippet({
-        clientId: 'node/axios',
-        operation: mockOperation,
-        method: 'get',
-        path: '/users',
-        server: mockServer,
-      })
-
-      expect(code).toBe(`const axios = require('axios').default;
+    expect(code).toBe(`const axios = require('axios').default;
 
 const options = {method: 'GET', url: 'https://api.example.com/users'};
 
@@ -102,30 +153,38 @@ try {
 } catch (error) {
   console.error(error);
 }`)
+  })
+
+  it('processes different clientId formats without errors', () => {
+    const testCases: Array<{ input: AvailableClient; expectedClient: string }> = [
+      { input: 'js/fetch', expectedClient: 'fetch' },
+      { input: 'python/requests', expectedClient: 'requests' },
+      { input: 'node/axios', expectedClient: 'axios' },
+      { input: 'shell/curl', expectedClient: 'curl' },
+    ]
+
+    testCases.forEach(({ input, expectedClient }) => {
+      const result = generateCodeSnippet({
+        ...baseParams,
+        clientId: input,
+        path: '/test',
+      })
+
+      expect(result).toContain(expectedClient)
     })
   })
 
-  describe('clientId parsing', () => {
-    it('processes different clientId formats without errors', () => {
-      const testCases: Array<{ input: AvailableClients[number]; expectedTarget: string; expectedClient: string }> = [
-        { input: 'js/fetch', expectedTarget: 'js', expectedClient: 'fetch' },
-        { input: 'python/requests', expectedTarget: 'python', expectedClient: 'requests' },
-        { input: 'node/axios', expectedTarget: 'node', expectedClient: 'axios' },
-        { input: 'shell/curl', expectedTarget: 'shell', expectedClient: 'curl' },
-      ]
-
-      testCases.forEach(({ input, expectedClient }) => {
-        const result = generateCodeSnippet({
-          clientId: input,
-          operation: mockOperation,
-          method: 'get',
-          path: '/test',
-          server: mockServer,
-        })
-
-        // The function should work without throwing errors
-        expect(result).toContain(expectedClient)
-      })
+  it('returns error message and logs error when exception is thrown', () => {
+    const result = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      // @ts-expect-error - testing invalid input
+      operation: null,
     })
+
+    expect(result).toBe('Error generating code snippet')
+    expect(consoleErrorSpy).toHaveBeenCalledWith('[generateCodeSnippet]', expect.any(Error))
+
+    consoleErrorSpy.mockRestore()
   })
 })

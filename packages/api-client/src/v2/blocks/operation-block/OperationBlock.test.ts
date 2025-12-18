@@ -1,3 +1,4 @@
+import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -120,8 +121,10 @@ const createDefaultProps = () => ({
   globalCookies: [] as XScalarCookie[],
   path: '/api/users',
   method: 'get' as const,
+  httpClients: AVAILABLE_CLIENTS,
   layout: 'desktop' as ClientLayout,
   server: { url: 'https://api.example.com' },
+  selectedClient: 'js/fetch' as const,
   servers: [{ url: 'https://api.example.com' }],
   history: [],
   totalPerformedRequests: 0,

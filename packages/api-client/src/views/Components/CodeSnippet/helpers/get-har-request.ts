@@ -1,9 +1,10 @@
-import { buildRequestSecurity } from '@/libs/send-request/build-request-security'
 import type { Operation, RequestExample, SecurityScheme, Server } from '@scalar/oas-utils/entities/spec'
-import type { HarRequest } from '@scalar/snippetz'
-import { replaceTemplateVariables } from '@/libs/string-template'
 import { REGEX } from '@scalar/oas-utils/helpers'
+import type { HarRequest } from '@scalar/snippetz'
+
 import type { EnvVariables } from '@/libs/env-helpers'
+import { buildRequestSecurity } from '@/libs/send-request/build-request-security'
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 import { convertToHarRequest } from './convert-to-har-request'
 
@@ -11,6 +12,8 @@ const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 
 /**
  * Creates a snippetz-compatible HarRequest from OpenAPI-like store entities
+ *
+ * @deprecated, can be removed once we've migrated to the new code snippet component
  */
 export const getHarRequest = ({
   operation,

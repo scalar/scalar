@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
+import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
   OperationObject,
   SecuritySchemeObject,
@@ -9,20 +10,33 @@ import type {
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
-type Props = {
-  clientId: AvailableClients[number]
-  operation: OperationObject
-  example?: string | undefined
-  method: HttpMethod
-  path: string
+import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
+
+export type GenerateCodeSnippetProps = {
+  /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */
+  clientId: AvailableClient | CustomCodeSampleId | undefined
+  /** The Content-Type header value for the request body (e.g., 'application/json'). */
   contentType?: string | undefined
-  server?: ServerObject | undefined
+  /** Array of custom code samples defined in the OpenAPI x-codeSamples extension. */
+  customCodeSamples: XCodeSample[]
+  /** The specific example value to use when generating the code snippet. */
+  example?: string | undefined
+  /** The HTTP method for the operation (e.g., GET, POST, PUT). */
+  method: HttpMethod
+  /** The OpenAPI operation object containing request/response details. */
+  operation: OperationObject
+  /** The API endpoint path (e.g., '/users/{id}'). */
+  path: string
+  /** Array of security schemes to apply to the request (e.g., API keys, OAuth). */
   securitySchemes?: SecuritySchemeObject[] | undefined
+  /** The server object defining the base URL for the API request. */
+  server?: ServerObject | undefined
 }
 
 /** Generate the code snippet for the selected example OR operation */
 export const generateCodeSnippet = ({
   clientId,
+  customCodeSamples,
   operation,
   method,
   path,
@@ -30,8 +44,20 @@ export const generateCodeSnippet = ({
   contentType,
   server,
   securitySchemes,
-}: Props): string => {
+}: GenerateCodeSnippetProps): string => {
   try {
+    if (!clientId) {
+      return ''
+    }
+
+    // Use the selected custom example
+    if (clientId.startsWith('custom')) {
+      return (
+        customCodeSamples.find((example) => generateCustomId(example) === clientId)?.source ??
+        'Custom example not found'
+      )
+    }
+
     const harRequest = operationToHar({
       operation,
       contentType,

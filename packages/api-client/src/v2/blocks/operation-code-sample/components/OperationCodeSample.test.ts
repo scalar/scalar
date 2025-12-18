@@ -1,5 +1,5 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { AvailableClients } from '@scalar/snippetz'
+import type { AvailableClient } from '@scalar/types/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -201,7 +201,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          selectedClient: 'js/fetch' as AvailableClients[number],
+          selectedClient: 'js/fetch' as AvailableClient,
         },
       })
 
@@ -261,7 +261,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          selectedClient: 'js/fetch' as AvailableClients[number],
+          selectedClient: 'js/fetch' as AvailableClient,
         },
       })
 
@@ -309,12 +309,12 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          selectedClient: 'js/fetch' as AvailableClients[number],
+          selectedClient: 'js/fetch' as AvailableClient,
         },
       })
 
       await wrapper.setProps({
-        selectedClient: 'python/requests' as AvailableClients[number],
+        selectedClient: 'python/requests' as AvailableClient,
       })
       await nextTick()
 
@@ -376,7 +376,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          selectedClient: 'js/fetch' as AvailableClients[number],
+          selectedClient: 'js/fetch' as AvailableClient,
           selectedContentType: 'application/json',
         },
       })
@@ -823,7 +823,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          selectedClient: 'js/fetch' as AvailableClients[number],
+          selectedClient: 'js/fetch' as AvailableClient,
           selectedContentType: 'application/json',
         },
       })

@@ -19,7 +19,12 @@ export default {
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import {
+  AVAILABLE_CLIENTS,
+  type AvailableClients,
+} from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -29,7 +34,7 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -38,6 +43,7 @@ import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
@@ -51,12 +57,14 @@ const {
   eventBus,
   exampleKey,
   globalCookies = [],
+  httpClients = AVAILABLE_CLIENTS,
   method,
   operation,
   path,
   plugins = [],
   proxyUrl,
   securitySchemes,
+  selectedClient,
   selectedSecurity,
   server,
 } = defineProps<{
@@ -70,10 +78,14 @@ const {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** HTTP clients */
+  httpClients: AvailableClients
   /** Client layout */
   layout: ClientLayout
   /** Currently selected server */
   server: ServerObject | null
+  /** Currently selected client */
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
   /** List of request history */
@@ -112,6 +124,9 @@ const emit = defineEmits<{
   /** Route to the appropriate server page */
   (e: 'update:servers'): void
 }>()
+
+/** Hoist up client generation so it doesn't get re-generated on every operation */
+const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
 
@@ -217,6 +232,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         <!-- Request Section -->
         <RequestBlock
           :authMeta
+          :clientOptions
           :environment
           :eventBus
           :exampleKey
@@ -228,6 +244,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :proxyUrl
           :security
           :securitySchemes
+          :selectedClient
           :selectedSecurity
           :server />
 

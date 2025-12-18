@@ -94,6 +94,7 @@ const isSidebarOpen = ref(true)
 useWorkspaceClientModalEvents({
   eventBus,
   document,
+  workspaceStore,
   isSidebarOpen,
   sidebarState,
   modalState,

@@ -180,4 +180,4 @@ export {
   updateTabs,
 } from './tabs'
 export { createTag, deleteTag } from './tag'
-export { updateActiveProxy, updateColorMode, updateTheme } from './workspace'
+export { updateActiveProxy, updateColorMode, updateSelectedClient, updateTheme } from './workspace'

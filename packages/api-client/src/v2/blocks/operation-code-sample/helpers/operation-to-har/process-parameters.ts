@@ -3,7 +3,7 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Request as HarRequest } from 'har-format'
 
-import { getExampleValue } from './get-example-value'
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 
 type ProcessedParameters = {
   url: string
@@ -58,7 +58,7 @@ const getParameterValue = (
   example: string | undefined,
   contentType: string | undefined,
 ): unknown => {
-  const exampleValue = getExampleValue(param, example, contentType)
+  const exampleValue = getExample(param, example, contentType)?.value
   if (exampleValue !== undefined) {
     return exampleValue
   }
