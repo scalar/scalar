@@ -888,6 +888,7 @@ jobs:
   preview-comment:
     # Only run for PRs from the same repository
     if: |
+      always() &&
       (needs.deploy-api-reference.result == 'success' ||
        needs.deploy-components.result == 'success' ||
        needs.galaxy-registry-preview.result == 'success') &&
