@@ -24,7 +24,7 @@ import { backspaceCommand, pillPlugin } from './code-variable-widget'
  * - A CodeMirror editor with environment variable support
  */
 type Props = {
-  modelValue: string | number
+  modelValue: string | number | boolean
   /** Environment for variable substitution. Pass undefined to disable environment variables */
   environment: XScalarEnvironment | undefined
   /** Type of the input value, affects rendering mode for booleans */
@@ -40,7 +40,7 @@ type Props = {
   /** Example values, triggers select mode */
   examples?: string[]
   /** Default value to show in select mode */
-  default?: string | number
+  default?: Props['modelValue']
   /** Allow null in boolean select options */
   nullable?: boolean
   /** Placeholder text for empty input */

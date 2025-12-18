@@ -18,7 +18,7 @@ const defaultProps = {
   exampleKey: 'example-1',
   securitySchemes: {},
   selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
-  security: [],
+  securityRequirements: [],
   environment: {
     color: 'blue',
     variables: [],
@@ -303,8 +303,10 @@ describe('RequestBlock', () => {
     })
     fn.mockReset()
 
+    vi.useFakeTimers()
     const valuePayload = { value: 'hello', contentType: 'application/json' }
     body.vm.$emit('update:value', valuePayload)
+    vi.advanceTimersByTime(400)
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
       payload: { value: 'hello' },

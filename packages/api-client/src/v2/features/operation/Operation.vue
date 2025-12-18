@@ -20,6 +20,7 @@ import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
+import { getSelectedSecurity } from '@/v2/features/operation/helpers/get-selected-security'
 
 const {
   document,
@@ -35,13 +36,8 @@ const {
 
 const operation = computed(() =>
   path && method
-    ? getResolvedRef(document?.paths?.[path]?.[method])
-    : undefined,
-)
-
-/** Compute what the security requirements should be for a request */
-const security = computed(() =>
-  getSecurityRequirements(document, operation.value),
+    ? (getResolvedRef(document?.paths?.[path]?.[method]) ?? null)
+    : null,
 )
 
 /** Combine the workspace and document cookies */
@@ -96,14 +92,15 @@ watch(
   { immediate: true },
 )
 
-/** Select the selected security for the operation or document */
-const selectedSecurity = computed(() => {
-  if (document?.['x-scalar-set-operation-security']) {
-    return operation.value?.['x-scalar-selected-security']
-  }
+/** Compute what the security requirements should be for a request */
+const securityRequirements = computed(() =>
+  getSecurityRequirements(document, operation.value),
+)
 
-  return document?.['x-scalar-selected-security']
-})
+/** Select the selected security for the operation or document */
+const selectedSecurity = computed(() =>
+  getSelectedSecurity(document, operation.value, securityRequirements.value),
+)
 
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
@@ -147,7 +144,7 @@ const router = useRouter()
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-      :security="security"
+      :securityRequirements
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :selectedSecurity

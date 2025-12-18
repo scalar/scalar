@@ -21,6 +21,7 @@ import type {
 import { computed, ref, useId } from 'vue'
 
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
+import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 import {
   formatComplexScheme,
   formatScheme,
@@ -38,7 +39,7 @@ const {
   isStatic = false,
   meta,
   proxyUrl,
-  security,
+  securityRequirements,
   securitySchemes,
   selectedSecurity,
   server,
@@ -52,7 +53,7 @@ const {
   isStatic?: boolean
   meta: AuthMeta
   proxyUrl: string
-  security: OpenApiDocument['security']
+  securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   server: ServerObject | null
@@ -76,19 +77,11 @@ const schemeToDelete = ref<{
  * Complex requirements have multiple auth schemes combined (e.g., API key + OAuth).
  */
 const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
-  if (!security?.length) {
+  if (!securityRequirements?.length) {
     return null
   }
 
-  const hasComplexRequirement = security.some(
-    (requirement) => Object.keys(requirement).length > 1,
-  )
-
-  const hasEmptyRequirement = security.some(
-    (requirement) => Object.keys(requirement).length === 0,
-  )
-
-  const isOptional = hasEmptyRequirement && !hasComplexRequirement
+  const isOptional = isAuthOptional(securityRequirements)
 
   return {
     icon: isOptional ? 'Unlock' : 'Lock',
@@ -98,7 +91,11 @@ const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
 
 /** All available auth scheme options for the dropdown */
 const availableSchemeOptions = computed(() =>
-  getSecuritySchemeOptions(security ?? [], securitySchemes ?? {}, isReadOnly),
+  getSecuritySchemeOptions(
+    securityRequirements ?? [],
+    securitySchemes ?? {},
+    isReadOnly,
+  ),
 )
 
 /** Currently active auth schemes selected for this operation or collection */

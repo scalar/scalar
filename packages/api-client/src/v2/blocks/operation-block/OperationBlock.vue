@@ -63,6 +63,7 @@ const {
   path,
   plugins = [],
   proxyUrl,
+  securityRequirements,
   securitySchemes,
   selectedClient,
   selectedSecurity,
@@ -111,7 +112,7 @@ const {
   /** Currently selected security for the current operation */
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Required security for the operation/document */
-  security: OpenApiDocument['security']
+  securityRequirements: OpenApiDocument['security']
   /** Client plugins */
   plugins: ClientPlugin[]
   /** For environment variables in the inputs */
@@ -242,7 +243,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :path
           :plugins
           :proxyUrl
-          :security
+          :securityRequirements
           :securitySchemes
           :selectedClient
           :selectedSecurity

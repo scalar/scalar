@@ -23,7 +23,7 @@ describe('XScalarSelectedSecuritySchema', () => {
     const testModule = createTestModule()
     const schema = testModule.Import('XScalarSelectedSecurity')
 
-    const result = Value.Parse(schema, {
+    const result = Value.Cast(schema, {
       'x-scalar-selected-security': {
         selectedIndex: 0,
         selectedSchemes: [
@@ -66,7 +66,7 @@ describe('XScalarSelectedSecuritySchema', () => {
     const testModule = createTestModule()
     const schema = testModule.Import('XScalarSelectedSecurity')
 
-    const result = Value.Parse(schema, {
+    const result = Value.Cast(schema, {
       'x-scalar-selected-security': {
         selectedIndex: 2,
         selectedSchemes: [

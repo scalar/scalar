@@ -3,6 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
@@ -298,7 +299,8 @@ export const updateSelectedScopes = (
   // For example: if id = ["OAuth"], matches { OAuth: [...] }
   const scheme = selectedSchemes.find((scheme) => JSON.stringify(Object.keys(scheme)) === JSON.stringify(id))
 
-  if (!scheme) {
+  // If the scheme is optional, do nothing as it cannot have scopes
+  if (!isNonOptionalSecurityRequirement(scheme)) {
     return
   }
 
