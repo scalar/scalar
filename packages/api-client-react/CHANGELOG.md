@@ -1,5 +1,21 @@
 # @scalar/api-client-react
 
+## 1.3.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.0**
+  - [#7580](https://github.com/scalar/scalar/pull/7580): feat: added default auth on client v2
+  - [#7578](https://github.com/scalar/scalar/pull/7578): fix: ensure get schema examples are cached via options
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+  - [#7565](https://github.com/scalar/scalar/pull/7565): feat: support markdown on parameter tooltip
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 1.3.57
 
 ### Patch Changes

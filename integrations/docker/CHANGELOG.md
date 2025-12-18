@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.40.8**
+  - [#7577](https://github.com/scalar/scalar/pull/7577): fix(api-reference): add padding to card intro in callbacks
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 0.4.15
 
 ### Patch Changes

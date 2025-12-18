@@ -1,5 +1,17 @@
 # @scalar/object-utils
 
+## 1.2.18
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.4**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 1.2.17
 
 ### Patch Changes

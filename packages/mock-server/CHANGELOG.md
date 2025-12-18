@@ -1,5 +1,28 @@
 # @scalar/mock-server
 
+## 0.8.6
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.4**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/json-magic@0.8.8**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/oas-utils@0.6.11**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/openapi-parser@0.23.9**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.8.5
 
 ### Patch Changes

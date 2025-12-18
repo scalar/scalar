@@ -1,5 +1,18 @@
 # @scalar/openapi-parser
 
+## 0.23.9
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.8.8**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.23.8
 
 ### Patch Changes

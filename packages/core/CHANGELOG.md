@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.3.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 0.3.27
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/docusaurus
 
+## 0.7.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
 ## 0.7.25
 
 ### Patch Changes

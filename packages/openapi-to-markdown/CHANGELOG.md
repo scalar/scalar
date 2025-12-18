@@ -1,5 +1,31 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.11
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.11**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/helpers@0.2.4**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/oas-utils@0.6.11**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/openapi-parser@0.23.9**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/types@0.5.4**
+  - [#7567](https://github.com/scalar/scalar/pull/7567): feat: add code samples to client v2
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.3.10
 
 ### Patch Changes

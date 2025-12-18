@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.1.2
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
 ## 0.1.1
 
 ### Patch Changes

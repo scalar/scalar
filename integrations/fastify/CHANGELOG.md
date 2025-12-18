@@ -1,5 +1,18 @@
 # @scalar/fastify-api-reference
 
+## 1.40.8
+
+### Patch Changes
+
+- [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.23.9**
+  - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
+
+- **@scalar/core@0.3.28**
+
 ## 1.40.7
 
 ### Patch Changes
