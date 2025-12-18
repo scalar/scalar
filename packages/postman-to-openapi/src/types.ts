@@ -97,6 +97,7 @@ export type Variable = {
   type?: 'string' | 'number' | 'boolean' | 'environment'
   enum?: string[]
   description?: string
+  disabled?: boolean
 }
 
 export type Auth = {

@@ -11,8 +11,8 @@ const AUTH_SCHEMES = {
 } as const
 
 const OAUTH2_DEFAULTS = {
-  AUTHORIZE_URL: 'https://example.com/oauth/authorize',
-  TOKEN_URL: 'https://example.com/oauth/token',
+  AUTHORIZE_URL: '/oauth/authorize',
+  TOKEN_URL: '/oauth/token',
 } as const
 
 type SecurityConfig = {
@@ -64,7 +64,14 @@ function createBearerConfig(): SecurityConfig {
  * Creates security configuration for OAuth2 authentication
  * Extracts actual OAuth2 URLs and scopes from the Postman auth object
  */
-function createOAuth2Config(auth: Auth): SecurityConfig {
+function createOAuth2Config(auth?: Auth): SecurityConfig {
+  if (!auth) {
+    return {
+      scheme: {},
+      requirement: {},
+    }
+  }
+
   const oauth2Attrs = auth.oauth2 || []
   const attrMap = new Map<string, string>()
 

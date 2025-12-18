@@ -136,6 +136,7 @@ export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'h
 
   // Add x-scalar-disabled extension if parameter is disabled
   if (param.disabled === true) {
+    // @ts-expect-error - x-scalar-disabled is not a valid parameter object property
     parameter['x-scalar-disabled'] = true
   }
 

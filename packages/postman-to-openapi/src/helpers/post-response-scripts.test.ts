@@ -90,6 +90,9 @@ describe('post-response-scripts', () => {
     const events: Event[] = [
       {
         listen: 'test',
+        script: {
+          exec: [],
+        },
       },
     ]
 

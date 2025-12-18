@@ -211,7 +211,7 @@ describe('convert', () => {
     }
 
     const result = convert(collection)
-    const operation = result.paths['/users']?.get
+    const operation = result.paths?.['/users']?.get
 
     expect(operation).toBeDefined()
     expect(operation?.summary).toBe('Second')

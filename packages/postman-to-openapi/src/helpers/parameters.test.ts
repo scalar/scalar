@@ -27,7 +27,7 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(2)
-      expect(result.find((p) => p.name === 'page')).toEqual({
+      expect(result.find((p: any) => p.name === 'page')).toEqual({
         name: 'page',
         in: 'query',
         description: undefined,
@@ -36,7 +36,7 @@ describe('parameters', () => {
           type: 'integer',
         },
       })
-      expect(result.find((p) => p.name === 'limit')).toEqual({
+      expect(result.find((p: any) => p.name === 'limit')).toEqual({
         name: 'limit',
         in: 'query',
         description: undefined,
@@ -93,8 +93,8 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(1)
-      expect(result[0].schema.type).toBe('string')
-      expect(result[0].example).toBe('123')
+      expect(result[0]?.schema?.type).toBe('string')
+      expect(result[0]?.example).toBe('123')
     })
 
     it('keeps path parameters as strings for empty values', () => {
@@ -114,8 +114,8 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(1)
-      expect(result[0].schema.type).toBe('string')
-      expect(result[0].example).toBe('')
+      expect(result[0]?.schema?.type).toBe('string')
+      expect(result[0]?.example).toBe('')
     })
 
     it('extracts path parameters from path array', () => {
@@ -161,7 +161,7 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(2)
-      expect(result.find((p) => p.name === 'Authorization')).toEqual({
+      expect(result.find((p: any) => p.name === 'Authorization')).toEqual({
         name: 'Authorization',
         in: 'header',
         example: 'Bearer token',
@@ -169,7 +169,7 @@ describe('parameters', () => {
           type: 'string',
         },
       })
-      expect(result.find((p) => p.name === 'X-Request-ID')).toEqual({
+      expect(result.find((p: any) => p.name === 'X-Request-ID')).toEqual({
         name: 'X-Request-ID',
         in: 'header',
         description: undefined,
@@ -216,7 +216,7 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('userId')
+      expect(result[0]?.name).toBe('userId')
     })
   })
 
@@ -269,7 +269,7 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'path')
 
-      expect(result.schema.type).toBe('string')
+      expect(result.schema?.type).toBe('string')
       expect(result.example).toBe('123')
     })
 
@@ -281,7 +281,7 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'path')
 
-      expect(result.schema.type).toBe('integer')
+      expect(result.schema?.type).toBe('integer')
       expect(result.example).toBe(123)
     })
 
@@ -411,9 +411,10 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'query')
 
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBe(true)
       expect(result.name).toBe('page')
-      expect(result.example).toBe('1')
+      expect(result?.example).toBe('1')
     })
 
     it('adds x-scalar-disabled extension for disabled path parameter', () => {
@@ -425,8 +426,9 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'path')
 
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBe(true)
-      expect(result.name).toBe('userId')
+      expect(result?.name).toBe('userId')
       expect(result.required).toBe(true)
     })
 
@@ -439,9 +441,10 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'header')
 
-      expect(result['x-scalar-disabled']).toBe(true)
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
+      expect(result?.['x-scalar-disabled']).toBe(true)
       expect(result.name).toBe('X-Custom-Header')
-      expect(result.example).toBe('value')
+      expect(result?.example).toBe('value')
     })
 
     it('does not add x-scalar-disabled extension when disabled is false', () => {
@@ -453,6 +456,7 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'query')
 
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBeUndefined()
     })
 
@@ -464,6 +468,7 @@ describe('parameters', () => {
 
       const result = createParameterObject(param, 'query')
 
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBeUndefined()
     })
   })
@@ -491,11 +496,13 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(2)
-      const pageParam = result.find((p) => p.name === 'page')
+      const pageParam = result.find((p: any) => p.name === 'page')
       expect(pageParam).toBeDefined()
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(pageParam?.['x-scalar-disabled']).toBe(true)
-      const limitParam = result.find((p) => p.name === 'limit')
+      const limitParam = result.find((p: any) => p.name === 'limit')
       expect(limitParam).toBeDefined()
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(limitParam?.['x-scalar-disabled']).toBeUndefined()
     })
 
@@ -521,11 +528,13 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(2)
-      const authParam = result.find((p) => p.name === 'Authorization')
+      const authParam = result.find((p: any) => p.name === 'Authorization')
       expect(authParam).toBeDefined()
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(authParam?.['x-scalar-disabled']).toBe(true)
-      const requestIdParam = result.find((p) => p.name === 'X-Request-ID')
+      const requestIdParam = result.find((p: any) => p.name === 'X-Request-ID')
       expect(requestIdParam).toBeDefined()
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(requestIdParam?.['x-scalar-disabled']).toBeUndefined()
     })
 
@@ -547,8 +556,9 @@ describe('parameters', () => {
       const result = extractParameters(request)
 
       expect(result).toHaveLength(1)
-      expect(result[0]['x-scalar-disabled']).toBe(true)
-      expect(result[0].name).toBe('userId')
+      // @ts-expect-error @scalar/openapi-types does not allow extensions here
+      expect(result[0]?.['x-scalar-disabled']).toBe(true)
+      expect(result[0]?.name).toBe('userId')
     })
   })
 })

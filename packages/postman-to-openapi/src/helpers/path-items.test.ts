@@ -19,8 +19,8 @@ describe('path-items', () => {
     const result = processItem(item)
 
     expect(result.paths['/users/123']).toBeDefined()
-    expect(result.paths['/users/123'].get).toBeDefined()
-    expect(result.paths['/users/123'].get?.summary).toBe('Get User')
+    expect(result.paths['/users/123']?.get).toBeDefined()
+    expect(result.paths['/users/123']?.get?.summary).toBe('Get User')
   })
 
   it('extracts operation ID from name with brackets', () => {
@@ -36,8 +36,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.operationId).toBe('getUser')
-    expect(result.paths['/users'].get?.summary).toBe('Get User')
+    expect(result.paths['/users']?.get?.operationId).toBe('getUser')
+    expect(result.paths['/users']?.get?.summary).toBe('Get User')
   })
 
   it('handles nested item groups with tags', () => {
@@ -58,7 +58,7 @@ describe('path-items', () => {
 
     const result = processItem(itemGroup)
 
-    expect(result.paths['/users'].get?.tags).toEqual(['Users'])
+    expect(result.paths['/users']?.get?.tags).toEqual(['Users'])
   })
 
   it('handles deeply nested item groups', () => {
@@ -84,7 +84,7 @@ describe('path-items', () => {
 
     const result = processItem(itemGroup)
 
-    expect(result.paths['/users'].get?.tags).toEqual(['API > Users'])
+    expect(result.paths['/users']?.get?.tags).toEqual(['API > Users'])
   })
 
   it('merges paths from multiple items', () => {
@@ -114,8 +114,8 @@ describe('path-items', () => {
 
     const result = processItem(itemGroup)
 
-    expect(result.paths['/users'].get).toBeDefined()
-    expect(result.paths['/users'].post).toBeDefined()
+    expect(result.paths['/users']?.get).toBeDefined()
+    expect(result.paths['/users']?.post).toBeDefined()
   })
 
   it('processes request with auth and adds security scheme', () => {
@@ -136,8 +136,8 @@ describe('path-items', () => {
 
     expect(result.components.securitySchemes).toBeDefined()
     expect(result.components.securitySchemes?.bearerAuth).toBeDefined()
-    expect(result.paths['/users'].get?.security).toBeDefined()
-    expect(result.paths['/users'].get?.security?.[0]).toHaveProperty('bearerAuth')
+    expect(result.paths['/users']?.get?.security).toBeDefined()
+    expect(result.paths['/users']?.get?.security?.[0]).toHaveProperty('bearerAuth')
   })
 
   it('merges security schemes from nested items', () => {
@@ -199,9 +199,9 @@ describe('path-items', () => {
 
     // The path key uses the non-normalized path
     const pathKey = Object.keys(result.paths)[0]
-    const params = result.paths[pathKey].get?.parameters
+    const params = result.paths[pathKey!]?.get?.parameters
     expect(params).toBeDefined()
-    expect(params?.find((p) => p.name === 'userId')).toEqual({
+    expect(params?.find((p: any) => p.name === 'userId')).toEqual({
       name: 'userId',
       in: 'path',
       required: true,
@@ -238,8 +238,8 @@ describe('path-items', () => {
     const result = processItem(item)
 
     const pathKey = Object.keys(result.paths)[0]
-    const params = result.paths[pathKey].get?.parameters
-    expect(params?.find((p) => p.name === 'invalidParam')).toBeUndefined()
+    const params = result.paths[pathKey!]?.get?.parameters
+    expect(params?.find((p: any) => p.name === 'invalidParam')).toBeUndefined()
   })
 
   it('extracts query parameters', () => {
@@ -267,9 +267,9 @@ describe('path-items', () => {
     const result = processItem(item)
 
     const pathKey = Object.keys(result.paths)[0]
-    const params = result.paths[pathKey].get?.parameters
-    expect(params?.find((p) => p.name === 'page')).toBeDefined()
-    expect(params?.find((p) => p.name === 'limit')).toBeDefined()
+    const params = result.paths[pathKey!]?.get?.parameters
+    expect(params?.find((p: any) => p.name === 'page')).toBeDefined()
+    expect(params?.find((p: any) => p.name === 'limit')).toBeDefined()
   })
 
   it('extracts parameters from markdown table in description', () => {
@@ -290,8 +290,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    const params = result.paths['/users'].get?.parameters
-    expect(params?.find((p) => p.name === 'page')).toEqual({
+    const params = result.paths['/users']?.get?.parameters
+    expect(params?.find((p: any) => p.name === 'page')).toEqual({
       name: 'page',
       in: 'query',
       description: 'Page number',
@@ -301,7 +301,7 @@ describe('path-items', () => {
         type: 'integer',
       },
     })
-    expect(result.paths['/users'].get?.description).toBe('Get a list of users')
+    expect(result.paths['/users']?.get?.description).toBe('Get a list of users')
   })
 
   it('removes markdown table from description', () => {
@@ -322,8 +322,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.description).toBe('Get a list of users')
-    expect(result.paths['/users'].get?.description).not.toContain('|')
+    expect(result.paths['/users']?.get?.description).toBe('Get a list of users')
+    expect(result.paths['/users']?.get?.description).not.toContain('|')
   })
 
   it('defaults parameter type to string when type is missing from markdown table', () => {
@@ -344,8 +344,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    const params = result.paths['/users'].get?.parameters
-    expect(params?.find((p) => p.name === 'filter')).toEqual({
+    const params = result.paths['/users']?.get?.parameters
+    expect(params?.find((p: any) => p.name === 'filter')).toEqual({
       name: 'filter',
       in: 'query',
       description: 'Filter string',
@@ -374,8 +374,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].post?.requestBody).toBeDefined()
-    expect(result.paths['/users'].post?.requestBody?.content?.['application/json']).toBeDefined()
+    expect(result.paths['/users']?.post?.requestBody).toBeDefined()
+    expect(result.paths['/users']?.post?.requestBody?.content?.['application/json']).toBeDefined()
   })
 
   it('processes PUT request with request body', () => {
@@ -396,7 +396,7 @@ describe('path-items', () => {
     const result = processItem(item)
 
     const pathKey = Object.keys(result.paths)[0]
-    expect(result.paths[pathKey].put?.requestBody).toBeDefined()
+    expect(result.paths[pathKey!]?.put?.requestBody).toBeDefined()
   })
 
   it('processes PATCH request with request body', () => {
@@ -417,7 +417,7 @@ describe('path-items', () => {
     const result = processItem(item)
 
     const pathKey = Object.keys(result.paths)[0]
-    expect(result.paths[pathKey].patch?.requestBody).toBeDefined()
+    expect(result.paths[pathKey!]?.patch?.requestBody).toBeDefined()
   })
 
   it('adds request body for GET request when body is provided', () => {
@@ -437,8 +437,8 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.requestBody).toBeDefined()
-    expect(result.paths['/users'].get?.requestBody?.content?.['application/json']).toBeDefined()
+    expect(result.paths['/users']?.get?.requestBody).toBeDefined()
+    expect(result.paths['/users']?.get?.requestBody?.content?.['application/json']).toBeDefined()
   })
 
   it('allows GET requests to have request bodies', () => {
@@ -477,9 +477,9 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/bedrock'].get?.requestBody).toBeDefined()
-    expect(result.paths['/bedrock'].get?.requestBody?.content?.['application/json']).toBeDefined()
-    const example = result.paths['/bedrock'].get?.requestBody?.content?.['application/json']?.schema?.example as any
+    expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
+    expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
+    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.schema?.example as any
     expect(example?.data?.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
   })
 
@@ -496,7 +496,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.requestBody).toBeUndefined()
+    expect(result.paths['/users']?.get?.requestBody).toBeUndefined()
   })
 
   it('extracts responses from item', () => {
@@ -519,7 +519,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.responses?.['200']).toBeDefined()
+    expect(result.paths['/users']?.get?.responses?.['200']).toBeDefined()
   })
 
   it('adds post-response script extension', () => {
@@ -543,7 +543,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.['x-post-response']).toBe(
+    expect(result.paths['/users']?.get?.['x-post-response']).toBe(
       'pm.test("Status is 200", function () {\n  pm.response.to.have.status(200);\n});',
     )
   })
@@ -556,7 +556,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get).toBeDefined()
+    expect(result.paths['/users']?.get).toBeDefined()
   })
 
   it('handles object description in request', () => {
@@ -575,7 +575,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get?.description).toBe('Get user information')
+    expect(result.paths['/users']?.get?.description).toBe('Get user information')
   })
 
   it('handles item without request', () => {
@@ -604,7 +604,8 @@ describe('path-items', () => {
 
     // The path key uses non-normalized path, but parameters are normalized
     const pathKey = Object.keys(result.paths)[0]
-    expect(result.paths[pathKey]).toBeDefined()
+
+    expect(result.paths[pathKey!]).toBeDefined()
   })
 
   it('handles DELETE request', () => {
@@ -621,7 +622,7 @@ describe('path-items', () => {
     const result = processItem(item)
 
     const pathKey = Object.keys(result.paths)[0]
-    expect(result.paths[pathKey].delete).toBeDefined()
+    expect(result.paths[pathKey!]?.delete).toBeDefined()
   })
 
   it('defaults to GET method when method is missing', () => {
@@ -636,7 +637,7 @@ describe('path-items', () => {
 
     const result = processItem(item)
 
-    expect(result.paths['/users'].get).toBeDefined()
+    expect(result.paths['/users']?.get).toBeDefined()
   })
 
   it('handles item group without name', () => {
@@ -656,7 +657,7 @@ describe('path-items', () => {
 
     const result = processItem(itemGroup)
 
-    expect(result.paths['/users'].get?.tags).toBeUndefined()
+    expect(result.paths['/users']?.get?.tags).toBeUndefined()
   })
 
   describe('disabled parameters and headers', () => {
@@ -689,9 +690,9 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const params = result.paths[pathKey]?.get?.parameters
-      const pageParam = params?.find((p) => p.name === 'page')
-      const limitParam = params?.find((p) => p.name === 'limit')
+      const params = result.paths[pathKey!]?.get?.parameters
+      const pageParam = params?.find((p: any) => p.name === 'page')
+      const limitParam = params?.find((p: any) => p.name === 'limit')
 
       expect(pageParam).toBeDefined()
       expect((pageParam as any)?.['x-scalar-disabled']).toBe(true)
@@ -728,9 +729,9 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const params = result.paths[pathKey]?.get?.parameters
-      const customHeader = params?.find((p) => p.name === 'X-Custom-Header')
-      const anotherHeader = params?.find((p) => p.name === 'X-Another-Header')
+      const params = result.paths[pathKey!]?.get?.parameters
+      const customHeader = params?.find((p: any) => p.name === 'X-Custom-Header')
+      const anotherHeader = params?.find((p: any) => p.name === 'X-Another-Header')
 
       expect(customHeader).toBeDefined()
       expect((customHeader as any)?.['x-scalar-disabled']).toBe(true)
@@ -766,9 +767,9 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const params = result.paths[pathKey]?.get?.parameters
-      const hostHeader = params?.find((p) => p.name === 'Host')
-      const customHeader = params?.find((p) => p.name === 'X-Custom-Header')
+      const params = result.paths[pathKey!]?.get?.parameters
+      const hostHeader = params?.find((p: any) => p.name === 'Host')
+      const customHeader = params?.find((p: any) => p.name === 'X-Custom-Header')
 
       expect(hostHeader).toBeDefined()
       expect((hostHeader as any)?.['x-scalar-disabled']).toBe(true)
@@ -798,8 +799,8 @@ describe('path-items', () => {
       const result = processItem(item)
 
       const pathKey = Object.keys(result.paths)[0]
-      const params = result.paths[pathKey]?.get?.parameters
-      const userIdParam = params?.find((p) => p.name === 'userId')
+      const params = result.paths[pathKey!]?.get?.parameters
+      const userIdParam = params?.find((p: any) => p.name === 'userId')
 
       expect(userIdParam).toBeDefined()
       expect((userIdParam as any)?.['x-scalar-disabled']).toBe(true)
@@ -837,7 +838,7 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const requestBody = result.paths[pathKey]?.post?.requestBody
+      const requestBody = result.paths[pathKey!]?.post?.requestBody
       const schema = requestBody?.content?.['application/x-www-form-urlencoded']?.schema
 
       expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
@@ -877,7 +878,7 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const requestBody = result.paths[pathKey]?.post?.requestBody
+      const requestBody = result.paths[pathKey!]?.post?.requestBody
       const schema = requestBody?.content?.['multipart/form-data']?.schema
 
       expect(schema?.properties?.file?.['x-scalar-disabled']).toBe(true)
@@ -924,12 +925,12 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const params = result.paths[pathKey]?.get?.parameters
+      const params = result.paths[pathKey!]?.get?.parameters
 
-      const enabledQuery = params?.find((p) => p.name === 'enabled')
-      const disabledQuery = params?.find((p) => p.name === 'disabled')
-      const enabledHeader = params?.find((p) => p.name === 'X-Enabled-Header')
-      const disabledHeader = params?.find((p) => p.name === 'X-Disabled-Header')
+      const enabledQuery = params?.find((p: any) => p.name === 'enabled')
+      const disabledQuery = params?.find((p: any) => p.name === 'disabled')
+      const enabledHeader = params?.find((p: any) => p.name === 'X-Enabled-Header')
+      const disabledHeader = params?.find((p: any) => p.name === 'X-Disabled-Header')
 
       expect((enabledQuery as any)?.['x-scalar-disabled']).toBeUndefined()
       expect((disabledQuery as any)?.['x-scalar-disabled']).toBe(true)
