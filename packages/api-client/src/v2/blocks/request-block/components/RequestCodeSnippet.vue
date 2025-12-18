@@ -17,7 +17,7 @@ import {
 import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
 import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
-import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
+import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import { DataTable, DataTableRow } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'

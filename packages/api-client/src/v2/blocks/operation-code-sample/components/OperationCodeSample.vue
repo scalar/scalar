@@ -120,7 +120,7 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
-import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-keys'
+import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import type {
   ClientOption,

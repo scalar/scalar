@@ -2,7 +2,7 @@ import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/ope
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getCustomCodeSamples } from './get-custom-code-keys'
+import { getCustomCodeSamples } from './get-custom-code-samples'
 
 describe('getCustomCodeSamples', () => {
   it('returns empty array when operation has no custom code samples', () => {
