@@ -464,6 +464,16 @@ type GetExampleFromSchemaOptions = {
   omitEmptyAndOptionalProperties?: boolean
 }
 
+/** Create stable cache key from the options object */
+const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
+  JSON.stringify({
+    emptyString: options?.emptyString,
+    xml: options?.xml,
+    mode: options?.mode,
+    variables: options?.variables,
+    omitEmptyAndOptionalProperties: options?.omitEmptyAndOptionalProperties,
+  })
+
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
@@ -508,7 +518,7 @@ export const getExampleFromSchema = (
   seen.add(targetValue)
 
   /** Make the cache key unique per options */
-  const cacheKey = JSON.stringify(options ?? {})
+  const cacheKey = createOptionsCacheKey(options)
 
   // Check cache first for performance - avoid recomputing the same schema
   const cached = resultCache.get(targetValue)?.get(cacheKey)
