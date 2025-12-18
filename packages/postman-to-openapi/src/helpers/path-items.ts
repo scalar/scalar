@@ -145,28 +145,30 @@ export function processItem(
     operationObject.operationId = operationId
   }
 
-  // Parse parameters from the description's Markdown table
+  // Extract parameters from the request (query, path, header)
+  // This should always happen, regardless of whether a description exists
+  const extractedParameters = extractParameters(request)
+
+  // Merge parameters, giving priority to those from the Markdown table if description exists
+  const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
+
+  // Add extracted parameters, filtering out path parameters not in the path
+  extractedParameters.forEach((param) => {
+    if (param.name) {
+      if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
+        return
+      }
+      mergedParameters.set(param.name, param)
+    }
+  })
+
+  // Parse parameters from the description's Markdown table if description exists
   if (operationObject.description) {
     const { descriptionWithoutTable, parametersFromTable } = parseParametersFromDescription(operationObject.description)
     operationObject.description = descriptionWithoutTable.trim()
 
-    // Extract parameters from the request (query, path, header)
-    const extractedParameters = extractParameters(request)
-
-    // Merge parameters, giving priority to those from the Markdown table
-    const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
-
-    // Add extracted parameters, filtering out path parameters not in the path
-    extractedParameters.forEach((param) => {
-      if (param.name) {
-        if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
-          return
-        }
-        mergedParameters.set(param.name, param)
-      }
-    })
-
     // Add parameters from table, filtering out path parameters not in the path
+    // These take priority over extracted parameters
     parametersFromTable.forEach((param) => {
       if (param.name) {
         if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
@@ -175,7 +177,10 @@ export function processItem(
         mergedParameters.set(param.name, param)
       }
     })
+  }
 
+  // Set parameters if we have any
+  if (mergedParameters.size > 0) {
     operationObject.parameters = Array.from(mergedParameters.values())
   }
 

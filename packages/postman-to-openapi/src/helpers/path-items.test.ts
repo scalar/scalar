@@ -738,6 +738,44 @@ describe('path-items', () => {
       expect((anotherHeader as any)?.['x-scalar-disabled']).toBeUndefined()
     })
 
+    it('extracts header parameters even when description is missing', () => {
+      const item: Item = {
+        name: 'Get Users',
+        request: {
+          method: 'GET',
+          url: {
+            raw: 'https://api.example.com/users',
+          },
+          header: [
+            {
+              key: 'Host',
+              value: 'api.example.com',
+              disabled: true,
+            },
+            {
+              key: 'X-Custom-Header',
+              value: 'value',
+            },
+          ],
+        },
+      }
+
+      const result = processItem(item)
+
+      const pathKey = Object.keys(result.paths)[0]
+      if (!pathKey) {
+        throw new Error('Path key not found')
+      }
+      const params = result.paths[pathKey]?.get?.parameters
+      const hostHeader = params?.find((p) => p.name === 'Host')
+      const customHeader = params?.find((p) => p.name === 'X-Custom-Header')
+
+      expect(hostHeader).toBeDefined()
+      expect((hostHeader as any)?.['x-scalar-disabled']).toBe(true)
+      expect(customHeader).toBeDefined()
+      expect((customHeader as any)?.['x-scalar-disabled']).toBeUndefined()
+    })
+
     it('preserves disabled path parameters in operation', () => {
       const item: Item = {
         name: 'Get User',
