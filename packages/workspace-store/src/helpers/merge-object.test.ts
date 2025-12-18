@@ -134,4 +134,18 @@ describe('mergeObjects', () => {
       b: 2,
     })
   })
+
+  it('should replace the first array with the second when replaceArray is true', () => {
+    const a = {
+      arr: [1, 2, 3],
+    }
+
+    const b = {
+      arr: [],
+    }
+
+    expect(mergeObjects(a, b, true)).toEqual({
+      arr: [],
+    })
+  })
 })

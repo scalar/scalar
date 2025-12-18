@@ -957,8 +957,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
   const getDocumentConfiguration = (name: string) => {
     return mergeObjects<typeof defaultConfig>(
-      mergeObjects(deepClone(defaultConfig), workspaceProps?.config ?? {}),
+      mergeObjects(deepClone(defaultConfig), workspaceProps?.config ?? {}, true),
       documentConfigs[name] ?? {},
+      true,
     )
   }
 
