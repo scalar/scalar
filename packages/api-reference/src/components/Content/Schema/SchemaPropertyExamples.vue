@@ -137,7 +137,7 @@ const { copyToClipboard } = useClipboard()
   flex-direction: column;
   gap: 3px;
   display: none;
-  z-index: 10;
+  z-index: 2;
 }
 .property-example:hover .property-example-value-list,
 .property-example:focus-within .property-example-value-list {

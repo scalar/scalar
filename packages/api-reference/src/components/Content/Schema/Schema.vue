@@ -216,7 +216,6 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
   background-color: var(--scalar-color-red);
 }
 .schema-card {
-  z-index: 0;
   font-size: var(--scalar-font-size-4);
   color: var(--scalar-color-1);
 }
