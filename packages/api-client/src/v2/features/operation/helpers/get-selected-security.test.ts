@@ -1,4 +1,4 @@
-import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getSelectedSecurity } from './get-selected-security'
