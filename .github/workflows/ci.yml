@@ -724,21 +724,20 @@ jobs:
             galaxy:
               - packages/galaxy/**
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
-        name: Extract version from package.json
+        name: Get version from package.json
+        id: package-version
         working-directory: packages/galaxy
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Login to Scalar Registry
         run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push OpenAPI Example to Scalar Registry
-        run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
+        run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/latest.yaml
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push AsyncAPI Example to Scalar Registry
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
-        run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
+        run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-api-reference:
     # Run only for PRs from the same repository
@@ -1151,11 +1150,10 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - name: Extract version from package.json
+      - name: Get version from package.json
+        id: package-version
         working-directory: integrations/dotnet/aspnetcore
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -1185,9 +1183,9 @@ jobs:
       - name: Pack packages
         working-directory: integrations/dotnet/aspnetcore
         run: |
-          dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=$VERSION
-          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=$VERSION
-          dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=$VERSION
+          dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Publish packages
         working-directory: integrations/dotnet/aspnetcore
@@ -1212,11 +1210,10 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - name: Extract version from package.json
+      - name: Get version from package.json
+        id: package-version
         working-directory: integrations/dotnet/aspire
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -1251,12 +1248,13 @@ jobs:
             linux/arm64
           tags: |
             scalarapi/aspire-api-reference:latest
-            scalarapi/aspire-api-reference:${{ env.VERSION }}
+            scalarapi/aspire-api-reference:${{ steps.package-version.outputs.VERSION }}
 
       - name: Set version in Constants.cs
         working-directory: integrations/dotnet/aspire
+
         run: |
-          sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
+          sed -i 's/ImageTag = "latest"/ImageTag = "'${{ steps.package-version.outputs.VERSION }}'"/' src/Scalar.Aspire/Constants.cs
           cat src/Scalar.Aspire/Constants.cs
 
       - name: Cache NuGet packages
@@ -1276,7 +1274,7 @@ jobs:
 
       - name: Pack Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
+        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
@@ -1498,14 +1496,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Extract version from package.json
+      - name: Get version from package.json
+        id: package-version
         working-directory: integrations/rust
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Update Cargo.toml version
         working-directory: integrations/rust
+        env:
+          VERSION: ${{ steps.package-version.outputs.VERSION }}
         run: |
           sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
           cat Cargo.toml | grep version
@@ -1571,14 +1570,13 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
 
-      - name: Extract version from package.json
+      - name: Get version from package.json
+        id: package-version
         working-directory: integrations/java
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Set version in parent POM
         working-directory: integrations/java
-        run: mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+        run: mvn versions:set -DnewVersion=${{ steps.package-version.outputs.VERSION }} -DgenerateBackupPoms=false
       - name: Build all Java modules
         working-directory: integrations/java
         run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
