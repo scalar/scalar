@@ -17,7 +17,6 @@ import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
-import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
