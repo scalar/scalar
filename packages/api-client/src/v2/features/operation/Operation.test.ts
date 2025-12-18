@@ -121,7 +121,7 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.security).toEqual([{ apiKeyAuth: [] }])
+    expect(props.securityRequirements).toEqual([{ apiKeyAuth: [] }])
     expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ apiKeyAuth: [] }],
@@ -143,7 +143,7 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props()
-    expect(props.security).toEqual([{ bearerAuth: [] }])
+    expect(props.securityRequirements).toEqual([{ bearerAuth: [] }])
     expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
@@ -174,7 +174,7 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.security).toEqual([{ bearerAuth: [] }, {}])
+    expect(props.securityRequirements).toEqual([{ bearerAuth: [] }, {}])
     expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],

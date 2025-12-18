@@ -100,7 +100,7 @@ describe('Authentication', () => {
     expect(props.environment).toEqual(baseEnvironment)
     expect(props.isStatic).toBe(true)
     expect(props.meta).toEqual({ type: 'document' })
-    expect(props.security).toEqual([{ BearerAuth: [] }])
+    expect(props.securityRequirements).toEqual([{ BearerAuth: [] }])
     expect(props.securitySchemes).toEqual(baseDocument.components.securitySchemes)
     expect(props.selectedSecurity).toEqual(baseDocument['x-scalar-selected-security'])
     expect(props.title).toBe('Authentication')
@@ -166,7 +166,7 @@ describe('Authentication', () => {
      * When security and components are missing, the component should
      * pass empty arrays/objects as defaults to prevent errors.
      */
-    expect(props.security).toEqual([])
+    expect(props.securityRequirements).toEqual([])
     expect(props.securitySchemes).toEqual({})
   })
 })
