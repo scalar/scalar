@@ -1,8 +1,8 @@
+import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarFloating from './ScalarFloating.vue'
 import ScalarFloatingBackdrop from './ScalarFloatingBackdrop.vue'
-import { placements } from '@floating-ui/utils'
 
 const meta: Meta = {
   component: ScalarFloating,
@@ -21,7 +21,6 @@ const meta: Meta = {
   render: (args) => ({
     components: { ScalarFloating, ScalarFloatingBackdrop },
     setup() {
-      console.log(JSON.stringify(args))
       return { args }
     },
     template: `

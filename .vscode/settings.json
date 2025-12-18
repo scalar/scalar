@@ -84,7 +84,8 @@
   "tailwindCSS.experimental.configFile": {
     "packages/api-client/src/style.css": "packages/api-client/**",
     "packages/api-reference/src/style.css": "packages/api-reference/**",
-    "packages/components/src/style.css": "packages/components/**"
+    "packages/components/src/style.css": "packages/components/**",
+    "packages/sidebar/src/style.css": "packages/sidebar/**"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",

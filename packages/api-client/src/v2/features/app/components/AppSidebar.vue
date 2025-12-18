@@ -16,14 +16,14 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed, nextTick, ref } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
-import ItemDecorator from '@/v2/features/app/components/ItemDecorator.vue'
+import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -122,17 +122,21 @@ const isDroppable = (
   return dragHandlers.value.isDroppable(draggingItem, hoveredItem)
 }
 
-const selectedItem = ref<{
+/** The current target for the dropdown menu */
+const menuTarget = ref<{
+  /** The sidebar item that the menu is targeting */
   item: TraversedEntry
-  target: HTMLElement
-  isOpen: boolean
+  /** A reference to the element that the menu is for */
+  el: HTMLElement
+  /** Whether or not to show the menu */
+  showMenu: boolean
 } | null>(null)
 
 const deleteModalState = useModal()
 
 /** Computes the message for the delete modal */
 const deleteMessage = computed(() => {
-  const item = selectedItem.value?.item
+  const item = menuTarget.value?.item
 
   if (item?.type === 'document') {
     return "This cannot be undone. You're about to delete the document and all tags and operations inside it."
@@ -143,7 +147,7 @@ const deleteMessage = computed(() => {
 
 /** Deletes an item from the sidebar by emitting the appropriate event */
 const handleDelete = () => {
-  const item = selectedItem.value?.item
+  const item = menuTarget.value?.item
 
   if (!item) {
     return
@@ -194,24 +198,37 @@ const handleDelete = () => {
 
   /** Clean up after deletion */
   deleteModalState.hide()
-  selectedItem.value = null
+  menuTarget.value = null
 }
 
-/** Selects an item in the sidebar by setting the selectedItem state */
-const selectItem = (event: MouseEvent, item: TraversedEntry) => {
-  event.preventDefault()
-  event.stopPropagation()
-  selectedItem.value = {
-    item,
-    target: event.currentTarget as HTMLElement,
-    isOpen: true,
+/** Opens the dropdown menu for the given item */
+const openMenu = async (
+  event: MouseEvent | KeyboardEvent,
+  item: TraversedEntry,
+) => {
+  if (menuTarget.value?.showMenu) {
+    return
   }
+
+  const el = event.currentTarget as HTMLElement
+  menuTarget.value = { item, el, showMenu: true }
+
+  // Wait for the target to bind to the element
+  await nextTick()
+
+  // Re-dispatch the event on the target to open the menu
+  const cloned =
+    event instanceof MouseEvent
+      ? new MouseEvent(event.type, event)
+      : new KeyboardEvent(event.type, event)
+
+  menuTarget.value?.el.dispatchEvent(cloned)
 }
 
-/** Closes the decorator dropdown menu by setting isOpen to false on the selected item */
-const handleCloseMenu = () => {
-  if (selectedItem.value) {
-    selectedItem.value.isOpen = false
+/** Closes the dropdown menu */
+const closeMenu = () => {
+  if (menuTarget.value) {
+    menuTarget.value.showMenu = false
   }
 }
 
@@ -267,7 +284,13 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
           label="More options"
           size="sm"
           weight="bold"
-          @click="(e: MouseEvent) => selectItem(e, item)" />
+          aria-haspopup="menu"
+          aria-expanded="false"
+          @click.stop="(e: MouseEvent) => openMenu(e, item)"
+          @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
+          @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
+          @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
+          @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
       </template>
 
       <!-- Empty folder slot -->
@@ -336,22 +359,22 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
         </div>
       </template>
     </Sidebar>
-    <ItemDecorator
-      v-if="selectedItem && selectedItem.isOpen"
+    <SidebarItemMenu
+      v-if="menuTarget?.showMenu"
       :eventBus="eventBus"
-      :item="selectedItem.item"
+      :item="menuTarget.item"
       :sidebarState="sidebarState"
-      :target="selectedItem.target"
-      @closeMenu="handleCloseMenu"
+      :target="menuTarget.el"
+      @closeMenu="closeMenu"
       @showDeleteModal="deleteModalState.show()" />
     <!-- Delete Modal -->
     <ScalarModal
-      v-if="selectedItem"
+      v-if="menuTarget"
       :size="'xxs'"
       :state="deleteModalState"
-      :title="`Delete ${selectedItem.item.title}`">
+      :title="`Delete ${menuTarget.item.title}`">
       <DeleteSidebarListElement
-        :variableName="selectedItem.item.title"
+        :variableName="menuTarget.item.title"
         :warningMessage="deleteMessage"
         @close="deleteModalState.hide()"
         @delete="handleDelete" />

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import {
-  ScalarDropdownButton,
+  ScalarDropdown,
   ScalarDropdownDivider,
-  ScalarDropdownMenu,
-  ScalarFloating,
+  ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { onClickOutside } from '@vueuse/core'
-import { ref, type Ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
 const { item, eventBus, sidebarState, target } = defineProps<{
   /** The item to display the decorator for */
@@ -29,10 +27,15 @@ const emit = defineEmits<{
   (e: 'showDeleteModal'): void
 }>()
 
-const dropdownMenuRef: Ref<HTMLElement | null> = ref(null)
+const open = ref(false)
 
-onClickOutside(target, () => emit('closeMenu'), {
-  ignore: [dropdownMenuRef],
+watch(open, async (newValue, oldValue) => {
+  // Close the menu if it was open and is now closed
+  if (!newValue && oldValue) {
+    // Wait to let the menu close and clean up the aria attributes
+    await nextTick()
+    emit('closeMenu')
+  }
 })
 
 /** Returns whether the item supports adding operations */
@@ -107,63 +110,59 @@ const handleAddExample = () => {
 }
 </script>
 <template>
-  <ScalarFloating
+  <ScalarDropdown
+    v-model:open="open"
     placement="bottom-end"
     :target="target"
     teleport>
-    <template #floating>
-      <ScalarDropdownMenu
-        ref="dropdownMenuRef"
-        @click="emit('closeMenu')"
-        @keydown.escape="emit('closeMenu')">
-        <!-- Add operation option for documents and tags -->
-        <ScalarDropdownButton
-          v-if="canAddOperation()"
-          @click="handleAddOperation()">
-          <div class="flex items-center gap-2">
-            <ScalarIcon
-              icon="Add"
-              size="sm" />
-            Add Operation
-          </div>
-        </ScalarDropdownButton>
-        <!-- Add tag option for documents only -->
-        <ScalarDropdownButton
-          v-if="canAddTag()"
-          @click="handleAddTag()">
-          <div class="flex items-center gap-2">
-            <ScalarIcon
-              icon="Add"
-              size="sm" />
-            Add Tag
-          </div>
-        </ScalarDropdownButton>
-        <!-- Add example option for operations -->
-        <ScalarDropdownButton
-          v-if="canAddExample()"
-          @click="handleAddExample()">
-          <div class="flex items-center gap-2">
-            <ScalarIcon
-              icon="Add"
-              size="sm" />
-            Add Example
-          </div>
-        </ScalarDropdownButton>
-        <ScalarDropdownDivider
-          v-if="
-            (canAddExample() || canAddOperation() || canAddTag()) && canDelete()
-          " />
-        <ScalarDropdownButton
-          v-if="canDelete()"
-          @click="emit('showDeleteModal')">
-          <div class="text-red flex items-center gap-2">
-            <ScalarIcon
-              icon="Delete"
-              size="sm" />
-            Delete
-          </div>
-        </ScalarDropdownButton>
-      </ScalarDropdownMenu>
+    <template #items>
+      <!-- Add operation option for documents and tags -->
+      <ScalarDropdownItem
+        v-if="canAddOperation()"
+        @click="handleAddOperation()">
+        <div class="flex items-center gap-2">
+          <ScalarIcon
+            icon="Add"
+            size="sm" />
+          Add Operation
+        </div>
+      </ScalarDropdownItem>
+      <!-- Add tag option for documents only -->
+      <ScalarDropdownItem
+        v-if="canAddTag()"
+        @click="handleAddTag()">
+        <div class="flex items-center gap-2">
+          <ScalarIcon
+            icon="Add"
+            size="sm" />
+          Add Tag
+        </div>
+      </ScalarDropdownItem>
+      <!-- Add example option for operations -->
+      <ScalarDropdownItem
+        v-if="canAddExample()"
+        @click="handleAddExample()">
+        <div class="flex items-center gap-2">
+          <ScalarIcon
+            icon="Add"
+            size="sm" />
+          Add Example
+        </div>
+      </ScalarDropdownItem>
+      <ScalarDropdownDivider
+        v-if="
+          (canAddExample() || canAddOperation() || canAddTag()) && canDelete()
+        " />
+      <ScalarDropdownItem
+        v-if="canDelete()"
+        @click="emit('showDeleteModal')">
+        <div class="text-red flex items-center gap-2">
+          <ScalarIcon
+            icon="Delete"
+            size="sm" />
+          Delete
+        </div>
+      </ScalarDropdownItem>
     </template>
-  </ScalarFloating>
+  </ScalarDropdown>
 </template>

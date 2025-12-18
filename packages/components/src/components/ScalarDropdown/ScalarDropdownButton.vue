@@ -33,18 +33,20 @@ const variants = cva({
     // Text / background style
     'truncate  no-underline text-sm text-c-1',
     // Interaction
-    'cursor-pointer hover:bg-b-2 hover:text-c-1',
+    'cursor-pointer hover:bg-b-2',
   ],
   variants: {
     disabled: { true: 'pointer-events-none text-c-3' },
-    active: { true: 'bg-b-2 text-c-1' },
+    active: { true: '' },
   },
+  compoundVariants: [{ disabled: false, active: true, class: 'bg-b-2' }],
 })
 </script>
 <template>
   <component
     :is="is"
     class="item"
+    :aria-disabled="disabled"
     :class="cx('scalar-dropdown-item', variants({ active, disabled }))"
     :type="is === 'button' ? 'button' : undefined">
     <slot />
