@@ -39,34 +39,34 @@ type Filter =
 
 const {
   authMeta = { type: 'document' },
+  clientOptions,
   environment,
   eventBus,
   exampleKey,
   layout,
   method,
-  clientOptions,
   operation,
   path,
   plugins,
   proxyUrl,
-  security,
+  securityRequirements,
   securitySchemes,
   selectedClient,
   selectedSecurity,
   server,
 } = defineProps<{
   authMeta: AuthMeta
+  clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
   exampleKey: string
   layout: ClientLayout
   method: HttpMethod
-  clientOptions: ClientOptionGroup[]
   operation: OperationObject
   path: string
   plugins: ClientPlugin[]
   proxyUrl: string
-  security: OpenApiDocument['security']
+  securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
@@ -327,7 +327,7 @@ const selectedSecuritySchemes = computed(() =>
         :eventBus
         :meta="authMeta"
         :proxyUrl
-        :security
+        :securityRequirements
         :securitySchemes
         :selectedSecurity
         :server

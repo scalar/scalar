@@ -17,6 +17,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
+import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
@@ -37,11 +38,6 @@ const operation = computed(() =>
   path && method
     ? getResolvedRef(document?.paths?.[path]?.[method])
     : undefined,
-)
-
-/** Compute what the security requirements should be for a request */
-const security = computed(() =>
-  getSecurityRequirements(document, operation.value),
 )
 
 /** Combine the workspace and document cookies */
@@ -96,13 +92,40 @@ watch(
   { immediate: true },
 )
 
+/** Compute what the security requirements should be for a request */
+const securityRequirements = computed(() =>
+  getSecurityRequirements(document, operation.value),
+)
+
 /** Select the selected security for the operation or document */
 const selectedSecurity = computed(() => {
+  const firstRequirement = securityRequirements.value[0]
+
+  // Operation level security
   if (document?.['x-scalar-set-operation-security']) {
-    return operation.value?.['x-scalar-selected-security']
+    if (operation.value?.['x-scalar-selected-security']) {
+      return operation.value?.['x-scalar-selected-security']
+    }
+  }
+  // Document level security
+  else if (document?.['x-scalar-selected-security']) {
+    return document?.['x-scalar-selected-security']
   }
 
-  return document?.['x-scalar-selected-security']
+  // No need to default if auth is optional
+  const isOptional = isAuthOptional(securityRequirements.value)
+  if (isOptional || !firstRequirement) {
+    return {
+      selectedIndex: -1,
+      selectedSchemes: [],
+    }
+  }
+
+  // Default to the first requirement
+  return {
+    selectedIndex: 0,
+    selectedSchemes: [firstRequirement],
+  }
 })
 
 /** Select document vs operation meta based on the extension */
@@ -147,7 +170,7 @@ const router = useRouter()
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-      :security="security"
+      :securityRequirements
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :selectedSecurity
