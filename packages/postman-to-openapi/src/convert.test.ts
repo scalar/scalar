@@ -469,4 +469,194 @@ describe('convert', () => {
       JSON.parse(expected.NestedServers ?? ''),
     )
   })
+
+  it('places servers at operation level when used by only one operation', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Test API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get User',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/users',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toBeUndefined()
+    expect(result.paths?.['/users']?.get?.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+  })
+
+  it('places servers at path item level when used by multiple operations in same path', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Test API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get User',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/users',
+            },
+          },
+        },
+        {
+          name: 'Create User',
+          request: {
+            method: 'POST',
+            url: {
+              raw: 'https://api.example.com/users',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toBeUndefined()
+    expect(result.paths?.['/users']?.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+    expect(result.paths?.['/users']?.get?.servers).toBeUndefined()
+    expect(result.paths?.['/users']?.post?.servers).toBeUndefined()
+  })
+
+  it('places servers at document level when used across multiple paths', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Test API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get User',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/users',
+            },
+          },
+        },
+        {
+          name: 'Get Post',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/posts',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+    expect(result.paths?.['/users']?.servers).toBeUndefined()
+    expect(result.paths?.['/posts']?.servers).toBeUndefined()
+  })
+
+  it('handles mixed server placement scenarios', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Test API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        // Server A: used in multiple paths → document level
+        {
+          name: 'Get User',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/users',
+            },
+          },
+        },
+        {
+          name: 'Get Post',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/posts',
+            },
+          },
+        },
+        // Server B: used in multiple operations in one path → path item level
+        {
+          name: 'Get Comment',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.other.com/comments',
+            },
+          },
+        },
+        {
+          name: 'Create Comment',
+          request: {
+            method: 'POST',
+            url: {
+              raw: 'https://api.other.com/comments',
+            },
+          },
+        },
+        // Server C: used in only one operation → operation level
+        {
+          name: 'Get Special',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.special.com/special',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    // Server A should be at document level
+    expect(result.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+
+    // Server B should be at path item level
+    expect(result.paths?.['/comments']?.servers).toEqual([
+      {
+        url: 'https://api.other.com',
+      },
+    ])
+
+    // Server C should be at operation level
+    expect(result.paths?.['/special']?.get?.servers).toEqual([
+      {
+        url: 'https://api.special.com',
+      },
+    ])
+  })
 })

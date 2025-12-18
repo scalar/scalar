@@ -63,3 +63,33 @@ export function extractPathParameterNames(path: string): string[] {
 
   return Array.from(params)
 }
+
+/**
+ * Extracts the server URL from a request URL string.
+ * Handles URLs with or without protocol, with ports, etc.
+ * Returns undefined if no valid server URL can be extracted.
+ */
+export function extractServerFromUrl(url: string | undefined): string | undefined {
+  if (!url) {
+    return undefined
+  }
+
+  try {
+    // Extract domain from URL
+    const urlMatch = url.match(/^(?:https?:\/\/)?([^/?#]+)/i)
+    if (!urlMatch?.[1]) {
+      return undefined
+    }
+
+    const hostPart = urlMatch[1]
+    // Ensure we have the protocol
+    const serverUrl = hostPart.startsWith('http')
+      ? hostPart.replace(/\/$/, '')
+      : `https://${hostPart}`.replace(/\/$/, '')
+
+    return serverUrl
+  } catch (error) {
+    console.error(`Error extracting server from URL "${url}":`, error)
+    return undefined
+  }
+}

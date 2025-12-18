@@ -8,9 +8,18 @@ import { extractParameters } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
 import { extractRequestBody } from './request-body'
 import { extractResponses } from './responses'
-import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urls'
+import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
+
+/**
+ * Information about server usage for an operation.
+ */
+export type ServerUsage = {
+  serverUrl: string
+  path: string
+  method: HttpMethods
+}
 
 function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
   const content = requestBody.content ?? {}
@@ -43,9 +52,11 @@ export function processItem(
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
+  serverUsage: ServerUsage[]
 } {
   const paths: OpenAPIV3_1.PathsObject = {}
   const components: OpenAPIV3_1.ComponentsObject = {}
+  const serverUsage: ServerUsage[] = []
 
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
@@ -70,23 +81,37 @@ export function processItem(
           ...childResult.components.securitySchemes,
         }
       }
+
+      // Merge server usage
+      serverUsage.push(...childResult.serverUsage)
     })
-    return { paths, components }
+    return { paths, components, serverUsage }
   }
 
   if (!('request' in item)) {
-    return { paths, components }
+    return { paths, components, serverUsage }
   }
 
   const { request, name, response } = item
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
-  const path = extractPathFromUrl(
-    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? ''),
-  )
+  const requestUrl =
+    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? '')
+
+  const path = extractPathFromUrl(requestUrl)
 
   // Normalize path parameters from ':param' to '{param}'
   const normalizedPath = normalizePath(path)
+
+  // Extract server URL from request URL
+  const serverUrl = extractServerFromUrl(requestUrl)
+  if (serverUrl) {
+    serverUsage.push({
+      serverUrl,
+      path: normalizedPath,
+      method,
+    })
+  }
 
   // Extract path parameter names
   const pathParameterNames = extractPathParameterNames(normalizedPath)
@@ -190,7 +215,7 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
-  return { paths, components }
+  return { paths, components, serverUsage }
 }
 
 // Helper function to parse parameters from the description if it is markdown

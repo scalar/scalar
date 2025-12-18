@@ -6,7 +6,7 @@ import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
 import { processItem } from '@/helpers/path-items'
-import { parseServers } from '@/helpers/servers'
+import { analyzeServerDistribution } from '@/helpers/servers'
 import { normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
@@ -244,7 +244,6 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
       ...(contact && { contact }),
       ...(logo && { 'x-logo': logo }),
     },
-    servers: parseServers(collection),
     paths: {},
   }
 
@@ -262,6 +261,12 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   }
 
   // Process each item in the collection and merge into OpenAPI spec
+  const allServerUsage: Array<{
+    serverUrl: string
+    path: string
+    method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
+  }> = []
+
   if (collection.item) {
     // Extract tags from folders
     const tags = extractTags(collection.item)
@@ -270,7 +275,10 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     }
 
     collection.item.forEach((item) => {
-      const { paths: itemPaths, components: itemComponents } = processItem(item)
+      const { paths: itemPaths, components: itemComponents, serverUsage } = processItem(item)
+
+      // Collect server usage information
+      allServerUsage.push(...serverUsage)
 
       // Merge paths from the current item
       openapi.paths = openapi.paths || {}
@@ -290,6 +298,41 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
         mergeSecuritySchemes(openapi, itemComponents.securitySchemes)
       }
     })
+  }
+
+  // Analyze server distribution and place servers at appropriate levels
+  const serverPlacement = analyzeServerDistribution(allServerUsage)
+
+  // Add servers to document level
+  if (serverPlacement.document.length > 0) {
+    openapi.servers = serverPlacement.document
+  }
+
+  // Add servers to path items
+  if (openapi.paths) {
+    for (const [path, servers] of serverPlacement.pathItems.entries()) {
+      const normalizedPathKey = normalizePath(path)
+      const pathItem = openapi.paths[normalizedPathKey]
+      if (pathItem) {
+        pathItem.servers = servers
+      }
+    }
+
+    // Add servers to operations
+    for (const [operationKey, servers] of serverPlacement.operations.entries()) {
+      const [path, method] = operationKey.split(':')
+      if (!path || !method) {
+        continue
+      }
+      const normalizedPathKey = normalizePath(path)
+      const pathItem = openapi.paths[normalizedPathKey]
+      if (pathItem && method in pathItem) {
+        const operation = pathItem[method as keyof typeof pathItem]
+        if (operation && typeof operation === 'object' && 'responses' in operation) {
+          operation.servers = servers
+        }
+      }
+    }
   }
 
   // Clean up the generated paths
