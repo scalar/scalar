@@ -1,9 +1,8 @@
 import type { ScalarIconComponent, ScalarIconWeight } from '@scalar/icons/types'
 
-import type { ButtonVariant } from '@/components/ScalarButton/types'
-import type { ScalarTooltipPlacement } from '@/components/ScalarTooltip'
-
+import type { ButtonVariant } from '../ScalarButton/types'
 import type { Icon as LegacyIcon } from '../ScalarIcon'
+import type { ScalarTooltipPlacement } from '../ScalarTooltip/types'
 
 export type ScalarIconButtonProps = {
   /**

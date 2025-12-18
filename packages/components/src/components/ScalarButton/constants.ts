@@ -1,4 +1,4 @@
-import type { ButtonVariant, ClassList } from '@/components/ScalarButton/types'
+import type { ButtonVariant, ClassList } from './types'
 
 /** Styles for the different button variants */
 export const BUTTON_VARIANT_STYLES = {

@@ -1,7 +1,7 @@
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Component } from 'vue'
 
-import type { LoadingState } from '@/components/ScalarLoading'
+import type { LoadingState } from '../ScalarLoading/types'
 
 /** Styles for the ScalarButton component */
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'gradient' | 'danger'

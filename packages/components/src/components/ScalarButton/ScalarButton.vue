@@ -14,15 +14,11 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type {
-  ButtonSize,
-  ClassList,
-  ScalarButtonProps,
-} from '@/components/ScalarButton/types'
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarLoading } from '../ScalarLoading'
 import { BUTTON_VARIANT_STYLES } from './constants'
+import type { ButtonSize, ClassList, ScalarButtonProps } from './types'
 
 const {
   is = 'button',

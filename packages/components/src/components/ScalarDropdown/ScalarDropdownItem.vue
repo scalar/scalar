@@ -12,10 +12,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useDropdownItem } from '@/components/ScalarDropdown/useDropdown'
 import { useId } from 'vue'
 
 import ScalarDropdownButton from './ScalarDropdownButton.vue'
+import { useDropdownItem } from './useDropdown'
 
 const { id = useId(), disabled } = defineProps<{
   id?: string
