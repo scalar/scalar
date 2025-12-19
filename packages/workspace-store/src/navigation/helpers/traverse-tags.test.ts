@@ -611,22 +611,26 @@ describe('traverseTags', () => {
     // Should filter out empty-no-description, but keep the other three
     expect(result).toHaveLength(3)
 
-    const tagNames = result.map((tag) => tag.name).sort()
+    const tagNames = result.map((tag) => ('name' in tag ? tag.name : '')).sort()
     expect(tagNames).toEqual(['empty-with-description', 'with-entries-and-description', 'with-entries-no-description'])
 
     // Verify empty tag with description is kept
-    const emptyWithDescription = result.find((tag) => tag.name === 'empty-with-description')
+    const emptyWithDescription = result.find((tag) => ('name' in tag ? tag.name : '') === 'empty-with-description')
     assert(emptyWithDescription?.type === 'tag')
     expect(emptyWithDescription?.children).toEqual([])
     expect(emptyWithDescription?.description).toBe('This tag has a description')
 
     // Verify tag with entries but no description is kept
-    const withEntriesNoDescription = result.find((tag) => tag.name === 'with-entries-no-description')
+    const withEntriesNoDescription = result.find(
+      (tag) => ('name' in tag ? tag.name : '') === 'with-entries-no-description',
+    )
     assert(withEntriesNoDescription?.type === 'tag')
     expect(withEntriesNoDescription?.children).toHaveLength(1)
 
     // Verify tag with entries and description is kept
-    const withEntriesAndDescription = result.find((tag) => tag.name === 'with-entries-and-description')
+    const withEntriesAndDescription = result.find(
+      (tag) => ('name' in tag ? tag.name : '') === 'with-entries-and-description',
+    )
     assert(withEntriesAndDescription?.type === 'tag')
     expect(withEntriesAndDescription?.children).toHaveLength(1)
     expect(withEntriesAndDescription?.description).toBe('This tag has both')
