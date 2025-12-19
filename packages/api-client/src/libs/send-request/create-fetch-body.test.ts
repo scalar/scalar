@@ -22,4 +22,23 @@ describe('createFetchBody', () => {
       contentType: 'text',
     })
   })
+
+  it('should return undefined body for empty string', () => {
+    const example = requestExampleSchema.parse({
+      body: {
+        activeBody: 'raw',
+        raw: {
+          value: '',
+          encoding: 'json',
+        },
+      },
+    })
+
+    const result = createFetchBody('post', example, {})
+
+    expect(result).toEqual({
+      body: undefined,
+      contentType: 'json',
+    })
+  })
 })
