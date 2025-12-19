@@ -63,7 +63,6 @@ import {
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
-import { mapConfigToClientStore } from '@/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/helpers/map-configuration'
 import {
@@ -91,7 +90,7 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const eventBus = createWorkspaceEventBus({ debug: import.meta.env.DEV })
+const eventBus = createWorkspaceEventBus()
 
 if (typeof window !== 'undefined') {
   // @ts-expect-error - For debugging purposes expose the store

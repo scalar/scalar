@@ -1,3 +1,4 @@
 export { getSecurityRequirements } from './helpers/get-security-requirements'
 export { getSelectedSecurity } from './helpers/get-selected-security'
+export { getSelectedServer } from './helpers/get-selected-server'
 export { default as Operation } from './Operation.vue'
