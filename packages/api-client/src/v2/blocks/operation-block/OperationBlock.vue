@@ -31,6 +31,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
+  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -64,9 +65,9 @@ const {
   plugins = [],
   proxyUrl,
   securityRequirements,
+  selectedSecuritySchemes,
   securitySchemes,
   selectedClient,
-  selectedSecurity,
   server,
 } = defineProps<{
   /** Event bus */
@@ -107,10 +108,12 @@ const {
   exampleKey: string
   /** Meta information for the auth update */
   authMeta: AuthMeta
+  /** The selected security for the operation or document */
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** Currently selected security for the current operation */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  /** The selected security schemes for the current operation */
+  selectedSecuritySchemes: SecuritySchemeObject[]
   /** Required security for the operation/document */
   securityRequirements: OpenApiDocument['security']
   /** Client plugins */
@@ -148,8 +151,7 @@ const handleExecute = async () => {
     method,
     operation,
     path,
-    securitySchemes,
-    selectedSecurity: selectedSecurity?.selectedSchemes ?? [],
+    selectedSecuritySchemes,
     server,
     proxyUrl,
   })
@@ -247,6 +249,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :securitySchemes
           :selectedClient
           :selectedSecurity
+          :selectedSecuritySchemes
           :server />
 
         <!-- Response Section -->

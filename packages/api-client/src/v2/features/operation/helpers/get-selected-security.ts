@@ -2,7 +2,10 @@ import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/s
 
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 
-/** Get the selected security for an operation or document, with defaults to the requirements */
+/**
+ * Get the selected security for an operation or document,
+ * Defaults to the first requirement if no selection is made
+ */
 export const getSelectedSecurity = (
   documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security'],
   operationSelectedSecurity: OperationObject['x-scalar-selected-security'],

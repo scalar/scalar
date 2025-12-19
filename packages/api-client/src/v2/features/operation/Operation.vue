@@ -16,7 +16,7 @@ import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { OperationBlock } from '@/v2/blocks/operation-block'
+import { getSecuritySchemes, OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
@@ -93,13 +93,21 @@ const securityRequirements = computed(() =>
   getSecurityRequirements(document?.security, operation.value?.security),
 )
 
-/** Select the selected security for the operation or document */
+/** The selected security for the operation or document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
     document?.['x-scalar-selected-security'],
     operation.value?.['x-scalar-selected-security'],
     securityRequirements.value,
     document?.['x-scalar-set-operation-security'],
+  ),
+)
+
+/** The above selected requirements in scheme form */
+const selectedSecuritySchemes = computed(() =>
+  getSecuritySchemes(
+    document?.components?.securitySchemes ?? {},
+    selectedSecurity.value.selectedSchemes,
   ),
 )
 
@@ -149,6 +157,7 @@ const router = useRouter()
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :selectedSecurity
+      :selectedSecuritySchemes
       :server="selectedServer"
       :servers="document?.servers ?? []"
       :totalPerformedRequests="0"
