@@ -627,6 +627,7 @@ const documentUrl = computed(() => {
 
 // @TODO temp new modal events while we migrate
 const modal = useTemplateRef<HTMLElement>('modal')
+// @ts-expect-error - TODO: Fix this
 useWorkspaceClientModalEvents({
   eventBus,
   document: computed(() => workspaceStore.workspace.activeDocument ?? null),
@@ -640,9 +641,9 @@ useWorkspaceClientModalEvents({
 // Top level event handlers and user specified callbacks
 
 /** Open the client modal on the custom event */
-onCustomEvent(root, 'scalar-open-client', (event) => {
-  openClient(event.detail)
-})
+// onCustomEvent(root, 'scalar-open-client', (event) => {
+//   openClient(event.detail)
+// })
 
 /** Set the sidebar item to open and run any config handlers */
 onCustomEvent(root, 'scalar-on-show-more', (event) => {
