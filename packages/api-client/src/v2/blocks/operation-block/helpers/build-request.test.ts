@@ -8,33 +8,6 @@ import { describe, expect, it, vi } from 'vitest'
 import * as electron from '@/libs/electron'
 
 import { buildRequest } from './build-request'
-import { getSecuritySchemes } from './build-request-security'
-
-/**
- * Helper function to convert old test format to new format.
- * Resolves security schemes from securitySchemes and selectedSecurity parameters.
- */
-const buildRequestWithLegacyParams = (params: {
-  environment: any
-  exampleKey: string
-  globalCookies: any[]
-  method: any
-  operation: any
-  path: string
-  proxyUrl: string
-  securitySchemes?: any
-  selectedSecurity?: any[]
-  server: any
-}) => {
-  const { securitySchemes, selectedSecurity, ...rest } = params
-  const selectedSecuritySchemes =
-    securitySchemes && selectedSecurity ? getSecuritySchemes(securitySchemes, selectedSecurity) : []
-
-  return buildRequest({
-    ...rest,
-    selectedSecuritySchemes,
-  })
-}
 
 describe('buildRequest', () => {
   const mockEnvironment = {
@@ -49,7 +22,7 @@ describe('buildRequest', () => {
   }
 
   it('builds a basic GET request', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -57,8 +30,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -71,7 +43,7 @@ describe('buildRequest', () => {
   })
 
   it('builds a request with no server and a path', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -79,8 +51,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: 'https://api.example.com/me',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: null,
     })
 
@@ -89,7 +60,7 @@ describe('buildRequest', () => {
   })
 
   it('throws error when no server and no path provided', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -97,8 +68,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: null,
     })
 
@@ -107,7 +77,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces environment variables in server url', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: {
         color: 'blue',
         variables: [
@@ -123,8 +93,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: '{{baseUrl}}',
       },
@@ -135,7 +104,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces server variables with default values', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -143,8 +112,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: 'https://{subdomain}.example.com',
         variables: {
@@ -161,7 +129,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: {
         color: 'blue',
         variables: [],
@@ -185,8 +153,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{userId}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -195,7 +162,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes forward slashes in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -216,8 +183,7 @@ describe('buildRequest', () => {
       },
       path: '/files/{path}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -226,7 +192,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes multiple special characters in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -247,8 +213,7 @@ describe('buildRequest', () => {
       },
       path: '/resources/{id}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -257,7 +222,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes spaces in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -278,8 +243,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{name}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -288,7 +252,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes hash symbols in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -309,8 +273,7 @@ describe('buildRequest', () => {
       },
       path: '/tags/{tag}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -319,7 +282,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes question marks in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -340,8 +303,7 @@ describe('buildRequest', () => {
       },
       path: '/search/{query}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -350,7 +312,7 @@ describe('buildRequest', () => {
   })
 
   it('handles empty path parameter values', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -371,8 +333,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{id}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -382,7 +343,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes environment variables with special characters in path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: {
         color: 'blue',
         variables: [
@@ -411,8 +372,7 @@ describe('buildRequest', () => {
       },
       path: '/files/{filePath}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -421,7 +381,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes multiple path parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -452,8 +412,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{userId}/files/{filePath}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -462,7 +421,7 @@ describe('buildRequest', () => {
   })
 
   it('sends query parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -483,8 +442,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -493,7 +451,7 @@ describe('buildRequest', () => {
   })
 
   it('sends query parameters as arrays', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -524,8 +482,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -534,7 +491,7 @@ describe('buildRequest', () => {
   })
 
   it('merges query parameters from server url', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -555,8 +512,7 @@ describe('buildRequest', () => {
       },
       path: '?example=parameter',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: 'https://api.example.com/api?orange=apple',
       },
@@ -567,7 +523,7 @@ describe('buildRequest', () => {
   })
 
   it('does not include disabled query parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -589,8 +545,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -599,7 +554,7 @@ describe('buildRequest', () => {
   })
 
   it('maintains query parameters with empty values', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -620,8 +575,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -630,7 +584,7 @@ describe('buildRequest', () => {
   })
 
   it('returns uppercase method', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -638,8 +592,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -648,7 +601,7 @@ describe('buildRequest', () => {
   })
 
   it('adds header parameters', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -669,8 +622,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -681,7 +633,7 @@ describe('buildRequest', () => {
   it('adds User-Agent header in Electron', () => {
     const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
 
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -702,8 +654,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -714,7 +665,7 @@ describe('buildRequest', () => {
   })
 
   it('sends cookies', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -735,8 +686,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -748,7 +698,7 @@ describe('buildRequest', () => {
   })
 
   it('sends global cookies matching domain', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -764,8 +714,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -781,7 +730,7 @@ describe('buildRequest', () => {
   })
 
   it('does not send global cookies not matching domain', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -797,8 +746,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -810,7 +758,7 @@ describe('buildRequest', () => {
   })
 
   it('does not send disabled global cookies', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -826,8 +774,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -841,7 +788,7 @@ describe('buildRequest', () => {
   it('uses custom cookie header in Electron', () => {
     const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
 
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -862,8 +809,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -875,7 +821,7 @@ describe('buildRequest', () => {
   })
 
   it('uses custom cookie header when using proxy', () => {
-    const [error, result] = buildRequestWithLegacyParams({
+    const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -896,8 +842,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: 'http://localhost:5051',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -907,7 +852,7 @@ describe('buildRequest', () => {
 
   describe('authentication', () => {
     it('adds apiKey auth in header', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -915,15 +860,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'X-API-KEY',
             in: 'header',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -932,7 +876,7 @@ describe('buildRequest', () => {
     })
 
     it('adds apiKey auth in query', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -940,15 +884,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -957,7 +900,7 @@ describe('buildRequest', () => {
     })
 
     it('adds apiKey auth in cookie', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -965,15 +908,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'auth-cookie',
             in: 'cookie',
             'x-scalar-secret-token': 'super-secret-token',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -983,7 +925,7 @@ describe('buildRequest', () => {
     })
 
     it('adds basic auth header', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -991,16 +933,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'basic-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'basic',
             'x-scalar-secret-token': '',
             'x-scalar-secret-username': 'user',
             'x-scalar-secret-password': 'pass',
           },
-        },
-        selectedSecurity: [{ 'basic-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1010,7 +951,7 @@ describe('buildRequest', () => {
     })
 
     it('adds bearer token header', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1018,16 +959,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': 'xxxx',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1036,7 +976,7 @@ describe('buildRequest', () => {
     })
 
     it('handles complex auth with multiple schemes', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1044,22 +984,21 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            'x-scalar-secret-token': 'xxxx',
-          },
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': 'yyyy',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [], 'api-key': [] }],
+          {
+            type: 'apiKey',
+            name: 'api_key',
+            in: 'query',
+            'x-scalar-secret-token': 'xxxx',
+          },
+        ],
         server: mockServer,
       })
 
@@ -1069,7 +1008,7 @@ describe('buildRequest', () => {
     })
 
     it('adds oauth2 token header', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1077,8 +1016,8 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'oauth2-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'oauth2',
             flows: {
               implicit: {
@@ -1091,8 +1030,7 @@ describe('buildRequest', () => {
               },
             },
           },
-        },
-        selectedSecurity: [{ 'oauth2-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1101,7 +1039,7 @@ describe('buildRequest', () => {
     })
 
     it('accepts a lowercase auth header', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1109,15 +1047,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'x-api-key',
             in: 'header',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1128,7 +1065,7 @@ describe('buildRequest', () => {
 
   describe('request body', () => {
     it('sends JSON body', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1149,8 +1086,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1159,7 +1095,7 @@ describe('buildRequest', () => {
     })
 
     it('selects correct content type from request body', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1181,8 +1117,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1193,7 +1128,7 @@ describe('buildRequest', () => {
 
   describe('proxy handling', () => {
     it('redirects to proxy when proxy url is provided', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1201,8 +1136,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: 'http://localhost:5051',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1211,7 +1145,7 @@ describe('buildRequest', () => {
     })
 
     it('skips proxy for localhost requests', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1219,8 +1153,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: 'http://localhost:5051',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: 'http://127.0.0.1:5052',
         },
@@ -1235,7 +1168,7 @@ describe('buildRequest', () => {
 
   describe('url handling', () => {
     it('keeps the trailing slash', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1243,8 +1176,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/v1/',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1261,8 +1193,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: '/api',
         },
@@ -1277,7 +1208,7 @@ describe('buildRequest', () => {
 
   describe('abort controller', () => {
     it('returns an abort controller', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1285,8 +1216,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1300,7 +1230,7 @@ describe('buildRequest', () => {
 
   describe('environment variable replacement', () => {
     it('replaces environment variables in path', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1316,8 +1246,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users/{{userId}}',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1326,7 +1255,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in query parameters', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1355,8 +1284,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1365,7 +1293,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in headers', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1394,8 +1322,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1404,7 +1331,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in cookies', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1433,8 +1360,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1445,7 +1371,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in security schemes', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1461,16 +1387,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': '{{token}}',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1479,7 +1404,7 @@ describe('buildRequest', () => {
     })
 
     it('handles environment variables with object values', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: {
           color: 'blue',
           variables: [
@@ -1498,8 +1423,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: '{{baseUrl}}',
         },
@@ -1512,7 +1436,7 @@ describe('buildRequest', () => {
 
   describe('example keys', () => {
     it('uses specified example key', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'custom',
         globalCookies: [],
@@ -1536,8 +1460,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1546,7 +1469,7 @@ describe('buildRequest', () => {
     })
 
     it('falls back to first available example when key not found', () => {
-      const [error, result] = buildRequestWithLegacyParams({
+      const [error, result] = buildRequest({
         environment: mockEnvironment,
         exampleKey: 'nonexistent',
         globalCookies: [],
@@ -1567,8 +1490,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 

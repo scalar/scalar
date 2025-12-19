@@ -14,20 +14,6 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity, getSecuritySchemes } from './build-request-security'
 
-/**
- * Helper function to call buildRequestSecurity with the old test format.
- * Converts securitySchemes object and selectedSecurity array to the new format.
- */
-const buildRequestSecurityWithLegacyParams = (
-  securitySchemes: any,
-  selectedSecurity: any[],
-  env: Record<string, string> = {},
-  emptyTokenPlaceholder = '',
-) => {
-  const selectedSecuritySchemes = getSecuritySchemes(securitySchemes, selectedSecurity)
-  return buildRequestSecurity(selectedSecuritySchemes, env, emptyTokenPlaceholder)
-}
-
 describe('buildRequestSecurity', () => {
   let apiKey: ApiKeyObject
   let basic: HttpObject
@@ -54,7 +40,7 @@ describe('buildRequestSecurity', () => {
   })
 
   it('returns empty objects when no security schemes are provided', () => {
-    const result = buildRequestSecurityWithLegacyParams({}, [])
+    const result = buildRequestSecurity([])
 
     expect(result.headers).toEqual({})
     expect(result.cookies).toEqual([])
@@ -63,19 +49,19 @@ describe('buildRequestSecurity', () => {
 
   describe('apiKey security', () => {
     it('handles apiKey in header', () => {
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
+      const result = buildRequestSecurity([apiKey])
       expect(result.headers['x-api-key']).toBe('test-key')
     })
 
     it('handles apiKey in query', () => {
       apiKey.in = 'query'
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
+      const result = buildRequestSecurity([apiKey])
       expect(result.urlParams.get('x-api-key')).toBe('test-key')
     })
 
     it('handles apiKey in cookie', () => {
       apiKey.in = 'cookie'
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }])
+      const result = buildRequestSecurity([apiKey])
 
       expect(result.cookies[0]).toEqual({
         name: 'x-api-key',
@@ -88,14 +74,14 @@ describe('buildRequestSecurity', () => {
   describe('http security', () => {
     it('handles basic auth', () => {
       basic.scheme = 'basic'
-      const result = buildRequestSecurityWithLegacyParams({ basicScheme: basic }, [{ basicScheme: [] }])
+      const result = buildRequestSecurity([basic])
       expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
     })
 
     it('handles basic auth with empty credentials', () => {
       basic['x-scalar-secret-username'] = ''
       basic['x-scalar-secret-password'] = ''
-      const result = buildRequestSecurityWithLegacyParams({ basicScheme: basic }, [{ basicScheme: [] }])
+      const result = buildRequestSecurity([basic])
       expect(result.headers['Authorization']).toBe('Basic username:password')
     })
 
@@ -103,7 +89,7 @@ describe('buildRequestSecurity', () => {
       basic['x-scalar-secret-username'] = 'żółć'
       basic['x-scalar-secret-password'] = 'тест'
 
-      const result = buildRequestSecurityWithLegacyParams({ basicScheme: basic }, [{ basicScheme: [] }])
+      const result = buildRequestSecurity([basic])
 
       // The credentials are properly encoded as base64
       const expectedBase64 = 'xbzDs8WCxIc60YLQtdGB0YI='
@@ -113,7 +99,7 @@ describe('buildRequestSecurity', () => {
     it('handles bearer auth', () => {
       basic.scheme = 'bearer'
       basic['x-scalar-secret-token'] = 'test-token'
-      const result = buildRequestSecurityWithLegacyParams({ bearerScheme: basic }, [{ bearerScheme: [] }])
+      const result = buildRequestSecurity([basic])
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
   })
@@ -125,12 +111,12 @@ describe('buildRequestSecurity', () => {
           'x-scalar-secret-token': 'test-token',
         } as OAuthFlowImplicit,
       }
-      const result = buildRequestSecurityWithLegacyParams({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
+      const result = buildRequestSecurity([oauth2])
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
 
     it('handles oauth2 without token', () => {
-      const result = buildRequestSecurityWithLegacyParams({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
+      const result = buildRequestSecurity([oauth2])
       expect(result.headers['Authorization']).toBe('Bearer ')
     })
 
@@ -144,19 +130,14 @@ describe('buildRequestSecurity', () => {
         } as OAuthFlowAuthorizationCode,
       }
 
-      const result = buildRequestSecurityWithLegacyParams({ oauth2Scheme: oauth2 }, [{ oauth2Scheme: [] }])
+      const result = buildRequestSecurity([oauth2])
       expect(result.headers['Authorization']).toBe('Bearer test-token-implicit')
     })
   })
 
   it('handles empty token placeholder', () => {
     apiKey['x-scalar-secret-token'] = ''
-    const result = buildRequestSecurityWithLegacyParams(
-      { apiKeyScheme: apiKey },
-      [{ apiKeyScheme: [] }],
-      {},
-      'NO_VALUE',
-    )
+    const result = buildRequestSecurity([apiKey], {}, 'NO_VALUE')
     expect(result.headers['x-api-key']).toBe('NO_VALUE')
   })
 
@@ -165,7 +146,7 @@ describe('buildRequestSecurity', () => {
       apiKey['x-scalar-secret-token'] = '{{API_KEY}}'
       const env = { API_KEY: 'my-secret-key-123' }
 
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey }, [{ apiKeyScheme: [] }], env)
+      const result = buildRequestSecurity([apiKey], env)
 
       expect(result.headers['x-api-key']).toBe('my-secret-key-123')
     })
@@ -175,7 +156,7 @@ describe('buildRequestSecurity', () => {
       basic['x-scalar-secret-password'] = '{{PASSWORD}}'
       const env = { USERNAME: 'admin', PASSWORD: 'super-secret' }
 
-      const result = buildRequestSecurityWithLegacyParams({ basicScheme: basic }, [{ basicScheme: [] }], env)
+      const result = buildRequestSecurity([basic], env)
 
       expect(result.headers['Authorization']).toBe(`Basic ${encode('admin:super-secret')}`)
     })
@@ -191,9 +172,7 @@ describe('buildRequestSecurity', () => {
         'x-scalar-secret-token': 'client-123',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey, clientIdScheme: apiKey2 }, [
-        { apiKeyScheme: [], clientIdScheme: [] },
-      ])
+      const result = buildRequestSecurity([apiKey, apiKey2])
 
       // Both headers should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -201,9 +180,7 @@ describe('buildRequestSecurity', () => {
     })
 
     it('handles apiKey and basic auth together', () => {
-      const result = buildRequestSecurityWithLegacyParams({ apiKeyScheme: apiKey, basicScheme: basic }, [
-        { apiKeyScheme: [], basicScheme: [] },
-      ])
+      const result = buildRequestSecurity([apiKey, basic])
 
       // Both apiKey header and Authorization header should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -235,10 +212,7 @@ describe('buildRequestSecurity', () => {
         'x-scalar-secret-token': 'cookie-value',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurityWithLegacyParams(
-        { headerScheme: headerKey, queryScheme: queryKey, cookieScheme: cookieKey },
-        [{ headerScheme: [], queryScheme: [], cookieScheme: [] }],
-      )
+      const result = buildRequestSecurity([headerKey, queryKey, cookieKey])
 
       // All three locations should have their respective values
       expect(result.headers['x-api-key']).toBe('header-key')

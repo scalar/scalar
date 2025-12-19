@@ -29,10 +29,7 @@ import {
   createWorkspaceStore,
   type UrlDoc,
 } from '@scalar/workspace-store/client'
-import {
-  createWorkspaceEventBus,
-  onCustomEvent,
-} from '@scalar/workspace-store/events'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedTag,
@@ -70,7 +67,6 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { useIntersection } from '@/hooks/use-intersection'
-import { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 
 const props = defineProps<{
@@ -408,9 +404,6 @@ const scrollToLazyElement = (id: string) => {
   sidebarState.setSelected(id)
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
 }
-
-/** Set up event listeners for client store events */
-useWorkspaceStoreEvents(workspaceStore, root)
 
 /** Maps some config values to the workspace store to keep it reactive */
 mapConfigToWorkspaceStore({
