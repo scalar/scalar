@@ -35,7 +35,7 @@ Your docs site will be automatically available at `https://<subdomain>.apidocume
 ```json
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
-  "subdomain": "my-awesome-documentation",
+  "subdomain": "YOUR_CUSTOM_SUBDOMAIN_HERE", // e.g. "subdomain": "acme"
   "guides": [
     {
       "name": "My awesome documentation",
