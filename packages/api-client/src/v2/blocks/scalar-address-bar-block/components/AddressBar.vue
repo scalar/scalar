@@ -3,10 +3,15 @@ import {
   ScalarButton,
   ScalarIcon,
   ScalarWrappingText,
+  useLoadingState,
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconWarningCircle } from '@scalar/icons'
+import {
+  ScalarIconCheck,
+  ScalarIconCopy,
+  ScalarIconWarningCircle,
+} from '@scalar/icons'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
@@ -24,6 +29,8 @@ import {
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
+import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
+import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
@@ -167,6 +174,16 @@ onBeforeUnmount(() => {
   stopLoading()
 })
 
+const copyUrlLoading = useLoadingState()
+
+const copyUrl = async () => {
+  copyUrlLoading.start()
+  const environmentVariables = getEnvironmentVariables(environment)
+  const serverUrl = getServerUrl(server, environmentVariables)
+  await navigator.clipboard.writeText(`${serverUrl}${path}`)
+  await copyUrlLoading.validate()
+}
+
 defineExpose({
   methodConflict,
   pathConflict,
@@ -245,6 +262,17 @@ defineExpose({
           @update:modelValue="handlePathChange" />
         <div class="fade-right" />
       </div>
+
+      <!-- Copy url button -->
+      <ScalarButton
+        class="hover:bg-b-3 mx-1"
+        size="xs"
+        variant="ghost"
+        @click="copyUrl">
+        <ScalarIconCopy v-if="!copyUrlLoading.isActive" />
+        <ScalarIconCheck v-else />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
 
       <AddressBarHistory
         :history="history"
