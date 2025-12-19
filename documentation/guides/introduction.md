@@ -440,7 +440,7 @@
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="introduction footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -487,7 +487,11 @@
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  .t-doc__toc,
+  .page-nav,
+  :not(.introduction).footer,
+  .t-editor .page-header {
     display: none;
   }
   .t-doc .layout-header {
@@ -519,7 +523,15 @@
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor.page {
+    margin-right: unset;
+  }
+  .t-editor .slider {
+    margin-top: unset;
+  }
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -818,7 +830,7 @@
     margin-bottom: 44px;
   }
   /* footer */
-  .footer {
+  .introduction.footer  {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
