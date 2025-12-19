@@ -31,7 +31,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'

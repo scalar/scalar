@@ -8,6 +8,33 @@ import { describe, expect, it, vi } from 'vitest'
 import * as electron from '@/libs/electron'
 
 import { buildRequest } from './build-request'
+import { getSecuritySchemes } from './build-request-security'
+
+/**
+ * Helper function to convert old test format to new format.
+ * Resolves security schemes from securitySchemes and selectedSecurity parameters.
+ */
+const buildRequestWithLegacyParams = (params: {
+  environment: any
+  exampleKey: string
+  globalCookies: any[]
+  method: any
+  operation: any
+  path: string
+  proxyUrl: string
+  securitySchemes?: any
+  selectedSecurity?: any[]
+  server: any
+}) => {
+  const { securitySchemes, selectedSecurity, ...rest } = params
+  const selectedSecuritySchemes =
+    securitySchemes && selectedSecurity ? getSecuritySchemes(securitySchemes, selectedSecurity) : []
+
+  return buildRequest({
+    ...rest,
+    selectedSecuritySchemes,
+  })
+}
 
 describe('buildRequest', () => {
   const mockEnvironment = {
@@ -22,7 +49,7 @@ describe('buildRequest', () => {
   }
 
   it('builds a basic GET request', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -44,7 +71,7 @@ describe('buildRequest', () => {
   })
 
   it('builds a request with no server and a path', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -62,7 +89,7 @@ describe('buildRequest', () => {
   })
 
   it('throws error when no server and no path provided', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -80,7 +107,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces environment variables in server url', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: {
         color: 'blue',
         variables: [
@@ -108,7 +135,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces server variables with default values', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -134,7 +161,7 @@ describe('buildRequest', () => {
   })
 
   it('replaces path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: {
         color: 'blue',
         variables: [],
@@ -168,7 +195,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes forward slashes in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -199,7 +226,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes multiple special characters in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -230,7 +257,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes spaces in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -261,7 +288,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes hash symbols in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -292,7 +319,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes question marks in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -323,7 +350,7 @@ describe('buildRequest', () => {
   })
 
   it('handles empty path parameter values', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -355,7 +382,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes environment variables with special characters in path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: {
         color: 'blue',
         variables: [
@@ -394,7 +421,7 @@ describe('buildRequest', () => {
   })
 
   it('encodes multiple path parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -435,7 +462,7 @@ describe('buildRequest', () => {
   })
 
   it('sends query parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -466,7 +493,7 @@ describe('buildRequest', () => {
   })
 
   it('sends query parameters as arrays', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -507,7 +534,7 @@ describe('buildRequest', () => {
   })
 
   it('merges query parameters from server url', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -540,7 +567,7 @@ describe('buildRequest', () => {
   })
 
   it('does not include disabled query parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -572,7 +599,7 @@ describe('buildRequest', () => {
   })
 
   it('maintains query parameters with empty values', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -603,7 +630,7 @@ describe('buildRequest', () => {
   })
 
   it('returns uppercase method', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -621,7 +648,7 @@ describe('buildRequest', () => {
   })
 
   it('adds header parameters', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -654,7 +681,7 @@ describe('buildRequest', () => {
   it('adds User-Agent header in Electron', () => {
     const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
 
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -687,7 +714,7 @@ describe('buildRequest', () => {
   })
 
   it('sends cookies', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -721,7 +748,7 @@ describe('buildRequest', () => {
   })
 
   it('sends global cookies matching domain', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -754,7 +781,7 @@ describe('buildRequest', () => {
   })
 
   it('does not send global cookies not matching domain', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -783,7 +810,7 @@ describe('buildRequest', () => {
   })
 
   it('does not send disabled global cookies', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [
@@ -814,7 +841,7 @@ describe('buildRequest', () => {
   it('uses custom cookie header in Electron', () => {
     const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
 
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -848,7 +875,7 @@ describe('buildRequest', () => {
   })
 
   it('uses custom cookie header when using proxy', () => {
-    const [error, result] = buildRequest({
+    const [error, result] = buildRequestWithLegacyParams({
       environment: mockEnvironment,
       exampleKey: 'default',
       globalCookies: [],
@@ -880,7 +907,7 @@ describe('buildRequest', () => {
 
   describe('authentication', () => {
     it('adds apiKey auth in header', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -905,7 +932,7 @@ describe('buildRequest', () => {
     })
 
     it('adds apiKey auth in query', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -930,7 +957,7 @@ describe('buildRequest', () => {
     })
 
     it('adds apiKey auth in cookie', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -956,7 +983,7 @@ describe('buildRequest', () => {
     })
 
     it('adds basic auth header', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -983,7 +1010,7 @@ describe('buildRequest', () => {
     })
 
     it('adds bearer token header', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1009,7 +1036,7 @@ describe('buildRequest', () => {
     })
 
     it('handles complex auth with multiple schemes', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1042,7 +1069,7 @@ describe('buildRequest', () => {
     })
 
     it('adds oauth2 token header', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1074,7 +1101,7 @@ describe('buildRequest', () => {
     })
 
     it('accepts a lowercase auth header', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1101,7 +1128,7 @@ describe('buildRequest', () => {
 
   describe('request body', () => {
     it('sends JSON body', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1132,7 +1159,7 @@ describe('buildRequest', () => {
     })
 
     it('selects correct content type from request body', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1166,7 +1193,7 @@ describe('buildRequest', () => {
 
   describe('proxy handling', () => {
     it('redirects to proxy when proxy url is provided', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1184,7 +1211,7 @@ describe('buildRequest', () => {
     })
 
     it('skips proxy for localhost requests', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1208,7 +1235,7 @@ describe('buildRequest', () => {
 
   describe('url handling', () => {
     it('keeps the trailing slash', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1250,7 +1277,7 @@ describe('buildRequest', () => {
 
   describe('abort controller', () => {
     it('returns an abort controller', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'default',
         globalCookies: [],
@@ -1273,7 +1300,7 @@ describe('buildRequest', () => {
 
   describe('environment variable replacement', () => {
     it('replaces environment variables in path', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1299,7 +1326,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in query parameters', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1338,7 +1365,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in headers', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1377,7 +1404,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in cookies', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1418,7 +1445,7 @@ describe('buildRequest', () => {
     })
 
     it('replaces environment variables in security schemes', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1452,7 +1479,7 @@ describe('buildRequest', () => {
     })
 
     it('handles environment variables with object values', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: {
           color: 'blue',
           variables: [
@@ -1485,7 +1512,7 @@ describe('buildRequest', () => {
 
   describe('example keys', () => {
     it('uses specified example key', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'custom',
         globalCookies: [],
@@ -1519,7 +1546,7 @@ describe('buildRequest', () => {
     })
 
     it('falls back to first available example when key not found', () => {
-      const [error, result] = buildRequest({
+      const [error, result] = buildRequestWithLegacyParams({
         environment: mockEnvironment,
         exampleKey: 'nonexistent',
         globalCookies: [],

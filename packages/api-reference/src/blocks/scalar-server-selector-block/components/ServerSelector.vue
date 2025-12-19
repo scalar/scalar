@@ -12,7 +12,7 @@ export type SelectorProps = {
  * ServerSelector
  *
  * Core component for rendering a server selector block.
- * Handles server selection and emits a 'scalar-update-selected-server' event when the selected server changes.
+ * Handles server selection and emits a 'server:update:selected' event when the selected server changes.
  *
  * @event server:update:selected - Emitted when the selected server changes
  * @event server:update:variables - Emitted when a server variable changes

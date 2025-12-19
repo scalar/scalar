@@ -50,7 +50,7 @@ const {
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
   /** The event bus for the handling all events. */
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
 }>()
 
 /**

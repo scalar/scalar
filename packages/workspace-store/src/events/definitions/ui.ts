@@ -126,6 +126,13 @@ export type UIEvents = {
    */
   'ui:toggle:sidebar': KeyboardEventPayload
 
+  /**
+   * For the show more event callback
+   */
+  'ui:toggle:show-more': {
+    id: string
+  }
+
   // ────────────────────────────────────────────────────────────
   // Modal Events
   // ────────────────────────────────────────────────────────────
@@ -134,14 +141,16 @@ export type UIEvents = {
    * Open the API Client modal to a specific operation.
    * This allows deep linking into specific endpoints from external sources.
    */
-  'ui:open:client-modal': {
-    /** The HTTP method of the operation to load (e.g., GET, POST) */
-    method: HttpMethod
-    /** The path of the operation to load (e.g., /users/{id}) */
-    path: string
-    /** Optional example name to load for this operation */
-    exampleName?: string
-  }
+  'ui:open:client-modal':
+    | undefined
+    | {
+        /** The HTTP method of the operation to load (e.g., GET, POST) */
+        method: HttpMethod
+        /** The path of the operation to load (e.g., /users/{id}) */
+        path: string
+        /** Optional example name to load for this operation */
+        exampleName?: string
+      }
 
   /**
    * Close the API Client modal.

@@ -51,6 +51,10 @@ export type OperationCodeSampleProps = {
    */
   selectedExample?: string
   /**
+   * Event bus
+   */
+  eventBus: WorkspaceEventBus
+  /**
    * The security schemes which are applicable to this operation
    */
   securitySchemes: SecuritySchemeObject[]
@@ -86,8 +90,8 @@ export type OperationCodeSampleProps = {
  * The core component for rendering a request example block,
  * this component does not have much of its own state but operates on props and custom events
  *
- * @event scalar-update-selected-client - Emitted when the selected client changes
- * @event scalar-update-selected-example - Emitted when the selected example changes
+ * @event workspace:update:selected-client - Emitted when the selected client changes
+ * @event scalar-update-selected-example - removed for now, we can bring it back when we need it
  */
 export default {}
 </script>
@@ -107,7 +111,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -139,6 +143,7 @@ const {
   selectedExample,
   securitySchemes = [],
   method,
+  eventBus,
   path,
   operation,
   isWebhook,
@@ -268,8 +273,8 @@ const selectClient = (option: ClientOption) => {
   localSelectedClient.value = option
 
   // Emit the change if it's not a custom example
-  if (!option.id.startsWith('custom')) {
-    emitCustomEvent(elem.value?.$el, 'scalar-update-selected-client', option.id)
+  if (option && !option.id.startsWith('custom')) {
+    eventBus.emit('workspace:update:selected-client', option.id)
   }
 }
 
@@ -356,14 +361,7 @@ const id = useId()
         <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker
             v-model="selectedExampleKey"
-            :examples="requestBodyExamples"
-            @update:modelValue="
-              emitCustomEvent(
-                elem?.$el,
-                'scalar-update-selected-example',
-                $event,
-              )
-            " />
+            :examples="requestBodyExamples" />
         </template>
       </div>
 

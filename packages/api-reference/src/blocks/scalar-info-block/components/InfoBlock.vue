@@ -16,6 +16,7 @@ import IntroductionLayout from './IntroductionLayout.vue'
 const {
   headingSlugGenerator,
   layout,
+  eventBus,
   documentDownloadType = 'both',
 } = defineProps<{
   /** Optional unique identifier for the info block. */
@@ -31,7 +32,7 @@ const {
   /** OpenAPI extension fields at the info object level. */
   infoExtensions?: Record<string, unknown>
   /** The event bus for the handling all events. */
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
   /** Determines the layout style for the info block ('modern' or 'classic'). */
@@ -66,7 +67,9 @@ const introCardsSlot = computed(() =>
       </IntroductionCard>
     </template>
     <template #download-link>
-      <DownloadLink :documentDownloadType />
+      <DownloadLink
+        :documentDownloadType
+        :eventBus />
     </template>
   </IntroductionLayout>
 </template>

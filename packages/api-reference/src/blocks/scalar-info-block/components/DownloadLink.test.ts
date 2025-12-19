@@ -1,21 +1,27 @@
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
-import { captureCustomEvent } from '@test/utils/custom-event'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
 
 import DownloadLink from './DownloadLink.vue'
 
-// Mock the download function
-vi.mock('@/helpers/download', () => ({
-  downloadDocument: vi.fn(),
-}))
+/**
+ * Creates a minimal mock event bus for testing.
+ * We only implement the methods that DownloadLink uses.
+ */
+const createMockEventBus = (): WorkspaceEventBus => ({
+  on: vi.fn(),
+  off: vi.fn(),
+  emit: vi.fn(),
+})
 
 describe('DownloadLink', () => {
-  const mockGetOriginalDocument = vi.fn(() => '{"openapi": "3.0.0"}')
+  let mockEventBus: WorkspaceEventBus
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockEventBus = createMockEventBus()
   })
 
   afterEach(() => {
@@ -32,9 +38,7 @@ describe('DownloadLink', () => {
 
     return mount(DownloadLink, {
       props: {
-        title: 'Test API',
-        getOriginalDocument: mockGetOriginalDocument,
-        url: config.value.url,
+        eventBus: mockEventBus,
         documentDownloadType: config.value.documentDownloadType,
         ...props,
       },
@@ -51,45 +55,40 @@ describe('DownloadLink', () => {
       expect(wrapper.find('.extension').text()).toBe('json')
     })
 
-    it('calls downloadDocument with json format when JSON button is clicked', async () => {
+    it('emits ui:download:document event with json format when JSON button is clicked', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' })
 
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
-
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      await expectDetailToBe({ format: 'json' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'json' })
     })
 
-    it('generates correct filename from title using GitHubSlugger', async () => {
-      const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: 'My Awesome API v2.0' })
+    it('emits ui:download:document event with json format regardless of title', async () => {
+      const wrapper = createWrapper({ documentDownloadType: 'json' })
 
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      await expectDetailToBe({ format: 'json' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'json' })
     })
 
     it('handles empty title gracefully', async () => {
-      const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: '' })
+      const wrapper = createWrapper({ documentDownloadType: 'json' })
 
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      await expectDetailToBe({ format: 'json' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'json' })
     })
 
     it('handles undefined title gracefully', async () => {
-      const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: undefined })
+      const wrapper = createWrapper({ documentDownloadType: 'json' })
 
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      await expectDetailToBe({ format: 'json' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'json' })
     })
   })
 
@@ -103,14 +102,13 @@ describe('DownloadLink', () => {
       expect(wrapper.find('.extension').text()).toBe('yaml')
     })
 
-    it('calls downloadDocument with yaml format when YAML button is clicked', async () => {
+    it('emits ui:download:document event with yaml format when YAML button is clicked', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'yaml' })
 
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      await expectDetailToBe({ format: 'yaml' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'yaml' })
     })
   })
 
@@ -134,18 +132,18 @@ describe('DownloadLink', () => {
       expect(wrapper.find('.download-container').classes()).toContain('download-both')
     })
 
-    it('calls downloadDocument with correct format for each button', async () => {
+    it('emits ui:download:document event with correct format for each button', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'both' })
 
       const buttons = wrapper.findAll('.download-button')
-      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
+
       // Click JSON button
       await buttons[0]?.trigger('click')
-      await expectDetailToBe({ format: 'json' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'json' })
 
       // Click YAML button
       await buttons[1]?.trigger('click')
-      await expectDetailToBe({ format: 'yaml' })
+      expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'yaml' })
     })
   })
 

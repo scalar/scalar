@@ -640,26 +640,20 @@ useWorkspaceClientModalEvents({
 // ---------------------------------------------------------------------------
 // Top level event handlers and user specified callbacks
 
-/** Open the client modal on the custom event */
-// onCustomEvent(root, 'scalar-open-client', (event) => {
-//   openClient(event.detail)
-// })
-
 /** Set the sidebar item to open and run any config handlers */
-onCustomEvent(root, 'scalar-on-show-more', (event) => {
-  mergedConfig.value.onShowMore?.(event.detail.id)
-  return sidebarState.setExpanded(event.detail.id, true)
+eventBus.on('ui:toggle:show-more', ({ id }) => {
+  mergedConfig.value.onShowMore?.(id)
+  return sidebarState.setExpanded(id, true)
 })
 
-onCustomEvent(root, 'scalar-update-selected-server', (event) => {
-  // Ensure we call the onServerChange callback
-  if (mergedConfig.value.onServerChange) {
-    mergedConfig.value.onServerChange(event.detail.value ?? '')
-  }
-})
+/** Ensure we call the onServerChange callback */
+eventBus.on('server:update:selected', ({ url }) =>
+  mergedConfig.value.onServerChange?.(url),
+)
 
-onCustomEvent(root, 'scalar-download-document', async (event) => {
-  if (event.detail.format === 'direct') {
+/** Download the document from the store */
+eventBus.on('ui:download:document', async ({ format }) => {
+  if (format === 'direct') {
     const url = configList.value[activeSlug.value]?.source?.url
     if (!url) {
       console.error(
@@ -676,7 +670,6 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
     return
   }
 
-  const format = event.detail.format
   const document = workspaceStore.exportActiveDocument(format)
   if (!document) {
     console.error('No document found to download')
