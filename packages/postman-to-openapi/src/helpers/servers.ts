@@ -14,11 +14,12 @@ export type ServerPlacement = {
 /**
  * Analyzes server usage and determines the optimal placement level for each server.
  * Placement logic:
- * - If server used in only 1 operation → operation level
- * - If server used in multiple operations within 1 path → path item level
+ * - If server used in all paths → document level
  * - If server used in multiple paths → document level
+ * - If server used in multiple operations within 1 path → path item level
+ * - If server used in only 1 operation → operation level
  */
-export function analyzeServerDistribution(serverUsage: ServerUsage[]): ServerPlacement {
+export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniquePaths: Set<string>): ServerPlacement {
   const placement: ServerPlacement = {
     document: [],
     pathItems: new Map(),
@@ -50,8 +51,14 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[]): ServerPla
     const uniquePaths = new Set(Array.from(usages).map((u) => u.path))
     const pathCount = uniquePaths.size
 
-    if (pathCount > 1) {
-      // Server used in multiple paths → document level
+    // Check if server covers all paths in the document
+    const coversAllPaths =
+      allUniquePaths.size > 0 &&
+      uniquePaths.size === allUniquePaths.size &&
+      Array.from(uniquePaths).every((path) => allUniquePaths.has(path))
+
+    if (coversAllPaths || pathCount > 1) {
+      // Server used in all paths or multiple paths → document level
       placement.document.push(serverObject)
     } else if (usages.size > 1) {
       // Server used in multiple operations within 1 path → path item level

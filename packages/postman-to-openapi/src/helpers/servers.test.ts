@@ -4,7 +4,7 @@ import type { ServerUsage } from './path-items'
 import { analyzeServerDistribution } from './servers'
 
 describe('servers', () => {
-  it('places server at operation level when used by only one operation', () => {
+  it('places server at document level when used for all paths (single path)', () => {
     const serverUsage: ServerUsage[] = [
       {
         serverUrl: 'https://api.example.com',
@@ -13,19 +13,19 @@ describe('servers', () => {
       },
     ]
 
-    const result = analyzeServerDistribution(serverUsage)
+    const allUniquePaths = new Set(['/users'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
 
-    expect(result.document).toEqual([])
-    expect(result.pathItems.size).toBe(0)
-    expect(result.operations.size).toBe(1)
-    expect(result.operations.get('/users:get')).toEqual([
+    expect(result.document).toEqual([
       {
         url: 'https://api.example.com',
       },
     ])
+    expect(result.pathItems.size).toBe(0)
+    expect(result.operations.size).toBe(0)
   })
 
-  it('places server at path item level when used by multiple operations in same path', () => {
+  it('places server at document level when used for all paths (single path, multiple operations)', () => {
     const serverUsage: ServerUsage[] = [
       {
         serverUrl: 'https://api.example.com',
@@ -39,15 +39,15 @@ describe('servers', () => {
       },
     ]
 
-    const result = analyzeServerDistribution(serverUsage)
+    const allUniquePaths = new Set(['/users'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
 
-    expect(result.document).toEqual([])
-    expect(result.pathItems.size).toBe(1)
-    expect(result.pathItems.get('/users')).toEqual([
+    expect(result.document).toEqual([
       {
         url: 'https://api.example.com',
       },
     ])
+    expect(result.pathItems.size).toBe(0)
     expect(result.operations.size).toBe(0)
   })
 
@@ -65,7 +65,8 @@ describe('servers', () => {
       },
     ]
 
-    const result = analyzeServerDistribution(serverUsage)
+    const allUniquePaths = new Set(['/users', '/posts'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
 
     expect(result.document).toEqual([
       {
@@ -108,7 +109,8 @@ describe('servers', () => {
       },
     ]
 
-    const result = analyzeServerDistribution(serverUsage)
+    const allUniquePaths = new Set(['/users', '/posts', '/comments', '/special'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
 
     expect(result.document).toEqual([
       {
@@ -130,14 +132,15 @@ describe('servers', () => {
   })
 
   it('handles empty server usage', () => {
-    const result = analyzeServerDistribution([])
+    const allUniquePaths = new Set<string>()
+    const result = analyzeServerDistribution([], allUniquePaths)
 
     expect(result.document).toEqual([])
     expect(result.pathItems.size).toBe(0)
     expect(result.operations.size).toBe(0)
   })
 
-  it('deduplicates servers at the same level', () => {
+  it('places server at document level when used for all paths (single path, multiple operations)', () => {
     const serverUsage: ServerUsage[] = [
       {
         serverUrl: 'https://api.example.com',
@@ -156,15 +159,15 @@ describe('servers', () => {
       },
     ]
 
-    const result = analyzeServerDistribution(serverUsage)
+    const allUniquePaths = new Set(['/users'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
 
-    expect(result.document).toEqual([])
-    expect(result.pathItems.size).toBe(1)
-    expect(result.pathItems.get('/users')).toEqual([
+    expect(result.document).toEqual([
       {
         url: 'https://api.example.com',
       },
     ])
+    expect(result.pathItems.size).toBe(0)
     expect(result.operations.size).toBe(0)
   })
 })
