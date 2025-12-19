@@ -622,27 +622,12 @@ defineExpose({
   dereferenced,
 })
 
-const modal = useTemplateRef<HTMLElement>('modal')
-
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
 })
 
-/**
- * Keeps the client store in sync with the workspace store
- *
- * Handles resetting the client store when the document changes
- */
-const { getSecuritySchemes, openClient } = mapConfigToClientStore({
-  workspaceStore,
-  config: mergedConfig,
-  el: modal,
-  root,
-  dereferencedDocument: dereferenced,
-  documentUrl,
-})
-
 // @TODO temp new modal events while we migrate
+const modal = useTemplateRef<HTMLElement>('modal')
 useWorkspaceClientModalEvents({
   eventBus,
   document: computed(() => workspaceStore.workspace.activeDocument ?? null),
@@ -921,7 +906,6 @@ const colorMode = computed(() => {
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
-          :getSecuritySchemes="getSecuritySchemes"
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"
           :options="{

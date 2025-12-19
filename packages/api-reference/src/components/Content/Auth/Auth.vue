@@ -13,41 +13,51 @@ import {
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 const {
-  document,
+  documentSecurity,
+  documentSelectedSecurity,
   environment,
   eventBus,
   persistAuth,
   proxyUrl,
+  securitySchemes,
   selectedServer,
 } = defineProps<{
-  document: WorkspaceDocument
+  documentSecurity: OpenApiDocument['security']
+  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
-  selectedServer: ServerObject | null
   persistAuth: boolean
   proxyUrl: string | null
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  selectedServer: ServerObject | null
 }>()
 
 /** Compute what the security requirements should be for an operation */
 const securityRequirements = computed(() =>
-  getSecurityRequirements(document, null),
+  getSecurityRequirements(documentSecurity),
 )
 
 /** Select the selected security for the operation or document */
 const selectedSecurity = computed(() =>
-  getSelectedSecurity(document, null, securityRequirements.value),
+  getSelectedSecurity(
+    documentSelectedSecurity,
+    undefined,
+    securityRequirements.value,
+  ),
 )
 </script>
 
 <template>
   <AuthSelector
-    v-if="Object.keys(document?.components?.securitySchemes ?? {}).length"
+    v-if="Object.keys(securitySchemes ?? {}).length"
     :environment
     :eventBus
     isReadOnly
@@ -57,7 +67,7 @@ const selectedSecurity = computed(() =>
     :persistAuth="persistAuth"
     :proxyUrl="proxyUrl ?? ''"
     :securityRequirements
-    :securitySchemes="document?.components?.securitySchemes ?? {}"
+    :securitySchemes
     :selectedSecurity
     :server="selectedServer"
     title="Authentication" />

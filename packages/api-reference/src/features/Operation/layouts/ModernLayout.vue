@@ -44,18 +44,14 @@ import SpecificationExtension from '@/features/specification-extension/Specifica
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const {
-  path,
-  operation,
-  method,
-  server = null,
-} = defineProps<{
+const { path, operation, method, selectedServer } = defineProps<{
   id: string
   path: string
   method: HttpMethodType
   operation: OperationObject
-  securitySchemes: SecuritySchemeObject[]
-  server: ServerObject | null
+  selectedServer: ServerObject | null
+  /** The selected security schemes which are applicable to this operation */
+  selectedSecuritySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   eventBus: WorkspaceEventBus | null
   /** Global options that can be derived from the top level config or assigned at a block level */
@@ -196,9 +192,9 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :method="method"
                 :operation="operation"
                 :path="path"
-                :securitySchemes="securitySchemes"
+                :securitySchemes="selectedSecuritySchemes"
                 :selectedClient="xScalarDefaultClient"
-                :selectedServer="server">
+                :selectedServer>
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
