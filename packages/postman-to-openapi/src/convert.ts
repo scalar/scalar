@@ -279,8 +279,16 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     })
   }
 
+  // Extract all unique paths from the document
+  const allUniquePaths = new Set<string>()
+  if (openapi.paths) {
+    for (const pathKey of Object.keys(openapi.paths)) {
+      allUniquePaths.add(pathKey)
+    }
+  }
+
   // Analyze server distribution and place servers at appropriate levels
-  const serverPlacement = analyzeServerDistribution(allServerUsage)
+  const serverPlacement = analyzeServerDistribution(allServerUsage, allUniquePaths)
 
   // Add servers to document level
   if (serverPlacement.document.length > 0) {
