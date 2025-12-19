@@ -4,8 +4,11 @@ pre-commit:
       glob: '*'
       run: find . -name 'vite.config.ts.timestamp-*' -delete
     package-format:
-      glob: 'pnpm-lock.yaml'
-      run: pnpm script packages format; git add **/package.json
+      glob:
+        - 'pnpm-lock.yaml'
+        - '**/package.json'
+      run: pnpm script packages format
+      stage_fixed: true
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files}'
