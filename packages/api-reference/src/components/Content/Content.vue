@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { AuthSelector } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import {
