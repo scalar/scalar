@@ -1,6 +1,3 @@
-export { useLegacyStoreEvents } from '@/hooks/use-legacy-store-events'
-export { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
-
 export { getSystemModePreference } from './color-mode'
 export { convertSecurityScheme } from './convert-security-scheme'
 export { downloadDocument } from './download'

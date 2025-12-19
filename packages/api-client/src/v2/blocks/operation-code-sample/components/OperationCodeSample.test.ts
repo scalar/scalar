@@ -11,6 +11,8 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import { mockEventBus } from '@/v2/helpers/test-utils'
+
 import type { ClientOptionGroup } from '../types'
 import RequestExample from './OperationCodeSample.vue'
 
@@ -29,13 +31,6 @@ vi.mock('@scalar/use-toasts', () => ({
     initializeToasts: vi.fn(),
   }),
 }))
-
-// Mock event bus
-const mockEventBus = {
-  emit: vi.fn(),
-  on: vi.fn(),
-  off: vi.fn(),
-}
 
 describe('RequestExample', () => {
   const mockOperation: OperationObject = {
@@ -148,7 +143,7 @@ describe('RequestExample', () => {
     securitySchemes: mockSecuritySchemes,
     selectedServer: mockServer,
     clientOptions: mockClientOptions,
-    eventBus: mockEventBus as any,
+    eventBus: mockEventBus,
   }
 
   describe('Component Rendering', () => {
