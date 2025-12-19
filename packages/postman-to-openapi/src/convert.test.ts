@@ -456,4 +456,56 @@ describe('convert', () => {
       },
     ])
   })
+
+  it('handles paths with colons correctly when placing servers at operation level', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Test API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get API v1 Users',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/api:v1/users',
+            },
+          },
+        },
+        {
+          name: 'Get API v2 Posts',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.other.com/api:v2/posts',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    // With multiple paths, the server for /api:v1/users should be at operation level
+    // The path will be normalized, so :v1 becomes {v1}, but the delimiter fix ensures
+    // that paths with colons don't break the operation key splitting
+    const pathKeys = Object.keys(result.paths || {})
+    expect(pathKeys.length).toBeGreaterThan(0)
+
+    // Find the path that contains the v1 users endpoint
+    const v1PathKey = pathKeys.find((key) => key.includes('v1') || key.includes('users'))
+    expect(v1PathKey).toBeDefined()
+    const pathItem = result.paths?.[v1PathKey!]
+
+    // Server should be at operation level (not document level, since there are multiple paths)
+    // and not path item level (since there's only one operation per path)
+    expect(result.servers).toBeUndefined()
+    expect(pathItem?.servers).toBeUndefined()
+    expect(pathItem?.get?.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+  })
 })

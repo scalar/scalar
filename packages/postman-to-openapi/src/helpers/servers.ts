@@ -8,7 +8,7 @@ import type { ServerUsage } from './path-items'
 export type ServerPlacement = {
   document: OpenAPIV3_1.ServerObject[]
   pathItems: Map<string, OpenAPIV3_1.ServerObject[]>
-  operations: Map<string, OpenAPIV3_1.ServerObject[]>
+  operations: Map<string, Map<string, OpenAPIV3_1.ServerObject[]>>
 }
 
 /**
@@ -76,11 +76,15 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniqueP
       if (!usage) {
         continue
       }
-      const operationKey = `${usage.path}:${usage.method}`
-      if (!placement.operations.has(operationKey)) {
-        placement.operations.set(operationKey, [])
+      // Use nested Map structure: path -> method -> servers
+      if (!placement.operations.has(usage.path)) {
+        placement.operations.set(usage.path, new Map())
       }
-      placement.operations.get(operationKey)!.push(serverObject)
+      const methodsMap = placement.operations.get(usage.path)!
+      if (!methodsMap.has(usage.method)) {
+        methodsMap.set(usage.method, [])
+      }
+      methodsMap.get(usage.method)!.push(serverObject)
     }
   }
 
