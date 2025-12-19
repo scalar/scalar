@@ -306,17 +306,18 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     }
 
     // Add servers to operations
-    for (const [operationKey, servers] of serverPlacement.operations.entries()) {
-      const [path, method] = operationKey.split(':')
-      if (!path || !method) {
-        continue
-      }
+    for (const [path, methods] of serverPlacement.operations.entries()) {
       const normalizedPathKey = normalizePath(path)
       const pathItem = openapi.paths[normalizedPathKey]
-      if (pathItem && method in pathItem) {
-        const operation = pathItem[method as keyof typeof pathItem]
-        if (operation && typeof operation === 'object' && 'responses' in operation) {
-          operation.servers = servers
+      if (!pathItem) {
+        continue
+      }
+      for (const [method, servers] of methods.entries()) {
+        if (method in pathItem) {
+          const operation = pathItem[method as keyof typeof pathItem]
+          if (operation && typeof operation === 'object' && 'responses' in operation) {
+            operation.servers = servers
+          }
         }
       }
     }

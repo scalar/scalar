@@ -124,7 +124,7 @@ describe('servers', () => {
       },
     ])
     expect(result.operations.size).toBe(1)
-    expect(result.operations.get('/special:get')).toEqual([
+    expect(result.operations.get('/special')?.get('get')).toEqual([
       {
         url: 'https://api.special.com',
       },
