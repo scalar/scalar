@@ -271,17 +271,17 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/marclave">
-                    <img src="https://avatars.githubusercontent.com/u/6176314?v=4" width="100;" alt="marclave"/>
-                    <br />
-                    <sub><b>marclave</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/hwkr">
                     <img src="https://avatars.githubusercontent.com/u/6374090?v=4" width="100;" alt="hwkr"/>
                     <br />
                     <sub><b>hwkr</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/marclave">
+                    <img src="https://avatars.githubusercontent.com/u/6176314?v=4" width="100;" alt="marclave"/>
+                    <br />
+                    <sub><b>marclave</b></sub>
                 </a>
             </td>
 		</tr>
@@ -609,6 +609,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/rpmccarter">
+                    <img src="https://avatars.githubusercontent.com/u/63772591?v=4" width="100;" alt="rpmccarter"/>
+                    <br />
+                    <sub><b>rpmccarter</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/roryschadler">
                     <img src="https://avatars.githubusercontent.com/u/48921090?v=4" width="100;" alt="roryschadler"/>
                     <br />
@@ -629,6 +636,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>mirismaili</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/STP5940">
                     <img src="https://avatars.githubusercontent.com/u/21144303?v=4" width="100;" alt="STP5940"/>
@@ -636,8 +645,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>STP5940</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/captainsafia">
                     <img src="https://avatars.githubusercontent.com/u/1857993?v=4" width="100;" alt="captainsafia"/>
@@ -673,6 +680,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>smoores-dev</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/soGit">
                     <img src="https://avatars.githubusercontent.com/u/10682798?v=4" width="100;" alt="soGit"/>
@@ -680,8 +689,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>soGit</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/sinh117801">
                     <img src="https://avatars.githubusercontent.com/u/43696715?v=4" width="100;" alt="sinh117801"/>
@@ -704,28 +711,12 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/Huliiiiii">
-                    <img src="https://avatars.githubusercontent.com/u/134658521?v=4" width="100;" alt="Huliiiiii"/>
-                    <br />
-                    <sub><b>Huliiiiii</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/rpmccarter">
-                    <img src="https://avatars.githubusercontent.com/u/63772591?v=4" width="100;" alt="rpmccarter"/>
-                    <br />
-                    <sub><b>rpmccarter</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/hrynevychroman">
                     <img src="https://avatars.githubusercontent.com/u/82209198?v=4" width="100;" alt="hrynevychroman"/>
                     <br />
                     <sub><b>hrynevychroman</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/rbange">
                     <img src="https://avatars.githubusercontent.com/u/13252574?v=4" width="100;" alt="rbange"/>
@@ -733,6 +724,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>rbange</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/rickihastings">
                     <img src="https://avatars.githubusercontent.com/u/45660?v=4" width="100;" alt="rickihastings"/>
@@ -768,8 +761,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>Lazialize</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/malinbranduse">
                     <img src="https://avatars.githubusercontent.com/u/22645119?v=4" width="100;" alt="malinbranduse"/>
@@ -777,6 +768,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>malinbranduse</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/mvt147">
                     <img src="https://avatars.githubusercontent.com/u/9066177?v=4" width="100;" alt="mvt147"/>
@@ -789,6 +782,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <img src="https://avatars.githubusercontent.com/u/18685579?v=4" width="100;" alt="MaxBreida"/>
                     <br />
                     <sub><b>MaxBreida</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/MatteoH2O1999">
+                    <img src="https://avatars.githubusercontent.com/u/82184604?v=4" width="100;" alt="MatteoH2O1999"/>
+                    <br />
+                    <sub><b>MatteoH2O1999</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -822,6 +822,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/Huliiiiii">
+                    <img src="https://avatars.githubusercontent.com/u/134658521?v=4" width="100;" alt="Huliiiiii"/>
+                    <br />
+                    <sub><b>Huliiiiii</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/unnoq">
                     <img src="https://avatars.githubusercontent.com/u/64189902?v=4" width="100;" alt="unnoq"/>
                     <br />
@@ -849,6 +856,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>stefanprobst</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/omerp-explorium">
                     <img src="https://avatars.githubusercontent.com/u/93073822?v=4" width="100;" alt="omerp-explorium"/>
@@ -856,8 +865,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>omerp-explorium</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/o-az">
                     <img src="https://avatars.githubusercontent.com/u/23618431?v=4" width="100;" alt="o-az"/>
@@ -893,6 +900,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>g-airey</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/ga1az">
                     <img src="https://avatars.githubusercontent.com/u/75758899?v=4" width="100;" alt="ga1az"/>
@@ -900,8 +909,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>ga1az</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/FotieMConstant">
                     <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
@@ -937,6 +944,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>Chinlinlee</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/bingbeann">
                     <img src="https://avatars.githubusercontent.com/u/110380613?v=4" width="100;" alt="bingbeann"/>
@@ -944,8 +953,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>bingbeann</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/zakaria-shahen">
                     <img src="https://avatars.githubusercontent.com/u/35308232?v=4" width="100;" alt="zakaria-shahen"/>
@@ -981,6 +988,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>rotciw</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/WesleySkeen">
                     <img src="https://avatars.githubusercontent.com/u/2134761?v=4" width="100;" alt="WesleySkeen"/>
@@ -988,8 +997,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>WesleySkeen</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Ma-ve">
                     <img src="https://avatars.githubusercontent.com/u/11227996?v=4" width="100;" alt="Ma-ve"/>
@@ -1025,6 +1032,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>thibaultleouay</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/diegolopes">
                     <img src="https://avatars.githubusercontent.com/u/27782408?v=4" width="100;" alt="diegolopes"/>
@@ -1032,8 +1041,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>diegolopes</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/untiny">
                     <img src="https://avatars.githubusercontent.com/u/29054492?v=4" width="100;" alt="untiny"/>
@@ -1069,6 +1076,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>danp</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/danjohnson95">
                     <img src="https://avatars.githubusercontent.com/u/6871504?v=4" width="100;" alt="danjohnson95"/>
@@ -1076,8 +1085,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>danjohnson95</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/yungwarlock">
                     <img src="https://avatars.githubusercontent.com/u/42095620?v=4" width="100;" alt="yungwarlock"/>
@@ -1113,6 +1120,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>carstenlebek</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/cactysman">
                     <img src="https://avatars.githubusercontent.com/u/5056880?v=4" width="100;" alt="cactysman"/>
@@ -1120,8 +1129,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>cactysman</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Smyrcu">
                     <img src="https://avatars.githubusercontent.com/u/42031920?v=4" width="100;" alt="Smyrcu"/>
@@ -1157,6 +1164,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>bdpiprava</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/BenJeau">
                     <img src="https://avatars.githubusercontent.com/u/22248828?v=4" width="100;" alt="BenJeau"/>
@@ -1164,8 +1173,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>BenJeau</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/saithis">
                     <img src="https://avatars.githubusercontent.com/u/1547453?v=4" width="100;" alt="saithis"/>
@@ -1201,6 +1208,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>sigpwned</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/gizero">
                     <img src="https://avatars.githubusercontent.com/u/1544064?v=4" width="100;" alt="gizero"/>
@@ -1208,8 +1217,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>gizero</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/alewin">
                     <img src="https://avatars.githubusercontent.com/u/980844?v=4" width="100;" alt="alewin"/>
@@ -1245,6 +1252,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>abdulamite</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/ShadiestGoat">
                     <img src="https://avatars.githubusercontent.com/u/48590492?v=4" width="100;" alt="ShadiestGoat"/>
@@ -1252,8 +1261,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>ShadiestGoat</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/mrlubos">
                     <img src="https://avatars.githubusercontent.com/u/12529395?v=4" width="100;" alt="mrlubos"/>
@@ -1289,6 +1296,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>IHIutch</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/jonataw">
                     <img src="https://avatars.githubusercontent.com/u/29772763?v=4" width="100;" alt="jonataw"/>
@@ -1296,8 +1305,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>jonataw</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Jannchie">
                     <img src="https://avatars.githubusercontent.com/u/29743310?v=4" width="100;" alt="Jannchie"/>
@@ -1333,6 +1340,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>JacobCoffee</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/kevinand11">
                     <img src="https://avatars.githubusercontent.com/u/48160414?v=4" width="100;" alt="kevinand11"/>
@@ -1340,8 +1349,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>kevinand11</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/tltsutltsu">
                     <img src="https://avatars.githubusercontent.com/u/83283675?v=4" width="100;" alt="tltsutltsu"/>
@@ -1377,6 +1384,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>hpmouton</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/CJHwong">
                     <img src="https://avatars.githubusercontent.com/u/906057?v=4" width="100;" alt="CJHwong"/>
@@ -1384,8 +1393,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>CJHwong</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/HelgeSverre">
                     <img src="https://avatars.githubusercontent.com/u/1089652?v=4" width="100;" alt="HelgeSverre"/>
@@ -1421,6 +1428,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>Fdawgs</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/filiabel">
                     <img src="https://avatars.githubusercontent.com/u/25987724?v=4" width="100;" alt="filiabel"/>
@@ -1428,8 +1437,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>filiabel</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/facus26">
                     <img src="https://avatars.githubusercontent.com/u/18079059?v=4" width="100;" alt="facus26"/>
