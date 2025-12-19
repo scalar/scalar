@@ -26,7 +26,7 @@ const moreThanOneDefaultTag = computed(
   () => moreThanOneTag || tag?.title !== 'default' || tag?.description !== '',
 )
 
-const hasChildren = computed(() => tag?.children?.length > 0)
+const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 </script>
 
 <template>
