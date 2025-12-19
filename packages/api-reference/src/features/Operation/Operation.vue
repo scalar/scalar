@@ -90,6 +90,7 @@ const selectedSecuritySchemes = computed(() => {
     selectedSecurity.selectedSchemes ?? [],
   )
 })
+
 /**
  * Determine the effective server for the code examples.
  */
