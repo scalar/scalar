@@ -5,7 +5,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
-const { id, eventBus } = defineProps<{
+const { id, method, path, eventBus } = defineProps<{
   id: string
   method: HttpMethod
   path: string
