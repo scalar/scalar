@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-} from '@scalar/api-client/v2/features/operation'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -30,6 +26,7 @@ const {
   isWebhook,
   document,
   method,
+  selectedSecurity,
   clientOptions,
 } = defineProps<{
   id: string
@@ -42,6 +39,8 @@ const {
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
+  /** Currently selected security for the document */
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Currently selected server for the document */
   server: ServerObject | null
   /** The http client options for the dropdown */
@@ -71,23 +70,18 @@ const operation = computed(() => {
 })
 
 /** Compute what the security requirements should be for an operation */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(document.security, operation.value?.security),
-)
+// TODO this will later be used to show that this operation requires auth
+// const oprationSecurityRequirements = computed(() =>
+//   getSecurityRequirements(document.security, operation.value?.security),
+// )
 
-/** Selected security schemes for the operation */
-const selectedSecuritySchemes = computed(() => {
-  const selectedSecurity = getSelectedSecurity(
-    document['x-scalar-selected-security'],
-    operation.value?.['x-scalar-selected-security'],
-    securityRequirements.value,
-  )
-
-  return getSecuritySchemes(
+/** Selected security schemes in scheme form */
+const selectedSecuritySchemes = computed(() =>
+  getSecuritySchemes(
     document.components?.securitySchemes ?? {},
-    selectedSecurity.selectedSchemes ?? [],
-  )
-})
+    selectedSecurity?.selectedSchemes ?? [],
+  ),
+)
 
 /**
  * Determine the effective server for the code examples.

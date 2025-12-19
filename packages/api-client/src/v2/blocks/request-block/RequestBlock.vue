@@ -11,6 +11,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   OpenApiDocument,
   OperationObject,
+  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
@@ -18,7 +19,6 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -52,9 +52,10 @@ const {
   securityRequirements,
   securitySchemes,
   selectedClient,
-  selectedSecurity,
+  selectedSecuritySchemes,
   server,
 } = defineProps<{
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
@@ -69,7 +70,7 @@ const {
   securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecuritySchemes: SecuritySchemeObject[]
   server: ServerObject | null
 }>()
 
@@ -278,11 +279,6 @@ const handleUpdateBodyValue = (payload: {
 }
 
 const labelRequestNameId = useId()
-
-/** Selected security schemes for the request */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(securitySchemes, selectedSecurity?.selectedSchemes ?? []),
-)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -327,6 +323,7 @@ const selectedSecuritySchemes = computed(() =>
         :securityRequirements
         :securitySchemes
         :selectedSecurity
+        :selectedSecuritySchemes
         :server
         title="Authorization" />
 
