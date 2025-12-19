@@ -102,6 +102,11 @@ const getSortedTagEntries = ({
       return []
     }
 
+    // Skip if the tag has no entries and no description
+    if (entries.length === 0 && !tag.description) {
+      return []
+    }
+
     const sortOrder = tag['x-scalar-order']
 
     if (sortOrder === undefined) {

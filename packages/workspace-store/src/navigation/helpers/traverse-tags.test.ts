@@ -98,13 +98,11 @@ describe('traverseTags', () => {
       },
     })
 
-    expect(result).toHaveLength(2)
+    // Empty tag without description should be filtered out
+    expect(result).toHaveLength(1)
     assert(result[0]?.type === 'tag')
-    expect(result[0]?.name).toBe('empty-tag')
-    expect(result[0]?.children).toEqual([])
-    assert(result[1]?.type === 'tag')
-    expect(result[1]?.name).toBe('tag-with-entries')
-    expect(result[1]?.children).toHaveLength(1)
+    expect(result[0]?.name).toBe('tag-with-entries')
+    expect(result[0]?.children).toHaveLength(1)
   })
 
   it('should handle single default tag', () => {
@@ -550,5 +548,87 @@ describe('traverseTags', () => {
     })
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('visible')
+  })
+
+  it('should filter out empty tags without descriptions', () => {
+    const document = createMockDocument()
+    const tagsMap: TagsMap = new Map([
+      [
+        'empty-no-description',
+        {
+          id: 'tag/empty-no-description',
+          parentId: 'doc-1',
+          tag: createMockTag('empty-no-description'),
+          entries: [],
+        },
+      ],
+      [
+        'empty-with-description',
+        {
+          id: 'tag/empty-with-description',
+          parentId: 'doc-1',
+          tag: { ...createMockTag('empty-with-description'), description: 'This tag has a description' },
+          entries: [],
+        },
+      ],
+      [
+        'with-entries-no-description',
+        {
+          id: 'tag/with-entries-no-description',
+          parentId: 'doc-1',
+          tag: createMockTag('with-entries-no-description'),
+          entries: [createMockEntry('Test Operation')],
+        },
+      ],
+      [
+        'with-entries-and-description',
+        {
+          id: 'tag/with-entries-and-description',
+          parentId: 'doc-1',
+          tag: { ...createMockTag('with-entries-and-description'), description: 'This tag has both' },
+          entries: [createMockEntry('Another Operation')],
+        },
+      ],
+    ])
+
+    const result = traverseTags({
+      document,
+      tagsMap,
+      options: {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'alpha' as const,
+        generateId: (props) => {
+          if (props.type === 'tag') {
+            return props.tag.name ?? ''
+          }
+
+          return 'unknown-id'
+        },
+      },
+      documentId: 'doc-1',
+    })
+
+    // Should filter out empty-no-description, but keep the other three
+    expect(result).toHaveLength(3)
+
+    const tagNames = result.map((tag) => tag.name).sort()
+    expect(tagNames).toEqual(['empty-with-description', 'with-entries-and-description', 'with-entries-no-description'])
+
+    // Verify empty tag with description is kept
+    const emptyWithDescription = result.find((tag) => tag.name === 'empty-with-description')
+    assert(emptyWithDescription?.type === 'tag')
+    expect(emptyWithDescription?.children).toEqual([])
+    expect(emptyWithDescription?.description).toBe('This tag has a description')
+
+    // Verify tag with entries but no description is kept
+    const withEntriesNoDescription = result.find((tag) => tag.name === 'with-entries-no-description')
+    assert(withEntriesNoDescription?.type === 'tag')
+    expect(withEntriesNoDescription?.children).toHaveLength(1)
+
+    // Verify tag with entries and description is kept
+    const withEntriesAndDescription = result.find((tag) => tag.name === 'with-entries-and-description')
+    assert(withEntriesAndDescription?.type === 'tag')
+    expect(withEntriesAndDescription?.children).toHaveLength(1)
+    expect(withEntriesAndDescription?.description).toBe('This tag has both')
   })
 })
