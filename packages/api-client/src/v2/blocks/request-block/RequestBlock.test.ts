@@ -18,6 +18,7 @@ const defaultProps = {
   exampleKey: 'example-1',
   securitySchemes: {},
   selectedSecurity: { selectedIndex: 0, selectedSchemes: [] },
+  selectedSecuritySchemes: [],
   securityRequirements: [],
   environment: {
     color: 'blue',
