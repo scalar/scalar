@@ -106,8 +106,18 @@ export const useWorkspaceClientModalEvents = ({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
-    // We route to the operation/example based on the payload
-    if (payload) {
+    // Just open the modal
+    if (!payload) {
+      modalState.show()
+      return
+    }
+
+    // We route to the exact ID
+    if ('id' in payload && payload.id) {
+      sidebarState.handleSelectItem(payload.id)
+    }
+    // We must find the ID first from the entries
+    else if ('method' in payload && 'path' in payload) {
       sidebarState.handleSelectItem(
         generateLocationId({
           document: document.value?.['x-scalar-navigation']?.id ?? '',
@@ -117,9 +127,6 @@ export const useWorkspaceClientModalEvents = ({
         }),
       )
     }
-
-    // Just open the modal
-    modalState.show()
   })
 
   //------------------------------------------------------------------------------------

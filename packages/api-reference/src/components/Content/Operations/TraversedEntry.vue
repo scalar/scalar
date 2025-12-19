@@ -46,7 +46,7 @@ const {
   /** Currently selected security for the document */
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Currently selected http client for the document */
-  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
   /** The event bus for the handling all events. */
@@ -108,9 +108,9 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :method="entry.method"
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
+        :selectedClient
         :selectedSecurity
-        :server="selectedServer"
-        :xScalarDefaultClient="xScalarDefaultClient" />
+        :server="selectedServer" />
     </SectionContainer>
 
     <!-- Webhook Group or Tag -->
@@ -131,9 +131,9 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :eventBus
           :expandedItems
           :level="level + 1"
+          :selectedClient
           :selectedSecurity
-          :selectedServer
-          :xScalarDefaultClient="xScalarDefaultClient">
+          :selectedServer>
         </TraversedEntry>
       </template>
     </Tag>
@@ -148,9 +148,9 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :eventBus
       :expandedItems
       :level="level + 1"
+      :selectedClient
       :selectedSecurity
-      :selectedServer
-      :xScalarDefaultClient="xScalarDefaultClient">
+      :selectedServer>
     </TraversedEntry>
 
     <!-- Models -->
@@ -168,9 +168,9 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :eventBus
         :expandedItems="expandedItems"
         :level="level + 1"
+        :selectedClient
         :selectedSecurity
-        :selectedServer
-        :xScalarDefaultClient="xScalarDefaultClient">
+        :selectedServer>
       </TraversedEntry>
     </ModelTag>
 

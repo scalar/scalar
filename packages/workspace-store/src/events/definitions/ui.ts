@@ -126,13 +126,6 @@ export type UIEvents = {
    */
   'ui:toggle:sidebar': KeyboardEventPayload
 
-  /**
-   * For the show more event callback
-   */
-  'ui:toggle:show-more': {
-    id: string
-  }
-
   // ────────────────────────────────────────────────────────────
   // Modal Events
   // ────────────────────────────────────────────────────────────
@@ -143,6 +136,10 @@ export type UIEvents = {
    */
   'ui:open:client-modal':
     | undefined
+    | {
+        /** The id of the operation to directly load */
+        id: string
+      }
     | {
         /** The HTTP method of the operation to load (e.g., GET, POST) */
         method: HttpMethod
@@ -206,4 +203,13 @@ export type UIEvents = {
    * Useful for sharing direct links to specific sections.
    */
   'copy-url:nav-item': NavigationItemPayload
+
+  /**
+   * Route to a page
+   * We cannot have any routing in any components used by the modal so we use this event to route to a page
+   */
+  'ui:route:page': {
+    /** The name of the route to route to */
+    name: string
+  }
 }

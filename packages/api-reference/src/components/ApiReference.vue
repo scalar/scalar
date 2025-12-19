@@ -2,7 +2,7 @@
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
-import { useWorkspaceClientModalEvents } from '@scalar/api-client/v2/features/modal'
+import { createApiClientModal } from '@scalar/api-client/v2/features/modal'
 import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
@@ -38,6 +38,7 @@ import diff from 'microdiff'
 import {
   computed,
   onBeforeMount,
+  onMounted,
   onServerPrefetch,
   provide,
   ref,
@@ -93,7 +94,6 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => workspaceStore
 }
 
-const root = useTemplateRef('root')
 const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
@@ -494,15 +494,6 @@ const changeSelectedDocument = async (
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
-
-  // Map the document to the client store for now
-  const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-  const { schema } = dereference(upgrade(raw).specification)
-  if (!schema) {
-    dereferenced.value = null
-    return
-  }
-  dereferenced.value = schema as OpenAPIV3_1.Document
 }
 
 /**
@@ -602,42 +593,29 @@ onBeforeMount(() =>
   ),
 )
 
-// --------------------------------------------------------------------------- */
-
-/**
- * @deprecated
- * We keep a copy of the workspace store document in dereferenced format
- * to allow mapping to the legacy client store
- */
-const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
-defineExpose({
-  dereferenced,
-})
-
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
 })
 
-// @TODO temp new modal events while we migrate
+// --------------------------------------------------------------------------- */
+// Api Client Modal
+
+// Setup the ApiClient on mount
 const modal = useTemplateRef<HTMLElement>('modal')
-// @ts-expect-error - TODO: Fix this
-useWorkspaceClientModalEvents({
-  eventBus,
-  document: computed(() => workspaceStore.workspace.activeDocument ?? null),
-  isSidebarOpen,
-  // sidebarState,
-  // modalState,
-  workspaceStore,
+onMounted(() => {
+  if (!modal.value) {
+    return
+  }
+
+  createApiClientModal({
+    el: modal.value,
+    eventBus,
+    workspaceStore,
+  })
 })
 
 // ---------------------------------------------------------------------------
 // Top level event handlers and user specified callbacks
-
-/** Set the sidebar item to open and run any config handlers */
-eventBus.on('ui:toggle:show-more', ({ id }) => {
-  mergedConfig.value.onShowMore?.(id)
-  return sidebarState.setExpanded(id, true)
-})
 
 /** Ensure we call the onServerChange callback */
 eventBus.on('server:update:selected', ({ url }) =>
@@ -725,9 +703,12 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     window.history.replaceState({}, '', url.toString())
   }
 })
-eventBus.on('toggle:nav-item', ({ id, open }) =>
-  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id)),
-)
+eventBus.on('toggle:nav-item', ({ id, open }) => {
+  if (open) {
+    mergedConfig.value.onShowMore?.(id)
+  }
+  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
+})
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
     id,
@@ -780,7 +761,7 @@ const colorMode = computed(() => {
 
 <template>
   <!-- SingleApiReference -->
-  <div ref="root">
+  <div>
     <!-- Inject any custom CSS directly into a style tag -->
     <component :is="'style'">
       {{ mergedConfig.customCss }}

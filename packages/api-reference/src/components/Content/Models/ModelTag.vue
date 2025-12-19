@@ -11,7 +11,7 @@ import ShowMoreButton from '@/components/ShowMoreButton.vue'
 defineProps<{
   id: string
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   layout: 'classic' | 'modern'
 }>()
 </script>
@@ -33,11 +33,9 @@ defineProps<{
         </template>
         <template v-else>
           <ShowMoreButton
-            :id="id"
+            :id
             class="top-0"
-            @click="
-              () => eventBus?.emit('toggle:nav-item', { id, open: true })
-            ">
+            @click="() => eventBus.emit('toggle:nav-item', { id, open: true })">
           </ShowMoreButton>
         </template>
       </Section>

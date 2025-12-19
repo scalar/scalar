@@ -1,22 +1,11 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
-
-const { id, eventBus } = defineProps<{
-  id: string
-  eventBus: WorkspaceEventBus
-}>()
-
-const handleClick = () => {
-  eventBus.emit('ui:toggle:show-more', { id })
-}
 </script>
 
 <template>
   <button
     class="show-more"
-    type="button"
-    @click="handleClick">
+    type="button">
     Show More
     <ScalarIconCaretDown
       class="text-c-2 mt-0.25 size-3"

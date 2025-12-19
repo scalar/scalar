@@ -403,6 +403,7 @@ export const useWorkspaceClientAppEvents = ({
       }
     },
   )
+  eventBus.on('ui:route:page', ({ name }) => router.push({ name }))
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers
