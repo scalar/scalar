@@ -48,7 +48,7 @@ const {
   isCollapsed: boolean
   isWebhook: boolean
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
 }>()
 
 /**

@@ -52,13 +52,13 @@ describe('getSelectedServer', () => {
     expect(result).toBeNull()
   })
 
-  it('returns null when x-scalar-selected-server is not set', () => {
+  it('returns first server when x-scalar-selected-server is not set', () => {
     const document = createDocument({
       servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
     })
 
     const result = getSelectedServer(document)
 
-    expect(result).toBeNull()
+    expect(result).toEqual({ url: 'https://api.example.com' })
   })
 })

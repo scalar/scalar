@@ -27,6 +27,7 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { ComputedRef, Ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
+import { generateLocationId } from '@/v2/helpers/generate-location-id'
 
 /**
  * Top level event handling for the modal client
@@ -104,6 +105,22 @@ export const useWorkspaceClientModalEvents = ({
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
+  eventBus.on('ui:open:client-modal', (payload) => {
+    // We route to the operation/example based on the payload
+    if (payload) {
+      sidebarState.handleSelectItem(
+        generateLocationId({
+          document: document.value?.['x-scalar-navigation']?.id ?? '',
+          path: payload.path,
+          method: payload.method,
+          example: payload.exampleName,
+        }),
+      )
+    }
+
+    // Just open the modal
+    modalState.show()
+  })
 
   //------------------------------------------------------------------------------------
   // Workspace Event Handlers

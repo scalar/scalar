@@ -136,10 +136,11 @@ const selectedSecurity = computed(() =>
               <ClientSelector
                 class="introduction-card-item scalar-reference-intro-clients"
                 :clientOptions
+                :eventBus
+                :selectedClient="xScalarDefaultClient"
                 :xScalarSdkInstallation="
                   document?.info?.['x-scalar-sdk-installation']
-                "
-                :xSelectedClient="xScalarDefaultClient" />
+                " />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
         </template>

@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { useTemplateRef } from 'vue'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 
-const { id } = defineProps<{
+const { id, eventBus } = defineProps<{
   id: string
+  eventBus: WorkspaceEventBus
 }>()
 
-const el = useTemplateRef('el')
-
 const handleClick = () => {
-  emitCustomEvent(el.value, 'scalar-on-show-more', { id })
+  eventBus.emit('ui:toggle:show-more', { id })
 }
 </script>
 
 <template>
   <button
-    ref="el"
     class="show-more"
     type="button"
     @click="handleClick">

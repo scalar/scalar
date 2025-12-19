@@ -64,7 +64,7 @@ const {
   selectedSecuritySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -143,8 +143,9 @@ const { copyToClipboard } = useClipboard()
       <template v-if="!options?.hideTestRequestButton">
         <TestRequestButton
           v-if="active && !options.isWebhook"
-          :method="method"
-          :path="path" />
+          :eventBus
+          :method
+          :path />
         <ScalarIconPlay
           v-else
           class="endpoint-try-hint size-4.5" />
@@ -183,8 +184,8 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationParameters
-            :eventBus="eventBus"
-            :options="options"
+            :eventBus
+            :options
             :parameters="
               // These have been resolved in the Operation.vue component
               operation.parameters as ParameterObject[]
@@ -193,7 +194,7 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
-            :eventBus="eventBus"
+            :eventBus
             :options
             :responses="operation.responses" />
         </div>
@@ -204,10 +205,10 @@ const { copyToClipboard } = useClipboard()
           class="operation-details-card-item">
           <Callbacks
             :callbacks="operation.callbacks"
-            :eventBus="eventBus"
-            :method="method"
-            :options="options"
-            :path="path" />
+            :eventBus
+            :method
+            :options
+            :path />
         </div>
       </div>
 
@@ -227,6 +228,7 @@ const { copyToClipboard } = useClipboard()
           <OperationCodeSample
             class="operation-example-card"
             :clientOptions="options.clientOptions"
+            :eventBus
             fallback
             :isWebhook="options.isWebhook"
             :method="method"

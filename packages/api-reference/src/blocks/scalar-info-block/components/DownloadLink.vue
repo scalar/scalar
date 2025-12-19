@@ -1,25 +1,24 @@
 <script lang="ts" setup>
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { useTemplateRef } from 'vue'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import Badge from '@/components/Badge/Badge.vue'
 
-defineProps<{
+const { eventBus, documentDownloadType } = defineProps<{
+  /** The document download type. */
   documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
+  /** The event bus for the handling all events. */
+  eventBus: WorkspaceEventBus
 }>()
-
-const el = useTemplateRef('el')
 
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml' | 'direct') => {
-  emitCustomEvent(el.value, 'scalar-download-document', { format })
+  eventBus.emit('ui:download:document', { format })
 }
 </script>
 <template>
   <div
     v-if="['yaml', 'json', 'both', 'direct'].includes(documentDownloadType)"
-    ref="el"
     class="download-container group"
     :class="{
       'download-both': documentDownloadType === 'both',

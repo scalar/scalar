@@ -30,6 +30,13 @@ vi.mock('@scalar/use-toasts', () => ({
   }),
 }))
 
+// Mock event bus
+const mockEventBus = {
+  emit: vi.fn(),
+  on: vi.fn(),
+  off: vi.fn(),
+}
+
 describe('RequestExample', () => {
   const mockOperation: OperationObject = {
     summary: 'Test operation',
@@ -141,6 +148,7 @@ describe('RequestExample', () => {
     securitySchemes: mockSecuritySchemes,
     selectedServer: mockServer,
     clientOptions: mockClientOptions,
+    eventBus: mockEventBus as any,
   }
 
   describe('Component Rendering', () => {

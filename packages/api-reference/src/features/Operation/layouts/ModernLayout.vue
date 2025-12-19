@@ -53,7 +53,7 @@ const { path, operation, method, selectedServer } = defineProps<{
   /** The selected security schemes which are applicable to this operation */
   selectedSecuritySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -169,10 +169,10 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 v-if="operation.callbacks"
                 :callbacks="operation.callbacks"
                 class="mt-6"
-                :eventBus="eventBus"
-                :method="method"
-                :options="options"
-                :path="path" />
+                :eventBus
+                :method
+                :options
+                :path />
             </ScalarErrorBoundary>
           </div>
         </SectionColumn>
@@ -187,11 +187,12 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <ScalarErrorBoundary>
               <OperationCodeSample
                 :clientOptions="options.clientOptions"
+                :eventBus
                 fallback
                 :isWebhook="options.isWebhook"
-                :method="method"
-                :operation="operation"
-                :path="path"
+                :method
+                :operation
+                :path
                 :securitySchemes="selectedSecuritySchemes"
                 :selectedClient="xScalarDefaultClient"
                 :selectedServer>
@@ -206,8 +207,9 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                   #footer>
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
-                    :method="method"
-                    :path="path" />
+                    :eventBus
+                    :method
+                    :path />
                 </template>
               </OperationCodeSample>
             </ScalarErrorBoundary>
