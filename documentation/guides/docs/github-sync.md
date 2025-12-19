@@ -135,6 +135,22 @@ Add an OpenAPI/Swagger file to your configuration file:
 
 That's it. :) The next time your documentation is published, it'll include a super cool API reference.
 
+#### Using the Scalar Registry
+
+You can publish your OpenAPI documents in the Scalar Registry and just use the namespace and slug to pull them from there:
+
+```json
+{
+  "references": [
+    {
+      "name": "Scalar Galaxy",
+      "namespace": "scalar",
+      "slug": "galaxy"
+    }
+  ]
+}
+```
+
 ### Use a custom theme
 
 You don't like how the documentation looks? Just try a few of our themes:
