@@ -11,6 +11,36 @@ export type Slug = Source['slug']
 /** A selection of test sources and configurations */
 export const sources = [
   {
+    title: 'Schemas',
+    slug: 'schemas',
+    content: JSON.stringify({
+      openapi: '3.0.0',
+      info: {
+        title: 'Schemas',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          schema1: {
+            type: 'object',
+            title: 'Schema',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          schema2: {
+            type: 'object',
+            title: 'Schema',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    }),
+  },
+  {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
     content: galaxy,
