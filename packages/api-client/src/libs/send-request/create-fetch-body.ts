@@ -39,7 +39,7 @@ export function createFetchBody(method: RequestMethod, example: RequestExample, 
 
   if (example.body.activeBody === 'raw') {
     return {
-      body: replaceTemplateVariables(example.body.raw?.value ?? '', env),
+      body: replaceTemplateVariables(example.body.raw?.value ?? '', env) || undefined,
       contentType: example.body.raw?.encoding,
     }
   }
