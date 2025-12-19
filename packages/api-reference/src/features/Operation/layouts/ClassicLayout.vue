@@ -52,7 +52,7 @@ const {
   path,
   selectedServer,
   selectedSecuritySchemes,
-  xScalarDefaultClient,
+  selectedClient,
 } = defineProps<{
   id: string
   path: string
@@ -62,7 +62,7 @@ const {
   selectedServer: ServerObject | null
   /** The selected security schemes which are applicable to this operation */
   selectedSecuritySchemes: SecuritySchemeObject[]
-  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
   /** Global options that can be derived from the top level config or assigned at a block level */
@@ -143,6 +143,7 @@ const { copyToClipboard } = useClipboard()
       <template v-if="!options?.hideTestRequestButton">
         <TestRequestButton
           v-if="active && !options.isWebhook"
+          :id
           :eventBus
           :method
           :path />
@@ -235,7 +236,7 @@ const { copyToClipboard } = useClipboard()
             :operation="operation"
             :path="path"
             :securitySchemes="selectedSecuritySchemes"
-            :selectedClient="xScalarDefaultClient"
+            :selectedClient
             :selectedServer />
         </ScalarErrorBoundary>
       </div>

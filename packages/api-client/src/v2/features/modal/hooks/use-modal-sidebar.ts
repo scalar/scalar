@@ -130,6 +130,9 @@ export const useModalSidebar = ({
    */
   const handleSelectItem = (id: string) => {
     const entry = state.getEntryById(id)
+    console.log('entry', entry)
+    console.log('id', id)
+    console.log('state', state)
 
     if (!entry) {
       console.warn(`Could not find sidebar entry with id ${id} to select`)

@@ -52,7 +52,7 @@ const { path, operation, method, selectedServer } = defineProps<{
   selectedServer: ServerObject | null
   /** The selected security schemes which are applicable to this operation */
   selectedSecuritySchemes: SecuritySchemeObject[]
-  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   eventBus: WorkspaceEventBus
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
@@ -194,7 +194,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :operation
                 :path
                 :securitySchemes="selectedSecuritySchemes"
-                :selectedClient="xScalarDefaultClient"
+                :selectedClient
                 :selectedServer>
                 <template #header>
                   <OperationPath
@@ -207,6 +207,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                   #footer>
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
+                    :id
                     :eventBus
                     :method
                     :path />

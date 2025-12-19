@@ -25,7 +25,7 @@ import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
-// import { RenderPlugins } from '@/components/RenderPlugins'
+import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
@@ -161,15 +161,15 @@ const selectedSecurity = computed(() =>
       :entries="items"
       :eventBus
       :expandedItems
+      :selectedClient="xScalarDefaultClient"
       :selectedSecurity
-      :selectedServer
-      :xScalarDefaultClient="xScalarDefaultClient">
+      :selectedServer>
     </TraversedEntry>
 
     <!-- Render plugins at content.end view -->
-    <!-- <RenderPlugins
-      :options
-      viewName="content.end" /> -->
+    <RenderPlugins
+      :options="config"
+      viewName="content.end" />
 
     <slot name="end" />
     <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->

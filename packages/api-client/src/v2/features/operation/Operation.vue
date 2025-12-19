@@ -14,7 +14,6 @@ export default {}
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -103,8 +102,6 @@ const authMeta = computed<AuthMeta>(() => {
 
 // eslint-disable-next-line no-undef
 const APP_VERSION = PACKAGE_VERSION
-
-const router = useRouter()
 </script>
 
 <template>
@@ -138,7 +135,9 @@ const router = useRouter()
         document?.['x-scalar-set-operation-security'] ?? false
       "
       :totalPerformedRequests="0"
-      @update:servers="router.push({ name: 'document.servers' })" />
+      @update:servers="
+        eventBus.emit('ui:route:page', { name: 'document.servers' })
+      " />
   </template>
 
   <!-- Empty state -->

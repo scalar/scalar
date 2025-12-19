@@ -47,7 +47,7 @@ const {
   clientOptions: ClientOptionGroup[]
   isCollapsed: boolean
   isWebhook: boolean
-  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   eventBus: WorkspaceEventBus
 }>()
 
@@ -120,9 +120,9 @@ const options = computed(() => ({
       :operation
       :options
       :path
+      :selectedClient
       :selectedSecuritySchemes
-      :selectedServer
-      :xScalarDefaultClient />
+      :selectedServer />
     <ModernLayout
       v-else
       :id="id"
@@ -131,8 +131,8 @@ const options = computed(() => ({
       :operation
       :options
       :path
+      :selectedClient
       :selectedSecuritySchemes
-      :selectedServer
-      :xScalarDefaultClient />
+      :selectedServer />
   </template>
 </template>
