@@ -901,30 +901,20 @@ const colorMode = computed(() => {
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
         class="references-rendered">
         <Content
+          :config="mergedConfig"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
+          :headingSlugGenerator="
+            mergedConfig.generateHeadingSlug ??
+            ((heading) => `${activeSlug}/description/${heading.slug}`)
+          "
+          :httpClients="
+            workspaceStore.config['x-scalar-reference-config']?.httpClients
+          "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"
-          :options="{
-            headingSlugGenerator:
-              mergedConfig.generateHeadingSlug ??
-              ((heading) => `${activeSlug}/description/${heading.slug}`),
-            httpClients:
-              workspaceStore.config['x-scalar-reference-config']?.httpClients,
-            layout: mergedConfig.layout,
-            persistAuth: mergedConfig.persistAuth,
-            showOperationId: mergedConfig.showOperationId,
-            hideTestRequestButton: mergedConfig.hideTestRequestButton,
-            expandAllResponses: mergedConfig.expandAllResponses,
-            expandAllModelSections: mergedConfig.expandAllModelSections,
-            orderRequiredPropertiesFirst:
-              mergedConfig.orderRequiredPropertiesFirst,
-            orderSchemaPropertiesBy: mergedConfig.orderSchemaPropertiesBy,
-            proxyUrl: workspaceStore.workspace['x-scalar-active-proxy'] ?? null,
-            documentDownloadType: mergedConfig.documentDownloadType,
-          }"
           :xScalarDefaultClient="
             workspaceStore.workspace['x-scalar-default-client']
           ">

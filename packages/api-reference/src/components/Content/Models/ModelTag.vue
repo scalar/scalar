@@ -12,19 +12,14 @@ defineProps<{
   id: string
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
-  options: {
-    layout: 'classic' | 'modern'
-    expandAllModelSections: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  layout: 'classic' | 'modern'
 }>()
 </script>
 <template>
   <Lazy id="models">
     <!-- Modern Layout Model Container -->
     <SectionContainer
-      v-if="options.layout === 'modern'"
+      v-if="layout === 'modern'"
       id="model">
       <Section
         :id="id"

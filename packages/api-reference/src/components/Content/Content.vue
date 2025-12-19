@@ -2,9 +2,9 @@
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { AvailableClients } from '@scalar/snippetz'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import type { AvailableClients } from '@scalar/types/snippetz'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -21,37 +21,28 @@ import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
-import { RenderPlugins } from '@/components/RenderPlugins'
+// import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { options, document, items, environment, eventBus } = defineProps<{
-  infoSectionId: string
-  document: WorkspaceDocument | undefined
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  environment: XScalarEnvironment
-  options: {
+const { document, httpClients, items, environment, eventBus, config } =
+  defineProps<{
+    infoSectionId: string
+    config: ApiReferenceConfigurationRaw
+    document: WorkspaceDocument | undefined
     httpClients: AvailableClients
-    layout: 'modern' | 'classic'
-    persistAuth: boolean
-    showOperationId?: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses?: boolean
-    expandAllModelSections: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    proxyUrl: string | null
-    documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
     headingSlugGenerator: (heading: Heading) => string
-  }
-}>()
+  }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() => generateClientOptions(options.httpClients))
+const clientOptions = computed(() => generateClientOptions(httpClients))
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
@@ -73,17 +64,13 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
       <InfoBlock
         :id="infoSectionId"
         :documentExtensions
-        :eventBus="eventBus"
+        :eventBus
         :externalDocs="document?.externalDocs"
+        :headingSlugGenerator
         :info="document?.info"
         :infoExtensions
-        :layout="options.layout"
-        :oasVersion="document?.['x-original-oas-version']"
-        :options="{
-          headingSlugGenerator: options.headingSlugGenerator,
-          documentDownloadType: options.documentDownloadType,
-          layout: options.layout,
-        }">
+        :layout="config.layout"
+        :oasVersion="document?.['x-original-oas-version']">
         <template #selectors>
           <!-- Server Selector -->
           <ScalarErrorBoundary>
@@ -109,8 +96,8 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
                 "
                 :environment
                 :eventBus
-                :persistAuth="options.persistAuth"
-                :proxyUrl="options.proxyUrl"
+                :persistAuth="config.persistAuth"
+                :proxyUrl="config.proxyUrl ?? ''"
                 :securitySchemes="document?.components?.securitySchemes ?? {}"
                 :selectedServer />
             </IntroductionCardItem>
@@ -141,34 +128,21 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      v-if="items.length"
+      v-if="items.length && document"
+      :clientOptions
+      :config
+      :document
       :entries="items"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
-      :options="{
-        documentSecurity: document?.security,
-        documentSelectedSecurity: document?.['x-scalar-selected-security'],
-        securitySchemes: document?.components?.securitySchemes,
-        layout: options.layout ?? 'modern',
-        showOperationId: options.showOperationId,
-        hideTestRequestButton: options.hideTestRequestButton,
-        expandAllResponses: options.expandAllResponses,
-        clientOptions: clientOptions,
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        expandAllModelSections: options.expandAllModelSections,
-      }"
-      :paths="document?.paths ?? {}"
-      :schemas="document?.components?.schemas ?? {}"
       :selectedServer
-      :webhooks="document?.webhooks ?? {}"
       :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>
 
     <!-- Render plugins at content.end view -->
-    <RenderPlugins
+    <!-- <RenderPlugins
       :options
-      viewName="content.end" />
+      viewName="content.end" /> -->
 
     <slot name="end" />
     <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->

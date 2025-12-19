@@ -6,6 +6,7 @@ import {
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -22,36 +23,33 @@ import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-const { server, pathValue, method, options } = defineProps<{
+const {
+  server,
+  pathValue,
+  config,
+  isWebhook,
+  document,
+  method,
+  clientOptions,
+} = defineProps<{
   id: string
   method: HttpMethod
+  /** The configuration object */
+  config: ApiReferenceConfiguration
+  /** Document object */
+  document: OpenApiDocument
   /** Key of the operations path in the document.paths object */
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
   /** Currently selected server for the document */
   server: ServerObject | null
+  /** The http client options for the dropdown */
+  clientOptions: ClientOptionGroup[]
   isCollapsed: boolean
+  isWebhook: boolean
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   eventBus: WorkspaceEventBus | null
-
-  // ---------------------------------------------
-  options: {
-    documentSecurity: OpenApiDocument['security']
-    documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
-    securitySchemes: NonNullable<
-      OpenApiDocument['components']
-    >['securitySchemes']
-    layout: 'classic' | 'modern'
-    /** Sets some additional display properties when an operation is a webhook */
-    isWebhook: boolean
-    showOperationId: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses: boolean | undefined
-    clientOptions: ClientOptionGroup[]
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
 }>()
 
 /**
@@ -74,19 +72,19 @@ const operation = computed(() => {
 
 /** Compute what the security requirements should be for an operation */
 const securityRequirements = computed(() =>
-  getSecurityRequirements(options.documentSecurity, operation.value?.security),
+  getSecurityRequirements(document.security, operation.value?.security),
 )
 
 /** Selected security schemes for the operation */
 const selectedSecuritySchemes = computed(() => {
   const selectedSecurity = getSelectedSecurity(
-    options.documentSelectedSecurity,
+    document['x-scalar-selected-security'],
     operation.value?.['x-scalar-selected-security'],
     securityRequirements.value,
   )
 
   return getSecuritySchemes(
-    options.securitySchemes,
+    document.components?.securitySchemes ?? {},
     selectedSecurity.selectedSchemes ?? [],
   )
 })
@@ -104,12 +102,23 @@ const selectedServer = computed<ServerObject | null>(() =>
     server,
   ),
 )
+
+/** Cache the operation options in a computed */
+const options = computed(() => ({
+  isWebhook,
+  showOperationId: config.showOperationId,
+  hideTestRequestButton: config.hideTestRequestButton,
+  expandAllResponses: config.expandAllResponses,
+  clientOptions,
+  orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+  orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+}))
 </script>
 
 <template>
   <template v-if="operation">
     <ClassicLayout
-      v-if="options?.layout === 'classic'"
+      v-if="config.layout === 'classic'"
       :id="id"
       :eventBus
       :isCollapsed
