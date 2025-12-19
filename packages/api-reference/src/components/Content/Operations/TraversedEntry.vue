@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type {
   TraversedEntry,
   TraversedModels,
@@ -11,12 +13,7 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
-import type {
-  ComponentsObject,
-  OpenApiDocument,
-  PathsObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
@@ -27,39 +24,28 @@ import { Operation } from '@/features/Operation'
 
 const {
   level = 0,
+  clientOptions,
+  document,
   entries,
-  paths,
-  webhooks,
 } = defineProps<{
+  /** The level of depth */
   level?: number
+  /** Traversed entries to render */
   entries: TraversedEntry[]
-  /** The path entries from the document `document.paths` */
-  paths: PathsObject
-  /** The webhook path entries from the document `document.webhooks` */
-  webhooks: PathsObject
-  /** The schema entries from the document `document.components.schemas` */
-  schemas: ComponentsObject['schemas']
+  /** The configuration object */
+  config: ApiReferenceConfiguration
+  /** The document object */
+  document: WorkspaceDocument
+  /** The http client options for the dropdown */
+  clientOptions: ClientOptionGroup[]
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
+  /** Currently selected http client for the document */
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
+  /** The event bus for the handling all events. */
   eventBus: WorkspaceEventBus | null
-  options: {
-    documentSecurity: OpenApiDocument['security']
-    documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
-    securitySchemes: NonNullable<
-      OpenApiDocument['components']
-    >['securitySchemes']
-    layout: 'classic' | 'modern'
-    showOperationId: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses: boolean | undefined
-    expandAllModelSections: boolean | undefined
-    clientOptions: ClientOptionGroup[]
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
 }>()
 
 /**
@@ -89,7 +75,9 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
   entry['type'] === 'model'
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
-  return isWebhook(entry) ? webhooks[entry.name] : paths[entry.path]
+  return isWebhook(entry)
+    ? document.webhooks?.[entry.name]
+    : document.paths?.[entry.path]
 }
 </script>
 
@@ -99,20 +87,20 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   <Lazy
     v-for="entry in entries"
     :id="entry.id"
-    :key="`${entry.id}-${options.layout}`">
+    :key="`${entry.id}-${config.layout}`">
     <!-- Operation or Webhook -->
     <SectionContainer
       v-if="isOperation(entry) || isWebhook(entry)"
       :omit="level !== 0">
       <Operation
         :id="entry.id"
-        :eventBus="eventBus"
+        :clientOptions
+        :config
+        :document
+        :eventBus
         :isCollapsed="!expandedItems[entry.id]"
+        :isWebhook="isWebhook(entry)"
         :method="entry.method"
-        :options="{
-          ...options,
-          isWebhook: isWebhook(entry),
-        }"
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
         :server="selectedServer"
@@ -122,23 +110,22 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <!-- Webhook Group or Tag -->
     <Tag
       v-else-if="isTag(entry)"
-      :eventBus="eventBus"
+      :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :isLoading="false"
-      :layout="options.layout"
+      :layout="config.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
+          :clientOptions
+          :config
+          :document
           :entries="entry.children"
-          :eventBus="eventBus"
-          :expandedItems="expandedItems"
+          :eventBus
+          :expandedItems
           :level="level + 1"
-          :options
-          :paths="paths"
-          :schemas="schemas"
           :selectedServer
-          :webhooks="webhooks"
           :xScalarDefaultClient="xScalarDefaultClient">
         </TraversedEntry>
       </template>
@@ -147,56 +134,45 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <!-- Tag Group -->
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
+      :clientOptions
+      :config
+      :document
       :entries="entry.children || []"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
+      :eventBus
+      :expandedItems
       :level="level + 1"
-      :options
-      :paths="paths"
-      :schemas="schemas"
       :selectedServer
-      :webhooks="webhooks"
       :xScalarDefaultClient="xScalarDefaultClient">
     </TraversedEntry>
 
     <!-- Models -->
     <ModelTag
-      v-else-if="isModelsTag(entry) && schemas"
+      v-else-if="isModelsTag(entry) && document.components?.schemas"
       :id="entry.id"
-      :eventBus="eventBus"
+      :eventBus
       :isCollapsed="!expandedItems[entry.id]"
-      :options="{
-        layout: options.layout,
-        expandAllModelSections: options.expandAllModelSections,
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-      }">
+      :layout="config.layout">
       <TraversedEntry
+        :clientOptions
+        :config
+        :document
         :entries="entry.children || []"
-        :eventBus="eventBus"
+        :eventBus
         :expandedItems="expandedItems"
         :level="level + 1"
-        :options
-        :paths="paths"
-        :schemas="schemas"
         :selectedServer
-        :webhooks="webhooks"
         :xScalarDefaultClient="xScalarDefaultClient">
       </TraversedEntry>
     </ModelTag>
 
     <Model
-      v-else-if="isModel(entry) && schemas"
+      v-else-if="isModel(entry) && document.components?.schemas?.[entry.name]"
       :id="entry.id"
+      :config
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
-      :options="{
-        layout: options.layout,
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-      }"
-      :schema="getResolvedRef(schemas[entry.name])">
+      :schema="getResolvedRef(document.components.schemas[entry.name])">
     </Model>
   </Lazy>
 </template>

@@ -194,11 +194,7 @@ const { copyToClipboard } = useClipboard()
         <div class="operation-details-card-item">
           <OperationResponses
             :eventBus="eventBus"
-            :options="{
-              orderRequiredPropertiesFirst:
-                options.orderRequiredPropertiesFirst,
-              orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-            }"
+            :options
             :responses="operation.responses" />
         </div>
 
