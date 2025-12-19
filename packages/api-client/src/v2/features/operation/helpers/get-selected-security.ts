@@ -4,21 +4,22 @@ import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/i
 
 /** Get the selected security for an operation or document, with defaults to the requirements */
 export const getSelectedSecurity = (
-  document: OpenApiDocument | null,
-  operation: OperationObject | null,
+  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security'],
+  operationSelectedSecurity: OperationObject['x-scalar-selected-security'],
   securityRequirements: NonNullable<OpenApiDocument['security']>,
+  setOperationSecurity = false,
 ) => {
   const firstRequirement = securityRequirements[0]
 
   // Operation level security
-  if (document?.['x-scalar-set-operation-security']) {
-    if (operation?.['x-scalar-selected-security']) {
-      return operation?.['x-scalar-selected-security']
+  if (setOperationSecurity) {
+    if (operationSelectedSecurity) {
+      return operationSelectedSecurity
     }
   }
   // Document level security
-  else if (document?.['x-scalar-selected-security']) {
-    return document?.['x-scalar-selected-security']
+  else if (documentSelectedSecurity) {
+    return documentSelectedSecurity
   }
 
   // No need to default if auth is optional

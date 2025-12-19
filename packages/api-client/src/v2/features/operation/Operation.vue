@@ -90,12 +90,17 @@ watch(
 
 /** Compute what the security requirements should be for an operation */
 const securityRequirements = computed(() =>
-  getSecurityRequirements(document, operation.value),
+  getSecurityRequirements(document?.security, operation.value?.security),
 )
 
 /** Select the selected security for the operation or document */
 const selectedSecurity = computed(() =>
-  getSelectedSecurity(document, operation.value, securityRequirements.value),
+  getSelectedSecurity(
+    document?.['x-scalar-selected-security'],
+    operation.value?.['x-scalar-selected-security'],
+    securityRequirements.value,
+    document?.['x-scalar-set-operation-security'],
+  ),
 )
 
 /** Select document vs operation meta based on the extension */

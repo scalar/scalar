@@ -45,14 +45,21 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { operation, path } = defineProps<{
+const {
+  operation,
+  path,
+  selectedServer,
+  selectedSecuritySchemes,
+  xScalarDefaultClient,
+} = defineProps<{
   id: string
   path: string
   method: HttpMethodType
   operation: OperationObject
   // pathServers: ServerObject[] | undefined
-  server: ServerObject | null
-  securitySchemes: SecuritySchemeObject[]
+  selectedServer: ServerObject | null
+  /** The selected security schemes which are applicable to this operation */
+  selectedSecuritySchemes: SecuritySchemeObject[]
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
@@ -221,9 +228,9 @@ const { copyToClipboard } = useClipboard()
             :method="method"
             :operation="operation"
             :path="path"
-            :securitySchemes="securitySchemes"
+            :securitySchemes="selectedSecuritySchemes"
             :selectedClient="xScalarDefaultClient"
-            :selectedServer="server" />
+            :selectedServer />
         </ScalarErrorBoundary>
       </div>
     </div>

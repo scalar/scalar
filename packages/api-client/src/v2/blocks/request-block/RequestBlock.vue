@@ -18,7 +18,7 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import { getSelectedSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
+import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -281,10 +281,7 @@ const labelRequestNameId = useId()
 
 /** Selected security schemes for the request */
 const selectedSecuritySchemes = computed(() =>
-  getSelectedSecuritySchemes(
-    securitySchemes,
-    selectedSecurity?.selectedSchemes ?? [],
-  ),
+  getSecuritySchemes(securitySchemes, selectedSecurity?.selectedSchemes ?? []),
 )
 </script>
 <template>

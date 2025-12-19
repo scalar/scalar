@@ -25,13 +25,11 @@ import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
-import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 const { options, document, items, environment, eventBus } = defineProps<{
   infoSectionId: string
   document: WorkspaceDocument | undefined
   xScalarDefaultClient: Workspace['x-scalar-default-client']
-  getSecuritySchemes: SecuritySchemeGetter
   items: TraversedEntryType[]
   expandedItems: Record<string, boolean>
   eventBus: WorkspaceEventBus
@@ -105,11 +103,15 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
-                :document
+                :documentSecurity="document?.security"
+                :documentSelectedSecurity="
+                  document?.['x-scalar-selected-security']
+                "
                 :environment
                 :eventBus
                 :persistAuth="options.persistAuth"
                 :proxyUrl="options.proxyUrl"
+                :securitySchemes="document?.components?.securitySchemes ?? {}"
                 :selectedServer />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
@@ -143,8 +145,10 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
       :entries="items"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
-      :getSecuritySchemes="getSecuritySchemes"
       :options="{
+        documentSecurity: document?.security,
+        documentSelectedSecurity: document?.['x-scalar-selected-security'],
+        securitySchemes: document?.components?.securitySchemes,
         layout: options.layout ?? 'modern',
         showOperationId: options.showOperationId,
         hideTestRequestButton: options.hideTestRequestButton,
@@ -156,7 +160,6 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
       }"
       :paths="document?.paths ?? {}"
       :schemas="document?.components?.schemas ?? {}"
-      :security="document?.security"
       :selectedServer
       :webhooks="document?.webhooks ?? {}"
       :xScalarDefaultClient="xScalarDefaultClient">

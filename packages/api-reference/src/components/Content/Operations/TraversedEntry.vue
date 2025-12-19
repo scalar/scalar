@@ -13,8 +13,8 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import type {
   ComponentsObject,
+  OpenApiDocument,
   PathsObject,
-  SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -24,14 +24,12 @@ import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
 const {
   level = 0,
   entries,
   paths,
   webhooks,
-  security,
 } = defineProps<{
   level?: number
   entries: TraversedEntry[]
@@ -41,16 +39,18 @@ const {
   webhooks: PathsObject
   /** The schema entries from the document `document.components.schemas` */
   schemas: ComponentsObject['schemas']
-  /** The security requirements from the document `document.security` */
-  security: SecurityRequirementObject[] | undefined
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
-  getSecuritySchemes: SecuritySchemeGetter
   xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
   eventBus: WorkspaceEventBus | null
   options: {
+    documentSecurity: OpenApiDocument['security']
+    documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
+    securitySchemes: NonNullable<
+      OpenApiDocument['components']
+    >['securitySchemes']
     layout: 'classic' | 'modern'
     showOperationId: boolean | undefined
     hideTestRequestButton: boolean | undefined
@@ -107,7 +107,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       <Operation
         :id="entry.id"
         :eventBus="eventBus"
-        :getSecurityScheme="getSecuritySchemes"
         :isCollapsed="!expandedItems[entry.id]"
         :method="entry.method"
         :options="{
@@ -116,7 +115,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         }"
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
-        :security="security"
         :server="selectedServer"
         :xScalarDefaultClient="xScalarDefaultClient" />
     </SectionContainer>
@@ -135,12 +133,10 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :entries="entry.children"
           :eventBus="eventBus"
           :expandedItems="expandedItems"
-          :getSecuritySchemes="getSecuritySchemes"
           :level="level + 1"
           :options
           :paths="paths"
           :schemas="schemas"
-          :security="security"
           :selectedServer
           :webhooks="webhooks"
           :xScalarDefaultClient="xScalarDefaultClient">
@@ -154,12 +150,10 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :entries="entry.children || []"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
-      :getSecuritySchemes="getSecuritySchemes"
       :level="level + 1"
       :options
       :paths="paths"
       :schemas="schemas"
-      :security="security"
       :selectedServer
       :webhooks="webhooks"
       :xScalarDefaultClient="xScalarDefaultClient">
@@ -181,12 +175,10 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :entries="entry.children || []"
         :eventBus="eventBus"
         :expandedItems="expandedItems"
-        :getSecuritySchemes="getSecuritySchemes"
         :level="level + 1"
         :options
         :paths="paths"
         :schemas="schemas"
-        :security="security"
         :selectedServer
         :webhooks="webhooks"
         :xScalarDefaultClient="xScalarDefaultClient">
