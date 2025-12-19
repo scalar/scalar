@@ -12,5 +12,5 @@ pre-commit:
       stage_fixed: true
     biome:
       glob: '*.{js,ts,cjs,mjs,d.ts,d.cts,d.mts,jsx,tsx,json,jsonc,vue,svelte,astro}'
-      run: pnpm biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      run: pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
       stage_fixed: true
