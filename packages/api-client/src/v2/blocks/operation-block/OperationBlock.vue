@@ -43,11 +43,16 @@ import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
+import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import {
+  getSecurityRequirements,
+  getSelectedSecurity,
+} from '@/v2/features/operation'
 import { type ClientPlugin } from '@/v2/helpers/plugins'
 
 import Header from './components/Header.vue'
@@ -55,23 +60,28 @@ import Header from './components/Header.vue'
 const {
   authMeta,
   environment,
+  documentSecurity,
+  documentSelectedSecurity,
   eventBus,
   exampleKey,
   globalCookies = [],
   httpClients = AVAILABLE_CLIENTS,
   method,
   operation,
+  setOperationSecurity,
   path,
   plugins = [],
   proxyUrl,
-  securityRequirements,
-  selectedSecuritySchemes,
   securitySchemes,
   selectedClient,
   server,
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
+  /** Document defined security */
+  documentSecurity: OpenApiDocument['security']
+  /** Document selected security */
+  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -104,18 +114,14 @@ const {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
+  /** Whether to set security at the operation level */
+  setOperationSecurity: boolean
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
   authMeta: AuthMeta
-  /** The selected security for the operation or document */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** The selected security schemes for the current operation */
-  selectedSecuritySchemes: SecuritySchemeObject[]
-  /** Required security for the operation/document */
-  securityRequirements: OpenApiDocument['security']
   /** Client plugins */
   plugins: ClientPlugin[]
   /** For environment variables in the inputs */
@@ -131,6 +137,26 @@ const emit = defineEmits<{
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
+
+/** Compute what the security requirements should be for an operation */
+const securityRequirements = computed(() =>
+  getSecurityRequirements(documentSecurity, operation.security),
+)
+
+/** The selected security for the operation or document */
+const selectedSecurity = computed(() =>
+  getSelectedSecurity(
+    documentSelectedSecurity,
+    operation['x-scalar-selected-security'],
+    securityRequirements.value,
+    setOperationSecurity,
+  ),
+)
+
+/** The above selected requirements in scheme form */
+const selectedSecuritySchemes = computed(() =>
+  getSecuritySchemes(securitySchemes, selectedSecurity.value.selectedSchemes),
+)
 
 const { toast } = useToasts()
 
@@ -151,7 +177,7 @@ const handleExecute = async () => {
     method,
     operation,
     path,
-    selectedSecuritySchemes,
+    selectedSecuritySchemes: selectedSecuritySchemes.value,
     server,
     proxyUrl,
   })

@@ -16,11 +16,9 @@ import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { getSecuritySchemes, OperationBlock } from '@/v2/blocks/operation-block'
+import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
-import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
-import { getSelectedSecurity } from '@/v2/features/operation/helpers/get-selected-security'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
 const {
@@ -88,29 +86,6 @@ watch(
   { immediate: true },
 )
 
-/** Compute what the security requirements should be for an operation */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(document?.security, operation.value?.security),
-)
-
-/** The selected security for the operation or document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
-    operation.value?.['x-scalar-selected-security'],
-    securityRequirements.value,
-    document?.['x-scalar-set-operation-security'],
-  ),
-)
-
-/** The above selected requirements in scheme form */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(
-    document?.components?.securitySchemes ?? {},
-    selectedSecurity.value.selectedSchemes,
-  ),
-)
-
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
   if (document?.['x-scalar-set-operation-security']) {
@@ -138,6 +113,8 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :documentSecurity="document?.security ?? []"
+      :documentSelectedSecurity="document?.['x-scalar-selected-security']"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
@@ -153,13 +130,13 @@ const router = useRouter()
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-      :securityRequirements
       :securitySchemes="document?.components?.securitySchemes ?? {}"
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
-      :selectedSecurity
-      :selectedSecuritySchemes
       :server="selectedServer"
       :servers="document?.servers ?? []"
+      :setOperationSecurity="
+        document?.['x-scalar-set-operation-security'] ?? false
+      "
       :totalPerformedRequests="0"
       @update:servers="router.push({ name: 'document.servers' })" />
   </template>
