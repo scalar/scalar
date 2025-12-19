@@ -533,9 +533,9 @@
   ],
   "references": [
     {
-      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
       "name": "Scalar API",
-      "slug": "scalar-api"
+      "namespace": "scalar",
+      "slug": "access-service"
     }
   ],
   "header": [
