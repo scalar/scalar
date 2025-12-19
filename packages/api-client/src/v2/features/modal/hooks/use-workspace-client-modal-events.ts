@@ -27,7 +27,6 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { ComputedRef, Ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
-import { generateLocationId } from '@/v2/helpers/generate-location-id'
 
 /**
  * Top level event handling for the modal client
@@ -119,14 +118,16 @@ export const useWorkspaceClientModalEvents = ({
     // We must find the ID first from the entries
     else if ('method' in payload && 'path' in payload) {
       sidebarState.handleSelectItem(
-        generateLocationId({
+        sidebarState.getEntryByLocation({
           document: document.value?.['x-scalar-navigation']?.id ?? '',
           path: payload.path,
           method: payload.method,
           example: payload.exampleName,
-        }),
+        })?.id ?? '',
       )
     }
+
+    modalState.show()
   })
 
   //------------------------------------------------------------------------------------
