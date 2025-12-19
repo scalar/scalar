@@ -128,6 +128,6 @@ describe('post-response-scripts', () => {
 
     const result = processPostResponseScripts(events)
 
-    expect(result).toBe('')
+    expect(result).toBeUndefined()
   })
 })
