@@ -3,48 +3,48 @@ import { describe, expect, it, test } from 'vitest'
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const TEST_FIXTURES_BUCKET_NAME = 'scalar-test-fixtures'
-const BASE_URL = `https://storage.googleapis.com/${TEST_FIXTURES_BUCKET_NAME}`
+const BUCKET_NAME = 'scalar-test-fixtures'
+const BUCKET_URL = `https://storage.googleapis.com/${BUCKET_NAME}`
+const FIXTURES = [
+  'SimplePost',
+  'NoVersion',
+  'Folders',
+  'GetMethods',
+  'PathParams',
+  'MultipleServers',
+  'LicenseContact',
+  'ParseStatusCode',
+  'NoPath',
+  'DeleteOperation',
+  'AuthBearer',
+  'AuthBasic',
+  'UrlWithPort',
+  'ExternalDocs',
+  'EmptyUrl',
+  'XLogo',
+  'AuthMultiple',
+  'AuthRequest',
+  'FormData',
+  'FormUrlencoded',
+  'RawBody',
+  'OperationIds',
+  'NestedServers',
+  'Headers',
+  'ResponsesEmpty',
+  'Responses',
+]
 
 describe('fixtures', () => {
-  const files = [
-    'SimplePost',
-    'NoVersion',
-    'Folders',
-    'GetMethods',
-    'PathParams',
-    'MultipleServers',
-    'LicenseContact',
-    'ParseStatusCode',
-    'NoPath',
-    'DeleteOperation',
-    'AuthBearer',
-    'AuthBasic',
-    'UrlWithPort',
-    'ExternalDocs',
-    'EmptyUrl',
-    'XLogo',
-    'AuthMultiple',
-    'AuthRequest',
-    'FormData',
-    'FormUrlencoded',
-    'RawBody',
-    'OperationIds',
-    'NestedServers',
-    'Headers',
-    'ResponsesEmpty',
-    'Responses',
-  ]
+  test.each(FIXTURES)('$0', async (file) => {
+    // postman
+    const input = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/input/${file}.json`)
+    const postman = await input.json()
 
-  test.each(files)('$0', async (file) => {
-    const input = await fetch(`${BASE_URL}/oas/postman-to-openapi/fixtures/input/${file}.json`)
-    const collection = await input.json()
+    // openapi
+    const output = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/output/${file}.json`)
+    const openapi = await output.json()
 
-    // remote
-    const result = await fetch(`${BASE_URL}/oas/postman-to-openapi/fixtures/output/${file}.json`)
-    const expected = await result.json()
-
-    expect(convert(collection)).toEqual(expected)
+    expect(convert(postman)).toEqual(openapi)
   })
 })
 
