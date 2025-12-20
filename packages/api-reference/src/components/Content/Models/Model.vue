@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useTemplateRef } from 'vue'
@@ -12,10 +12,10 @@ import ModernLayout from './components/ModernLayout.vue'
 const { config, schema, isCollapsed, id, eventBus } = defineProps<{
   id: string
   name: string
-  config: ApiReferenceConfiguration
+  config: ApiReferenceConfigurationRaw
   schema: SchemaObject | undefined
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
 }>()
 
 const section = useTemplateRef<HTMLElement>('section')
@@ -34,19 +34,19 @@ const schemaOptions = computed(() => ({
     ref="section">
     <ClassicLayout
       v-if="config.layout === 'classic'"
-      :id="id"
-      :eventBus="eventBus"
-      :isCollapsed="isCollapsed"
-      :name="name"
+      :id
+      :eventBus
+      :isCollapsed
+      :name
       :options="schemaOptions"
-      :schema="schema" />
+      :schema />
     <ModernLayout
       v-else
-      :id="id"
+      :id
       :eventBus
-      :isCollapsed="isCollapsed"
-      :name="name"
+      :isCollapsed
+      :name
       :options="schemaOptions"
-      :schema="schema" />
+      :schema />
   </div>
 </template>

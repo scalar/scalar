@@ -1,11 +1,15 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import type { ApiReferenceConfigurationRaw } from '../../../../../types/dist/api-reference/api-reference-configuration'
 import Model from './Model.vue'
 
 describe('Model', () => {
+  const eventBus = createWorkspaceEventBus()
+
   const mockDocument = coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
     info: {
@@ -63,10 +67,10 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          config: mockConfigClassic,
+          config: mockConfigClassic as ApiReferenceConfigurationRaw,
         },
       })
 
@@ -84,10 +88,10 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          config: mockConfigModern,
+          config: mockConfigModern as ApiReferenceConfigurationRaw,
         },
       })
 
@@ -105,10 +109,10 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: true,
-          config: mockConfigModern,
+          config: mockConfigModern as ApiReferenceConfigurationRaw,
         },
       })
 
@@ -122,10 +126,10 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          config: mockConfigModern,
+          config: mockConfigModern as ApiReferenceConfigurationRaw,
         },
       })
 
