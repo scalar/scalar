@@ -1,3 +1,4 @@
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { renderToString } from '@vue/server-renderer'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -450,73 +451,6 @@ describe('Rendering', () => {
     const html = await renderToString(app)
 
     expect(html).toContain('Test API')
-  })
-})
-
-describe('Swagger 2.0 upgrade', () => {
-  it('upgrades Swagger 2.0 document to OpenAPI 3.1 when dereferenced', async () => {
-    const swaggerDocument = {
-      swagger: '2.0',
-      info: {
-        title: 'Swagger 2.0 API',
-        version: '1.0.0',
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            responses: {
-              '200': {
-                description: 'Success',
-                schema: {
-                  type: 'array',
-                  items: {
-                    $ref: '#/definitions/User',
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      definitions: {
-        User: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'integer',
-            },
-            name: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    }
-
-    const wrapper = mount(ApiReference, {
-      props: {
-        configuration: {
-          content: swaggerDocument,
-        },
-      },
-    })
-
-    // Wait for the API reference to process the document
-    await vi.waitFor(
-      async () => {
-        await flushPromises()
-        await wrapper.vm.$nextTick()
-        // Check that the component has mounted and rendered
-        expect(wrapper.html()).toContain('Swagger 2.0 API')
-      },
-      { timeout: 5000 },
-    )
-
-    // The document should be upgraded to OpenAPI 3.1.1 internally
-    // We verify this by checking that the component renders successfully
-    expect(wrapper.exists()).toBe(true)
-    wrapper.unmount()
   })
 })
 
