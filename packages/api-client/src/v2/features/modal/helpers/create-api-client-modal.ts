@@ -1,7 +1,7 @@
-import { useModal } from '@scalar/components'
+import { type ModalState, useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, createApp, reactive } from 'vue'
+import { type App, computed, createApp, reactive } from 'vue'
 
 import {
   type DefaultEntities,
@@ -31,6 +31,14 @@ export type CreateApiClientModalOptions = {
   plugins?: ClientPlugin[]
 }
 
+export type ApiClientModal = {
+  app: App
+  open: (payload?: RoutePayload) => void
+  mount: (mountingEl: HTMLElement | null) => void
+  route: (payload: RoutePayload) => void
+  modalState: ModalState
+}
+
 // ---------------------------------------------------------------------------
 // Modal Factory
 // ---------------------------------------------------------------------------
@@ -49,7 +57,7 @@ export const createApiClientModal = ({
   mountOnInitialize = true,
   plugins,
   workspaceStore,
-}: CreateApiClientModalOptions) => {
+}: CreateApiClientModalOptions): ApiClientModal => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
     method: 'default',

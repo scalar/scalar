@@ -2,7 +2,10 @@
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
-import { createApiClientModal } from '@scalar/api-client/v2/features/modal'
+import {
+  createApiClientModal,
+  type ApiClientModal,
+} from '@scalar/api-client/v2/features/modal'
 import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
@@ -435,6 +438,7 @@ const changeSelectedDocument = async (
 ) => {
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
+  apiClient.value?.route({ documentSlug: slug })
   const normalized = configList.value[slug]
 
   if (!normalized) {
@@ -600,12 +604,13 @@ const documentUrl = computed(() => {
 
 // Setup the ApiClient on mount
 const modal = useTemplateRef<HTMLElement>('modal')
+const apiClient = ref<ApiClientModal | null>(null)
 onMounted(() => {
   if (!modal.value) {
     return
   }
 
-  createApiClientModal({
+  apiClient.value = createApiClientModal({
     el: modal.value,
     eventBus,
     workspaceStore,
