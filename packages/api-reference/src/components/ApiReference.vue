@@ -11,8 +11,6 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
-import { dereference, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
