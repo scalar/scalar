@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -14,6 +13,7 @@ import type {
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
+import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
@@ -26,7 +26,6 @@ const {
   isWebhook,
   document,
   method,
-  selectedSecurity,
   clientOptions,
 } = defineProps<{
   id: string
@@ -39,8 +38,6 @@ const {
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
-  /** Currently selected security for the document */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Currently selected server for the document */
   server: ServerObject | null
   /** The http client options for the dropdown */
@@ -65,23 +62,8 @@ const operation = computed(() => {
 
   // Combine params from the pathItem and the operation
   const parameters = combineParams(pathValue?.parameters, entity.parameters)
-
   return { ...entity, parameters }
 })
-
-/** Compute what the security requirements should be for an operation */
-// TODO this will later be used to show that this operation requires auth
-// const oprationSecurityRequirements = computed(() =>
-//   getSecurityRequirements(document.security, operation.value?.security),
-// )
-
-/** Selected security schemes in scheme form */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(
-    document.components?.securitySchemes ?? {},
-    selectedSecurity?.selectedSchemes ?? [],
-  ),
-)
 
 /**
  * Determine the effective server for the code examples.
@@ -95,6 +77,11 @@ const selectedServer = computed<ServerObject | null>(() =>
     // 3) Document
     server,
   ),
+)
+
+/** We must ensure the selected security schemes are required on this operation */
+const selectedSecuritySchemes = computed(() =>
+  filterSelectedSecurity(document, operation.value),
 )
 
 /** Cache the operation options in a computed */

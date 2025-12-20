@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { AuthSelector } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-  getSelectedServer,
-} from '@scalar/api-client/v2/features/operation'
+import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -23,6 +18,7 @@ import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
@@ -56,20 +52,6 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() => getSelectedServer(document ?? null))
-
-/** Compute what the security requirements should be for the document */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(document?.security),
-)
-
-/** The selected security keys for the document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
-    undefined,
-    securityRequirements.value,
-  ),
-)
 </script>
 <template>
   <SectionFlare />
@@ -107,24 +89,12 @@ const selectedSecurity = computed(() =>
             <IntroductionCardItem
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <AuthSelector
-                v-if="
-                  Object.keys(document?.components?.securitySchemes ?? {})
-                    .length
-                "
+              <Auth
+                :config
+                :document
                 :environment
                 :eventBus
-                isReadOnly
-                isStatic
-                layout="reference"
-                :meta="{ type: 'document' }"
-                :persistAuth="config.persistAuth"
-                :proxyUrl="config.proxyUrl ?? ''"
-                :securityRequirements
-                :securitySchemes="document?.components?.securitySchemes ?? {}"
-                :selectedSecurity
-                :server="selectedServer"
-                title="Authentication" />
+                :selectedServer />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
 
@@ -162,7 +132,6 @@ const selectedSecurity = computed(() =>
       :eventBus
       :expandedItems
       :selectedClient="xScalarDefaultClient"
-      :selectedSecurity
       :selectedServer>
     </TraversedEntry>
 

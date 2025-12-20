@@ -4,12 +4,12 @@ import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/i
 
 /**
  * Get the selected security for an operation or document,
- * Defaults to the first requirement if no selection is made
+ * Defaults to the first requirement if no selection is made and you pass in requirements
  */
 export const getSelectedSecurity = (
   documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security'],
   operationSelectedSecurity: OperationObject['x-scalar-selected-security'],
-  securityRequirements: NonNullable<OpenApiDocument['security']>,
+  securityRequirements: NonNullable<OpenApiDocument['security']> = [],
   setOperationSecurity = false,
 ) => {
   const firstRequirement = securityRequirements[0]

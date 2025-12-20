@@ -13,10 +13,7 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
@@ -43,8 +40,6 @@ const {
   clientOptions: ClientOptionGroup[]
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
-  /** Currently selected security for the document */
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Currently selected http client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
@@ -109,7 +104,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
         :selectedClient
-        :selectedSecurity
         :server="selectedServer" />
     </SectionContainer>
 
@@ -132,7 +126,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :expandedItems
           :level="level + 1"
           :selectedClient
-          :selectedSecurity
           :selectedServer>
         </TraversedEntry>
       </template>
@@ -149,7 +142,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :expandedItems
       :level="level + 1"
       :selectedClient
-      :selectedSecurity
       :selectedServer>
     </TraversedEntry>
 
@@ -169,7 +161,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :expandedItems="expandedItems"
         :level="level + 1"
         :selectedClient
-        :selectedSecurity
         :selectedServer>
       </TraversedEntry>
     </ModelTag>
