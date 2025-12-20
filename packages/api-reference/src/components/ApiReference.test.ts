@@ -1,4 +1,3 @@
-import { sleep } from '@scalar/helpers/testing/sleep'
 import { renderToString } from '@vue/server-renderer'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
