@@ -79,7 +79,7 @@ describe('ClientLibraries', () => {
         props: {
           clientOptions: mockClientOptions,
           eventBus,
-          xSelectedClient: customClient,
+          selectedClient: customClient,
         },
         global: {
           stubs: {
