@@ -86,7 +86,7 @@ const activeWorkspace: Workspace = {
 }
 
 /** Controls the visibility of the sidebar. */
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientModalEvents({

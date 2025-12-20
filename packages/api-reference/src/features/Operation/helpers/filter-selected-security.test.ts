@@ -18,6 +18,7 @@ describe('filterSelectedSecurity', () => {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
     }
 
     const operation: OperationObject = {
@@ -38,19 +39,25 @@ describe('filterSelectedSecurity', () => {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: {
             type: 'apiKey',
             name: 'X-API-Key',
             in: 'header',
+            'x-scalar-secret-token': '',
           },
           oauth2: {
             type: 'oauth2',
             flows: {
               implicit: {
                 authorizationUrl: 'https://example.com/oauth',
+                refreshUrl: '',
                 scopes: {},
+                'x-scalar-secret-client-id': '',
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-redirect-uri': '',
               },
             },
           },
@@ -82,12 +89,14 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: apiKeyScheme,
@@ -118,18 +127,23 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+      'x-scalar-secret-token': '',
     }
 
     const bearerScheme: SecuritySchemeObject = {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
+      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: apiKeyScheme,
@@ -165,6 +179,7 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+      'x-scalar-secret-token': '',
     }
 
     const oauth2Scheme: SecuritySchemeObject = {
@@ -172,10 +187,14 @@ describe('filterSelectedSecurity', () => {
       flows: {
         implicit: {
           authorizationUrl: 'https://example.com/oauth',
+          refreshUrl: '',
           scopes: {
             'read:data': 'Read data',
             'write:data': 'Write data',
           },
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-redirect-uri': '',
         },
       },
     }
@@ -184,6 +203,7 @@ describe('filterSelectedSecurity', () => {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: apiKeyScheme,
@@ -220,12 +240,14 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: apiKeyScheme,
@@ -258,12 +280,14 @@ describe('filterSelectedSecurity', () => {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: {
             type: 'apiKey',
             name: 'X-API-Key',
             in: 'header',
+            'x-scalar-secret-token': '',
           },
         },
       },
@@ -293,12 +317,14 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
+      'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
           apiKey: apiKeyScheme,
