@@ -101,7 +101,7 @@ describe('ServerSelector', () => {
       props: {
         servers: serversWithoutDescription,
         eventBus,
-        selectedServer: mockServers[0]!,
+        selectedServer: serversWithoutDescription[0]!,
       },
     })
 
@@ -336,15 +336,30 @@ describe('ServerSelector', () => {
       props: {
         servers: store.workspace.activeDocument!.servers!,
         eventBus,
-        selectedServer: { url: '{protocol}://void.scalar.com/{path}' },
+        selectedServer: store.workspace.activeDocument!.servers![1]!,
       },
     })
 
     const variables = wrapper.findComponent({ name: 'ServerVariablesForm' })
-    expect(variables.text()).toContain('abcd')
+    expect(variables.exists()).toBe(true)
+
+    // Check that the variables form has the correct props
+    expect(variables.props('variables')).toEqual({
+      'protocol': {
+        'enum': ['abcd', '1234'],
+        'default': 'abcd',
+      },
+      'path': {
+        'default': '',
+      },
+    })
+
+    // Update the default value in the store
     store.workspace.activeDocument!.servers![1]!.variables!.protocol!.default = '1234'
     await nextTick()
-    expect(variables.text()).toContain('1234')
+
+    // Check that the variables form props have been updated
+    expect(variables.props('variables')?.protocol?.default).toBe('1234')
   })
 
   it('renders with multiple servers and complex configuration', () => {
@@ -369,7 +384,7 @@ describe('ServerSelector', () => {
       props: {
         servers: complexServers,
         eventBus,
-        selectedServer: mockServers[0]!,
+        selectedServer: complexServers[0]!,
       },
     })
 

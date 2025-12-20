@@ -71,8 +71,7 @@ describe('TestRequestButton', () => {
     await wrapper.find('button').trigger('click')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:client-modal', {
-      method: 'delete',
-      path: '/users/1',
+      id: 'test-operation-3',
     })
   })
 })

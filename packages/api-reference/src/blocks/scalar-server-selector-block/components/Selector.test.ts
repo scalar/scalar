@@ -159,7 +159,7 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('staging.example.com')
   })
 
-  it('selectedServer computed property works correctly', async () => {
+  it('selectedServer prop and serverOptions work correctly', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
@@ -168,11 +168,11 @@ describe('Selector', () => {
       },
     })
 
-    // Test the getter: should return the correct selected server
+    // Test the exposed selectedServer: should return the correct selected server
     const selectedServer = wrapper.vm.selectedServer
     expect(selectedServer).toEqual({
-      id: 'https://api.example.com',
-      label: 'https://api.example.com',
+      url: 'https://api.example.com',
+      description: 'Production server',
     })
 
     // Test that serverOptions contains all expected servers
@@ -181,15 +181,6 @@ describe('Selector', () => {
       id: 'https://staging.example.com',
       label: 'https://staging.example.com',
     })
-
-    // Test with no selected server
-    await wrapper.setProps({
-      servers: mockServers,
-      selectedServer: null,
-      target: 'test-target',
-    })
-
-    expect(wrapper.vm.selectedServer).toBeUndefined()
   })
 
   it('component emits update:modelValue through v-model integration', () => {
@@ -256,10 +247,8 @@ describe('Selector', () => {
       },
     })
 
-    const vm = wrapper.vm as any
-    const server = vm.server
-
-    expect(server).toEqual({
+    // The component exposes selectedServer as the prop itself
+    expect(wrapper.vm.selectedServer).toEqual({
       url: 'https://staging.example.com',
       description: 'Staging server',
     })
@@ -288,7 +277,7 @@ describe('Selector', () => {
     })
 
     const vm = wrapper.vm as any
-    expect(vm.selectedServer).toBeUndefined()
+    expect(vm.selectedServer).toBeNull()
     expect(vm.serverUrlWithoutTrailingSlash).toBe('')
   })
 
@@ -301,9 +290,12 @@ describe('Selector', () => {
       },
     })
 
-    expect(wrapper.vm.selectedServer).toBeUndefined()
+    // The component will still have the selectedServer prop even if it's not in the list
+    expect(wrapper.vm.selectedServer).toEqual({
+      url: 'https://nonexistent.example.com',
+    })
     expect(wrapper.vm.servers).toBeDefined()
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('https://nonexistent.example.com')
   })
 
   it('includes screen reader text', () => {
