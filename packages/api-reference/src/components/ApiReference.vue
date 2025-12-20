@@ -39,6 +39,7 @@ import diff from 'microdiff'
 import {
   computed,
   onBeforeMount,
+  onBeforeUnmount,
   onMounted,
   onServerPrefetch,
   provide,
@@ -626,6 +627,9 @@ onMounted(() => {
     eventBus,
     workspaceStore,
   })
+})
+onBeforeUnmount(() => {
+  apiClient.value?.app.unmount()
 })
 
 // ---------------------------------------------------------------------------
