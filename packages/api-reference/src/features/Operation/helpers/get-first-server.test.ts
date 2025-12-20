@@ -82,26 +82,26 @@ describe('get-first-server', () => {
       expect(result).toEqual(validServer)
     })
 
-    it('returns undefined when no servers have URLs', () => {
+    it('returns null when no servers have URLs', () => {
       // @ts-expect-error - Testing an invalid server object
       const servers: ServerObject[] = [{ description: 'No URL 1' }, { description: 'No URL 2' }]
 
       const result = getFirstServer(servers)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
-    it('returns undefined when all sources are empty or undefined', () => {
+    it('returns null when all sources are empty or undefined', () => {
       // @ts-expect-error - Testing an invalid server object
       const result = getFirstServer(undefined, [], null)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
     it('handles empty arrays', () => {
       const result = getFirstServer([])
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
     it('prioritizes operation servers over path item servers over document servers', () => {
