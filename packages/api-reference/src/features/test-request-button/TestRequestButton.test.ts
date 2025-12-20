@@ -29,6 +29,7 @@ describe('TestRequestButton', () => {
   it('renders button with correct text and icon when operation is provided', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-1',
         method: 'get',
         path: '/test',
         eventBus: mockEventBus,
@@ -44,6 +45,7 @@ describe('TestRequestButton', () => {
   it('has correct button attributes', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-2',
         method: 'post',
         path: '/users',
         eventBus: mockEventBus,
@@ -59,6 +61,7 @@ describe('TestRequestButton', () => {
   it('emits ui:open:client-modal event with correct params when clicked', async () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-3',
         method: 'delete',
         path: '/users/1',
         eventBus: mockEventBus,

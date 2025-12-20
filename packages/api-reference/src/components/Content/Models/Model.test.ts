@@ -47,14 +47,14 @@ describe('Model', () => {
 
   const mockConfigClassic = {
     layout: 'classic' as const,
-    orderRequiredPropertiesFirst: undefined,
-    orderSchemaPropertiesBy: undefined,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
   }
 
   const mockConfigModern = {
     layout: 'modern' as const,
-    orderRequiredPropertiesFirst: undefined,
-    orderSchemaPropertiesBy: undefined,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
   }
 
   describe('layout rendering', () => {
@@ -66,7 +66,7 @@ describe('Model', () => {
           eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          options: mockConfigClassic,
+          config: mockConfigClassic,
         },
       })
 
@@ -87,7 +87,7 @@ describe('Model', () => {
           eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          options: mockConfigModern,
+          config: mockConfigModern,
         },
       })
 
@@ -108,7 +108,7 @@ describe('Model', () => {
           eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: true,
-          options: mockConfigModern,
+          config: mockConfigModern,
         },
       })
 
@@ -125,7 +125,7 @@ describe('Model', () => {
           eventBus: null,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
-          options: mockConfigModern,
+          config: mockConfigModern,
         },
       })
 
