@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +8,7 @@ import { nextTick } from 'vue'
 import ServerSelector from './ServerSelector.vue'
 
 describe('ServerSelector', () => {
+  const eventBus = createWorkspaceEventBus()
   const mockServers: ServerObject[] = [
     {
       url: 'https://api.example.com',
@@ -46,7 +48,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -58,7 +61,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -70,7 +74,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: [],
-        xSelectedServer: '',
+        eventBus,
+        selectedServer: null,
       },
     })
 
@@ -82,7 +87,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -94,7 +100,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: serversWithoutDescription,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -106,7 +113,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: serversWithVariables,
-        xSelectedServer: 'https://{environment}.example.com',
+        eventBus,
+        selectedServer: serversWithVariables[0]!,
       },
     })
 
@@ -118,7 +126,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://staging.example.com',
+        eventBus,
+        selectedServer: mockServers[1]!,
       },
     })
 
@@ -126,11 +135,12 @@ describe('ServerSelector', () => {
     expect(wrapper.text()).toContain('Staging server')
   })
 
-  it('handles undefined xSelectedServer gracefully', () => {
+  it('handles null selectedServer gracefully', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: undefined,
+        eventBus,
+        selectedServer: null,
       },
     })
 
@@ -142,7 +152,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://nonexistent.example.com',
+        eventBus,
+        selectedServer: { url: 'https://nonexistent.example.com' },
       },
     })
 
@@ -155,7 +166,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: '',
+        eventBus,
+        selectedServer: null,
       },
     })
 
@@ -171,7 +183,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://staging.example.com',
+        eventBus,
+        selectedServer: mockServers[1]!,
       },
     })
 
@@ -185,7 +198,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: [],
-        xSelectedServer: '',
+        eventBus,
+        selectedServer: null,
       },
     })
 
@@ -199,7 +213,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -215,7 +230,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: serversWithVariables,
-        xSelectedServer: 'https://{environment}.example.com',
+        eventBus,
+        selectedServer: serversWithVariables[0]!,
       },
     })
 
@@ -231,7 +247,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: serversWithVariables,
-        xSelectedServer: 'https://{environment}.example.com',
+        eventBus,
+        selectedServer: serversWithVariables[0]!,
       },
     })
 
@@ -253,13 +270,14 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
     const selector = wrapper.findComponent({ name: 'Selector' })
     expect(selector.props('servers')).toEqual(mockServers)
-    expect(selector.props('xSelectedServer')).toBe('https://api.example.com')
+    expect(selector.props('selectedServer')).toEqual(mockServers[0])
     expect(selector.props('target')).toBeDefined()
   })
 
@@ -267,7 +285,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: serversWithVariables,
-        xSelectedServer: 'https://{environment}.example.com',
+        eventBus,
+        selectedServer: serversWithVariables[0]!,
       },
     })
 
@@ -316,7 +335,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: store.workspace.activeDocument!.servers!,
-        xSelectedServer: '{protocol}://void.scalar.com/{path}',
+        eventBus,
+        selectedServer: { url: '{protocol}://void.scalar.com/{path}' },
       },
     })
 
@@ -348,7 +368,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: complexServers,
-        xSelectedServer: 'https://api.example.com',
+        eventBus,
+        selectedServer: mockServers[0]!,
       },
     })
 
@@ -365,7 +386,8 @@ describe('ServerSelector', () => {
     const wrapper = mount(ServerSelector, {
       props: {
         servers: [],
-        xSelectedServer: '',
+        eventBus,
+        selectedServer: null,
       },
     })
 
@@ -375,7 +397,8 @@ describe('ServerSelector', () => {
     // Update props to include servers
     await wrapper.setProps({
       servers: mockServers,
-      xSelectedServer: 'https://api.example.com',
+      eventBus,
+      selectedServer: mockServers[0],
     })
 
     // Now selector should be rendered

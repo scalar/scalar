@@ -122,12 +122,12 @@ describe('get-first-server', () => {
       let result = getFirstServer(operationServer, pathItemServer, documentServer)
       expect(result).toEqual(operationServer)
 
-      // Test path item server priority when operation server is undefined
-      result = getFirstServer(undefined, pathItemServer, documentServer)
+      // Test path item server priority when operation server is null
+      result = getFirstServer(null, pathItemServer, documentServer)
       expect(result).toEqual(pathItemServer)
 
       // Test document server as fallback
-      result = getFirstServer(undefined, undefined, documentServer)
+      result = getFirstServer(null, null, documentServer)
       expect(result).toEqual(documentServer)
     })
 
