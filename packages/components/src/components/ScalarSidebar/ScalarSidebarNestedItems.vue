@@ -40,6 +40,8 @@ const { controlled, icon = ScalarIconListDashes } =
 const emit = defineEmits<{
   /** Emitted when the nested item button is clicked */
   (e: 'click', event: MouseEvent): void
+  /** Emitted when the back button is clicked */
+  (e: 'back', event: MouseEvent): void
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -100,7 +102,17 @@ const handleClick = (event: MouseEvent) => {
   emit('click', event)
   if (!controlled) {
     // Only toggle the open state if the group is uncontrolled
-    open.value = !open.value
+    open.value = true
+  }
+}
+
+/** Handle the back button click event */
+const handleBack = (event: MouseEvent) => {
+  // Bubble up the back event
+  emit('back', event)
+  if (!controlled) {
+    // Only toggle the open state if the group is uncontrolled
+    open.value = false
   }
 }
 </script>
@@ -150,7 +162,7 @@ const handleClick = (event: MouseEvent) => {
             <ScalarSidebarButton
               is="button"
               class="text-sidebar-c-1 font-sidebar-active"
-              @click="!controlled && (open = false)">
+              @click="handleBack">
               <template #icon>
                 <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
               </template>

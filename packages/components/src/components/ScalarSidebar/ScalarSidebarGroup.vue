@@ -82,7 +82,7 @@ const handleToggle = (event: MouseEvent) => {
   <component
     v-bind="cx('group/item flex flex-col gap-px')"
     :is="is">
-    <div class="group/group-button relative flex flex-col">
+    <div class="group/group-button relative flex flex-col leading-5">
       <slot
         name="before"
         :open />
@@ -90,6 +90,30 @@ const handleToggle = (event: MouseEvent) => {
         :level="level"
         name="button"
         :open>
+        <button
+          v-if="discrete"
+          type="button"
+          :aria-expanded="open"
+          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded left-[calc(4px+var(--scalar-sidebar-indent)*var(--scalar-sidebar-level))]"
+          :class="
+            selected
+              ? 'text-sidebar-c-1  hover:bg-sidebar-b-1 hover:text-sidebar-c-1'
+              : 'text-c-3 hover:bg-sidebar-b-hover hover:text-sidebar-c-hover'
+          "
+          :style="{ '--scalar-sidebar-level': level }"
+          @click="handleToggle">
+          <slot
+            name="icon"
+            :open>
+            <ScalarSidebarGroupToggle
+              :icon
+              :open>
+              <template #label>
+                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
+              </template>
+            </ScalarSidebarGroupToggle>
+          </slot>
+        </button>
         <ScalarSidebarButton
           is="button"
           :active
@@ -127,25 +151,6 @@ const handleToggle = (event: MouseEvent) => {
           </template>
           <slot :open />
         </ScalarSidebarButton>
-        <button
-          v-if="discrete"
-          :aria-expanded="open"
-          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded hover:bg-sidebar-b-hover left-[calc(4px+var(--scalar-sidebar-indent)*var(--scalar-sidebar-level))] text-c-3 hover:text-sidebar-c-1"
-          :style="{ '--scalar-sidebar-level': level }"
-          type="button"
-          @click="handleToggle">
-          <slot
-            name="icon"
-            :open>
-            <ScalarSidebarGroupToggle
-              :icon
-              :open>
-              <template #label>
-                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
-              </template>
-            </ScalarSidebarGroupToggle>
-          </slot>
-        </button>
       </slot>
       <slot
         name="after"
