@@ -142,7 +142,7 @@
                 "type": "group",
                 "mode": "folder",
                 "open": true,
-                "icon": "phoshpor/regular/puzzle-piece",
+                "icon": "phosphor/regular/puzzle-piece",
                 "children": {
                   "markdown-support": {
                     "filepath": "documentation/guides/docs/components/markdown-support.md",
