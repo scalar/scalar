@@ -90,11 +90,6 @@ defineSlots<{
 
 const eventBus = createWorkspaceEventBus()
 
-if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore
-}
-
 const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
@@ -421,6 +416,16 @@ const environment = computed(() =>
   ),
 )
 
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => workspaceStore
+}
+
+// For testing
+defineExpose({
+  workspaceStore,
+})
+
 // ---------------------------------------------------------------------------
 // Document Management
 
@@ -438,7 +443,13 @@ const changeSelectedDocument = async (
 ) => {
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
-  apiClient.value?.route({ documentSlug: slug })
+
+  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  apiClient.value?.route({
+    documentSlug: slug,
+    method: 'get',
+    path: '/',
+  })
   const normalized = configList.value[slug]
 
   if (!normalized) {
