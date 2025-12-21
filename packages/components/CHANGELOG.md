@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.16.12
+
+### Patch Changes
+
+- [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
 ## 0.16.11
 
 ### Patch Changes

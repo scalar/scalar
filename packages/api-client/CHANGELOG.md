@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.17.1
+
+### Patch Changes
+
+- [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.12**
+  - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
+- **@scalar/sidebar@0.7.2**
+  - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
+- **@scalar/use-codemirror@0.13.6**
+
 ## 2.17.0
 
 ### Minor Changes
