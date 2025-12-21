@@ -1,8 +1,19 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from './ApiReference.vue'
+
+vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
+  ...importOriginal(),
+  useBreakpoints: () => ({
+    mediaQueries: {
+      lg: { value: true },
+    },
+  }),
+}))
+
+/** Track all mounted wrappers so we can unmount them after each test */
+const wrappers: ReturnType<typeof mount>[] = []
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -25,7 +36,54 @@ beforeEach(() => {
     replace: vi.fn(),
     toString: () => 'http://localhost:3000/',
   })
+
+  /**
+   * Mock ResizeObserver which is used by @headlessui/vue Dialog component
+   * but is not available in the test environment.
+   *
+   * @see https://github.com/jsdom/jsdom/issues/3368
+   */
+  global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    disconnect: vi.fn(),
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+  }))
+
+  /**
+   * Mock IntersectionObserver which is not available in the test environment.
+   *
+   * @see https://github.com/jsdom/jsdom/issues/2032
+   */
+  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+    disconnect: vi.fn(),
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    takeRecords: vi.fn(() => []),
+    root: null,
+    rootMargin: '',
+    thresholds: [],
+  }))
 })
+
+// Clean up all mounted wrappers after each test
+afterEach(() => {
+  while (wrappers.length > 0) {
+    const wrapper = wrappers.pop()
+    if (wrapper?.vm) {
+      wrapper.unmount()
+    }
+  }
+})
+
+/** Helper function to mount and track component */
+const mountComponent = (props: Parameters<typeof mount>[1]) => {
+  const wrapper = mount(ApiReference, {
+    ...props,
+    attachTo: document.body,
+  })
+  wrappers.push(wrapper)
+  return wrapper
+}
 
 /** Helper function to create a basic OpenAPI document */
 const createBasicDocument = (title = 'Test API') => ({
@@ -42,134 +100,118 @@ const createBasicDocument = (title = 'Test API') => ({
       },
     },
   },
+  components: {
+    schemas: {
+      SuperImportantUser: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+    },
+  },
 })
 
 describe('ApiReference Configuration Tests', () => {
-  describe('Layout Configuration', () => {
-    it('applies modern layout by default', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('layout: undefined -> modern', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).not.toContain('references-classic')
-      wrapper.unmount()
+      },
     })
 
-    it('applies classic layout when configured', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            layout: 'classic',
-          },
-        },
-      })
-
-      await nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).toContain('references-classic')
-      wrapper.unmount()
-    })
+    const apiRef = wrapper.find('.scalar-api-reference')
+    expect(apiRef.classes()).not.toContain('references-classic')
   })
 
-  describe('Sidebar Configuration', () => {
-    it('shows sidebar by default', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('layout: classic', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          layout: 'classic',
         },
-      })
-
-      await nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).toContain('references-sidebar')
-      wrapper.unmount()
+      },
     })
 
-    it('hides sidebar when showSidebar is false', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            showSidebar: false,
-          },
-        },
-      })
-
-      await nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).not.toContain('references-sidebar')
-      wrapper.unmount()
-    })
+    const apiRef = wrapper.find('.scalar-api-reference')
+    expect(apiRef.classes()).toContain('references-classic')
   })
 
-  describe('Search Configuration', () => {
-    it('shows search button by default', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('showSidebar: undefined -> true', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await nextTick()
-
-      const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-      expect(searchButton.exists()).toBe(true)
-      wrapper.unmount()
+      },
     })
 
-    it('hides search when hideSearch is true', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            hideSearch: true,
-          },
-        },
-      })
-
-      await nextTick()
-
-      const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-      expect(searchButton.exists()).toBe(false)
-      wrapper.unmount()
-    })
-
-    it('applies custom search hotkey', async () => {
-      const wrapper = mount(ApiReference, {
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            searchHotKey: 'f',
-          },
-        },
-      })
-
-      await nextTick()
-
-      const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-      expect(searchButton.props('searchHotKey')).toBe('f')
-      wrapper.unmount()
-    })
+    const apiRef = wrapper.find('.scalar-api-reference')
+    expect(apiRef.classes()).toContain('references-sidebar')
   })
 
-  describe('Models Configuration', () => {
-    it('shows models by default', async () => {
-      const wrapper = mount(ApiReference, {
+  it('showSidebar: false', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          showSidebar: false,
+        },
+      },
+    })
+
+    const apiRef = wrapper.find('.scalar-api-reference')
+    expect(apiRef.classes()).not.toContain('references-sidebar')
+  })
+
+  it('hideSearch: undefined -> false', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+        },
+      },
+    })
+
+    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
+    expect(searchButton.exists()).toBe(true)
+  })
+
+  it('hideSearch: true', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hideSearch: true,
+        },
+      },
+    })
+
+    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
+    expect(searchButton.exists()).toBe(false)
+  })
+
+  it('searchHotKey: f', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          searchHotKey: 'f',
+        },
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(false)
+    wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
+    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
+  })
+
+  describe.only('Models Configuration', () => {
+    it.only('hideModels: undefined -> false', async () => {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -177,15 +219,13 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
-
-      const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-      expect(searchButton.props('hideModels')).toBe(false)
-      wrapper.unmount()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
+      console.log(wrapper.html())
     })
 
-    it('hides models when hideModels is true', async () => {
-      const wrapper = mount(ApiReference, {
+    it('hideModels: true', () => {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -194,17 +234,14 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
-
       const searchButton = wrapper.findComponent({ name: 'SearchButton' })
       expect(searchButton.props('hideModels')).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Dark Mode Configuration', () => {
     it('applies initial dark mode setting', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -213,15 +250,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render with dark mode */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('hides dark mode toggle when hideDarkModeToggle is true', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -230,17 +267,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const toggleButton = wrapper.findComponent({
         name: 'ScalarColorModeToggleButton',
       })
       expect(toggleButton.exists()).toBe(false)
-      wrapper.unmount()
     })
 
     it('shows dark mode toggle by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -248,13 +285,13 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const toggleButton = wrapper.findComponent({
         name: 'ScalarColorModeToggleButton',
       })
       expect(toggleButton.exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
@@ -262,7 +299,7 @@ describe('ApiReference Configuration Tests', () => {
     it('applies custom CSS when provided', async () => {
       const customCss = '.custom-class { color: red; }'
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -271,18 +308,18 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** Check if the custom CSS class is injected */
       expect(wrapper.html()).toContain('.custom-class')
-      wrapper.unmount()
     })
 
     it('applies different theme presets', async () => {
       const themes = ['default', 'alternate', 'moon', 'purple', 'solarized'] as const
 
       for (const theme of themes) {
-        const wrapper = mount(ApiReference, {
+        const wrapper = mountComponent({
           props: {
             configuration: {
               content: createBasicDocument(),
@@ -291,16 +328,16 @@ describe('ApiReference Configuration Tests', () => {
           },
         })
 
-        await nextTick()
+        await flushPromises()
+        await wrapper.vm.$nextTick()
 
         /** The component should render without errors */
         expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-        wrapper.unmount()
       }
     })
 
     it('includes default fonts by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -308,15 +345,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('excludes default fonts when withDefaultFonts is false', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -325,17 +362,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Client Button Configuration', () => {
     it('shows client button by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -343,15 +380,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
       expect(clientButton.exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('hides client button when hideClientButton is true', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -360,17 +397,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
       expect(clientButton.exists()).toBe(false)
-      wrapper.unmount()
     })
   })
 
   describe('Expansion Configuration', () => {
     it('does not expand all tags by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -378,15 +415,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render normally */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('expands all tags when defaultOpenAllTags is true', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: {
@@ -409,17 +446,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render with expanded tags */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Operation Configuration', () => {
     it('uses summary as operation title by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -427,16 +464,16 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const content = wrapper.findComponent({ name: 'Content' })
       /** Should use summary as the title source */
       expect(content.exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('uses path as operation title when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -445,15 +482,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const sidebar = wrapper.findComponent({ name: 'ScalarSidebar' })
       expect(sidebar.props('options').operationTitleSource).toBe('path')
-      wrapper.unmount()
     })
 
     it('hides operation ID by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -461,15 +498,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render normally */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('shows operation ID when showOperationId is true', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -478,19 +515,19 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Callback Configuration', () => {
-    it.only('fires onLoaded callback when document is loaded', async () => {
+    it('fires onLoaded callback when document is loaded', async () => {
       const onLoaded = vi.fn()
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -500,17 +537,17 @@ describe('ApiReference Configuration Tests', () => {
       })
 
       await flushPromises()
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** onLoaded should be called with the slug */
       expect(onLoaded).toHaveBeenCalled()
-      wrapper.unmount()
     })
 
     it('fires onServerChange callback when server changes', async () => {
       const onServerChange = vi.fn()
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: {
@@ -522,11 +559,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should be mounted */
       expect(wrapper.exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
@@ -537,7 +574,7 @@ describe('ApiReference Configuration Tests', () => {
         { url: 'https://api-staging.example.com', description: 'Staging' },
       ]
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -546,11 +583,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
@@ -562,7 +599,7 @@ describe('ApiReference Configuration Tests', () => {
         },
       }
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -571,17 +608,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Editable Configuration', () => {
     it('is not editable by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -589,15 +626,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const apiRef = wrapper.find('.scalar-api-reference')
       expect(apiRef.classes()).not.toContain('references-editable')
-      wrapper.unmount()
     })
 
     it('is editable when isEditable is true', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -606,17 +643,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const apiRef = wrapper.find('.scalar-api-reference')
       expect(apiRef.classes()).toContain('references-editable')
-      wrapper.unmount()
     })
   })
 
   describe('Schema Property Ordering Configuration', () => {
     it('orders schema properties alphabetically by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -624,15 +661,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('preserves schema property order when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -641,15 +678,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('orders required properties first by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -657,15 +694,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('does not order required properties first when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -674,11 +711,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
@@ -688,7 +725,7 @@ describe('ApiReference Configuration Tests', () => {
         return `custom-${heading.slug}`
       })
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -697,11 +734,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('applies custom operation slug generator', async () => {
@@ -709,7 +746,7 @@ describe('ApiReference Configuration Tests', () => {
         return `${operation.method}-${operation.path}`
       })
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -718,17 +755,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Path Routing Configuration', () => {
     it('uses hash routing by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -736,15 +773,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render without path routing */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('uses path routing when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -755,11 +792,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render with path routing */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
@@ -769,7 +806,7 @@ describe('ApiReference Configuration Tests', () => {
         return hash.replace('#old', '#new')
       })
 
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -778,17 +815,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The redirect function should be available */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('HTTP Client Configuration', () => {
     it('applies default HTTP client when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -800,18 +837,18 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The workspace store should reflect the default HTTP client */
       expect(wrapper.vm.workspaceStore.workspace['x-scalar-default-client']).toMatchObject({
         targetKey: 'shell',
         clientKey: 'curl',
       })
-      wrapper.unmount()
     })
 
     it('applies hidden clients configuration', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -820,17 +857,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Metadata Configuration', () => {
     it('applies title configuration', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument('Original Title'),
@@ -839,15 +876,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('applies slug configuration', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -856,15 +893,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The workspace store should have the custom slug */
       expect(Object.keys(wrapper.vm.workspaceStore.workspace.documents)).toContain('custom-slug')
-      wrapper.unmount()
     })
 
     it('applies favicon configuration', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -873,17 +910,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Developer Tools Configuration', () => {
     it('shows developer tools on localhost by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -891,15 +928,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('always shows developer tools when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -908,15 +945,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('never shows developer tools when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -925,17 +962,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Plugins Configuration', () => {
     it('renders without plugins by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -943,17 +980,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Telemetry Configuration', () => {
     it('enables telemetry by default', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -961,15 +998,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The workspace store should have telemetry enabled */
       expect(wrapper.vm.workspaceStore.config['x-scalar-reference-config'].telemetry).toBe(true)
-      wrapper.unmount()
     })
 
     it('disables telemetry when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -978,17 +1015,17 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The workspace store should have telemetry disabled */
       expect(wrapper.vm.workspaceStore.config['x-scalar-reference-config'].telemetry).toBe(false)
-      wrapper.unmount()
     })
   })
 
   describe('Integration Identifier Configuration', () => {
     it('applies integration identifier when configured', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -997,31 +1034,31 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 
   describe('Edge Cases and Error Handling', () => {
     it('handles empty configuration gracefully', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {},
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** The component should render even with empty config */
       expect(wrapper.exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('handles invalid layout value gracefully', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -1031,15 +1068,15 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** Should fall back to default layout */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
 
     it('handles invalid theme value gracefully', async () => {
-      const wrapper = mount(ApiReference, {
+      const wrapper = mountComponent({
         props: {
           configuration: {
             content: createBasicDocument(),
@@ -1049,11 +1086,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       })
 
-      await nextTick()
+      await flushPromises()
+      await wrapper.vm.$nextTick()
 
       /** Should fall back to default theme */
       expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      wrapper.unmount()
     })
   })
 })

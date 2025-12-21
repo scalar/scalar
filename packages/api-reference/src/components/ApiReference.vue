@@ -629,6 +629,7 @@ onMounted(() => {
   })
 })
 onBeforeUnmount(() => {
+  console.log('unmounting api client')
   apiClient.value?.app.unmount()
 })
 
