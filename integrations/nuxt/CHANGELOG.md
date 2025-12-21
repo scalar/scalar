@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.5.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.1**
+  - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
+- **@scalar/api-reference@1.40.9**
+
 ## 0.5.34
 
 ### Patch Changes

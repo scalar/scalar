@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.1**
+  - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
 ## 1.3.58
 
 ### Patch Changes

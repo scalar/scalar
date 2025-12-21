@@ -1,5 +1,14 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.12**
+  - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
+
 ## 0.3.11
 
 ### Patch Changes

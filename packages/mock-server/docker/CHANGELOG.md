@@ -1,5 +1,15 @@
 # @scalar/mock-server-docker
 
+## 0.1.1
+
+### Patch Changes
+
+- [#7606](https://github.com/scalar/scalar/pull/7606): fix: mock server docker image does not find entrypoint
+
+#### Updated Dependencies
+
+- **@scalar/hono-api-reference@0.9.30**
+
 ## 0.1.0
 
 ### Minor Changes
