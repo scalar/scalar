@@ -1064,7 +1064,7 @@ jobs:
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: mock-server-docker-entrypoint
-          path: packages/mock-server/docker/dist/docker-entrypoint.js
+          path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
         uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
