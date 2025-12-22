@@ -1,15 +1,43 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Item, ItemGroup } from '../types'
-import { processAuth } from './authHelpers'
-import { parseMdTable } from './md-utils'
-import { extractParameters } from './parameterHelpers'
-import { processPostResponseScripts } from './postResponseScripts'
-import { extractRequestBody } from './requestBodyHelpers'
-import { extractResponses } from './responseHelpers'
-import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urlHelpers'
+import type { Item, ItemGroup } from '@/types'
+
+import { processAuth } from './auth'
+import { parseMdTable } from './markdown'
+import { extractParameters } from './parameters'
+import { processPostResponseScripts } from './post-response-scripts'
+import { extractRequestBody } from './request-body'
+import { extractResponses } from './responses'
+import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
+
+/**
+ * Information about server usage for an operation.
+ */
+export type ServerUsage = {
+  serverUrl: string
+  path: string
+  method: HttpMethods
+}
+
+function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
+  const content = requestBody.content ?? {}
+
+  if (Object.keys(content).length === 0) {
+    requestBody.content = {
+      'text/plain': {},
+    }
+    return
+  }
+
+  if ('text/plain' in content) {
+    const textContent = content['text/plain']
+    if (!textContent?.schema || (textContent.schema && Object.keys(textContent.schema).length === 0)) {
+      content['text/plain'] = {}
+    }
+  }
+}
 
 /**
  * Processes a Postman collection item or item group and returns
@@ -24,9 +52,11 @@ export function processItem(
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
+  serverUsage: ServerUsage[]
 } {
   const paths: OpenAPIV3_1.PathsObject = {}
   const components: OpenAPIV3_1.ComponentsObject = {}
+  const serverUsage: ServerUsage[] = []
 
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
@@ -51,23 +81,37 @@ export function processItem(
           ...childResult.components.securitySchemes,
         }
       }
+
+      // Merge server usage
+      serverUsage.push(...childResult.serverUsage)
     })
-    return { paths, components }
+    return { paths, components, serverUsage }
   }
 
   if (!('request' in item)) {
-    return { paths, components }
+    return { paths, components, serverUsage }
   }
 
   const { request, name, response } = item
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
-  const path = extractPathFromUrl(
-    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? ''),
-  )
+  const requestUrl =
+    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? '')
+
+  const path = extractPathFromUrl(requestUrl)
 
   // Normalize path parameters from ':param' to '{param}'
   const normalizedPath = normalizePath(path)
+
+  // Extract server URL from request URL
+  const serverUrl = extractServerFromUrl(requestUrl)
+  if (serverUrl) {
+    serverUsage.push({
+      serverUrl,
+      path: normalizedPath,
+      method,
+    })
+  }
 
   // Extract path parameter names
   const pathParameterNames = extractPathParameterNames(normalizedPath)
@@ -101,28 +145,30 @@ export function processItem(
     operationObject.operationId = operationId
   }
 
-  // Parse parameters from the description's Markdown table
+  // Extract parameters from the request (query, path, header)
+  // This should always happen, regardless of whether a description exists
+  const extractedParameters = extractParameters(request)
+
+  // Merge parameters, giving priority to those from the Markdown table if description exists
+  const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
+
+  // Add extracted parameters, filtering out path parameters not in the path
+  extractedParameters.forEach((param) => {
+    if (param.name) {
+      if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
+        return
+      }
+      mergedParameters.set(param.name, param)
+    }
+  })
+
+  // Parse parameters from the description's Markdown table if description exists
   if (operationObject.description) {
     const { descriptionWithoutTable, parametersFromTable } = parseParametersFromDescription(operationObject.description)
     operationObject.description = descriptionWithoutTable.trim()
 
-    // Extract parameters from the request (query, path, header)
-    const extractedParameters = extractParameters(request)
-
-    // Merge parameters, giving priority to those from the Markdown table
-    const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
-
-    // Add extracted parameters, filtering out path parameters not in the path
-    extractedParameters.forEach((param) => {
-      if (param.name) {
-        if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
-          return
-        }
-        mergedParameters.set(param.name, param)
-      }
-    })
-
     // Add parameters from table, filtering out path parameters not in the path
+    // These take priority over extracted parameters
     parametersFromTable.forEach((param) => {
       if (param.name) {
         if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
@@ -131,7 +177,10 @@ export function processItem(
         mergedParameters.set(param.name, param)
       }
     })
+  }
 
+  // Set parameters if we have any
+  if (mergedParameters.size > 0) {
     operationObject.parameters = Array.from(mergedParameters.values())
   }
 
@@ -152,8 +201,17 @@ export function processItem(
     operationObject.security.push(...security)
   }
 
-  if (['post', 'put', 'patch'].includes(method) && typeof request !== 'string' && request.body) {
-    operationObject.requestBody = extractRequestBody(request.body)
+  // Extract pre-request script if present
+  const preRequestScript = item.event?.find((e) => e.listen === 'prerequest')?.script?.exec
+
+  // Allow request bodies for all methods (including GET) if body is present
+  if (typeof request !== 'string' && request.body) {
+    const requestBody = extractRequestBody(request.body, preRequestScript)
+    ensureRequestBodyContent(requestBody)
+    // Only add requestBody if it has content
+    if (requestBody.content && Object.keys(requestBody.content).length > 0) {
+      operationObject.requestBody = requestBody
+    }
   }
 
   if (!paths[path]) {
@@ -162,10 +220,19 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
-  return { paths, components }
+  return { paths, components, serverUsage }
 }
 
 // Helper function to parse parameters from the description if it is markdown
+type ParameterRow = {
+  object?: 'query' | 'header' | 'path' | string
+  name?: string
+  description?: string
+  required?: string
+  type?: string
+  example?: string
+}
+
 function parseParametersFromDescription(description: string): {
   descriptionWithoutTable: string
   parametersFromTable: OpenAPIV3_1.ParameterObject[]
@@ -204,25 +271,32 @@ function parseParametersFromDescription(description: string): {
 
   const tableMarkdown = tableLines.join('\n')
   const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable).map((paramData: any) => {
-    const paramIn = paramData.object as 'query' | 'header' | 'path'
+  const parametersFromTable = Object.values(parsedTable)
+    .map((paramData) => {
+      const row = paramData as ParameterRow
+      if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {
+        return undefined
+      }
 
-    const param: OpenAPIV3_1.ParameterObject = {
-      name: paramData.name,
-      in: paramIn,
-      description: paramData.description,
-      required: paramData.required === 'true',
-      schema: {
-        type: paramData.type,
-      },
-    }
+      if (!row.name) {
+        return undefined
+      }
 
-    if (paramData.example) {
-      param.example = paramData.example
-    }
+      const param: OpenAPIV3_1.ParameterObject = {
+        name: row.name,
+        in: row.object,
+        description: row.description,
+        required: row.required === 'true',
+        schema: { type: row.type || 'string' },
+      }
 
-    return param
-  })
+      if (row.example) {
+        param.example = row.example
+      }
+
+      return param
+    })
+    .filter((param): param is OpenAPIV3_1.ParameterObject => Boolean(param))
 
   const descriptionWithoutTable = descriptionLines.join('\n')
   return { descriptionWithoutTable, parametersFromTable }

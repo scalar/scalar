@@ -52,6 +52,8 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "@types/node": "catalog:*",
+    "vite": "catalog:*"
   }
 }
