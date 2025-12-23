@@ -32,7 +32,6 @@ export const getBasePath = (suffix) => {
  */
 export const initialize = async (path, useDynamicBaseServerUrl, configuration = { sources: [] }, modulePath) => {
   const basePath = getBasePath(path)
-  console.log('basePath', basePath)
   const httpUrlPattern = /^https?:\/\//i
 
   const normalizedConfig = {
