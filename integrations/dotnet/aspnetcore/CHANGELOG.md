@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 2.11.10
+
+### Patch Changes
+
+- [#7609](https://github.com/scalar/scalar/pull/7609): fix: escape request path
+
 ## 2.11.9
 
 ### Patch Changes
