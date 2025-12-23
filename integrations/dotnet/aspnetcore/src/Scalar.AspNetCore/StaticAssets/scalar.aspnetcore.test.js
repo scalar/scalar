@@ -21,6 +21,11 @@ describe('scalar.aspnetcore', () => {
       expect(result).toBe('/api')
     })
 
+    it('removes encoded suffix from path when present', () => {
+      const result = getBasePath('%2Fdocs')
+      expect(result).toBe('/api')
+    })
+
     it('returns empty string when suffix is not present', () => {
       const result = getBasePath('/other')
       expect(result).toBe('')
@@ -82,7 +87,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }, { url: 'openapi.json' }],
       }
 
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
 
       // Get the configuration object passed to createApiReference
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
@@ -97,7 +102,7 @@ describe('scalar.aspnetcore', () => {
       }
 
       const originalUrls = configuration.sources.map((s) => s.url)
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
 
       expect(configuration.sources[0].url).toBe(originalUrls[0])
       expect(configuration.sources[1].url).toBe(originalUrls[1])
@@ -110,7 +115,7 @@ describe('scalar.aspnetcore', () => {
 
     it('handles empty sources array', async () => {
       const configuration = { sources: [] }
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
       expect(mockScalar.createApiReference).toHaveBeenCalledWith('#app', configuration)
     })
 
@@ -120,7 +125,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      expect(() => initialize('/docs', false, configuration)).not.toThrow()
+      expect(() => initialize('%2Fdocs', false, configuration)).not.toThrow()
     })
 
     it('handles sources without url property', async () => {
@@ -128,7 +133,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ title: 'Source without URL' }, { url: 'swagger.json' }],
       }
 
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
 
       // Get the normalized config that was passed to createApiReference
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
@@ -145,7 +150,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      await initialize('/docs', true, configuration)
+      await initialize('%2Fdocs', true, configuration)
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.baseServerURL).toBe('https://example.com/api')
@@ -156,7 +161,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.baseServerURL).toBeUndefined()
@@ -167,7 +172,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      await initialize('/docs', false, configuration, './config.js')
+      await initialize('%2Fdocs', false, configuration, './config.js')
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.theme).toBe('dark')
@@ -180,7 +185,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      await initialize('/docs', false, configuration, 'https://example.com/absolute/path/config.js')
+      await initialize('%2Fdocs', false, configuration, 'https://example.com/absolute/path/config.js')
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.theme).toBe('light')
@@ -194,7 +199,7 @@ describe('scalar.aspnetcore', () => {
         originalProperty: 'value',
       }
 
-      await initialize('/docs', false, configuration, '/error-config.js')
+      await initialize('%2Fdocs', false, configuration, '/error-config.js')
 
       // Should log error but continue with normal initialization
       expect(console.error).toHaveBeenCalled()
@@ -210,7 +215,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      await initialize('/docs', false, configuration)
+      await initialize('%2Fdocs', false, configuration)
 
       expect(mockScalar.createApiReference).toHaveBeenCalled()
       // No errors should be logged

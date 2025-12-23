@@ -12,9 +12,11 @@
  * @returns {string} The normalized base path with no trailing slash
  */
 export const getBasePath = (suffix) => {
+  // Decode the suffix to handle percent-encoded paths coming from the server
+  const decodedSuffix = decodeURIComponent(suffix ?? '')
   const path = window.location.pathname
-  if (path.endsWith(suffix)) {
-    return path.slice(0, -suffix.length)
+  if (path.endsWith(decodedSuffix)) {
+    return path.slice(0, -decodedSuffix.length)
   }
   return ''
 }
@@ -30,6 +32,7 @@ export const getBasePath = (suffix) => {
  */
 export const initialize = async (path, useDynamicBaseServerUrl, configuration = { sources: [] }, modulePath) => {
   const basePath = getBasePath(path)
+  console.log('basePath', basePath)
   const httpUrlPattern = /^https?:\/\//i
 
   const normalizedConfig = {

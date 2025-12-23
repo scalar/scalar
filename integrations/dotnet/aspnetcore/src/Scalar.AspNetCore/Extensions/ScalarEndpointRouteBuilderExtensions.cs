@@ -161,6 +161,8 @@ public static class ScalarEndpointRouteBuilderExtensions
             var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
             var standaloneResourceUrl = string.IsNullOrEmpty(options.BundleUrl) ? ScalarJavaScriptFile : options.BundleUrl;
 
+            var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
+
             return Results.Content(
                 $$"""
                   <!doctype html>
@@ -179,7 +181,7 @@ public static class ScalarEndpointRouteBuilderExtensions
                       <script type="module">
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
-                          '{{httpContext.Request.Path}}',
+                          '{{escapedRequestPath}}',
                           {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
                           {{serializedConfiguration}},
                           '{{options.JavaScriptConfiguration}}')
