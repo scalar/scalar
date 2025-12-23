@@ -63,6 +63,22 @@ beforeEach(() => {
     rootMargin: '',
     thresholds: [],
   }))
+
+  /**
+   * Bypass lazy loading for testing purposes.
+   * This simplifies testing by removing asynchronous rendering behavior.
+   */
+  vi.mock('./Lazy/Lazy.vue', () => ({
+    default: {
+      name: 'Lazy',
+      props: {
+        id: 'test-id',
+      },
+      setup(_props: unknown, { slots }: { slots: Record<string, () => unknown> }) {
+        return () => slots.default?.()
+      },
+    },
+  }))
 })
 
 // Clean up all mounted wrappers after each test
@@ -209,446 +225,359 @@ describe('ApiReference Configuration Tests', () => {
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
 
-  describe.only('Models Configuration', () => {
-    it.only('hideModels: undefined -> false', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('hideModels: undefined -> false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-      console.log(wrapper.html())
+      },
     })
+    await flushPromises()
 
-    it('hideModels: true', () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            hideModels: true,
-          },
-        },
-      })
-
-      const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-      expect(searchButton.props('hideModels')).toBe(true)
-    })
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    expect(modelTag.exists()).toBe(true)
   })
 
-  describe('Dark Mode Configuration', () => {
-    it('applies initial dark mode setting', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            darkMode: true,
-          },
+  it('hideModels: true', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hideModels: true,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render with dark mode */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('hides dark mode toggle when hideDarkModeToggle is true', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            hideDarkModeToggle: true,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const toggleButton = wrapper.findComponent({
-        name: 'ScalarColorModeToggleButton',
-      })
-      expect(toggleButton.exists()).toBe(false)
-    })
-
-    it('shows dark mode toggle by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const toggleButton = wrapper.findComponent({
-        name: 'ScalarColorModeToggleButton',
-      })
-      expect(toggleButton.exists()).toBe(true)
-    })
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    expect(modelTag.exists()).toBe(false)
   })
 
-  describe('Theme Configuration', () => {
-    it('applies custom CSS when provided', async () => {
-      const customCss = '.custom-class { color: red; }'
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            customCss,
-          },
+  it('darkMode: false', () => {
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          darkMode: false,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** Check if the custom CSS class is injected */
-      expect(wrapper.html()).toContain('.custom-class')
+      },
     })
 
-    it('applies different theme presets', async () => {
-      const themes = ['default', 'alternate', 'moon', 'purple', 'solarized'] as const
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+  })
 
-      for (const theme of themes) {
-        const wrapper = mountComponent({
-          props: {
-            configuration: {
-              content: createBasicDocument(),
-              theme,
+  it('darkMode: true', () => {
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          darkMode: true,
+        },
+      },
+    })
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+  })
+
+  it('forceDarkModeState: dark', () => {
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          forceDarkModeState: 'dark',
+        },
+      },
+    })
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+  })
+
+  // TODO doesn't work
+  it('forceDarkModeState: light', () => {
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          forceDarkModeState: 'light',
+        },
+      },
+    })
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+  })
+
+  it('hideDarkModeToggle: true', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hideDarkModeToggle: true,
+        },
+      },
+    })
+
+    const toggleButton = wrapper.findComponent({
+      name: 'ScalarColorModeToggleButton',
+    })
+    expect(toggleButton.exists()).toBe(false)
+  })
+
+  it('customCss: .custom-class { color: red; }', () => {
+    const customCss = '.custom-class { color: red; }'
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          customCss,
+        },
+      },
+    })
+    expect(wrapper.html()).toContain('.custom-class')
+  })
+
+  it('theme: solarized', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          theme: 'solarized',
+        },
+      },
+    })
+
+    const html = wrapper.html()
+
+    /** Verify solarized theme CSS variables are present in dark mode */
+    expect(html).toContain('--scalar-background-1: #00212b')
+    expect(html).toContain('--scalar-background-2: #012b36')
+    expect(html).toContain('--scalar-background-3: #004052')
+    expect(html).toContain('--scalar-background-accent: #015a6f')
+  })
+
+  it('hideClientButton: undefined', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+        },
+      },
+    })
+
+    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
+    expect(clientButton.exists()).toBe(true)
+  })
+
+  it('hideClientButton: true', () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hideClientButton: true,
+        },
+      },
+    })
+
+    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
+    expect(clientButton.exists()).toBe(false)
+  })
+
+  it('defaultOpenAllTags: undefined -> false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'Test API',
+              version: '1.0.0',
             },
-          },
-        })
-
-        await flushPromises()
-        await wrapper.vm.$nextTick()
-
-        /** The component should render without errors */
-        expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-      }
-    })
-
-    it('includes default fonts by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('excludes default fonts when withDefaultFonts is false', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            withDefaultFonts: false,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Client Button Configuration', () => {
-    it('shows client button by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(true)
-    })
-
-    it('hides client button when hideClientButton is true', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            hideClientButton: true,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-      expect(clientButton.exists()).toBe(false)
-    })
-  })
-
-  describe('Expansion Configuration', () => {
-    it('does not expand all tags by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render normally */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-
-    it('expands all tags when defaultOpenAllTags is true', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: {
-              openapi: '3.1.0',
-              info: {
-                title: 'Test API',
-                version: '1.0.0',
+            paths: {
+              '/users': {
+                get: {
+                  summary: 'Get users',
+                  tags: ['Users'],
+                },
               },
-              paths: {
-                '/users': {
-                  get: {
-                    summary: 'Get users',
-                    tags: ['Users'],
-                  },
+              '/others': {
+                get: {
+                  summary: 'Get others',
+                  tags: ['Others'],
                 },
               },
             },
-            defaultOpenAllTags: true,
           },
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render with expanded tags */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(false)
   })
 
-  describe('Operation Configuration', () => {
-    it('uses summary as operation title by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const content = wrapper.findComponent({ name: 'Content' })
-      /** Should use summary as the title source */
-      expect(content.exists()).toBe(true)
-    })
-
-    it('uses path as operation title when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            operationTitleSource: 'path',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const sidebar = wrapper.findComponent({ name: 'ScalarSidebar' })
-      expect(sidebar.props('options').operationTitleSource).toBe('path')
-    })
-
-    it('hides operation ID by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render normally */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-
-    it('shows operation ID when showOperationId is true', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            showOperationId: true,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-  })
-
-  describe('Callback Configuration', () => {
-    it('fires onLoaded callback when document is loaded', async () => {
-      const onLoaded = vi.fn()
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            onLoaded,
-          },
-        },
-      })
-
-      await flushPromises()
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** onLoaded should be called with the slug */
-      expect(onLoaded).toHaveBeenCalled()
-    })
-
-    it('fires onServerChange callback when server changes', async () => {
-      const onServerChange = vi.fn()
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: {
-              ...createBasicDocument(),
-              servers: [{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }],
+  it('defaultOpenAllTags: true', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'Test API',
+              version: '1.0.0',
             },
-            onServerChange,
+            paths: {
+              '/users': {
+                get: {
+                  summary: 'Get users',
+                  tags: ['Users'],
+                },
+              },
+              '/others': {
+                get: {
+                  summary: 'Get others',
+                  tags: ['Others'],
+                },
+              },
+            },
           },
+          defaultOpenAllTags: true,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should be mounted */
-      expect(wrapper.exists()).toBe(true)
+      },
     })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
   })
 
-  describe('Server Configuration', () => {
-    it('applies servers configuration', async () => {
-      const servers = [
-        { url: 'https://api.example.com', description: 'Production' },
-        { url: 'https://api-staging.example.com', description: 'Staging' },
-      ]
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            servers,
-          },
+  it('operationTitleSource: undefined -> summary', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
+
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    expect(operation.find('h3').text()).toBe('Get users')
   })
 
-  describe('Authentication Configuration', () => {
-    it('applies authentication configuration', async () => {
-      const authentication = {
-        apiKey: {
-          token: 'test-token',
+  // TODO doesn't work
+  it('operationTitleSource: path', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          operationTitleSource: 'path',
         },
-      }
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            authentication,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
+
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    expect(operation.find('h3').text()).toBe('/users')
   })
 
-  describe('Editable Configuration', () => {
-    it('is not editable by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('showOperationId: undefined -> false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).not.toContain('references-editable')
+      },
     })
 
-    it('is editable when isEditable is true', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            isEditable: true,
-          },
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+  })
+
+  it('showOperationId: true', async () => {
+    const content = createBasicDocument()
+    content.paths['/users'].get.operationId = '1234getUserById5678'
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content,
+          showOperationId: true,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      const apiRef = wrapper.find('.scalar-api-reference')
-      expect(apiRef.classes()).toContain('references-editable')
+      },
     })
+
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('1234getUserById5678')).toBe(true)
+  })
+
+  it('onLoaded: function', async () => {
+    const onLoaded = vi.fn()
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          onLoaded,
+        },
+      },
+    })
+    await flushPromises()
+    expect(onLoaded).toHaveBeenCalled()
+  })
+
+  it('onServerChange: function', async () => {
+    const onServerChange = vi.fn()
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: {
+            ...createBasicDocument(),
+            servers: [{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }],
+          },
+          onServerChange,
+        },
+      },
+    })
+
+    await flushPromises()
+    const ServerSelector = wrapper.findComponent({ name: 'Selector' })
+    ServerSelector.vm.emit('update:modelValue', 'https://api-staging.example.com')
+    expect(onServerChange).toHaveBeenCalled()
+  })
+
+  it('servers: array', async () => {
+    const servers = [
+      { url: 'https://api.example.com', description: 'Production' },
+      { url: 'https://api-staging.example.com', description: 'Staging' },
+    ]
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          servers,
+        },
+      },
+    })
+
+    await flushPromises()
+    const ServerSelector = wrapper.findComponent({ name: 'ServerSelector' })
+    expect(ServerSelector.text().includes('api.example.com')).toBe(true)
+  })
+
+  // TODO doesn't work
+  it('authentication: object', async () => {
+    const authentication = {
+      apiKey: {
+        token: 'test-token',
+      },
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          authentication,
+        },
+      },
+    })
+
+    await flushPromises()
+    const Auth = wrapper.findComponent({ name: 'Auth' })
+    expect(Auth.text().includes('test-token')).toBe(true)
   })
 
   describe('Schema Property Ordering Configuration', () => {

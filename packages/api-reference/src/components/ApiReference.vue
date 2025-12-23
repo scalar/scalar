@@ -123,9 +123,6 @@ watch(
  */
 provideUseId(() => useId())
 
-// Provide the client layout
-provide(LAYOUT_SYMBOL, 'modal')
-
 // ---------------------------------------------------------------------------
 /**
  * Configuration Handling
@@ -629,7 +626,6 @@ onMounted(() => {
   })
 })
 onBeforeUnmount(() => {
-  console.log('unmounting api client')
   apiClient.value?.app.unmount()
 })
 
