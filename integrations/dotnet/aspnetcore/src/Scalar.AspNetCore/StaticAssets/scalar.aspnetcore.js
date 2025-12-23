@@ -12,9 +12,11 @@
  * @returns {string} The normalized base path with no trailing slash
  */
 export const getBasePath = (suffix) => {
+  // Decode the suffix to handle percent-encoded paths coming from the server
+  const decodedSuffix = decodeURIComponent(suffix ?? '')
   const path = window.location.pathname
-  if (path.endsWith(suffix)) {
-    return path.slice(0, -suffix.length)
+  if (path.endsWith(decodedSuffix)) {
+    return path.slice(0, -decodedSuffix.length)
   }
   return ''
 }
