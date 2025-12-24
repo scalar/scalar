@@ -9,19 +9,22 @@ import {
 import { ScalarCombobox, ScalarIcon } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 
-const { xSelectedClient } = defineProps<{
-  /** Client options */
-  clientOptions: ClientOptionGroup[]
-  /** The currently selected Http Client */
-  xSelectedClient?: AvailableClients[number]
-  /** List of featured clients */
-  featuredClients: ClientOption[]
-}>()
+const { clientOptions, featuredClients, eventBus, selectedClient } =
+  defineProps<{
+    /** Client options */
+    clientOptions: ClientOptionGroup[]
+    /** The currently selected Http Client */
+    selectedClient?: AvailableClients[number]
+    /** List of featured clients */
+    featuredClients: ClientOption[]
+    /** Event bus */
+    eventBus: WorkspaceEventBus
+  }>()
 
 const containerRef = ref<HTMLElement>()
 
@@ -46,17 +49,13 @@ const selectClient = (option: ClientOption | CustomClientOption) => {
 
   // Update the store
   if (option.clientKey !== 'custom') {
-    emitCustomEvent(
-      containerRef.value,
-      'scalar-update-selected-client',
-      option.id,
-    )
+    eventBus.emit('workspace:update:selected-client', option.id)
   }
 }
 
 /** Calculates the targetKey from the selected client id */
 const selectedTargetKey = computed(
-  () => xSelectedClient?.split('/')[0] as TargetId | undefined,
+  () => selectedClient?.split('/')[0] as TargetId | undefined,
 )
 </script>
 <template>
@@ -68,7 +67,7 @@ const selectedTargetKey = computed(
       :key="featuredClient.clientKey"
       class="client-libraries rendered-code-sdks"
       :class="{
-        'client-libraries__active': featuredClient.id === xSelectedClient,
+        'client-libraries__active': featuredClient.id === selectedClient,
       }">
       <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
         <ScalarIcon
@@ -82,7 +81,7 @@ const selectedTargetKey = computed(
 
     <!-- Client Dropdown -->
     <ScalarCombobox
-      :modelValue="findClient(clientOptions, xSelectedClient)"
+      :modelValue="findClient(clientOptions, selectedClient)"
       :options="clientOptions"
       placement="bottom-end"
       teleport
@@ -91,14 +90,13 @@ const selectedTargetKey = computed(
         class="client-libraries client-libraries__select"
         :class="{
           'client-libraries__active':
-            xSelectedClient && !isFeaturedClient(xSelectedClient),
+            selectedClient && !isFeaturedClient(selectedClient),
         }"
         type="button">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template
-            v-if="xSelectedClient && !isFeaturedClient(xSelectedClient)">
+          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
                 v-if="selectedTargetKey"

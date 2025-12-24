@@ -13,7 +13,7 @@ const { eventBus, id } = defineProps<{
   name: string
   schema: SchemaObject
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined

@@ -6,7 +6,7 @@ import {
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClient } from '@scalar/snippetz'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
 
@@ -20,14 +20,17 @@ import ClientDropdown from './ClientDropdown.vue'
 const {
   clientOptions,
   xScalarSdkInstallation,
-  xSelectedClient = DEFAULT_CLIENT,
+  eventBus,
+  selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
   /** Selected SDK installation instructions */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
-  xSelectedClient?: AvailableClient
+  selectedClient?: AvailableClient
+  /** Event bus */
+  eventBus: WorkspaceEventBus
 }>()
 
 const headingId = useId()
@@ -37,8 +40,9 @@ const morePanel = useId()
 const selectedClientOption = computed(
   () =>
     clientOptions.flatMap(
-      (option) =>
-        option.options.find((option) => option.id === xSelectedClient) ?? [],
+      (optionGroup) =>
+        optionGroup.options.find((option) => option.id === selectedClient) ??
+        [],
     )[0],
 )
 
@@ -48,7 +52,7 @@ const featuredClients = computed(() => getFeaturedClients(clientOptions))
 /** Currently selected tab index */
 const tabIndex = computed(() =>
   featuredClients.value.findIndex(
-    (featuredClient) => xSelectedClient === featuredClient.id,
+    (featuredClient) => selectedClient === featuredClient.id,
   ),
 )
 
@@ -62,7 +66,7 @@ const onTabSelect = (i: number) => {
     return
   }
 
-  emitCustomEvent(wrapper.value, 'scalar-update-selected-client', client.id)
+  eventBus.emit('workspace:update:selected-client', client.id)
 }
 
 const installationInstructions = computed(() => {
@@ -76,7 +80,7 @@ const installationInstructions = computed(() => {
 
   // Find the instructions for the current language
   const instruction = xScalarSdkInstallation.find((instruction) => {
-    const targetKey = xSelectedClient?.split('/')[0]?.toLowerCase()
+    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
     return instruction.lang.toLowerCase() === targetKey
   })
 
@@ -113,9 +117,10 @@ defineExpose({
         class="client-libraries-list">
         <ClientDropdown
           :clientOptions
+          :eventBus
           :featuredClients
           :morePanel
-          :xSelectedClient />
+          :selectedClient />
       </TabList>
 
       <!-- Content -->
@@ -145,7 +150,7 @@ defineExpose({
               lang="shell" />
           </div>
         </template>
-        <template v-else-if="isFeaturedClient(xSelectedClient)">
+        <template v-else-if="isFeaturedClient(selectedClient)">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"

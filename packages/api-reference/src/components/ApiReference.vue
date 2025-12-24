@@ -3,14 +3,17 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
+  createApiClientModal,
+  type ApiClientModal,
+} from '@scalar/api-client/v2/features/modal'
+import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
+import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
-import { dereference, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -27,10 +30,7 @@ import {
   createWorkspaceStore,
   type UrlDoc,
 } from '@scalar/workspace-store/client'
-import {
-  createWorkspaceEventBus,
-  onCustomEvent,
-} from '@scalar/workspace-store/events'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedTag,
@@ -39,6 +39,8 @@ import diff from 'microdiff'
 import {
   computed,
   onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
   onServerPrefetch,
   provide,
   ref,
@@ -61,7 +63,6 @@ import {
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
-import { mapConfigToClientStore } from '@/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/helpers/map-configuration'
 import {
@@ -69,7 +70,6 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { useIntersection } from '@/hooks/use-intersection'
-import { useWorkspaceStoreEvents } from '@/hooks/use-workspace-store-events'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 
 const props = defineProps<{
@@ -89,14 +89,8 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const eventBus = createWorkspaceEventBus({ debug: false })
+const eventBus = createWorkspaceEventBus()
 
-if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore
-}
-
-const root = useTemplateRef('root')
 const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
@@ -128,9 +122,6 @@ watch(
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
 provideUseId(() => useId())
-
-// Provide the client layout
-provide(LAYOUT_SYMBOL, 'modal')
 
 // ---------------------------------------------------------------------------
 /**
@@ -408,14 +399,29 @@ const scrollToLazyElement = (id: string) => {
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
 }
 
-/** Set up event listeners for client store events */
-useWorkspaceStoreEvents(workspaceStore, root)
-
 /** Maps some config values to the workspace store to keep it reactive */
 mapConfigToWorkspaceStore({
   config: () => mergedConfig.value,
   store: workspaceStore,
   isDarkMode,
+})
+
+/** Merged environment variables from workspace and document levels */
+const environment = computed(() =>
+  getActiveEnvironment(
+    workspaceStore,
+    workspaceStore.workspace.activeDocument ?? null,
+  ),
+)
+
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => workspaceStore
+}
+
+// For testing
+defineExpose({
+  workspaceStore,
 })
 
 // ---------------------------------------------------------------------------
@@ -435,6 +441,13 @@ const changeSelectedDocument = async (
 ) => {
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
+
+  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  apiClient.value?.route({
+    documentSlug: slug,
+    method: 'get',
+    path: '/',
+  })
   const normalized = configList.value[slug]
 
   if (!normalized) {
@@ -492,15 +505,6 @@ const changeSelectedDocument = async (
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
-
-  // Map the document to the client store for now
-  const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-  const { schema } = dereference(upgrade(raw).specification)
-  if (!schema) {
-    dereferenced.value = null
-    return
-  }
-  dereferenced.value = schema as OpenAPIV3_1.Document
 }
 
 /**
@@ -600,63 +604,42 @@ onBeforeMount(() =>
   ),
 )
 
-// --------------------------------------------------------------------------- */
-
-/**
- * @deprecated
- * We keep a copy of the workspace store document in dereferenced format
- * to allow mapping to the legacy client store
- */
-const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
-defineExpose({
-  dereferenced,
-})
-
-const modal = useTemplateRef<HTMLElement>('modal')
-
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
 })
 
-/**
- * Keeps the client store in sync with the workspace store
- *
- * Handles resetting the client store when the document changes
- */
-const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
-  {
+// --------------------------------------------------------------------------- */
+// Api Client Modal
+
+// Setup the ApiClient on mount
+const modal = useTemplateRef<HTMLElement>('modal')
+const apiClient = ref<ApiClientModal | null>(null)
+onMounted(() => {
+  if (!modal.value) {
+    return
+  }
+
+  apiClient.value = createApiClientModal({
+    el: modal.value,
+    eventBus,
     workspaceStore,
-    config: mergedConfig,
-    el: modal,
-    root,
-    dereferencedDocument: dereferenced,
-    documentUrl,
-  },
-)
+  })
+})
+onBeforeUnmount(() => {
+  apiClient.value?.app.unmount()
+})
 
 // ---------------------------------------------------------------------------
 // Top level event handlers and user specified callbacks
 
-/** Open the client modal on the custom event */
-onCustomEvent(root, 'scalar-open-client', (event) => {
-  openClient(event.detail)
-})
+/** Ensure we call the onServerChange callback */
+eventBus.on('server:update:selected', ({ url }) =>
+  mergedConfig.value.onServerChange?.(url),
+)
 
-/** Set the sidebar item to open and run any config handlers */
-onCustomEvent(root, 'scalar-on-show-more', (event) => {
-  mergedConfig.value.onShowMore?.(event.detail.id)
-  return sidebarState.setExpanded(event.detail.id, true)
-})
-
-onCustomEvent(root, 'scalar-update-selected-server', (event) => {
-  // Ensure we call the onServerChange callback
-  if (mergedConfig.value.onServerChange) {
-    mergedConfig.value.onServerChange(event.detail.value ?? '')
-  }
-})
-
-onCustomEvent(root, 'scalar-download-document', async (event) => {
-  if (event.detail.format === 'direct') {
+/** Download the document from the store */
+eventBus.on('ui:download:document', async ({ format }) => {
+  if (format === 'direct') {
     const url = configList.value[activeSlug.value]?.source?.url
     if (!url) {
       console.error(
@@ -673,7 +656,6 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
     return
   }
 
-  const format = event.detail.format
   const document = workspaceStore.exportActiveDocument(format)
   if (!document) {
     console.error('No document found to download')
@@ -736,9 +718,12 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     window.history.replaceState({}, '', url.toString())
   }
 })
-eventBus.on('toggle:nav-item', ({ id, open }) =>
-  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id)),
-)
+eventBus.on('toggle:nav-item', ({ id, open }) => {
+  if (open) {
+    mergedConfig.value.onShowMore?.(id)
+  }
+  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
+})
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
     id,
@@ -791,7 +776,7 @@ const colorMode = computed(() => {
 
 <template>
   <!-- SingleApiReference -->
-  <div ref="root">
+  <div>
     <!-- Inject any custom CSS directly into a style tag -->
     <component :is="'style'">
       {{ mergedConfig.customCss }}
@@ -899,30 +884,20 @@ const colorMode = computed(() => {
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :activeServer="activeServer"
+          :config="mergedConfig"
           :document="workspaceStore.workspace.activeDocument"
-          :eventBus="eventBus"
+          :environment
+          :eventBus
           :expandedItems="sidebarState.expandedItems.value"
-          :getSecuritySchemes="getSecuritySchemes"
+          :headingSlugGenerator="
+            mergedConfig.generateHeadingSlug ??
+            ((heading) => `${activeSlug}/description/${heading.slug}`)
+          "
+          :httpClients="
+            workspaceStore.config['x-scalar-reference-config']?.httpClients
+          "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"
-          :options="{
-            headingSlugGenerator:
-              mergedConfig.generateHeadingSlug ??
-              ((heading) => `${activeSlug}/description/${heading.slug}`),
-            httpClients:
-              workspaceStore.config['x-scalar-reference-config']?.httpClients,
-            layout: mergedConfig.layout,
-            persistAuth: mergedConfig.persistAuth,
-            showOperationId: mergedConfig.showOperationId,
-            hideTestRequestButton: mergedConfig.hideTestRequestButton,
-            expandAllResponses: mergedConfig.expandAllResponses,
-            expandAllModelSections: mergedConfig.expandAllModelSections,
-            orderRequiredPropertiesFirst:
-              mergedConfig.orderRequiredPropertiesFirst,
-            orderSchemaPropertiesBy: mergedConfig.orderSchemaPropertiesBy,
-            documentDownloadType: mergedConfig.documentDownloadType,
-          }"
           :xScalarDefaultClient="
             workspaceStore.workspace['x-scalar-default-client']
           ">

@@ -134,14 +134,20 @@ export type UIEvents = {
    * Open the API Client modal to a specific operation.
    * This allows deep linking into specific endpoints from external sources.
    */
-  'ui:open:client-modal': {
-    /** The HTTP method of the operation to load (e.g., GET, POST) */
-    method: HttpMethod
-    /** The path of the operation to load (e.g., /users/{id}) */
-    path: string
-    /** Optional example name to load for this operation */
-    exampleName?: string
-  }
+  'ui:open:client-modal':
+    | undefined
+    | {
+        /** The id of the operation to directly load */
+        id: string
+      }
+    | {
+        /** The HTTP method of the operation to load (e.g., GET, POST) */
+        method: HttpMethod
+        /** The path of the operation to load (e.g., /users/{id}) */
+        path: string
+        /** Optional example name to load for this operation */
+        exampleName?: string
+      }
 
   /**
    * Close the API Client modal.
@@ -197,4 +203,13 @@ export type UIEvents = {
    * Useful for sharing direct links to specific sections.
    */
   'copy-url:nav-item': NavigationItemPayload
+
+  /**
+   * Route to a page
+   * We cannot have any routing in any components used by the modal so we use this event to route to a page
+   */
+  'ui:route:page': {
+    /** The name of the route to route to */
+    name: string
+  }
 }

@@ -11,20 +11,15 @@ import ShowMoreButton from '@/components/ShowMoreButton.vue'
 defineProps<{
   id: string
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
-  options: {
-    layout: 'classic' | 'modern'
-    expandAllModelSections: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  eventBus: WorkspaceEventBus
+  layout: 'classic' | 'modern'
 }>()
 </script>
 <template>
   <Lazy id="models">
     <!-- Modern Layout Model Container -->
     <SectionContainer
-      v-if="options.layout === 'modern'"
+      v-if="layout === 'modern'"
       id="model">
       <Section
         :id="id"
@@ -38,11 +33,9 @@ defineProps<{
         </template>
         <template v-else>
           <ShowMoreButton
-            :id="id"
+            :id
             class="top-0"
-            @click="
-              () => eventBus?.emit('toggle:nav-item', { id, open: true })
-            ">
+            @click="() => eventBus.emit('toggle:nav-item', { id, open: true })">
           </ShowMoreButton>
         </template>
       </Section>

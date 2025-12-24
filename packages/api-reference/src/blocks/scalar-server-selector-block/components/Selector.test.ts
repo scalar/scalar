@@ -46,7 +46,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: '',
+        selectedServer: null,
         target: 'test-target',
       },
     })
@@ -59,7 +59,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers, // This has 3 servers, so should render listbox
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -74,7 +74,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: singleServer,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -89,7 +89,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: [],
-        xSelectedServer: '',
+        selectedServer: null,
         target: 'test-target',
       },
     })
@@ -111,7 +111,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: serversWithSlash,
-        xSelectedServer: 'https://api.example.com/',
+        selectedServer: { url: 'https://api.example.com/' },
         target: 'test-target',
       },
     })
@@ -125,7 +125,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -138,7 +138,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -149,7 +149,7 @@ describe('Selector', () => {
     // Change selected server
     await wrapper.setProps({
       servers: mockServers,
-      xSelectedServer: 'https://staging.example.com',
+      selectedServer: mockServers[1],
       target: 'test-target',
     })
 
@@ -159,20 +159,20 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('staging.example.com')
   })
 
-  it('selectedServer computed property works correctly', async () => {
+  it('selectedServer prop and serverOptions work correctly', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
 
-    // Test the getter: should return the correct selected server
+    // Test the exposed selectedServer: should return the correct selected server
     const selectedServer = wrapper.vm.selectedServer
     expect(selectedServer).toEqual({
-      id: 'https://api.example.com',
-      label: 'https://api.example.com',
+      url: 'https://api.example.com',
+      description: 'Production server',
     })
 
     // Test that serverOptions contains all expected servers
@@ -181,28 +181,19 @@ describe('Selector', () => {
       id: 'https://staging.example.com',
       label: 'https://staging.example.com',
     })
-
-    // Test with no selected server
-    await wrapper.setProps({
-      servers: mockServers,
-      xSelectedServer: '',
-      target: 'test-target',
-    })
-
-    expect(wrapper.vm.selectedServer).toBeUndefined()
   })
 
   it('component emits update:modelValue through v-model integration', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
 
     // Verify initial state
-    expect(wrapper.vm.selectedServer?.id).toBe('https://api.example.com')
+    expect(wrapper.vm.selectedServer?.url).toBe('https://api.example.com')
 
     // Since we can't easily trigger the ScalarListbox v-model directly in tests,
     // let's verify the component structure and that the emit function is correctly defined
@@ -225,7 +216,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: '',
+        selectedServer: null,
         target: 'test-target',
       },
     })
@@ -251,15 +242,13 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://staging.example.com',
+        selectedServer: mockServers[1]!,
         target: 'test-target',
       },
     })
 
-    const vm = wrapper.vm as any
-    const server = vm.server
-
-    expect(server).toEqual({
+    // The component exposes selectedServer as the prop itself
+    expect(wrapper.vm.selectedServer).toEqual({
       url: 'https://staging.example.com',
       description: 'Staging server',
     })
@@ -269,7 +258,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: serversWithVariables,
-        xSelectedServer: 'https://{environment}.example.com',
+        selectedServer: serversWithVariables[0]!,
         target: 'test-target',
       },
     })
@@ -278,17 +267,17 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('{environment}.example.com')
   })
 
-  it('handles undefined xSelectedServer', () => {
+  it('handles null selectedServer', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: undefined,
+        selectedServer: null,
         target: 'test-target',
       },
     })
 
     const vm = wrapper.vm as any
-    expect(vm.selectedServer).toBeUndefined()
+    expect(vm.selectedServer).toBeNull()
     expect(vm.serverUrlWithoutTrailingSlash).toBe('')
   })
 
@@ -296,21 +285,24 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://nonexistent.example.com',
+        selectedServer: { url: 'https://nonexistent.example.com' },
         target: 'test-target',
       },
     })
 
-    expect(wrapper.vm.server).toBeUndefined()
+    // The component will still have the selectedServer prop even if it's not in the list
+    expect(wrapper.vm.selectedServer).toEqual({
+      url: 'https://nonexistent.example.com',
+    })
     expect(wrapper.vm.servers).toBeDefined()
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('https://nonexistent.example.com')
   })
 
   it('includes screen reader text', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -323,7 +315,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: mockServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -332,14 +324,14 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('api.example.com')
     // Should have multiple server options available
     expect(wrapper.vm.serverOptions.length).toBe(3)
-    expect(wrapper.vm.selectedServer?.id).toBe('https://api.example.com')
+    expect(wrapper.vm.selectedServer?.url).toBe('https://api.example.com')
   })
 
   it('renders correctly for single server', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: singleServer,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })
@@ -348,7 +340,7 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('api.example.com')
     // Should have only one server option
     expect(wrapper.vm.serverOptions.length).toBe(1)
-    expect(wrapper.vm.selectedServer?.id).toBe('https://api.example.com')
+    expect(wrapper.vm.selectedServer?.url).toBe('https://api.example.com')
   })
 
   it('handles servers with special characters in URLs', () => {
@@ -366,7 +358,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: specialServers,
-        xSelectedServer: 'https://api-v2.example.com:8080/path',
+        selectedServer: { url: 'https://api-v2.example.com:8080/path' },
         target: 'test-target',
       },
     })
@@ -385,7 +377,7 @@ describe('Selector', () => {
     const wrapper = mount(Selector, {
       props: {
         servers: minimalServers,
-        xSelectedServer: 'https://api.example.com',
+        selectedServer: mockServers[0]!,
         target: 'test-target',
       },
     })

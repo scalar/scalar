@@ -42,15 +42,16 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { path, operation, method } = defineProps<{
+const { path, operation, method, selectedServer } = defineProps<{
   id: string
   path: string
   method: HttpMethodType
   operation: OperationObject
-  securitySchemes: SecuritySchemeObject[]
-  server: ServerObject | undefined
-  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  eventBus: WorkspaceEventBus | null
+  selectedServer: ServerObject | null
+  /** The selected security schemes which are applicable to this operation */
+  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -163,10 +164,10 @@ const labelId = useId()
                 v-if="operation.callbacks"
                 :callbacks="operation.callbacks"
                 class="mt-6"
-                :eventBus="eventBus"
-                :method="method"
-                :options="options"
-                :path="path" />
+                :eventBus
+                :method
+                :options
+                :path />
             </ScalarErrorBoundary>
           </div>
         </SectionColumn>
@@ -181,14 +182,15 @@ const labelId = useId()
             <ScalarErrorBoundary>
               <OperationCodeSample
                 :clientOptions="options.clientOptions"
+                :eventBus
                 fallback
                 :isWebhook="options.isWebhook"
-                :method="method"
-                :operation="operation"
-                :path="path"
-                :securitySchemes="securitySchemes"
-                :selectedClient="xScalarDefaultClient"
-                :selectedServer="server">
+                :method
+                :operation
+                :path
+                :securitySchemes="selectedSecuritySchemes"
+                :selectedClient
+                :selectedServer>
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
@@ -200,8 +202,10 @@ const labelId = useId()
                   #footer>
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
-                    :method="method"
-                    :path="path" />
+                    :id
+                    :eventBus
+                    :method
+                    :path />
                 </template>
               </OperationCodeSample>
             </ScalarErrorBoundary>

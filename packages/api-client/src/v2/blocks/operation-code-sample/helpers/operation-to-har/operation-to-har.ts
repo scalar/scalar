@@ -33,7 +33,7 @@ export type OperationToHarProps = {
    */
   contentType?: string
   /** OpenAPI Server object */
-  server?: ServerObject | undefined
+  server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
   securitySchemes?: SecuritySchemeObject[]
 }

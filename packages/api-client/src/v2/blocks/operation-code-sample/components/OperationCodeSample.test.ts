@@ -11,6 +11,8 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import { mockEventBus } from '@/v2/helpers/test-utils'
+
 import type { ClientOptionGroup } from '../types'
 import RequestExample from './OperationCodeSample.vue'
 
@@ -141,6 +143,7 @@ describe('RequestExample', () => {
     securitySchemes: mockSecuritySchemes,
     selectedServer: mockServer,
     clientOptions: mockClientOptions,
+    eventBus: mockEventBus,
   }
 
   describe('Component Rendering', () => {
