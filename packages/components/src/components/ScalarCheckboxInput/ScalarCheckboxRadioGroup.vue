@@ -25,12 +25,12 @@ const name = useId()
   <ScalarFormInputGroup>
     <ScalarCheckboxInput
       v-for="option in options"
+      :key="option.value"
+      :modelValue="model?.value === option.value"
+      :name
       type="radio"
       :value="option.value"
-      :name
-      :modelValue="model?.value === option.value"
-      @update:modelValue="(checked) => (model = checked ? option : undefined)"
-      :key="option.value">
+      @update:modelValue="(checked) => (model = checked ? option : undefined)">
       {{ option.label }}
     </ScalarCheckboxInput>
   </ScalarFormInputGroup>

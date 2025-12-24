@@ -7,7 +7,6 @@
     "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/components/**",
     "packages/draggable/**",
     "packages/galaxy/**",
     "packages/nextjs-openapi/**",
@@ -70,6 +69,18 @@
         //
         "playground/main.ts"
       ]
+    },
+    "packages/components": {
+      "entry": [
+        // Not sure why test files are marked as unused here
+        "test/**/*",
+        "src/**/*.test.ts"
+      ],
+      "ignoreDependencies": [
+        "@headlessui/tailwindcss", // Used by src/styles.css
+        "@storybook/blocks" // Used by src/docs max files
+      ],
+      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
     },
     "packages/core": {
       "entry": ["src/libs/html-rendering/index.ts"]

@@ -1,9 +1,9 @@
-import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
+import { type InjectionKey, type Ref, inject, provide, ref } from 'vue'
 
 /**
  * Tracks the region heading id for card accessibility
  */
-export const CARD_Heading_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
+const CARD_Heading_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
 
 /**
  * Set the region heading id for a ScalarCardHeader component.

@@ -113,8 +113,8 @@ const handleToggle = (event: MouseEvent) => {
               name="icon"
               :open>
               <ScalarSidebarGroupToggle
-                :icon
                 class="text-c-3"
+                :icon
                 :open />
             </slot>
           </template>
@@ -129,10 +129,10 @@ const handleToggle = (event: MouseEvent) => {
         </ScalarSidebarButton>
         <button
           v-if="discrete"
-          type="button"
           :aria-expanded="open"
           class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded hover:bg-sidebar-b-hover left-[calc(4px+var(--scalar-sidebar-indent)*var(--scalar-sidebar-level))] text-c-3 hover:text-sidebar-c-1"
           :style="{ '--scalar-sidebar-level': level }"
+          type="button"
           @click="handleToggle">
           <slot
             name="icon"

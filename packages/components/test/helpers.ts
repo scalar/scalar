@@ -1,13 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import {
-  expect,
-  test as base,
-  devices as playwrightDevices,
   type BrowserContext,
   type BrowserContextOptions,
   type Page,
   type TestInfo,
+  test as base,
+  expect,
+  devices as playwrightDevices,
 } from '@playwright/test'
 
 export { expect }

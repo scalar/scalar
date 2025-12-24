@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import ScalarCheckboxInput from './ScalarCheckboxInput.vue'
-import type { ScalarCheckboxOption } from './types'
 import ScalarCheckboxGroup from './ScalarCheckboxGroup.vue'
+import ScalarCheckboxInput from './ScalarCheckboxInput.vue'
 import ScalarCheckboxRadioGroup from './ScalarCheckboxRadioGroup.vue'
+import type { ScalarCheckboxOption } from './types'
 
 const meta: Meta = {
   component: ScalarCheckboxInput,

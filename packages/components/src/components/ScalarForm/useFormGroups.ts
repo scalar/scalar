@@ -3,7 +3,7 @@ import { type InjectionKey, inject, provide } from 'vue'
 /**
  * Tells a ScalarFormInput component that it is in a form group.
  */
-export const FORM_GROUP_SYMBOL = Symbol() as InjectionKey<boolean>
+const FORM_GROUP_SYMBOL = Symbol() as InjectionKey<boolean>
 
 /**
  * Check if we're in a form group.

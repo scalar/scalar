@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import ScalarForm from './ScalarForm.vue'
 import { ScalarButton } from '../ScalarButton'
-import ScalarFormSection from './ScalarFormSection.vue'
-import ScalarFormField from './ScalarFormField.vue'
-import { ScalarTextInput } from '../ScalarTextInput'
 import { ScalarTextArea } from '../ScalarTextArea'
+import { ScalarTextInput } from '../ScalarTextInput'
+import ScalarForm from './ScalarForm.vue'
 import ScalarFormError from './ScalarFormError.vue'
+import ScalarFormField from './ScalarFormField.vue'
+import ScalarFormSection from './ScalarFormSection.vue'
 
 const meta: Meta = {
   component: ScalarForm,

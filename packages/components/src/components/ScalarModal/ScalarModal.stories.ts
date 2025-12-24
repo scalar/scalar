@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton } from '../ScalarButton'
-import ScalarModal, { useModal } from './ScalarModal.vue'
-import { ScalarSearchResultList, ScalarSearchResultItem } from '../ScalarSearchResults'
 import { ScalarSearchInput } from '../ScalarSearchInput'
+import { ScalarSearchResultItem, ScalarSearchResultList } from '../ScalarSearchResults'
+import ScalarModal, { useModal } from './ScalarModal.vue'
 
 /**
  * Make sure to import the useModal hook from the ScalarModal component to open/close it

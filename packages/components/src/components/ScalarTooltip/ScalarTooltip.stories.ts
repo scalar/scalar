@@ -1,9 +1,9 @@
+import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton, ScalarIconButton } from '../../'
-import ScalarTooltip from './ScalarTooltip.vue'
 import ScalarHotkeyTooltip from './ScalarHotkeyTooltip.vue'
-import { placements } from '@floating-ui/utils'
+import ScalarTooltip from './ScalarTooltip.vue'
 
 const meta = {
   component: ScalarTooltip,

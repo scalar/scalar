@@ -30,13 +30,13 @@ const { active } = useDropdownItem()
 </script>
 <template>
   <ScalarDropdownButton
+    :id
     :active="active === id"
-    tabindex="-1"
     :disabled
     role="menuitem"
-    :id
-    @mouseenter="active = id"
-    @click="(e: MouseEvent) => $emit('click', e)">
+    tabindex="-1"
+    @click="(e: MouseEvent) => $emit('click', e)"
+    @mouseenter="active = id">
     <slot />
   </ScalarDropdownButton>
 </template>
