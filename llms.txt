@@ -499,47 +499,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 4: USER & ACTIVITY METRICS
-===============================================================================
-
-Base URL: `https://pro-api.llama.fi`
-
-31. 🔒 **GET /api/activeUsers**
-    Purpose: Active users for all protocols
-    Parameters: None
-    Response:
-    ```json
-    {
-      "aave-v3": {
-        "name": "Aave V3",
-        "users": {"value": 15234, "end": 1752832840},
-        "txs": {"value": "45678", "end": 1752832840},
-        "gasUsd": {"value": 12345.67, "end": 1752832840},
-        "newUsers": {"value": 234, "end": 1752832840},
-        "chainBreakdown": {
-          "Ethereum": {"users": 8000, "txs": 25000},
-          "Arbitrum": {"users": 7234, "txs": 20678}
-        }
-      }
-    }
-    ```
-
-32. 🔒 **GET /api/userData/{type}/{protocolId}**
-    Purpose: Historical user metrics
-    Parameters:
-      - type (path, required): "activeUsers" | "uniqueActiveUsers" | "dailyTxs" | "gasUsd"
-      - protocolId (path, required): Protocol numeric ID
-    Response:
-    ```json
-    [{
-      "date": 1640995200,
-      "value": 15234,
-      "chain": "Ethereum"
-    }]
-    ```
-
-===============================================================================
-SECTION 5: VOLUME METRICS (DEXs, Derivatives, Options)
+SECTION 4: VOLUME METRICS (DEXs, Derivatives, Options)
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -700,7 +660,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 6: FEES & REVENUE
+SECTION 5: FEES & REVENUE
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -803,7 +763,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 7: UNLOCKS & EMISSIONS
+SECTION 6: UNLOCKS & EMISSIONS
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -945,7 +905,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 8: ECOSYSTEM DATA
+SECTION 7: ECOSYSTEM DATA
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -1184,7 +1144,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 9: ETF DATA
+SECTION 8: ETF DATA
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -1283,7 +1243,7 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 10: BRIDGES
+SECTION 9: BRIDGES
 ===============================================================================
 
 Base URL: `https://bridges.llama.fi`
@@ -1635,7 +1595,7 @@ Base URL: `https://bridges.llama.fi`
     ```
 
 ===============================================================================
-SECTION 11: DIGITAL ASSET TREASURY (DAT)
+SECTION 10: DIGITAL ASSET TREASURY (DAT)
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
@@ -1805,7 +1765,7 @@ Base URL: `https://pro-api.llama.fi`
     - ohlcv: [timestamp, open, high, low, close, volume]
 
 ===============================================================================
-SECTION 12: ACCOUNT MANAGEMENT
+SECTION 11: ACCOUNT MANAGEMENT
 ===============================================================================
 
 66. 🔒 **GET /usage/APIKEY**
