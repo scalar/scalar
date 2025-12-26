@@ -1086,10 +1086,10 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/yungwarlock">
-                    <img src="https://avatars.githubusercontent.com/u/42095620?v=4" width="100;" alt="yungwarlock"/>
+                <a href="https://github.com/damiansan239">
+                    <img src="https://avatars.githubusercontent.com/u/42095620?v=4" width="100;" alt="damiansan239"/>
                     <br />
-                    <sub><b>yungwarlock</b></sub>
+                    <sub><b>damiansan239</b></sub>
                 </a>
             </td>
             <td align="center">
