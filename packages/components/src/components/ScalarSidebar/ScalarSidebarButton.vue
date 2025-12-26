@@ -50,7 +50,14 @@ const variants = cva({
     {
       selected: false,
       disabled: false,
+      active: false,
       class: 'hover:bg-sidebar-b-hover hover:text-sidebar-c-hover',
+    },
+    {
+      selected: false,
+      disabled: false,
+      active: true,
+      class: 'hover:bg-sidebar-b-hover',
     },
   ],
   defaultVariants: { selected: false, disabled: false, active: false },
