@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import {
-  ScalarDropdownButton,
-  ScalarDropdownMenu,
-} from '@/components/ScalarDropdown'
-import {
-  ScalarListboxCheckbox,
-  type ScalarListboxOption,
-} from '@/components/ScalarListbox'
-import {
   ScalarIconCaretRight,
   ScalarIconPlus,
   ScalarIconSwap,
 } from '@scalar/icons'
 import { DropdownMenu } from 'radix-vue/namespaced'
 
+import { ScalarDropdownButton, ScalarDropdownMenu } from '../ScalarDropdown'
+import {
+  ScalarListboxCheckbox,
+  type ScalarListboxOption,
+} from '../ScalarListbox'
 import ScalarMenuLink from './ScalarMenuLink.vue'
 
 const { workspaceOptions } = defineProps<{

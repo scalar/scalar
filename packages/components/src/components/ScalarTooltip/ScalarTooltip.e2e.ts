@@ -1,6 +1,6 @@
-import { test, type Device, type TestBody } from '@test/helpers'
+import { type Device, type TestBody, test } from '@test/helpers'
 
-import { ELEMENT_ID } from '@/components/ScalarTooltip/constants'
+import { ELEMENT_ID } from './constants'
 
 /** Opens the tooltip and takes a snapshot */
 const takeTooltipSnapshot =

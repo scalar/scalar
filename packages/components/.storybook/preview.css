@@ -4,72 +4,128 @@ html {
 }
 
 body.sb-show-main,
-:where(#storybook-docs) .sbdocs-wrapper {
+#storybook-docs .sbdocs-wrapper {
   background: var(--scalar-background-1);
 }
 
-:where(#storybook-docs) tbody {
-  border-radius: var(--scalar-radius);
+/* Override Storybook's CSS variables for docs - higher specificity */
+#storybook-docs,
+#storybook-docs .sbdocs-wrapper {
+  --sbdocs-color-text: var(--scalar-color-2);
+  --sbdocs-color-text-secondary: var(--scalar-color-3);
+  --sbdocs-color-background: var(--scalar-background-1);
+  --sbdocs-color-border: var(--scalar-border-color);
 }
 
-:where(#storybook-docs) tbody tr > * {
-  background: var(--scalar-background-2);
-  border-color: var(--scalar-border-color) !important;
-}
-
-:where(#storybook-docs) th {
+#storybook-docs {
+  background: var(--scalar-background-1);
   color: var(--scalar-color-2);
 }
 
-:where(#storybook-docs) .docblock-argstable {
+#storybook-docs h1,
+#storybook-docs h2,
+#storybook-docs h3,
+#storybook-docs h4,
+#storybook-docs h5,
+#storybook-docs h6 {
   color: var(--scalar-color-1);
 }
-:where(#storybook-docs) tr[title] > *,
-:where(#storybook-docs) tr[title] svg {
+
+#storybook-docs h3 {
+  color: var(--scalar-color-3);
+}
+
+#storybook-docs p,
+:where(#storybook-docs) li,
+:where(#storybook-docs) span,
+:where(#storybook-docs) div {
+  color: var(--scalar-color-1);
+}
+
+:where(#storybook-docs) .docblock-argstable-body span {
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+}
+
+#storybook-docs code,
+#storybook-docs .sbdocs-wrapper code {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+}
+
+#storybook-docs p code,
+#storybook-docs li code,
+#storybook-docs td code,
+#storybook-docs th code,
+#storybook-docs .sbdocs-wrapper p code,
+#storybook-docs .sbdocs-wrapper li code {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  border-width: var(--scalar-border-width);
+}
+
+#storybook-docs pre,
+#storybook-docs .sbdocs-wrapper pre,
+#storybook-docs .sbdocs-wrapper .docblock-source {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+}
+
+#storybook-docs pre code,
+#storybook-docs .sbdocs-wrapper pre code {
+  background: transparent;
+  color: var(--scalar-color-1);
+}
+
+/* Override syntax highlighting colors if present */
+/* #storybook-docs code *,
+#storybook-docs pre * {
+  color: inherit;
+} */
+
+#storybook-docs tbody {
+  border-radius: var(--scalar-radius);
+}
+
+#storybook-docs tbody tr > * {
+  background: var(--scalar-background-2);
+  border-color: var(--scalar-border-color);
+}
+
+#storybook-docs tr[title] > * {
   background: var(--scalar-background-3) !important;
   color: var(--scalar-color-2);
 }
 
-:where(#storybook-docs) tr [title="Required"] {
-  color: var(--scalar-text-color-1);
-}
-
-:where(#storybook-docs) h1 {
-  color: var(--scalar-color-1);
-}
-:where(#storybook-docs) h2 {
-  color: var(--scalar-color-1);
-}
-
-:where(#storybook-docs) h3 {
-  color: var(--scalar-color-3);
-}
-
-:where(#storybook-docs) p,
-:where(#storybook-docs) li {
+#storybook-docs tbody svg,
+#storybook-docs tr[title] svg,
+#storybook-docs tr[title] svg *,
+#storybook-docs tbody svg *,
+#storybook-docs .docblock-argstable svg,
+#storybook-docs .docblock-argstable svg * {
+  background: var(--scalar-background-3);
   color: var(--scalar-color-2);
+  fill: var(--scalar-color-2);
+  stroke: var(--scalar-color-2);
 }
 
-:where(#storybook-docs) .sbdocs-preview {
-  color: var(--scalar-color-2);
-  border-color: var(--scalar-border-color);
+#storybook-docs .sbdocs-preview {
   background: var(--scalar-background-2);
-}
-:where(#storybook-docs) .sbdocs-preview > div:first-of-type:not(.docs-story) {
-  background: var(--scalar-background-3);
-}
-
-:where(#storybook-docs) td > div > div > span {
-  background: var(--scalar-background-3);
-  color: var(--scalar-color-2);
   border-color: var(--scalar-border-color);
 }
 
-:where(#storybook-docs) .sb-hide {
+#storybook-docs .sbdocs-preview > div:first-of-type:not(.docs-story) {
+  background: var(--scalar-background-3);
+}
+
+#storybook-docs .sb-hide {
   display: none;
 }
 
-:where(#storybook-root .placeholder) {
+#storybook-root .placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,4 +135,114 @@ body.sb-show-main,
   color: var(--scalar-color-2);
   outline: 1px dashed var(--scalar-color-3);
   outline-offset: -4px;
+}
+
+.prismjs.prismjs {
+  /* PrismJS base */
+  .token {
+    color: var(--scalar-color-2);
+  }
+
+  /* ------------------------------------------------------------- */
+  /* Data types */
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    color: var(--scalar-color-3);
+    font-style: italic;
+  }
+
+  .token.number {
+    color: var(--scalar-color-orange);
+  }
+
+  .token.regex,
+  .token.string {
+    color: var(--scalar-color-blue);
+  }
+
+  /** Globals such as `var()` and `!important` */
+  .token.builtin {
+    color: var(--scalar-color-blue);
+  }
+
+  /** Class initializers such as `Array` or `Date` */
+  /** Type declarations such as `Record` */
+  .token.class-name {
+    color: var(--scalar-color-1);
+  }
+
+  /** Language indicators such as `new`, `const`, or `function` in JS  */
+  .token.keyword {
+    color: var(--scalar-color-purple);
+  }
+
+  /** Function names when declaring and calling */
+  .token.function {
+    color: var(--scalar-color-green);
+  }
+
+  /** Template substitution */
+  .token.interpolation {
+    color: var(--scalar-color-blue);
+  }
+
+  /** HTML Tag name */
+  .token.tag {
+    color: var(--scalar-color-blue);
+  }
+
+  /** Attribute name (ex. `class`, `id`) */
+  .token.attr-name {
+    color: var(--scalar-color-1);
+  }
+
+  .token.inserted,
+  .token.boolean,
+  .token.constant,
+  .token.selector,
+  .token.type {
+    color: var(--scalar-color-green);
+  }
+
+  .token.selector.attr,
+  .token.selector.pseudo {
+    color: var(--scalar-color-orange);
+  }
+
+  .token.doctag {
+    color: var(--scalar-color-blue);
+  }
+
+  .token.title,
+  .token.title.function {
+    color: var(--scalar-color-blue);
+  }
+
+  .token.selector.id,
+  .token.variable {
+    color: var(--scalar-color-1);
+  }
+
+  .token.tag,
+  .token.title,
+  .token.bold {
+    font-weight: var(--scalar-semibold);
+  }
+
+  .token.punctuation,
+  .token.property,
+  .token.meta,
+  .token.symbol {
+    color: var(--scalar-color-2);
+  }
+
+  .token.deleted {
+    color: var(--scalar-color-red);
+  }
+
+  .token.italic {
+    font-style: italic;
+  }
 }

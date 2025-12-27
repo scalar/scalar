@@ -1,7 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
-import { PRESETS } from '@/components/ScalarWrappingText/constants'
-
+import { PRESETS } from './constants'
 import ScalarWrappingText from './ScalarWrappingText.vue'
 
 const meta: Meta = {
