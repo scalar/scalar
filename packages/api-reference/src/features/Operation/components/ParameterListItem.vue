@@ -22,16 +22,15 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
 
-const { name, parameter, options } = defineProps<{
+const { name, parameter, options, collapsableItems } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
+  collapsableItems?: boolean
   options: Pick<
     OperationProps['options'],
-    | 'expandAllResponses'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
   >
 }>()
 
@@ -87,14 +86,11 @@ const value = computed(() => {
 
 /**
  * Determines whether this parameter item should be rendered as a collapsible disclosure.
- * Only collapses when expandAllResponses is disabled and the parameter has additional
+ * Only collapses when collapsableItems is enabled and the parameter has additional
  * content to display (content types, headers, or schema details).
  */
 const shouldCollapse = computed<boolean>(() =>
-  Boolean(
-    !options.expandAllResponses &&
-      (content.value || headers.value || schema.value),
-  ),
+  Boolean(collapsableItems && (content.value || headers.value || schema.value)),
 )
 </script>
 <template>

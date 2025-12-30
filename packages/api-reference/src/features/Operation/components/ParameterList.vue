@@ -3,17 +3,19 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useId } from 'vue'
 
+import type { OperationProps } from '@/features/Operation/Operation.vue'
+
 import ParameterListItem from './ParameterListItem.vue'
 
 const { parameters } = defineProps<{
   parameters: ParameterObject[]
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  options: {
-    expandAllResponses: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  collapsableItems?: boolean
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 
 /** Accessible id for the heading */
@@ -35,6 +37,7 @@ const id = useId()
         v-for="item in parameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
+        :collapsableItems
         :eventBus="eventBus"
         :name="item.name"
         :options="options"

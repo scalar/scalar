@@ -10,6 +10,7 @@ import ParameterListItem from './ParameterListItem.vue'
 const { responses } = defineProps<{
   responses: OperationObject['responses']
   breadcrumb?: string[]
+  collapsableItems?: boolean
   eventBus: WorkspaceEventBus | null
   options: Pick<
     OperationProps['options'],
@@ -29,6 +30,7 @@ const { responses } = defineProps<{
         v-for="(response, status) in responses"
         :key="status"
         :breadcrumb
+        :collapsableItems
         :eventBus
         :name="status"
         :options

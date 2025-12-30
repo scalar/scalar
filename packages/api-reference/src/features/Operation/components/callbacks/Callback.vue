@@ -55,6 +55,7 @@ const { method, name, url, options } = defineProps<{
 
       <!-- Responses -->
       <OperationResponses
+        :collapsableItems="false"
         :eventBus
         :options
         :responses="callback.responses" />
