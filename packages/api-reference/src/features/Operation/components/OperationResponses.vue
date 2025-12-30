@@ -10,7 +10,7 @@ const { responses } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   options: {
-    collapsableItems?: boolean | undefined
+    expandAllResponses: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }

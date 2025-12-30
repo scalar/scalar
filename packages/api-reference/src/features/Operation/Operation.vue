@@ -1,7 +1,44 @@
+<script lang="ts">
+/**
+ * References Operation "block"
+ */
+export default {}
+
+export type OperationProps = {
+  id: string
+  method: HttpMethod
+  /** The subset of the configuration object required for the operation component */
+  config: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'expandAllResponses'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'showOperationId'
+  >
+  /** Document object */
+  document: OpenApiDocument
+  /** Key of the operations path in the document.paths object */
+  path: string
+  /** OpenAPI path object that will include the operation */
+  pathValue: PathItemObject | undefined
+  /** Currently selected server for the document */
+  server: ServerObject | null
+  /** The http client options for the dropdown */
+  clientOptions: ClientOptionGroup[]
+  /** Whether the Classic layout operation is collapsed */
+  isCollapsed: boolean
+  isWebhook: boolean
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  eventBus: WorkspaceEventBus
+}
+</script>
+
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -24,29 +61,12 @@ const {
   pathValue,
   config,
   isWebhook,
+  isCollapsed,
+  eventBus,
   document,
   method,
   clientOptions,
-} = defineProps<{
-  id: string
-  method: HttpMethod
-  /** The configuration object */
-  config: ApiReferenceConfiguration
-  /** Document object */
-  document: OpenApiDocument
-  /** Key of the operations path in the document.paths object */
-  path: string
-  /** OpenAPI path object that will include the operation */
-  pathValue: PathItemObject | undefined
-  /** Currently selected server for the document */
-  server: ServerObject | null
-  /** The http client options for the dropdown */
-  clientOptions: ClientOptionGroup[]
-  isCollapsed: boolean
-  isWebhook: boolean
-  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  eventBus: WorkspaceEventBus
-}>()
+} = defineProps<OperationProps>()
 
 /**
  * Operation from the new workspace store, ensure we are de-reference
@@ -83,40 +103,33 @@ const selectedServer = computed<ServerObject | null>(() =>
 const selectedSecuritySchemes = computed(() =>
   filterSelectedSecurity(document, operation.value),
 )
-
-/** Cache the operation options in a computed */
-const options = computed(() => ({
-  isWebhook,
-  showOperationId: config.showOperationId,
-  hideTestRequestButton: config.hideTestRequestButton,
-  expandAllResponses: config.expandAllResponses,
-  clientOptions,
-  orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
-  orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
-}))
 </script>
 
 <template>
   <template v-if="operation">
     <ClassicLayout
       v-if="config.layout === 'classic'"
-      :id="id"
+      :id
+      :clientOptions
+      :config
       :eventBus
       :isCollapsed
+      :isWebhook
       :method
       :operation
-      :options
       :path
       :selectedClient
       :selectedSecuritySchemes
       :selectedServer />
     <ModernLayout
       v-else
-      :id="id"
-      :eventBus="eventBus"
-      :method="method"
+      :id
+      :clientOptions
+      :config
+      :eventBus
+      :isWebhook
+      :method
       :operation
-      :options
       :path
       :selectedClient
       :selectedSecuritySchemes

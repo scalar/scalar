@@ -8,7 +8,6 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import {
   ScalarIconCopy,
   ScalarIconPlay,
@@ -20,8 +19,6 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -42,40 +39,33 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
 const {
+  clientOptions,
+  config,
+  eventBus,
+  isWebhook,
+  method,
   operation,
   path,
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
-} = defineProps<{
-  id: string
-  path: string
-  method: HttpMethodType
-  operation: OperationObject
-  // pathServers: ServerObject[] | undefined
-  selectedServer: ServerObject | null
-  /** The selected security schemes which are applicable to this operation */
-  selectedSecuritySchemes: SecuritySchemeObject[]
-  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  isCollapsed: boolean
-  eventBus: WorkspaceEventBus
-  /** Global options that can be derived from the top level config or assigned at a block level */
-  options: {
-    /** Sets some additional display properties when an operation is a webhook */
-    isWebhook: boolean
-    clientOptions: ClientOptionGroup[]
-    showOperationId: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+} = defineProps<
+  Omit<OperationProps, 'document' | 'pathValue' | 'server'> & {
+    /** Operation object with path params */
+    operation: OperationObject
+    /** The selected server for the operation */
+    selectedServer: ServerObject | null
+    /** The selected security schemes for the operation */
+    selectedSecuritySchemes: SecuritySchemeObject[]
   }
-}>()
+>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
@@ -121,7 +111,7 @@ const { copyToClipboard } = useClipboard()
 
               <!-- Webhook badge -->
               <Badge
-                v-if="options.isWebhook"
+                v-if="isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
@@ -140,9 +130,9 @@ const { copyToClipboard } = useClipboard()
       <XBadges
         :badges="operation['x-badges']"
         position="after" />
-      <template v-if="!options?.hideTestRequestButton">
+      <template v-if="!config.hideTestRequestButton">
         <TestRequestButton
-          v-if="active && !options.isWebhook"
+          v-if="active && !isWebhook"
           :id
           :eventBus
           :method
@@ -152,7 +142,7 @@ const { copyToClipboard } = useClipboard()
           class="endpoint-try-hint size-4.5" />
       </template>
       <span
-        v-if="options?.showOperationId && operation.operationId"
+        v-if="config.showOperationId && operation.operationId"
         class="font-code text-sm">
         {{ operation.operationId }}
       </span>
@@ -186,7 +176,7 @@ const { copyToClipboard } = useClipboard()
         <div class="operation-details-card-item">
           <OperationParameters
             :eventBus
-            :options
+            :options="config"
             :parameters="
               // These have been resolved in the Operation.vue component
               operation.parameters as ParameterObject[]
@@ -196,7 +186,7 @@ const { copyToClipboard } = useClipboard()
         <div class="operation-details-card-item">
           <OperationResponses
             :eventBus
-            :options
+            :options="config"
             :responses="operation.responses" />
         </div>
 
@@ -208,7 +198,7 @@ const { copyToClipboard } = useClipboard()
             :callbacks="operation.callbacks"
             :eventBus
             :method
-            :options
+            :options="config"
             :path />
         </div>
       </div>
@@ -228,10 +218,10 @@ const { copyToClipboard } = useClipboard()
         <ScalarErrorBoundary>
           <OperationCodeSample
             class="operation-example-card"
-            :clientOptions="options.clientOptions"
+            :clientOptions
             :eventBus
             fallback
-            :isWebhook="options.isWebhook"
+            :isWebhook
             :method="method"
             :operation="operation"
             :path="path"

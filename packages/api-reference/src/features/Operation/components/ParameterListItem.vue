@@ -27,7 +27,7 @@ const { name, parameter, options } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   options: {
-    collapsableItems?: boolean
+    expandAllResponses: boolean | undefined
     withExamples?: boolean
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -91,7 +91,7 @@ const value = computed(() => {
  */
 const shouldCollapse = computed<boolean>(() =>
   Boolean(
-    options.collapsableItems &&
+    !options.expandAllResponses &&
       (content.value || headers.value || schema.value),
   ),
 )
@@ -110,8 +110,8 @@ const shouldCollapse = computed<boolean>(() =>
             weight="bold" />
           <div>
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
+              preset="property"
+              :text="name" />
           </div>
         </div>
         <ScalarMarkdownSummary

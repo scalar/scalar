@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import {
-  OperationCodeSample,
-  type ClientOptionGroup,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -39,33 +33,33 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { path, operation, method, selectedServer } = defineProps<{
-  id: string
-  path: string
-  method: HttpMethodType
-  operation: OperationObject
-  selectedServer: ServerObject | null
-  /** The selected security schemes which are applicable to this operation */
-  selectedSecuritySchemes: SecuritySchemeObject[]
-  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  eventBus: WorkspaceEventBus
-  /** Global options that can be derived from the top level config or assigned at a block level */
-  options: {
-    /** Sets some additional display properties when an operation is a webhook */
-    isWebhook: boolean
-    showOperationId: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses: boolean | undefined
-    clientOptions: ClientOptionGroup[]
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+const {
+  clientOptions,
+  config,
+  eventBus,
+  isWebhook,
+  method,
+  operation,
+  path,
+  selectedServer,
+  selectedSecuritySchemes,
+  selectedClient,
+} = defineProps<
+  Omit<OperationProps, 'document' | 'pathValue' | 'server' | 'isCollapsed'> & {
+    /** Operation object with path params */
+    operation: OperationObject
+    /** The selected server for the operation */
+    selectedServer: ServerObject | null
+    /** The selected security schemes for the operation */
+    selectedSecuritySchemes: SecuritySchemeObject[]
   }
-}>()
+>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
@@ -86,7 +80,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
         <!-- Left -->
         <div class="flex gap-1">
           <!-- Operation ID -->
-          <Badge v-if="options?.showOperationId && operation.operationId">
+          <Badge v-if="config?.showOperationId && operation.operationId">
             {{ operation.operationId }}
           </Badge>
           <!-- Stability badge -->
@@ -98,7 +92,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
           </Badge>
           <!-- Webhook badge -->
           <Badge
-            v-if="options.isWebhook"
+            v-if="isWebhook"
             class="font-code text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
@@ -142,11 +136,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <OperationParameters
               :breadcrumb="[id]"
               :eventBus="eventBus"
-              :options="{
-                orderRequiredPropertiesFirst:
-                  options.orderRequiredPropertiesFirst,
-                orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-              }"
+              :options="config"
               :parameters="
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
@@ -155,12 +145,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <OperationResponses
               :breadcrumb="[id]"
               :eventBus="eventBus"
-              :options="{
-                collapsableItems: !options.expandAllResponses,
-                orderRequiredPropertiesFirst:
-                  options.orderRequiredPropertiesFirst,
-                orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-              }"
+              :options="config"
               :responses="operation.responses" />
 
             <!-- Callbacks -->
@@ -171,7 +156,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 class="mt-6"
                 :eventBus
                 :method
-                :options
+                :options="config"
                 :path />
             </ScalarErrorBoundary>
           </div>
@@ -186,10 +171,10 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <OperationCodeSample
-                :clientOptions="options.clientOptions"
+                :clientOptions
                 :eventBus
                 fallback
-                :isWebhook="options.isWebhook"
+                :isWebhook
                 :method
                 :operation
                 :path
@@ -203,10 +188,10 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                     :path="path" />
                 </template>
                 <template
-                  v-if="!options.isWebhook"
+                  v-if="!isWebhook"
                   #footer>
                   <TestRequestButton
-                    v-if="!options.hideTestRequestButton"
+                    v-if="!config.hideTestRequestButton"
                     :id
                     :eventBus
                     :method

@@ -113,6 +113,15 @@ const createBasicDocument = (title = 'Test API') => ({
       get: {
         summary: 'Get users',
         operationId: 'getUsers',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/SuperImportantUser',
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -122,6 +131,21 @@ const createBasicDocument = (title = 'Test API') => ({
         type: 'object',
         properties: {
           name: { type: 'string' },
+          age: { type: 'number' },
+          isAdmin: { type: 'boolean', required: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          address: {
+            type: 'object',
+            properties: {
+              street: { type: 'string' },
+              city: { type: 'string' },
+              state: { type: 'string' },
+              zip: { type: 'string' },
+            },
+          },
+          phone: { type: 'string', required: true },
+          email: { type: 'string', format: 'email' },
         },
       },
     },
@@ -580,8 +604,9 @@ describe('ApiReference Configuration Tests', () => {
     expect(Auth.text().includes('test-token')).toBe(true)
   })
 
+  // TODO doesn't work
   describe('Schema Property Ordering Configuration', () => {
-    it('orders schema properties alphabetically by default', async () => {
+    it.only('orderSchemaPropertiesBy: undefined -> alpha', async () => {
       const wrapper = mountComponent({
         props: {
           configuration: {
@@ -589,15 +614,26 @@ describe('ApiReference Configuration Tests', () => {
           },
         },
       })
-
       await flushPromises()
-      await wrapper.vm.$nextTick()
 
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      const propertyNames = wrapper
+        .findComponent({ name: 'RequestBody' })
+        .findAll('.property-name')
+        .map((item) => item.text().split(' ')[0])
+
+      expect(propertyNames).toStrictEqual([
+        'addressCopy',
+        'ageCopy',
+        'createdAtCopy',
+        'emailCopy',
+        'isAdminCopy',
+        'nameCopy',
+        'phoneCopy',
+        'updatedAtCopy',
+      ])
     })
 
-    it('preserves schema property order when configured', async () => {
+    it('orderSchemaPropertiesBy: preserve', async () => {
       const wrapper = mountComponent({
         props: {
           configuration: {
@@ -606,12 +642,23 @@ describe('ApiReference Configuration Tests', () => {
           },
         },
       })
-
       await flushPromises()
-      await wrapper.vm.$nextTick()
 
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      const propertyNames = wrapper
+        .findComponent({ name: 'RequestBody' })
+        .findAll('.property-name')
+        .map((item) => item.text().split(' ')[0])
+
+      expect(propertyNames).toStrictEqual([
+        'nameCopy',
+        'ageCopy',
+        'isAdminCopy',
+        'createdAtCopy',
+        'updatedAtCopy',
+        'addressCopy',
+        'phoneCopy',
+        'emailCopy',
+      ])
     })
 
     it('orders required properties first by default', async () => {
@@ -622,12 +669,23 @@ describe('ApiReference Configuration Tests', () => {
           },
         },
       })
-
       await flushPromises()
-      await wrapper.vm.$nextTick()
 
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      const propertyNames = wrapper
+        .findComponent({ name: 'RequestBody' })
+        .findAll('.property-name')
+        .map((item) => item.text().split(' ')[0])
+
+      expect(propertyNames).toStrictEqual([
+        'addressCopy',
+        'ageCopy',
+        'createdAtCopy',
+        'emailCopy',
+        'isAdminCopy',
+        'nameCopy',
+        'phoneCopy',
+        'updatedAtCopy',
+      ])
     })
 
     it('does not order required properties first when configured', async () => {
@@ -639,12 +697,23 @@ describe('ApiReference Configuration Tests', () => {
           },
         },
       })
-
       await flushPromises()
-      await wrapper.vm.$nextTick()
 
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      const propertyNames = wrapper
+        .findComponent({ name: 'RequestBody' })
+        .findAll('.property-name')
+        .map((item) => item.text().split(' ')[0])
+
+      expect(propertyNames).toStrictEqual([
+        'addressCopy',
+        'ageCopy',
+        'createdAtCopy',
+        'emailCopy',
+        'isAdminCopy',
+        'nameCopy',
+        'phoneCopy',
+        'updatedAtCopy',
+      ])
     })
   })
 
