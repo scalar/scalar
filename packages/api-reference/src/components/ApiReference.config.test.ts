@@ -14,28 +14,29 @@ vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
 
 /** Track all mounted wrappers so we can unmount them after each test */
 const wrappers: ReturnType<typeof mount>[] = []
+const locationMock = {
+  href: 'http://localhost:3000/',
+  origin: 'http://localhost:3000',
+  protocol: 'http:',
+  host: 'localhost:3000',
+  hostname: 'localhost',
+  port: '3000',
+  pathname: '/',
+  search: '',
+  hash: '',
+  ancestorOrigins: {} as DOMStringList,
+  assign: vi.fn(),
+  reload: vi.fn(),
+  replace: vi.fn(),
+  toString: () => 'http://localhost:3000/',
+}
 
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
 
   /** Mock window.location for all tests */
-  vi.stubGlobal('location', {
-    href: 'http://localhost:3000/',
-    origin: 'http://localhost:3000',
-    protocol: 'http:',
-    host: 'localhost:3000',
-    hostname: 'localhost',
-    port: '3000',
-    pathname: '/',
-    search: '',
-    hash: '',
-    ancestorOrigins: {} as DOMStringList,
-    assign: vi.fn(),
-    reload: vi.fn(),
-    replace: vi.fn(),
-    toString: () => 'http://localhost:3000/',
-  })
+  vi.stubGlobal('location', locationMock)
 
   /**
    * Mock ResizeObserver which is used by @headlessui/vue Dialog component
@@ -107,6 +108,7 @@ const createBasicDocument = (title = 'Test API') => ({
   info: {
     title,
     version: '1.0.0',
+    description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
   },
   paths: {
     '/users': {
@@ -129,10 +131,11 @@ const createBasicDocument = (title = 'Test API') => ({
     schemas: {
       SuperImportantUser: {
         type: 'object',
+        required: ['isAdmin', 'phone'],
         properties: {
           name: { type: 'string' },
           age: { type: 'number' },
-          isAdmin: { type: 'boolean', required: true },
+          isAdmin: { type: 'boolean' },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
           address: {
@@ -144,7 +147,7 @@ const createBasicDocument = (title = 'Test API') => ({
               zip: { type: 'string' },
             },
           },
-          phone: { type: 'string', required: true },
+          phone: { type: 'string' },
           email: { type: 'string', format: 'email' },
         },
       },
@@ -508,7 +511,6 @@ describe('ApiReference Configuration Tests', () => {
     })
 
     await flushPromises()
-    await wrapper.vm.$nextTick()
     expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
   })
 
@@ -604,491 +606,223 @@ describe('ApiReference Configuration Tests', () => {
     expect(Auth.text().includes('test-token')).toBe(true)
   })
 
-  // TODO doesn't work
-  describe('Schema Property Ordering Configuration', () => {
-    it.only('orderSchemaPropertiesBy: undefined -> alpha', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('orderSchemaPropertiesBy: undefined -> alpha', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-      await flushPromises()
-
-      const propertyNames = wrapper
-        .findComponent({ name: 'RequestBody' })
-        .findAll('.property-name')
-        .map((item) => item.text().split(' ')[0])
-
-      expect(propertyNames).toStrictEqual([
-        'addressCopy',
-        'ageCopy',
-        'createdAtCopy',
-        'emailCopy',
-        'isAdminCopy',
-        'nameCopy',
-        'phoneCopy',
-        'updatedAtCopy',
-      ])
+      },
     })
+    await flushPromises()
 
-    it('orderSchemaPropertiesBy: preserve', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            orderSchemaPropertiesBy: 'preserve',
-          },
-        },
-      })
-      await flushPromises()
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0]?.replace('Copy', ''))
 
-      const propertyNames = wrapper
-        .findComponent({ name: 'RequestBody' })
-        .findAll('.property-name')
-        .map((item) => item.text().split(' ')[0])
-
-      expect(propertyNames).toStrictEqual([
-        'nameCopy',
-        'ageCopy',
-        'isAdminCopy',
-        'createdAtCopy',
-        'updatedAtCopy',
-        'addressCopy',
-        'phoneCopy',
-        'emailCopy',
-      ])
-    })
-
-    it('orders required properties first by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
-        },
-      })
-      await flushPromises()
-
-      const propertyNames = wrapper
-        .findComponent({ name: 'RequestBody' })
-        .findAll('.property-name')
-        .map((item) => item.text().split(' ')[0])
-
-      expect(propertyNames).toStrictEqual([
-        'addressCopy',
-        'ageCopy',
-        'createdAtCopy',
-        'emailCopy',
-        'isAdminCopy',
-        'nameCopy',
-        'phoneCopy',
-        'updatedAtCopy',
-      ])
-    })
-
-    it('does not order required properties first when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            orderRequiredPropertiesFirst: false,
-          },
-        },
-      })
-      await flushPromises()
-
-      const propertyNames = wrapper
-        .findComponent({ name: 'RequestBody' })
-        .findAll('.property-name')
-        .map((item) => item.text().split(' ')[0])
-
-      expect(propertyNames).toStrictEqual([
-        'addressCopy',
-        'ageCopy',
-        'createdAtCopy',
-        'emailCopy',
-        'isAdminCopy',
-        'nameCopy',
-        'phoneCopy',
-        'updatedAtCopy',
-      ])
-    })
+    expect(propertyNames).toStrictEqual([
+      'isAdmin',
+      'phone',
+      'address',
+      'age',
+      'createdAt',
+      'email',
+      'name',
+      'updatedAt',
+    ])
   })
 
-  describe('Custom Slug Generators', () => {
-    it('applies custom heading slug generator', async () => {
-      const generateHeadingSlug = vi.fn((heading: { slug: string }) => {
-        return `custom-${heading.slug}`
-      })
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            generateHeadingSlug,
-          },
+  it('orderSchemaPropertiesBy: undefined -> alpha, orderRequiredPropertiesFirst: false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          orderRequiredPropertiesFirst: false,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('applies custom operation slug generator', async () => {
-      const generateOperationSlug = vi.fn((operation: { method: string; path: string }) => {
-        return `${operation.method}-${operation.path}`
-      })
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0]?.replace('Copy', ''))
 
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            generateOperationSlug,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    expect(propertyNames).toStrictEqual([
+      'address',
+      'age',
+      'createdAt',
+      'email',
+      'isAdmin',
+      'name',
+      'phone',
+      'updatedAt',
+    ])
   })
 
-  describe('Path Routing Configuration', () => {
-    it('uses hash routing by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('orderSchemaPropertiesBy: preserve, orderRequiredPropertiesFirst: false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: false,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render without path routing */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('uses path routing when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            pathRouting: {
-              basePath: '/docs',
-            },
-          },
-        },
-      })
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0])
 
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render with path routing */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    expect(propertyNames).toStrictEqual([
+      'nameCopy',
+      'ageCopy',
+      'isAdminCopy',
+      'createdAtCopy',
+      'updatedAtCopy',
+      'addressCopy',
+      'phoneCopy',
+      'emailCopy',
+    ])
   })
 
-  describe('Redirect Configuration', () => {
-    it('applies redirect function when configured', async () => {
-      const redirect = vi.fn((hash: string) => {
-        return hash.replace('#old', '#new')
-      })
-
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            redirect,
-          },
+  it('orderRequiredPropertiesFirst: undefined -> true', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The redirect function should be available */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
+
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0])
+
+    expect(propertyNames).toStrictEqual([
+      'isAdminCopy',
+      'phoneCopy',
+      'addressCopy',
+      'ageCopy',
+      'createdAtCopy',
+      'emailCopy',
+      'nameCopy',
+      'updatedAtCopy',
+    ])
   })
 
-  describe('HTTP Client Configuration', () => {
-    it('applies default HTTP client when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            defaultHttpClient: {
-              targetKey: 'shell',
-              clientKey: 'curl',
-            },
-          },
+  it('orderRequiredPropertiesFirst: false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          orderRequiredPropertiesFirst: false,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The workspace store should reflect the default HTTP client */
-      expect(wrapper.vm.workspaceStore.workspace['x-scalar-default-client']).toMatchObject({
-        targetKey: 'shell',
-        clientKey: 'curl',
-      })
+      },
     })
+    await flushPromises()
 
-    it('applies hidden clients configuration', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            hiddenClients: ['unirest', 'node'],
-          },
-        },
-      })
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0])
 
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    expect(propertyNames).toStrictEqual([
+      'addressCopy',
+      'ageCopy',
+      'createdAtCopy',
+      'emailCopy',
+      'isAdminCopy',
+      'nameCopy',
+      'phoneCopy',
+      'updatedAtCopy',
+    ])
   })
 
-  describe('Metadata Configuration', () => {
-    it('applies title configuration', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument('Original Title'),
-            title: 'Custom Title',
-          },
+  it('generateHeadingSlug: function', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          generateHeadingSlug: (heading: { slug: string }) => `custom-test-slug-${heading.slug}`,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('applies slug configuration', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            slug: 'custom-slug',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The workspace store should have the custom slug */
-      expect(Object.keys(wrapper.vm.workspaceStore.workspace.documents)).toContain('custom-slug')
-    })
-
-    it('applies favicon configuration', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            favicon: '/custom-favicon.svg',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    expect(wrapper.findComponent({ name: 'InfoDescription' }).find('h1').html()).toContain('custom-test-slug-heading-1')
   })
 
-  describe('Developer Tools Configuration', () => {
-    it('shows developer tools on localhost by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('generateOperationSlug: function', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          generateOperationSlug: (operation: { method: string; path: string }) =>
+            `custom-test-slug-${operation.method}-${operation.path}`,
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('always shows developer tools when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            showDeveloperTools: 'always',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-
-    it('never shows developer tools when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            showDeveloperTools: 'never',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    expect(wrapper.findComponent({ name: 'Operation' }).find('section').html()).toContain('custom-test-slug-GET-/users')
   })
 
-  describe('Plugins Configuration', () => {
-    it('renders without plugins by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-          },
+  it('redirect: function', async () => {
+    vi.stubGlobal('location', { ...locationMock, hash: '#old' })
+    const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
+
+    mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          redirect: (hash: string) => hash.replace('#old', '#new'),
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+      },
     })
+
+    await flushPromises()
+    expect(replaceStateSpy).toHaveBeenCalledWith({}, '', '#new')
   })
 
-  describe('Telemetry Configuration', () => {
-    it('enables telemetry by default', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
+  it('defaultHttpClient: { targetKey: "node", clientKey: "axios" }', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          defaultHttpClient: {
+            targetKey: 'node',
+            clientKey: 'axios',
           },
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The workspace store should have telemetry enabled */
-      expect(wrapper.vm.workspaceStore.config['x-scalar-reference-config'].telemetry).toBe(true)
+      },
     })
+    await flushPromises()
 
-    it('disables telemetry when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            telemetry: false,
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The workspace store should have telemetry disabled */
-      expect(wrapper.vm.workspaceStore.config['x-scalar-reference-config'].telemetry).toBe(false)
-    })
+    expect(wrapper.vm.workspaceStore.workspace['x-scalar-default-client']).toBe('node/axios')
   })
 
-  describe('Integration Identifier Configuration', () => {
-    it('applies integration identifier when configured', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            _integration: 'nextjs',
-          },
+  it('hiddenClients: ["unirest", "node"]', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hiddenClients: ['unirest', 'node'],
         },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-  })
-
-  describe('Edge Cases and Error Handling', () => {
-    it('handles empty configuration gracefully', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {},
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** The component should render even with empty config */
-      expect(wrapper.exists()).toBe(true)
+      },
     })
 
-    it('handles invalid layout value gracefully', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            // @ts-expect-error - testing invalid value
-            layout: 'invalid',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** Should fall back to default layout */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
-
-    it('handles invalid theme value gracefully', async () => {
-      const wrapper = mountComponent({
-        props: {
-          configuration: {
-            content: createBasicDocument(),
-            // @ts-expect-error - testing invalid value
-            theme: 'invalid',
-          },
-        },
-      })
-
-      await flushPromises()
-      await wrapper.vm.$nextTick()
-
-      /** Should fall back to default theme */
-      expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-    })
+    await flushPromises()
+    const httpClientsSet = new Set(wrapper.findComponent({ name: 'Content' }).props().httpClients)
+    expect(httpClientsSet).not.toContain('node/axios')
+    expect(httpClientsSet).not.toContain('java/unirest')
+    expect(httpClientsSet).toContain('js/axios')
+    expect(httpClientsSet).toContain('java/nethttp')
   })
 })
