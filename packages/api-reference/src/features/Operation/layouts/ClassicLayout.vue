@@ -194,7 +194,6 @@ const { copyToClipboard } = useClipboard()
           <Callbacks
             :callbacks="operation.callbacks"
             :eventBus
-            :method
             :options
             :path />
         </div>

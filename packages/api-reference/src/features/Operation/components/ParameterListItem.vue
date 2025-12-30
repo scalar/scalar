@@ -17,6 +17,7 @@ import type {
 import { computed, ref } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -26,12 +27,12 @@ const { name, parameter, options } = defineProps<{
   name: string
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  options: {
-    expandAllResponses: boolean | undefined
-    withExamples?: boolean
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    | 'expandAllResponses'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+  >
 }>()
 
 /** Responses and params may both have a schema */
@@ -166,12 +167,7 @@ const shouldCollapse = computed<boolean>(() =>
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           }"
           :required="'required' in parameter && parameter.required"
-          :schema="value"
-          :withExamples="
-            typeof options.withExamples === 'boolean'
-              ? options.withExamples
-              : true
-          " />
+          :schema="value" />
       </DisclosurePanel>
     </Disclosure>
   </li>

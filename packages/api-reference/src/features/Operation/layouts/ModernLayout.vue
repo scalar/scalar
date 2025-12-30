@@ -155,7 +155,6 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :callbacks="operation.callbacks"
                 class="mt-6"
                 :eventBus
-                :method
                 :options
                 :path />
             </ScalarErrorBoundary>

@@ -11,7 +11,6 @@ const { parameters } = defineProps<{
   eventBus: WorkspaceEventBus | null
   options: {
     expandAllResponses: boolean | undefined
-    withExamples?: boolean
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }

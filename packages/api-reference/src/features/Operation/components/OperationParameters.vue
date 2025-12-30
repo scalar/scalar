@@ -7,6 +7,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { OperationProps } from '@/features/Operation/Operation.vue'
+
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
@@ -15,10 +17,10 @@ const { parameters = [], requestBody } = defineProps<{
   parameters?: ParameterObject[]
   requestBody?: RequestBodyObject | undefined
   eventBus: WorkspaceEventBus | null
-  options: {
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 
 /** Use a single loop to reduce parameters by type(in) */
