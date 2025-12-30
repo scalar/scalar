@@ -180,7 +180,7 @@ describe('ParameterList', () => {
   it('passes options prop to ParameterListItem', () => {
     const parameters = [createParameter('param1')]
     const customOptions = {
-      collapsableItems: false,
+      expandAllResponses: false,
       withExamples: false,
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,

@@ -23,7 +23,7 @@ const mountOperationWithConfig = (
     method?: string
     pathValue?: any
     server?: any
-    config?: Partial<ExtractComponentProps<typeof Operation>['config']>
+    options?: Partial<ExtractComponentProps<typeof Operation>['options']>
     document?: any
   } = {},
 ) => {
@@ -55,13 +55,13 @@ const mountOperationWithConfig = (
     expandAllResponses: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha',
-    ...overrides.config,
+    ...overrides.options,
   })
 
   const props: ExtractComponentProps<typeof Operation> = {
     id: 'test-operation',
     method: (overrides.method || 'get') as any,
-    config: defaultConfig,
+    options: defaultConfig,
     document: overrides.document || defaultDocument,
     path: overrides.path || '/users/{userId}',
     pathValue: overrides.pathValue !== undefined ? overrides.pathValue : defaultDocument.paths?.['/users/{userId}'],
@@ -417,7 +417,7 @@ describe('Operation', () => {
       method: 'get',
       pathValue: document.paths?.['/users/{userId}'],
       server: null,
-      config: {
+      options: {
         layout: 'classic',
       },
     })
@@ -500,7 +500,7 @@ describe('Operation', () => {
       method: 'get',
       pathValue: documentWithResponses.paths?.['/users/{userId}'],
       server: null,
-      config: {
+      options: {
         layout: 'modern',
         expandAllResponses: true,
       },
@@ -569,7 +569,7 @@ describe('Operation', () => {
   describe('showOperationId', () => {
     describe('ModernLayout', () => {
       it('shows operationId when showOperationId is true', () => {
-        const wrapper = mountOperationWithConfig({ config: { showOperationId: true } })
+        const wrapper = mountOperationWithConfig({ options: { showOperationId: true } })
         const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
 
         expect(modernLayout.html()).toContain('getUserById')
@@ -585,14 +585,14 @@ describe('Operation', () => {
 
     describe('ClassicLayout', () => {
       it('shows operationId when showOperationId is true', () => {
-        const wrapper = mountOperationWithConfig({ config: { showOperationId: true, layout: 'classic' } })
+        const wrapper = mountOperationWithConfig({ options: { showOperationId: true, layout: 'classic' } })
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.html()).toContain('getUserById')
       })
 
       it('does not show operationId by default', () => {
-        const wrapper = mountOperationWithConfig({ config: { layout: 'classic' } })
+        const wrapper = mountOperationWithConfig({ options: { layout: 'classic' } })
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.html()).not.toContain('getUserById')

@@ -4,6 +4,9 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
+
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
 
@@ -11,18 +14,23 @@ const {
   path,
   method: operationMethod,
   callbacks,
+  options: optionsProp,
 } = defineProps<{
   path: string
   method: HttpMethod
   callbacks: CallbackObject
   eventBus: WorkspaceEventBus | null
-  options: {
-    collapsableItems?: boolean
-    withExamples?: boolean
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    'withExamples' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
+
+/** Memoize the options so we can change one property */
+const options = computed(() => ({
+  ...optionsProp,
+  expandAllResponses: false,
+}))
 </script>
 
 <template>

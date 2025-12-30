@@ -8,7 +8,7 @@ export type OperationProps = {
   id: string
   method: HttpMethod
   /** The subset of the configuration object required for the operation component */
-  config: Pick<
+  options: Pick<
     ApiReferenceConfigurationRaw,
     | 'expandAllResponses'
     | 'hideTestRequestButton'
@@ -59,7 +59,7 @@ import ModernLayout from './layouts/ModernLayout.vue'
 const {
   server,
   pathValue,
-  config,
+  options,
   isWebhook,
   isCollapsed,
   eventBus,
@@ -108,15 +108,15 @@ const selectedSecuritySchemes = computed(() =>
 <template>
   <template v-if="operation">
     <ClassicLayout
-      v-if="config.layout === 'classic'"
+      v-if="options.layout === 'classic'"
       :id
       :clientOptions
-      :config
       :eventBus
       :isCollapsed
       :isWebhook
       :method
       :operation
+      :options
       :path
       :selectedClient
       :selectedSecuritySchemes
@@ -125,11 +125,11 @@ const selectedSecuritySchemes = computed(() =>
       v-else
       :id
       :clientOptions
-      :config
       :eventBus
       :isWebhook
       :method
       :operation
+      :options
       :path
       :selectedClient
       :selectedSecuritySchemes

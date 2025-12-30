@@ -3,17 +3,20 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import type { OperationProps } from '@/features/Operation/Operation.vue'
+
 import ParameterListItem from './ParameterListItem.vue'
 
 const { responses } = defineProps<{
   responses: OperationObject['responses']
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  options: {
-    expandAllResponses: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    | 'expandAllResponses'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+  >
 }>()
 </script>
 <template>
@@ -27,10 +30,10 @@ const { responses } = defineProps<{
       <ParameterListItem
         v-for="(response, status) in responses"
         :key="status"
-        :breadcrumb="breadcrumb"
-        :eventBus="eventBus"
+        :breadcrumb
+        :eventBus
         :name="status"
-        :options="options"
+        :options
         :parameter="getResolvedRef(response)" />
     </ul>
   </div>

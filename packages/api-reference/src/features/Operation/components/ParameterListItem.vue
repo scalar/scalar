@@ -86,7 +86,7 @@ const value = computed(() => {
 
 /**
  * Determines whether this parameter item should be rendered as a collapsible disclosure.
- * Only collapses when collapsableItems is enabled and the parameter has additional
+ * Only collapses when expandAllResponses is disabled and the parameter has additional
  * content to display (content types, headers, or schema details).
  */
 const shouldCollapse = computed<boolean>(() =>

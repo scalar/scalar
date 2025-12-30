@@ -41,11 +41,11 @@ import { XBadges } from '@/features/x-badges'
 
 const {
   clientOptions,
-  config,
   eventBus,
   isWebhook,
   method,
   operation,
+  options,
   path,
   selectedServer,
   selectedSecuritySchemes,
@@ -80,7 +80,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
         <!-- Left -->
         <div class="flex gap-1">
           <!-- Operation ID -->
-          <Badge v-if="config?.showOperationId && operation.operationId">
+          <Badge v-if="options?.showOperationId && operation.operationId">
             {{ operation.operationId }}
           </Badge>
           <!-- Stability badge -->
@@ -135,8 +135,8 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
               withImages />
             <OperationParameters
               :breadcrumb="[id]"
-              :eventBus="eventBus"
-              :options="config"
+              :eventBus
+              :options
               :parameters="
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
@@ -144,8 +144,8 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
               :breadcrumb="[id]"
-              :eventBus="eventBus"
-              :options="config"
+              :eventBus
+              :options
               :responses="operation.responses" />
 
             <!-- Callbacks -->
@@ -156,7 +156,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 class="mt-6"
                 :eventBus
                 :method
-                :options="config"
+                :options
                 :path />
             </ScalarErrorBoundary>
           </div>
@@ -191,7 +191,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                   v-if="!isWebhook"
                   #footer>
                   <TestRequestButton
-                    v-if="!config.hideTestRequestButton"
+                    v-if="!options.hideTestRequestButton"
                     :id
                     :eventBus
                     :method
