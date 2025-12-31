@@ -351,6 +351,16 @@ class TestGetScalarApiReference:
         # The new implementation uses json.dumps(config, indent=2) which produces formatted JSON
         # We should check for the actual JSON structure, not the Python code
         assert '"url": "/openapi.json"' in html_content
+    
+    def test_developer_tools_visibility(self):
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            show_developer_tools="never"
+        )
+        html_content = response.body.decode()
+        assert '"showDeveloperTools": "never"' in html_content
+
 
 
 class TestFastAPIIntegration:
