@@ -698,6 +698,12 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
 const handleSelectItem = (id: string) => {
   const item = sidebarState.getEntryById(id)
 
+  if (mergedConfig.value?.generateWindowTabTitle && item?.title) {
+    document.title = mergedConfig.value.generateWindowTabTitle({
+      title: item.title,
+    })
+  }
+
   if (
     (item?.type === 'tag' || item?.type === 'models') &&
     sidebarState.isExpanded(id)
