@@ -255,6 +255,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       output: z.string(),
     })
     .optional(),
+  generateWindowTabTitle: z
+    .function({
+      input: [z.object({ title: z.string() })],
+      output: z.string(),
+    })
+    .optional(),
   /**
    * To handle redirects, pass a function that will receive:
    * - The current path with hash if pathRouting is enabled
