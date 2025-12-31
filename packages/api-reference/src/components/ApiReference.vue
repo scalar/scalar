@@ -742,6 +742,12 @@ eventBus.on('ui:download:document', async ({ format }) => {
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
+  if (mergedConfig.value?.generateWindowTabTitle && item?.title) {
+    document.title = mergedConfig.value.generateWindowTabTitle({
+      title: item.title,
+    })
+  }
+
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
