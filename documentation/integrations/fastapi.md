@@ -155,6 +155,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `integration` (default `None`)
 - `theme` (default `Theme.DEFAULT`)
 - `overrides` (default `{}`) - Specific overrides directly to the `config` dictionary which is passed as `Scalar.createApiReference("#app", {json.dumps(config)})`
+- `telemetry` (default `True`) - Enable or disable api client usage telemetry. Options: `True`, `False`
 
 ### Layout
 
