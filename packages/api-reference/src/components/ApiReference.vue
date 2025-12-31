@@ -883,7 +883,6 @@ const colorMode = computed(() => {
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :config="mergedConfig"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus
@@ -897,6 +896,7 @@ const colorMode = computed(() => {
           "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"
+          :options="mergedConfig"
           :xScalarDefaultClient="
             workspaceStore.workspace['x-scalar-default-client']
           ">

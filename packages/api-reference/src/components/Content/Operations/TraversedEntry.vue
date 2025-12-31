@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -32,12 +32,20 @@ const {
   level?: number
   /** Traversed entries to render */
   entries: TraversedEntry[]
-  /** The configuration object */
-  config: ApiReferenceConfiguration
   /** The document object */
   document: WorkspaceDocument
   /** The http client options for the dropdown */
   clientOptions: ClientOptionGroup[]
+  /** The subset of the configuration object required for the operation component */
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'expandAllResponses'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'showOperationId'
+  >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
   /** Currently selected http client for the document */
@@ -87,7 +95,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   <Lazy
     v-for="entry in entries"
     :id="entry.id"
-    :key="`${entry.id}-${config.layout}`">
+    :key="`${entry.id}-${options.layout}`">
     <!-- Operation or Webhook -->
     <SectionContainer
       v-if="isOperation(entry) || isWebhook(entry)"
@@ -95,12 +103,12 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       <Operation
         :id="entry.id"
         :clientOptions
-        :config
         :document
         :eventBus
         :isCollapsed="!expandedItems[entry.id]"
         :isWebhook="isWebhook(entry)"
         :method="entry.method"
+        :options
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
         :selectedClient
@@ -113,18 +121,18 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :isLoading="false"
-      :layout="config.layout"
+      :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
           :clientOptions
-          :config
           :document
           :entries="entry.children"
           :eventBus
           :expandedItems
           :level="level + 1"
+          :options
           :selectedClient
           :selectedServer>
         </TraversedEntry>
@@ -135,12 +143,12 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
       :clientOptions
-      :config
       :document
       :entries="entry.children || []"
       :eventBus
       :expandedItems
       :level="level + 1"
+      :options
       :selectedClient
       :selectedServer>
     </TraversedEntry>
@@ -151,15 +159,15 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :id="entry.id"
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
-      :layout="config.layout">
+      :layout="options.layout">
       <TraversedEntry
         :clientOptions
-        :config
         :document
         :entries="entry.children || []"
         :eventBus
         :expandedItems="expandedItems"
         :level="level + 1"
+        :options
         :selectedClient
         :selectedServer>
       </TraversedEntry>
@@ -168,10 +176,10 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <Model
       v-else-if="isModel(entry) && document.components?.schemas?.[entry.name]"
       :id="entry.id"
-      :config
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
+      :options
       :schema="getResolvedRef(document.components.schemas[entry.name])">
     </Model>
   </Lazy>

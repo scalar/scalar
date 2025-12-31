@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -14,10 +15,10 @@ const { eventBus, id } = defineProps<{
   schema: SchemaObject
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
-  options: {
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 </script>
 <template>
@@ -49,20 +50,14 @@ const { eventBus, id } = defineProps<{
         :key="property"
         :eventBus="eventBus"
         :name="property"
-        :options="{
-          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        }"
+        :options
         :required="schema.required?.includes(property)"
         :schema="getResolvedRef(value)" />
     </div>
     <div v-else>
       <SchemaProperty
         :eventBus="eventBus"
-        :options="{
-          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        }"
+        :options
         :schema="schema" />
     </div>
   </SectionAccordion>

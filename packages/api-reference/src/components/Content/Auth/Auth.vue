@@ -12,8 +12,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed, watch } from 'vue'
 
-const { document, environment, eventBus, config } = defineProps<{
-  config: ApiReferenceConfigurationRaw
+const { document, environment, eventBus, options } = defineProps<{
+  options: Pick<ApiReferenceConfigurationRaw, 'persistAuth' | 'proxyUrl'>
   document: WorkspaceDocument | undefined
   eventBus: WorkspaceEventBus
   selectedServer: ServerObject | null
@@ -66,8 +66,8 @@ watch(
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
-    :persistAuth="config.persistAuth"
-    :proxyUrl="config.proxyUrl ?? ''"
+    :persistAuth="options.persistAuth"
+    :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements
     :securitySchemes="document?.components?.securitySchemes ?? {}"
     :selectedSecurity

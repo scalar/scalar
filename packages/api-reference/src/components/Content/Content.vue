@@ -26,10 +26,21 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, httpClients, items, environment, eventBus, config } =
+const { document, httpClients, items, environment, eventBus, options } =
   defineProps<{
     infoSectionId: string
-    config: ApiReferenceConfigurationRaw
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'expandAllResponses'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'showOperationId'
+    >
     document: WorkspaceDocument | undefined
     httpClients: AvailableClients
     xScalarDefaultClient: Workspace['x-scalar-default-client']
@@ -69,7 +80,7 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
         :headingSlugGenerator
         :info="document?.info"
         :infoExtensions
-        :layout="config.layout"
+        :layout="options.layout"
         :oasVersion="document?.['x-original-oas-version']">
         <template #selectors>
           <!-- Server Selector -->
@@ -90,10 +101,10 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
-                :config
                 :document
                 :environment
                 :eventBus
+                :options
                 :selectedServer />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
@@ -126,18 +137,18 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
     <TraversedEntry
       v-if="items.length && document"
       :clientOptions
-      :config
       :document
       :entries="items"
       :eventBus
       :expandedItems
+      :options
       :selectedClient="xScalarDefaultClient"
       :selectedServer>
     </TraversedEntry>
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
-      :options="config"
+      :options
       viewName="content.end" />
 
     <slot name="end" />
