@@ -135,7 +135,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "example": 1700006400
+              "example": 1767139200
             }
           }
         ],
