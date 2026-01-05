@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-
 import { createExpectChain } from './create-expect-chain'
 
 describe('createExpectChain', () => {

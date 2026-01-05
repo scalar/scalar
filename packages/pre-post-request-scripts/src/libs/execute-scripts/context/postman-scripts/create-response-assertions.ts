@@ -1,5 +1,4 @@
 import type { SynchronousResponse } from '@/types'
-
 import { validateJsonSchema } from './validate-json-schema'
 
 interface HeaderAssertions {
