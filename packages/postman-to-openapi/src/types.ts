@@ -7,7 +7,7 @@ export type PostmanCollection = {
   protocolProfileBehavior?: ProtocolProfileBehavior
 }
 
-export type Info = {
+type Info = {
   name: string
   _postman_id?: string
   description?: Description
@@ -15,7 +15,7 @@ export type Info = {
   schema: string
 }
 
-export type Description =
+type Description =
   | string
   | {
       content?: string
@@ -23,7 +23,7 @@ export type Description =
       version?: string | number
     }
 
-export type Version =
+type Version =
   | string
   | {
       major: number
@@ -56,14 +56,14 @@ export type ItemGroup = {
   variables?: Variable[]
 }
 
-export type Event = {
+type Event = {
   id?: string
   listen: string
   script: Script
   disabled?: boolean
 }
 
-export type Script = {
+type Script = {
   id?: string
   type?: string
   exec?: string[] | string
@@ -71,7 +71,7 @@ export type Script = {
   name?: string
 }
 
-export type Url =
+type Url =
   | string
   | {
       raw?: string
@@ -84,7 +84,7 @@ export type Url =
       variable?: Variable[]
     }
 
-export type QueryParam = {
+type QueryParam = {
   key: string | null
   value: string | null
   disabled?: boolean
@@ -114,7 +114,7 @@ export type Auth = {
   oauth2?: AuthAttribute[]
 }
 
-export type AuthAttribute = {
+type AuthAttribute = {
   key: string
   value?: string | number | boolean
   type?: string
@@ -133,7 +133,7 @@ export type Request =
       body?: RequestBody | null
     }
 
-export type ProxyConfig = {
+type ProxyConfig = {
   match?: string
   host?: string
   port?: number
@@ -141,7 +141,7 @@ export type ProxyConfig = {
   disabled?: boolean
 }
 
-export type Certificate = {
+type Certificate = {
   name?: string
   matches?: string[]
   key?: { src?: string }
@@ -213,7 +213,7 @@ export type Response = {
   code?: number
 }
 
-export type Cookie = {
+type Cookie = {
   domain: string
   expires?: string | null
   maxAge?: string
@@ -230,12 +230,6 @@ export type Cookie = {
   }>
 }
 
-export type ParsedUrl = {
-  protocol: string
-  hostname: string
-  port: string
-}
-
 export type TableCell = {
   [key: string]: string
 }
@@ -244,6 +238,6 @@ export type TableObject = {
   [key: string]: TableCell
 }
 
-export type ProtocolProfileBehavior = {
+type ProtocolProfileBehavior = {
   // This is left as an empty object as per the schema
 }
