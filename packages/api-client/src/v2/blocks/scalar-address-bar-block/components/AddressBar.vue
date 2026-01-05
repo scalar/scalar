@@ -180,7 +180,7 @@ const copyUrl = async () => {
   copyUrlLoading.start()
   const environmentVariables = getEnvironmentVariables(environment)
   const serverUrl = getServerUrl(server, environmentVariables)
-  await navigator.clipboard.writeText(`${serverUrl}${path}`)
+  await navigator?.clipboard?.writeText(`${serverUrl}${path}`)
   await copyUrlLoading.validate()
 }
 
