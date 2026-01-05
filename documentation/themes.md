@@ -2,10 +2,24 @@
 
 You don't like the color scheme? We've prepared some themes for you:
 
-```vue
-/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' |
-'bluePlanet' | 'saturn' | 'kepler' | 'mars' | 'deepSpace' | 'laserwave' | 'none' */
-<ApiReference :configuration="{ theme: 'moon' }" />
+* `alternate`
+* `default`
+* `moon`
+* `purple`
+* `solarized`
+* `bluePlanet`
+* `saturn`
+* `kepler`
+* `mars`
+* `deepSpace`
+* `laserwave`
+
+Just pass the theme name to your [Scalar API Reference configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration):
+
+```js
+{
+  theme: 'moon'
+}
 ```
 
 > [!NOTE]
