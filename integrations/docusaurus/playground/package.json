@@ -43,7 +43,6 @@
   "dependencies": {
     "@docusaurus/core": "^3.7.0",
     "@docusaurus/preset-classic": "^3.7.0",
-    "@docusaurus/theme-classic": "^3.7.0",
     "@mdx-js/react": "^3.0.0",
     "@scalar/docusaurus": "workspace:*",
     "clsx": "^2.0.0",
@@ -52,6 +51,7 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.7.0",
+    "@docusaurus/plugin-content-docs": "^3.7.0",
     "@docusaurus/tsconfig": "^3.7.0",
     "@docusaurus/types": "^3.7.0",
     "@types/react": "catalog:*"
