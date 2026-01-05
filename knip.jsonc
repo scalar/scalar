@@ -76,8 +76,7 @@
         "src/**/*.test.ts"
       ],
       "ignoreDependencies": [
-        "@headlessui/tailwindcss", // Used by src/styles.css
-        "@storybook/blocks" // Used by src/docs max files
+        "@headlessui/tailwindcss" // Used by src/styles.css
       ],
       "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
     },
