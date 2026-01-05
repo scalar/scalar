@@ -1,17 +1,13 @@
 pre-commit:
   commands:
-    package-format:
+    packages-format:
       glob: 'pnpm-lock.yaml'
-      run: pnpm script packages format; git add \*package.json pnpm-lock.yaml; echo PACKAGE FILES FORMATTED
-    biome-format:
-      glob: '*'
-      run: 'pnpm biome format --write && git add {staged_files}'
+      run: pnpm script packages format; git add \*package.json pnpm-lock.yaml;
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
-      run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
-    lint:
-      glob: '*'
-      run: 'pnpm biome lint --diagnostic-level=error --fix'
-    # lint-vue:
-    #   glob: '*.{vue}'
-    #   run: 'pnpm eslint {staged_files} --fix && git add {staged_files}'
+      run: 'pnpm prettier --write {staged_files}'
+      stage_fixed: true
+    biome:
+      glob: '*.{js,ts,cjs,mjs,d.ts,d.cts,d.mts,jsx,tsx,json,jsonc,vue,svelte,astro}'
+      run: pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
