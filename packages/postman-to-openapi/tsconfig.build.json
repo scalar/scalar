@@ -1,12 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": ["dist", "test", "**/*.test.ts"],
+  "exclude": ["test", "esbuild.ts", "**/*.test.ts"],
   "compilerOptions": {
-    "outDir": "dist/",
+    "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": false,
-    "skipLibCheck": true
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "dist/"
   }
 }

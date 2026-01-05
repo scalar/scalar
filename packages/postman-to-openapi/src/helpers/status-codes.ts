@@ -1,4 +1,4 @@
-import type { Item } from '../types'
+import type { Item } from '@/types'
 
 /**
  * Extracts expected status codes from the test scripts of a Postman item.

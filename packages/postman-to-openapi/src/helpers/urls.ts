@@ -1,6 +1,6 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 
-import type { ParsedUrl } from '../types'
+import type { ParsedUrl } from '@/types'
 
 /**
  * Parses a URL string into its component parts.
@@ -62,4 +62,36 @@ export function extractPathParameterNames(path: string): string[] {
   }
 
   return Array.from(params)
+}
+
+/**
+ * Extracts the server URL from a request URL string.
+ * Handles URLs with or without protocol, with ports, etc.
+ * Returns undefined if no valid server URL can be extracted.
+ */
+export function extractServerFromUrl(url: string | undefined): string | undefined {
+  if (!url) {
+    return undefined
+  }
+
+  try {
+    // Check if URL has a protocol
+    const protocolMatch = url.match(/^(https?:\/\/)/i)
+    const protocol = protocolMatch ? protocolMatch[1] : null
+
+    // Extract domain from URL
+    const urlMatch = url.match(/^(?:https?:\/\/)?([^/?#]+)/i)
+    if (!urlMatch?.[1]) {
+      return undefined
+    }
+
+    const hostPart = urlMatch[1]
+    // Preserve the original protocol if present, otherwise default to https
+    const serverUrl = protocol ? `${protocol}${hostPart}`.replace(/\/$/, '') : `https://${hostPart}`.replace(/\/$/, '')
+
+    return serverUrl
+  } catch (error) {
+    console.error(`Error extracting server from URL "${url}":`, error)
+    return undefined
+  }
 }
