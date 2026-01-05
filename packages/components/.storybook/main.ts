@@ -1,6 +1,11 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
+
+import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 
 import type { StorybookConfig } from '@storybook/vue3-vite'
+
+const require = createRequire(import.meta.url)
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -11,18 +16,16 @@ function getAbsolutePath(value: string): any {
 }
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.ts'],
+
   addons: [
-    getAbsolutePath('storybook-dark-mode'),
     getAbsolutePath('@storybook/addon-links'),
-    getAbsolutePath('@storybook/addon-essentials'),
-    getAbsolutePath('@storybook/addon-interactions'),
+    getAbsolutePath('@storybook/addon-docs'),
+    getAbsolutePath('@vueless/storybook-dark-mode'),
   ],
+
   framework: {
     name: getAbsolutePath('@storybook/vue3-vite'),
     options: {},
-  },
-  docs: {
-    autodocs: 'tag',
   },
 }
 export default config

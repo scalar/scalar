@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import type {
-  ScalarMenuButtonProps,
-  ScalarMenuButtonSlots,
-} from '@/components/ScalarMenu/types'
 import { ScalarIconCaretDown } from '@scalar/icons'
 
 import { ScalarHeaderButton } from '../ScalarHeader'
 import { ScalarIcon } from '../ScalarIcon'
+import type { ScalarMenuButtonProps, ScalarMenuButtonSlots } from './types'
 
 defineProps<ScalarMenuButtonProps>()
 

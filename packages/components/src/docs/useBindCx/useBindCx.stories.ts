@@ -1,4 +1,4 @@
-import type { Args, Meta, StoryObj } from '@storybook/vue3'
+import type { Args, Meta, StoryObj } from '@storybook/vue3-vite'
 import { type Component, computed, ref, watch } from 'vue'
 
 import { ComplexComponent, SimpleComponent } from './MockComponents'

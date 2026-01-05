@@ -1,7 +1,6 @@
 import type { VariantProps } from 'cva'
 
-import type { Icon, Logo } from '@/components/ScalarIcon/utils'
-
+import type { Icon, Logo } from './utils'
 import type { variants } from './variants'
 
 /**
