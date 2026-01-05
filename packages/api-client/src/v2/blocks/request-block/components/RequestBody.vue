@@ -83,7 +83,7 @@ const selectedContentType = computed(
   () =>
     requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
     Object.keys(requestBody?.content ?? {})[0] ??
-    'other',
+    'none',
 )
 
 watch(
@@ -174,7 +174,10 @@ const tableRows = computed(() => {
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
             fullWidth
             variant="ghost">
-            <span>{{ selectedContentType }}</span>
+            <span>{{
+              contentTypes[selectedContentType as keyof typeof contentTypes] ??
+              selectedContentType
+            }}</span>
             <ScalarIcon
               icon="ChevronDown"
               size="md" />
