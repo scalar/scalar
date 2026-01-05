@@ -479,7 +479,6 @@
                       "path": "documentation/integrations/aide.md",
                       "type": "page"
                     }
-
                   ]
                 },
                 {
@@ -579,13 +578,16 @@
     "cssFiles": ["documentation/assets/styles.css"],
     "footer": "",
     "routing": {
-      "redirects": [{
-        "from": "/scalar/scalar-registry/github-workflows",
-        "to": "/scalar/scalar-registry/github-actions"
-      }, {
-        "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
-        "to": "/scalar/scalar-docs/github-actions"
-      }]
+      "redirects": [
+        {
+          "from": "/scalar/scalar-registry/github-workflows",
+          "to": "/scalar/scalar-registry/github-actions"
+        },
+        {
+          "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
+          "to": "/scalar/scalar-docs/github-actions"
+        }
+      ]
     }
   }
 }
