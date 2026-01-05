@@ -5,7 +5,7 @@ import type { MaybeRef } from 'vue'
 export type Timer = ReturnType<typeof setTimeout>
 
 /** Might be an element or undefined */
-export type MaybeElement = Element | undefined | null
+type MaybeElement = Element | undefined | null
 
 export type ScalarTooltipPlacement = FloatingPlacement | undefined
 

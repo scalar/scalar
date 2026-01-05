@@ -206,20 +206,20 @@ const { cx } = useBindCx()
         v-bind="cx('max-h-[inherit] max-w-[inherit]')">
         <template #menu>
           <div
-            class="flex flex-col p-0.75 outline-none"
-            ref="menuRef"
-            role="menu"
             :id="menuId"
+            ref="menuRef"
             :aria-activedescendant="active"
             :aria-labelledby="targetId"
+            class="flex flex-col p-0.75 outline-none"
+            role="menu"
+            tabindex="-1"
             @click.stop="handleClose"
-            @keydown.enter.prevent.stop="handleSelected"
-            @keydown.space.prevent.stop="handleSelected"
-            @keydown.escape.prevent.stop="handleClose"
-            @keydown.tab.prevent.stop="handleClose"
             @keydown.down.prevent.stop="moveActive(1)"
-            @keydown.up.prevent.stop="moveActive(-1)"
-            tabindex="-1">
+            @keydown.enter.prevent.stop="handleSelected"
+            @keydown.escape.prevent.stop="handleClose"
+            @keydown.space.prevent.stop="handleSelected"
+            @keydown.tab.prevent.stop="handleClose"
+            @keydown.up.prevent.stop="moveActive(-1)">
             <slot
               name="items"
               :open />

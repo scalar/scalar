@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import ScalarIconLegacyAdapter from './ScalarIconLegacyAdapter.vue'
-import ScalarIcon from './ScalarIcon.vue'
 import { ScalarIconPlus } from '@scalar/icons'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import { markRaw } from 'vue'
+
+import ScalarIcon from './ScalarIcon.vue'
+import ScalarIconLegacyAdapter from './ScalarIconLegacyAdapter.vue'
 
 describe('ScalarIconLegacyAdapter', () => {
   describe('legacy string-based icons', () => {

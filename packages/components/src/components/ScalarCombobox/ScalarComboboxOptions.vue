@@ -63,7 +63,7 @@ const groups = computed<G[]>(
 )
 
 const query = ref<string>('')
-const active = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
+const activeRef = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
 
 // Clear the query on open and close
 onMounted(() => {
@@ -71,7 +71,7 @@ onMounted(() => {
   query.value = ''
 
   // Set the active option to the selected option or the first option
-  active.value = model.value?.[0] ?? options.value[0]
+  activeRef.value = model.value?.[0] ?? options.value[0]
 
   // Scroll to the selected option
   const selected = model.value[0]
@@ -92,7 +92,7 @@ onMounted(() => {
 // Set the top option as active when searching
 watch(
   () => query.value,
-  () => (active.value = withAdd.value[0]),
+  () => (activeRef.value = withAdd.value[0]),
 )
 
 /** The filtered list of options */
@@ -141,7 +141,9 @@ function moveActive(dir: 1 | -1) {
   const list = withAdd.value
 
   // Find active index
-  const activeIdx = list.findIndex((option) => option.id === active.value?.id)
+  const activeIdx = list.findIndex(
+    (option) => option.id === activeRef.value?.id,
+  )
 
   // Calculate next index and exit if it's out of bounds
   const nextIdx = activeIdx + dir
@@ -150,14 +152,14 @@ function moveActive(dir: 1 | -1) {
     return
   }
 
-  active.value = list[nextIdx]! // We know it's in bounds from the check above
+  activeRef.value = list[nextIdx]! // We know it's in bounds from the check above
 
-  if (!active.value) {
+  if (!activeRef.value) {
     return
   }
 
   // Scroll to the active option
-  document?.getElementById(getOptionId(active.value))?.scrollIntoView({
+  document?.getElementById(getOptionId(activeRef.value))?.scrollIntoView({
     behavior: 'smooth',
     block: 'nearest',
   })
@@ -181,7 +183,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <input
       ref="input"
       v-model="query"
-      :aria-activedescendant="active ? getOptionId(active) : undefined"
+      :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
@@ -191,7 +193,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       tabindex="0"
       type="text"
       @keydown.down.prevent="moveActive(1)"
-      @keydown.enter.prevent="active && toggleSelected(active)"
+      @keydown.enter.prevent="activeRef && toggleSelected(activeRef)"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
@@ -227,11 +229,11 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
           v-if="group.options.some((o) => o.id === option.id)"
           :id="getOptionId(option)"
           v-slot="{ active, selected }"
-          :active="active?.id === option.id"
+          :active="activeRef?.id === option.id"
           :selected="model.some((o) => o.id === option.id)"
           @click="toggleSelected(option)"
           @mousedown.prevent
-          @mouseenter="active = option">
+          @mouseenter="activeRef = option">
           <slot
             v-if="$slots.option"
             :active
@@ -253,10 +255,10 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       v-if="slots.add"
       :id="getOptionId(addOption)"
       v-slot="{ active }"
-      :active="active?.id === addOption.id"
+      :active="activeRef?.id === addOption.id"
       @click="addNew"
       @mousedown.prevent
-      @mouseenter="active = addOption">
+      @mouseenter="activeRef = addOption">
       <ScalarIconPlus class="size-4 p-px" />
       <slot
         :active

@@ -1,6 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
-
 import * as icons from '@scalar/icons'
+import type { Meta, StoryObj } from '@storybook/vue3'
 
 const meta = {
   title: 'Playgrounds / Scalar Icons',

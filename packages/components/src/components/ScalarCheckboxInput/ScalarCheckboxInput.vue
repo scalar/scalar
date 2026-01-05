@@ -34,14 +34,14 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       stylingAttrsCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
     ">
     <ScalarCheckbox
+      class="shrink-0"
       :selected="model"
-      :type
-      class="shrink-0" />
+      :type />
     <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
     <input
-      :type
       v-model="model"
       class="sr-only"
+      :type
       v-bind="otherAttrs" />
   </ScalarFormInput>
 </template>

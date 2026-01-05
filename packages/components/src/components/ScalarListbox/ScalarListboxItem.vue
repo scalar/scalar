@@ -35,8 +35,8 @@ const variants = cva({
     :value="option">
     <li :class="cx(variants({ active, selected, disabled: option.disabled }))">
       <ScalarListboxCheckbox
-        :selected
-        :multiselect />
+        :multiselect
+        :selected />
       <span
         class="inline-block min-w-0 flex-1 truncate"
         :class="option.color ? option.color : 'text-c-1'">

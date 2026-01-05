@@ -1,4 +1,4 @@
-export type FileExtension = `.${string}`
+type FileExtension = `.${string}`
 
 export type ExtensionList = FileExtension[]
 
@@ -24,6 +24,7 @@ export type FileUploadInputProps = {
  */
 export type FileUploadInputEmits = {
   /** Emitted when the user clicks the browse button */
+  // biome-ignore lint/style/useShorthandFunctionType: other events might be added
   (e: 'click', event: MouseEvent): void
 }
 

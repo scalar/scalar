@@ -1,7 +1,7 @@
 /**
  * Options for the validate and invalidate methods
  */
-export type LoadingCompletionOptions = {
+type LoadingCompletionOptions = {
   /**
    * The duration of to wait before clearing the loading state in milliseconds
    *

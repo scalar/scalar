@@ -1,7 +1,8 @@
-import type { Timer, TooltipConfiguration } from './types'
 import { autoUpdate, flip, shift, useFloating } from '@floating-ui/vue'
 import { computed, ref, unref, watch } from 'vue'
-import { ELEMENT_ID, ELEMENT_CLASS, DEFAULT_DELAY, DEFAULT_OFFSET } from './constants'
+
+import { DEFAULT_DELAY, DEFAULT_OFFSET, ELEMENT_CLASS, ELEMENT_ID } from './constants'
+import type { Timer, TooltipConfiguration } from './types'
 
 // ---------------------------------------------------------------------------
 // State
@@ -95,7 +96,7 @@ watch(
  *
  * If the tooltip is already initialized it will be ignored
  */
-export function initializeTooltipElement() {
+function initializeTooltipElement(): void {
   if (typeof document === 'undefined' || typeof window === 'undefined') {
     // Skip tooltip initialization during SSR
     return
