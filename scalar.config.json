@@ -345,6 +345,11 @@
                   "type": "page"
                 },
                 {
+                  "name": "Effect",
+                  "path": "documentation/integrations/effect.md",
+                  "type": "page"
+                },
+                {
                   "name": "Elixir",
                   "path": "documentation/integrations/elixir.md",
                   "type": "page"
