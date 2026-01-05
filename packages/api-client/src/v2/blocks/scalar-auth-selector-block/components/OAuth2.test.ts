@@ -48,7 +48,7 @@ describe('OAuth2', () => {
         flows,
         type: (custom.type ?? 'authorizationCode') as any,
         selectedScopes: custom.selectedScopes ?? [],
-        server: custom.server,
+        server: custom.server ?? null,
         proxyUrl: custom.proxyUrl ?? '',
       },
     })
@@ -141,5 +141,38 @@ describe('OAuth2', () => {
 
     const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
     expect(emit).toEqual({ scopes: ['read'] })
+  })
+
+  it('defaults x-scalar-secret-redirect-uri to window.location.origin + window.location.pathname', async () => {
+    const originalOrigin = window.location.origin
+    const originalPathname = window.location.pathname
+
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+
+    const expectedRedirectUri = originalOrigin + originalPathname
+    const redirectUriEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
+
+    expect(redirectUriEmit).toEqual({
+      type: 'oauth2',
+      flows: {
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+        },
+      },
+    })
   })
 })

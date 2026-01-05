@@ -155,6 +155,9 @@ const valueModel = computed({
         disableTabIndent
         :enum="enumValue ?? []"
         :environment="environment"
+        :examples="
+          data.schema?.examples?.map((example) => String(example)) ?? []
+        "
         lineWrapping
         :max="maximumValue"
         :min="minimumValue"

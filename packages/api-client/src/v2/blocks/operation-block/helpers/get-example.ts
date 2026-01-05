@@ -53,15 +53,23 @@ export const getExample = (
     }
   }
 
-  // Fallback to default
+  // Derrive value from the schema
   const resolvedParam = getResolvedRefDeep(param)
-  if (
-    'schema' in resolvedParam &&
-    resolvedParam.schema &&
-    'default' in resolvedParam.schema &&
-    typeof resolvedParam.schema.default !== 'undefined'
-  ) {
-    return { value: resolvedParam.schema.default }
+  if ('schema' in resolvedParam && resolvedParam.schema) {
+    // Default value
+    if ('default' in resolvedParam.schema && typeof resolvedParam.schema.default !== 'undefined') {
+      return { value: resolvedParam.schema.default }
+    }
+
+    // Enum value
+    if ('enum' in resolvedParam.schema && resolvedParam.schema.enum?.[0]) {
+      return { value: resolvedParam.schema.enum[0] }
+    }
+
+    // Examples value
+    if ('examples' in resolvedParam.schema && resolvedParam.schema.examples?.[0]) {
+      return { value: resolvedParam.schema.examples[0] }
+    }
   }
 
   return undefined
