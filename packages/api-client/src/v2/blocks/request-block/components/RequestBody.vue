@@ -230,7 +230,7 @@ const tableRows = computed(() => {
                       }),
                     )
                 ">
-                <span>Upload File</span>
+                <span>Select File</span>
                 <ScalarIcon
                   class="ml-1"
                   icon="Upload"
@@ -280,15 +280,15 @@ const tableRows = computed(() => {
             @uploadFile="
               (index) =>
                 handleFileUpload((file) => {
-                  if (index !== undefined) {
+                  if (index !== undefined && index < tableRows.length) {
                     return emits('update:formRow', {
                       index,
-                      data: { value: file ?? undefined },
+                      data: { value: file },
                       contentType: selectedContentType,
                     })
                   }
                   emits('add:formRow', {
-                    data: { value: file ?? undefined },
+                    data: { key: file?.name ?? 'file', value: file },
                     contentType: selectedContentType,
                   })
                 })

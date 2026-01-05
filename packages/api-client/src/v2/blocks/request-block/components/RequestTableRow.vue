@@ -206,7 +206,7 @@ const valueModel = computed({
             size="sm"
             variant="outlined"
             @click="emits('uploadFile')">
-            <span>Upload File</span>
+            <span>Select File</span>
             <ScalarIcon
               class="ml-1"
               icon="Upload"
