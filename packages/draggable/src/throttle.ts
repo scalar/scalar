@@ -1,10 +1,13 @@
 /**
  * Simple throttle function to avoid package dependencies
  */
-export const throttle = (callback: (...args: any) => void, limit: number) => {
+export const throttle = <TArgs extends Array<unknown>>(
+  callback: (...args: TArgs) => void,
+  limit: number,
+): ((...args: TArgs) => void) => {
   let wait = false
 
-  return (...args: unknown[]) => {
+  return (...args) => {
     if (wait) {
       return
     }
