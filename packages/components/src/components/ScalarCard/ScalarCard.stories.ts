@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { ScalarCard, ScalarCardSection, ScalarCardFooter, ScalarCardHeader } from './index'
+import { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './index'
 
 const meta: Meta<typeof ScalarCard> = {
   component: ScalarCard,

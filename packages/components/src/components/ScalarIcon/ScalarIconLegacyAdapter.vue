@@ -37,8 +37,8 @@ const { cx } = useBindCx()
     v-bind="{ ...$props, ...$attrs }"
     :icon="icon" />
   <component
-    v-else
     :is="icon"
+    v-else
     :label="label"
     :weight="weight"
     v-bind="cx(variants({ size }))" />

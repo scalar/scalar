@@ -1,1 +1,1 @@
-export * from './add-scalar-classes'
+export { addScalarClassesToHeadless } from './add-scalar-classes'

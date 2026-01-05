@@ -1,4 +1,4 @@
-import { test, type Device } from '@test/helpers'
+import { type Device, test } from '@test/helpers'
 
 const stories = ['Base', 'Multiple Modifiers']
 

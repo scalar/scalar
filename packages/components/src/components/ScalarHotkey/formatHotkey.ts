@@ -7,7 +7,7 @@ import type { HotKeyModifier } from './types'
 // ------------------------------------------------------------
 
 /** Typescript helper to check if a modifier is the default modifier */
-export function isDefault(modifier: HotKeyModifier): modifier is 'default' {
+function isDefault(modifier: HotKeyModifier): modifier is 'default' {
   return modifier === 'default'
 }
 

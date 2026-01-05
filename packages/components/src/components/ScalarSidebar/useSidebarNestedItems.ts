@@ -1,11 +1,9 @@
-import { computed, inject, onBeforeUnmount, provide, ref, type InjectionKey, type Ref } from 'vue'
+import { type InjectionKey, type Ref, computed, inject, onBeforeUnmount, provide, ref } from 'vue'
 
 /**
  * Tracks the open state of the nearest nested child items
- *
- * @default false
  */
-export const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Ref<Ref<boolean>[]>>
+const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Ref<Ref<boolean>[]>>
 
 /**
  * Get the open / closed model for the nearest nested child items
@@ -13,7 +11,7 @@ export const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Ref<Ref<bool
 export const useSidebarNestedItem = (
   /** The model defining the open state of the current nested items */
   open: Ref<boolean>,
-) => {
+): void => {
   const parentList = inject(SIDEBAR_NESTED_ITEMS_SYMBOL)
   if (parentList) {
     // Add this child to the parent list when the component is mounted
