@@ -1,3 +1,1 @@
-import { convert } from './convert'
-
-export { convert }
+export { convert } from './convert'
