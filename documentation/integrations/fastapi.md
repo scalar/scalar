@@ -106,6 +106,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `hide_test_request_button` (default `False`) - Whether to show the "Test Request" button
 - `hide_download_button` (default `False`) - **Deprecated**: Use `document_download_type` instead
 - `document_download_type` (default `DocumentDownloadType.BOTH`) - Sets the file type of the document to download. Options: `JSON`, `YAML`, `BOTH`, `NONE`
+- `show_developer_tools` (default `"localhost"`) - Configures when to show the top developer tools panel. Options: `"always"`, "`localhost"`, `"never"`
 
 ### DocumentDownloadType
 
@@ -153,6 +154,8 @@ DocumentDownloadType.NONE    # Hide download button
 - `scalar_proxy_url` (default `None`)
 - `integration` (default `None`)
 - `theme` (default `Theme.DEFAULT`)
+- `overrides` (default `{}`) - Specific overrides directly to the `config` dictionary which is passed as `Scalar.createApiReference("#app", {json.dumps(config)})`
+- `telemetry` (default `True`) - Enable or disable api client usage telemetry. Options: `True`, `False`
 
 ### Layout
 
