@@ -1,4 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -26,11 +27,10 @@ describe('Header', () => {
     requestLoadingPercentage: undefined as number | undefined,
     eventBus,
     environment: {
-      uid: 'env-1' as any,
-      name: 'Test',
-      color: 'blue',
-      value: 'default',
-    } as any,
+      variables: [],
+      color: '#FF0000',
+      description: 'Test Environment',
+    } as XScalarEnvironment,
   }
 
   const render = (overrides: Record<string, any> = {}) => {
