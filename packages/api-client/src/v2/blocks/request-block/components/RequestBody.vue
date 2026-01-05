@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -155,7 +156,20 @@ const tableRows = computed(() => {
     return []
   }
 
-  return Array.isArray(example.value.value) ? example.value.value : []
+  // Already an array of rows
+  if (Array.isArray(example.value.value)) {
+    return example.value.value
+  }
+
+  // We got an object try to convert it to an array of rows
+  if (typeof example.value.value === 'object' && example.value.value) {
+    return objectEntries(example.value.value).map(([key, value]) => ({
+      name: key,
+      value,
+    }))
+  }
+
+  return []
 })
 </script>
 <template>
