@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { convert } from '../src/convert'
 import scalarVoidCollection from './scalar-void.json'
 
