@@ -177,33 +177,33 @@ const requestHeaders = computed(
       <template v-if="!response">
         <ResponseEmpty
           :collection="collection"
+          :numWorkspaceRequests="numWorkspaceRequests"
           :operation="operation"
-          :workspace="workspace"
-          :numWorkspaceRequests="numWorkspaceRequests" />
+          :workspace="workspace" />
       </template>
       <template v-else>
         <ResponseCookies
-          class="response-section-content-cookies"
           v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
           :id="filterIds.Cookies"
+          class="response-section-content-cookies"
           :cookies="responseCookies"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <RequestHeaders
-          class="response-section-content-headers"
           v-if="activeFilter === 'All' || activeFilter === 'Headers'"
           :id="filterIds.Headers"
+          class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <ResponseHeaders
-          class="response-section-content-headers"
           v-if="activeFilter === 'All' || activeFilter === 'Headers'"
           :id="filterIds.Headers"
+          class="response-section-content-headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
         <template
-          v-for="view in responseSectionViews"
-          :key="view.component">
+          v-for="(view, index) in responseSectionViews"
+          :key="index">
           <ScalarErrorBoundary>
             <component
               :is="view.component"
@@ -216,8 +216,8 @@ const requestHeaders = computed(
           <!-- Streaming response body -->
           <ResponseBodyStreaming
             v-if="'reader' in response"
-            class="response-section-content-body"
             :id="filterIds.Body"
+            class="response-section-content-body"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
@@ -231,13 +231,13 @@ const requestHeaders = computed(
 
           <!-- Regular response body -->
           <ResponseBody
-            class="response-section-content-body"
             v-else
             :id="filterIds.Body"
-            layout="client"
             :active="true"
+            class="response-section-content-body"
             :data="response?.data"
             :headers="responseHeaders"
+            layout="client"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
             title="Body" />
         </template>

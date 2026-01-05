@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-
 import { createEnvironmentUtils } from './create-environment-utils'
 
 describe('createEnvironmentUtils', () => {

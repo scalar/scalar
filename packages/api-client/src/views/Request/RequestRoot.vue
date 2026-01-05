@@ -51,8 +51,6 @@ const {
 
 const pluginManager = usePluginManager()
 
-const element = ref<HTMLDivElement>()
-
 const requestAbortController = ref<AbortController>()
 /** Computed Validation State Update on Example Change */
 const validation = computed<ValidationResult>(() =>
@@ -217,7 +215,6 @@ const cloneRequestResult = (result: any) => {
 <template>
   <!-- Layout -->
   <div
-    ref="element"
     class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
       '!mr-0 !mb-0 !border-0': layout === 'modal',

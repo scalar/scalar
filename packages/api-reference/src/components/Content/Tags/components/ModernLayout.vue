@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, useId } from 'vue'
+import { computed, useId } from 'vue'
 
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
@@ -17,9 +17,6 @@ const { tag, moreThanOneTag } = defineProps<{
   eventBus: WorkspaceEventBus | null
 }>()
 
-const sectionContainerRef = ref<HTMLElement>()
-const contentsRef = ref<HTMLElement>()
-
 const headerId = useId()
 
 const moreThanOneDefaultTag = computed(
@@ -31,7 +28,6 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 
 <template>
   <SectionContainer
-    ref="sectionContainerRef"
     :aria-labelledby="headerId"
     class="tag-section-container"
     role="region">
@@ -56,7 +52,6 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      ref="contentsRef"
       class="contents">
       <slot />
     </div>

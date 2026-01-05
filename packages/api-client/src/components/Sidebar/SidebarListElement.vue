@@ -6,7 +6,7 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
@@ -72,12 +72,6 @@ const handleRename = (id: string) => {
   emit('rename', id)
 }
 
-/** The draggable component */
-const draggableRef = ref<{
-  draggingItem: DraggingItem
-  hoveredItem: HoveredItem
-} | null>(null)
-
 /** Calculate offsets for drag and drop */
 const getDraggableOffsets = computed(() => ({
   ceiling: 0.5,
@@ -89,7 +83,6 @@ const getDraggableOffsets = computed(() => ({
   <li>
     <Draggable
       :id="variable.uid"
-      ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
