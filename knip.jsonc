@@ -7,7 +7,6 @@
     "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/draggable/**",
     "packages/galaxy/**",
     "packages/nextjs-openapi/**",
     "packages/openapi-upgrader/**",
@@ -84,6 +83,13 @@
     },
     "packages/core": {
       "entry": ["src/libs/html-rendering/index.ts"]
+    },
+    "packages/draggable": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/main.ts"
+      ]
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
