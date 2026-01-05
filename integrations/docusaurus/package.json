@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "shx rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
-    "dev:doesnt-work": "cd ./playground && pnpm run dev",
+    "dev": "cd ./playground && pnpm run dev",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
