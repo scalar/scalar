@@ -60,6 +60,14 @@
           "to": "/"
         },
         {
+          "from": "/scalar/pricing",
+          "to": "/pricing"
+        },
+        {
+          "from": "/scalar/access",
+          "to": "/access"
+        },
+        {
           "from": "/scalar",
           "to": "/"
         },
@@ -652,6 +660,11 @@
               "getting-started": {
                 "title": "Getting Started",
                 "filepath": "documentation/guides/mock-server/getting-started.md",
+                "type": "page"
+              },
+              "docker": {
+                "title": "Docker",
+                "filepath": "documentation/guides/mock-server/docker.md",
                 "type": "page"
               },
               "custom-request-handler": {
