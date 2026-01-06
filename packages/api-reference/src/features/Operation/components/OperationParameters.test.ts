@@ -12,8 +12,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           parameters: [
             {
@@ -41,8 +41,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           parameters: [
             {
@@ -69,8 +69,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           parameters: [
             {
@@ -98,8 +98,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           parameters: [
             {
@@ -127,8 +127,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           parameters: [
             {
@@ -156,8 +156,8 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           eventBus: null,
           requestBody: {
@@ -187,8 +187,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           requestBody: {
             content: {
@@ -228,8 +228,8 @@ describe('OperationParameters', () => {
         props: {
           eventBus: null,
           options: {
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
           },
           requestBody: {
             content: {
