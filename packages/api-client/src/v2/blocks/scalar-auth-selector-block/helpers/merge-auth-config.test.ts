@@ -633,7 +633,6 @@ describe('mergeAuthConfig', () => {
           tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-token': 'merged-oauth-token',
           'x-scalar-secret-client-secret': 'merged-client-secret',
-          'x-default-scopes': ['read:users'],
           scopes: {
             'read:users': 'Read user information',
             'write:users': 'Modify user information',
@@ -644,7 +643,6 @@ describe('mergeAuthConfig', () => {
           'x-scalar-secret-token': 'merged-password-token',
           'x-scalar-secret-username': 'merged-oauth-user',
           'x-scalar-secret-password': 'merged-oauth-password',
-          'x-default-scopes': ['admin'],
           scopes: {
             'admin': 'Admin access',
           },

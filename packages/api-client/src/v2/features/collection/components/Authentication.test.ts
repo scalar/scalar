@@ -65,7 +65,7 @@ describe('Authentication', () => {
           environment,
           eventBus,
           layout: 'web',
-          securitySchemes: document.components.securitySchemes,
+          securitySchemes: document.components?.securitySchemes ?? {},
           workspaceStore: createWorkspaceStore(),
           collectionType: 'document',
           documentSlug: 'test-document',
