@@ -73,6 +73,10 @@
   "navigation": {
     "header": [
       {
+        "title": "GitHub",
+        "url": "https://github.com/scalar/scalar"
+      },
+      {
         "title": "Log in",
         "url": "https://dashboard.scalar.com/login"
       },
@@ -641,6 +645,7 @@
           "scalar-api": {
             "type": "openapi",
             "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+            "title": "Scalar API",
             "mode": "nested"
           }
         }

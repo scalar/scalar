@@ -114,10 +114,10 @@ Once created, you will get redirected to the SDK Overview page where you can:
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -171,7 +171,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -190,7 +190,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -208,7 +208,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
