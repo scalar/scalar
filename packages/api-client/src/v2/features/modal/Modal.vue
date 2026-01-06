@@ -18,6 +18,8 @@ export type ModalProps = {
   sidebarState: UseModalSidebarReturn
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
+  /** Authentication config */
+  authenticationConfiguration: AuthenticationConfiguration
 }
 
 /**
@@ -35,6 +37,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -51,6 +54,7 @@ import {
   type ComputedRef,
 } from 'vue'
 
+import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
@@ -70,6 +74,7 @@ const {
   eventBus,
   document,
   plugins = [],
+  authenticationConfiguration,
 } = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
@@ -165,6 +170,14 @@ const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document.value),
 )
 
+/** Merge authentication config with the document security schemes */
+const securitySchemes = computed(() =>
+  mergeAuthConfig(
+    document.value?.components?.securitySchemes,
+    authenticationConfiguration?.securitySchemes,
+  ),
+)
+
 defineExpose({
   sidebarWidth,
   environment,
@@ -213,14 +226,15 @@ defineExpose({
               class="flex-1"
               :document="document.value"
               :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
-              :environment="environment"
-              :eventBus="eventBus"
+              :environment
+              :eventBus
               :exampleName="exampleName?.value"
               layout="modal"
               :method="method?.value"
               :path="path?.value"
-              :plugins="plugins"
-              :workspaceStore="workspaceStore" />
+              :plugins
+              :securitySchemes
+              :workspaceStore />
           </main>
           <!-- Empty state -->
           <div

@@ -46,13 +46,13 @@ describe('mergeAuthConfig', () => {
     expect(result.bearerAuth).toMatchObject({
       type: 'http',
       scheme: 'bearer',
-      token: 'my-bearer-token',
+      'x-scalar-secret-token': 'my-bearer-token',
     })
     expect(result.basicAuth).toMatchObject({
       type: 'http',
       scheme: 'basic',
-      username: 'test-user',
-      password: 'test-pass',
+      'x-scalar-secret-username': 'test-user',
+      'x-scalar-secret-password': 'test-pass',
     })
   })
 
@@ -414,5 +414,244 @@ describe('mergeAuthConfig', () => {
       openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
       description: 'OpenID Connect authentication',
     })
+  })
+
+  it('handles security schemes with $ref and $ref-value', () => {
+    const securitySchemes: ComponentsObject['securitySchemes'] = {
+      apiKeyAuth: {
+        $ref: '#/components/securitySchemes/apiKeyAuth',
+        '$ref-value': {
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          description: 'API Key authentication',
+          'x-scalar-secret-token': 'existing-api-key',
+        },
+      },
+      bearerAuth: {
+        $ref: '#/components/securitySchemes/bearerAuth',
+        '$ref-value': {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Bearer token authentication',
+          'x-scalar-secret-token': 'existing-bearer-token',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
+        },
+      },
+      oauth2: {
+        $ref: '#/components/securitySchemes/oauth2',
+        '$ref-value': coerceValue(SecuritySchemeObjectSchema, {
+          type: 'oauth2',
+          description: 'OAuth2 authentication',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://example.com/oauth/authorize',
+              tokenUrl: 'https://example.com/oauth/token',
+              'x-scalar-secret-token': 'existing-oauth-token',
+              scopes: {
+                'read:users': 'Read user information',
+                'write:users': 'Modify user information',
+              },
+            },
+          },
+        }),
+      },
+    }
+
+    const config: AuthenticationConfiguration['securitySchemes'] = {}
+
+    const result = mergeAuthConfig(securitySchemes, config)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'X-API-Key',
+      in: 'header',
+      description: 'API Key authentication',
+      'x-scalar-secret-token': 'existing-api-key',
+    })
+    expect(result.apiKeyAuth).not.toHaveProperty('$ref')
+    expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
+
+    expect(result.bearerAuth).toMatchObject({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description: 'Bearer token authentication',
+      'x-scalar-secret-token': 'existing-bearer-token',
+    })
+    expect(result.bearerAuth).not.toHaveProperty('$ref')
+    expect(result.bearerAuth).not.toHaveProperty('$ref-value')
+
+    expect(result.oauth2).toMatchObject({
+      type: 'oauth2',
+      description: 'OAuth2 authentication',
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          'x-scalar-secret-token': 'existing-oauth-token',
+          scopes: {
+            'read:users': 'Read user information',
+            'write:users': 'Modify user information',
+          },
+        },
+      },
+    })
+    expect(result.oauth2).not.toHaveProperty('$ref')
+    expect(result.oauth2).not.toHaveProperty('$ref-value')
+  })
+
+  it('merges auth config into security schemes with $ref and $ref-value', () => {
+    const securitySchemes: ComponentsObject['securitySchemes'] = {
+      apiKeyAuth: {
+        $ref: '#/components/securitySchemes/apiKeyAuth',
+        '$ref-value': {
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          description: 'API Key authentication',
+          'x-scalar-secret-token': 'should-not-be-overridden',
+        },
+      },
+      bearerAuth: {
+        $ref: '#/components/securitySchemes/bearerAuth',
+        '$ref-value': {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Bearer token authentication',
+          'x-scalar-secret-token': 'should-not-be-overridden',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
+        },
+      },
+      basicAuth: {
+        $ref: '#/components/securitySchemes/basicAuth',
+        '$ref-value': {
+          type: 'http',
+          scheme: 'basic',
+          description: 'Basic authentication',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': 'should-not-be-overridden',
+          'x-scalar-secret-password': 'should-not-be-overridden',
+        },
+      },
+      oauth2: {
+        $ref: '#/components/securitySchemes/oauth2',
+        '$ref-value': coerceValue(SecuritySchemeObjectSchema, {
+          type: 'oauth2',
+          description: 'OAuth2 authentication',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://example.com/oauth/authorize',
+              tokenUrl: 'https://example.com/oauth/token',
+              scopes: {
+                'read:users': 'Read user information',
+                'write:users': 'Modify user information',
+              },
+            },
+            password: {
+              tokenUrl: 'https://example.com/oauth/token',
+              scopes: {
+                'admin': 'Admin access',
+              },
+            },
+          },
+        }),
+      },
+    }
+
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        value: 'merged-api-key-value',
+      },
+      bearerAuth: {
+        token: 'merged-bearer-token',
+      },
+      basicAuth: {
+        username: 'merged-username',
+        password: 'merged-password',
+      },
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            token: 'merged-oauth-token',
+            clientSecret: 'merged-client-secret',
+            selectedScopes: ['read:users'],
+          },
+          password: {
+            token: 'merged-password-token',
+            username: 'merged-oauth-user',
+            password: 'merged-oauth-password',
+            selectedScopes: ['admin'],
+          },
+        },
+      },
+    }
+
+    const result = mergeAuthConfig(securitySchemes, config)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'X-API-Key',
+      in: 'header',
+      description: 'API Key authentication',
+      'x-scalar-secret-token': 'should-not-be-overridden',
+    })
+    expect(result.apiKeyAuth).not.toHaveProperty('$ref')
+    expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
+
+    expect(result.bearerAuth).toMatchObject({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description: 'Bearer token authentication',
+      'x-scalar-secret-token': 'should-not-be-overridden',
+    })
+    expect(result.bearerAuth).not.toHaveProperty('$ref')
+    expect(result.bearerAuth).not.toHaveProperty('$ref-value')
+
+    expect(result.basicAuth).toMatchObject({
+      type: 'http',
+      scheme: 'basic',
+      description: 'Basic authentication',
+      'x-scalar-secret-username': 'should-not-be-overridden',
+      'x-scalar-secret-password': 'should-not-be-overridden',
+    })
+    expect(result.basicAuth).not.toHaveProperty('$ref')
+    expect(result.basicAuth).not.toHaveProperty('$ref-value')
+
+    expect(result.oauth2).toMatchObject({
+      type: 'oauth2',
+      description: 'OAuth2 authentication',
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          'x-scalar-secret-token': 'merged-oauth-token',
+          'x-scalar-secret-client-secret': 'merged-client-secret',
+          'x-default-scopes': ['read:users'],
+          scopes: {
+            'read:users': 'Read user information',
+            'write:users': 'Modify user information',
+          },
+        },
+        password: {
+          tokenUrl: 'https://example.com/oauth/token',
+          'x-scalar-secret-token': 'merged-password-token',
+          'x-scalar-secret-username': 'merged-oauth-user',
+          'x-scalar-secret-password': 'merged-oauth-password',
+          'x-default-scopes': ['admin'],
+          scopes: {
+            'admin': 'Admin access',
+          },
+        },
+      },
+    })
+    expect(result.oauth2).not.toHaveProperty('$ref')
+    expect(result.oauth2).not.toHaveProperty('$ref-value')
   })
 })

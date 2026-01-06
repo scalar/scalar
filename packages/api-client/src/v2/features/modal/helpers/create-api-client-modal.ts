@@ -4,7 +4,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type App, computed, createApp, reactive } from 'vue'
 
-import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import {
   type DefaultEntities,
   type RoutePayload,
@@ -61,7 +60,7 @@ export const createApiClientModal = ({
   mountOnInitialize = true,
   plugins,
   workspaceStore,
-  authenticationConfiguration,
+  authenticationConfiguration = {},
 }: CreateApiClientModalOptions): ApiClientModal => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -98,11 +97,6 @@ export const createApiClientModal = ({
 
   const modalState = useModal()
 
-  /** Merge authentication config with the document security schemes */
-  const securitySchemes = computed(() =>
-    mergeAuthConfig(document.value?.components?.securitySchemes, authenticationConfiguration?.securitySchemes),
-  )
-
   const app = createApp(Modal, {
     document,
     eventBus,
@@ -113,6 +107,7 @@ export const createApiClientModal = ({
     plugins,
     sidebarState,
     workspaceStore,
+    authenticationConfiguration,
   } satisfies ModalProps)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

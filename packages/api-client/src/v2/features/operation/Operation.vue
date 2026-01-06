@@ -28,6 +28,7 @@ const {
   method,
   environment,
   exampleName,
+  securitySchemes,
   workspaceStore,
   plugins,
 } = defineProps<RouteProps>()
@@ -127,7 +128,7 @@ const APP_VERSION = PACKAGE_VERSION
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-      :securitySchemes="document?.components?.securitySchemes ?? {}"
+      :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"
       :servers="document?.servers ?? []"
