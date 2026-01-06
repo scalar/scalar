@@ -114,6 +114,7 @@
       },
       {
         "title": "Register",
+        "style": "button",
         "url": "https://dashboard.scalar.com/register"
       }
     ],
