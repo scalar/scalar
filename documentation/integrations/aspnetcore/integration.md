@@ -166,10 +166,10 @@ app.MapScalarApiReference(options =>
 {
     // Custom local path
     options.WithOpenApiRoutePattern("/api-spec/{documentName}.json");
-    
+
     // External URL
     options.WithOpenApiRoutePattern("https://api.example.com/openapi/{documentName}.json");
-    
+
     // Static external URL (no placeholder)
     options.WithOpenApiRoutePattern("https://registry.scalar.com/@scalar/apis/galaxy?format=json");
 });
@@ -350,7 +350,7 @@ app.MapScalarApiReference(options => options
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "advanced-client-id";
-        
+
         // Custom query parameters for authorization request
         flow.AddQueryParameter("audience", "https://api.example.com")
             .AddQueryParameter("resource", "https://graph.microsoft.com");
@@ -392,20 +392,20 @@ app.MapScalarApiReference(options => options
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
-    
+
     // Configure OAuth2
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "multi-auth-client";
         flow.SelectedScopes = ["read", "write"];
     })
-    
+
     // Configure API Key
     .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
         apiKey.Value = "sk-demo-key-12345";
     })
-    
+
     // Configure Basic Auth
     .AddHttpAuthentication("BasicAuth", auth =>
     {
@@ -479,7 +479,7 @@ export default {
   onDocumentSelect: () => console.log('Document changed'),
 
   // Add any other custom configuration options supported by Scalar
-  // Checkout https://guides.scalar.com/scalar/scalar-api-references/configuration
+  // Checkout https://guides.scalar.com/api-references/configuration
 }
 ```
 
