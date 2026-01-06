@@ -1,3 +1,4 @@
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -281,7 +282,18 @@ describe('ApiReference Configuration Tests', () => {
     expect(modelTag.exists()).toBe(false)
   })
 
-  it('darkMode: false', () => {
+  it('darkMode: false', async () => {
+    console.log('test')
+    console.log('test')
+    console.log('test')
+    console.log('test')
+    console.log('test')
+
+    console.log(document.body.classList)
+    console.log('test')
+    console.log('test')
+    console.log('test')
+
     mountComponent({
       props: {
         configuration: {
@@ -290,11 +302,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       },
     })
-
+    await flushPromises()
     expect(document.body.classList.contains('light-mode')).toBe(true)
   })
 
-  it('darkMode: true', () => {
+  it('darkMode: true', async () => {
     mountComponent({
       props: {
         configuration: {
@@ -303,6 +315,7 @@ describe('ApiReference Configuration Tests', () => {
         },
       },
     })
+    await flushPromises()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
   })
 
@@ -583,11 +596,15 @@ describe('ApiReference Configuration Tests', () => {
     expect(ServerSelector.text().includes('api.example.com')).toBe(true)
   })
 
-  // TODO doesn't work
   it('authentication: object', async () => {
     const authentication = {
-      apiKey: {
-        token: 'test-token',
+      preferredSecurityScheme: 'apiKey',
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'x-api-key',
+          token: 'test-token',
+        },
       },
     }
 
@@ -602,6 +619,8 @@ describe('ApiReference Configuration Tests', () => {
 
     await flushPromises()
     const Auth = wrapper.findComponent({ name: 'Auth' })
+    const button = Auth.find('button[data-testid="data-table-password-toggle"]')
+    await button.trigger('click')
     expect(Auth.text().includes('test-token')).toBe(true)
   })
 

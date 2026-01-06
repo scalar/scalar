@@ -51,17 +51,17 @@ watch(
       return
     }
 
-    const selectedRequirements = getDefaultSecurity(
+    const defaultSecurity = getDefaultSecurity(
       securityRequirements.value,
       options.authentication?.preferredSecurityScheme,
       securitySchemes,
     )
-    if (!selectedRequirements) {
+    if (!defaultSecurity) {
       return
     }
 
     eventBus.emit('auth:update:selected-security-schemes', {
-      selectedRequirements: [selectedRequirements],
+      selectedRequirements: [defaultSecurity],
       newSchemes: [],
       meta: { type: 'document' },
     })

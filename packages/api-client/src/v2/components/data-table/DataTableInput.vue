@@ -136,6 +136,7 @@ const handleLabelClick = () => {
     <ScalarIconButton
       v-if="type === 'password'"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
+      data-testid="data-table-password-toggle"
       :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
