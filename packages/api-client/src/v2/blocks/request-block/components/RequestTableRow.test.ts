@@ -229,7 +229,7 @@ describe('RequestTableRow', () => {
     })
 
     const uploadButtons = wrapper.findAllComponents({ name: 'ScalarButton' })
-    const uploadButton = uploadButtons.find((btn) => btn.text().includes('Upload File'))
+    const uploadButton = uploadButtons.find((btn) => btn.text().includes('Select File'))
     await uploadButton?.vm.$emit('click')
 
     expect(wrapper.emitted('uploadFile')).toBeTruthy()

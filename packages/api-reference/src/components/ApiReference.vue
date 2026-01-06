@@ -62,6 +62,7 @@ import {
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
+import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/helpers/map-configuration'
 import {
@@ -420,6 +421,7 @@ if (typeof window !== 'undefined') {
 
 // For testing
 defineExpose({
+  eventBus,
   workspaceStore,
 })
 
@@ -622,6 +624,7 @@ onMounted(() => {
     el: modal.value,
     eventBus,
     workspaceStore,
+    plugins: mapConfigPlugins(mergedConfig.value),
   })
 })
 onBeforeUnmount(() => {
