@@ -70,7 +70,7 @@
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@nestjs/platform-express": "^10.3.8",
-    "@nestjs/platform-fastify": "^11.1.6",
+    "@nestjs/platform-fastify": "^11.1.11",
     "@nestjs/testing": "^11.1.6",
     "@scalar/api-reference": "workspace:*",
     "@types/express": "catalog:*",
