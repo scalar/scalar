@@ -21,8 +21,12 @@
       import { sources } from './test/utils/sources.ts'
 
       Scalar.createApiReference('#app', {
+        authentication: {
+          bearerAuth: {
+            token: 'test-token',
+          },
+        },
         sources,
-        operationTitleSource: 'path',
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',

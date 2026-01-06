@@ -1,5 +1,4 @@
 export { getSystemModePreference } from './color-mode'
-export { convertSecurityScheme } from './convert-security-scheme'
 export { downloadDocument } from './download'
 export { getIdFromUrl, makeUrlFromId } from './id-routing'
 export { blockIntersection, firstLazyLoadComplete, intersectionEnabled, scrollToLazy } from './lazy-bus'

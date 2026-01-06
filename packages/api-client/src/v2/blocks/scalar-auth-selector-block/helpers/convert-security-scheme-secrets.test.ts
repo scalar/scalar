@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest'
 import { securitySchemeSchema } from '@scalar/types/entities'
+import { describe, expect, it } from 'vitest'
 
-import { convertSecurityScheme } from './convert-security-scheme'
+import { convertSecuritySchemeSecrets } from './convert-security-scheme-secrets'
 
-describe('convertSecurityScheme', () => {
+describe('convertSecuritySchemeSecrets', () => {
   describe('apiKey security scheme', () => {
     it('converts apiKey scheme with value to include x-scalar-secret-token', () => {
       const input = securitySchemeSchema.parse({
@@ -16,7 +16,7 @@ describe('convertSecurityScheme', () => {
         description: 'API key for authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'apiKey',
@@ -40,7 +40,7 @@ describe('convertSecurityScheme', () => {
         value: 'secret-api-key-value',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'apiKey',
@@ -63,7 +63,7 @@ describe('convertSecurityScheme', () => {
         value: '',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'apiKey',
@@ -91,7 +91,7 @@ describe('convertSecurityScheme', () => {
         description: 'Bearer token authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'http',
@@ -120,7 +120,7 @@ describe('convertSecurityScheme', () => {
         password: 'secret123',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'http',
@@ -148,7 +148,7 @@ describe('convertSecurityScheme', () => {
         password: '',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'http',
@@ -189,7 +189,7 @@ describe('convertSecurityScheme', () => {
         },
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'oauth2',
@@ -250,7 +250,7 @@ describe('convertSecurityScheme', () => {
         },
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'oauth2',
@@ -298,7 +298,7 @@ describe('convertSecurityScheme', () => {
         flows: {},
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'oauth2',
@@ -321,7 +321,7 @@ describe('convertSecurityScheme', () => {
         description: undefined,
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'apiKey',
@@ -348,7 +348,7 @@ describe('convertSecurityScheme', () => {
         description: 'Bearer authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       // Verify all original properties are preserved
       expect(result.type).toBe('http')

@@ -1,8 +1,10 @@
 import { type ModalState, useModal } from '@scalar/components'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type App, computed, createApp, reactive } from 'vue'
 
+import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import {
   type DefaultEntities,
   type RoutePayload,
@@ -29,6 +31,8 @@ export type CreateApiClientModalOptions = {
   workspaceStore: WorkspaceStore
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
+  /** Authentication config */
+  authenticationConfiguration?: AuthenticationConfiguration | undefined
 }
 
 export type ApiClientModal = {
@@ -57,6 +61,7 @@ export const createApiClientModal = ({
   mountOnInitialize = true,
   plugins,
   workspaceStore,
+  authenticationConfiguration,
 }: CreateApiClientModalOptions): ApiClientModal => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -92,6 +97,11 @@ export const createApiClientModal = ({
   })
 
   const modalState = useModal()
+
+  /** Merge authentication config with the document security schemes */
+  const securitySchemes = computed(() =>
+    mergeAuthConfig(document.value?.components?.securitySchemes, authenticationConfiguration?.securitySchemes),
+  )
 
   const app = createApp(Modal, {
     document,

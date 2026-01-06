@@ -1,17 +1,20 @@
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { PartialDeep } from 'type-fest'
 
 /**
  * Convert the old security scheme to the new one with secret extensions
  *
  * Remove this once we are migrated to the workspace store. We are going to double up on secrets temporarily.
  */
-export const convertSecurityScheme = (scheme: SecurityScheme): SecuritySchemeObject => {
+export const convertSecuritySchemeSecrets = (
+  scheme: PartialDeep<SecurityScheme>,
+): PartialDeep<SecuritySchemeObject> => {
   // ApiKey
   if (scheme.type === 'apiKey') {
     return {
       ...scheme,
-      'x-scalar-secret-token': scheme.value,
+      'x-scalar-secret-token': scheme.value ?? '',
     }
   }
 
@@ -19,9 +22,9 @@ export const convertSecurityScheme = (scheme: SecurityScheme): SecuritySchemeObj
   if (scheme.type === 'http') {
     return {
       ...scheme,
-      'x-scalar-secret-token': scheme.token,
-      'x-scalar-secret-username': scheme.username,
-      'x-scalar-secret-password': scheme.password,
+      'x-scalar-secret-token': scheme.token ?? '',
+      'x-scalar-secret-username': scheme.username ?? '',
+      'x-scalar-secret-password': scheme.password ?? '',
     }
   }
 
@@ -30,7 +33,7 @@ export const convertSecurityScheme = (scheme: SecurityScheme): SecuritySchemeObj
     return {
       ...scheme,
       flows: Object.fromEntries(
-        Object.entries(scheme.flows).map(([flowKey, flow]) => [
+        Object.entries(scheme.flows ?? {}).map(([flowKey, flow]) => [
           flowKey,
           flow
             ? {
