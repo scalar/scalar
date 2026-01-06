@@ -3,7 +3,7 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
-    "integrations/docusaurus/playground/**",
+    "integrations/docusaurus/**",
     "packages/api-client/**",
     "packages/api-client-react/**",
     "packages/api-reference/**",
