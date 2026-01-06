@@ -9,8 +9,10 @@
     Get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
   </p>
 </div>
-<img class="light-image mt-10" src="/registry-animated.svg"/>
-<img class="dark-image mt-10" src="/registry-animated-dark.svg"/>
+
+<div class="mt-10">
+  <scalar-image src="/registry-animated.svg" src-dark="/registry-animated-dark.svg"/></scalar-image>
+</div>
 
 <div class="flex">
   <div class="full-container-constrained">
@@ -23,8 +25,9 @@ Once authenticated you will see your dashboard, you have two options to interfac
 - [Scalar CLI](cli.md)
 - [GitHub Actions](github-actions.md)
 
-<img class="light-image mt-6" src="/scalar-dashboard.svg"/>
-<img class="dark-image mt-6" src="/scalar-dashboard-dark.svg"/>
+<div class="mt-6">
+  <scalar-image src="/scalar-dashboard.svg" src-dark="/scalar-dashboard-dark.svg"/></scalar-image>
+</div>
 
 ## So... Why a Registry?
 Managing OpenAPI can be difficult; is the source-of-truth: design, implementation, Git, cloud? How do you manage versions and access, also how do downstream consumers of your API interact with it? Does it need to be private?
@@ -36,8 +39,10 @@ Scalar handles all this and makes it incredibly easy to get to the exciting stuf
 ### Create Docs
 World Class API Docs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
 
-<img class="light-image mt-6" src="/api-docs-static-zoom.svg" />
-<img class="dark-image mt-6" src="/api-docs-static-zoom-dark.svg" />
+<div class="mt-6">
+  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"/></scalar-image>
+</div>
+
 
 ### Create SDKs
 World Class SDKs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
@@ -46,8 +51,9 @@ and so much more!
 
 All of this with just a couple clicks or a few API requests! You handle making your API great, and we will handle the rest of the tooling. OpenAPI first.
 
-<img class="light-image mt-6" src="/sdk-dashboard-static.svg" />
-<img class="dark-image mt-6" src="/sdk-dashboard-static-dark.svg" />
+<div class="mt-6">
+  <scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"/></scalar-image>
+</div>
 
 <div class="feature">
   <h2>Features</h2>
@@ -135,8 +141,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <scalar-image src="/api-client-static.svg" src-dark="/api-client-static-dark.svg"/></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -154,8 +159,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <div class="mt-6">
+        <scalar-image src="/sdks-static.svg" src-dark="/sdks-static-dark.svg"/></scalar-image>
+      </div>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -173,8 +179,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <scalar-image src="/registry-static.svg" src-dark="/registry-static-dark.svg"/></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -192,8 +197,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"/></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">

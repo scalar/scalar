@@ -9,8 +9,11 @@
     Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
   </p>
 </div>
-<img class="light-image mt-10" src="/sdks-animated.svg"/>
-<img class="dark-image mt-10" src="/sdks-animated-dark.svg"/>
+
+<div class="mt-10">
+  <scalar-image src="/sdks-animated.svg" src-dark="/sdks-animated-dark.svg"/></scalar-image>
+</div>
+
 
 <div class="flex">
   <div class="full-container-constrained">
@@ -49,8 +52,8 @@ Once created, you will get redirected to the SDK Overview page where you can:
   </scalar-step>
 </scalar-steps>
 
-<img class="light-image" src="/sdk-dashboard-static.svg" />
-<img class="dark-image" src="/sdk-dashboard-static-dark.svg" />
+<scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"/></scalar-image>
+
 
 <div class="feature">
   <h2>Features</h2>
