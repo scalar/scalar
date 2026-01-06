@@ -25,7 +25,11 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "playground": "vite ./playground -c ./vite.config.ts",
+    "dev": "vite ./playground -c ./vite.config.ts",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -46,15 +50,13 @@
   ],
   "dependencies": {
     "@scalar/api-client": "workspace:*",
-    "@scalar/types": "workspace:*",
-    "vue": "catalog:*"
+    "@scalar/types": "workspace:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
-    "path": "^0.12.7",
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "rollup-preserve-directives": "^1.1.1",
