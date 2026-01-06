@@ -959,8 +959,8 @@ importers:
         specifier: ^10.3.8
         version: 10.3.9(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)
       '@nestjs/platform-fastify':
-        specifier: ^11.1.6
-        version: 11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)
+        specifier: ^11.1.11
+        version: 11.1.11(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)
       '@nestjs/testing':
         specifier: ^11.1.6
         version: 11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)(@nestjs/platform-express@10.3.9)
@@ -5019,8 +5019,8 @@ packages:
   '@fastify/busboy@3.1.1':
     resolution: {integrity: sha512-5DGmA8FTdB2XbDeEwc/5ZXBl6UbBAyBOOLlPuBnZ/N1SwdH9Ii+cOX3tBROlDgcTXxjOYnLMVoKk9+FXAw0CJw==}
 
-  '@fastify/cors@11.1.0':
-    resolution: {integrity: sha512-sUw8ed8wP2SouWZTIbA7V2OQtMNpLj2W6qJOYhNdcmINTu6gsxVYXjQiM9mdi8UUDlcoDDJ/W2syPo1WB2QjYA==}
+  '@fastify/cors@11.2.0':
+    resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
 
   '@fastify/cors@9.0.1':
     resolution: {integrity: sha512-YY9Ho3ovI+QHIL2hW+9X4XqQjXLjJqsU+sMV/xFsxZkE8p3GNnYVFpoOxF7SsP5ZL76gwvbo3V9L+FIekBGU4Q==}
@@ -5057,9 +5057,6 @@ packages:
 
   '@fastify/middie@8.3.1':
     resolution: {integrity: sha512-qrQ8U3iCdjNum3+omnIvAyz21ifFx+Pp5jYW7PJJ7b9ueKTCPXsH6vEvaZQrjEZvOpTnWte+CswfBODWD0NqYQ==}
-
-  '@fastify/middie@9.0.3':
-    resolution: {integrity: sha512-7OYovKXp9UKYeVMcjcFLMcSpoMkmcZmfnG+eAvtdiatN35W7c+r9y1dRfpA+pfFVNuHGGqI3W+vDTmjvcfLcMA==}
 
   '@fastify/proxy-addr@5.0.0':
     resolution: {integrity: sha512-37qVVA1qZ5sgH7KpHkkC4z9SK6StIsIcOmpjvMPXNb3vx2GQxhZocogVYbr2PbbeLCQxYIPDok307xEvRZOzGA==}
@@ -5854,10 +5851,10 @@ packages:
       '@fastify/view':
         optional: true
 
-  '@nestjs/platform-fastify@11.1.6':
-    resolution: {integrity: sha512-udnIg7vfA103wppRkcMRVWX71S7NfeDnlprTndhcZzYXcDY2i5c+RwrQN/xU4Aw5X22Fg8ryi7bFbn6/Lquv8w==}
+  '@nestjs/platform-fastify@11.1.11':
+    resolution: {integrity: sha512-BA/KN31ALgdmPgT6sMwHBUnSCezOq9TjRpnczgoljam34xjp/yvZwNu9DGS0KiJF7NHQXpzI2jm6gxiUUOVMtw==}
     peerDependencies:
-      '@fastify/static': ^8.0.0
+      '@fastify/static': ^8.0.0 || ^9.0.0
       '@fastify/view': ^10.0.0 || ^11.0.0
       '@nestjs/common': ^11.0.0
       '@nestjs/core': ^11.0.0
@@ -6856,6 +6853,9 @@ packages:
 
   '@phosphor-icons/core@2.1.1':
     resolution: {integrity: sha512-v4ARvrip4qBCImOE5rmPUylOEK4iiED9ZyKjcvzuezqMaiRASCHKcRIuvvxL/twvLpkfnEODCOJp5dM4eZilxQ==}
+
+  '@pinojs/redact@0.4.0':
+    resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -10798,8 +10798,8 @@ packages:
   fastify-plugin@4.5.1:
     resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
 
-  fastify-plugin@5.0.1:
-    resolution: {integrity: sha512-HCxs+YnRaWzCl+cWRYFnHmeRFyR5GVnJTAaCJQiYzQSDwK9MgJdyAsuL3nh0EWRCYMgQ5MeziymvmAhUHYHDUQ==}
+  fastify-plugin@5.1.0:
+    resolution: {integrity: sha512-FAIDA8eovSt5qcDgcBvDuX/v0Cjz0ohGhENZ/wpc3y+oZCY2afZ9Baqql3g/lC+OHRnciQol4ww7tuthOb9idw==}
 
   fastify@4.27.0:
     resolution: {integrity: sha512-ci9IXzbigB8dyi0mSy3faa3Bsj0xWAPb9JeT4KRzubdSb6pNhcADRUaXCBml6V1Ss/a05kbtQls5LBmhHydoTA==}
@@ -10809,6 +10809,9 @@ packages:
 
   fastify@5.4.0:
     resolution: {integrity: sha512-I4dVlUe+WNQAhKSyv15w+dwUh2EPiEl4X2lGYMmNSgF83WzTMAPKGdWEv5tPsCQOb+SOZwz8Vlta2vF+OeDgRw==}
+
+  fastify@5.6.2:
+    resolution: {integrity: sha512-dPugdGnsvYkBlENLhCgX8yhyGCsCPrpA8lFWbTNU428l+YOnLgYHR69hzV8HWPC79n536EqzqQtvhtdaCE0dKg==}
 
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
@@ -14022,6 +14025,9 @@ packages:
     resolution: {integrity: sha512-TdrF7fW9Rphjq4RjrW0Kp2AW0Ahwu9sRGTkS6bvDi0SCwZlEZYmcfDbEsTz8RVk0EHIS/Vd1bv3JhG+1xZuAyQ==}
     engines: {node: '>=16'}
 
+  path-to-regexp@8.3.0:
+    resolution: {integrity: sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==}
+
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
@@ -14100,8 +14106,15 @@ packages:
   pino-abstract-transport@1.2.0:
     resolution: {integrity: sha512-Guhh8EZfPCfH+PMXAb6rKOjGQEoy0xlAIn+irODG5kgfYV+BQ0rGYYWTIel3P5mmyXqkYkPmdIkywsn6QKUR1Q==}
 
+  pino-abstract-transport@2.0.0:
+    resolution: {integrity: sha512-F63x5tizV6WCh4R6RHyi2Ml+M70DNRXt/+HANowMflpgGFMAym/VKm6G7ZOQRjqN7XbGxK1Lg9t6ZrtzOaivMw==}
+
   pino-std-serializers@7.0.0:
     resolution: {integrity: sha512-e906FRY0+tV27iq4juKzSYPbUj2do2X2JX4EzSca1631EB2QJQUqGbDuERal7LCtOpxl6x3+nvo9NPZcmjkiFA==}
+
+  pino@10.1.0:
+    resolution: {integrity: sha512-0zZC2ygfdqvqK8zJIr1e+wT1T/L+LF6qvqvbzEQ6tiMAoTqEVK9a1K3YRu8HEUvGEvNqZyPJTtb2sNIoTkB83w==}
+    hasBin: true
 
   pino@9.2.0:
     resolution: {integrity: sha512-g3/hpwfujK5a4oVbaefoJxezLzsDgLcNJeITvC6yrfwYeT9la+edCK42j5QpEQSQCZgTKapXvnQIdgZwvRaZug==}
@@ -15528,6 +15541,10 @@ packages:
 
   reusify@1.0.4:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
+    engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
+
+  reusify@1.1.0:
+    resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
   rfdc@1.4.1:
@@ -20867,9 +20884,9 @@ snapshots:
   '@fastify/busboy@3.1.1':
     optional: true
 
-  '@fastify/cors@11.1.0':
+  '@fastify/cors@11.2.0':
     dependencies:
-      fastify-plugin: 5.0.1
+      fastify-plugin: 5.1.0
       toad-cache: 3.7.0
 
   '@fastify/cors@9.0.1':
@@ -20897,7 +20914,7 @@ snapshots:
   '@fastify/formbody@8.0.2':
     dependencies:
       fast-querystring: 1.1.2
-      fastify-plugin: 5.0.1
+      fastify-plugin: 5.1.0
 
   '@fastify/forwarded@3.0.0': {}
 
@@ -20924,13 +20941,6 @@ snapshots:
       '@fastify/error': 3.4.1
       fastify-plugin: 4.5.1
       path-to-regexp: 6.3.0
-      reusify: 1.0.4
-
-  '@fastify/middie@9.0.3':
-    dependencies:
-      '@fastify/error': 4.2.0
-      fastify-plugin: 5.0.1
-      path-to-regexp: 8.2.0
       reusify: 1.0.4
 
   '@fastify/proxy-addr@5.0.0':
@@ -22053,17 +22063,19 @@ snapshots:
     optionalDependencies:
       '@fastify/static': 7.0.4
 
-  '@nestjs/platform-fastify@11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)':
+  '@nestjs/platform-fastify@11.1.11(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@11.1.6)':
     dependencies:
-      '@fastify/cors': 11.1.0
+      '@fastify/cors': 11.2.0
       '@fastify/formbody': 8.0.2
-      '@fastify/middie': 9.0.3
       '@nestjs/common': 11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1)
       '@nestjs/core': 11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(reflect-metadata@0.1.14)(rxjs@7.8.1)
       fast-querystring: 1.1.2
-      fastify: 5.4.0
+      fastify: 5.6.2
+      fastify-plugin: 5.1.0
+      find-my-way: 9.3.0
       light-my-request: 6.6.0
-      path-to-regexp: 8.2.0
+      path-to-regexp: 8.3.0
+      reusify: 1.1.0
       tslib: 2.8.1
 
   '@nestjs/schematics@10.1.1(chokidar@3.6.0)(typescript@5.3.3)':
@@ -23210,6 +23222,8 @@ snapshots:
       '@parcel/watcher-win32-x64': 2.4.1
 
   '@phosphor-icons/core@2.1.1': {}
+
+  '@pinojs/redact@0.4.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -27974,7 +27988,7 @@ snapshots:
 
   fastify-plugin@4.5.1: {}
 
-  fastify-plugin@5.0.1: {}
+  fastify-plugin@5.1.0: {}
 
   fastify@4.27.0:
     dependencies:
@@ -28026,6 +28040,24 @@ snapshots:
       find-my-way: 9.3.0
       light-my-request: 6.6.0
       pino: 9.2.0
+      process-warning: 5.0.0
+      rfdc: 1.4.1
+      secure-json-parse: 4.0.0
+      semver: 7.7.3
+      toad-cache: 3.7.0
+
+  fastify@5.6.2:
+    dependencies:
+      '@fastify/ajv-compiler': 4.0.2
+      '@fastify/error': 4.2.0
+      '@fastify/fast-json-stringify-compiler': 5.0.3
+      '@fastify/proxy-addr': 5.0.0
+      abstract-logging: 2.0.1
+      avvio: 9.1.0
+      fast-json-stringify: 6.0.1
+      find-my-way: 9.3.0
+      light-my-request: 6.6.0
+      pino: 10.1.0
       process-warning: 5.0.0
       rfdc: 1.4.1
       secure-json-parse: 4.0.0
@@ -32346,6 +32378,8 @@ snapshots:
 
   path-to-regexp@8.2.0: {}
 
+  path-to-regexp@8.3.0: {}
+
   path-type@4.0.0: {}
 
   path-type@6.0.0: {}
@@ -32406,7 +32440,25 @@ snapshots:
       readable-stream: 4.5.2
       split2: 4.2.0
 
+  pino-abstract-transport@2.0.0:
+    dependencies:
+      split2: 4.2.0
+
   pino-std-serializers@7.0.0: {}
+
+  pino@10.1.0:
+    dependencies:
+      '@pinojs/redact': 0.4.0
+      atomic-sleep: 1.0.0
+      on-exit-leak-free: 2.1.2
+      pino-abstract-transport: 2.0.0
+      pino-std-serializers: 7.0.0
+      process-warning: 5.0.0
+      quick-format-unescaped: 4.0.4
+      real-require: 0.2.0
+      safe-stable-stringify: 2.4.3
+      sonic-boom: 4.0.1
+      thread-stream: 3.1.0
 
   pino@9.2.0:
     dependencies:
@@ -34006,6 +34058,8 @@ snapshots:
   retry@0.13.1: {}
 
   reusify@1.0.4: {}
+
+  reusify@1.1.0: {}
 
   rfdc@1.4.1: {}
 
