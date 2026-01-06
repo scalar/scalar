@@ -730,9 +730,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      '@scalar/docusaurus':
-        specifier: workspace:*
-        version: 'link:'
       '@types/react':
         specifier: catalog:*
         version: 19.1.8
