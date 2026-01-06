@@ -1033,8 +1033,12 @@ h4.t-editor__heading {
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

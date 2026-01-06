@@ -276,9 +276,10 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   .hero-animation  {
     position: absolute;
-    top: var(--scalar-header-height);
+    top: 0;
+    z-index: -1;
     transform: scaleY(-1);
-    margin-top: 0 !important;
+    margin-top: 0;
   }
   .hero-animation .fa {
     --fa-orange: rgb(128 248 0 / 38%);
@@ -356,6 +357,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
   }
   .t-editor.page {
+    position: relative;
     margin-right: unset;
   }
   .container {
@@ -515,7 +517,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -576,8 +578,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
     .hero.hero {
       margin-top: 188px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

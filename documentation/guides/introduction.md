@@ -839,7 +839,7 @@
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -940,8 +940,12 @@
       bottom: 70px;
       right: 30px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

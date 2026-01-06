@@ -31,3 +31,7 @@
   opacity: 0.85;
   color: var(--scalar-header-background-1, var(--scalar-background-1));
 }
+
+.header .header-center {
+  display: none;
+}
