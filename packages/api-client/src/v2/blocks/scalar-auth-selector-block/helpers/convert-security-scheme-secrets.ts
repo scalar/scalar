@@ -59,16 +59,20 @@ export const convertSecuritySchemeSecrets = (
       {} as PartialDeep<OAuthFlowsObject>,
     )
 
+    /** Overwrite the default scopes if we have selected scopes and no default scopes are set */
+    const defaultScopes =
+      selectedScopes.size > 0 && !scheme['x-default-scopes']?.length
+        ? { 'x-default-scopes': Array.from(selectedScopes) }
+        : {}
+
     const coerced = coerceValue(SecuritySchemeObjectSchema, {
       ...scheme,
       flows,
-      ...(selectedScopes.size > 0 && !scheme['x-default-scopes']?.length
-        ? { 'x-default-scopes': Array.from(selectedScopes) }
-        : {}),
+      ...defaultScopes,
     })
     return coerced
   }
 
-  // The rest
+  // non-oauth2 schemes
   return coerceValue(SecuritySchemeObjectSchema, addSecretExtensions(scheme))
 }
