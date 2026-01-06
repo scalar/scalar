@@ -8,7 +8,6 @@
     "packages/api-reference-react/**",
     "packages/galaxy/**",
     "packages/nextjs-openapi/**",
-    "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
     "projects/**",
     "integrations/docker/**",
