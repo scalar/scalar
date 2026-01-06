@@ -8,7 +8,7 @@
   </p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <div class="stickers">
     <div class="draggable sticker-5">
@@ -356,7 +356,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>

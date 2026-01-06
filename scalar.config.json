@@ -66,6 +66,30 @@
         {
           "from": "/scalar-api",
           "to": "/scalar-api/description/introduction"
+        },
+        {
+          "from": "/scalar/scalar-api-references/:wildcard",
+          "to": "/api-references/:wildcard"
+        },
+        {
+          "from": "/scalar/scalar-registry/:wildcard",
+          "to": "/registry/:wildcard"
+        },
+        {
+          "from": "/scalar/scalar-docs/:wildcard",
+          "to": "/docs/:wildcard"
+        },
+        {
+          "from": "/scalar/scalar-cli/:wildcard",
+          "to": "/cli/:wildcard"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/:wildcard",
+          "to": "/mock-server/:wildcard"
+        },
+        {
+          "from": "/scalar/scalar-sdks/:wildcard",
+          "to": "/sdks/:wildcard"
         }
       ]
     }
