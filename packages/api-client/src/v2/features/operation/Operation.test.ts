@@ -58,6 +58,7 @@ describe('Operation', () => {
     },
     workspaceStore: createWorkspaceStore(),
     documentSlug: 'test-document',
+    securitySchemes: {},
     activeWorkspace: {
       id: 'test-workspace',
       name: 'Test Workspace',
