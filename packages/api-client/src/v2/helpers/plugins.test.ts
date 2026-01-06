@@ -8,7 +8,7 @@ describe('executeHook', () => {
     const request = new Request('https://example.com')
     const result = await executeHook({ request }, 'beforeRequest', [])
 
-    expect(result).toBe(request)
+    expect(result).toEqual({ request })
   })
 
   it('executes a single plugin hook and returns modified payload', async () => {
@@ -145,7 +145,7 @@ describe('executeHook', () => {
     }
 
     const requestResult = await executeHook({ request }, 'beforeRequest', [beforeRequestPlugin])
-    expect(requestResult).toBeInstanceOf(Request)
+    expect(requestResult.request).toBeInstanceOf(Request)
 
     // Test responseReceived hook with different payload structure
     const response = new Response('{}', { status: 200 })
