@@ -48,6 +48,7 @@ import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import {
   getSecurityRequirements,
   getSelectedSecurity,
@@ -120,7 +121,7 @@ const {
   /** Meta information for the auth update */
   authMeta: AuthMeta
   /** Document defined security schemes */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  securitySchemes: MergedSecuritySchemes
   /** Client plugins */
   plugins: ClientPlugin[]
   /** For environment variables in the inputs */

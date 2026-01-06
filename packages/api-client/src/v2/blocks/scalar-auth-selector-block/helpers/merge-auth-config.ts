@@ -7,11 +7,14 @@ import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample'
 
 import { convertSecuritySchemeSecrets } from './convert-security-scheme-secrets'
 
+/** Document security merged with the config security schemes */
+export type MergedSecuritySchemes = NonNullable<ComponentsObject['securitySchemes']>
+
 /** Merge the authentication config with the document security schemes */
 export const mergeAuthConfig = (
   documentSecuritySchemes: ComponentsObject['securitySchemes'] = {},
   configSecuritySchemes: AuthenticationConfiguration['securitySchemes'] = {},
-): NonNullable<ComponentsObject['securitySchemes']> => {
+): MergedSecuritySchemes => {
   /** We need to resolve any refs here before we merge */
   const resolvedDocumentSecuritySchemes = getResolvedRefDeep(documentSecuritySchemes)
 

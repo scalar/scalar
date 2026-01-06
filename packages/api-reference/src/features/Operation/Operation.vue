@@ -25,6 +25,8 @@ export type OperationProps = {
   pathValue: PathItemObject | undefined
   /** Currently selected server for the document */
   server: ServerObject | null
+  /** The merged security schemes for the document and the authentication configuration */
+  securitySchemes: MergedSecuritySchemes
   /** The http client options for the dropdown */
   clientOptions: ClientOptionGroup[]
   /** Whether the Classic layout operation is collapsed */
@@ -37,6 +39,7 @@ export type OperationProps = {
 
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -63,6 +66,7 @@ const {
   isWebhook,
   isCollapsed,
   eventBus,
+  securitySchemes,
   document,
   method,
   clientOptions,
@@ -101,7 +105,7 @@ const selectedServer = computed<ServerObject | null>(() =>
 
 /** We must ensure the selected security schemes are required on this operation */
 const selectedSecuritySchemes = computed(() =>
-  filterSelectedSecurity(document, operation.value),
+  filterSelectedSecurity(document, operation.value, securitySchemes),
 )
 </script>
 

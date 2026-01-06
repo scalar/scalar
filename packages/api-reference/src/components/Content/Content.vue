@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -40,6 +41,7 @@ const { document, httpClients, items, environment, eventBus, options } =
       | 'persistAuth'
       | 'proxyUrl'
       | 'showOperationId'
+      | 'authentication'
     >
     document: WorkspaceDocument | undefined
     httpClients: AvailableClients
@@ -63,6 +65,14 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() => getSelectedServer(document ?? null))
+
+/** Merge authentication config with the document security schemes */
+const securitySchemes = computed(() =>
+  mergeAuthConfig(
+    document?.components?.securitySchemes,
+    options.authentication?.securitySchemes,
+  ),
+)
 </script>
 <template>
   <SectionFlare />
@@ -105,6 +115,7 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
                 :environment
                 :eventBus
                 :options
+                :securitySchemes
                 :selectedServer />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
@@ -142,6 +153,7 @@ const selectedServer = computed(() => getSelectedServer(document ?? null))
       :eventBus
       :expandedItems
       :options
+      :securitySchemes
       :selectedClient="xScalarDefaultClient"
       :selectedServer>
     </TraversedEntry>

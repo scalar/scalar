@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -48,6 +49,8 @@ const {
   >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
+  /** The merged security schemes for the document and the authentication configuration */
+  securitySchemes: MergedSecuritySchemes
   /** Currently selected http client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Used to determine if an entry is collapsed */
@@ -111,6 +114,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :options
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
+        :securitySchemes
         :selectedClient
         :server="selectedServer" />
     </SectionContainer>
@@ -133,6 +137,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :expandedItems
           :level="level + 1"
           :options
+          :securitySchemes
           :selectedClient
           :selectedServer>
         </TraversedEntry>
@@ -149,6 +154,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :expandedItems
       :level="level + 1"
       :options
+      :securitySchemes
       :selectedClient
       :selectedServer>
     </TraversedEntry>
@@ -168,6 +174,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :expandedItems="expandedItems"
         :level="level + 1"
         :options
+        :securitySchemes
         :selectedClient
         :selectedServer>
       </TraversedEntry>

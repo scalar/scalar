@@ -51,7 +51,10 @@ const {
   selectedSecuritySchemes,
   selectedClient,
 } = defineProps<
-  Omit<OperationProps, 'document' | 'pathValue' | 'server' | 'isCollapsed'> & {
+  Omit<
+    OperationProps,
+    'document' | 'pathValue' | 'server' | 'isCollapsed' | 'securitySchemes'
+  > & {
     /** Operation object with path params */
     operation: OperationObject
     /** The selected server for the operation */

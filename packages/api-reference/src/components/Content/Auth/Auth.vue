@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { AuthSelector } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import {
+  AuthSelector,
+  type MergedSecuritySchemes,
+} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import {
   getSecurityRequirements,
   getSelectedSecurity,
@@ -16,6 +19,7 @@ const { document, environment, eventBus, options } = defineProps<{
   options: Pick<ApiReferenceConfigurationRaw, 'persistAuth' | 'proxyUrl'>
   document: WorkspaceDocument | undefined
   eventBus: WorkspaceEventBus
+  securitySchemes: MergedSecuritySchemes
   selectedServer: ServerObject | null
   environment: XScalarEnvironment
 }>()
@@ -69,7 +73,7 @@ watch(
     :persistAuth="options.persistAuth"
     :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements
-    :securitySchemes="document?.components?.securitySchemes ?? {}"
+    :securitySchemes
     :selectedSecurity
     :server="selectedServer"
     title="Authentication" />

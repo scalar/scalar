@@ -1,4 +1,5 @@
 import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
+import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedSecurity } from '@scalar/api-client/v2/features/operation'
 import type {
   OpenApiDocument,
@@ -16,6 +17,7 @@ const getKey = (requirement: SecurityRequirementObject) => Object.keys(requireme
 export const filterSelectedSecurity = (
   document: OpenApiDocument,
   operation: OperationObject | null,
+  securitySchemes: MergedSecuritySchemes = {},
 ): SecuritySchemeObject[] => {
   const securityRequirements = operation?.security ?? document.security ?? []
 
@@ -35,13 +37,13 @@ export const filterSelectedSecurity = (
   // Lets check the selectedIndex first
   const selectedRequirement = selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex]
   if (selectedRequirement && requirementSet.has(getKey(selectedRequirement))) {
-    return getSecuritySchemes(document?.components?.securitySchemes, [selectedRequirement])
+    return getSecuritySchemes(securitySchemes, [selectedRequirement])
   }
 
   // Otherwise lets loop over all selected
   for (const selected of selectedSecurity.selectedSchemes) {
     if (requirementSet.has(getKey(selected))) {
-      return getSecuritySchemes(document?.components?.securitySchemes, [selected])
+      return getSecuritySchemes(securitySchemes, [selected])
     }
   }
 
