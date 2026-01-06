@@ -1,4 +1,5 @@
 import { securitySchemeSchema } from '@scalar/types/entities'
+import type { OAuth2Object } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import { describe, expect, it } from 'vitest'
 
 import { convertSecuritySchemeSecrets } from './convert-security-scheme-secrets'
@@ -278,6 +279,69 @@ describe('convertSecuritySchemeSecrets', () => {
         nameKey: 'oauth2',
         flows: {},
       })
+    })
+
+    it('does not overwrite x-default-scopes when already set', () => {
+      const input = securitySchemeSchema.parse({
+        type: 'oauth2',
+        uid: 'test-uid',
+        nameKey: 'oauth2',
+        'x-default-scopes': ['admin', 'read:users'],
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'admin': 'Admin access',
+              'read:users': 'Read user information',
+              'write:users': 'Write user information',
+            },
+            selectedScopes: ['write:users'],
+            token: 'auth-code-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+        },
+      })
+
+      const result = convertSecuritySchemeSecrets(input) as OAuth2Object
+      expect(result['x-default-scopes']).toEqual(['admin', 'read:users'])
+    })
+
+    it('sets x-default-scopes from combined selectedScopes when x-default-scopes is undefined', () => {
+      const input = securitySchemeSchema.parse({
+        type: 'oauth2',
+        uid: 'test-uid',
+        nameKey: 'oauth2',
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'read:users': 'Read user information',
+              'write:users': 'Write user information',
+            },
+            selectedScopes: ['read:users', 'write:users'],
+            token: 'auth-code-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+          implicit: {
+            type: 'implicit',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            scopes: {
+              'read:posts': 'Read posts',
+              'write:posts': 'Write posts',
+            },
+            selectedScopes: ['read:posts'],
+            token: 'implicit-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+        },
+      })
+
+      const result = convertSecuritySchemeSecrets(input) as OAuth2Object
+      expect(result['x-default-scopes']).toEqual(['read:posts', 'read:users', 'write:users'])
     })
   })
 

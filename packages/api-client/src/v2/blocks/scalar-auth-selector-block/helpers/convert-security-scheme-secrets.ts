@@ -2,6 +2,7 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
+  type OAuthFlowsObject,
   type SecuritySchemeObject,
   SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -46,11 +47,24 @@ export const convertSecuritySchemeSecrets = (
 ): SecuritySchemeObject => {
   // OAuth2
   if (scheme.type === 'oauth2') {
+    const selectedScopes = new Set()
+
+    /** Add secret extensions to the flows + gather selected scopes */
+    const flows = objectEntries(scheme.flows ?? {}).reduce(
+      (acc, [flowKey, flow]) => {
+        acc[flowKey] = flow ? addSecretExtensions(flow) : flow
+        flow?.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+        return acc
+      },
+      {} as PartialDeep<OAuthFlowsObject>,
+    )
+
     const coerced = coerceValue(SecuritySchemeObjectSchema, {
       ...scheme,
-      flows: Object.fromEntries(
-        objectEntries(scheme.flows ?? {}).map(([flowKey, flow]) => [flowKey, flow ? addSecretExtensions(flow) : flow]),
-      ),
+      flows,
+      ...(selectedScopes.size > 0 && !scheme['x-default-scopes']?.length
+        ? { 'x-default-scopes': Array.from(selectedScopes) }
+        : {}),
     })
     return coerced
   }
