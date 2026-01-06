@@ -485,7 +485,6 @@ describe('ApiReference Configuration Tests', () => {
     expect(operation.find('h3').text()).toBe('Get users')
   })
 
-  // TODO doesn't work
   it('operationTitleSource: path', async () => {
     const wrapper = mountComponent({
       props: {
@@ -497,8 +496,8 @@ describe('ApiReference Configuration Tests', () => {
     })
     await flushPromises()
 
-    const operation = wrapper.findComponent({ name: 'Operation' })
-    expect(operation.find('h3').text()).toBe('/users')
+    const items = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
+    expect(items[2]?.text().startsWith('/users')).toBe(true)
   })
 
   it('showOperationId: undefined -> false', async () => {

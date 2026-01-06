@@ -823,9 +823,7 @@ const colorMode = computed(() => {
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"
             layout="reference"
-            :options="{
-              operationTitleSource: mergedConfig.operationTitleSource,
-            }"
+            :options="mergedConfig"
             role="navigation"
             @selectItem="(id) => handleSelectItem(id)">
             <template #header>

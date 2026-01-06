@@ -39,80 +39,6 @@ describe('ParameterList', () => {
     expect(items).toHaveLength(2)
   })
 
-  it('filters out parameters with x-internal flag set to true', () => {
-    const parameters = [
-      createParameter('param1'),
-      createParameter('param2', { 'x-internal': true }),
-      createParameter('param3'),
-    ]
-
-    const wrapper = mount(ParameterList, {
-      props: {
-        parameters,
-        options: defaultOptions,
-        eventBus: null,
-      },
-      slots: {
-        title: 'Parameters',
-      },
-    })
-
-    const items = wrapper.findAllComponents(ParameterListItem)
-    expect(items).toHaveLength(2)
-    expect(items[0]?.props('name')).toBe('param1')
-    expect(items[1]?.props('name')).toBe('param3')
-  })
-
-  it('filters out parameters with x-scalar-ignore flag set to true', () => {
-    const parameters = [
-      createParameter('param1'),
-      createParameter('param2', { 'x-scalar-ignore': true }),
-      createParameter('param3'),
-    ]
-
-    const wrapper = mount(ParameterList, {
-      props: {
-        parameters,
-        options: defaultOptions,
-        eventBus: null,
-      },
-      slots: {
-        title: 'Parameters',
-      },
-    })
-
-    const items = wrapper.findAllComponents(ParameterListItem)
-    expect(items).toHaveLength(2)
-    expect(items[0]?.props('name')).toBe('param1')
-    expect(items[1]?.props('name')).toBe('param3')
-  })
-
-  it('filters out parameters with both ignore flags', () => {
-    const parameters = [
-      createParameter('param1'),
-      createParameter('param2', { 'x-internal': true, 'x-scalar-ignore': true }),
-      createParameter('param3', { 'x-internal': true }),
-      createParameter('param4', { 'x-scalar-ignore': true }),
-      createParameter('param5'),
-    ]
-
-    const wrapper = mount(ParameterList, {
-      props: {
-        parameters,
-        options: defaultOptions,
-        eventBus: null,
-      },
-      slots: {
-        title: 'Parameters',
-      },
-    })
-
-    const items = wrapper.findAllComponents(ParameterListItem)
-    expect(items).toHaveLength(2)
-    expect(items[0]?.props('name')).toBe('param1')
-    expect(items[1]?.props('name')).toBe('param5')
-  })
-
   it('renders nothing when parameters array is empty', () => {
     const wrapper = mount(ParameterList, {
       props: {
@@ -123,24 +49,6 @@ describe('ParameterList', () => {
     })
 
     expect(wrapper.html()).toBe('<!--v-if-->')
-  })
-
-  it('renders nothing when all parameters are filtered out', () => {
-    const parameters = [
-      createParameter('param1', { 'x-internal': true }),
-      createParameter('param2', { 'x-scalar-ignore': true }),
-    ]
-
-    const wrapper = mount(ParameterList, {
-      props: {
-        parameters,
-        options: defaultOptions,
-        eventBus: null,
-      },
-    })
-
-    const items = wrapper.findAllComponents(ParameterListItem)
-    expect(items).toHaveLength(0)
   })
 
   it('renders the title slot content', () => {

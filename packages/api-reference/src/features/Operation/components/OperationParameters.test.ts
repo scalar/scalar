@@ -181,8 +181,7 @@ describe('OperationParameters', () => {
       expect(wrapper.text()).toContain('age')
     })
 
-    // TODO: Not implemented yet
-    it.skip('renders request body without readOnly properties', () => {
+    it('renders request body without readOnly properties', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
@@ -250,6 +249,169 @@ describe('OperationParameters', () => {
       expect(wrapper.text()).toContain('Body')
       expect(wrapper.text()).toContain('username')
       expect(wrapper.text()).toContain('password')
+    })
+  })
+
+  describe('parameter filtering', () => {
+    it('filters out parameters with x-internal flag set to true', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: {
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
+          },
+          parameters: [
+            {
+              in: 'query',
+              name: 'param1',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+            {
+              in: 'query',
+              name: 'param2',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+              'x-internal': true,
+            },
+            {
+              in: 'query',
+              name: 'param3',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      expect(wrapper.text()).toContain('param1')
+      expect(wrapper.text()).not.toContain('param2')
+      expect(wrapper.text()).toContain('param3')
+    })
+
+    it('filters out parameters with x-scalar-ignore flag set to true', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: {
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
+          },
+          parameters: [
+            {
+              in: 'query',
+              name: 'param1',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+            {
+              in: 'query',
+              name: 'param2',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+              'x-scalar-ignore': true,
+            },
+            {
+              in: 'query',
+              name: 'param3',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      expect(wrapper.text()).toContain('param1')
+      expect(wrapper.text()).not.toContain('param2')
+      expect(wrapper.text()).toContain('param3')
+    })
+
+    it('filters out parameters with both ignore flags', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: {
+            orderRequiredPropertiesFirst: false,
+            orderSchemaPropertiesBy: 'alpha',
+          },
+          parameters: [
+            {
+              in: 'query',
+              name: 'param1',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+            {
+              in: 'query',
+              name: 'param2',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+              'x-internal': true,
+              'x-scalar-ignore': true,
+            },
+            {
+              in: 'query',
+              name: 'param3',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+              'x-internal': true,
+            },
+            {
+              in: 'query',
+              name: 'param4',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+              'x-scalar-ignore': true,
+            },
+            {
+              in: 'query',
+              name: 'param5',
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'string',
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      expect(wrapper.text()).toContain('param1')
+      expect(wrapper.text()).not.toContain('param2')
+      expect(wrapper.text()).not.toContain('param3')
+      expect(wrapper.text()).not.toContain('param4')
+      expect(wrapper.text()).toContain('param5')
     })
   })
 })

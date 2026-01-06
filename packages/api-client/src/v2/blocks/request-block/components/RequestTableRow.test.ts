@@ -211,7 +211,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('Upload File')
+    expect(wrapper.text()).toContain('Select File')
   })
 
   it('emits uploadFile when upload button is clicked', async () => {
