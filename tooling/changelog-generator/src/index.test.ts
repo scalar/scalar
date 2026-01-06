@@ -40,6 +40,45 @@ describe('formatter helpers', () => {
     expect(result).toBe('- Do something else')
   })
 
+  it('account for multiple lines', () => {
+    const changeset = {
+      summary: [
+        'fix: remove internal unused export',
+        '',
+        '- `CARD_Heading_SYMBOL`',
+        '- `FORM_GROUP_SYMBOL`',
+        '- `formatHotKey#isDefault`',
+        '- `LoadingCompletionOptions`',
+        '- `MaybeElement`',
+        '- `ScalarComboBox#isGroup`',
+      ].join('\n'),
+    } as any
+    const githubInfo = {
+      pull: 123,
+      user: null,
+      links: {
+        commit: '',
+        pull: 'https://github.com/scalar/scalar/pull/123',
+        user: null,
+      },
+    }
+
+    const result = formatReleaseLine(changeset, githubInfo)
+
+    expect(result).toBe(
+      [
+        '- [#123](https://github.com/scalar/scalar/pull/123): fix: remove internal unused export',
+        '',
+        '  - `CARD_Heading_SYMBOL`',
+        '  - `FORM_GROUP_SYMBOL`',
+        '  - `formatHotKey#isDefault`',
+        '  - `LoadingCompletionOptions`',
+        '  - `MaybeElement`',
+        '  - `ScalarComboBox#isGroup`',
+      ].join('\n'),
+    )
+  })
+
   it('formats dependency header and change', () => {
     expect(formatDependencyHeader('@scalar/api-reference', '1.2.3')).toBe('- **@scalar/api-reference@1.2.3**')
 
