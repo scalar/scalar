@@ -449,6 +449,11 @@
                     "filepath": "documentation/integrations/docusaurus.md",
                     "type": "page"
                   },
+                  "effect": {
+                    "title": "Effect",
+                    "filepath": "documentation/integrations/effect.md",
+                    "type": "page"
+                  },
                   "elixir": {
                     "title": "Elixir",
                     "filepath": "documentation/integrations/elixir.md",
