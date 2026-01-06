@@ -4,7 +4,6 @@
     // Allows a progressive adoption
     "examples/**",
     "packages/api-client/**",
-    "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
     "packages/galaxy/**",
@@ -51,6 +50,9 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/api-client-react": {
+      "entry": ["playground/main.tsx"]
+    },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
