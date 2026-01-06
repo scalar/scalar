@@ -63,7 +63,7 @@ watch(
 </script>
 <template>
   <AuthSelector
-    v-if="Object.keys(document?.components?.securitySchemes ?? {}).length"
+    v-if="Object.keys(securitySchemes).length"
     :environment
     :eventBus
     isReadOnly
