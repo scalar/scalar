@@ -42,6 +42,8 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import { getXKeysFromObject } from '@/features/specification-extension'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -69,6 +71,7 @@ const { operation, path } = defineProps<{
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
+const operationExtensions = computed(() => getXKeysFromObject(operation))
 
 const { copyToClipboard } = useClipboard()
 </script>
@@ -166,6 +169,11 @@ const { copyToClipboard } = useClipboard()
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
+        <div
+          v-if="Object.keys(operationExtensions).length > 0"
+          class="operation-details-card-item">
+          <SpecificationExtension :value="operationExtensions" />
+        </div>
         <div class="operation-details-card-item">
           <OperationParameters
             :eventBus="eventBus"
