@@ -15,9 +15,6 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/tailwind-cdn.js"
-        },
-        {
           "path": "documentation/assets/landing.js"
         }
       ],
