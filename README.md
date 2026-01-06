@@ -160,12 +160,13 @@ And there's an ever-growing list of plugins and integrations:
 
 The following frameworks have chosen Scalar API Reference as their default OpenAPI documentation UI, recognizing its developer-friendly features and modern design:
 
+- [Effect](https://guides.scalar.com/scalar/scalar-api-references/integrations/effect)
 - [ElysiaJS](https://guides.scalar.com/scalar/scalar-api-references/integrations/elysiajs)
 - [HappyX](https://github.com/HapticX/happyx)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [Nitro](https://guides.scalar.com/scalar/scalar-api-references/integrations/nitro)
-- [Platformatic](https://guides.scalar.com/scalar/scalar-api-references/integrations/platformatic)
 - [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
+- [Platformatic](https://guides.scalar.com/scalar/scalar-api-references/integrations/platformatic)
 
 <br>
 
