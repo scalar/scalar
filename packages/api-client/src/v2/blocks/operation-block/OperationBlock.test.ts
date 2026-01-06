@@ -411,7 +411,7 @@ describe('OperationBlock', () => {
 
     const mockPlugin = {
       hooks: {
-        beforeRequest: vi.fn((req: Request) => req),
+        beforeRequest: vi.fn((req: { request: Request }) => req),
       },
     }
 
