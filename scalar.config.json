@@ -122,12 +122,12 @@
               "github-sync": {
                 "filepath": "documentation/guides/docs/github-sync.md",
                 "type": "page",
-                "title": "Github Sync"
+                "title": "GitHub Sync"
               },
               "github-actions": {
                 "filepath": "documentation/guides/docs/github-actions.md",
                 "type": "page",
-                "title": "Github Actions"
+                "title": "GitHub Actions"
               },
               "redirects": {
                 "filepath": "documentation/guides/docs/redirects.md",
