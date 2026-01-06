@@ -11,9 +11,9 @@ We provide an official Rust crate for rendering the Scalar API documentation in 
 
 ## Integrations
 
-* [Axum (feature: `axum`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/axum)
-* [Actix-web (feature: `actix-web`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/actix-web)
-* [Warp (feature: `warp`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/warp)
+* [Axum (feature: `axum`)](axum.md)
+* [Actix-web (feature: `actix-web`)](actix-web.md)
+* [Warp (feature: `warp`)](warp.md)
 
 There are a few community integrations, too:
 
@@ -112,8 +112,8 @@ The configuration object supports all standard Scalar options. Common options in
 
 * `url`: Path to your OpenAPI document
 * `layout`: Layout style ("classic" or "modern")
-* `theme`: [Theme name (e.g., "purple", "blue", "green")](https://guides.scalar.com/scalar/scalar-api-references/themes)
+* `theme`: [Theme name (e.g., "purple", "blue", "green")](../themes.md)
 * `darkMode`: Enable dark mode
 
-See the documentation for [the complete configuration reference](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+See the documentation for [the complete configuration reference](../configuration.md).
 

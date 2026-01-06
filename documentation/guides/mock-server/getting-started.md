@@ -14,7 +14,7 @@ A powerful Node.js mock server that automatically generates realistic API respon
 
 ## Quickstart
 
-The easiest way to get started is through [our Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started).
+The easiest way to get started is through [our Scalar CLI](../cli/getting-started.md).
 You can have a mock server up and running in seconds:
 
 ```bash
@@ -23,7 +23,7 @@ npx @scalar/cli document mock openapi.json --watch
 
 ### Docker
 
-Alternatively, you can run the mock server in a Docker container. See the [Docker documentation](https://guides.scalar.com/scalar/scalar-mock-server/docker) for more details. 
+Alternatively, you can run the mock server in a Docker container. See the [Docker documentation](docker.md) for more details.
 
 ## Installation
 
@@ -187,10 +187,10 @@ The given OpenAPI document is automatically exposed:
 
 Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.
 
-[Learn more about custom request handlers →](https://guides.scalar.com/scalar/scalar-mock-server/custom-request-handlers)
+[Learn more about custom request handlers →](custom-request-handler.md)
 
 ### Data Seeding
 
 Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
 
-[Learn more about data seeding →](https://guides.scalar.com/scalar/scalar-mock-server/data-seeding)
+[Learn more about data seeding →](data-seeding.md)

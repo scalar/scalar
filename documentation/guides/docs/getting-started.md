@@ -42,7 +42,7 @@
   :::
   In the top left corner of <https://docs.scalar.com>, you'll see a “Guide” tab. This is where you land by default.
 
-  Guides are basically a blank sheet of paper. These pages are where you will publish your non-reference content (API reference pages are [discussed below](#api-references)). You can start writing your documentation, your guidelines, your knowledge base — whatever you want to write — using our editor. You can alternatively manage your guides using a Git repository, covered in the [GitHub Sync](https://guides.scalar.com/scalar/scalar-docs/github-sync) guide.
+  Guides are basically a blank sheet of paper. These pages are where you will publish your non-reference content (API reference pages are [discussed below](#api-references)). You can start writing your documentation, your guidelines, your knowledge base — whatever you want to write — using our editor. You can alternatively manage your guides using a Git repository, covered in the [GitHub Sync](github-sync.md) guide.
 
   If you're serious about this, you can [create an account here](https://docs.scalar.com/register) to make sure your changes are saved.
 
@@ -63,19 +63,19 @@
   - Paste your OpenAPI document in the editor
   - Upload an OpenAPI document to the editor
   - Import an URL (you can even create a “Live Link”, which means it'll fetch updates from the URL vs. just fetching it once)
-  - [Sync your OpenAPI document from GitHub](https://guides.scalar.com/scalar/scalar-docs/github-sync#advanced-configuration__add-an-openapi-reference)
+  - [Sync your OpenAPI document from GitHub](github-sync.md#github-sync__advanced-configuration)
 
   ## Scalar Pro
 
   Most of our stuff is actually freely available. Upgrading to Scalar Pro unlocks a set of additional features, including:
 
   * Custom domains,
-  * [GitHub sync](https://guides.scalar.com/scalar/scalar-docs/github-sync),
+  * [GitHub Sync](github-sync.md),
   * Guides (and versioning of your guides),
   * TypeSense search and
   * priority support (including a private Discord channel or a dedicated Slack connect channel if you like).
 
-  [Pricing information can be found here](https://scalar.com#pricing).
+  [Pricing information can be found here](../pricing.md).
 
 <div class="feature">
   <h2>Features</h2>

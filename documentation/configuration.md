@@ -848,7 +848,7 @@ Anyway, totally makes sense to disable it in some environments, so feel free to 
 
 **Type:** `ApiReferencePlugin[]`
 
-Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
+Pass an array of custom plugins that you want. [Read more about plugins here.](plugins.md)
 
 ```js
 {

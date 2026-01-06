@@ -102,7 +102,7 @@ You can use the UI on https://dashboard.scalar.com or the Scalar configuration f
 
 ### Trigger a deployment using the CLI
 
-You can use the [Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started) to trigger a deployment:
+You can use the [Scalar CLI](../cli/getting-started.md) to trigger a deployment:
 
 ```bash
 npx @scalar/cli project publish --slug your-project-slug
@@ -110,9 +110,9 @@ npx @scalar/cli project publish --slug your-project-slug
 
 ### Trigger a deployment in CI/CD
 
-You can [use GitHub Actions](https://guides.scalar.com/scalar/scalar-docs/github-actions) to trigger a deployment.
+You can [use GitHub Actions](github-actions.md) to trigger a deployment.
 
-Or [use the Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started) for any other CI/CD environments.
+Or [use the Scalar CLI](../cli/getting-started.md) for any other CI/CD environments.
 
 ## Advanced configuration
 

@@ -24,7 +24,7 @@ import { ScalarComponent } from '@scalar/astro'
 }} />
 ```
 
-The Astro component takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+The Astro component takes our universal configuration object, [read more about configuration](../configuration.md).
 
 ### Themes
 

@@ -2,7 +2,7 @@
 
 Docusaurus helps you to ship a beautiful documentation site in no time. For everyone who wants to make their API reference part of a Docusaurus website, we've built a Scalar API Reference plugin.
 
-![Screenshot of the Docusaurus integration](/screenshots/docusaurus.png)
+![Screenshot of the Docusaurus integration](../assets/screenshots/docusaurus.png)
 
 ## Installation
 
@@ -34,9 +34,9 @@ plugins: [
 
 ### Multiple API references
 
-Is it possible to show multiple API references? Yes, it is! :) 
+Is it possible to show multiple API references? Yes, it is! :)
 
-You can either display each API reference in its own page, or display multiple API references on a single page. 
+You can either display each API reference in its own page, or display multiple API references on a single page.
 
 #### Create a page for each API reference
 

@@ -19,9 +19,9 @@
 To first access the Scalar Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
 Once authenticated you will see your dashboard, you have two options to interface with the Scalar Registry:
-- The Scalar [dashboard](https://guides.scalar.com/scalar/scalar-registry/dashboard)
-- The Scalar [CLI](https://guides.scalar.com/scalar/scalar-registry/cli)
-- Our [GitHub Workflows](https://guides.scalar.com/scalar/scalar-registry/github-workflows)
+- [Scalar dashboard](https://dashboard.scalar.com)
+- [Scalar CLI](cli.md)
+- [GitHub Actions](github-actions.md)
 
 <img class="light-image mt-6" src="/scalar-dashboard.svg"/>
 <img class="dark-image mt-6" src="/scalar-dashboard-dark.svg"/>

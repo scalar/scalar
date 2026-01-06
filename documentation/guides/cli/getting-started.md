@@ -1,8 +1,7 @@
 # Getting Started
 <div class="flex gap-2">
-<a><img src="https://img.shields.io/npm/v/%40scalar/cli"></a>
-<a><img src="https://img.shields.io/npm/dm/%40scalar/cli"></a>
-<a><img src="https://img.shields.io/npm/l/%40scalar%2Fapi-reference"></a>
+<a><img src="https://img.shields.io/npm/v/@scalar/cli"></a>
+<a><img src="https://img.shields.io/npm/dm/@scalar/cli"></a>
 <a><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
@@ -43,13 +42,11 @@ pnpm dlx @scalar/cli help
 
 ## Commands
 
-- [scalar](https://guides.scalar.com/scalar/scalar-cli/commands#scalar) CLI to work with OpenAPI files, Markdown/MDX, Scalar Platform
-- [auth](https://guides.scalar.com/scalar/scalar-cli/commands#auth) Manage authorization on Scalar platform
-- [document](https://guides.scalar.com/scalar/scalar-cli/commands#document) Manage local openapi files
-- [project](https://guides.scalar.com/scalar/scalar-cli/commands#project) Manage Scalar docs project
-- [registry](https://guides.scalar.com/scalar/scalar-cli/commands#registry) Manage your Scalar registry
-- [team](https://guides.scalar.com/scalar/scalar-cli/commands#team) Manage user teams
-- [help](https://guides.scalar.com/scalar/scalar-cli/commands#help) Display help for command
+- [auth](commands.md#auth) Manage authorization on Scalar platform
+- [document](commands.md#document) Manage local openapi files
+- [project](commands.md#project) Manage Scalar docs project
+- [registry](commands.md#registry) Manage your Scalar registry
+- [team](commands.md#team) Manage user teams
 
 ## Authentication
 To authenticate with the Scalar platform you can do the following:
@@ -66,7 +63,7 @@ Now you can interact with all the wonderful authorization endpoints
 ### Token/Machine Based
 
 Typical if you want to use in CI workflows or programatically you need to:
-1. Visit https://dashboard.scalar.com 
+1. Visit https://dashboard.scalar.com
 2. Create an account or Login
 3. Navigate to User -> API Keys https://dashboard.scalar.com/user/api-keys
 4. Generate an API Key
