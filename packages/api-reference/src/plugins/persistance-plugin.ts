@@ -46,8 +46,6 @@ export const persistencePlugin = ({
        * Each write is debounced by a key to prevent frequent writes for the same entity.
        */
       onWorkspaceStateChanges(event) {
-        console.log({ event, prefix: getPrefix() })
-
         // If the event is for workspace meta data, debounce by workspaceId
         if (event.type === 'meta') {
           // Persist the meta fields

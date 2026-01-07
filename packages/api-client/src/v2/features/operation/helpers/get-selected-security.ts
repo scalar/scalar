@@ -12,8 +12,6 @@ export const getSelectedSecurity = (
   securityRequirements: NonNullable<OpenApiDocument['security']> = [],
   setOperationSecurity = false,
 ) => {
-  const firstRequirement = securityRequirements[0]
-
   // Operation level security
   if (setOperationSecurity) {
     if (operationSelectedSecurity) {
@@ -25,8 +23,10 @@ export const getSelectedSecurity = (
     return documentSelectedSecurity
   }
 
-  // No need to default if auth is optional
   const isOptional = isAuthOptional(securityRequirements)
+  const firstRequirement = securityRequirements[0]
+
+  // No need to default if auth is optional
   if (isOptional || !firstRequirement) {
     return {
       selectedIndex: -1,
