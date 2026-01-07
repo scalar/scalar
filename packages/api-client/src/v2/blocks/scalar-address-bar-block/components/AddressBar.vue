@@ -7,11 +7,13 @@ import {
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import {
   ScalarIconCheck,
   ScalarIconCopy,
   ScalarIconWarningCircle,
 } from '@scalar/icons'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
@@ -176,12 +178,19 @@ onBeforeUnmount(() => {
 
 const copyUrlLoading = useLoadingState()
 
+const { copyToClipboard } = useClipboard()
+
 const copyUrl = async () => {
   copyUrlLoading.start()
   const environmentVariables = getEnvironmentVariables(environment)
   const serverUrl = getServerUrl(server, environmentVariables)
-  await navigator?.clipboard?.writeText(`${serverUrl}${path}`)
-  await copyUrlLoading.validate()
+  const pathWithVariables = replaceVariables(path, environmentVariables)
+  try {
+    await copyToClipboard(`${serverUrl}${pathWithVariables}`)
+    await copyUrlLoading.validate()
+  } catch {
+    await copyUrlLoading.invalidate()
+  }
 }
 
 defineExpose({
