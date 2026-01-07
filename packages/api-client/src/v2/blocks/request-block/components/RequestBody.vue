@@ -5,7 +5,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
@@ -87,17 +87,16 @@ const selectedContentType = computed(
     'none',
 )
 
-// TODO: temporarily disabled for the modal, we can re-enable later
-// watch(
-//   () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
-//   (contentType) => {
-//     // If there's no selected content type, set it
-//     if (!contentType) {
-//       emits('update:contentType', { value: selectedContentType.value })
-//     }
-//   },
-//   { immediate: true },
-// )
+watch(
+  () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
+  (contentType) => {
+    // If there's no selected content type, set it
+    if (!contentType) {
+      emits('update:contentType', { value: selectedContentType.value })
+    }
+  },
+  { immediate: true },
+)
 
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
