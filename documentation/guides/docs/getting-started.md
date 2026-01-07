@@ -31,7 +31,7 @@
 </div>
 
 <div class="mt-10">
-  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg" /></scalar-image>
+  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
 </div>
 <div class="flex">
   <div class="full-container-constrained">

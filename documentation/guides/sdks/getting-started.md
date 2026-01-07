@@ -11,7 +11,7 @@
 </div>
 
 <div class="mt-10">
-  <scalar-image src="/sdks-animated.svg" src-dark="/sdks-animated-dark.svg"/></scalar-image>
+  <scalar-image src="/sdks-animated.svg" src-dark="/sdks-animated-dark.svg"></scalar-image>
 </div>
 
 
@@ -52,7 +52,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
   </scalar-step>
 </scalar-steps>
 
-<scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"/></scalar-image>
+<scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"></scalar-image>
 
 
 <div class="feature">
