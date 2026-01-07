@@ -2,4 +2,4 @@
 '@scalar/aspnetcore': minor
 ---
 
-remove obsolete `EndpointPrefix` property
+remove obsolete `EndpointPathPrefix` property
