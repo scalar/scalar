@@ -13,6 +13,8 @@ const getKey = (requirement: SecurityRequirementObject) => Object.keys(requireme
 
 /**
  * Find the intersection between which security is selected on the document and what this operation requires
+ *
+ * If there is no overlap, we return the first requirement
  */
 export const filterSelectedSecurity = (
   document: OpenApiDocument,
@@ -26,10 +28,6 @@ export const filterSelectedSecurity = (
     document?.['x-scalar-selected-security'],
     operation?.['x-scalar-selected-security'],
   )
-
-  if (!securityRequirements.length || !selectedSecurity.selectedSchemes.length) {
-    return []
-  }
 
   /** Build a set for O(1) lookup */
   const requirementSet = new Set(securityRequirements.map((r) => getKey(r)))
@@ -45,6 +43,14 @@ export const filterSelectedSecurity = (
     if (requirementSet.has(getKey(selected))) {
       return getSecuritySchemes(securitySchemes, [selected])
     }
+  }
+
+  /**
+   * If we are selected security on the document,
+   * we should show the first requirement of the operation to show auth is required
+   */
+  if (operation?.security?.length && !document?.['x-scalar-set-operation-security']) {
+    return getSecuritySchemes(securitySchemes, securityRequirements.slice(0, 1))
   }
 
   return []

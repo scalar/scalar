@@ -30,10 +30,17 @@ describe('filterSelectedSecurity', () => {
   })
 
   /**
-   * Test 2: Returns empty array when selected security does not match operation requirements
-   * Critical because this tests the core filtering logic - mismatched security should return nothing
+   * Test 2: Returns the first requirement when selected security does not match operation requirements
+   * Critical because this tests the core filtering logic - we want to show the first requirement if there is no overlap
    */
-  it('returns empty array when selected security does not match any operation requirements', () => {
+  it('selects the first requirement when there is nothing selected but requirements exist', () => {
+    const apiKeyScheme: SecuritySchemeObject = {
+      type: 'apiKey',
+      name: 'X-API-Key',
+      in: 'header',
+      'x-scalar-secret-token': '',
+    }
+
     const document: OpenApiDocument = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
@@ -41,42 +48,19 @@ describe('filterSelectedSecurity', () => {
       'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
-          apiKey: {
-            type: 'apiKey',
-            name: 'X-API-Key',
-            in: 'header',
-            'x-scalar-secret-token': '',
-          },
-          oauth2: {
-            type: 'oauth2',
-            flows: {
-              implicit: {
-                authorizationUrl: 'https://example.com/oauth',
-                refreshUrl: '',
-                scopes: {},
-                'x-scalar-secret-client-id': '',
-                'x-scalar-secret-token': '',
-                'x-scalar-secret-redirect-uri': '',
-              },
-            },
-          },
+          apiKey: apiKeyScheme,
         },
-      },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
       },
     }
 
     const operation: OperationObject = {
       responses: {},
-      // Operation requires oauth2, but apiKey is selected
-      security: [{ oauth2: [] }],
+      security: [{ apiKey: [] }],
     }
 
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
-    expect(result).toEqual([])
+    expect(result).toEqual([apiKeyScheme])
   })
 
   /**
@@ -299,11 +283,10 @@ describe('filterSelectedSecurity', () => {
 
     const operation: OperationObject = {
       responses: {},
-      security: [{ apiKey: [] }],
+      security: [],
     }
 
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
-
     expect(result).toEqual([])
   })
 
