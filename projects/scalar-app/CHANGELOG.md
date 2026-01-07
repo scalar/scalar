@@ -1,5 +1,20 @@
 # scalar-app
 
+## 0.1.254
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/api-client@2.17.3**
+
+- **@scalar/import@0.4.41**
+
+- **@scalar/themes@0.13.26**
+
 ## 0.1.253
 
 ### Patch Changes

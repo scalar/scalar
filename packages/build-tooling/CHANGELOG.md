@@ -1,5 +1,12 @@
 # @scalar/build-tooling
 
+## 0.4.1
+
+### Patch Changes
+
+- [#7655](https://github.com/scalar/scalar/pull/7655): fix(build-tooling): import fast glob as commonJS
+- [#7657](https://github.com/scalar/scalar/pull/7657): fix(build-tooling): add scripts directory to package files
+
 ## 0.4.0
 
 ### Minor Changes

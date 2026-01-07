@@ -1,5 +1,48 @@
 # @scalar/api-reference
 
+## 1.41.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/api-client@2.17.3**
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/icons@0.5.2**
+
+- **@scalar/json-magic@0.8.8**
+
+- **@scalar/oas-utils@0.6.12**
+
+- **@scalar/object-utils@1.2.18**
+
+- **@scalar/openapi-parser@0.23.9**
+
+- **@scalar/openapi-types@0.5.3**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+- **@scalar/sidebar@0.7.4**
+
+- **@scalar/snippetz@0.6.1**
+
+- **@scalar/themes@0.13.26**
+
+- **@scalar/types@0.5.4**
+
+- **@scalar/use-hooks@0.3.3**
+
+- **@scalar/use-toasts@0.9.1**
+
+- **@scalar/workspace-store@0.24.2**
+
 ## 1.41.0
 
 ### Minor Changes

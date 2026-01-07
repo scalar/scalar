@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.16.14
+
+### Patch Changes
+
+- [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/icons@0.5.2**
+
+- **@scalar/oas-utils@0.6.12**
+
+- **@scalar/themes@0.13.26**
+
+- **@scalar/use-hooks@0.3.3**
+
 ## 0.16.13
 
 ### Patch Changes
