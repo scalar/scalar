@@ -152,7 +152,7 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/registry/getting-started">
+      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started">
       Connect Your API for Free
        →
       </a>
@@ -249,7 +249,7 @@
           Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/docs/getting-started">Create Your New Documentation →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -296,7 +296,7 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/sdks/getting-started">Generate your first SDK →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -399,7 +399,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -418,7 +418,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -436,7 +436,7 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
@@ -452,7 +452,7 @@
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
