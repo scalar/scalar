@@ -3,16 +3,11 @@ import {
   ScalarButton,
   ScalarIcon,
   ScalarWrappingText,
-  useLoadingState,
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
-import {
-  ScalarIconCheck,
-  ScalarIconCopy,
-  ScalarIconWarningCircle,
-} from '@scalar/icons'
+import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
@@ -176,21 +171,13 @@ onBeforeUnmount(() => {
   stopLoading()
 })
 
-const copyUrlLoading = useLoadingState()
-
 const { copyToClipboard } = useClipboard()
 
 const copyUrl = async () => {
-  copyUrlLoading.start()
   const environmentVariables = getEnvironmentVariables(environment)
   const serverUrl = getServerUrl(server, environmentVariables)
   const pathWithVariables = replaceVariables(path, environmentVariables)
-  try {
-    await copyToClipboard(`${serverUrl}${pathWithVariables}`)
-    await copyUrlLoading.validate()
-  } catch {
-    await copyUrlLoading.invalidate()
-  }
+  await copyToClipboard(`${serverUrl}${pathWithVariables}`)
 }
 
 defineExpose({
@@ -278,8 +265,7 @@ defineExpose({
         size="xs"
         variant="ghost"
         @click="copyUrl">
-        <ScalarIconCopy v-if="!copyUrlLoading.isActive" />
-        <ScalarIconCheck v-else />
+        <ScalarIconCopy />
         <span class="sr-only">Copy URL</span>
       </ScalarButton>
 
