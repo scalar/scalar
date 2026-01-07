@@ -1,0 +1,107 @@
+# Claude Ignore File
+# Files and directories listed here will be excluded from Claude's context
+# This helps reduce token usage and improves performance
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.vercel/
+.netlify/
+out/
+storybook-static/
+
+# Turbo
+.turbo/
+
+# Cache directories
+.cache/
+.vite/
+.vitest/
+.rollup.cache/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Minified files
+*.min.js
+*.min.css
+*.bundle.js
+*.chunk.js
+
+# Source maps
+*.map
+
+# Lock files (keep package.json but ignore locks to reduce context)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large data files
+*.sqlite
+*.db
+
+# Documentation builds
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Git
+.git/
+.gitignore
+
+# Large vendor libraries (if any)
+vendor/
+
+# Generated types (can be regenerated)
+# Uncomment if you have auto-generated types
+# **/*.generated.ts
+# **/*.generated.d.ts

@@ -1,0 +1,68 @@
+{
+  "allowedCommands": [
+    "pnpm*",
+    "git*",
+    "gh*",
+    "node*",
+    "npm*",
+    "turbo*",
+    "vitest*",
+    "playwright*",
+    "biome*",
+    "prettier*",
+    "eslint*",
+    "vite*",
+    "docker*",
+    "ls*",
+    "cat*",
+    "grep*",
+    "find*",
+    "echo*",
+    "mkdir*",
+    "touch*",
+    "cp*",
+    "mv*"
+  ],
+  "deniedCommands": [
+    "rm -rf /",
+    "rm -rf ~",
+    "rm -rf .*",
+    "sudo rm*",
+    "sudo dd*",
+    "shutdown*",
+    "reboot*",
+    "mkfs*",
+    "format*",
+    "> /dev/sda*"
+  ],
+  "allowedFilePatterns": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.vue",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.json",
+    "**/*.md",
+    "**/*.yaml",
+    "**/*.yml",
+    "**/*.css",
+    "**/*.scss",
+    "**/*.html",
+    "**/package.json",
+    "**/tsconfig.json",
+    "**/vite.config.*",
+    "**/vitest.config.*",
+    "**/.env.example"
+  ],
+  "deniedFilePatterns": [
+    "**/.env",
+    "**/.env.local",
+    "**/secrets.*",
+    "**/credentials.*",
+    "**/*.key",
+    "**/*.pem"
+  ],
+  "environment": {
+    "NODE_ENV": "development"
+  }
+}
