@@ -24,11 +24,11 @@ import type { ResponsesObject } from './responses'
 import type { SchemaObject } from './schema'
 import type { SecuritySchemeObject } from './security-scheme'
 
-export const SecuritySchemesSchema = Type.Record(
+const SecuritySchemesSchema = Type.Record(
   Type.String(),
   Type.Union([SecuritySchemeObjectRef, reference(SecuritySchemeObjectRef)]),
 )
-export type SecuritySchemes = Record<string, ReferenceType<SecuritySchemeObject>>
+type SecuritySchemes = Record<string, ReferenceType<SecuritySchemeObject>>
 
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export const ComponentsObjectSchemaDefinition = Type.Object({
