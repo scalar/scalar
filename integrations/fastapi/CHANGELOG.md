@@ -1,5 +1,14 @@
 # scalar-fastapi
 
+## 1.6.0
+
+### Minor Changes
+
+- [#7619](https://github.com/scalar/scalar/pull/7619): - Added `show_developer_tools` option to configure when the top developer tools panel is displayed (accepts "always", "localhost", or "never").
+  - Added `telemetry` option to enable or disable telemetry.
+  - Added `overrides` option to pass custom configuration directly to the Scalar.createApiReference config object.
+  - Updated docs
+
 ## 1.5.0
 
 ### Minor Changes
