@@ -45,7 +45,7 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
 
       // Loop over the method level
       objectEntries(methods).forEach(([callbackMethod, callback]) => {
-        if (isHttpMethod(callbackMethod)) {
+        if (!isHttpMethod(callbackMethod)) {
           return
         }
 
