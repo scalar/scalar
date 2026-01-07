@@ -121,7 +121,7 @@ export const operationToHar = ({
           existingContentTypeHeader.value = postData.mimeType
         }
         // Add new header if none exists
-        else {
+        else if (!existingContentTypeHeader) {
           harRequest.headers.push({
             name: 'Content-Type',
             value: postData.mimeType,

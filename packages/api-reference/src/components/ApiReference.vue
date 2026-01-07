@@ -90,8 +90,6 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const eventBus = createWorkspaceEventBus()
-
 const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
@@ -104,6 +102,7 @@ const isDevelopment = import.meta.env.DEV
 
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
+const eventBus = createWorkspaceEventBus({ debug: isDevelopment })
 const isSidebarOpen = ref(false)
 
 watch(
@@ -437,7 +436,6 @@ defineExpose({
  * 1. If the document has not be loaded to the workspace store we set it to empty and asynchronously load it
  * 2. If the document has been loaded to the workspace store we just set it to active
  * 3. If the content from the configuration has changes we need to update the document in the workspace store
- * 4. The API client temporary store will always be reset and re-initialized when the slug changes
  */
 const changeSelectedDocument = async (
   slug: string,
@@ -446,12 +444,6 @@ const changeSelectedDocument = async (
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
 
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
-  apiClient.value?.route({
-    documentSlug: slug,
-    method: 'get',
-    path: '/',
-  })
   const normalized = configList.value[slug]
 
   if (!normalized) {
@@ -499,14 +491,29 @@ const changeSelectedDocument = async (
     void config.onLoaded?.(slug)
   })()
 
-  /** When loading to a specified element we need to freeze and scroll */
+  // When loading to a specified element we need to freeze and scroll
   if (elementId && elementId !== slug) {
     scrollToLazyElement(elementId)
-  } else {
-    /** If there is no child element of the document specified we expand the first tag */
+    apiClient.value?.route({
+      documentSlug: slug,
+      method: 'get',
+      path: '/',
+    })
+  }
+  // If there is no child element of the document specified we expand the first tag
+  else {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
+
+      const firstOperation = firstTag.children?.find(
+        (item) => item.type === 'operation',
+      )
+      apiClient.value?.route({
+        documentSlug: slug,
+        method: firstOperation?.method ?? 'get',
+        path: firstOperation?.path ?? '/',
+      })
     }
   }
 }

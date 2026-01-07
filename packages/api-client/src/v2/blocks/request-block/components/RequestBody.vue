@@ -87,16 +87,17 @@ const selectedContentType = computed(
     'none',
 )
 
-watch(
-  () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
-  (contentType) => {
-    // If there's no selected content type, set it
-    if (!contentType) {
-      emits('update:contentType', { value: selectedContentType.value })
-    }
-  },
-  { immediate: true },
-)
+// TODO: temporarily disabled for the modal, we can re-enable later
+// watch(
+//   () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
+//   (contentType) => {
+//     // If there's no selected content type, set it
+//     if (!contentType) {
+//       emits('update:contentType', { value: selectedContentType.value })
+//     }
+//   },
+//   { immediate: true },
+// )
 
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
