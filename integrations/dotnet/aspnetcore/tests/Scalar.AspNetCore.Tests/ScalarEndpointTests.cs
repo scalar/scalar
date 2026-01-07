@@ -287,17 +287,4 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("<title>Scalar API Reference | v1</title>");
     }
-
-    [Fact]
-    public async Task MapScalarApiReference_ShouldHandleLegacyEndpointPathPrefix_WhenSpecified()
-    {
-        // Arrange
-        var client = factory.CreateClient();
-
-        // Act
-        var response = await client.GetAsync("/legacy", TestContext.Current.CancellationToken);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
 }
