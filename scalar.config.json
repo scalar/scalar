@@ -150,7 +150,7 @@
               "/docs": {
                 "title": "Scalar Docs",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/book",
                 "children": {
                   "getting-started": {
@@ -264,7 +264,7 @@
               "/sdks": {
                 "title": "Scalar SDKs",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/package",
                 "children": {
                   "getting-started": {
@@ -325,8 +325,8 @@
               "/registry": {
                 "title": "Scalar Registry",
                 "type": "group",
-                "mode": "folder",
-                "icon": "phosphor/regular/seal-check",
+                "mode": "nested",
+                "icon": "phosphor/regular/brackets-curly",
                 "children": {
                   "getting-started": {
                     "filepath": "documentation/guides/registry/getting-started.md",
@@ -358,7 +358,7 @@
               "/api-references": {
                 "title": "Scalar API References",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/scroll",
                 "children": {
                   "getting-started": {
@@ -638,7 +638,7 @@
               "/api-client": {
                 "title": "Scalar API Client",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/app-window",
                 "children": {
                   "getting-started": {
@@ -651,7 +651,7 @@
               "/mock-server": {
                 "title": "Scalar Mock Server",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/jar",
                 "children": {
                   "getting-started": {
@@ -686,7 +686,7 @@
               "/cli": {
                 "title": "Scalar CLI",
                 "type": "group",
-                "mode": "folder",
+                "mode": "nested",
                 "icon": "phosphor/regular/terminal",
                 "children": {
                   "getting-started": {
