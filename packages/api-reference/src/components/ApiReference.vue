@@ -681,7 +681,7 @@ eventBus.on('ui:download:document', async ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = (id: string) => {
+const handleSelectItem = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
   if (
@@ -704,8 +704,12 @@ const handleSelectItem = (id: string) => {
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
-    console.log('handleSelectItem pushState', url)
     window.history.pushState({}, '', url)
+
+    // Trigger the onSidebarClick callback if the caller is sidebar
+    if (caller === 'sidebar') {
+      mergedConfig.value.onSidebarClick?.(url.toString())
+    }
   }
 }
 eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
@@ -831,7 +835,7 @@ const colorMode = computed(() => {
             layout="reference"
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectItem(id)">
+            @selectItem="(id) => handleSelectItem(id, 'sidebar')">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector

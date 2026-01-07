@@ -66,6 +66,13 @@ beforeEach(() => {
   }))
 
   /**
+   * Mock scrollIntoView which is not available in the test environment.
+   *
+   * @see https://github.com/jsdom/jsdom/issues/1695
+   */
+  Element.prototype.scrollIntoView = vi.fn()
+
+  /**
    * Bypass lazy loading for testing purposes.
    * This simplifies testing by removing asynchronous rendering behavior.
    */
@@ -1010,5 +1017,25 @@ describe('ApiReference Configuration Tests', () => {
     const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
     expect(operationResponses.props().collapsableItems).toBe(false)
     expect(operationResponses.text().includes('superSecretId')).toBe(true)
+  })
+
+  it('onSidebarClick: function', async () => {
+    const onSidebarClick = vi.fn()
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          onSidebarClick,
+        },
+      },
+    })
+    await flushPromises()
+
+    const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
+    const operationItem = sidebarItems.find((item) => item.text().includes('Get users'))
+    await operationItem?.trigger('click')
+
+    expect(onSidebarClick).toHaveBeenCalled()
+    expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
   })
 })
