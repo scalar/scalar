@@ -2246,9 +2246,6 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      tinybench:
-        specifier: ^2.8.0
-        version: 2.9.0
       vite:
         specifier: catalog:*
         version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)

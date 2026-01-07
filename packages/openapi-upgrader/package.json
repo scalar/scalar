@@ -67,7 +67,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
-    "tinybench": "^2.8.0",
     "vite": "catalog:*"
   }
 }
