@@ -160,17 +160,14 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     }
     // OneOf/AnyOf
     else if (key === 'oneOf' || key === 'anyOf') {
-      // Merge oneOf/anyOf subschema
-      if (Array.isArray(value)) {
-        if (!('properties' in result)) {
-          // @ts-expect-error
-          result.properties = {}
-        }
-        for (const _option of value) {
-          const option = getResolvedRef(_option)
-          if (option.properties && 'properties' in result) {
-            mergePropertiesIntoResult(result.properties, option.properties)
-          }
+      /**
+       * Preserve oneOf/anyOf composition structures instead of flattening them.
+       * When these compositions are wrapped in allOf, they should remain as selectable
+       * options in the schema selector dropdown, not be merged into a single schema.
+       */
+      if (Array.isArray(value) && value.length > 0) {
+        if (override || result[key] === undefined) {
+          result[key] = value
         }
       }
     }

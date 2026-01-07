@@ -543,43 +543,171 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it('merges properties from oneOf/anyOf subschemas within allOf', () => {
+  it('preserves oneOf structure when wrapped in allOf', () => {
     const schema = {
       allOf: [
         {
-          allOf: [
+          type: 'object',
+          properties: {
+            commonProp: { type: 'string' },
+          },
+        },
+        {
+          oneOf: [
             {
               properties: {
-                a: { type: 'string', example: 'foo' },
+                optionA: { type: 'string' },
               },
             },
             {
-              oneOf: [
-                {
-                  properties: {
-                    b: { type: 'number', example: 42 },
-                  },
-                },
-                {
-                  properties: {
-                    c: { type: 'boolean', example: true },
-                  },
-                },
-              ],
+              properties: {
+                optionB: { type: 'number' },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
+      type: 'object',
+      properties: {
+        commonProp: { type: 'string' },
+      },
+      oneOf: [
+        {
+          properties: {
+            optionA: { type: 'string' },
+          },
+        },
+        {
+          properties: {
+            optionB: { type: 'number' },
+          },
+        },
+      ],
+    })
+  })
+
+  it('preserves anyOf structure when wrapped in allOf', () => {
+    const schema = {
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+        },
+        {
+          anyOf: [
+            {
+              properties: {
+                typeA: { type: 'boolean' },
+              },
             },
             {
-              anyOf: [
-                {
-                  properties: {
-                    d: { type: 'integer', example: 7 },
-                  },
-                },
-                {
-                  properties: {
-                    e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
-                  },
-                },
-              ],
+              properties: {
+                typeB: { type: 'integer' },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+      },
+      anyOf: [
+        {
+          properties: {
+            typeA: { type: 'boolean' },
+          },
+        },
+        {
+          properties: {
+            typeB: { type: 'integer' },
+          },
+        },
+      ],
+    })
+  })
+
+  it('preserves oneOf when it is the only item in allOf', () => {
+    const schema = {
+      allOf: [
+        {
+          oneOf: [
+            {
+              type: 'object',
+              properties: {
+                card: { type: 'string' },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                bank: { type: 'string' },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            card: { type: 'string' },
+          },
+        },
+        {
+          type: 'object',
+          properties: {
+            bank: { type: 'string' },
+          },
+        },
+      ],
+    })
+  })
+
+  it('preserves both oneOf and anyOf when wrapped in allOf together', () => {
+    const schema = {
+      allOf: [
+        {
+          properties: {
+            base: { type: 'string' },
+          },
+        },
+        {
+          oneOf: [
+            {
+              properties: {
+                option1: { type: 'string' },
+              },
+            },
+            {
+              properties: {
+                option2: { type: 'number' },
+              },
+            },
+          ],
+        },
+        {
+          anyOf: [
+            {
+              properties: {
+                variant1: { type: 'boolean' },
+              },
+            },
+            {
+              properties: {
+                variant2: { type: 'integer' },
+              },
             },
           ],
         },
@@ -588,12 +716,32 @@ describe('mergeAllOfSchemas', () => {
 
     expect(mergeAllOfSchemas(schema as any)).toEqual({
       properties: {
-        a: { type: 'string', example: 'foo' },
-        b: { type: 'number', example: 42 },
-        c: { type: 'boolean', example: true },
-        d: { type: 'integer', example: 7 },
-        e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
+        base: { type: 'string' },
       },
+      oneOf: [
+        {
+          properties: {
+            option1: { type: 'string' },
+          },
+        },
+        {
+          properties: {
+            option2: { type: 'number' },
+          },
+        },
+      ],
+      anyOf: [
+        {
+          properties: {
+            variant1: { type: 'boolean' },
+          },
+        },
+        {
+          properties: {
+            variant2: { type: 'integer' },
+          },
+        },
+      ],
     })
   })
 
