@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing_extensions import Annotated, Doc
+from typing_extensions import Annotated, Doc, Literal
 from fastapi.responses import HTMLResponse
 from typing import List, Dict, Any, Union, Optional
 from pydantic import BaseModel, ConfigDict, Field
@@ -487,6 +487,37 @@ def get_scalar_api_reference(
             """
         ),
     ] = Theme.DEFAULT,
+    show_developer_tools: Annotated[
+        Literal["always", "localhost", "never"],
+        Doc(
+            """
+            Control the visibility of developer tools.
+            Options are 'always', 'localhost', or 'never'.
+            Default is 'localhost'.
+            """
+        )
+    ] = "localhost",
+    telemetry: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to enable telemetry. 
+            Only tracks whether a request was sent through the API client.
+            Default is True which means telemetry is enabled.
+
+            See: https://guides.scalar.com/scalar/scalar-api-references/configuration#configuration__configuration-options__properties__telemetry
+            """
+        ),
+    ] = True,
+    overrides: Annotated[
+        Dict[str, Any],
+        Doc(
+            """
+            A dictionary of additional configuration overrides to pass to Scalar.
+            Default is {} which means no overrides are provided.
+            """
+        ),
+    ] = {},
 ) -> HTMLResponse:
     # Build configuration object with only non-default values
     config = {}
@@ -587,6 +618,15 @@ def get_scalar_api_reference(
 
     if theme != Theme.DEFAULT:  # Default is DEFAULT
         config["theme"] = theme.value
+
+    if show_developer_tools != "localhost":  # Default is 'localhost'
+        config["showDeveloperTools"] = show_developer_tools
+
+    if not telemetry:  # Default is True
+        config["telemetry"] = telemetry
+
+    if overrides:  # Default is {}
+        config.update(overrides)
 
     html = f"""
 <!doctype html>

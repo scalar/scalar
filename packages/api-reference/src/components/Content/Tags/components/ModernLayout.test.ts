@@ -106,7 +106,18 @@ describe('ShowMoreButton rendering', () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
-        tag: createMockTag(),
+        tag: createMockTag({
+          children: [
+            {
+              type: 'operation',
+              id: 'op-1',
+              title: 'Test Operation',
+              ref: '#/paths/test',
+              method: 'get',
+              path: '/test',
+            },
+          ],
+        }),
         moreThanOneTag: true,
         isCollapsed: true,
       },
@@ -133,6 +144,32 @@ describe('ShowMoreButton rendering', () => {
         ...mockProps,
         tag: createMockTag(),
         moreThanOneTag: false,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
+  })
+
+  it('does not render ShowMoreButton when tag has empty children array', () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag({ children: [] }),
+        moreThanOneTag: true,
+        isCollapsed: true,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
+  })
+
+  it('does not render ShowMoreButton when tag has undefined children', () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag({ children: undefined }),
+        moreThanOneTag: true,
+        isCollapsed: true,
       },
     })
 
@@ -184,7 +221,18 @@ describe('component props and behavior', () => {
       props: {
         ...mockProps,
         eventBus,
-        tag: createMockTag(),
+        tag: createMockTag({
+          children: [
+            {
+              type: 'operation',
+              id: 'op-1',
+              title: 'Test Operation',
+              ref: '#/paths/test',
+              method: 'get',
+              path: '/test',
+            },
+          ],
+        }),
         moreThanOneTag: true,
         isCollapsed: true,
       },

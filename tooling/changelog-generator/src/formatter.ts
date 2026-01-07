@@ -2,36 +2,86 @@ import type { NewChangesetWithCommit } from '@changesets/types'
 
 import type { GitHubInfo } from './types'
 
-export function formatReleaseLine(changeset: NewChangesetWithCommit, githubInfo: GitHubInfo | null): string {
-  const description = changeset.summary.trim()
+const START_WITH_PR_LINK_PATTERN = /^\[#\d+\].*/
 
-  const prLink = getPRLink(githubInfo)
-  if (prLink) {
-    return `- ${prLink}: ${description}`
-  }
-
-  return `- ${description}`
+/**
+ * Checks if the text starts with a markdown PR link
+ * (e.g. "[#123](https://github.com/scalar/scalar/pull/123)")
+ * Pattern: [#\d+](...)
+ */
+function startsWithPRLink(text: string): boolean {
+  return START_WITH_PR_LINK_PATTERN.test(text.trim())
 }
 
 /**
- * Checks if the text already contains a markdown PR link (e.g. "[#123](https://github.com/scalar/scalar/pull/123)")
- * Pattern: [#\d+](...)
+ * Converts a multi-line changelog fragment into a single Markdown list entry.
+ *
+ * The first non-empty line becomes the parent list item. Any subsequent
+ * non-empty lines are indented so they render as nested list items under
+ * the parent entry. Blank lines are preserved.
+ *
+ * Optionally prefixes the parent entry with a PR link and applies an
+ * additional indentation level to all output lines.
  */
-function containsPRLink(text: string): boolean {
-  const prLinkPattern = /^\[#\d+\].*/
-  return prLinkPattern.test(text.trim())
+function formatChangelogEntry(
+  text: string,
+  options: {
+    /**
+     * Markdown-formatted link to the associated pull request.
+     * When present, it is prepended to the first non-empty line
+     * of the changelog entry.
+     */
+    prLink?: string | null
+
+    /**
+     * Two spaces will be added for each indent level.
+     */
+    indentLevel?: number
+  } = {},
+): string {
+  const { prLink, indentLevel = 0 } = options
+
+  const trimmedLines = text.split('\n').map((line) => line.trim())
+
+  const firstNonEmptyIndex = trimmedLines.findIndex((line) => line !== '')
+  if (firstNonEmptyIndex === -1) {
+    return ''
+  }
+
+  let formattedLines = trimmedLines.map((line, index) => {
+    if (index === firstNonEmptyIndex) {
+      return prLink ? `- ${prLink}: ${line}` : `- ${line}`
+    }
+
+    if (line === '') {
+      return ''
+    }
+
+    return `  ${line}`
+  })
+
+  if (indentLevel > 0) {
+    const indent = '  '.repeat(indentLevel)
+    formattedLines = formattedLines.map((line) => (line.trim() !== '' ? `${indent}${line}` : ''))
+  }
+
+  return formattedLines.join('\n')
 }
 
 function getPRLink(githubInfo: GitHubInfo | null): string | null {
-  if (!githubInfo || !githubInfo.links.pull) {
+  const pullUrl = githubInfo?.links.pull
+  const pullNumber = githubInfo?.pull
+
+  if (!pullUrl || !pullNumber) {
     return null
   }
 
-  if (containsPRLink(githubInfo.links.pull)) {
-    return githubInfo.links.pull
-  }
+  return startsWithPRLink(pullUrl) ? pullUrl : `[#${pullNumber}](${pullUrl})`
+}
 
-  return `[#${githubInfo.pull}](${githubInfo.links.pull})`
+export function formatReleaseLine(changeset: NewChangesetWithCommit, githubInfo: GitHubInfo | null): string {
+  const prLink = getPRLink(githubInfo)
+  return formatChangelogEntry(changeset.summary, { prLink })
 }
 
 export function formatDependencyHeader(packageName: string, version: string): string {
@@ -39,16 +89,10 @@ export function formatDependencyHeader(packageName: string, version: string): st
 }
 
 export function formatDependencyChange(githubInfo: GitHubInfo | null, description: string): string {
-  const trimmedDescription = description.trim()
-
-  if (containsPRLink(trimmedDescription)) {
-    return `  - ${trimmedDescription}`
+  if (startsWithPRLink(description)) {
+    return formatChangelogEntry(description, { indentLevel: 1 })
   }
 
   const prLink = getPRLink(githubInfo)
-  if (prLink) {
-    return `  - ${prLink}: ${trimmedDescription}`
-  }
-
-  return `  - ${trimmedDescription}`
+  return formatChangelogEntry(description, { prLink, indentLevel: 1 })
 }

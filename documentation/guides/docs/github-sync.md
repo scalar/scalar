@@ -35,7 +35,7 @@ Your docs site will be automatically available at `https://<subdomain>.apidocume
 ```json
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
-  "subdomain": "my-awesome-documentation",
+  "subdomain": "YOUR_CUSTOM_SUBDOMAIN_HERE", // e.g. "subdomain": "acme"
   "guides": [
     {
       "name": "My awesome documentation",
@@ -134,6 +134,22 @@ Add an OpenAPI/Swagger file to your configuration file:
 ```
 
 That's it. :) The next time your documentation is published, it'll include a super cool API reference.
+
+#### Using the Scalar Registry
+
+You can publish your OpenAPI documents in the Scalar Registry and just use the namespace and slug to pull them from there:
+
+```json
+{
+  "references": [
+    {
+      "name": "Scalar Galaxy",
+      "namespace": "scalar",
+      "slug": "galaxy"
+    }
+  ]
+}
+```
 
 ### Use a custom theme
 

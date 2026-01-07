@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import ScalarSearchResultItem from './ScalarSearchResultItem.vue'
 import ScalarSearchResultList from './ScalarSearchResultList.vue'
-import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 
 const meta = {
   component: ScalarSearchResultList,

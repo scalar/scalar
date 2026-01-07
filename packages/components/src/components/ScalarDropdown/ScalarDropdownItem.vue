@@ -12,10 +12,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useDropdownItem } from '@/components/ScalarDropdown/useDropdown'
 import { useId } from 'vue'
 
 import ScalarDropdownButton from './ScalarDropdownButton.vue'
+import { useDropdownItem } from './useDropdown'
 
 const { id = useId(), disabled } = defineProps<{
   id?: string
@@ -30,13 +30,13 @@ const { active } = useDropdownItem()
 </script>
 <template>
   <ScalarDropdownButton
+    :id
     :active="active === id"
-    tabindex="-1"
     :disabled
     role="menuitem"
-    :id
-    @mouseenter="active = id"
-    @click="(e: MouseEvent) => $emit('click', e)">
+    tabindex="-1"
+    @click="(e: MouseEvent) => $emit('click', e)"
+    @mouseenter="active = id">
     <slot />
   </ScalarDropdownButton>
 </template>

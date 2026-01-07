@@ -345,6 +345,11 @@
                   "type": "page"
                 },
                 {
+                  "name": "Effect",
+                  "path": "documentation/integrations/effect.md",
+                  "type": "page"
+                },
+                {
                   "name": "Elixir",
                   "path": "documentation/integrations/elixir.md",
                   "type": "page"
@@ -533,9 +538,9 @@
   ],
   "references": [
     {
-      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
       "name": "Scalar API",
-      "slug": "scalar-api"
+      "namespace": "scalar",
+      "slug": "access-service"
     }
   ],
   "header": [
@@ -545,7 +550,7 @@
     },
     {
       "type": "reference",
-      "slug": "scalar-api"
+      "slug": "access-service"
     },
     {
       "type": "spacer"

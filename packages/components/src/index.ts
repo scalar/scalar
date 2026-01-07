@@ -2,6 +2,7 @@ import './style.css'
 
 export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
 
+/** biome-ignore-start lint/performance/noReExportAll: re-exports indexes */
 export * from './components/ScalarButton'
 export * from './components/ScalarCard'
 export * from './components/ScalarCheckboxInput'
@@ -36,3 +37,4 @@ export * from './components/ScalarTooltip'
 export * from './components/ScalarVirtualText'
 export * from './components/ScalarWrappingText'
 export * from './helpers'
+/** biome-ignore-end lint/performance/noReExportAll: re-exports indexes */

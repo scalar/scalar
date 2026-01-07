@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import type { TestResult } from '@/libs/execute-scripts'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
+
+import type { TestResult } from '@/libs/execute-scripts'
+
 import TestResults from './TestResults.vue'
 
 const results = ref<TestResult[]>([

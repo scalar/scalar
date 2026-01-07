@@ -21,14 +21,14 @@ const model = defineModel<ScalarCheckboxOption[]>({ default: [] })
   <ScalarFormInputGroup>
     <ScalarToggleInput
       v-for="option in options"
+      :key="option.value"
       :modelValue="model?.some(({ value }) => value === option.value)"
       @update:modelValue="
         (checked) =>
           (model = checked
             ? [...model, option]
             : model.filter(({ value }) => value !== option.value))
-      "
-      :key="option.value">
+      ">
       {{ option.label }}
     </ScalarToggleInput>
   </ScalarFormInputGroup>

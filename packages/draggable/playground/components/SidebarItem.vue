@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Draggable } from '../../src'
+import { Draggable } from '../../src/index'
 import type { DraggingItem, HoveredItem } from '../../src/store'
 
 export type Items = Record<

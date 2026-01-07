@@ -1,4 +1,4 @@
-export type ExampleScript = {
+type ExampleScript = {
   title: string
   script: string
   mockResponse: {

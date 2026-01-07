@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, inject, nextTick, ref, type Ref } from 'vue'
+import { type Ref, computed, inject, nextTick, ref } from 'vue'
+
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
 // Mock vue's inject/provide

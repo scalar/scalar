@@ -22,10 +22,6 @@ app.MapScalarApiReference("/external/document/scalar", options =>
     options.OpenApiRoutePattern = "https://example.com/openapi.json";
 }).AllowAnonymous();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-app.MapScalarApiReference(options => options.WithEndpointPrefix("/legacy/{documentName}")).AllowAnonymous();
-#pragma warning restore CS0618 // Type or member is obsolete
-
 app.Run();
 
 public partial class Program;

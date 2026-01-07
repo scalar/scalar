@@ -3,19 +3,13 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
+    "integrations/docusaurus/**",
     "packages/api-client/**",
-    "packages/api-client-react/**",
     "packages/api-reference/**",
     "packages/api-reference-react/**",
-    "packages/components/**",
-    "packages/draggable/**",
     "packages/galaxy/**",
     "packages/nextjs-openapi/**",
-    "packages/openapi-upgrader/**",
     "packages/postman-to-openapi/**",
-    "packages/pre-post-request-scripts/**",
-    "packages/react-renderer/**",
-    "packages/void-server/**",
     "projects/**",
     "integrations/docker/**",
     "integrations/dotnet/**",
@@ -56,6 +50,9 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/api-client-react": {
+      "entry": ["playground/main.tsx"]
+    },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
@@ -71,8 +68,26 @@
         "playground/main.ts"
       ]
     },
+    "packages/components": {
+      "entry": [
+        // Not sure why test files are marked as unused here
+        "test/**/*",
+        "src/**/*.test.ts"
+      ],
+      "ignoreDependencies": [
+        "@headlessui/tailwindcss" // Used by src/styles.css
+      ],
+      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
+    },
     "packages/core": {
       "entry": ["src/libs/html-rendering/index.ts"]
+    },
+    "packages/draggable": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/main.ts"
+      ]
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]

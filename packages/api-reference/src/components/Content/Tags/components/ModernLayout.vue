@@ -25,6 +25,8 @@ const headerId = useId()
 const moreThanOneDefaultTag = computed(
   () => moreThanOneTag || tag?.title !== 'default' || tag?.description !== '',
 )
+
+const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 </script>
 
 <template>
@@ -43,7 +45,7 @@ const moreThanOneDefaultTag = computed(
         :isLoading="isLoading"
         :tag="tag" />
       <ShowMoreButton
-        v-if="isCollapsed && moreThanOneTag"
+        v-if="isCollapsed && moreThanOneTag && hasChildren"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
         @click="

@@ -20,7 +20,6 @@ namespace Scalar.AspNetCore;
 public static class ScalarEndpointRouteBuilderExtensions
 {
     private const string DocumentName = "{documentName}";
-    private const string LegacyPattern = $"/scalar/{DocumentName}";
     private const string DefaultEndpointPrefix = "/scalar";
     internal const string ScalarJavaScriptFile = "scalar.js";
     private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
@@ -40,14 +39,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints)
     {
-        // Support for obsolete `EndpointPathPrefix` property.
-        using var scope = endpoints.ServiceProvider.CreateScope();
-        var legacyOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarOptions>>().Value;
-#pragma warning disable CS0618 // Type or member is obsolete
-        // Remove '/{documentName}' from the prefix
-        var prefix = legacyOptions.EndpointPathPrefix != LegacyPattern ? legacyOptions.EndpointPathPrefix.Replace($"/{DocumentName}", string.Empty) : DefaultEndpointPrefix;
-#pragma warning restore CS0618 // Type or member is obsolete
-        return endpoints.MapScalarApiReference(prefix);
+        return endpoints.MapScalarApiReference(DefaultEndpointPrefix);
     }
 
     /// <summary>
@@ -63,15 +55,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
     {
-        // Support for obsolete `EndpointPathPrefix` property.
-        using var scope = endpoints.ServiceProvider.CreateScope();
-        var legacyOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarOptions>>().Value;
-        configureOptions.Invoke(legacyOptions);
-#pragma warning disable CS0618 // Type or member is obsolete
-        // Remove '/{documentName}' from the prefix
-        var prefix = legacyOptions.EndpointPathPrefix != LegacyPattern ? legacyOptions.EndpointPathPrefix.Replace($"/{DocumentName}", string.Empty) : DefaultEndpointPrefix;
-#pragma warning restore CS0618 // Type or member is obsolete
-        return endpoints.MapScalarApiReference(prefix, (options, _) => configureOptions(options));
+        return endpoints.MapScalarApiReference(DefaultEndpointPrefix, (options, _) => configureOptions(options));
     }
 
     /// <summary>

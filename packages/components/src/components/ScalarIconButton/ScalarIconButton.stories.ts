@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import { placements } from '@floating-ui/utils'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import { ICONS } from '../ScalarIcon/icons'
 import ScalarIconButton from './ScalarIconButton.vue'
-import { placements } from '@floating-ui/utils'
 
 /**
  * A helper wrapper around the icon only ScalarButton

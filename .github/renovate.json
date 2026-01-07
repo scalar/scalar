@@ -272,7 +272,7 @@
     },
     {
       "description": "Integrations - Docusaurus",
-      "matchFileNames": ["integrations/docusaurus/**", "examples/docusaurus/**"],
+      "matchFileNames": ["integrations/docusaurus/**"],
       "additionalBranchPrefix": "docusaurus"
     },
     {

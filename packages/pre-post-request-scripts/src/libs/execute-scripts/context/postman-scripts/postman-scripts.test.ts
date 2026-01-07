@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import type { TestResult } from '../../execute-post-response-script'
 import { createTestUtils } from './create-test-utils'
 

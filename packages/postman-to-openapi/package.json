@@ -19,7 +19,7 @@
     "export",
     "scalar"
   ],
-  "version": "0.3.52",
+  "version": "0.3.53",
   "engines": {
     "node": ">=20"
   },

@@ -15,15 +15,6 @@ public partial class ScalarOptions
     public string? Title { get; set; } = "Scalar API Reference";
 
     /// <summary>
-    /// Controls the path prefix to access the documentation.
-    /// </summary>
-    /// <remarks>
-    /// This property is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the <see cref="ScalarEndpointRouteBuilderExtensions.MapScalarApiReference(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)" /> method instead.
-    /// </remarks>
-    [Obsolete("This property is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the 'MapScalarApiReference' method instead.")]
-    public string EndpointPathPrefix { get; set; } = "/scalar";
-
-    /// <summary>
     /// Controls the bundle URL for the API Reference.
     /// </summary>
     /// <remarks>Use this option to load the API Reference from a different bundle or local server.</remarks>

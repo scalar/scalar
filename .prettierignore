@@ -41,8 +41,8 @@ cloudbuild.json
 
 .changeset/*.md
 
-examples/docusaurus/**/*.mdx
-examples/docusaurus/build/**
+integrations/docusaurus/**/*.mdx
+integrations/docusaurus/playground/build/**
 
 integrations/docker/assets/**
 integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts

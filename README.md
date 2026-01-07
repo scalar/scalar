@@ -160,12 +160,13 @@ And there's an ever-growing list of plugins and integrations:
 
 The following frameworks have chosen Scalar API Reference as their default OpenAPI documentation UI, recognizing its developer-friendly features and modern design:
 
+- [Effect](https://guides.scalar.com/scalar/scalar-api-references/integrations/effect)
 - [ElysiaJS](https://guides.scalar.com/scalar/scalar-api-references/integrations/elysiajs)
 - [HappyX](https://github.com/HapticX/happyx)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [Nitro](https://guides.scalar.com/scalar/scalar-api-references/integrations/nitro)
-- [Platformatic](https://guides.scalar.com/scalar/scalar-api-references/integrations/platformatic)
 - [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
+- [Platformatic](https://guides.scalar.com/scalar/scalar-api-references/integrations/platformatic)
 
 <br>
 
@@ -1086,10 +1087,10 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/yungwarlock">
-                    <img src="https://avatars.githubusercontent.com/u/42095620?v=4" width="100;" alt="yungwarlock"/>
+                <a href="https://github.com/damiansan239">
+                    <img src="https://avatars.githubusercontent.com/u/42095620?v=4" width="100;" alt="damiansan239"/>
                     <br />
-                    <sub><b>yungwarlock</b></sub>
+                    <sub><b>damiansan239</b></sub>
                 </a>
             </td>
             <td align="center">

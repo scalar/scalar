@@ -9,7 +9,7 @@ export type TestResult = {
   status: 'pending' | 'passed' | 'failed'
 }
 
-export interface ScriptContext {
+interface ScriptContext {
   response: ResponseContext
   console: ConsoleContext
   pm: PostmanContext

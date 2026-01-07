@@ -21,9 +21,9 @@ defineProps<
   } & ScalarFloatingOptions
 >()
 
-const model = defineModel<O>()
-
 const emit = defineEmits<ComboboxEmits>()
+
+const model = defineModel<O>()
 
 defineSlots<ComboboxSlots<O, G>>()
 </script>
@@ -44,8 +44,8 @@ defineSlots<ComboboxSlots<O, G>>()
         :open
         :options
         :placeholder
-        @update:modelValue="(v) => (close(), (model = v[0]))"
-        @add="() => (close(), emit('add'))">
+        @add="() => (close(), emit('add'))"
+        @update:modelValue="(v) => (close(), (model = v[0]))">
         <!-- Pass through the combobox slots -->
         <template
           v-if="$slots.option"

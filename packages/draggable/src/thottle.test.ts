@@ -1,8 +1,15 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { throttle } from './throttle'
-import { it, describe, expect, vi } from 'vitest'
 
 describe('throttle', () => {
+  beforeEach(() => {
+    vi.useRealTimers()
+  })
+
   it('should throttle a function', async () => {
+    vi.useFakeTimers()
+
     const fn = vi.fn()
 
     const throttledFn = throttle(fn, 100)
@@ -13,7 +20,7 @@ describe('throttle', () => {
     throttledFn()
     throttledFn()
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await vi.advanceTimersByTimeAsync(100)
 
     expect(fn).toHaveBeenCalledTimes(1)
   })

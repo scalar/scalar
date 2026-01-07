@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.16.13
+
+### Patch Changes
+
+- [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+  - `CARD_Heading_SYMBOL`
+  - `FORM_GROUP_SYMBOL`
+  - `formatHotKey#isDefault`
+  - `LoadingCompletionOptions`
+  - `MaybeElement`
+  - `ScalarComboBox#isGroup`
+
+- [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+- [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+- [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.12**
+
 ## 0.16.12
 
 ### Patch Changes

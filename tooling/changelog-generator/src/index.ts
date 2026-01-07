@@ -1,10 +1,12 @@
 import { getInfo } from '@changesets/get-github-info'
-import type { ChangelogFunctions, ModCompWithPackage, NewChangesetWithCommit } from '@changesets/types'
+import type { ChangelogFunctions } from '@changesets/types'
 
 import { formatDependencyChange, formatDependencyHeader, formatReleaseLine } from './formatter'
 
+type Options = Partial<{ repo?: string }> | null
+
 const changelogFunctions: ChangelogFunctions = {
-  getReleaseLine: async (changeset: NewChangesetWithCommit, _type: string, options: Record<string, any> | null) => {
+  getReleaseLine: async (changeset, _type, options: Options) => {
     const repo = options?.repo
     if (!repo) {
       throw new Error('Please provide a `repo` option. It should be a string like "user/repo".')
@@ -61,11 +63,7 @@ const changelogFunctions: ChangelogFunctions = {
     return formatReleaseLine(changeset, githubInfoWithPR)
   },
 
-  getDependencyReleaseLine: async (
-    changesets: NewChangesetWithCommit[],
-    dependenciesUpdated: ModCompWithPackage[],
-    options: Record<string, any> | null,
-  ) => {
+  getDependencyReleaseLine: async (changesets, dependenciesUpdated, options: Options) => {
     const repo = options?.repo
     if (!repo) {
       throw new Error('Please provide a `repo` option. It should be a string like "user/repo".')

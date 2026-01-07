@@ -39,6 +39,8 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import { getXKeysFromObject } from '@/features/specification-extension'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -67,6 +69,8 @@ const { path, operation, method } = defineProps<{
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
+
+const operationExtensions = computed(() => getXKeysFromObject(operation))
 </script>
 
 <template>
@@ -125,6 +129,7 @@ const labelId = useId()
       <SectionColumns>
         <SectionColumn>
           <div class="operation-details">
+            <SpecificationExtension :value="operationExtensions" />
             <ScalarMarkdown
               :anchorPrefix="id"
               aria-label="Operation Description"

@@ -58,9 +58,9 @@ function handleClick() {
       <input
         ref="input"
         v-model="model"
-        :readonly
         :aria-readonly="readonly || undefined"
         class="z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none"
+        :readonly
         v-bind="otherAttrs" />
       <div
         v-if="$slots.prefix || $slots.suffix"

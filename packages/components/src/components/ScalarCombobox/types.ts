@@ -11,7 +11,7 @@ export type OptionGroup<O extends Option = Option> = {
 export type OptionsOrGroups<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = O[] | G[]
 
 /** Type guard to check if an option is a group */
-export function isGroup(option: Option | OptionGroup | undefined): option is OptionGroup {
+function isGroup(option: Option | OptionGroup | undefined): option is OptionGroup {
   return (option as OptionGroup | undefined)?.options !== undefined
 }
 

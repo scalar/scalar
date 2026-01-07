@@ -1,8 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 import ScalarMarkdownSummary from './ScalarMarkdownSummary.vue'
-
 import { samples } from './samples'
 
 /**
