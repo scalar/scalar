@@ -1130,7 +1130,7 @@ Customize how document page title is generated. This function receives the sideb
 ```js
 // Custom example - results in title: API Reference - sidebar-item-title
 {
-  generatePageTitle: (item) => `API Reference-${item.title}`
+  generatePageTitle: (item) => `API Reference - ${item.title}`
 }
 ```
 
