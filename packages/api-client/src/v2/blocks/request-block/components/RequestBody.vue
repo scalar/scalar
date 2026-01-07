@@ -5,7 +5,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
