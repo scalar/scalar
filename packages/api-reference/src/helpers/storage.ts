@@ -4,7 +4,10 @@ import {
   XScalarSelectedSecuritySchema,
 } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-selected-security'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type SecuritySchemes, SecuritySchemesSchema } from '@scalar/workspace-store/schemas/v3.1/strict/components'
+import {
+  type SecuritySchemes,
+  SecuritySchemesSchema,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 // Local storage helper instance, safely wrapped.
 const storage = safeLocalStorage()

@@ -444,6 +444,13 @@ const changeSelectedDocument = async (
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
 
+  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  apiClient.value?.route({
+    documentSlug: slug,
+    method: 'get',
+    path: '/',
+  })
+
   const normalized = configList.value[slug]
 
   if (!normalized) {
@@ -494,26 +501,12 @@ const changeSelectedDocument = async (
   // When loading to a specified element we need to freeze and scroll
   if (elementId && elementId !== slug) {
     scrollToLazyElement(elementId)
-    apiClient.value?.route({
-      documentSlug: slug,
-      method: 'get',
-      path: '/',
-    })
   }
   // If there is no child element of the document specified we expand the first tag
   else {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
-
-      const firstOperation = firstTag.children?.find(
-        (item) => item.type === 'operation',
-      )
-      apiClient.value?.route({
-        documentSlug: slug,
-        method: firstOperation?.method ?? 'get',
-        path: firstOperation?.path ?? '/',
-      })
     }
   }
 }
@@ -712,6 +705,7 @@ const handleSelectItem = (id: string) => {
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
+    console.log('handleSelectItem pushState', url)
     window.history.pushState({}, '', url)
   }
 }
