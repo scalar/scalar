@@ -255,7 +255,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       output: z.string(),
     })
     .optional(),
-  generateWindowTabTitle: z
+  /**
+   * Customize document page title
+   * @param item - The sidebar item object
+   * @returns A string ID used to generate the URL hash
+   * @default undefined
+   */
+  generatePageTitle: z
     .function({
       input: [z.object({ title: z.string() })],
       output: z.string(),

@@ -698,8 +698,8 @@ onCustomEvent(root, 'scalar-download-document', async (event) => {
 const handleSelectItem = (id: string) => {
   const item = sidebarState.getEntryById(id)
 
-  if (mergedConfig.value?.generateWindowTabTitle && item?.title) {
-    document.title = mergedConfig.value.generateWindowTabTitle({
+  if (mergedConfig.value?.generatePageTitle && item?.title) {
+    document.title = mergedConfig.value.generatePageTitle({
       title: item.title,
     })
   }
