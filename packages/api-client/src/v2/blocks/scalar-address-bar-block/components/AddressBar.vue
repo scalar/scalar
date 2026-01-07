@@ -7,6 +7,7 @@ import {
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
@@ -177,7 +178,8 @@ const copyUrl = async () => {
   const environmentVariables = getEnvironmentVariables(environment)
   const serverUrl = getServerUrl(server, environmentVariables)
   const pathWithVariables = replaceVariables(path, environmentVariables)
-  await copyToClipboard(`${serverUrl}${pathWithVariables}`)
+  const fullPath = mergeUrls(serverUrl, pathWithVariables)
+  await copyToClipboard(fullPath)
 }
 
 defineExpose({
