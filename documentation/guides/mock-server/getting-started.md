@@ -1,4 +1,9 @@
 # Scalar Mock Server
+<div class="flex gap-2">
+<a href="https://www.npmjs.com/@scalar/mock-server"><img src="https://img.shields.io/npm/v/@scalar/mock-server"></a>
+<a href="https://www.npmjs.com/@scalar/mock-server"><img src="https://img.shields.io/npm/dm/@scalar/mock-server"></a>
+<a href="https://discord.gg/scalar"><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+</div>
 
 A powerful Node.js mock server that automatically generates realistic API responses from your OpenAPI/Swagger documents. It creates fully-functional endpoints with mock data, handles authentication, and respects content types - making it perfect for frontend development, API prototyping, and integration testing.
 

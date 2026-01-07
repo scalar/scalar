@@ -96,6 +96,10 @@
           "to": "/products/mock-server/:wildcard"
         },
         {
+          "from": "/download",
+          "to": "/products/api-client/getting-started"
+        },
+        {
           "from": "/scalar/scalar-cli/:wildcard",
           "to": "/tools/cli/:wildcard"
         }
@@ -631,6 +635,19 @@
                   }
                 }
               },
+              "/api-client": {
+                "title": "Scalar API Client",
+                "type": "group",
+                "mode": "folder",
+                "icon": "phosphor/regular/app-window",
+                "children": {
+                  "getting-started": {
+                    "filepath": "documentation/guides/app/getting-started.md",
+                    "type": "page",
+                    "title": "Getting Started"
+                  }
+                }
+              },
               "/mock-server": {
                 "title": "Scalar Mock Server",
                 "type": "group",
@@ -697,10 +714,10 @@
             "title": "Let's Chat",
             "mode": "flat",
             "children": {
-              "/github": {
-                "title": "GitHub",
-                "icon": "phosphor/regular/github-logo",
-                "url": "https://github.com/scalar/scalar",
+              "/discord": {
+                "title": "Discord",
+                "icon": "phosphor/regular/discord-logo",
+                "url": "https://discord.gg/scalar",
                 "type": "link"
               },
               "/email": {
@@ -709,10 +726,22 @@
                 "url": "mailto:support@scalar.com",
                 "type": "link"
               },
-              "/sales": {
-                "title": "Sales",
-                "icon": "phosphor/regular/handshake",
+              "/demo": {
+                "title": "Book a Demo",
+                "icon": "phosphor/regular/monitor",
                 "url": "https://scalar.cal.com/scalar/chat-with-scalar",
+                "type": "link"
+              },
+              "/x": {
+                "title": "X",
+                "icon": "phosphor/regular/twitter-logo",
+                "url": "https://x.com/scalar",
+                "type": "link"
+              },
+              "/github": {
+                "title": "GitHub",
+                "icon": "phosphor/regular/github-logo",
+                "url": "https://github.com/scalar/scalar",
                 "type": "link"
               }
             }

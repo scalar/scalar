@@ -202,7 +202,7 @@
           Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It in the Browser →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started">Send Your First Request →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
