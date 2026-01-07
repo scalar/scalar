@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.24.2
+
+### Patch Changes
+
+- [#7643](https://github.com/scalar/scalar/pull/7643): chore: update typebox
+
 ## 0.24.1
 
 ### Patch Changes

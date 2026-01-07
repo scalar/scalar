@@ -1,5 +1,20 @@
 # @scalar/aspnetcore
 
+## 2.12.0
+
+### Minor Changes
+
+- [#7648](https://github.com/scalar/scalar/pull/7648): remove obsolete `EndpointPathPrefix` property
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.0**
+  - [#7633](https://github.com/scalar/scalar/pull/7633): feat(api-reference): support rendering custom components for paths
+  - [#7583](https://github.com/scalar/scalar/pull/7583): feat: show empty schema message for object with no properties
+  - [#7597](https://github.com/scalar/scalar/pull/7597): fix: show more button appears even if tags don't have any children
+
 ## 2.11.10
 
 ### Patch Changes

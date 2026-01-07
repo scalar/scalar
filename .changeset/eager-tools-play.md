@@ -1,5 +1,0 @@
----
-'scalar-ninja': minor
----
-
-release

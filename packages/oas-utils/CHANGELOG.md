@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.2**
+  - [#7643](https://github.com/scalar/scalar/pull/7643): chore: update typebox
+
 ## 0.6.11
 
 ### Patch Changes
