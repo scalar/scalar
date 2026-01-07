@@ -1,6 +1,7 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import ApiReference from './ApiReference.vue'
 
@@ -283,17 +284,6 @@ describe('ApiReference Configuration Tests', () => {
   })
 
   it('darkMode: false', async () => {
-    console.log('test')
-    console.log('test')
-    console.log('test')
-    console.log('test')
-    console.log('test')
-
-    console.log(document.body.classList)
-    console.log('test')
-    console.log('test')
-    console.log('test')
-
     mountComponent({
       props: {
         configuration: {
@@ -319,7 +309,7 @@ describe('ApiReference Configuration Tests', () => {
     expect(document.body.classList.contains('dark-mode')).toBe(true)
   })
 
-  it('forceDarkModeState: dark', () => {
+  it('forceDarkModeState: dark', async () => {
     mountComponent({
       props: {
         configuration: {
@@ -328,11 +318,11 @@ describe('ApiReference Configuration Tests', () => {
         },
       },
     })
+    await flushPromises()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
   })
 
-  // TODO doesn't work
-  it('forceDarkModeState: light', () => {
+  it('forceDarkModeState: light', async () => {
     mountComponent({
       props: {
         configuration: {
@@ -341,6 +331,7 @@ describe('ApiReference Configuration Tests', () => {
         },
       },
     })
+    await flushPromises()
     expect(document.body.classList.contains('light-mode')).toBe(true)
   })
 

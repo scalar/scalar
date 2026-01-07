@@ -867,7 +867,10 @@ const colorMode = computed(() => {
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
-                      v-if="!mergedConfig.hideDarkModeToggle"
+                      v-if="
+                        !mergedConfig.hideDarkModeToggle &&
+                        !mergedConfig.forceDarkModeState
+                      "
                       :modelValue="colorMode === 'dark'"
                       @update:modelValue="() => toggleColorMode()" />
                     <span v-else />
@@ -931,7 +934,10 @@ const colorMode = computed(() => {
                 :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon
-                  v-if="!mergedConfig.hideDarkModeToggle"
+                  v-if="
+                    !mergedConfig.hideDarkModeToggle &&
+                    !mergedConfig.forceDarkModeState
+                  "
                   class="text-c-2 hover:text-c-1"
                   :mode="colorMode"
                   style="transform: scale(1.4)"
