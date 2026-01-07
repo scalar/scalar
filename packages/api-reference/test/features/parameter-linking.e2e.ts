@@ -7,6 +7,32 @@ test.describe('parameter linking', () => {
   })
 
   test('requestBody parameters have anchor links', async ({ page }) => {
+    // Mocks for lazy loading, remove after lazy bus is fixed
+    await page.addInitScript(() => {
+      // Mock requestIdleCallback to run immediately
+      window.requestIdleCallback = (cb: IdleRequestCallback): number => {
+        cb({
+          didTimeout: false,
+          timeRemaining: () => 0,
+        } as IdleDeadline)
+        return 1
+      }
+
+      // Mock requestAnimationFrame to run immediately
+      const originalRAF = window.requestAnimationFrame
+      window.requestAnimationFrame = (callback: FrameRequestCallback): number => {
+        setTimeout(() => callback(performance.now()), 0)
+        return originalRAF(callback)
+      }
+
+      // Mock setTimeout to run faster in tests
+      const originalSetTimeout = window.setTimeout
+      window.setTimeout = ((callback: TimerHandler, delay?: number, ...args: any[]) => {
+        const testDelay = delay ? Math.min(delay / 10, 10) : 0
+        return originalSetTimeout(callback, testDelay, ...args)
+      }) as typeof setTimeout
+    })
+
     const example = await serveExample({
       // If it works with pathRouting, it probably works without it too.
       pathRouting: {
