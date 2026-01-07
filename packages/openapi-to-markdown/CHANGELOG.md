@@ -1,5 +1,26 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/oas-utils@0.6.12**
+
+- **@scalar/openapi-parser@0.23.9**
+
+- **@scalar/openapi-types@0.5.3**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+- **@scalar/types@0.5.4**
+
 ## 0.3.13
 
 ### Patch Changes

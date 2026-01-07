@@ -1,5 +1,24 @@
 # @scalar/sidebar
 
+## 0.7.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/icons@0.5.2**
+
+- **@scalar/themes@0.13.26**
+
+- **@scalar/use-hooks@0.3.3**
+
+- **@scalar/workspace-store@0.24.2**
+
 ## 0.7.3
 
 ### Patch Changes

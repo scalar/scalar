@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
 ## 0.13.7
 
 ### Patch Changes

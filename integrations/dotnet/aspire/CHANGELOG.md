@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.8.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.1**
+
+- **@scalar/api-reference@1.41.1**
+
 ## 0.8.9
 
 ### Patch Changes
