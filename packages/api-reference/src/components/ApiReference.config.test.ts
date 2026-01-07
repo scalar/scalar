@@ -1141,4 +1141,18 @@ describe('ApiReference Configuration Tests', () => {
 
     expect(onDocumentSelect).toHaveBeenCalledTimes(2)
   })
+
+  it('proxyUrl: string', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          proxyUrl: 'https://proxy.example.com',
+        },
+      },
+    })
+
+    await flushPromises()
+    expect(wrapper.vm.workspaceStore.workspace['x-scalar-active-proxy']).toBe('https://proxy.example.com')
+  })
 })
