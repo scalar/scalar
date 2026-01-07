@@ -848,4 +848,33 @@ describe('ApiReference Configuration Tests', () => {
     expect(downloadButtons).toHaveLength(1)
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
   })
+
+  it('hideTestRequestButton: undefined -> false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+        },
+      },
+    })
+
+    await flushPromises()
+    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    expect(testRequestButton.exists()).toBe(true)
+  })
+
+  it('hideTestRequestButton: true', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          hideTestRequestButton: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    expect(testRequestButton.exists()).toBe(false)
+  })
 })
