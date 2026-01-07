@@ -1038,4 +1038,46 @@ describe('ApiReference Configuration Tests', () => {
     expect(onSidebarClick).toHaveBeenCalled()
     expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
   })
+
+  it('onShowMore: function', async () => {
+    const onShowMore = vi.fn()
+    const documentWithTags = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: 'getUsers',
+            tags: ['Users'],
+          },
+        },
+        '/posts': {
+          get: {
+            summary: 'Get posts',
+            operationId: 'getPosts',
+            tags: ['Posts'],
+          },
+        },
+      },
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: documentWithTags,
+          onShowMore,
+        },
+      },
+    })
+    await flushPromises()
+
+    const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
+    await showMoreButton.trigger('click')
+
+    expect(onShowMore).toHaveBeenCalledWith('api-1/tag/posts')
+  })
 })
