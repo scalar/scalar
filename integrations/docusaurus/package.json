@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "shx rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
-    "dev:doesnt-work": "cd ./playground && pnpm run dev",
+    "dev": "cd ./playground && docusaurus start --port=5063 --no-open",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -61,16 +61,22 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/preset-classic": "^3.7.0",
+    "@docusaurus/tsconfig": "^3.7.0",
     "@docusaurus/types": "^3.7.0",
     "@docusaurus/utils": "^3.7.0",
+    "@mdx-js/react": "^3.0.0",
     "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
+    "clsx": "^2.0.0",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
     "react": "catalog:*",
+    "react-dom": "catalog:*",
     "vite": "catalog:*"
   },
   "peerDependencies": {

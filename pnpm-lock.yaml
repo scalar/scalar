@@ -273,46 +273,6 @@ importers:
         specifier: catalog:*
         version: 2.2.12(typescript@5.8.3)
 
-  examples/docusaurus:
-    dependencies:
-      '@docusaurus/core':
-        specifier: ^3.7.0
-        version: 3.8.1(@mdx-js/react@3.0.1(@types/react@19.1.8)(react@19.1.0))(lightningcss@1.30.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
-      '@docusaurus/preset-classic':
-        specifier: ^3.7.0
-        version: 3.8.1(@algolia/client-search@5.32.0)(@mdx-js/react@3.0.1(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(lightningcss@1.30.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(search-insights@2.14.0)(typescript@5.8.3)
-      '@docusaurus/theme-classic':
-        specifier: ^3.7.0
-        version: 3.8.1(@types/react@19.1.8)(lightningcss@1.30.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
-      '@mdx-js/react':
-        specifier: ^3.0.0
-        version: 3.0.1(@types/react@19.1.8)(react@19.1.0)
-      '@scalar/docusaurus':
-        specifier: workspace:*
-        version: link:../../integrations/docusaurus
-      clsx:
-        specifier: ^2.0.0
-        version: 2.1.1
-      react:
-        specifier: catalog:*
-        version: 19.1.0
-      react-dom:
-        specifier: catalog:*
-        version: 19.1.0(react@19.1.0)
-    devDependencies:
-      '@docusaurus/module-type-aliases':
-        specifier: ^3.7.0
-        version: 3.8.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@docusaurus/tsconfig':
-        specifier: ^3.7.0
-        version: 3.8.1
-      '@docusaurus/types':
-        specifier: ^3.7.0
-        version: 3.8.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@types/react':
-        specifier: catalog:*
-        version: 19.1.8
-
   examples/nestjs/nestjs-api-reference-express:
     dependencies:
       '@nestjs/common':
@@ -749,12 +709,24 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
+      '@docusaurus/core':
+        specifier: ^3.7.0
+        version: 3.8.1(@mdx-js/react@3.0.1(@types/react@19.1.8)(react@19.1.0))(lightningcss@1.30.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
+      '@docusaurus/preset-classic':
+        specifier: ^3.7.0
+        version: 3.8.1(@algolia/client-search@5.32.0)(@mdx-js/react@3.0.1(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(lightningcss@1.30.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(search-insights@2.14.0)(typescript@5.8.3)
+      '@docusaurus/tsconfig':
+        specifier: ^3.7.0
+        version: 3.8.1
       '@docusaurus/types':
         specifier: ^3.7.0
         version: 3.8.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@docusaurus/utils':
         specifier: ^3.7.0
         version: 3.8.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mdx-js/react':
+        specifier: ^3.0.0
+        version: 3.0.1(@types/react@19.1.8)(react@19.1.0)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -764,6 +736,9 @@ importers:
       '@types/react-dom':
         specifier: catalog:*
         version: 19.1.6(@types/react@19.1.8)
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -779,6 +754,9 @@ importers:
       react:
         specifier: catalog:*
         version: 19.1.0
+      react-dom:
+        specifier: catalog:*
+        version: 19.1.0(react@19.1.0)
       vite:
         specifier: catalog:*
         version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
