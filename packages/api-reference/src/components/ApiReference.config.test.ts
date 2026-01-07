@@ -1080,4 +1080,65 @@ describe('ApiReference Configuration Tests', () => {
 
     expect(onShowMore).toHaveBeenCalledWith('api-1/tag/posts')
   })
+
+  it('onDocumentSelect: function', async () => {
+    const onDocumentSelect = vi.fn()
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          onDocumentSelect,
+          sources: [
+            {
+              slug: 'users-api',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'Users API',
+                  version: '1.0.0',
+                },
+                paths: {
+                  '/users': {
+                    get: {
+                      summary: 'Get users',
+                      operationId: 'getUsers',
+                      tags: ['Users'],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              slug: 'posts-api',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'Posts API',
+                  version: '1.0.0',
+                },
+                paths: {
+                  '/posts': {
+                    get: {
+                      summary: 'Get posts',
+                      operationId: 'getPosts',
+                      tags: ['Posts'],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    })
+    await flushPromises()
+    expect(onDocumentSelect).toHaveBeenCalledOnce()
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    expect(documentSelector.exists()).toBe(true)
+
+    await documentSelector.vm.$emit('update:modelValue', 'posts-api')
+    await flushPromises()
+
+    expect(onDocumentSelect).toHaveBeenCalledTimes(2)
+  })
 })
