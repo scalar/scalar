@@ -877,4 +877,138 @@ describe('ApiReference Configuration Tests', () => {
     const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
     expect(testRequestButton.exists()).toBe(false)
   })
+
+  it('expandAllModelSections: undefined -> false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+        },
+      },
+    })
+    await flushPromises()
+
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    expect(modelTag.text().includes('Show More')).toBe(true)
+    expect(modelTag.text().includes('SuperImportantUser')).toBe(false)
+  })
+
+  it('expandAllModelSections: true', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          expandAllModelSections: true,
+        },
+      },
+    })
+    await flushPromises()
+
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    expect(modelTag.text().includes('Show More')).toBe(false)
+    expect(modelTag.text().includes('SuperImportantUser')).toBe(true)
+  })
+
+  it('expandAllResponses: undefined -> false', async () => {
+    const documentWithResponses = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: 'getUsers',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        superSecretId: { type: 'string' },
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              '404': {
+                description: 'Not found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: documentWithResponses,
+        },
+      },
+    })
+    await flushPromises()
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+    expect(operationResponses.props().collapsableItems).toBe(true)
+    expect(operationResponses.text().includes('superSecretId')).toBe(false)
+  })
+
+  it('expandAllResponses: true', async () => {
+    const documentWithResponses = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: 'getUsers',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        superSecretId: { type: 'string' },
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              '404': {
+                description: 'Not found',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: documentWithResponses,
+          expandAllResponses: true,
+        },
+      },
+    })
+    await flushPromises()
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+    expect(operationResponses.props().collapsableItems).toBe(false)
+    expect(operationResponses.text().includes('superSecretId')).toBe(true)
+  })
 })

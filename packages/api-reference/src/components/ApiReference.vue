@@ -354,8 +354,7 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   // When the expand all model sections configuration is enabled we open all the children of the models tag
   if (config.expandAllModelSections) {
     const models = docItems.find(
-      (item): item is TraversedTag =>
-        item.type === 'tag' && item.id === 'models',
+      (item): item is TraversedTag => item.type === 'models',
     )
     if (models) {
       sidebarState.setExpanded(models.id, true)
