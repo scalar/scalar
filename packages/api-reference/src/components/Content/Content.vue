@@ -33,6 +33,8 @@ const { document, httpClients, items, environment, eventBus, options } =
     /** The subset of the configuration object required for the content component */
     options: Pick<
       ApiReferenceConfigurationRaw,
+      | 'authentication'
+      | 'documentDownloadType'
       | 'expandAllResponses'
       | 'hideTestRequestButton'
       | 'layout'
@@ -41,7 +43,6 @@ const { document, httpClients, items, environment, eventBus, options } =
       | 'persistAuth'
       | 'proxyUrl'
       | 'showOperationId'
-      | 'authentication'
     >
     document: WorkspaceDocument | undefined
     httpClients: AvailableClients
@@ -84,6 +85,7 @@ const securitySchemes = computed(() =>
     <Lazy :id="infoSectionId">
       <InfoBlock
         :id="infoSectionId"
+        :documentDownloadType="options.documentDownloadType"
         :documentExtensions
         :eventBus
         :externalDocs="document?.externalDocs"

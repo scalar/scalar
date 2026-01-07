@@ -832,4 +832,20 @@ describe('ApiReference Configuration Tests', () => {
     expect(httpClientsSet).toContain('js/axios')
     expect(httpClientsSet).toContain('java/nethttp')
   })
+
+  it('documentDownloadType: json -> hides yaml download button', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          documentDownloadType: 'json',
+        },
+      },
+    })
+
+    await flushPromises()
+    const downloadButtons = wrapper.findAll('.download-button')
+    expect(downloadButtons).toHaveLength(1)
+    expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
+  })
 })
