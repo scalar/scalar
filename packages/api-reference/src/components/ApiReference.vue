@@ -71,6 +71,7 @@ import {
 } from '@/helpers/normalize-configurations'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
+import { persistencePlugin } from '@/plugins/persistance-plugin'
 
 const props = defineProps<{
   /**
@@ -284,7 +285,9 @@ function syncSlugAndUrlWithDocument(
 /**
  * Initializes the new client workspace store.
  */
-const workspaceStore = createWorkspaceStore()
+const workspaceStore = createWorkspaceStore({
+  plugins: [persistencePlugin({ prefix: () => activeSlug.value })],
+})
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally

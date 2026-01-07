@@ -24,6 +24,12 @@ import type { ResponsesObject } from './responses'
 import type { SchemaObject } from './schema'
 import type { SecuritySchemeObject } from './security-scheme'
 
+export const SecuritySchemesSchema = Type.Record(
+  Type.String(),
+  Type.Union([SecuritySchemeObjectRef, reference(SecuritySchemeObjectRef)]),
+)
+export type SecuritySchemes = Record<string, ReferenceType<SecuritySchemeObject>>
+
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export const ComponentsObjectSchemaDefinition = Type.Object({
   /** An object to hold reusable Schema Objects. */
@@ -43,9 +49,7 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
   /** An object to hold reusable Header Objects. */
   headers: Type.Optional(Type.Record(Type.String(), Type.Union([HeaderObjectRef, reference(HeaderObjectRef)]))),
   /** An object to hold reusable Security Scheme Objects. */
-  securitySchemes: Type.Optional(
-    Type.Record(Type.String(), Type.Union([SecuritySchemeObjectRef, reference(SecuritySchemeObjectRef)])),
-  ),
+  securitySchemes: Type.Optional(SecuritySchemesSchema),
   /** An object to hold reusable Link Objects. */
   links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObjectRef, reference(LinkObjectRef)]))),
   /** An object to hold reusable Callback Objects. */
@@ -69,7 +73,7 @@ export type ComponentsObject = {
   /** An object to hold reusable Header Objects. */
   headers?: Record<string, ReferenceType<HeaderObject>>
   /** An object to hold reusable Security Scheme Objects. */
-  securitySchemes?: Record<string, ReferenceType<SecuritySchemeObject>>
+  securitySchemes?: SecuritySchemes
   /** An object to hold reusable Link Objects. */
   links?: Record<string, ReferenceType<LinkObject>>
   /** An object to hold reusable Callback Objects. */

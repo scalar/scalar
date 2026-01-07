@@ -1,0 +1,87 @@
+import { debounce } from '@scalar/helpers/general/debounce'
+import type { WorkspacePlugin } from '@scalar/workspace-store/workspace-plugin'
+
+import { authStorage, clientStorage } from '@/helpers/storage'
+
+/**
+ * Plugin to persist workspace state changes with debounced writes.
+ */
+export const persistencePlugin = ({
+  debounceDelay = 500,
+  maxWait = 10000,
+  prefix = '',
+}: {
+  debounceDelay?: number
+  /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
+  maxWait?: number
+  /**
+   * Prefix to use for local storage keys.
+   * This can be a string or a function returning a string.
+   * For example, to persist data per document, use the document name as the prefix.
+   */
+  prefix?: string | (() => string)
+}): WorkspacePlugin => {
+  // Debounced execute function for batching similar state changes
+  const { execute } = debounce({ delay: debounceDelay, maxWait })
+  const authPersistence = authStorage()
+  const clientPersistence = clientStorage()
+
+  /**
+   * Resolves the prefix to use for local storage keys.
+   * If 'prefix' is a string, returns it directly.
+   * If 'prefix' is a function, calls and returns its value.
+   */
+  const getPrefix = () => {
+    if (typeof prefix === 'string') {
+      return prefix
+    }
+
+    return prefix()
+  }
+
+  return {
+    hooks: {
+      /**
+       * Handles all workspace state change events.
+       * Each write is debounced by a key to prevent frequent writes for the same entity.
+       */
+      onWorkspaceStateChanges(event) {
+        console.log({ event, prefix: getPrefix() })
+
+        // If the event is for workspace meta data, debounce by workspaceId
+        if (event.type === 'meta') {
+          // Persist the meta fields
+          const defaultClient = event.value['x-scalar-default-client']
+          if (defaultClient !== undefined) {
+            execute('x-scalar-default-client', () => clientPersistence.set(defaultClient))
+          }
+          return
+        }
+
+        // Persist auth and [server](TODO)
+        if (event.type === 'documents') {
+          const { path, value: document } = event
+          const { securitySchemes = {} } = document.components ?? {}
+
+          // If something on the auth has changed, we set the security schemas
+          if (path[0] === 'components' && path[1] === 'securitySchemes') {
+            execute('x-scalar-security-schemes', () => authPersistence.setSchemas(getPrefix(), securitySchemes))
+          }
+
+          const selectedSecurity = document['x-scalar-selected-security']
+
+          if (path[0] === 'x-scalar-selected-security' && selectedSecurity) {
+            execute('x-scalar-selected-security-schemes', () =>
+              authPersistence.setSelectedSchemes(getPrefix(), {
+                'x-scalar-selected-security': selectedSecurity,
+              }),
+            )
+          }
+        }
+
+        // No action for other event types
+        return
+      },
+    },
+  }
+}
