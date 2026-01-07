@@ -1,7 +1,5 @@
-import { sleep } from '@scalar/helpers/testing/sleep'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
 
 import ApiReference from './ApiReference.vue'
 

@@ -61,6 +61,7 @@ const mountOperationWithConfig = (
   const props: ExtractComponentProps<typeof Operation> = {
     id: 'test-operation',
     method: (overrides.method || 'get') as any,
+    securitySchemes: {},
     options: defaultConfig,
     document: overrides.document || defaultDocument,
     path: overrides.path || '/users/{userId}',

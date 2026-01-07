@@ -24,7 +24,7 @@ describe('filterSelectedSecurity', () => {
       responses: {},
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, {})
 
     expect(result).toEqual([])
   })
@@ -74,7 +74,7 @@ describe('filterSelectedSecurity', () => {
       security: [{ oauth2: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     expect(result).toEqual([])
   })
@@ -112,7 +112,7 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     expect(result).toEqual([apiKeyScheme])
   })
@@ -162,7 +162,7 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }, { bearer: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     // Should return bearer because it is at selectedIndex
     expect(result).toEqual([bearerScheme])
@@ -222,7 +222,7 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [], oauth2: ['read:data'] }],
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     // Should match despite different key order and return both schemes
     expect(result).toHaveLength(2)
@@ -265,7 +265,7 @@ describe('filterSelectedSecurity', () => {
       // No operation-level security, should fall back to document
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     expect(result).toEqual([apiKeyScheme])
   })
@@ -302,7 +302,7 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation)
+    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     expect(result).toEqual([])
   })
@@ -336,7 +336,7 @@ describe('filterSelectedSecurity', () => {
       },
     }
 
-    const result = filterSelectedSecurity(document, null)
+    const result = filterSelectedSecurity(document, null, document.components?.securitySchemes ?? {})
 
     expect(result).toEqual([apiKeyScheme])
   })
