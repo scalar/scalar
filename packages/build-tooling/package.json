@@ -45,6 +45,7 @@
   },
   "files": [
     "dist",
+    "scripts",
     "CHANGELOG.md"
   ],
   "bin": {
