@@ -131,6 +131,49 @@ describe('SidebarItem', () => {
       const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
       expect(sidebarItem.props('selected')).toBe(false)
     })
+
+    it('applies text decoration when item is deprecated', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Test Item',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/test',
+        isDeprecated: true,
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+    })
+
+    it('does not apply text decoration when item is not deprecated', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Test Item',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/test',
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(false)
+    })
   })
 
   describe('HTTP method badge rendering', () => {

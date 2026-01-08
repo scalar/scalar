@@ -245,12 +245,18 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :text="item.title" />
     </template>
     <template v-else>
-      <ScalarWrappingText
-        :text="
-          options?.operationTitleSource === 'path' && 'path' in item
-            ? (item.path as string)
-            : (item.title as string)
-        " />
+      <!-- Deprecated support -->
+      <div
+        :class="{
+          'line-through': 'isDeprecated' in item && item.isDeprecated,
+        }">
+        <ScalarWrappingText
+          :text="
+            options?.operationTitleSource === 'path' && 'path' in item
+              ? (item.path as string)
+              : (item.title as string)
+          " />
+      </div>
     </template>
     <template
       v-if="'method' in item"
