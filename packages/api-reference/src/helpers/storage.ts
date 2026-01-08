@@ -49,7 +49,7 @@ export const authStorage = () => {
      */
     getSchemas: () => {
       const parsed = JSON.parse(storage.getItem(schemasKey) ?? '{}')
-      return coerceValue(SecuritySchemesSchema, parsed)
+      return coerceValue<SecuritySchemes>(SecuritySchemesSchema, parsed)
     },
     /**
      * Stores the authentication schemes in local storage.
@@ -63,7 +63,7 @@ export const authStorage = () => {
      */
     getSelectedSchemes: () => {
       const parsed = JSON.parse(storage.getItem(selectedSchemesKey) ?? '{}')
-      return coerceValue(XScalarSelectedSecuritySchema, parsed)
+      return coerceValue<XScalarSelectedSecurity>(XScalarSelectedSecuritySchema, parsed)
     },
     /**
      * Stores the user's selected authentication schemes in local storage.
