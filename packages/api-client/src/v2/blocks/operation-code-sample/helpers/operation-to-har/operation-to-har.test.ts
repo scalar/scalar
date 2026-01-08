@@ -639,7 +639,7 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('text/plain')
-      expect(result.postData?.text).toBe(JSON.stringify(''))
+      expect(result.postData?.text).toBe('')
     })
 
     it('should handle application/xml content type', () => {
