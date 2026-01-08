@@ -799,17 +799,8 @@ h4.t-editor__heading {
   .t-editor .page-header {
     display: none;
   }
-  .scalar-app {
-    overflow: visible;
-  }
-  #app {
-    overflow: visible;
-  }
-  .content{
-    overflow: visible;
-  }
-  main.content.content{
-    overflow: visible;
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;

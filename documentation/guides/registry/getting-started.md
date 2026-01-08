@@ -309,6 +309,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
   .t-doc__toc {
     display: none;
   }
+  main.content {
+    overflow-x: clip;
+  }
   .t-doc .layout-header {
     z-index: 10000;
   }

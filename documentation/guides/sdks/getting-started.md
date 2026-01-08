@@ -311,6 +311,9 @@ Once created, you will get redirected to the SDK Overview page where you can:
   .t-doc__toc {
     display: none;
   }
+  main.content {
+    overflow-x: clip;
+  }
   .t-doc .layout-header {
     z-index: 10000;
   }

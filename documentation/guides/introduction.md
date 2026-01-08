@@ -494,6 +494,9 @@
   .t-editor .page-header {
     display: none;
   }
+  main.content {
+    overflow-x: clip;
+  }
   .t-doc .layout-header {
     z-index: 10000;
   }
