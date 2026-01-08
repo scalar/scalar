@@ -76,32 +76,372 @@
           "to": "/products/registry/github-actions"
         },
         {
-          "from": "/scalar/scalar-docs/:wildcard",
-          "to": "/products/docs/:wildcard"
-        },
-        {
-          "from": "/scalar/scalar-sdks/:wildcard",
-          "to": "/products/sdks/:wildcard"
-        },
-        {
-          "from": "/scalar/scalar-registry/:wildcard",
-          "to": "/products/registry/:wildcard"
-        },
-        {
-          "from": "/scalar/scalar-api-references/:wildcard",
-          "to": "/products/api-references/:wildcard"
-        },
-        {
-          "from": "/scalar/scalar-mock-server/:wildcard",
-          "to": "/products/mock-server/:wildcard"
-        },
-        {
           "from": "/download",
           "to": "/products/api-client/getting-started"
         },
         {
-          "from": "/scalar/scalar-cli/:wildcard",
-          "to": "/tools/cli/:wildcard"
+          "from": "/scalar/introduction",
+          "to": "/"
+        },
+        {
+          "from": "/scalar/pricing",
+          "to": "/pricing"
+        },
+        {
+          "from": "/scalar/access",
+          "to": "/products/docs/access"
+        },
+        {
+          "from": "/scalar/scalar-docs/getting-started",
+          "to": "/products/docs/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-docs/github-sync",
+          "to": "/products/docs/github-sync"
+        },
+        {
+          "from": "/scalar/scalar-docs/github-actions",
+          "to": "/products/docs/github-actions"
+        },
+        {
+          "from": "/scalar/scalar-docs/redirects",
+          "to": "/products/docs/redirects"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/markdown-support",
+          "to": "/products/docs/components/markdown-support"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/buttons",
+          "to": "/products/docs/components/buttons"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/callouts",
+          "to": "/products/docs/components/callouts"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/math",
+          "to": "/products/docs/components/math"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/embeds",
+          "to": "/products/docs/components/embeds"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/code-blocks",
+          "to": "/products/docs/components/code-blocks"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/images",
+          "to": "/products/docs/components/images"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/icons",
+          "to": "/products/docs/components/icons"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/tabs",
+          "to": "/products/docs/components/tabs"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/steps",
+          "to": "/products/docs/components/steps"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/cards",
+          "to": "/products/docs/components/cards"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/details",
+          "to": "/products/docs/components/details"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/page-link",
+          "to": "/products/docs/components/page-link"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/row",
+          "to": "/products/docs/components/row"
+        },
+        {
+          "from": "/scalar/scalar-sdks/getting-started",
+          "to": "/products/sdks/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/typescript",
+          "to": "/products/sdks/configuration/typescript"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/python",
+          "to": "/products/sdks/configuration/python"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/go",
+          "to": "/products/sdks/configuration/go"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/java",
+          "to": "/products/sdks/configuration/java"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/csharp",
+          "to": "/products/sdks/configuration/csharp"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/php",
+          "to": "/products/sdks/configuration/php"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/ruby",
+          "to": "/products/sdks/configuration/ruby"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/swift",
+          "to": "/products/sdks/configuration/swift"
+        },
+        {
+          "from": "/scalar/scalar-registry/getting-started",
+          "to": "/products/registry/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-registry/upload",
+          "to": "/products/registry/upload"
+        },
+        {
+          "from": "/scalar/scalar-registry/cli",
+          "to": "/products/registry/cli"
+        },
+        {
+          "from": "/scalar/scalar-registry/github-actions",
+          "to": "/products/registry/github-actions"
+        },
+        {
+          "from": "/scalar/scalar-registry/gitlab-ci",
+          "to": "/products/registry/gitlab-ci"
+        },
+        {
+          "from": "/scalar/scalar-cli/getting-started",
+          "to": "/tools/cli/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-cli/commands",
+          "to": "/tools/cli/commands"
+        },
+        {
+          "from": "/scalar/scalar-api-references/getting-started",
+          "to": "/products/api-references/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-api-references/configuration",
+          "to": "/products/api-references/configuration"
+        },
+        {
+          "from": "/scalar/scalar-api-references/themes",
+          "to": "/products/api-references/themes"
+        },
+        {
+          "from": "/scalar/scalar-api-references/plugins",
+          "to": "/products/api-references/plugins"
+        },
+        {
+          "from": "/scalar/scalar-api-references/openapi",
+          "to": "/products/api-references/openapi"
+        },
+        {
+          "from": "/scalar/scalar-api-references/asyncapi",
+          "to": "/products/api-references/asyncapi"
+        },
+        {
+          "from": "/scalar/scalar-api-references/markdown",
+          "to": "/products/api-references/markdown"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/html-js",
+          "to": "/products/api-references/integrations/html-js"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspire",
+          "to": "/products/api-references/integrations/aspire"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspnet-core/integration",
+          "to": "/products/api-references/integrations/aspnetcore/integration"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspnet-core/build-time-generation",
+          "to": "/products/api-references/integrations/aspnetcore/build-time-generation"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspnet-core/openapi-extensions",
+          "to": "/products/api-references/integrations/aspnetcore/openapi-extensions"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspnet-core/legacy-integration",
+          "to": "/products/api-references/integrations/aspnetcore/legacy-integration"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/adonisjs",
+          "to": "/products/api-references/integrations/adonisjs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/astro",
+          "to": "/products/api-references/integrations/astro"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/django",
+          "to": "/products/api-references/integrations/django"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/django-ninja",
+          "to": "/products/api-references/integrations/django-ninja"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/docker",
+          "to": "/products/api-references/integrations/docker"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/docusaurus",
+          "to": "/products/api-references/integrations/docusaurus"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/effect",
+          "to": "/products/api-references/integrations/effect"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/elixir",
+          "to": "/products/api-references/integrations/elixir"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/elysiajs",
+          "to": "/products/api-references/integrations/elysiajs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/express",
+          "to": "/products/api-references/integrations/express"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/fastapi",
+          "to": "/products/api-references/integrations/fastapi"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/fastify",
+          "to": "/products/api-references/integrations/fastify"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/flask",
+          "to": "/products/api-references/integrations/flask"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/go",
+          "to": "/products/api-references/integrations/go"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/hapi",
+          "to": "/products/api-references/integrations/hapi"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/hono",
+          "to": "/products/api-references/integrations/hono"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/java",
+          "to": "/products/api-references/integrations/java"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/laravel",
+          "to": "/products/api-references/integrations/laravel"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/laravel-scribe",
+          "to": "/products/api-references/integrations/laravel-scribe"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/micronaut",
+          "to": "/products/api-references/integrations/micronaut"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/nextjs",
+          "to": "/products/api-references/integrations/nextjs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/nestjs",
+          "to": "/products/api-references/integrations/nestjs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/nitro",
+          "to": "/products/api-references/integrations/nitro"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/nuxt",
+          "to": "/products/api-references/integrations/nuxt"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/platformatic",
+          "to": "/products/api-references/integrations/platformatic"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/python",
+          "to": "/products/api-references/integrations/python"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/react",
+          "to": "/products/api-references/integrations/react"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/ruby-on-rails",
+          "to": "/products/api-references/integrations/ruby-on-rails"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/rust",
+          "to": "/products/api-references/integrations/rust"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/rust/axum",
+          "to": "/products/api-references/integrations/rust/axum"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/rust/actix-web",
+          "to": "/products/api-references/integrations/rust/actix-web"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/rust/warp",
+          "to": "/products/api-references/integrations/rust/warp"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/rust/aide",
+          "to": "/products/api-references/integrations/rust/aide"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/spring-boot",
+          "to": "/products/api-references/integrations/spring-boot"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/sveltekit",
+          "to": "/products/api-references/integrations/sveltekit"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/tsed",
+          "to": "/products/api-references/integrations/tsed"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/vue",
+          "to": "/products/api-references/integrations/vue"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/getting-started",
+          "to": "/products/mock-server/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/custom-request-handler",
+          "to": "/products/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/data-seeding",
+          "to": "/products/mock-server/data-seeding"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/docker",
+          "to": "/products/mock-server/docker"
         }
       ]
     }
