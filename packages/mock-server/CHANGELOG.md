@@ -1,5 +1,22 @@
 # @scalar/mock-server
 
+## 0.8.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.14**
+
+- **@scalar/json-magic@0.8.10**
+
+- **@scalar/openapi-parser@0.23.11**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.8.8
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @scalar/nuxt
 
+## 0.5.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.4**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-client@2.17.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
 ## 0.5.38
 
 ### Patch Changes

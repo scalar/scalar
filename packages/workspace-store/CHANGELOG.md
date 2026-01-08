@@ -1,5 +1,27 @@
 # @scalar/workspace-store
 
+## 0.24.4
+
+### Patch Changes
+
+- [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/json-magic@0.8.10**
+
+- **@scalar/object-utils@1.2.20**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+- **@scalar/snippetz@0.6.3**
+
 ## 0.24.3
 
 ### Patch Changes

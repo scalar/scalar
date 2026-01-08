@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.12.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 2.12.2
 
 ### Patch Changes
