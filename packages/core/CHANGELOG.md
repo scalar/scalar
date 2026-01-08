@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.3.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
 ## 0.3.29
 
 ### Patch Changes

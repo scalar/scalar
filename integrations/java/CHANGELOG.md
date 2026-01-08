@@ -1,5 +1,14 @@
 # @scalar/java-integration
 
+## 0.5.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
 ## 0.5.11
 
 ### Patch Changes

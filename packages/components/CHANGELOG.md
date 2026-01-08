@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.16.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/use-hooks@0.3.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.14**
+
 ## 0.16.15
 
 ### Patch Changes

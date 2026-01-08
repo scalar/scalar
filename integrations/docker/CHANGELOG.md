@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
 ## 0.4.20
 
 ### Patch Changes

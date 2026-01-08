@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.8.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
 ## 0.8.18
 
 ### Patch Changes

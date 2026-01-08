@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.6
+
+### Patch Changes
+
+- [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
 ## 0.2.5
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # scalar-app
 
+## 0.1.256
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/components@0.16.16**
+
+- **@scalar/import@0.4.43**
+
 ## 0.1.255
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/nextjs-openapi
 
+## 0.2.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/nextjs-api-reference@0.9.9**
+
 ## 0.2.33
 
 ### Patch Changes
