@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.3.4
+
+### Patch Changes
+
+- [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
 ## 0.3.3
 
 ### Patch Changes

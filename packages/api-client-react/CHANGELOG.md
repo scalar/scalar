@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.3.62
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
 ## 1.3.61
 
 ### Patch Changes

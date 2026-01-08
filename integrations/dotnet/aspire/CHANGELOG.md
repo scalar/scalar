@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 0.8.10
 
 ### Patch Changes

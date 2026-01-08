@@ -1,5 +1,14 @@
 # @scalar/docusaurus
 
+## 0.7.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
 ## 0.7.26
 
 ### Patch Changes

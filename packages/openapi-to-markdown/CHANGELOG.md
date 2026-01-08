@@ -1,5 +1,25 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.13**
+
+- **@scalar/components@0.16.15**
+
+- **@scalar/openapi-parser@0.23.10**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
 ## 0.3.14
 
 ### Patch Changes
