@@ -13,10 +13,11 @@ export default {}
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 // import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
@@ -59,32 +60,32 @@ onMounted(() => {
 })
 
 /** Add the Accept header to the operation if it doesn't exist */
-// watch(
-//   operation,
-//   (newOperation) => {
-//     if (
-//       newOperation &&
-//       path &&
-//       method &&
-//       !getOperationHeader({
-//         operation: newOperation,
-//         name: 'Accept',
-//         type: 'header',
-//       })
-//     ) {
-//       eventBus.emit('operation:add:parameter', {
-//         type: 'header',
-//         meta: { method, path, exampleKey: exampleName ?? 'default' },
-//         payload: {
-//           key: 'Accept',
-//           value: '*/*',
-//           isDisabled: false,
-//         },
-//       })
-//     }
-//   },
-//   { immediate: true },
-// )
+watch(
+  operation,
+  (newOperation) => {
+    if (
+      newOperation &&
+      path &&
+      method &&
+      !getOperationHeader({
+        operation: newOperation,
+        name: 'Accept',
+        type: 'header',
+      })
+    ) {
+      eventBus.emit('operation:add:parameter', {
+        type: 'header',
+        meta: { method, path, exampleKey: exampleName ?? 'default' },
+        payload: {
+          key: 'Accept',
+          value: '*/*',
+          isDisabled: false,
+        },
+      })
+    }
+  },
+  { immediate: true },
+)
 
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
