@@ -1,4 +1,4 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getExample } from './get-example'
@@ -279,5 +279,29 @@ describe('getExampleValue', () => {
 
     const result = getExample(param, undefined, undefined)
     expect(result?.value).toEqual('low')
+  })
+
+  it('grabs the content.example', () => {
+    const param = {
+      content: {
+        'application/json': {
+          example: 'electronics',
+        },
+      },
+    } satisfies RequestBodyObject
+
+    const result = getExample(param, '', 'application/json')
+    expect(result?.value).toEqual('electronics')
+  })
+
+  it('prioritizes schema.examples over schema.enum', () => {
+    const param = {
+      name: 'size',
+      in: 'query',
+      example: 'large',
+    } satisfies ParameterObject
+
+    const result = getExample(param, '', undefined)
+    expect(result?.value).toEqual('large')
   })
 })
