@@ -19,12 +19,12 @@ import { ScalarComponent } from '@scalar/astro'
 
 <ScalarComponent configuration={{
   // How to configure Scalar:
-  // https://guides.scalar.com/scalar/scalar-api-references/configuration
+  // https://guides.scalar.com/api-references/configuration
   url: '/openapi.json',
 }} />
 ```
 
-The Astro component takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+The Astro component takes our universal configuration object, [read more about configuration](../configuration.md).
 
 ### Themes
 

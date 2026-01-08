@@ -2,7 +2,7 @@
 
 The easiest way to render a beautiful API reference with Fastify. All based on your OpenAPI/Swagger document.
 
-![Screenshot of the Fastify integration](/screenshots/fastify.png)
+![Screenshot of the Fastify integration](../assets/screenshots/fastify.png)
 
 ## Installation
 
@@ -41,11 +41,11 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
-The fastify plugin takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) in the core package README.
+The fastify plugin takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
 
 ## Themes
 
-By default, we're using a custom Fastify theme and it's beautiful. But you can choose [one of our other themes](https://guides.scalar.com/scalar/scalar-api-references/themes), too:
+By default, we're using a custom Fastify theme and it's beautiful. But you can choose [one of our other themes](../themes.md), too:
 
 ```ts
 await fastify.register(import('@scalar/fastify-api-reference'), {

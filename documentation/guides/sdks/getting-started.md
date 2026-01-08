@@ -9,8 +9,11 @@
     Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
   </p>
 </div>
-<img class="light-image mt-10" src="/sdks-animated.svg"/>
-<img class="dark-image mt-10" src="/sdks-animated-dark.svg"/>
+
+<div class="mt-10">
+  <scalar-image src="/sdks-animated.svg" src-dark="/sdks-animated-dark.svg"></scalar-image>
+</div>
+
 
 <div class="flex">
   <div class="full-container-constrained">
@@ -21,7 +24,7 @@
 SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
 :::
 
-Make sure you have created a Scalar Account & are logged in ([see create account guide](https://guides.scalar.com/scalar/scalar-registry/getting-started#create-your-scalar-account))
+Make sure you have created a Scalar Account & are logged in ([see create account guide](../registry/getting-started.md#create-your-scalar-account))
 
 ## Generating your first SDK
 
@@ -49,8 +52,8 @@ Once created, you will get redirected to the SDK Overview page where you can:
   </scalar-step>
 </scalar-steps>
 
-<img class="light-image" src="/sdk-dashboard-static.svg" />
-<img class="dark-image" src="/sdk-dashboard-static-dark.svg" />
+<scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"></scalar-image>
+
 
 <div class="feature">
   <h2>Features</h2>
@@ -100,7 +103,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -114,10 +117,10 @@ Once created, you will get redirected to the SDK Overview page where you can:
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -171,7 +174,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -190,7 +193,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -208,11 +211,11 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="getting-started footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -224,7 +227,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://guides.scalar.com/scalar/scalar-api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
@@ -279,9 +282,10 @@ Once created, you will get redirected to the SDK Overview page where you can:
   }
   .hero-animation  {
     position: absolute;
-    top: -88px;
+    top: 0;
+    z-index: -1;
     transform: scaleY(-1);
-    margin-top: 0 !important;
+    margin-top: 0;
   }
   .hero-animation .fa {
     --fa-orange: rgba(49, 215, 250, .25);
@@ -300,8 +304,15 @@ Once created, you will get redirected to the SDK Overview page where you can:
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  :not(.getting-started).footer,
+  .t-editor .page-header,
+  .content .page-nav,
+  .t-doc__toc {
     display: none;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;
@@ -332,7 +343,9 @@ Once created, you will get redirected to the SDK Overview page where you can:
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -351,6 +364,10 @@ Once created, you will get redirected to the SDK Overview page where you can:
     );
     width: calc(100dvw - var(--scalar-sidebar-width));
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+  }
+  .t-editor.page {
+    position: relative;
+    margin-right: unset;
   }
   .container {
     width: 900px;
@@ -509,7 +526,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -570,8 +587,12 @@ Once created, you will get redirected to the SDK Overview page where you can:
     .hero.hero {
       margin-top: 188px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

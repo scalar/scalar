@@ -1092,7 +1092,7 @@
 
 ### Minor Changes
 
-- 61c7ec8: feat: Support Multiple OpenAPI documents. Please checkout [the related docs](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents)!
+- 61c7ec8: feat: Support Multiple OpenAPI documents. Please checkout [the related docs](https://github.com/scalar/scalar/blob/main/documentation/integrations/aspnetcore/integration.md#multiple-openapi-documents)!
 
 ### Patch Changes
 

@@ -8,7 +8,7 @@
   </p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <div class="stickers">
     <div class="draggable sticker-5">
@@ -152,7 +152,7 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">
+      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started">
       Connect Your API for Free
        →
       </a>
@@ -202,7 +202,7 @@
           Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It in the Browser →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started">Send Your First Request →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -249,7 +249,7 @@
           Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Create Your New Documentation →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -296,7 +296,7 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Generate your first SDK →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -356,7 +356,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -399,7 +399,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -418,7 +418,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -436,11 +436,11 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="introduction footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -452,7 +452,7 @@
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://guides.scalar.com/scalar/scalar-api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
@@ -487,8 +487,15 @@
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  .t-doc__toc,
+  .page-nav,
+  :not(.introduction).footer,
+  .t-editor .page-header {
     display: none;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;
@@ -519,7 +526,15 @@
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor.page {
+    margin-right: unset;
+  }
+  .t-editor .slider {
+    margin-top: unset;
+  }
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -818,7 +833,7 @@
     margin-bottom: 44px;
   }
   /* footer */
-  .footer {
+  .introduction.footer  {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
@@ -827,7 +842,7 @@
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -928,8 +943,12 @@
       bottom: 70px;
       right: 30px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

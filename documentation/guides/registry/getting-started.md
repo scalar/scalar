@@ -9,8 +9,10 @@
     Get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
   </p>
 </div>
-<img class="light-image mt-10" src="/registry-animated.svg"/>
-<img class="dark-image mt-10" src="/registry-animated-dark.svg"/>
+
+<div class="mt-10">
+  <scalar-image src="/registry-animated.svg" src-dark="/registry-animated-dark.svg"></scalar-image>
+</div>
 
 <div class="flex">
   <div class="full-container-constrained">
@@ -19,12 +21,13 @@
 To first access the Scalar Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
 Once authenticated you will see your dashboard, you have two options to interface with the Scalar Registry:
-- The Scalar [dashboard](https://guides.scalar.com/scalar/scalar-registry/dashboard)
-- The Scalar [CLI](https://guides.scalar.com/scalar/scalar-registry/cli)
-- Our [GitHub Workflows](https://guides.scalar.com/scalar/scalar-registry/github-workflows)
+- [Scalar dashboard](https://dashboard.scalar.com)
+- [Scalar CLI](cli.md)
+- [GitHub Actions](github-actions.md)
 
-<img class="light-image mt-6" src="/scalar-dashboard.svg"/>
-<img class="dark-image mt-6" src="/scalar-dashboard-dark.svg"/>
+<div class="mt-6">
+  <scalar-image src="/scalar-dashboard.svg" src-dark="/scalar-dashboard-dark.svg"></scalar-image>
+</div>
 
 ## So... Why a Registry?
 Managing OpenAPI can be difficult; is the source-of-truth: design, implementation, Git, cloud? How do you manage versions and access, also how do downstream consumers of your API interact with it? Does it need to be private?
@@ -36,8 +39,10 @@ Scalar handles all this and makes it incredibly easy to get to the exciting stuf
 ### Create Docs
 World Class API Docs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
 
-<img class="light-image mt-6" src="/api-docs-static-zoom.svg" />
-<img class="dark-image mt-6" src="/api-docs-static-zoom-dark.svg" />
+<div class="mt-6">
+  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
+</div>
+
 
 ### Create SDKs
 World Class SDKs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
@@ -46,8 +51,9 @@ and so much more!
 
 All of this with just a couple clicks or a few API requests! You handle making your API great, and we will handle the rest of the tooling. OpenAPI first.
 
-<img class="light-image mt-6" src="/sdk-dashboard-static.svg" />
-<img class="dark-image mt-6" src="/sdk-dashboard-static-dark.svg" />
+<div class="mt-6">
+  <scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"></scalar-image>
+</div>
 
 <div class="feature">
   <h2>Features</h2>
@@ -97,7 +103,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -111,10 +117,10 @@ All of this with just a couple clicks or a few API requests! You handle making y
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/cli"><scalar-icon src="phosphor/bold/brackets-square"></scalar-icon> CLI</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/registry/cli"><scalar-icon src="phosphor/bold/brackets-square"></scalar-icon> CLI</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/registry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -135,8 +141,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <scalar-image src="/api-client-static.svg" src-dark="/api-client-static-dark.svg"></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -154,8 +159,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <div class="mt-6">
+        <scalar-image src="/sdks-static.svg" src-dark="/sdks-static-dark.svg"></scalar-image>
+      </div>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -168,13 +174,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <scalar-image src="/registry-static.svg" src-dark="/registry-static-dark.svg"></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -187,13 +192,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -205,11 +209,11 @@ All of this with just a couple clicks or a few API requests! You handle making y
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="getting-started footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -221,7 +225,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://guides.scalar.com/scalar/scalar-api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
@@ -276,9 +280,10 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   .hero-animation  {
     position: absolute;
-    top: -88px;
+    top: 0;
+    z-index: -1;
     transform: scaleY(-1);
-    margin-top: 0 !important;
+    margin-top: 0;
   }
   .hero-animation .fa {
     --fa-orange: rgb(128 248 0 / 38%);
@@ -297,8 +302,15 @@ All of this with just a couple clicks or a few API requests! You handle making y
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  :not(.getting-started).footer,
+  .t-editor .page-header,
+  .content .page-nav,
+  .t-doc__toc {
     display: none;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;
@@ -329,7 +341,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -348,6 +362,10 @@ All of this with just a couple clicks or a few API requests! You handle making y
     );
     width: calc(100dvw - var(--scalar-sidebar-width));
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+  }
+  .t-editor.page {
+    position: relative;
+    margin-right: unset;
   }
   .container {
     width: 900px;
@@ -506,7 +524,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -567,8 +585,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
     .hero.hero {
       margin-top: 188px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

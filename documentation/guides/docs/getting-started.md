@@ -29,9 +29,10 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
   </div>
 </div>
-<img class="light-image mt-10" src="/api-docs-static-zoom.svg"/>
-<img class="dark-image mt-10" src="/api-docs-static-zoom-dark.svg"/>
 
+<div class="mt-10">
+  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
+</div>
 <div class="flex">
   <div class="full-container-constrained">
 
@@ -42,7 +43,7 @@
   :::
   In the top left corner of <https://docs.scalar.com>, you'll see a “Guide” tab. This is where you land by default.
 
-  Guides are basically a blank sheet of paper. These pages are where you will publish your non-reference content (API reference pages are [discussed below](#api-references)). You can start writing your documentation, your guidelines, your knowledge base — whatever you want to write — using our editor. You can alternatively manage your guides using a Git repository, covered in the [GitHub Sync](https://guides.scalar.com/scalar/scalar-docs/github-sync) guide.
+  Guides are basically a blank sheet of paper. These pages are where you will publish your non-reference content (API reference pages are [discussed below](#api-references)). You can start writing your documentation, your guidelines, your knowledge base — whatever you want to write — using our editor. You can alternatively manage your guides using a Git repository, covered in the [GitHub Sync](github-sync.md) guide.
 
   If you're serious about this, you can [create an account here](https://docs.scalar.com/register) to make sure your changes are saved.
 
@@ -63,19 +64,19 @@
   - Paste your OpenAPI document in the editor
   - Upload an OpenAPI document to the editor
   - Import an URL (you can even create a “Live Link”, which means it'll fetch updates from the URL vs. just fetching it once)
-  - [Sync your OpenAPI document from GitHub](https://guides.scalar.com/scalar/scalar-docs/github-sync#advanced-configuration__add-an-openapi-reference)
+  - [Sync your OpenAPI document from GitHub](github-sync.md#github-sync__advanced-configuration)
 
   ## Scalar Pro
 
   Most of our stuff is actually freely available. Upgrading to Scalar Pro unlocks a set of additional features, including:
 
   * Custom domains,
-  * [GitHub sync](https://guides.scalar.com/scalar/scalar-docs/github-sync),
+  * [GitHub Sync](github-sync.md),
   * Guides (and versioning of your guides),
   * TypeSense search and
   * priority support (including a private Discord channel or a dedicated Slack connect channel if you like).
 
-  [Pricing information can be found here](https://scalar.com#pricing).
+  [Pricing information can be found here](../pricing.md).
 
 <div class="feature">
   <h2>Features</h2>
@@ -125,7 +126,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -139,10 +140,10 @@
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-docs/github-sync"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/github-sync"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -196,7 +197,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -215,7 +216,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -233,11 +234,11 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="getting-started footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -249,7 +250,7 @@
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://guides.scalar.com/scalar/scalar-api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
@@ -300,9 +301,10 @@
   }
   .hero-animation  {
     position: absolute;
-    top: -88px;
+    top: 0;
+    z-index: -1;
     transform: scaleY(-1);
-    margin-top: 0 !important;
+    margin-top: 0;
   }
   .hero-animation .fa {
     --fa-orange: rgba(49, 215, 250, .25);
@@ -321,8 +323,15 @@
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  :not(.getting-started).footer,
+  .t-editor .page-header,
+  .content .page-nav,
+  .t-doc__toc {
     display: none;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;
@@ -353,7 +362,9 @@
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -372,6 +383,10 @@
     );
     width: calc(100dvw - var(--scalar-sidebar-width));
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+  }
+  .t-editor.page {
+    position: relative;
+    margin-right: unset;
   }
   .container {
     width: 900px;
@@ -521,7 +536,7 @@
     margin-bottom: 44px;
   }
   /* footer */
-  .footer {
+  .getting-started.footer {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
@@ -530,7 +545,7 @@
     margin-top: 100px;
   }
   .footer-animation {
-    margin-inline: -30px;
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
@@ -591,8 +606,12 @@
     .hero.hero {
       margin-top: 188px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }
