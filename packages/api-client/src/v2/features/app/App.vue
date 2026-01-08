@@ -41,6 +41,7 @@ const app = useAppState()
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => app.store.value
+  window.dumpAppState = () => app
 }
 
 /** Initialize color mode to ensure it is set on mount. */
@@ -86,7 +87,10 @@ const themeStyleTag = computed(() => {
 
 /** Check if the workspace overview is currently open. */
 const isWorkspaceOpen = computed(() =>
-  Boolean(workspaceSlug.value && !documentSlug.value),
+  Boolean(
+    app.activeEntities.workspaceSlug.value &&
+      !app.activeEntities.documentSlug.value,
+  ),
 )
 
 /** Handler for workspace navigation. */
@@ -112,14 +116,14 @@ const createWorkspaceModalState = useModal()
 const routerViewProps = computed(
   () =>
     ({
-      documentSlug: documentSlug.value ?? '',
+      documentSlug: app.activeEntities.documentSlug.value ?? '',
       document: app.store.value?.workspace.activeDocument ?? null,
       environment: environment.value,
       eventBus: app.eventBus,
-      exampleName: exampleName.value,
+      exampleName: app.activeEntities.exampleName.value,
       layout,
-      method: method.value,
-      path: path.value,
+      method: app.activeEntities.method.value,
+      path: app.activeEntities.path.value,
       workspaceStore: app.store.value!,
       activeWorkspace: app.workspace.activeWorkspace.value!,
       plugins,
@@ -130,9 +134,9 @@ const routerViewProps = computed(
 <template>
   <template
     v-if="
-      app.store !== null &&
-      app.workspace.activeWorkspace !== null &&
-      !app.loading
+      app.store.value !== null &&
+      app.workspace.activeWorkspace.value !== null &&
+      !app.loading.value
     ">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>

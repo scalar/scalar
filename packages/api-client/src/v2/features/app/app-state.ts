@@ -31,24 +31,32 @@ const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
 })
 
+const workspaceSlug = ref<string | undefined>(undefined)
+const documentSlug = ref<string | undefined>(undefined)
+const method = ref<HttpMethod | undefined>(undefined)
+const path = ref<string | undefined>(undefined)
+const exampleName = ref<string | undefined>(undefined)
+
 // ---------------------------------------------------------------------------
 // Loading states
-
-const isSyncingPath = ref(false)
-// const isLoading = ref(false)
+const isSyncingWorkspace = ref(false)
 
 // ---------------------------------------------------------------------------
 // Router state
 
 const router = shallowRef<Router | null>(null)
+watch(router, (r) => {
+  if (!r) {
+    return
+  }
 
-// When the router changes we must attach the change handlers
-watch(
-  () => router.value,
-  (r) => {
-    r?.beforeEach((to) => handleRouteChange(to))
-  },
-)
+  r.beforeEach((to) => handleRouteChange(to))
+  workspaceSlug.value = getRouteParam('workspaceSlug', r.currentRoute.value)
+  documentSlug.value = getRouteParam('documentSlug', r.currentRoute.value)
+  method.value = getRouteParam('method', r.currentRoute.value)
+  path.value = getRouteParam('pathEncoded', r.currentRoute.value)
+  exampleName.value = getRouteParam('exampleName', r.currentRoute.value)
+})
 
 const currentRoute = computed(() => router.value?.currentRoute.value ?? null)
 
@@ -223,7 +231,7 @@ const createWorkspace = async ({
 const changeWorkspace = async (slug: string) => {
   // Clear the current store and set loading to true before loading new workspace.
   store.value = null
-  isSyncingPath.value = true
+  isSyncingWorkspace.value = true
 
   // Try to load the workspace
   const result = await loadWorkspace(slug)
@@ -253,7 +261,7 @@ const changeWorkspace = async (slug: string) => {
       })
     }
 
-    isSyncingPath.value = false
+    isSyncingWorkspace.value = false
     return
   }
 
@@ -263,7 +271,7 @@ const changeWorkspace = async (slug: string) => {
     id: 'default',
   })
 
-  isSyncingPath.value = false
+  isSyncingWorkspace.value = false
 
   if (!createResult) {
     return console.error('Failed to create the default workspace, something went wrong, can not load the workspace')
@@ -555,13 +563,21 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
   const workspace = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
+  workspaceSlug.value = getRouteParam('workspaceSlug', to)
+  documentSlug.value = getRouteParam('documentSlug', to)
+  method.value = getRouteParam('method', to)
+  path.value = getRouteParam('pathEncoded', to)
+  exampleName.value = getRouteParam('exampleName', to)
+
   // Must have an active workspace to syncs
   if (!workspace) {
     return
   }
 
-  // Save active workspace slug to localStorage
-  workspaceStorage.setCurrentPath(to.path)
+  // Save the current path to the persistence storage
+  if (to.path !== '') {
+    workspaceStorage.setCurrentPath(to.path)
+  }
 
   if (workspace !== activeWorkspace.value?.id) {
     return changeWorkspace(workspace)
@@ -646,6 +662,13 @@ export function useAppState() {
     eventBus,
     router,
     currentRoute,
-    loading: isSyncingPath,
+    loading: isSyncingWorkspace,
+    activeEntities: {
+      workspaceSlug,
+      documentSlug,
+      path,
+      method,
+      exampleName,
+    },
   }
 }
