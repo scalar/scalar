@@ -1039,6 +1039,87 @@ describe('ApiReference Configuration Tests', () => {
     expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
   })
 
+  it('tagsSorter: alpha', async () => {
+    const documentWithUnsortedTags = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: 'getUsers',
+            tags: ['Zebras'],
+          },
+        },
+        '/posts': {
+          get: {
+            summary: 'Get posts',
+            operationId: 'getPosts',
+            tags: ['Apples'],
+          },
+        },
+        '/comments': {
+          get: {
+            summary: 'Get comments',
+            operationId: 'getComments',
+            tags: ['Monkeys'],
+          },
+        },
+        '/products': {
+          get: {
+            summary: 'Get products',
+            operationId: 'getProducts',
+            tags: ['Bananas'],
+          },
+        },
+      },
+      tags: [
+        {
+          name: 'Zebras',
+          description: 'Zebra operations',
+        },
+        {
+          name: 'Apples',
+          description: 'Apple operations',
+        },
+        {
+          name: 'Monkeys',
+          description: 'Monkey operations',
+        },
+        {
+          name: 'Bananas',
+          description: 'Banana operations',
+        },
+      ],
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: documentWithUnsortedTags,
+          tagsSorter: 'alpha',
+        },
+      },
+    })
+    await flushPromises()
+
+    const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
+    expect(tagComponents.length).toBeGreaterThan(0)
+
+    const tagTexts = tagComponents.map((tag) => tag.text())
+    const tagNames = tagTexts
+      .map((text) => {
+        const match = text.match(/^(Apples|Bananas|Monkeys|Zebras)/)
+        return match ? match[1] : ''
+      })
+      .filter(Boolean)
+
+    expect(tagNames).toEqual(['Apples', 'Bananas', 'Monkeys', 'Zebras'])
+  })
+
   it('onShowMore: function', async () => {
     const onShowMore = vi.fn()
     const documentWithTags = {
