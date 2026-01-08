@@ -1,9 +1,9 @@
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 

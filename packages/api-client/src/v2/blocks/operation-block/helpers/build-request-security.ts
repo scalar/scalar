@@ -2,11 +2,11 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OpenApiDocument,
   SecurityRequirementObject,

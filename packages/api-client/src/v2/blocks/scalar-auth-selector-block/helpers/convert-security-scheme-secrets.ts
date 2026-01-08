@@ -1,6 +1,6 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type OAuthFlowsObject,
   type SecuritySchemeObject,

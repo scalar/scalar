@@ -23,10 +23,10 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
 import { getServersFromDocument } from '@/preprocessing/server'
+import { coerceValue } from '@/schemas/coerce-value'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
@@ -829,7 +829,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
+        coerceValue<OpenApiDocument>(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
       )
       measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
@@ -1245,7 +1245,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // TODO: In the future, implement smarter conflict resolution if needed
           const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-          const newActiveDocument = coerceValue(
+          const newActiveDocument = coerceValue<OpenApiDocument>(
             OpenAPIDocumentSchemaStrict,
             apply(deepClone(newIntermediateDocument), changesetB),
           )

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 

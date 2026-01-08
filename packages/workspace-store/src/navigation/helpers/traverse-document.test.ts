@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { coerceValue } from '@/schemas/coerce-value'
 import type { TraversedTag } from '@/schemas/navigation'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 

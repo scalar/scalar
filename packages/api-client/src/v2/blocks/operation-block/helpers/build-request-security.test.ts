@@ -1,4 +1,4 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowImplicit,
@@ -170,7 +170,7 @@ describe('buildRequestSecurity', () => {
         name: 'x-client-id',
         in: 'header',
         'x-scalar-secret-token': 'client-123',
-      }) as ApiKeyObject
+      }) as unknown
 
       const result = buildRequestSecurity([apiKey, apiKey2])
 

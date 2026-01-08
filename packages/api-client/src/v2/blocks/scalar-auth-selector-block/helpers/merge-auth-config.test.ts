@@ -1,5 +1,5 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type ComponentsObject,
   SecuritySchemeObjectSchema,

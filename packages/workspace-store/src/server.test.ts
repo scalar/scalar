@@ -5,7 +5,7 @@ import { cwd } from 'node:process'
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { allFilesMatch } from '../test/helpers'

@@ -1,5 +1,5 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import { xScalarEnvironmentsSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 

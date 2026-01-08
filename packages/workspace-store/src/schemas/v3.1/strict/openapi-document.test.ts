@@ -2,7 +2,7 @@ import type { Static } from '@scalar/typebox'
 import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 
 import { OpenAPIDocumentSchema, type OpenApiDocument } from './openapi-document'
 

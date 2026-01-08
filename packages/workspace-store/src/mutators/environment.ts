@@ -1,12 +1,12 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
+import { coerceValue } from '@/schemas/coerce-value'
 import {
   type XScalarEnvVar,
   type XScalarEnvironment,
   xScalarEnvVarSchema,
   xScalarEnvironmentSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 /**
  * Adds OR updates an environment to the document or workspace.

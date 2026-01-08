@@ -1,7 +1,7 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 
 import { XScalarSecretHTTPSchema, XScalarSecretTokenSchema } from './x-scalar-security-secrets'
 

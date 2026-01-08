@@ -2,7 +2,7 @@ import { Type } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 import { REF_DEFINITIONS } from '@/schemas/v3.1/strict/ref-definitions'
 import { SecurityRequirementObjectSchemaDefinition } from '@/schemas/v3.1/strict/security-requirement'
 

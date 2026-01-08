@@ -1,7 +1,7 @@
 import type { CookieEvents } from '@/events/definitions/cookie'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
+import { coerceValue } from '@/schemas/coerce-value'
 import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general/x-scalar-cookies'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 /**
  * Adds OR updates a cookie to the document or workspace.

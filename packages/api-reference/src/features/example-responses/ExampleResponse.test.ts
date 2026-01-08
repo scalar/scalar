@@ -1,5 +1,5 @@
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   ExampleObjectSchema,

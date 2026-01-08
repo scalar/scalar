@@ -1,6 +1,6 @@
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type SecurityRequirementObject,
   type SecuritySchemeObject,

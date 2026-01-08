@@ -1,9 +1,9 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import { coerceValue } from '@scalar/workspace-store/schemas/coerce-value'
 import {
   type XScalarSelectedSecurity,
   XScalarSelectedSecuritySchema,
 } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-selected-security'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type SecuritySchemes,
   SecuritySchemesSchema,

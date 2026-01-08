@@ -3,7 +3,7 @@ import { Value } from '@scalar/typebox/value'
 import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 
 import { type XMLObject, XMLObjectSchema } from './openapi-document'
 

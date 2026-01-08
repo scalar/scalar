@@ -8,9 +8,9 @@ import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
+import { coerceValue } from '@/schemas/coerce-value'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
   OpenAPIDocumentSchema,

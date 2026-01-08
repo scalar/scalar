@@ -1,7 +1,7 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { ServerEvents } from '@/events/definitions/server'
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from '@/schemas/coerce-value'
 import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
