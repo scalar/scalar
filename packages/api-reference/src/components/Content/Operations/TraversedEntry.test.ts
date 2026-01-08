@@ -1,6 +1,7 @@
 import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
@@ -21,6 +22,7 @@ vi.mock('@/plugins/hooks/usePluginManager', () => ({
 }))
 
 const mockDocument = {
+  'x-scalar-original-document-hash': 'test-hash',
   openapi: '3.1.0' as const,
   info: {
     title: 'Test API',
@@ -108,27 +110,18 @@ await mockStore.addDocument({
   document: mockDocument,
 })
 
+const eventBus = createWorkspaceEventBus()
+
 const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof TraversedEntryComponent> => ({
   entries,
-  paths: mockDocument.paths,
-  webhooks: mockDocument.webhooks,
-  security: mockDocument.security,
-  activeServer: mockServer,
-  getSecuritySchemes: () => [],
-  xScalarDefaultClient: mockStore.workspace['x-scalar-default-client'],
+  selectedServer: mockServer,
+  selectedClient: mockStore.workspace['x-scalar-default-client'],
   expandedItems: {},
-  schemas: mockDocument.components.schemas,
-  eventBus: null,
-  options: {
-    layout: mockConfig.layout,
-    showOperationId: mockConfig.showOperationId,
-    hideTestRequestButton: mockConfig.hideTestRequestButton,
-    expandAllResponses: mockConfig.expandAllResponses,
-    expandAllModelSections: mockConfig.expandAllModelSections,
-    orderRequiredPropertiesFirst: mockConfig.orderRequiredPropertiesFirst,
-    orderSchemaPropertiesBy: mockConfig.orderSchemaPropertiesBy,
-    clientOptions: [],
-  },
+  securitySchemes: {},
+  eventBus,
+  options: mockConfig,
+  document: mockDocument,
+  clientOptions: [],
 })
 
 const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({

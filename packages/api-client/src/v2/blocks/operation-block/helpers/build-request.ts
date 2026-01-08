@@ -5,11 +5,7 @@ import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type {
-  OpenApiDocument,
-  SecurityRequirementObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecuritySchemeObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { objectEntries } from '@vueuse/core'
 
@@ -42,8 +38,7 @@ export const buildRequest = ({
   path,
   proxyUrl,
   server,
-  securitySchemes,
-  selectedSecurity,
+  selectedSecuritySchemes,
 }: {
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
@@ -59,12 +54,10 @@ export const buildRequest = ({
   path: string
   /** The proxy URL for cookie domain determination */
   proxyUrl: string
-  /** Document defined security schemes */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  /** Currently selected security for the current operation */
-  selectedSecurity: SecurityRequirementObject[]
   /** The server object */
   server: ServerObject | null
+  /** The selected security schemes for the current operation */
+  selectedSecuritySchemes: SecuritySchemeObject[]
 }): ErrorResponse<{
   controller: AbortController
   request: Request
@@ -102,7 +95,7 @@ export const buildRequest = ({
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
     const body = buildRequestBody(requestBody, env, exampleKey)
-    const security = buildRequestSecurity(securitySchemes, selectedSecurity, env)
+    const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Combine the headers, cookies and url params
     const headers = { ...params.headers, ...security.headers }

@@ -1,5 +1,60 @@
 # @scalar/api-client-react
 
+## 1.3.64
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.6**
+  - [#7630](https://github.com/scalar/scalar/pull/7630): feat: add clear button to password field
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+  - [#7664](https://github.com/scalar/scalar/pull/7664): fix: example resolution in request body
+
+## 1.3.63
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+## 1.3.62
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+## 1.3.61
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.3**
+
+- **@scalar/types@0.5.4**
+
+## 1.3.60
+
+### Patch Changes
+
+- [#7639](https://github.com/scalar/scalar/pull/7639): fix: remove `vue` unused dependency
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.2**
+
 ## 1.3.59
 
 ### Patch Changes

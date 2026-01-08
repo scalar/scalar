@@ -1,5 +1,49 @@
 # @scalar/use-codemirror
 
+## 0.13.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.16**
+
+## 0.13.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.15**
+
+## 0.13.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+## 0.13.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.13**
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+    - `CARD_Heading_SYMBOL`
+    - `FORM_GROUP_SYMBOL`
+    - `formatHotKey#isDefault`
+    - `LoadingCompletionOptions`
+    - `MaybeElement`
+    - `ScalarComboBox#isGroup`
+
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+  - [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+  - [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
 ## 0.13.6
 
 ### Patch Changes

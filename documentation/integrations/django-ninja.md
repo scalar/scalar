@@ -2,7 +2,7 @@
 
 The easiest way to render a modern and beautiful API reference based on your Django Ninja OpenAPI document.
 
-![Screenshot of the Django Ninja integration](/screenshots/django-ninja.png)
+![Screenshot of the Django Ninja integration](../assets/screenshots/django-ninja.png)
 
 ## Installation
 
@@ -82,7 +82,7 @@ It's recommend to use `ScalarConfig` to have a fully typed configuration.
 
 ## Configuration
 
-Currently available [configuration options](https://guides.scalar.com/scalar/scalar-api-references/configuration) are listed below.
+Currently available [configuration options](../configuration.md) are listed below.
 
 ### Core Configuration
 

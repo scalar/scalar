@@ -59,4 +59,9 @@ export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop',
     return
   }
   app.mount(el)
+
+  return {
+    app,
+    state,
+  }
 }

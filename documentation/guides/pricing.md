@@ -38,7 +38,7 @@
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom Pricing</p>
                 <p class=" text-c-2 text-sm font-normal">* Custom pricing tailored to your API & business needs</p>
-                <a href="https://scalar.cal.com/shane/projectsuccess" class="pricing-cta">Contact Sales</a>
+                <a href="https://scalar.cal.com/scalar/chat-with-scalar" class="pricing-cta">Contact Sales</a>
               </div>
             </div>
           </header>
@@ -504,7 +504,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -546,7 +546,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -565,7 +565,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -583,11 +583,11 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
-<div class="footer container-full">
+<div class="pricing footer container-full">
   <div class="footer-content">
       <div>
         <span class="text-c-1">
@@ -792,8 +792,15 @@ h4.t-editor__heading {
   .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
-  .subheading {
+  .subheading,
+  .t-doc__toc,
+  .page-nav,
+  :not(.pricing).footer,
+  .t-editor .page-header {
     display: none;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .t-doc .layout-header {
     z-index: 10000;
@@ -823,7 +830,12 @@ h4.t-editor__heading {
     margin-top: 44px;
     position: relative;
   }
-  .t-editor .editor-static .page-node {
+  .t-editor.page {
+    margin-right: unset;
+  }
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
@@ -957,7 +969,7 @@ h4.t-editor__heading {
     margin-bottom: 44px;
   }
   /* footer */
-  .footer {
+  .pricing.footer {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
@@ -1012,8 +1024,12 @@ h4.t-editor__heading {
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
+    .t-editor.page {
+      padding-inline: 30px;
+    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }

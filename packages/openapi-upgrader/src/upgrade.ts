@@ -1,10 +1,10 @@
 import type { OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
+import type { UnknownObject } from '@scalar/types/utils'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2'
 
 import { upgradeFromTwoToThree } from './2.0-to-3.0'
 import { upgradeFromThreeToThreeOne } from './3.0-to-3.1'
-import type { UnknownObject } from '@scalar/types/utils'
 
 /**
  * Upgrade OpenAPI documents from Swagger 2.0 or OpenAPI 3.0 to the specified target version

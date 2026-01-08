@@ -1,5 +1,51 @@
 # @scalar/java-integration
 
+## 0.5.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
+## 0.5.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+## 0.5.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+## 0.5.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.1**
+
+## 0.5.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.0**
+  - [#7633](https://github.com/scalar/scalar/pull/7633): feat(api-reference): support rendering custom components for paths
+  - [#7583](https://github.com/scalar/scalar/pull/7583): feat: show empty schema message for object with no properties
+  - [#7597](https://github.com/scalar/scalar/pull/7597): fix: show more button appears even if tags don't have any children
+
 ## 0.5.8
 
 ### Patch Changes

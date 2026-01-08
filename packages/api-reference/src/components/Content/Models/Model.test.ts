@@ -1,12 +1,13 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import Model from './Model.vue'
 
 describe('Model', () => {
-  const mockDocument = coerceValue(OpenAPIDocumentSchema, {
+  const mockDocument = {
+    'x-scalar-original-document-hash': 'test-hash',
     openapi: '3.1.0',
     info: {
       title: 'Test API',
@@ -43,18 +44,20 @@ describe('Model', () => {
         },
       },
     },
-  })
+  }
+
+  const eventBus = createWorkspaceEventBus()
 
   const mockConfigClassic = {
     layout: 'classic' as const,
-    orderRequiredPropertiesFirst: undefined,
-    orderSchemaPropertiesBy: undefined,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
   }
 
   const mockConfigModern = {
     layout: 'modern' as const,
-    orderRequiredPropertiesFirst: undefined,
-    orderSchemaPropertiesBy: undefined,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
   }
 
   describe('layout rendering', () => {
@@ -63,7 +66,7 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigClassic,
@@ -84,7 +87,7 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigModern,
@@ -105,7 +108,7 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: true,
           options: mockConfigModern,
@@ -122,7 +125,7 @@ describe('Model', () => {
         props: {
           id: 'user',
           name: 'User',
-          eventBus: null,
+          eventBus,
           schema: mockDocument.components?.schemas?.User as SchemaObject,
           isCollapsed: false,
           options: mockConfigModern,

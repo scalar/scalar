@@ -1,4 +1,3 @@
-export { ClientLibraries } from './ClientLibraries'
 export { default as Content } from './Content.vue'
 export { Model, Models } from './Models'
 export { default as TraversedEntry } from './Operations/TraversedEntry.vue'

@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.1.0
+
+### Minor Changes
+
+- [#7628](https://github.com/scalar/scalar/pull/7628): release
+
 ## 0.0.0
 
 ### Minor Changes

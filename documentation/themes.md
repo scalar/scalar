@@ -14,7 +14,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `deepSpace`
 * `laserwave`
 
-Just pass the theme name to your [Scalar API Reference configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration):
+Just pass the theme name to your [Scalar API Reference configuration](configuration.md):
 
 ```js
 {
@@ -160,7 +160,7 @@ Or get more advanced by styling our sidebar!
 
 We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in
 applications consuming the Scalar references or themes.
-If you're injecting your custom CSS through the [`customCss`](https://guides.scalar.com/scalar/scalar-api-references/configuration) configuration option we will automatically
+If you're injecting your custom CSS through the [`customCss`](configuration.md) configuration option we will automatically
 migrate your variable prefixes but display a warning in the console.
 
 We recommend updating your theme variables as soon as possible:

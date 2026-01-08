@@ -1,5 +1,80 @@
 # @scalar/sidebar
 
+## 0.7.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.4**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/components@0.16.16**
+
+## 0.7.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.3**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/components@0.16.15**
+
+## 0.7.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/icons@0.5.2**
+
+- **@scalar/themes@0.13.26**
+
+- **@scalar/use-hooks@0.3.3**
+
+- **@scalar/workspace-store@0.24.2**
+
+## 0.7.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.13**
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+    - `CARD_Heading_SYMBOL`
+    - `FORM_GROUP_SYMBOL`
+    - `formatHotKey#isDefault`
+    - `LoadingCompletionOptions`
+    - `MaybeElement`
+    - `ScalarComboBox#isGroup`
+
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+  - [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+  - [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
+- **@scalar/workspace-store@0.24.2**
+  - [#7643](https://github.com/scalar/scalar/pull/7643): chore: update typebox
+
 ## 0.7.2
 
 ### Patch Changes

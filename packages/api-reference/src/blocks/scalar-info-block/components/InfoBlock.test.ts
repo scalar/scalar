@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -5,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import InfoBlock from './InfoBlock.vue'
 
 describe('InfoBlock', () => {
+  const eventBus = createWorkspaceEventBus()
   const mockInfo: InfoObject = {
     title: 'Test API',
     version: '1.0.0',
@@ -14,11 +16,9 @@ describe('InfoBlock', () => {
     const wrapper = mount(InfoBlock, {
       props: {
         info: mockInfo,
+        headingSlugGenerator: () => '',
         layout: 'classic',
-        options: {
-          headingSlugGenerator: () => '',
-        },
-        eventBus: null,
+        eventBus,
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',
@@ -33,10 +33,8 @@ describe('InfoBlock', () => {
       props: {
         info: mockInfo,
         layout: 'modern',
-        options: {
-          headingSlugGenerator: () => '',
-        },
-        eventBus: null,
+        headingSlugGenerator: () => '',
+        eventBus,
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',

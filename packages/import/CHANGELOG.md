@@ -1,5 +1,23 @@
 # @scalar/import
 
+## 0.4.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+## 0.4.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
 ## 0.4.41
 
 ### Patch Changes

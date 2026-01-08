@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
-import { ScalarIconEye, ScalarIconEyeSlash } from '@scalar/icons'
+import { ScalarIconEye, ScalarIconEyeSlash, ScalarIconX } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed, ref } from 'vue'
 
@@ -133,9 +133,18 @@ const handleLabelClick = () => {
       <slot name="warning" />
     </div>
     <slot name="icon" />
+    <!-- Clear -->
+    <ScalarIconButton
+      v-if="modelValue"
+      class="-ml-.25 h-6 w-6 self-center p-1.25"
+      :icon="ScalarIconX"
+      label="Clear Value"
+      @click="emit('update:modelValue', '')" />
+    <!-- Toggle Visibility -->
     <ScalarIconButton
       v-if="type === 'password'"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
+      data-testid="data-table-password-toggle"
       :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

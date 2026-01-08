@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.24.1",
+  "version": "0.24.4",
   "engines": {
     "node": ">=18"
   },
@@ -107,6 +107,11 @@
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
+    },
+    "./workspace-plugin": {
+      "import": "./dist/workspace-plugin.js",
+      "types": "./dist/workspace-plugin.d.ts",
+      "default": "./dist/workspace-plugin.js"
     }
   },
   "files": [

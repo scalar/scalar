@@ -21,22 +21,6 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Sets the path prefix to access the documentation.
-    /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <param name="prefix">The path prefix to set.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    /// <remarks>
-    /// This method is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the <see cref="ScalarEndpointRouteBuilderExtensions.MapScalarApiReference(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)" /> method instead.
-    /// </remarks>
-    [Obsolete("This method is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the 'MapScalarApiReference' method instead.")]
-    public static ScalarOptions WithEndpointPrefix(this ScalarOptions options, string prefix)
-    {
-        options.EndpointPathPrefix = prefix;
-        return options;
-    }
-
-    /// <summary>
     /// Sets the API key authentication options.
     /// </summary>
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>

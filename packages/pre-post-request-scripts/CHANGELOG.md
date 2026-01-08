@@ -1,5 +1,60 @@
 # @scalar/scripts
 
+## 0.0.60
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.14**
+
+- **@scalar/components@0.16.16**
+
+## 0.0.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.13**
+
+- **@scalar/components@0.16.15**
+
+## 0.0.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/oas-utils@0.6.12**
+
+## 0.0.57
+
+### Patch Changes
+
+- [#7637](https://github.com/scalar/scalar/pull/7637): fix: remove exports exntries pointing to non-existing files
+- [#7637](https://github.com/scalar/scalar/pull/7637): fix: output type declaration in the correct folder
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.13**
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+    - `CARD_Heading_SYMBOL`
+    - `FORM_GROUP_SYMBOL`
+    - `formatHotKey#isDefault`
+    - `LoadingCompletionOptions`
+    - `MaybeElement`
+    - `ScalarComboBox#isGroup`
+
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+  - [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+  - [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
+- **@scalar/oas-utils@0.6.12**
+
 ## 0.0.56
 
 ### Patch Changes

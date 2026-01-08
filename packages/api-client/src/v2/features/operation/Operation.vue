@@ -14,13 +14,12 @@ export default {}
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
-import { getSecurityRequirements } from '@/v2/features/operation/helpers/get-security-requirements'
-import { getSelectedSecurity } from '@/v2/features/operation/helpers/get-selected-security'
+// import { getOperationHeader } from '@/v2/features/operation/helpers/get-operation-header'
+import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
 const {
   document,
@@ -30,6 +29,7 @@ const {
   method,
   environment,
   exampleName,
+  securitySchemes,
   workspaceStore,
   plugins,
 } = defineProps<RouteProps>()
@@ -47,12 +47,7 @@ const globalCookies = computed(() => [
 ])
 
 /** Compute the selected server for the document only for now */
-const selectedServer = computed(
-  () =>
-    document?.servers?.find(
-      ({ url }) => url === document?.['x-scalar-selected-server'],
-    ) ?? null,
-)
+const selectedServer = computed(() => getSelectedServer(document))
 
 onMounted(() => {
   /** Select the first server if the user has not specifically unselected it */
@@ -92,16 +87,6 @@ watch(
   { immediate: true },
 )
 
-/** Compute what the security requirements should be for a request */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(document, operation.value),
-)
-
-/** Select the selected security for the operation or document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(document, operation.value, securityRequirements.value),
-)
-
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
   if (document?.['x-scalar-set-operation-security']) {
@@ -119,8 +104,6 @@ const authMeta = computed<AuthMeta>(() => {
 
 // eslint-disable-next-line no-undef
 const APP_VERSION = PACKAGE_VERSION
-
-const router = useRouter()
 </script>
 
 <template>
@@ -129,6 +112,8 @@ const router = useRouter()
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :documentSecurity="document?.security ?? []"
+      :documentSelectedSecurity="document?.['x-scalar-selected-security']"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
@@ -144,14 +129,17 @@ const router = useRouter()
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
-      :securityRequirements
-      :securitySchemes="document?.components?.securitySchemes ?? {}"
+      :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
-      :selectedSecurity
       :server="selectedServer"
       :servers="document?.servers ?? []"
+      :setOperationSecurity="
+        document?.['x-scalar-set-operation-security'] ?? false
+      "
       :totalPerformedRequests="0"
-      @update:servers="router.push({ name: 'document.servers' })" />
+      @update:servers="
+        eventBus.emit('ui:route:page', { name: 'document.servers' })
+      " />
   </template>
 
   <!-- Empty state -->

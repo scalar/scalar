@@ -93,6 +93,7 @@ const routerViewProps = computed<RouteProps>(() => ({
   workspaceStore: app.store.value!,
   activeWorkspace: app.workspace.activeWorkspace.value!,
   plugins,
+  securitySchemes: app.document.value?.components?.securitySchemes ?? {},
 }))
 
 //
@@ -129,10 +130,9 @@ const routerViewProps = computed<RouteProps>(() => ({
       <main class="flex min-h-0 flex-1">
         <!-- App sidebar -->
 
-        <!-- TODO: @redis handle nullish states -->
         <AppSidebar
           v-model:isSidebarOpen="app.sidebar.isOpen.value"
-          :activeWorkspace="app.workspace.activeWorkspace.value!"
+          :activeWorkspace="app.workspace.activeWorkspace.value"
           :eventBus="app.eventBus"
           :isWorkspaceOpen="app.workspace.isOpen.value"
           :layout

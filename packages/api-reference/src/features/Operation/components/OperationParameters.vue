@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ParameterObject,
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
+
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
@@ -13,14 +17,28 @@ const { parameters = [], requestBody } = defineProps<{
   parameters?: ParameterObject[]
   requestBody?: RequestBodyObject | undefined
   eventBus: WorkspaceEventBus | null
-  options: {
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 
-const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
-  parameters?.filter((parameter) => parameter.in === where) ?? []
+/** Use a single loop to reduce parameters by type(in) */
+const splitParameters = computed(() =>
+  (parameters ?? []).reduce(
+    (acc, parameter) => {
+      // Filter out ignored parameters
+      if (!shouldIgnoreEntity(parameter)) {
+        acc[parameter.in].push(parameter)
+      }
+      return acc
+    },
+    { cookie: [], header: [], path: [], query: [] } as Record<
+      'cookie' | 'header' | 'path' | 'query',
+      ParameterObject[]
+    >,
+  ),
+)
 </script>
 <template>
   <!-- Path parameters-->
@@ -28,7 +46,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
     :eventBus="eventBus"
     :options="options"
-    :parameters="filterParameters('path')">
+    :parameters="splitParameters['path']">
     <template #title>Path Parameters</template>
   </ParameterList>
 
@@ -37,7 +55,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
     :eventBus="eventBus"
     :options="options"
-    :parameters="filterParameters('query')">
+    :parameters="splitParameters['query']">
     <template #title>Query Parameters</template>
   </ParameterList>
 
@@ -46,7 +64,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :eventBus="eventBus"
     :options="options"
-    :parameters="filterParameters('header')">
+    :parameters="splitParameters['header']">
     <template #title>Headers</template>
   </ParameterList>
 
@@ -55,7 +73,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
     :eventBus="eventBus"
     :options="options"
-    :parameters="filterParameters('cookie')">
+    :parameters="splitParameters['cookie']">
     <template #title>Cookies</template>
   </ParameterList>
 

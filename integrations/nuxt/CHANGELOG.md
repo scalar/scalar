@@ -1,5 +1,93 @@
 # @scalar/nuxt
 
+## 0.5.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.6**
+  - [#7630](https://github.com/scalar/scalar/pull/7630): feat: add clear button to password field
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+  - [#7664](https://github.com/scalar/scalar/pull/7664): fix: example resolution in request body
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
+## 0.5.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.4**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-client@2.17.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+## 0.5.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+- **@scalar/workspace-store@0.24.3**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-client@2.17.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+## 0.5.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.3**
+
+- **@scalar/api-reference@1.41.1**
+
+- **@scalar/types@0.5.4**
+
+- **@scalar/use-hooks@0.3.3**
+
+- **@scalar/workspace-store@0.24.2**
+
+## 0.5.36
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.0**
+  - [#7633](https://github.com/scalar/scalar/pull/7633): feat(api-reference): support rendering custom components for paths
+  - [#7583](https://github.com/scalar/scalar/pull/7583): feat: show empty schema message for object with no properties
+  - [#7597](https://github.com/scalar/scalar/pull/7597): fix: show more button appears even if tags don't have any children
+
+- **@scalar/workspace-store@0.24.2**
+  - [#7643](https://github.com/scalar/scalar/pull/7643): chore: update typebox
+
+- **@scalar/api-client@2.17.2**
+
 ## 0.5.35
 
 ### Patch Changes

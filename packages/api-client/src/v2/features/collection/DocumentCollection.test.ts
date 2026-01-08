@@ -56,6 +56,7 @@ describe('DocumentCollection', () => {
     const wrapper = mount(DocumentCollection, {
       props: {
         document,
+        securitySchemes: {},
         eventBus: mockEventBus,
         layout: 'desktop' as any,
         environment: {} as any,

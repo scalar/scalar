@@ -1,5 +1,87 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.14**
+
+- **@scalar/components@0.16.16**
+
+- **@scalar/openapi-parser@0.23.11**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+## 0.3.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.13**
+
+- **@scalar/components@0.16.15**
+
+- **@scalar/openapi-parser@0.23.10**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+## 0.3.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/helpers@0.2.4**
+
+- **@scalar/oas-utils@0.6.12**
+
+- **@scalar/openapi-parser@0.23.9**
+
+- **@scalar/openapi-types@0.5.3**
+
+- **@scalar/openapi-upgrader@0.1.6**
+
+- **@scalar/types@0.5.4**
+
+## 0.3.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.13**
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+    - `CARD_Heading_SYMBOL`
+    - `FORM_GROUP_SYMBOL`
+    - `formatHotKey#isDefault`
+    - `LoadingCompletionOptions`
+    - `MaybeElement`
+    - `ScalarComboBox#isGroup`
+
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+  - [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+  - [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
+- **@scalar/oas-utils@0.6.12**
+
 ## 0.3.12
 
 ### Patch Changes

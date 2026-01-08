@@ -1,5 +1,57 @@
 # @scalar/aspire
 
+## 0.8.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
+## 0.8.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 0.8.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 0.8.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.1**
+
+- **@scalar/api-reference@1.41.1**
+
+## 0.8.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.0**
+  - [#7633](https://github.com/scalar/scalar/pull/7633): feat(api-reference): support rendering custom components for paths
+  - [#7583](https://github.com/scalar/scalar/pull/7583): feat: show empty schema message for object with no properties
+  - [#7597](https://github.com/scalar/scalar/pull/7597): fix: show more button appears even if tags don't have any children
+
 ## 0.8.8
 
 ### Patch Changes

@@ -1,5 +1,78 @@
 # scalar-app
 
+## 0.1.257
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.6**
+  - [#7630](https://github.com/scalar/scalar/pull/7630): feat: add clear button to password field
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+  - [#7664](https://github.com/scalar/scalar/pull/7664): fix: example resolution in request body
+
+## 0.1.256
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.5**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/components@0.16.16**
+
+- **@scalar/import@0.4.43**
+
+## 0.1.255
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/components@0.16.15**
+
+- **@scalar/import@0.4.42**
+
+## 0.1.254
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/api-client@2.17.3**
+
+- **@scalar/import@0.4.41**
+
+- **@scalar/themes@0.13.26**
+
+## 0.1.253
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.13**
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
+    - `CARD_Heading_SYMBOL`
+    - `FORM_GROUP_SYMBOL`
+    - `formatHotKey#isDefault`
+    - `LoadingCompletionOptions`
+    - `MaybeElement`
+    - `ScalarComboBox#isGroup`
+
+  - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove unused `@scalar/use-toasts` dependency
+  - [#7604](https://github.com/scalar/scalar/pull/7604): fix(components): improve sidebar groups
+  - [#7589](https://github.com/scalar/scalar/pull/7589): chore(components): upgrade to Storybook 10
+
+- **@scalar/api-client@2.17.2**
+
 ## 0.1.252
 
 ### Patch Changes

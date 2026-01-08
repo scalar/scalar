@@ -20,14 +20,17 @@ export const LS_KEYS = {
  */
 export const REFERENCE_LS_KEYS = {
   /**
-   * We should remove after some time as we no longer store an object
-   * @deprecated
-   */
-  SELECTED_CLIENT_DEPRECATED: 'scalar-reference-selected-client',
-  /**
    * Store the selected client as a string in localStorage
    */
   SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
+  /**
+   * Store the auth schemes as a string in localStorage
+   */
+  AUTH_SCHEMES: 'scalar-reference-auth-schemes',
+  /**
+   * Store the selected auth schemes as a string in localStorage
+   */
+  SELECTED_AUTH_SCHEMES: 'scalar-reference-selected-auth-schemes',
 } as const
 
 /**
@@ -35,7 +38,15 @@ export const REFERENCE_LS_KEYS = {
  * to ensure we do not have any conflicts
  */
 export const CLIENT_LS_KEYS = {
+  /**
+   * @deprecated This key is deprecated and will be removed in a future release.
+   * We are now storing the entire document for the api-client instead.
+   */
   AUTH: 'scalar-client-auth',
+  /**
+   * @deprecated This key is deprecated and will be removed in a future release.
+   * We are now storing the entire document for the api-client instead.
+   */
   SELECTED_SECURITY_SCHEMES: 'scalar-client-selected-security-schemes',
 } as const
 

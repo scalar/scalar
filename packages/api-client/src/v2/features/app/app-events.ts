@@ -345,6 +345,7 @@ export function initializeAppEventHandlers({
       }
     },
   )
+  eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers

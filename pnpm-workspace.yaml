@@ -35,7 +35,7 @@ catalogs:
     '@headlessui/vue': 1.7.23
     '@hono/node-server': '1.19.5'
     '@playwright/test': 1.56.0
-    '@scalar/typebox': 0.1.1
+    '@scalar/typebox': 0.1.3
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0

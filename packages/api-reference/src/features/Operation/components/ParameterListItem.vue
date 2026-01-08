@@ -17,21 +17,21 @@ import type {
 import { computed, ref } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
 
-const { name, parameter, options } = defineProps<{
+const { name, parameter, options, collapsableItems } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  options: {
-    collapsableItems?: boolean
-    withExamples?: boolean
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  collapsableItems?: boolean
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 
 /** Responses and params may both have a schema */
@@ -90,10 +90,7 @@ const value = computed(() => {
  * content to display (content types, headers, or schema details).
  */
 const shouldCollapse = computed<boolean>(() =>
-  Boolean(
-    options.collapsableItems &&
-      (content.value || headers.value || schema.value),
-  ),
+  Boolean(collapsableItems && (content.value || headers.value || schema.value)),
 )
 </script>
 <template>
@@ -110,8 +107,8 @@ const shouldCollapse = computed<boolean>(() =>
             weight="bold" />
           <div>
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
+              preset="property"
+              :text="name" />
           </div>
         </div>
         <ScalarMarkdownSummary
@@ -166,12 +163,7 @@ const shouldCollapse = computed<boolean>(() =>
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           }"
           :required="'required' in parameter && parameter.required"
-          :schema="value"
-          :withExamples="
-            typeof options.withExamples === 'boolean'
-              ? options.withExamples
-              : true
-          " />
+          :schema="value" />
       </DisclosurePanel>
     </Disclosure>
   </li>

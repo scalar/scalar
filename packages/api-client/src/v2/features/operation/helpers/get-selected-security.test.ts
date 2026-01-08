@@ -1,26 +1,24 @@
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getSelectedSecurity } from './get-selected-security'
 
 describe('getSelectedSecurity', () => {
-  it('returns operation-level selected security when x-scalar-set-operation-security is enabled', () => {
-    const document = {
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-      'x-scalar-set-operation-security': true,
-      'x-scalar-original-document-hash': '123',
+  it('returns operation-level selected security when setOperationSecurity is enabled', () => {
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = {
+      selectedIndex: 2,
+      selectedSchemes: [{ oauth2: [] }],
     }
-
-    const operation: OperationObject = {
-      'x-scalar-selected-security': {
-        selectedIndex: 2,
-        selectedSchemes: [{ oauth2: [] }],
-      },
-    }
-
     const securityRequirements = [{ apiKey: [] }, { basicAuth: [] }, { oauth2: [] }]
-    const result = getSelectedSecurity(document, operation, securityRequirements)
+    const setOperationSecurity = true
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      setOperationSecurity,
+    )
+
     expect(result).toEqual({
       selectedIndex: 2,
       selectedSchemes: [{ oauth2: [] }],
@@ -28,19 +26,20 @@ describe('getSelectedSecurity', () => {
   })
 
   it('returns document-level selected security when operation-level security is not set', () => {
-    const document = {
-      'x-scalar-original-document-hash': '123',
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-      'x-scalar-selected-security': {
-        selectedIndex: 1,
-        selectedSchemes: [{ bearerAuth: [] }],
-      },
+    const documentSelectedSecurity = {
+      selectedIndex: 1,
+      selectedSchemes: [{ bearerAuth: [] }],
     }
-
-    const operation: OperationObject = {}
+    const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
-    const result = getSelectedSecurity(document, operation, securityRequirements)
+    const setOperationSecurity = false
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      setOperationSecurity,
+    )
 
     expect(result).toEqual({
       selectedIndex: 1,
@@ -49,18 +48,18 @@ describe('getSelectedSecurity', () => {
   })
 
   it('returns no selection when authentication is optional', () => {
-    const document = {
-      'x-scalar-original-document-hash': '123',
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-    }
-
-    const operation: OperationObject = {}
-
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = undefined
     // Empty requirement makes auth optional
     const securityRequirements = [{ apiKey: [] }, {}]
+    const setOperationSecurity = false
 
-    const result = getSelectedSecurity(document, operation, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      setOperationSecurity,
+    )
 
     expect(result).toEqual({
       selectedIndex: -1,
@@ -69,15 +68,17 @@ describe('getSelectedSecurity', () => {
   })
 
   it('defaults to the first security requirement when no custom selection exists', () => {
-    const document = {
-      'x-scalar-original-document-hash': '123',
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-    }
-
-    const operation: OperationObject = {}
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { oauth2: [] }, { basicAuth: [] }]
-    const result = getSelectedSecurity(document, operation, securityRequirements)
+    const setOperationSecurity = false
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      setOperationSecurity,
+    )
 
     expect(result).toEqual({
       selectedIndex: 0,
@@ -86,15 +87,17 @@ describe('getSelectedSecurity', () => {
   })
 
   it('returns no selection when security requirements array is empty', () => {
-    const document = {
-      'x-scalar-original-document-hash': '123',
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-    }
-
-    const operation: OperationObject = {}
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = undefined
     const securityRequirements: Array<Record<string, string[]>> = []
-    const result = getSelectedSecurity(document, operation, securityRequirements)
+    const setOperationSecurity = false
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      setOperationSecurity,
+    )
 
     expect(result).toEqual({
       selectedIndex: -1,

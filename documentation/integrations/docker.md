@@ -91,4 +91,4 @@ services:
 
 The container includes a health check endpoint at `/health` that returns `OK` with a `200` status code.
 
-For detailed configuration options, refer to the [main Scalar documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+For detailed configuration options, refer to the [main Scalar documentation](../configuration.md).

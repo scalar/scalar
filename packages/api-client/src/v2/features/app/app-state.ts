@@ -87,7 +87,6 @@ function getRouteParam(
     return param && isHttpMethod(param) ? param : undefined
   }
 
-  // TODO: @redis Is this safe to use decodeURIComponent here for all params?
   return decodeURIComponent(param)
 }
 
@@ -595,7 +594,6 @@ const createTabFromRoute = (to: RouteLocationNormalizedGeneric | null): Tab => {
   }
 }
 
-// TODO: @redis creating a tab during in a computed is a side effect which is bad practice
 const tabs = computed(() => {
   return store.value?.workspace[TABS_KEY] ?? [createTabFromRoute(currentRoute.value)]
 })
@@ -629,10 +627,6 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 // ---------------------------------------------------------------------------
 // Path syncing
-//
-// TODO: @redis we should consider having the router driven from the store as a source of truth
-// Otherwise we should have any router state be included in the store and then
-// consumers would draw from the store only. Right now we have two sources of truth.
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
@@ -681,7 +675,6 @@ const syncTabs = (to: RouteLocationNormalizedGeneric) => {
     return
   }
 
-  // TODO: @redis we should likely be using a store mutator here and not directly mutating the store
   // Otherwise we replace the tab content with the new route
   tabs[index] = createTabFromRoute(to)
 }

@@ -1,4 +1,4 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getExample } from './get-example'
@@ -251,5 +251,57 @@ describe('getExampleValue', () => {
 
     const result = getExample(param, 'sample', undefined)
     expect(result?.value).toEqual('resolved-example-data')
+  })
+
+  it('returns first value from schema.examples when no other examples exist', () => {
+    const param = {
+      name: 'status',
+      in: 'query',
+      schema: {
+        type: 'string',
+        examples: ['active', 'inactive', 'pending'],
+      },
+    } satisfies ParameterObject
+
+    const result = getExample(param, undefined, undefined)
+    expect(result?.value).toEqual('active')
+  })
+
+  it('returns first value from schema.enum when no other examples exist', () => {
+    const param = {
+      name: 'priority',
+      in: 'query',
+      schema: {
+        type: 'string',
+        enum: ['low', 'medium', 'high'],
+      },
+    } satisfies ParameterObject
+
+    const result = getExample(param, undefined, undefined)
+    expect(result?.value).toEqual('low')
+  })
+
+  it('grabs the content.example', () => {
+    const param = {
+      content: {
+        'application/json': {
+          example: 'electronics',
+        },
+      },
+    } satisfies RequestBodyObject
+
+    const result = getExample(param, '', 'application/json')
+    expect(result?.value).toEqual('electronics')
+  })
+
+  it('prioritizes schema.examples over schema.enum', () => {
+    const param = {
+      name: 'size',
+      in: 'query',
+      example: 'large',
+    } satisfies ParameterObject
+
+    const result = getExample(param, '', undefined)
+    expect(result?.value).toEqual('large')
   })
 })

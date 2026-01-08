@@ -9,16 +9,15 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
  *
  * Otherwise we generally go operation -> document security.
  */
-export const getSecurityRequirements = (document: OpenApiDocument | null, operation: OperationObject | null) => {
-  if (!document) {
-    return []
-  }
-
+export const getSecurityRequirements = (
+  documentSecurity: OpenApiDocument['security'],
+  operationSecurity?: OperationObject['security'],
+) => {
   // If the operation security is optional, use the document security and ensure it includes an optional object
-  if (JSON.stringify(operation?.security) === '[{}]' && document.security?.length) {
-    const documentHasOptional = Boolean(document.security.find((s) => JSON.stringify(s) === '{}'))
-    return documentHasOptional ? document.security : [...document.security, {}]
+  if (JSON.stringify(operationSecurity) === '[{}]' && documentSecurity?.length) {
+    const documentHasOptional = Boolean(documentSecurity.find((s) => JSON.stringify(s) === '{}'))
+    return documentHasOptional ? documentSecurity : [...documentSecurity, {}]
   }
 
-  return operation?.security ?? document.security ?? []
+  return operationSecurity ?? documentSecurity ?? []
 }

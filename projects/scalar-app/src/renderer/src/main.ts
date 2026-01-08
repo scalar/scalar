@@ -24,30 +24,29 @@ if (window.electron) {
   if (!el) {
     console.error('Missing base element to mount to. Exiting...')
   } else {
-    createApiClientApp(el, { layout: 'desktop' })
+    const { state } = createApiClientApp(el, { layout: 'desktop' })
+    // // Hook into the router
+    state.router.afterEach((route) => {
+      if (typeof route.name !== 'string') {
+        return
+      }
+
+      trackPageview({
+        // We don't need to know the path, the name of the route is enough.
+        url: `https://scalar-${os}/${route.name}`,
+      })
+    })
+
+    // Set the platform class on the client app
+    document.getElementById('scalar-client-app')?.classList.add('app-platform-desktop', `app-platform-${os}`)
   }
 
-  // // Hook into the router
-  // router.afterEach((route) => {
-  //   if (typeof route.name !== 'string') {
-  //     return
-  //   }
-
-  //   trackPageview({
-  //     // We don't need to know the path, the name of the route is enough.
-  //     url: `https://scalar-${os}/${route.name}`,
-  //   })
-  // })
-
-  // Set the platform class on the client app
-  document.getElementById('scalar-client-app')?.classList.add('app-platform-desktop', `app-platform-${os}`)
+  // Open… menu
+  window.ipc.addEventListener('import-file', (fileContent?: string) => {
+    if (fileContent) {
+      // store.addDocument(fileContent, 'default')
+      console.log('Importing file...')
+      console.log(fileContent.slice(0, 500))
+    }
+  })
 }
-
-// Open… menu
-window.ipc.addEventListener('import-file', (fileContent?: string) => {
-  if (fileContent) {
-    // store.addDocument(fileContent, 'default')
-    console.log('Importing file...')
-    console.log(fileContent.slice(0, 500))
-  }
-})

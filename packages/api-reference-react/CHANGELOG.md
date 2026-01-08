@@ -1,5 +1,59 @@
 # @scalar/api-reference-react
 
+## 0.8.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
+## 0.8.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.6**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+## 0.8.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+## 0.8.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.1**
+
+- **@scalar/types@0.5.4**
+
+## 0.8.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.41.0**
+  - [#7633](https://github.com/scalar/scalar/pull/7633): feat(api-reference): support rendering custom components for paths
+  - [#7583](https://github.com/scalar/scalar/pull/7583): feat: show empty schema message for object with no properties
+  - [#7597](https://github.com/scalar/scalar/pull/7597): fix: show more button appears even if tags don't have any children
+
 ## 0.8.15
 
 ### Patch Changes

@@ -30,7 +30,7 @@ export const getExample = (
       return example
     }
     // Fallback to [deprecated] `example` field if no exampleKey is provided
-    if (typeof exampleKey === 'undefined' && content?.example) {
+    if (!exampleKey && content?.example) {
       return { value: getResolvedRefDeep(content.example) }
     }
 
@@ -48,20 +48,28 @@ export const getExample = (
     }
 
     // Fallback to [deprecated] `example` field if no exampleKey is provided
-    if (typeof exampleKey === 'undefined' && param.example) {
+    if (!exampleKey && param.example) {
       return { value: getResolvedRefDeep(param.example) }
     }
   }
 
-  // Fallback to default
+  // Derrive value from the schema
   const resolvedParam = getResolvedRefDeep(param)
-  if (
-    'schema' in resolvedParam &&
-    resolvedParam.schema &&
-    'default' in resolvedParam.schema &&
-    typeof resolvedParam.schema.default !== 'undefined'
-  ) {
-    return { value: resolvedParam.schema.default }
+  if ('schema' in resolvedParam && resolvedParam.schema) {
+    // Default value
+    if ('default' in resolvedParam.schema && typeof resolvedParam.schema.default !== 'undefined') {
+      return { value: resolvedParam.schema.default }
+    }
+
+    // Enum value
+    if ('enum' in resolvedParam.schema && resolvedParam.schema.enum?.[0]) {
+      return { value: resolvedParam.schema.enum[0] }
+    }
+
+    // Examples value
+    if ('examples' in resolvedParam.schema && resolvedParam.schema.examples?.[0]) {
+      return { value: resolvedParam.schema.examples[0] }
+    }
   }
 
   return undefined
