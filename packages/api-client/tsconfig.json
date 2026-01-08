@@ -8,5 +8,5 @@
       "@test/*": ["./test/*"]
     }
   },
-  "include": ["src", "playground", "test"]
+  "include": ["src", "playground", "test", "vite.config.ts"]
 }

@@ -4,6 +4,6 @@
     "types": ["vite/client"],
     "baseUrl": "."
   },
-  "include": ["src", "env.d.ts"],
-  "exclude": ["dist", "vite.config.ts", "node_modules"]
+  "include": ["src", "env.d.ts", "vite.config.ts"],
+  "exclude": ["dist", "node_modules"]
 }
