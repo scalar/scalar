@@ -1,8 +1,8 @@
 import { type ModalState, useModal } from '@scalar/components'
-import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { type App, computed, createApp, reactive } from 'vue'
+import { type App, type MaybeRefOrGetter, computed, createApp, reactive } from 'vue'
 
 import {
   type DefaultEntities,
@@ -13,9 +13,6 @@ import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 export type CreateApiClientModalOptions = {
   /** Element to mount the client modal to. */
   el: HTMLElement | null
@@ -30,8 +27,8 @@ export type CreateApiClientModalOptions = {
   workspaceStore: WorkspaceStore
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
-  /** Authentication config */
-  authenticationConfiguration?: AuthenticationConfiguration | undefined
+  /** Subset of the configuration options for the modal, if you want it to be reactive ensure its a ref */
+  options?: MaybeRefOrGetter<Pick<ApiReferenceConfigurationRaw, 'authentication' | 'proxyUrl'>>
 }
 
 export type ApiClientModal = {
@@ -41,10 +38,6 @@ export type ApiClientModal = {
   route: (payload: RoutePayload) => void
   modalState: ModalState
 }
-
-// ---------------------------------------------------------------------------
-// Modal Factory
-// ---------------------------------------------------------------------------
 
 /**
  * Creates the API Client Modal.
@@ -58,9 +51,9 @@ export const createApiClientModal = ({
     debug: import.meta.env.DEV,
   }),
   mountOnInitialize = true,
-  plugins,
+  plugins = [],
   workspaceStore,
-  authenticationConfiguration = {},
+  options = {},
 }: CreateApiClientModalOptions): ApiClientModal => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -107,7 +100,7 @@ export const createApiClientModal = ({
     plugins,
     sidebarState,
     workspaceStore,
-    authenticationConfiguration,
+    options,
   } satisfies ModalProps)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

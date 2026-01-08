@@ -626,6 +626,7 @@ onMounted(() => {
     el: modal.value,
     eventBus,
     workspaceStore,
+    options: mergedConfig,
     plugins: mapConfigPlugins(mergedConfig.value),
   })
 })
