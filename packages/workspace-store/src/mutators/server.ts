@@ -217,6 +217,12 @@ export const updateSelectedServer = (
     return
   }
 
+  // We are explicitly de-selecting the server
+  if (url === '') {
+    document['x-scalar-selected-server'] = ''
+    return ''
+  }
+
   // If no servers match then return undefined
   if (!document.servers?.some((server) => server.url === url)) {
     return

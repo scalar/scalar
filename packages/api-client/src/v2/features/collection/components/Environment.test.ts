@@ -55,6 +55,7 @@ describe('Environment', () => {
           layout: 'desktop',
           environment: {} as any,
           documentSlug: 'test-document',
+          securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
             name: 'Test Workspace',
@@ -76,6 +77,7 @@ describe('Environment', () => {
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
           environment: {} as any,
+          securitySchemes: {},
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
@@ -100,6 +102,7 @@ describe('Environment', () => {
           collectionType: 'document',
           workspaceStore: createMockWorkspaceStore(),
           layout: 'desktop' as any,
+          securitySchemes: {},
           environment: {} as any,
           documentSlug: 'test-document',
           activeWorkspace: {
@@ -124,6 +127,7 @@ describe('Environment', () => {
           collectionType: 'document',
           workspaceStore: createMockWorkspaceStore({ workspace: {} }),
           layout: 'desktop' as any,
+          securitySchemes: {},
           environment: {} as any,
           documentSlug: 'test-document',
           activeWorkspace: {
@@ -153,6 +157,7 @@ describe('Environment', () => {
           collectionType: 'workspace',
           workspaceStore: createMockWorkspaceStore(workspaceEnvironments),
           layout: 'desktop' as any,
+          securitySchemes: {},
           environment: {} as any,
           documentSlug: 'test-document',
           activeWorkspace: {
@@ -177,6 +182,7 @@ describe('Environment', () => {
           layout: 'desktop' as any,
           environment: {} as any,
           documentSlug: 'test-document',
+          securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
             name: 'Test Workspace',
@@ -206,6 +212,7 @@ describe('Environment', () => {
           layout: 'desktop' as any,
           environment: {} as any,
           documentSlug: 'test-document',
+          securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
             name: 'Test Workspace',

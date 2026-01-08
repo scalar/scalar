@@ -73,7 +73,7 @@ export const sendRequest = async ({
 > => {
   try {
     // Apply any beforeRequest hooks from the plugins
-    const modifiedRequest = await executeHook(request, 'beforeRequest', plugins)
+    const { request: modifiedRequest } = await executeHook({ request }, 'beforeRequest', plugins)
 
     // Execute the request and measure duration
     const startTime = Date.now()

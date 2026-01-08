@@ -6,6 +6,8 @@ export type ModalProps = {
   document: ComputedRef<WorkspaceDocument | null>
   /** The path must be initialized and passed in */
   path: ComputedRef<string | undefined>
+  /** The event bus for handling all events */
+  eventBus: WorkspaceEventBus
   /** The method must be initialized and passed in */
   method: ComputedRef<HttpMethod | undefined>
   /** The example name must be initialized and passed in */
@@ -16,6 +18,8 @@ export type ModalProps = {
   sidebarState: UseModalSidebarReturn
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
+  /** Authentication config */
+  authenticationConfiguration: AuthenticationConfiguration
 }
 
 /**
@@ -33,9 +37,10 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
@@ -49,6 +54,7 @@ import {
   type ComputedRef,
 } from 'vue'
 
+import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
@@ -65,19 +71,16 @@ const {
   modalState,
   workspaceStore,
   sidebarState,
+  eventBus,
   document,
   plugins = [],
+  authenticationConfiguration,
 } = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => workspaceStore
 }
-
-/** Workspace event bus for handling workspace-level events. */
-const eventBus = createWorkspaceEventBus({
-  debug: import.meta.env.DEV,
-})
 
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode({ workspaceStore })
@@ -88,7 +91,7 @@ const activeWorkspace: Workspace = {
 }
 
 /** Controls the visibility of the sidebar. */
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 
 /** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
 useWorkspaceClientModalEvents({
@@ -167,6 +170,14 @@ const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document.value),
 )
 
+/** Merge authentication config with the document security schemes */
+const securitySchemes = computed(() =>
+  mergeAuthConfig(
+    document.value?.components?.securitySchemes,
+    authenticationConfiguration?.securitySchemes,
+  ),
+)
+
 defineExpose({
   sidebarWidth,
   environment,
@@ -203,7 +214,7 @@ defineExpose({
               :activeWorkspace="activeWorkspace"
               class="z-[10000] h-full max-md:absolute! max-md:w-full!"
               :documents="[document.value]"
-              :eventBus="eventBus"
+              :eventBus
               :isDroppable="() => false"
               layout="modal"
               :sidebarState="sidebarState.state"
@@ -215,14 +226,15 @@ defineExpose({
               class="flex-1"
               :document="document.value"
               :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
-              :environment="environment"
-              :eventBus="eventBus"
+              :environment
+              :eventBus
               :exampleName="exampleName?.value"
               layout="modal"
               :method="method?.value"
               :path="path?.value"
-              :plugins="plugins"
-              :workspaceStore="workspaceStore" />
+              :plugins
+              :securitySchemes
+              :workspaceStore />
           </main>
           <!-- Empty state -->
           <div

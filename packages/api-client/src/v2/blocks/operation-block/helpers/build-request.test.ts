@@ -30,8 +30,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -52,8 +51,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: 'https://api.example.com/me',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: null,
     })
 
@@ -70,8 +68,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: null,
     })
 
@@ -96,8 +93,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: '{{baseUrl}}',
       },
@@ -116,8 +112,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: 'https://{subdomain}.example.com',
         variables: {
@@ -158,8 +153,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{userId}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -189,8 +183,7 @@ describe('buildRequest', () => {
       },
       path: '/files/{path}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -220,8 +213,7 @@ describe('buildRequest', () => {
       },
       path: '/resources/{id}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -251,8 +243,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{name}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -282,8 +273,7 @@ describe('buildRequest', () => {
       },
       path: '/tags/{tag}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -313,8 +303,7 @@ describe('buildRequest', () => {
       },
       path: '/search/{query}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -344,8 +333,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{id}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -384,8 +372,7 @@ describe('buildRequest', () => {
       },
       path: '/files/{filePath}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -425,8 +412,7 @@ describe('buildRequest', () => {
       },
       path: '/users/{userId}/files/{filePath}',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -456,8 +442,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -497,8 +482,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -528,8 +512,7 @@ describe('buildRequest', () => {
       },
       path: '?example=parameter',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: {
         url: 'https://api.example.com/api?orange=apple',
       },
@@ -562,8 +545,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -593,8 +575,7 @@ describe('buildRequest', () => {
       },
       path: '/search',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -611,8 +592,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -642,8 +622,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -675,8 +654,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -708,8 +686,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -737,8 +714,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -770,8 +746,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -799,8 +774,7 @@ describe('buildRequest', () => {
       operation: mockOperation,
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -835,8 +809,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: '',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -869,8 +842,7 @@ describe('buildRequest', () => {
       },
       path: '/users',
       proxyUrl: 'http://localhost:5051',
-      securitySchemes: {},
-      selectedSecurity: [],
+      selectedSecuritySchemes: [],
       server: mockServer,
     })
 
@@ -888,15 +860,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'X-API-KEY',
             in: 'header',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -913,15 +884,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -938,15 +908,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'auth-cookie',
             in: 'cookie',
             'x-scalar-secret-token': 'super-secret-token',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -964,16 +933,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'basic-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'basic',
             'x-scalar-secret-token': '',
             'x-scalar-secret-username': 'user',
             'x-scalar-secret-password': 'pass',
           },
-        },
-        selectedSecurity: [{ 'basic-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -991,16 +959,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': 'xxxx',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1017,22 +984,21 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            'x-scalar-secret-token': 'xxxx',
-          },
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': 'yyyy',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [], 'api-key': [] }],
+          {
+            type: 'apiKey',
+            name: 'api_key',
+            in: 'query',
+            'x-scalar-secret-token': 'xxxx',
+          },
+        ],
         server: mockServer,
       })
 
@@ -1050,8 +1016,8 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'oauth2-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'oauth2',
             flows: {
               implicit: {
@@ -1064,8 +1030,7 @@ describe('buildRequest', () => {
               },
             },
           },
-        },
-        selectedSecurity: [{ 'oauth2-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1082,15 +1047,14 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'api-key': {
+        selectedSecuritySchemes: [
+          {
             type: 'apiKey',
             name: 'x-api-key',
             in: 'header',
             'x-scalar-secret-token': 'test-key',
           },
-        },
-        selectedSecurity: [{ 'api-key': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1122,8 +1086,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1154,8 +1117,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1174,8 +1136,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: 'http://localhost:5051',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1192,8 +1153,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: 'http://localhost:5051',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: 'http://127.0.0.1:5052',
         },
@@ -1216,8 +1176,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/v1/',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1234,8 +1193,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: '/api',
         },
@@ -1258,8 +1216,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1289,8 +1246,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users/{{userId}}',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1328,8 +1284,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1367,8 +1322,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1406,8 +1360,7 @@ describe('buildRequest', () => {
         },
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1434,16 +1387,15 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {
-          'bearer-auth': {
+        selectedSecuritySchemes: [
+          {
             type: 'http',
             scheme: 'bearer',
             'x-scalar-secret-token': '{{token}}',
             'x-scalar-secret-username': '',
             'x-scalar-secret-password': '',
           },
-        },
-        selectedSecurity: [{ 'bearer-auth': [] }],
+        ],
         server: mockServer,
       })
 
@@ -1471,8 +1423,7 @@ describe('buildRequest', () => {
         operation: mockOperation,
         path: '/users',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: {
           url: '{{baseUrl}}',
         },
@@ -1509,8 +1460,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 
@@ -1540,8 +1490,7 @@ describe('buildRequest', () => {
         },
         path: '/search',
         proxyUrl: '',
-        securitySchemes: {},
-        selectedSecurity: [],
+        selectedSecuritySchemes: [],
         server: mockServer,
       })
 

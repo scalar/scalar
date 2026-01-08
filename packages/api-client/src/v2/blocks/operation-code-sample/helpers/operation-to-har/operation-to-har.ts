@@ -33,7 +33,7 @@ export type OperationToHarProps = {
    */
   contentType?: string
   /** OpenAPI Server object */
-  server?: ServerObject | undefined
+  server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
   securitySchemes?: SecuritySchemeObject[]
 }
@@ -121,7 +121,7 @@ export const operationToHar = ({
           existingContentTypeHeader.value = postData.mimeType
         }
         // Add new header if none exists
-        else {
+        else if (!existingContentTypeHeader) {
           harRequest.headers.push({
             name: 'Content-Type',
             value: postData.mimeType,

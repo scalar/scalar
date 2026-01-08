@@ -1,6 +1,8 @@
-import { useModal } from '@scalar/components'
+import { type ModalState, useModal } from '@scalar/components'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, createApp, reactive } from 'vue'
+import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type App, computed, createApp, reactive } from 'vue'
 
 import {
   type DefaultEntities,
@@ -22,10 +24,22 @@ export type CreateApiClientModalOptions = {
    * For SSR this may need to be disabled and handled manually on the client side.
    */
   mountOnInitialize?: boolean
+  /** You can pass in an event bus if you have one already, or we will create one */
+  eventBus?: WorkspaceEventBus
   /** The workspace store must be initialized and passed in. */
   workspaceStore: WorkspaceStore
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
+  /** Authentication config */
+  authenticationConfiguration?: AuthenticationConfiguration | undefined
+}
+
+export type ApiClientModal = {
+  app: App
+  open: (payload?: RoutePayload) => void
+  mount: (mountingEl: HTMLElement | null) => void
+  route: (payload: RoutePayload) => void
+  modalState: ModalState
 }
 
 // ---------------------------------------------------------------------------
@@ -40,10 +54,14 @@ export type CreateApiClientModalOptions = {
  */
 export const createApiClientModal = ({
   el,
-  workspaceStore,
+  eventBus = createWorkspaceEventBus({
+    debug: import.meta.env.DEV,
+  }),
   mountOnInitialize = true,
   plugins,
-}: CreateApiClientModalOptions) => {
+  workspaceStore,
+  authenticationConfiguration = {},
+}: CreateApiClientModalOptions): ApiClientModal => {
   const defaultEntities: DefaultEntities = {
     path: 'default',
     method: 'default',
@@ -80,14 +98,16 @@ export const createApiClientModal = ({
   const modalState = useModal()
 
   const app = createApp(Modal, {
-    workspaceStore,
     document,
-    modalState,
-    sidebarState,
-    path,
-    method,
+    eventBus,
     exampleName,
+    method,
+    modalState,
+    path,
     plugins,
+    sidebarState,
+    workspaceStore,
+    authenticationConfiguration,
   } satisfies ModalProps)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

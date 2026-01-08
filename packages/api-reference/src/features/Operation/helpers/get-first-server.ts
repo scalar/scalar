@@ -7,9 +7,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
  * @example
  * getFirstServer([operation.servers, pathItem.servers, server])
  */
-export function getFirstServer(
-  ...availableServers: (ServerObject[] | ServerObject | undefined)[]
-): ServerObject | undefined {
+export const getFirstServer = (...availableServers: (ServerObject[] | ServerObject | null)[]): ServerObject | null => {
   for (const serverSource of availableServers) {
     if (!serverSource) {
       continue
@@ -33,5 +31,5 @@ export function getFirstServer(
     }
   }
 
-  return undefined
+  return null
 }

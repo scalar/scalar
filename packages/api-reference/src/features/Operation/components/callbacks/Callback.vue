@@ -8,17 +8,18 @@ import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
-const { method, name, url } = defineProps<{
+const { method, name, url, options } = defineProps<{
   callback: OperationObject
   method: HttpMethodType
   name: string
   url: string
   eventBus: WorkspaceEventBus | null
-  options: {
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 </script>
 
@@ -55,12 +56,8 @@ const { method, name, url } = defineProps<{
       <!-- Responses -->
       <OperationResponses
         :collapsableItems="false"
-        :eventBus="eventBus"
-        :options="{
-          collapsableItems: true,
-          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        }"
+        :eventBus
+        :options
         :responses="callback.responses" />
     </div>
   </details>

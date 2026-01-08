@@ -16,6 +16,7 @@ const entries = [
   './src/mutators/index.ts',
   './src/plugins/bundler/index.ts',
   './src/plugins/client/index.ts',
+  './src/workspace-plugin.ts',
 ]
 
 await build({

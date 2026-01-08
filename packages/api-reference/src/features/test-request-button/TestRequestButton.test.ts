@@ -1,15 +1,38 @@
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { captureCustomEvent } from '../../../test/utils/custom-event'
 import TestRequestButton from './TestRequestButton.vue'
 
+/**
+ * Creates a minimal mock event bus for testing.
+ * We only implement the methods that TestRequestButton uses.
+ */
+const createMockEventBus = (): WorkspaceEventBus => ({
+  on: vi.fn(),
+  off: vi.fn(),
+  emit: vi.fn(),
+})
+
 describe('TestRequestButton', () => {
+  let mockEventBus: WorkspaceEventBus
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockEventBus = createMockEventBus()
+  })
+
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
   it('renders button with correct text and icon when operation is provided', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-1',
         method: 'get',
         path: '/test',
+        eventBus: mockEventBus,
       },
     })
 
@@ -22,8 +45,10 @@ describe('TestRequestButton', () => {
   it('has correct button attributes', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-2',
         method: 'post',
         path: '/users',
+        eventBus: mockEventBus,
       },
     })
 
@@ -33,20 +58,20 @@ describe('TestRequestButton', () => {
     expect(button.classes()).toContain('show-api-client-button')
   })
 
-  it('calls client.open with correct params when clicked', async () => {
+  it('emits ui:open:client-modal event with correct params when clicked', async () => {
     const wrapper = mount(TestRequestButton, {
       props: {
+        id: 'test-operation-3',
         method: 'delete',
         path: '/users/1',
+        eventBus: mockEventBus,
       },
     })
 
-    const customEvent = captureCustomEvent(wrapper.find('button').element, 'scalar-open-client')
     await wrapper.find('button').trigger('click')
 
-    await customEvent({
-      method: 'delete',
-      path: '/users/1',
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:client-modal', {
+      id: 'test-operation-3',
     })
   })
 })

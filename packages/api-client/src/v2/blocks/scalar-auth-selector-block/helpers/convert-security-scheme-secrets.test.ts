@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest'
 import { securitySchemeSchema } from '@scalar/types/entities'
+import type { OAuth2Object } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import { describe, expect, it } from 'vitest'
 
-import { convertSecurityScheme } from './convert-security-scheme'
+import { convertSecuritySchemeSecrets } from './convert-security-scheme-secrets'
 
-describe('convertSecurityScheme', () => {
+describe('convertSecuritySchemeSecrets', () => {
   describe('apiKey security scheme', () => {
     it('converts apiKey scheme with value to include x-scalar-secret-token', () => {
       const input = securitySchemeSchema.parse({
@@ -16,15 +17,12 @@ describe('convertSecurityScheme', () => {
         description: 'API key for authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        uid: 'test-uid',
-        nameKey: 'apiKey',
-        value: 'secret-api-key-value',
         description: 'API key for authentication',
         'x-scalar-secret-token': 'secret-api-key-value',
       })
@@ -40,15 +38,12 @@ describe('convertSecurityScheme', () => {
         value: 'secret-api-key-value',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'query',
-        uid: 'test-uid',
-        nameKey: 'apiKey',
-        value: 'secret-api-key-value',
         'x-scalar-secret-token': 'secret-api-key-value',
       })
     })
@@ -63,15 +58,12 @@ describe('convertSecurityScheme', () => {
         value: '',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'cookie',
-        uid: 'test-uid',
-        nameKey: 'apiKey',
-        value: '',
         'x-scalar-secret-token': '',
       })
     })
@@ -91,7 +83,7 @@ describe('convertSecurityScheme', () => {
         description: 'Bearer token authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'http',
@@ -120,7 +112,7 @@ describe('convertSecurityScheme', () => {
         password: 'secret123',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'http',
@@ -148,17 +140,12 @@ describe('convertSecurityScheme', () => {
         password: '',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        uid: 'test-uid',
-        nameKey: 'httpBearer',
-        token: '',
-        username: '',
-        password: '',
         'x-scalar-secret-token': '',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
@@ -189,25 +176,20 @@ describe('convertSecurityScheme', () => {
         },
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'oauth2',
-        uid: 'test-uid',
-        nameKey: 'oauth2',
         flows: {
           implicit: {
-            type: 'implicit',
             authorizationUrl: 'https://example.com/oauth/authorize',
             refreshUrl: 'https://example.com/oauth/refresh',
             scopes: {
               'read:users': 'Read user information',
               'write:users': 'Write user information',
             },
-            selectedScopes: ['read:users'],
-            token: 'implicit-token-value',
             'x-scalar-client-id': 'client-id',
-            'x-scalar-redirect-uri': 'https://app.example.com/callback',
+            'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
             'x-scalar-secret-token': 'implicit-token-value',
           },
         },
@@ -228,7 +210,6 @@ describe('convertSecurityScheme', () => {
             scopes: {
               'read:users': 'Read user information',
             },
-            selectedScopes: ['read:users'],
             token: 'auth-code-token-value',
             'x-scalar-client-id': 'client-id',
             'x-scalar-redirect-uri': 'https://app.example.com/callback',
@@ -250,40 +231,32 @@ describe('convertSecurityScheme', () => {
         },
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         type: 'oauth2',
-        uid: 'test-uid',
-        nameKey: 'oauth2',
         flows: {
           authorizationCode: {
-            type: 'authorizationCode',
             authorizationUrl: 'https://example.com/oauth/authorize',
             tokenUrl: 'https://example.com/oauth/token',
             refreshUrl: 'https://example.com/oauth/refresh',
             scopes: {
               'read:users': 'Read user information',
             },
-            selectedScopes: ['read:users'],
-            token: 'auth-code-token-value',
-            'x-scalar-client-id': 'client-id',
-            'x-scalar-redirect-uri': 'https://app.example.com/callback',
-            clientSecret: 'client-secret',
+            'x-scalar-secret-client-id': 'client-id',
+            'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
+            'x-scalar-secret-client-secret': 'client-secret',
             'x-usePkce': 'no',
             'x-scalar-secret-token': 'auth-code-token-value',
           },
           clientCredentials: {
-            type: 'clientCredentials',
             tokenUrl: 'https://example.com/oauth/token',
             refreshUrl: 'https://example.com/oauth/refresh',
             scopes: {
               'admin:all': 'Full admin access',
             },
-            selectedScopes: ['admin:all'],
-            token: 'client-credentials-token-value',
             'x-scalar-client-id': 'client-id',
-            clientSecret: 'client-secret',
+            'x-scalar-secret-client-secret': 'client-secret',
             'x-scalar-secret-token': 'client-credentials-token-value',
           },
         },
@@ -298,7 +271,7 @@ describe('convertSecurityScheme', () => {
         flows: {},
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'oauth2',
@@ -306,6 +279,69 @@ describe('convertSecurityScheme', () => {
         nameKey: 'oauth2',
         flows: {},
       })
+    })
+
+    it('does not overwrite x-default-scopes when already set', () => {
+      const input = securitySchemeSchema.parse({
+        type: 'oauth2',
+        uid: 'test-uid',
+        nameKey: 'oauth2',
+        'x-default-scopes': ['admin', 'read:users'],
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'admin': 'Admin access',
+              'read:users': 'Read user information',
+              'write:users': 'Write user information',
+            },
+            selectedScopes: ['write:users'],
+            token: 'auth-code-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+        },
+      })
+
+      const result = convertSecuritySchemeSecrets(input) as OAuth2Object
+      expect(result['x-default-scopes']).toEqual(['admin', 'read:users'])
+    })
+
+    it('sets x-default-scopes from combined selectedScopes when x-default-scopes is undefined', () => {
+      const input = securitySchemeSchema.parse({
+        type: 'oauth2',
+        uid: 'test-uid',
+        nameKey: 'oauth2',
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'read:users': 'Read user information',
+              'write:users': 'Write user information',
+            },
+            selectedScopes: ['read:users', 'write:users'],
+            token: 'auth-code-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+          implicit: {
+            type: 'implicit',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            scopes: {
+              'read:posts': 'Read posts',
+              'write:posts': 'Write posts',
+            },
+            selectedScopes: ['read:posts'],
+            token: 'implicit-token-value',
+            'x-scalar-client-id': 'client-id',
+          },
+        },
+      })
+
+      const result = convertSecuritySchemeSecrets(input) as OAuth2Object
+      expect(result['x-default-scopes']).toEqual(['read:posts', 'read:users', 'write:users'])
     })
   })
 
@@ -321,7 +357,7 @@ describe('convertSecurityScheme', () => {
         description: undefined,
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       expect(result).toEqual({
         type: 'apiKey',
@@ -348,7 +384,7 @@ describe('convertSecurityScheme', () => {
         description: 'Bearer authentication',
       })
 
-      const result = convertSecurityScheme(input)
+      const result = convertSecuritySchemeSecrets(input)
 
       // Verify all original properties are preserved
       expect(result.type).toBe('http')

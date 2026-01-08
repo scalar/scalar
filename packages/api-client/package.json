@@ -275,6 +275,11 @@
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"
     },
+    "./v2/helpers": {
+      "import": "./dist/v2/helpers/index.js",
+      "types": "./dist/v2/helpers/index.d.ts",
+      "default": "./dist/v2/helpers/index.js"
+    },
     "./views/Components/CodeSnippet": {
       "import": "./dist/views/Components/CodeSnippet/index.js",
       "types": "./dist/views/Components/CodeSnippet/index.d.ts",

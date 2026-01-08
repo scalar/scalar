@@ -62,6 +62,7 @@ describe('Servers', () => {
           document,
           environment,
           eventBus,
+          securitySchemes: {},
           layout: 'web',
           workspaceStore: createWorkspaceStore(),
           collectionType: 'document',
