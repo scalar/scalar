@@ -10,14 +10,6 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-
-const convertToString = (value: unknown) => {
-  if (typeof value === 'object' && value !== null) {
-    return JSON.stringify(value, null, 2)
-  }
-
-  return String(value)
-}
 </script>
 <template>
   <!-- single example (deprecated) -->
@@ -32,7 +24,7 @@ const convertToString = (value: unknown) => {
         <button
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(convertToString(formatExample(example)))">
+          @click="copyToClipboard(formatExample(example))">
           <span>
             {{ formatExample(example) }}
           </span>
@@ -66,7 +58,7 @@ const convertToString = (value: unknown) => {
           :key="key"
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(convertToString(formatExample(ex)))">
+          @click="copyToClipboard(formatExample(ex))">
           <span>{{ formatExample(ex) }} </span>
           <ScalarIcon
             class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
