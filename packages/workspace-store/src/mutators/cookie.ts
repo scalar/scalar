@@ -32,7 +32,7 @@ export const upsertCookie = (
     }
 
     // Ensure we parse the payload but keep the existing cookie data
-    const parsed = coerceValue(xScalarCookieSchema, {
+    const parsed = coerceValue<XScalarCookie>(xScalarCookieSchema, {
       ...collection['x-scalar-cookies'][index],
       ...payload,
     })
@@ -43,7 +43,7 @@ export const upsertCookie = (
   }
 
   // Add new cookie
-  const parsed = coerceValue(xScalarCookieSchema, payload)
+  const parsed = coerceValue<XScalarCookie>(xScalarCookieSchema, payload)
   collection['x-scalar-cookies'].push(parsed)
   return parsed
 }

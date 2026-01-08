@@ -14,12 +14,19 @@ import { Value } from '@scalar/typebox/value'
  * // Convert string "123" to number
  * const schema = Type.Number()
  * const value = "123"
- * const coerced = coerceValue(schema, value) // Returns 123
+ * const coerced = coerceValue<number>(schema, value) // Returns 123
  *
  * @example
- * // Convert string "true" to boolean
+ * // Convert string "true" to boolean with explicit type
  * const schema = Type.Boolean()
  * const value = "true"
- * const coerced = coerceValue(schema, value) // Returns true
+ * const coerced = coerceValue<boolean>(schema, value) // Returns true
+ *
+ * @example
+ * // Use with complex types
+ * const schema = xScalarEnvironmentSchema
+ * const value = { name: 'prod' }
+ * const coerced = coerceValue<XScalarEnvironment>(schema, value)
  */
-export const coerceValue = <T extends TSchema>(schema: T, value: unknown) => Value.Cast(schema, value)
+export const coerceValue = <TResult = unknown>(schema: TSchema, value: unknown): TResult =>
+  Value.Cast(schema, value) as TResult

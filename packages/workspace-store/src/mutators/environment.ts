@@ -37,7 +37,7 @@ export const upsertEnvironment = (
   const isNewEnvironment = !collection['x-scalar-environments'][oldEnvironmentName ?? environmentName]
 
   // Ensure we parse the payload but keep the old variables
-  const parsed = coerceValue(xScalarEnvironmentSchema, {
+  const parsed = coerceValue<XScalarEnvironment>(xScalarEnvironmentSchema, {
     ...collection['x-scalar-environments'][oldEnvironmentName ?? environmentName],
     ...payload,
   })
@@ -81,7 +81,7 @@ export const upsertEnvironmentVariable = (
   }
 
   // Ensure we parse the variable for type safety
-  const parsed = coerceValue(xScalarEnvVarSchema, variable)
+  const parsed = coerceValue<XScalarEnvVar>(xScalarEnvVarSchema, variable)
 
   if (index !== undefined) {
     // Delete the row if the name is empty

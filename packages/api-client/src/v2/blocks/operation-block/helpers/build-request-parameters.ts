@@ -118,7 +118,7 @@ export const buildRequestParameters = (
       // Handle cookies
       if (param.in === 'cookie') {
         acc.cookies.push(
-          coerceValue(xScalarCookieSchema, {
+          coerceValue<XScalarCookie>(xScalarCookieSchema, {
             name: paramName,
             value: replacedValue,
             path: '/',

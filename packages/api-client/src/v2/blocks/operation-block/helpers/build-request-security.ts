@@ -63,7 +63,7 @@ export const buildRequestSecurity = (
       }
       if (scheme.in === 'cookie') {
         cookies.push(
-          coerceValue(xScalarCookieSchema, {
+          coerceValue<XScalarCookie>(xScalarCookieSchema, {
             name,
             value,
             path: '/',

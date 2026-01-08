@@ -65,7 +65,7 @@ export const convertSecuritySchemeSecrets = (
         ? { 'x-default-scopes': Array.from(selectedScopes) }
         : {}
 
-    const coerced = coerceValue(SecuritySchemeObjectSchema, {
+    const coerced = coerceValue<SecuritySchemeObject>(SecuritySchemeObjectSchema, {
       ...scheme,
       flows,
       ...defaultScopes,
@@ -74,5 +74,5 @@ export const convertSecuritySchemeSecrets = (
   }
 
   // non-oauth2 schemes
-  return coerceValue(SecuritySchemeObjectSchema, addSecretExtensions(scheme))
+  return coerceValue<SecuritySchemeObject>(SecuritySchemeObjectSchema, addSecretExtensions(scheme))
 }

@@ -16,7 +16,7 @@ export const addServer = (document: WorkspaceDocument | null): ServerObject | un
     return undefined
   }
 
-  const parsed = coerceValue(ServerObjectSchema, {})
+  const parsed = coerceValue<ServerObject>(ServerObjectSchema, {})
 
   // Initialize the servers array if it doesn't exist
   if (!document.servers) {
@@ -127,7 +127,7 @@ export const updateServer = (
   }
 
   const oldUrl = oldServer.url
-  const updatedServer = coerceValue(ServerObjectSchema, { ...oldServer, ...server })
+  const updatedServer = coerceValue<ServerObject>(ServerObjectSchema, { ...oldServer, ...server })
 
   // Sync variables if the URL changed
   const hasUrlChanged = oldUrl && oldUrl !== updatedServer.url

@@ -11,12 +11,12 @@ export const getActiveEnvironment = (
   document: WorkspaceDocument | null,
 ): XScalarEnvironment => {
   if (workspace === null) {
-    return coerceValue(xScalarEnvironmentSchema, {})
+    return coerceValue<XScalarEnvironment>(xScalarEnvironmentSchema, {})
   }
   const activeEnv = workspace.workspace['x-scalar-active-environment']
 
   if (!activeEnv) {
-    return coerceValue(xScalarEnvironmentSchema, {})
+    return coerceValue<XScalarEnvironment>(xScalarEnvironmentSchema, {})
   }
 
   const workspaceEnv = workspace.workspace['x-scalar-environments']?.[activeEnv] ?? {
@@ -26,7 +26,7 @@ export const getActiveEnvironment = (
     variables: [],
   }
 
-  return coerceValue(xScalarEnvironmentSchema, {
+  return coerceValue<XScalarEnvironment>(xScalarEnvironmentSchema, {
     ...workspaceEnv,
     ...documentEnv,
     variables: [...workspaceEnv.variables, ...documentEnv.variables],

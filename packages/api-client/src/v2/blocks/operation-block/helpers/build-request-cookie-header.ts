@@ -73,7 +73,7 @@ export const buildRequestCookieHeader = ({
     }
 
     // Parse the cookie and replace environment variables
-    return coerceValue(xScalarCookieSchema, {
+    return coerceValue<XScalarCookie>(xScalarCookieSchema, {
       ...cookie,
       name: replaceEnvVariables(cookie.name, env),
       value: replaceEnvVariables(cookie.value, env),
