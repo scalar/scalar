@@ -29,7 +29,8 @@
     "**/esbuild.ts",
 
     // Referenced in scalar.config.json
-    "documentation/assets/landing.js"
+    "documentation/assets/landing.js",
+    "documentation/assets/fathom.js"
   ],
 
   "ignoreDependencies": [
