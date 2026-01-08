@@ -600,6 +600,23 @@ describe('buildRequest', () => {
     expect(result?.request.method).toBe('POST')
   })
 
+  it('returns uppercase PATCH method', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'patch',
+      operation: mockOperation,
+      path: '/users',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.method).toBe('PATCH')
+  })
+
   it('adds header parameters', () => {
     const [error, result] = buildRequest({
       environment: mockEnvironment,

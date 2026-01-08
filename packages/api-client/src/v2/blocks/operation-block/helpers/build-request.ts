@@ -133,7 +133,12 @@ export const buildRequest = ({
 
     /** Build the js request object */
     const request = new Request(proxiedUrl, {
-      method,
+      /**
+       * Ensure that patch is uppercase
+       *
+       * @see https://github.com/JakeChampion/fetch/issues/254
+       */
+      method: method === 'patch' ? method.toUpperCase() : method,
       headers,
       signal: controller.signal,
       body,
