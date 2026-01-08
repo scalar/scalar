@@ -9,9 +9,10 @@ export function useClipboard(opts: UseClipboardOptions = {}) {
   const { notify = (m) => toast(m, 'info') } = opts
   const { toast } = useToasts()
 
-  async function copyToClipboard(value: string) {
+  async function copyToClipboard(value: unknown) {
     try {
-      await navigator.clipboard.writeText(value)
+      const stringified = typeof value === 'string' ? value : JSON.stringify(value)
+      await navigator.clipboard.writeText(stringified)
       notify('Copied to the clipboard')
     } catch (e) {
       const error = e as Error
