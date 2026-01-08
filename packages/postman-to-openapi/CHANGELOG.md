@@ -1,5 +1,16 @@
 # @scalar/postman-to-openapi
 
+## 0.3.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.13**
+
 ## 0.3.53
 
 ### Patch Changes

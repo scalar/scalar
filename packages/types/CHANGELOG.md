@@ -1,5 +1,16 @@
 # @scalar/types
 
+## 0.5.5
+
+### Patch Changes
+
+- [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
 ## 0.5.4
 
 ### Patch Changes

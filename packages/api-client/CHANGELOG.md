@@ -1,5 +1,45 @@
 # @scalar/api-client
 
+## 2.17.4
+
+### Patch Changes
+
+- [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.3**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/use-hooks@0.3.4**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/helpers@0.2.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/types@0.5.5**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
+
+- **@scalar/oas-utils@0.6.13**
+
+- **@scalar/sidebar@0.7.5**
+
+- **@scalar/components@0.16.15**
+
+- **@scalar/import@0.4.42**
+
+- **@scalar/json-magic@0.8.9**
+
+- **@scalar/object-utils@1.2.19**
+
+- **@scalar/postman-to-openapi@0.3.54**
+
+- **@scalar/openapi-parser@0.23.10**
+
+- **@scalar/snippetz@0.6.2**
+
+- **@scalar/use-codemirror@0.13.9**
+
 ## 2.17.3
 
 ### Patch Changes
