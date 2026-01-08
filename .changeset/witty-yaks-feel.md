@@ -2,4 +2,4 @@
 '@scalar/api-reference': minor
 ---
 
-test2
+feat: api client v2 integration
