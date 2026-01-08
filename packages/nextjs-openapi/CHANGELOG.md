@@ -1,5 +1,15 @@
 # @scalar/nextjs-openapi
 
+## 0.2.35
+
+### Patch Changes
+
+- [#7666](https://github.com/scalar/scalar/pull/7666): fix: export public API via named exports
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.9**
+
 ## 0.2.34
 
 ### Patch Changes

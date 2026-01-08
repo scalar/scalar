@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.12.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
 ## 2.12.3
 
 ### Patch Changes
