@@ -7,11 +7,12 @@
   },
   "publishOnMerge": true,
   "assetsDir": "documentation/assets",
-  "publishPreviews": false,
-  "pullRequestComments": false,
+  "publishPreviews": true,
+  "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
-    "subdomain": "guides-v2",
+    "subdomain": "guides-scalar-com",
+    "customDomain": "scalar.com",
     "head": {
       "scripts": [
         {
@@ -442,6 +443,18 @@
         {
           "from": "/scalar/scalar-mock-server/docker",
           "to": "/products/mock-server/docker"
+        },
+        {
+          "from": "/download",
+          "to": "/products/api-client/getting-started"
+        },
+        {
+          "from": "/terms-and-conditions",
+          "to": "/legal/terms-and-conditions"
+        },
+        {
+          "from": "/privacy-policy",
+          "to": "/legal/privacy-policy"
         }
       ]
     }
@@ -734,6 +747,11 @@
                   "markdown": {
                     "title": "Markdown",
                     "filepath": "documentation/markdown.md",
+                    "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/api-reference/CHANGELOG.md",
                     "type": "page"
                   },
                   "integrations": {
@@ -1072,6 +1090,28 @@
                 "url": "https://scalar.cal.com/scalar/chat-with-scalar",
                 "type": "link"
               }
+            }
+          }
+        }
+      },
+      "/legal": {
+        "type": "group",
+        "title": "Legal",
+        "children": {
+          "/terms-and-conditions": {
+            "title": "Terms and Conditions",
+            "filepath": "documentation/legal/terms-and-conditions.md",
+            "type": "page",
+            "layout": {
+              "sidebar": false
+            }
+          },
+          "/privacy-policy": {
+            "title": "Privacy Policy",
+            "filepath": "documentation/legal/privacy-policy.md",
+            "type": "page",
+            "layout": {
+              "sidebar": false
             }
           }
         }
