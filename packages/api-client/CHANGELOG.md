@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.17.6
+
+### Patch Changes
+
+- [#7630](https://github.com/scalar/scalar/pull/7630): feat: add clear button to password field
+- [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+- [#7664](https://github.com/scalar/scalar/pull/7664): fix: example resolution in request body
+
 ## 2.17.5
 
 ### Patch Changes
