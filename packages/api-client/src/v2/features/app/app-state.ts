@@ -5,23 +5,30 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
+import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
-import type { Workspace } from '@scalar/workspace-store/schemas'
+import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef, watch } from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
+import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
-import { useCommandPaletteState } from '../command-palette/hooks/use-command-palette-state'
+import {
+  type UseCommandPaletteStateReturn,
+  useCommandPaletteState,
+} from '../command-palette/hooks/use-command-palette-state'
+import { initializeAppEventHandlers } from './app-events'
 import type { ScalarClientAppRouteParams } from './helpers/routes'
 
 const DEFAULT_DEBOUNCE_DELAY = 1000
@@ -89,7 +96,18 @@ function getRouteParam(
 
 const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
 const workspaces = ref<ScalarListboxOption[]>([])
-const store = ref<WorkspaceStore | null>(null)
+const store = shallowRef<WorkspaceStore | null>(null)
+
+const activeDocument = computed(() => {
+  return store.value?.workspace.documents[documentSlug.value ?? ''] || null
+})
+
+/**
+ * Merged environment variables from workspace and document levels.
+ * Variables from both sources are combined, with document variables
+ * taking precedence in case of naming conflicts.
+ */
+const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(store.value, activeDocument.value))
 
 const { workspace: persistence } = await createWorkspaceStorePersistence()
 
@@ -170,7 +188,11 @@ const createAndPersistWorkspace = async ({ id, name }: { id: string; name: strin
  * @param id - The workspace slug (unique identifier) to navigate to.
  * @param loadFromSession - If true, includes "loadFromSession=true" in the query to indicate state/session should be restored.
  */
-const setWorkspaceId = async (id: string): Promise<void> => {
+const setWorkspaceId = async (id?: string): Promise<void> => {
+  if (!id) {
+    return
+  }
+
   await router.value?.push({
     name: 'workspace.environment',
     params: { workspaceSlug: id },
@@ -280,9 +302,6 @@ const changeWorkspace = async (slug: string) => {
   // Must reset the sidebar state when the workspace changes
   sidebarState.reset()
 }
-
-/** Grouped exports for workspace switching */
-export { store, activeWorkspace, workspaces, setWorkspaceId, createWorkspace, loadWorkspace }
 
 // ---------------------------------------------------------------------------
 // Sidebar state management
@@ -480,6 +499,63 @@ const handleSelectItem = (id: string) => {
   return
 }
 
+/**
+ * Navigates to the currently active tab's path using the router.
+ * Returns early if the workspace store or active tab is unavailable.
+ */
+const navigateToCurrentTab = async (): Promise<void> => {
+  if (!store.value) {
+    return
+  }
+
+  const activeTabIndex = store.value.workspace['x-scalar-active-tab'] ?? 0
+  const activeTab = store.value.workspace['x-scalar-tabs']?.[activeTabIndex]
+  if (!activeTab) {
+    return
+  }
+
+  await router.value?.replace(activeTab.path)
+}
+
+/**
+ * Rebuilds the sidebar for the given document.
+ * This is used to refresh the sidebar state after structural changes (e.g. after adding or removing items).
+ *
+ * @param documentName - The name (id) of the document for which to rebuild the sidebar
+ */
+const rebuildSidebar = (documentName: string | undefined) => {
+  if (documentName) {
+    store.value?.buildSidebar(documentName)
+  }
+}
+
+/**
+ * Ensures the sidebar is refreshed after a new example is created.
+ *
+ * If the sidebar entry for the new example does not exist or is of a different type,
+ * this will rebuild the sidebar for the current document. This helps keep the sidebar state
+ * consistent (e.g., after adding a new example via the UI).
+ */
+const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
+  const documentName = activeDocument.value?.['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  const entry = getEntryByLocation({
+    document: documentName,
+    path: payload.path,
+    method: payload.method,
+    example: payload.exampleKey,
+  })
+
+  if (!entry || entry.type !== 'example') {
+    // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
+    rebuildSidebar(documentName)
+  }
+  return
+}
+
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 
@@ -633,10 +709,65 @@ const syncSidebar = (to: RouteLocationNormalizedGeneric) => {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Command Palette
 /** Command palette state and actions */
 const commandPaletteState = useCommandPaletteState()
 
-export function useAppState() {
+// ---------------------------------------------------------------------------
+// Events handling
+
+initializeAppEventHandlers({
+  eventBus,
+  router,
+  getStore: () => store.value,
+  document: activeDocument,
+  navigateToCurrentTab,
+  rebuildSidebar,
+  onAfterExampleCreation: refreshSidebarAfterExampleCreation,
+  onOpenCommandPalette: commandPaletteState.open,
+  onSelectSidebarItem: handleSelectItem,
+  onCopyTabUrl: (index) => copyTabUrl(index),
+  onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+})
+
+export function useAppState(): {
+  store: ShallowRef<WorkspaceStore | null>
+  sidebar: {
+    state: typeof sidebarState
+    width: ComputedRef<number>
+    isOpen: Ref<boolean>
+    handleSelectItem: typeof handleSelectItem
+    handleSidebarWidthUpdate: typeof handleSidebarWidthUpdate
+    getEntryByLocation: typeof getEntryByLocation
+  }
+  tabs: {
+    state: Ref<Tab[]>
+    activeTabIndex: Ref<number>
+    copyTabUrl: typeof copyTabUrl
+  }
+  workspace: {
+    create: typeof createWorkspace
+    workspaceList: Ref<ScalarListboxOption[]>
+    activeWorkspace: ShallowRef<ScalarListboxOption | null>
+    setId: typeof setWorkspaceId
+    isOpen: ComputedRef<boolean>
+  }
+  commandPalette: UseCommandPaletteStateReturn
+  eventBus: WorkspaceEventBus
+  router: ShallowRef<Router | null>
+  currentRoute: Ref<RouteLocationNormalizedGeneric | null>
+  loading: Ref<boolean>
+  activeEntities: {
+    workspaceSlug: Ref<string | undefined>
+    documentSlug: Ref<string | undefined>
+    path: Ref<string | undefined>
+    method: Ref<HttpMethod | undefined>
+    exampleName: Ref<string | undefined>
+  }
+  environment: ComputedRef<XScalarEnvironment>
+  document: ComputedRef<WorkspaceDocument | null>
+} {
   return {
     /** Active workspace store */
     store,
@@ -657,8 +788,10 @@ export function useAppState() {
       create: createWorkspace,
       workspaceList: workspaces,
       activeWorkspace: activeWorkspace,
+      setId: setWorkspaceId,
+      isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
     },
-    commandPallet: commandPaletteState,
+    commandPalette: commandPaletteState,
     eventBus,
     router,
     currentRoute,
@@ -670,5 +803,7 @@ export function useAppState() {
       method,
       exampleName,
     },
+    environment,
+    document: activeDocument,
   }
 }

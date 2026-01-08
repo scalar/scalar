@@ -20,13 +20,12 @@ import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
-import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { setWorkspaceId, useAppState } from './app-state'
+import { useAppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
@@ -60,18 +59,6 @@ useDocumentWatcher({
   initialTimeout: DEFAULT_DOCUMENT_WATCH_TIMEOUT,
 })
 
-/**
- * Merged environment variables from workspace and document levels.
- * Variables from both sources are combined, with document variables
- * taking precedence in case of naming conflicts.
- */
-const environment = computed(() =>
-  getActiveEnvironment(
-    app.store.value,
-    app.store.value?.workspace.activeDocument ?? null,
-  ),
-)
-
 /** Generate the theme style tag for dynamic theme application. */
 const themeStyleTag = computed(() => {
   if (app.store.value === null) {
@@ -85,50 +72,30 @@ const themeStyleTag = computed(() => {
   return `<style>${getThemeStyles(themeId)}</style>`
 })
 
-/** Check if the workspace overview is currently open. */
-const isWorkspaceOpen = computed(() =>
-  Boolean(
-    app.activeEntities.workspaceSlug.value &&
-      !app.activeEntities.documentSlug.value,
-  ),
-)
-
 /** Handler for workspace navigation. */
 const handleWorkspaceClick = () =>
   app.router.value?.push({
     name: 'workspace.environment',
   })
 
-/**
- * Handler for selecting a workspace.
- * Sets the current workspace ID if provided.
- */
-const handleSelectWorkspace = (id?: string) => {
-  if (!id) {
-    return
-  }
-  setWorkspaceId(id)
-}
-
 const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
-const routerViewProps = computed(
-  () =>
-    ({
-      documentSlug: app.activeEntities.documentSlug.value ?? '',
-      document: app.store.value?.workspace.activeDocument ?? null,
-      environment: environment.value,
-      eventBus: app.eventBus,
-      exampleName: app.activeEntities.exampleName.value,
-      layout,
-      method: app.activeEntities.method.value,
-      path: app.activeEntities.path.value,
-      workspaceStore: app.store.value!,
-      activeWorkspace: app.workspace.activeWorkspace.value!,
-      plugins,
-    }) satisfies RouteProps,
-)
+const routerViewProps = computed<RouteProps>(() => ({
+  documentSlug: app.activeEntities.documentSlug.value ?? '',
+  document: app.store.value?.workspace.activeDocument ?? null,
+  environment: app.environment.value,
+  eventBus: app.eventBus,
+  exampleName: app.activeEntities.exampleName.value,
+  layout,
+  method: app.activeEntities.method.value,
+  path: app.activeEntities.path.value,
+  workspaceStore: app.store.value!,
+  activeWorkspace: app.workspace.activeWorkspace.value!,
+  plugins,
+}))
+
+//
 </script>
 
 <template>
@@ -156,7 +123,7 @@ const routerViewProps = computed(
         :activeWorkspace="app.workspace.activeWorkspace.value!"
         :workspaces="app.workspace.workspaceList.value!"
         @create:workspace="createWorkspaceModalState.show()"
-        @select:workspace="handleSelectWorkspace" />
+        @select:workspace="app.workspace.setId" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -167,7 +134,7 @@ const routerViewProps = computed(
           v-model:isSidebarOpen="app.sidebar.isOpen.value"
           :activeWorkspace="app.workspace.activeWorkspace.value!"
           :eventBus="app.eventBus"
-          :isWorkspaceOpen
+          :isWorkspaceOpen="app.workspace.isOpen.value"
           :layout
           :sidebarState="app.sidebar.state"
           :sidebarWidth="app.sidebar.width.value"
@@ -175,7 +142,7 @@ const routerViewProps = computed(
           :workspaces="app.workspace.workspaceList.value"
           @click:workspace="handleWorkspaceClick"
           @create:workspace="createWorkspaceModalState.show()"
-          @select:workspace="handleSelectWorkspace"
+          @select:workspace="app.workspace.setId"
           @selectItem="app.sidebar.handleSelectItem"
           @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
@@ -187,7 +154,7 @@ const routerViewProps = computed(
         <!-- Popup command palette to add resources from anywhere -->
         <TheCommandPalette
           :eventBus="app.eventBus"
-          :paletteState="app.commandPallet"
+          :paletteState="app.commandPalette"
           :workspaceStore="app.store.value!" />
 
         <!-- <ImportCollectionListener></ImportCollectionListener> -->

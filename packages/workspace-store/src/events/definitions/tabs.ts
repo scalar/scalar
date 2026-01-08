@@ -44,4 +44,5 @@ export type TabEvents = {
   'tabs:focus:tab-last': {
     event: KeyboardEvent
   }
+  'tabs:copy:url': { index: number }
 }
