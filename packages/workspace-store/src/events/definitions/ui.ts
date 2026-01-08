@@ -197,4 +197,12 @@ export type UIEvents = {
    * Useful for sharing direct links to specific sections.
    */
   'copy-url:nav-item': NavigationItemPayload
+
+  /**
+   * Used by the api-client to copy the URL for the given tab index.
+   */
+  'tabs:copy:url': {
+    /** The index of the tab to copy the URL for */
+    index: number
+  }
 }

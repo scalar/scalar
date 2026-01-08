@@ -79,7 +79,7 @@ function getRouteParam(
 // ---------------------------------------------------------------------------
 // Workspace persistence state management
 
-const activeWorkspace = shallowRef<{ id: string } | null>(null)
+const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
 const workspaces = ref<ScalarListboxOption[]>([])
 const store = ref<WorkspaceStore | null>(null)
 
@@ -112,7 +112,7 @@ const loadWorkspace = async (id: string): Promise<{ success: true; workspace: Wo
 
   const client = await createClientStore({ workspaceId: id })
   client.loadWorkspace(workspace.workspace)
-  activeWorkspace.value = { id }
+  activeWorkspace.value = { id, label: workspace.name }
   store.value = client
 
   return {
@@ -361,7 +361,7 @@ const locationIndex = computed(() =>
  *     example: 'default',
  *   })
  */
-const getEntryByLocation = (location: { document: string; path?: string; method?: HttpMethod; example?: string }) => {
+const getEntryByLocation: GetEntryByLocation = (location) => {
   // Try to find an entry with the most-specific location (including example)
   const entryWithExample = locationIndex.value.get(generateId(location))
 
@@ -378,6 +378,17 @@ const getEntryByLocation = (location: { document: string; path?: string; method?
     }),
   )
 }
+
+export type GetEntryByLocation = (location: {
+  document: string
+  path?: string
+  method?: HttpMethod
+  example?: string
+}) =>
+  | (TraversedEntry & {
+      parent?: TraversedEntry | undefined
+    })
+  | undefined
 
 /**
  * Handles item selection from the sidebar and routes navigation accordingly.
@@ -478,8 +489,6 @@ const isSidebarOpen = ref(true)
 /** Constants for workspace store keys */
 const TABS_KEY = 'x-scalar-tabs' as const
 const ACTIVE_TAB_KEY = 'x-scalar-active-tab' as const
-
-const isTabLoading = ref(false)
 
 /**
  * Creates a tab object based on the current route and workspace state.
@@ -626,6 +635,7 @@ export function useAppState() {
     tabs: {
       state: tabs,
       activeTabIndex,
+      copyTabUrl,
     },
     workspace: {
       create: createWorkspace,
@@ -636,5 +646,6 @@ export function useAppState() {
     eventBus,
     router,
     currentRoute,
+    loading: isSyncingPath,
   }
 }

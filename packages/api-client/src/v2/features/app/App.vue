@@ -26,7 +26,7 @@ import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { useAppState } from './app-state'
+import { setWorkspaceId, useAppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
@@ -65,7 +65,10 @@ useDocumentWatcher({
  * taking precedence in case of naming conflicts.
  */
 const environment = computed(() =>
-  getActiveEnvironment(app.store.value, store.w),
+  getActiveEnvironment(
+    app.store.value,
+    app.store.value?.workspace.activeDocument ?? null,
+  ),
 )
 
 /** Generate the theme style tag for dynamic theme application. */
@@ -88,7 +91,7 @@ const isWorkspaceOpen = computed(() =>
 
 /** Handler for workspace navigation. */
 const handleWorkspaceClick = () =>
-  router.push({
+  app.router.value?.push({
     name: 'workspace.environment',
   })
 
@@ -100,7 +103,7 @@ const handleSelectWorkspace = (id?: string) => {
   if (!id) {
     return
   }
-  workspaceState.setWorkspaceId(id)
+  setWorkspaceId(id)
 }
 
 const createWorkspaceModalState = useModal()
@@ -110,15 +113,15 @@ const routerViewProps = computed(
   () =>
     ({
       documentSlug: documentSlug.value ?? '',
-      document: activeDocument.value,
+      document: app.store.value?.workspace.activeDocument ?? null,
       environment: environment.value,
-      eventBus,
+      eventBus: app.eventBus,
       exampleName: exampleName.value,
       layout,
       method: method.value,
       path: path.value,
-      workspaceStore: store.value!,
-      activeWorkspace: activeWorkspace.value!,
+      workspaceStore: app.store.value!,
+      activeWorkspace: app.workspace.activeWorkspace.value!,
       plugins,
     }) satisfies RouteProps,
 )
@@ -129,7 +132,7 @@ const routerViewProps = computed(
     v-if="
       app.store !== null &&
       app.workspace.activeWorkspace !== null &&
-      !isSyncPathLoading
+      !app.loading
     ">
     <div v-html="themeStyleTag" />
     <ScalarTeleportRoot>
@@ -157,7 +160,7 @@ const routerViewProps = computed(
 
         <!-- TODO: @redis handle nullish states -->
         <AppSidebar
-          v-model:isSidebarOpen="isSidebarOpen"
+          v-model:isSidebarOpen="app.sidebar.isOpen.value"
           :activeWorkspace="app.workspace.activeWorkspace.value!"
           :eventBus="app.eventBus"
           :isWorkspaceOpen
@@ -180,7 +183,7 @@ const routerViewProps = computed(
         <!-- Popup command palette to add resources from anywhere -->
         <TheCommandPalette
           :eventBus="app.eventBus"
-          :paletteState="commandPaletteState"
+          :paletteState="app.commandPallet"
           :workspaceStore="app.store.value!" />
 
         <!-- <ImportCollectionListener></ImportCollectionListener> -->

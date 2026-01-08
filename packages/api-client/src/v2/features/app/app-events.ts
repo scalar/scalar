@@ -54,14 +54,13 @@ import {
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type ComputedRef, computed } from 'vue'
 
-
 import { useAppState } from './app-state'
 
 const app = useAppState()
 
 const { eventBus, router, currentRoute } = app
 
-const document = computed(() => app.store.value?.workspace?.activeDocument)
+const document = computed(() => app.store.value?.workspace?.activeDocument ?? null)
 
 /** Selects between the workspace or document based on the type */
 const getCollection = (
@@ -116,7 +115,7 @@ const rebuildSidebar = (documentName: string | undefined) => {
  * consistent (e.g., after adding a new example via the UI).
  */
 const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-  const documentName = document.value?.name
+  const documentName = document.value?.['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -194,7 +193,7 @@ eventBus.on('document:delete:document', async (payload) => {
   if (currentRoute.value?.params.documentSlug === payload.name) {
     await router.value?.push({
       name: 'workspace.environment',
-    })z
+    })
   }
 })
 
@@ -412,3 +411,4 @@ eventBus.on('tabs:update:tabs', async (payload) => {
   updateTabs(app.store.value?.workspace ?? null, payload)
   await navigateToCurrentTab()
 })
+eventBus.on('tabs:copy:url', (payload) => app.tabs.copyTabUrl(payload.index))

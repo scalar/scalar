@@ -9,6 +9,7 @@ import DesktopTab from '@/v2/features/app/components/DesktopTab.vue'
 const { tabs, eventBus } = defineProps<{
   /** Tabs state */
   tabs: Tab[]
+  /** Current active tab index */
   activeTabIndex: number
   /** Workspace event bus for emitting tab-related events */
   eventBus: WorkspaceEventBus

@@ -1,7 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 
-import type { UseAppSidebarReturn } from '@/v2/features/app/hooks/use-app-sidebar'
+import type { GetEntryByLocation } from '@/v2/features/app/app-state'
 
 /**
  * Returns display details for a tab in the API client UI.
@@ -43,7 +43,7 @@ export const getTabDetails = ({
   document?: string
   path?: string
   method?: HttpMethod
-  getEntryByLocation: UseAppSidebarReturn['getEntryByLocation']
+  getEntryByLocation: GetEntryByLocation
 }): { title: string; icon?: Tab['icon'] } => {
   if (!workspace) {
     return {

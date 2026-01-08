@@ -29,7 +29,7 @@ export type RouteProps = {
   exampleName?: string
   environment: XScalarEnvironment
   workspaceStore: WorkspaceStore
-  activeWorkspace: { id: string }
+  activeWorkspace: { id: string; label: string }
   plugins: ClientPlugin[]
   // workspaceSlug: string
   // documentSlug?: string
