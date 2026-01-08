@@ -1,6 +1,7 @@
+import { extname, join } from 'node:path'
+
 import { generateResponses, getJSDocFromNode, getSchemaFromTypeNode } from '@scalar/ts-to-openapi'
 import type { OpenAPIV3_1 } from 'openapi-types'
-import { extname, join } from 'node:path'
 import {
   type Identifier,
   type ParameterDeclaration,
@@ -15,13 +16,13 @@ import {
 } from 'typescript'
 
 /** Check if identifier is a supported http method */
-const checkForMethod = (identifier: Pick<Identifier, 'escapedText'> | undefined) => {
+const checkForMethod = (identifier: Pick<Identifier, 'escapedText'> | undefined): OpenAPIV3_1.HttpMethods | null => {
   const method = identifier?.escapedText?.toLowerCase()
 
   return method?.match(/^(get|post|put|patch|delete|head|options)$/) ? (method as OpenAPIV3_1.HttpMethods) : null
 }
 
-const fileNameResolver = (source: string, target: string) => {
+const fileNameResolver = (source: string, target: string): string => {
   const sourceExt = extname(source)
   const targetExt = extname(target)
 
@@ -67,7 +68,7 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
 /**
  * Traverse the typescript file and extract as much info as we can for the openapi spec
  */
-export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
+export const getPathSchema = (sourceFile: SourceFile, program: Program): OpenAPIV3_1.PathsObject => {
   const path: OpenAPIV3_1.PathsObject = {}
   const typeChecker = program.getTypeChecker()
 

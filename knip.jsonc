@@ -8,7 +8,6 @@
     "packages/api-reference/**",
     "packages/api-reference-react/**",
     "packages/galaxy/**",
-    "packages/nextjs-openapi/**",
     "packages/postman-to-openapi/**",
     "projects/**",
     "integrations/docker/**",
@@ -105,6 +104,10 @@
         "src/bundle/plugins/browser.ts",
         "src/helpers/escape-json-pointer.ts"
       ]
+    },
+    "packages/nextjs-openapi": {
+      "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
+      "ignoreFiles": ["playground/next.config.js"]
     },
     "packages/oas-utils": {
       "entry": [

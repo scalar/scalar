@@ -1,1 +1,2 @@
-export * from './openapi'
+export type { OpenAPIConfig } from './openapi'
+export { OpenAPI } from './openapi'
