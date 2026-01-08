@@ -325,7 +325,7 @@ const labelRequestNameId = useId()
         :selectedSecurity
         :selectedSecuritySchemes
         :server
-        title="Authorization" />
+        title="Authentication" />
 
       <!-- Variables (Path Parameters) -->
       <RequestParams
