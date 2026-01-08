@@ -31,6 +31,7 @@ import {
   addScalarClassesToHeadless,
   ScalarTeleportRoot,
   type ModalState,
+  type ScalarListboxOption,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -50,7 +51,6 @@ import {
 } from 'vue'
 
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
@@ -82,8 +82,8 @@ const eventBus = createWorkspaceEventBus({
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode({ workspaceStore })
 
-const activeWorkspace: Workspace = {
-  name: 'default',
+const activeWorkspace: ScalarListboxOption = {
+  label: 'default',
   id: 'default',
 }
 

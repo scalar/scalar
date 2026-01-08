@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import { computed } from 'vue'
 
 import DesktopTab from '@/v2/features/app/components/DesktopTab.vue'
-import type { UseTabsReturn } from '@/v2/features/app/hooks/use-tabs'
 
-const { tabsState, eventBus } = defineProps<{
+const { tabs, eventBus } = defineProps<{
   /** Tabs state */
-  tabsState: UseTabsReturn
+  tabs: Tab[]
+  activeTabIndex: number
   /** Workspace event bus for emitting tab-related events */
   eventBus: WorkspaceEventBus
 }>()
 
 /** Whether there is only a single tab open */
-const isSingleTab = computed((): boolean => tabsState.tabs.value.length === 1)
+const isSingleTab = computed((): boolean => tabs.length === 1)
 
 /** Adds a new tab */
 const handleAddTab = (): void => {
@@ -35,21 +36,25 @@ const handleCloseTab = (index: number): void => {
 const handleCloseOtherTabs = (index: number): void => {
   eventBus.emit('tabs:close:other-tabs', { index })
 }
+
+const handleCopyTabUrl = (index: number): void => {
+  eventBus.emit('tabs:copy:url', { index })
+}
 </script>
 
 <template>
   <nav class="flex h-10 items-center gap-2 px-2">
     <DesktopTab
-      v-for="(tab, index) in tabsState.tabs.value"
+      v-for="(tab, index) in tabs"
       :key="index"
-      :active="index === tabsState.activeTabIndex.value"
+      :active="index === activeTabIndex"
       :hotkey="!isSingleTab && index < 9 ? String(index + 1) : undefined"
       :isSingleTab="isSingleTab"
       :tab="tab"
       @click="switchTab(index)"
       @close="handleCloseTab(index)"
       @closeOtherTabs="handleCloseOtherTabs(index)"
-      @copyUrl="tabsState.copyTabUrl(index)"
+      @copyUrl="() => handleCopyTabUrl(index)"
       @newTab="handleAddTab" />
 
     <button

@@ -1,7 +1,8 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
-  "include": ["src/renderer/src/env.d.ts", "src/renderer/src/**/*", "src/renderer/src/**/*.vue", "src/preload/*.d.ts"],
+  "include": ["src/shims.d.ts", "src/renderer/src/**/*"],
   "compilerOptions": {
+    "types": ["vite/client"],
     "composite": true,
     "baseUrl": ".",
     "moduleResolution": "Bundler",
