@@ -17,9 +17,11 @@ export type ModalProps = {
   /** The sidebar state must be initialized and passed in */
   sidebarState: UseModalSidebarReturn
   /** Api client plugins to include in the modal */
-  plugins?: ClientPlugin[]
-  /** Authentication config */
-  authenticationConfiguration: AuthenticationConfiguration
+  plugins: ClientPlugin[]
+  /** Subset of the configuration options for the modal */
+  options: MaybeRefOrGetter<
+    Pick<ApiReferenceConfigurationRaw, 'authentication'>
+  >
 }
 
 /**
@@ -37,7 +39,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -49,9 +51,11 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   ref,
+  toValue,
   useId,
   watch,
   type ComputedRef,
+  type MaybeRefOrGetter,
 } from 'vue'
 
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
@@ -73,8 +77,8 @@ const {
   sidebarState,
   eventBus,
   document,
-  plugins = [],
-  authenticationConfiguration,
+  plugins,
+  options,
 } = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
@@ -174,7 +178,7 @@ const environment = computed(() =>
 const securitySchemes = computed(() =>
   mergeAuthConfig(
     document.value?.components?.securitySchemes,
-    authenticationConfiguration?.securitySchemes,
+    toValue(options)?.authentication?.securitySchemes,
   ),
 )
 
