@@ -14,7 +14,7 @@ Docker image to serve beautiful, interactive API documentation from OpenAPI/Swag
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/docker)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/docker)
 
 ## Changelog
 

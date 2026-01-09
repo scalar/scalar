@@ -57,7 +57,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/nextjs"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/nextjs"
   },
   "dependencies": {
     "@scalar/core": "workspace:*"

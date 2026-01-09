@@ -1,11 +1,20 @@
 # Scalar API Reference Docker Image
 
+<div class="flex gap-2">
+<a href="https://hub.docker.com/r/scalarapi/api-reference"><img src="https://img.shields.io/docker/v/scalarapi/api-reference?label=Docker%20image"></a>
+<a href="https://hub.docker.com/r/scalarapi/api-reference"><img src="https://img.shields.io/docker/pulls/scalarapi/api-reference?label=Docker%20pulls"></a>
+<a href="https://discord.gg/scalar"><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+</div>
+
 ## Quick Start
 
 Run the Docker container with your OpenAPI configuration:
 
 ```bash
-docker run -p 8080:8080 -e API_REFERENCE_CONFIG='{"sources":[{"url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json"}],"theme": "purple"}' scalarapi/api-reference:latest
+docker run \
+  -p 8080:8080 \
+  -e API_REFERENCE_CONFIG='{"sources":[{"url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json"}],"theme": "purple"}' \
+  scalarapi/api-reference:latest
 ```
 
 Visit `http://localhost:8080` to see your API reference.
@@ -19,7 +28,8 @@ The Docker image supports two configuration methods:
 Set the `API_REFERENCE_CONFIG` environment variable with your Scalar configuration:
 
 ```bash
-docker run -p 8080:8080 \
+docker run \
+  -p 8080:8080 \
   -e API_REFERENCE_CONFIG='{"sources":[{"url":"https://api.example.com/openapi.json"}],"theme":"purple"}' \
   scalarapi/api-reference:latest
 ```
@@ -29,7 +39,8 @@ docker run -p 8080:8080 \
 Mount OpenAPI documents directly into the container for automatic discovery:
 
 ```bash
-docker run -p 8080:8080 \
+docker run \
+  -p 8080:8080 \
   -v /path/to/your/openapi-docs:/docs \
   scalarapi/api-reference:latest
 ```
@@ -52,7 +63,8 @@ The container automatically:
 You can combine both approaches:
 
 ```bash
-docker run -p 8080:8080 \
+docker run \
+  -p 8080:8080 \
   -v /path/to/your/openapi-docs:/docs \
   -e API_REFERENCE_CONFIG='{"theme": "purple"}' \
   scalarapi/api-reference:latest

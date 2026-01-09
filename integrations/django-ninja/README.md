@@ -16,7 +16,7 @@ Scalar Django Ninja integration
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/django-ninja)
 
 ## Changelog
 

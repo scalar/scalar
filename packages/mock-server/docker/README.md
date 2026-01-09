@@ -14,7 +14,7 @@ Docker image for the Scalar Mock Server
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-mock-server/docker-image)
+[Read the documentation here](https://guides.scalar.com/products/mock-server/docker)
 
 ## Changelog
 

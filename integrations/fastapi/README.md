@@ -16,7 +16,7 @@ FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI/Sw
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/fastapi)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/fastapi)
 
 ## Changelog
 

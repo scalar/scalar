@@ -31,7 +31,7 @@
         "package": "com.scalar.maven/scalar-core"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/java",
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/java",
     "extraContent": {
       "headline": "Available Packages",
       "content": "This integration provides three Maven packages:\n\n- `com.scalar.maven:scalar-core` - Core framework-agnostic module for Scalar API Reference\n- `com.scalar.maven:scalar-webmvc` - Spring Boot WebMVC integration for Scalar API Reference\n- `com.scalar.maven:scalar-webflux` - Spring Boot WebFlux integration for Scalar API Reference"
