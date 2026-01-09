@@ -2,7 +2,6 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { CodeInput } from '@/v2/components/code-input'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import CookiesTable from './CookiesTable.vue'
@@ -30,7 +29,7 @@ describe('CookiesTable', () => {
      * (name, value, domain) and 3 for the empty row (name, value, domain).
      * When we update the name in the empty row, it should emit an event.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     expect(codeInputs).toHaveLength(6)
 
     const emptyRowNameInput = codeInputs.at(3)!
@@ -61,7 +60,7 @@ describe('CookiesTable', () => {
      * it should emit an update event with the index.
      * CodeInput index 1 is the value input for the first cookie row.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     const firstValueInput = codeInputs.at(1)!
     await firstValueInput.vm.$emit('update:modelValue', 'updated-value-123')
 
@@ -124,7 +123,7 @@ describe('CookiesTable', () => {
      * no event should be emitted because we require a name to create
      * a new cookie. CodeInput index 4 is the value input for the empty row.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     const emptyRowValueInput = codeInputs.at(4)!
     await emptyRowValueInput.vm.$emit('update:modelValue', 'some-value')
 
@@ -149,7 +148,7 @@ describe('CookiesTable', () => {
      * With 2 existing cookies, there should be 9 CodeInput components:
      * 2 cookies × 3 inputs (name + value + domain) + 1 empty row × 3 inputs.
      */
-    const codeInputsWithCookies = wrapperWithCookies.findAllComponents(CodeInput)
+    const codeInputsWithCookies = wrapperWithCookies.findAllComponents({ name: 'CodeInput' })
     expect(codeInputsWithCookies).toHaveLength(9)
 
     const emptyCookies = createMockCookies([])
@@ -166,7 +165,7 @@ describe('CookiesTable', () => {
      * With no existing cookies, there should still be 3 CodeInput components
      * for the empty row (name + value + domain).
      */
-    const codeInputsEmpty = wrapperEmpty.findAllComponents(CodeInput)
+    const codeInputsEmpty = wrapperEmpty.findAllComponents({ name: 'CodeInput' })
     expect(codeInputsEmpty).toHaveLength(3)
   })
 
@@ -219,7 +218,7 @@ describe('CookiesTable', () => {
      * it should emit an update event with the new domain.
      * CodeInput index 2 is the domain input for the first cookie row.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     const firstDomainInput = codeInputs.at(2)!
     await firstDomainInput.vm.$emit('update:modelValue', 'newdomain.com')
 

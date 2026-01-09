@@ -3,7 +3,6 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { CodeInput } from '@/v2/components/code-input'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import EnvironmentVariablesTable from './EnvironmentVariablesTable.vue'
@@ -36,7 +35,7 @@ describe('EnvironmentVariablesTable', () => {
      * variable (name + value) and 2 for the empty row (name + value).
      * When we update the name in the empty row, it should emit an event.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     expect(codeInputs).toHaveLength(4)
 
     const emptyRowNameInput = codeInputs.at(2)!
@@ -69,7 +68,7 @@ describe('EnvironmentVariablesTable', () => {
      * it should emit an update event with the index.
      * CodeInput index 1 is the value input for the first variable row.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     const firstValueInput = codeInputs.at(1)!
     await firstValueInput.vm.$emit('update:modelValue', 'https://api.newdomain.com')
 
@@ -130,7 +129,7 @@ describe('EnvironmentVariablesTable', () => {
      * no event should be emitted because we require a name to create
      * a new variable. CodeInput index 3 is the value input for the empty row.
      */
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     const emptyRowValueInput = codeInputs.at(3)!
     await emptyRowValueInput.vm.$emit('update:modelValue', 'some-value')
 
@@ -156,7 +155,7 @@ describe('EnvironmentVariablesTable', () => {
      * With 2 existing variables, there should be 6 CodeInput components:
      * 2 variables × 2 inputs (name + value) + 1 empty row × 2 inputs.
      */
-    const codeInputsWithVariables = wrapperWithVariables.findAllComponents(CodeInput)
+    const codeInputsWithVariables = wrapperWithVariables.findAllComponents({ name: 'CodeInput' })
     expect(codeInputsWithVariables).toHaveLength(6)
 
     const emptyEnvironment = createMockEnvironment([])
@@ -174,7 +173,7 @@ describe('EnvironmentVariablesTable', () => {
      * With no existing variables, there should still be 2 CodeInput components
      * for the empty row (name + value).
      */
-    const codeInputsEmpty = wrapperEmpty.findAllComponents(CodeInput)
+    const codeInputsEmpty = wrapperEmpty.findAllComponents({ name: 'CodeInput' })
     expect(codeInputsEmpty).toHaveLength(2)
   })
 })
