@@ -1,6 +1,11 @@
 # Configuration
 
-You can pass a — what we call — universal configuration object to fine-tune your API reference.
+You can pass a - what we call universal - configuration object to fine-tune your API reference.
+
+> **Note:** This page covers the runtime configuration object for the Scalar API Reference used to control how Scalar displays your API docs.
+>
+> This is NOT the `scalar.config.json` (used for the [GitHub Sync](guides/docs/github-sync.md)).
+
 
 ## Universal Configuration
 
