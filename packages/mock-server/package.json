@@ -58,7 +58,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-mock-server/getting-started"
+    "documentation": "https://guides.scalar.com/products/mock-server/getting-started"
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",

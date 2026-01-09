@@ -176,7 +176,7 @@ We're offering a free and paid managed hosting on the edge, too:
 
 - Write your API documentation and publish API references (free)
 - `YOUR_NAME_HERE.apidocumentation.com` subdomain and SSL (free)
-- [GitHub Sync](https://guides.scalar.com/scalar/scalar-docs/github-sync)
+- [GitHub Sync](https://guides.scalar.com/products/docs/github-sync)
 - Write free-form documentation
 - Collaborate with your team
 - Use any domain
@@ -187,34 +187,34 @@ Ready? [Create your Scalar Account](https://scalar.com)
 
 ### Documentation
 
-| Topic                                                                                 | Description                          |
-| ------------------------------------------------------------------------------------- | ------------------------------------ |
-| [Configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) | The universal configuration object   |
-| [Themes](https://guides.scalar.com/scalar/scalar-api-references/themes)               | Predefined themes, layouts & styling |
-| [OpenAPI](https://guides.scalar.com/scalar/scalar-api-references/openapi)             | OpenAPI specification extensions     |
-| [Markdown](https://guides.scalar.com/scalar/scalar-api-references/markdown)           | Supported Markdown syntax            |
-| [Plugins](https://guides.scalar.com/scalar/scalar-api-references/plugins)             | Extend the functionality             |
+| Topic                                                                            | Description                          |
+| -------------------------------------------------------------------------------- | ------------------------------------ |
+| [Configuration](https://guides.scalar.com/products/api-references/configuration) | The universal configuration object   |
+| [Themes](https://guides.scalar.com/products/api-references/themes)               | Predefined themes, layouts & styling |
+| [OpenAPI](https://guides.scalar.com/products/api-references/openapi)             | OpenAPI specification extensions     |
+| [Markdown](https://guides.scalar.com/products/api-references/markdown)           | Supported Markdown syntax            |
+| [Plugins](https://guides.scalar.com/products/api-references/plugins)             | Extend the functionality             |
 
 <br>
 
 ### Projects
 
-| Project                                                                                        | Description                      |
-| ---------------------------------------------------------------------------------------------- | -------------------------------- |
-| [Scalar API Reference](https://guides.scalar.com/scalar/scalar-api-references/getting-started) | Self-hosted API Reference        |
-| [Scalar API Client](https://scalar.com/download)                                               | Postman alternative              |
-| [Scalar Registry](https://guides.scalar.com/scalar/scalar-registry/getting-started)            | Manage OpenAPI documents         |
-| [Scalar Docs](https://guides.scalar.com/scalar/scalar-docs/getting-started)                    | Hosted documentation             |
-| [Scalar Docs Starter](https://github.com/scalar/starter)                                       | Starter template for Scalar Docs |
-| [Scalar SDKs](https://guides.scalar.com/scalar/scalar-sdks/getting-started)                    | SDK generation                   |
-| [Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started)                      | Command-line interface           |
-| [Scalar Mock Server](https://guides.scalar.com/scalar/scalar-mock-server/getting-started)      | Mock APIs from OpenAPI documents |
-| [Scalar Galaxy](packages/galaxy/README.md)                                                     | Our OpenAPI Example              |
-| [Scalar Editor](https://editor.scalar.com/)                                                    | OpenAPI Online Editor            |
-| [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                                     | Parse OpenAPI documents          |
-| [Scalar OpenAPI to Markdown](packages/openapi-to-markdown/README.md)                           | OpenAPI > Markdown/HTML          |
-| [Scalar OpenAPI Upgrader](packages/openapi-upgrader/README.md)                                 | Upgrade OpenAPI documents        |
-| [Scalar Void Server](packages/void-server/README.md)                                           | HTTP Request Mirror              |
+| Project                                                                                   | Description                      |
+| ----------------------------------------------------------------------------------------- | -------------------------------- |
+| [Scalar API Reference](https://guides.scalar.com/products/api-references/getting-started) | Self-hosted API Reference        |
+| [Scalar API Client](https://scalar.com/download)                                          | Postman alternative              |
+| [Scalar Registry](https://guides.scalar.com/products/registry/getting-started)            | Manage OpenAPI documents         |
+| [Scalar Docs](https://guides.scalar.com/products/docs/getting-started)                    | Hosted documentation             |
+| [Scalar Docs Starter](https://github.com/scalar/starter)                                  | Starter template for Scalar Docs |
+| [Scalar SDKs](https://guides.scalar.com/products/sdks/getting-started)                    | SDK generation                   |
+| [Scalar CLI](https://scalar.com/tools/cli/getting-started)                                | Command-line interface           |
+| [Scalar Mock Server](https://guides.scalar.com/products/mock-server/getting-started)      | Mock APIs from OpenAPI documents |
+| [Scalar Galaxy](packages/galaxy/README.md)                                                | Our OpenAPI Example              |
+| [Scalar Editor](https://editor.scalar.com/)                                               | OpenAPI Online Editor            |
+| [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                                | Parse OpenAPI documents          |
+| [Scalar OpenAPI to Markdown](packages/openapi-to-markdown/README.md)                      | OpenAPI > Markdown/HTML          |
+| [Scalar OpenAPI Upgrader](packages/openapi-upgrader/README.md)                            | Upgrade OpenAPI documents        |
+| [Scalar Void Server](packages/void-server/README.md)                                      | HTTP Request Mirror              |
 
 <br>
 

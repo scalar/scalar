@@ -16,7 +16,7 @@ A powerful Node.js mock server that automatically generates realistic API respon
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-mock-server/getting-started)
+[Read the documentation here](https://guides.scalar.com/products/mock-server/getting-started)
 
 ## Changelog
 

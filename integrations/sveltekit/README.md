@@ -16,7 +16,7 @@ SvelteKit server handler to serve beautiful, interactive API documentation from 
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/sveltekit)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/sveltekit)
 
 ## Changelog
 

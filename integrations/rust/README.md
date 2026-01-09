@@ -16,7 +16,7 @@ Rust crate to serve beautiful, interactive API documentation from OpenAPI/Swagge
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/rust)
 
 ## Changelog
 

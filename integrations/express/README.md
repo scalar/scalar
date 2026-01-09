@@ -16,7 +16,7 @@ Express middleware to serve beautiful, interactive API documentation from OpenAP
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/express)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/express)
 
 ## Changelog
 

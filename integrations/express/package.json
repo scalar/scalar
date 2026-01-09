@@ -56,7 +56,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/express"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/express"
   },
   "dependencies": {
     "@scalar/core": "workspace:*"

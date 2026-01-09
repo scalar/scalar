@@ -35,7 +35,7 @@
         "package": "scalar-ninja"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/django-ninja"
   },
   "dependencies": {},
   "devDependencies": {}
