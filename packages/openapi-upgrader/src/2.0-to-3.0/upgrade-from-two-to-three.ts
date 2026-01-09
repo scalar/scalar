@@ -488,8 +488,14 @@ function migrateBodyParameter(
   bodyParameter: OpenAPIV2.ParameterObject,
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
+  // Extract x-example and x-examples before deleting other properties
+  const xExample = (bodyParameter as Record<string, unknown>)['x-example'] as Record<string, unknown> | undefined
+  const xExamples = (bodyParameter as Record<string, unknown>)['x-examples'] as Record<string, unknown> | undefined
+
   delete bodyParameter.name
   delete bodyParameter.in
+  delete (bodyParameter as Record<string, unknown>)['x-example']
+  delete (bodyParameter as Record<string, unknown>)['x-examples']
 
   const { schema, ...requestBody } = bodyParameter
 
@@ -502,6 +508,18 @@ function migrateBodyParameter(
     for (const type of consumes) {
       requestBodyObject.content[type] = {
         schema: schema,
+      }
+
+      // Handle x-example (singular) - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `example` field
+      if (xExample && type in xExample) {
+        requestBodyObject.content[type].example = xExample[type]
+      }
+
+      // Handle x-examples (plural) - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
+      if (xExamples && type in xExamples) {
+        requestBodyObject.content[type].examples = xExamples[type] as Record<string, OpenAPIV3.ExampleObject>
       }
     }
   }
