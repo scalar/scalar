@@ -32,7 +32,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends CodeInputModelValue">
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
   colorPicker as colorPickerExtension,
@@ -58,7 +58,7 @@ import { backspaceCommand, pillPlugin } from './code-variable-widget'
  * - A CodeMirror editor with environment variable support
  */
 type Props = {
-  modelValue: CodeInputModelValue
+  modelValue: T
   /** Environment for variable substitution. Pass undefined to disable environment variables */
   environment: XScalarEnvironment | undefined
   /** Type of the input value, affects rendering mode for booleans */
@@ -108,7 +108,7 @@ type Props = {
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
-  handleFieldChange?: (value: string) => void
+  handleFieldChange?: (value: T) => void
   /** Custom submit handler, prevents default emit */
   handleFieldSubmit?: (value: string) => void
 }
@@ -143,15 +143,13 @@ const {
   handleFieldSubmit,
 } = defineProps<Props>()
 
-const emit = defineEmits<Emits>()
-
-type Emits = {
-  'update:modelValue': [value: string]
+const emit = defineEmits<{
+  'update:modelValue': [value: T]
   'submit': [value: string]
   'blur': [value: string]
   'curl': [value: string]
   'redirectToEnvironment': []
-}
+}>()
 
 // ---------------------------------------------------------------------------
 // Component identity and focus state
@@ -198,13 +196,17 @@ const defaultType = computed((): string | undefined => {
  * Handles value changes during typing.
  * Detects curl commands and manages update flow.
  */
-const handleChange = (value: string): void => {
+const handleChange = (value: T): void => {
   if (!alwaysEmitChange && value === modelValue) {
     return
   }
 
   // Detect curl command import
-  if (importCurl && value.trim().toLowerCase().startsWith('curl')) {
+  if (
+    typeof value === 'string' &&
+    importCurl &&
+    value.trim().toLowerCase().startsWith('curl')
+  ) {
     emit('curl', value)
 
     // Revert to previous value
@@ -256,7 +258,7 @@ const handleBlur = (value: string): void => {
  * Handles model value updates from select components.
  */
 const handleSelectChange = (value: string): void => {
-  emit('update:modelValue', value)
+  emit('update:modelValue', value as T)
 }
 
 // ---------------------------------------------------------------------------
@@ -301,7 +303,7 @@ const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
  * Converts the model value to a string for CodeMirror.
  * Arrays are serialized to JSON format.
  */
-const serializeValue = (value: CodeInputModelValue): string => {
+const serializeValue = (value: T): string => {
   if (Array.isArray(value)) {
     return JSON.stringify(value)
   }
@@ -312,22 +314,14 @@ const serializeValue = (value: CodeInputModelValue): string => {
  * Parses the CodeMirror string value back to the appropriate type.
  * Attempts to parse JSON arrays, falls back to string.
  */
-const deserializeValue = (value: string): string => {
-  // Try to parse as JSON array if it looks like one
-  if (value.trim().startsWith('[') && value.trim().endsWith(']')) {
-    try {
-      const parsed = JSON.parse(value)
-
-      // Return the JSON string representation
-      if (Array.isArray(parsed)) {
-        return value
-      }
-    } catch {
-      // Not valid JSON, treat as string
-      return value
-    }
+const deserializeValue = (value: string): T => {
+  // Try to parse array or objects
+  try {
+    return JSON.parse(value)
+  } catch {
+    // Not valid JSON, treat as string
+    return value as T
   }
-  return value
 }
 
 const { codeMirror } = useCodeMirror({
