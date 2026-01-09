@@ -78,6 +78,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
+    "jsdom": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"

@@ -91,6 +91,8 @@
     "@scalar/use-codemirror": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "vite": "catalog:*"
+    "jsdom": "catalog:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }
