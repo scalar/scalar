@@ -2,7 +2,7 @@
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconEye, ScalarIconEyeSlash, ScalarIconX } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
 import { CodeInput } from '@/v2/components/code-input'
@@ -37,7 +37,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', v: string): void
+  (e: 'update:modelValue', v: string | number): void
   (e: 'inputFocus'): void
   (e: 'inputBlur'): void
   (e: 'selectVariable', value: string): void
@@ -47,7 +47,7 @@ defineOptions({ inheritAttrs: false })
 
 const mask = ref(true)
 const interactingWithDropdown = ref(false)
-const codeInput = ref<InstanceType<typeof CodeInput> | null>(null)
+const codeInput = useTemplateRef('codeInput')
 
 const handleBlur = () => !interactingWithDropdown.value && emit('inputBlur')
 
@@ -124,7 +124,7 @@ const handleLabelClick = () => {
           :type="inputType"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
-          @update:modelValue="emit('update:modelValue', $event)" />
+          @update:modelValue="(value) => emit('update:modelValue', value)" />
       </template>
     </div>
     <div
