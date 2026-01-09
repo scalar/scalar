@@ -1268,4 +1268,265 @@ describe('upgradeFromTwoToThree', () => {
     // This should not throw because body parameters are filtered before reaching getParameterLocation
     expect(() => upgradeFromTwoToThree(invalidSpec)).not.toThrow()
   })
+
+  it('transforms x-example on body parameter to example', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'API with x-example' },
+      paths: {
+        '/planets': {
+          post: {
+            consumes: ['application/json'],
+            parameters: [
+              {
+                in: 'body',
+                name: 'body',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
+                },
+                'x-example': {
+                  'application/json': {
+                    name: 'Earth',
+                  },
+                },
+              },
+            ],
+            responses: {
+              '201': { description: 'Created' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/planets']?.post?.requestBody).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          example: {
+            name: 'Earth',
+          },
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples with named examples to examples', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'API with named x-examples' },
+      paths: {
+        '/planets': {
+          post: {
+            consumes: ['application/json'],
+            parameters: [
+              {
+                in: 'body',
+                name: 'body',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string' },
+                  },
+                },
+                'x-examples': {
+                  'application/json': {
+                    'success-example': {
+                      summary: 'Success response',
+                      value: {
+                        status: 'ok',
+                      },
+                    },
+                    'error-example': {
+                      summary: 'Error response',
+                      value: {
+                        status: 'error',
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '201': { description: 'Created' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/planets']?.post?.requestBody).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              status: { type: 'string' },
+            },
+          },
+          examples: {
+            'success-example': {
+              summary: 'Success response',
+              value: {
+                status: 'ok',
+              },
+            },
+            'error-example': {
+              summary: 'Error response',
+              value: {
+                status: 'error',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples with multiple MIME types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'API with multiple MIME types' },
+      paths: {
+        '/planets': {
+          post: {
+            consumes: ['application/json', 'application/xml'],
+            parameters: [
+              {
+                in: 'body',
+                name: 'body',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
+                },
+                'x-examples': {
+                  'application/json': {
+                    'earth-example': {
+                      summary: 'Earth planet',
+                      value: { name: 'Earth' },
+                    },
+                  },
+                  'application/xml': {
+                    'mars-example': {
+                      summary: 'Mars planet',
+                      value: { name: 'Mars' },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '201': { description: 'Created' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/planets']?.post?.requestBody).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          examples: {
+            'earth-example': {
+              summary: 'Earth planet',
+              value: { name: 'Earth' },
+            },
+          },
+        },
+        'application/xml': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          examples: {
+            'mars-example': {
+              summary: 'Mars planet',
+              value: { name: 'Mars' },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples on global body parameters', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'API with global x-examples' },
+      consumes: ['application/json'],
+      parameters: {
+        PlanetBody: {
+          in: 'body',
+          name: 'planet body',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          'x-examples': {
+            'application/json': {
+              'jupiter-example': {
+                summary: 'Jupiter planet',
+                value: { name: 'Jupiter' },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/planets': {
+          post: {
+            parameters: [
+              {
+                $ref: '#/parameters/PlanetBody',
+              },
+            ],
+            responses: {
+              '201': { description: 'Created' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.components?.requestBodies?.PlanetBody).toStrictEqual({
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          examples: {
+            'jupiter-example': {
+              summary: 'Jupiter planet',
+              value: { name: 'Jupiter' },
+            },
+          },
+        },
+      },
+    })
+  })
 })
