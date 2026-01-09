@@ -275,10 +275,10 @@ export const authorizeServers = async (
     formData.set('scope', scopes)
   }
 
-  /** Where to add the secrets */
-  const addSecretsToBody = flow['x-scalar-credentials-location'] === 'body'
+  /** Where to add the credentials */
+  const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
 
-  if (addSecretsToBody) {
+  if (addCredentialsToBody) {
     formData.set('client_id', flow['x-scalar-secret-client-id'])
     formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
@@ -323,7 +323,7 @@ export const authorizeServers = async (
     }
 
     // Add client id + secret to headers
-    if (!addSecretsToBody) {
+    if (!addCredentialsToBody) {
       headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
     }
 

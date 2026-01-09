@@ -274,7 +274,7 @@ const handleSecretLocationUpdate = (value: string): void =>
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <!-- Secret Location -->
+    <!-- Credentials Location -->
     <DataTableRow v-if="type !== 'implicit'">
       <RequestAuthDataTableInput
         :enum="['header', 'body']"
@@ -285,7 +285,7 @@ const handleSecretLocationUpdate = (value: string): void =>
         placeholder="header"
         readOnly
         @update:modelValue="(v) => handleSecretLocationUpdate(v)">
-        Secret Location
+        Credentials Location
       </RequestAuthDataTableInput>
     </DataTableRow>
 
