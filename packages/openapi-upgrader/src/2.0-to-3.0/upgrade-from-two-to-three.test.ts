@@ -1432,4 +1432,37 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it('ignores x-example when it contains a non-object value like a string', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example non-object test', version: '1.0' },
+      paths: {
+        '/test': {
+          get: {
+            parameters: [
+              {
+                in: 'header',
+                name: 'X-Custom-Header',
+                type: 'string',
+                required: false,
+                // This is an invalid x-example value (string instead of object)
+                // It should be ignored to avoid producing garbage output like { "0": { value: "h" }, "1": { value: "e" }, ... }
+                'x-example': 'hello',
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.get?.parameters?.[0] as OpenAPIV3.ParameterObject
+    // Should not have examples since x-example was not a valid object
+    expect(headerParameter.examples).toBeUndefined()
+    // x-example should still be removed
+    expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
+  })
 })
