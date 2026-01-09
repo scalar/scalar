@@ -311,6 +311,7 @@ export const updateSelectedScopes = (
     if (!flow) {
       return
     }
+    flow.scopes ||= {}
 
     flow.scopes[newScopePayload.name] = newScopePayload.description
     scheme[name] = [...scopes, newScopePayload.name]

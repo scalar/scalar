@@ -136,11 +136,11 @@ const addNewScopeModal = useModal()
               @click="setScope(id, !selectedScopes.includes(id))">
               <DataTableCell
                 class="hover:text-c-1 box-border !max-h-[initial] w-full cursor-pointer px-3 py-1.5">
-                <div v-if="description">
-                  <span class="font-code text-xs">{{ label }}</span>
-                  &ndash;
+                <span class="font-code text-xs">{{ label }}</span>
+                <span v-if="description">
+                  &nbsp; &ndash;
                   {{ description }}
-                </div>
+                </span>
               </DataTableCell>
               <DataTableCheckbox
                 :modelValue="selectedScopes.includes(id)"
@@ -153,6 +153,7 @@ const addNewScopeModal = useModal()
 
     <!-- Add new scope modal -->
     <OAuthScopesAddModal
+      :scopes="Object.keys(flow.scopes ?? {})"
       :state="addNewScopeModal"
       @submit="
         (payload) =>

@@ -6,8 +6,9 @@ import { ref, watch } from 'vue'
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
 import CommandActionInput from '@/components/CommandPalette/CommandActionInput.vue'
 
-const props = defineProps<{
+const { state, scopes } = defineProps<{
   state: ModalState
+  scopes: string[]
 }>()
 
 const emit = defineEmits<{
@@ -35,12 +36,12 @@ const handleSubmit = () => {
   }
 
   emit('submit', scopeData.value)
-  props.state.hide()
+  state.hide()
 }
 
 // Reset scope data
 watch(
-  () => props.state.open,
+  () => state.open,
   (isOpen) => {
     if (isOpen) {
       scopeData.value = {
@@ -58,7 +59,7 @@ watch(
     :state="state"
     title="Add Scope">
     <CommandActionForm
-      :disabled="!scopeData.name"
+      :disabled="!scopeData.name || scopes.includes(scopeData.name)"
       @cancel="emit('cancel')"
       @submit="handleSubmit">
       <!-- Name -->

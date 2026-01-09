@@ -66,7 +66,7 @@ type NonImplicitFlow =
 
 /** We filter selected scopes to only include scopes that are in this flow*/
 const selectedScopes = computed(() =>
-  selectedScopesProp.filter((scope) => scope in flow.value.scopes),
+  selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
 )
 
 /** Updates the flow  */
