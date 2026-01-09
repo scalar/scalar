@@ -3,6 +3,46 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
+type XExampleExtensions = {
+  xExample: Record<string, unknown> | undefined
+  xExamples: Record<string, unknown> | undefined
+}
+
+/** Extracts and removes x-example and x-examples extensions from an object */
+function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
+  const xExample = obj['x-example'] as Record<string, unknown> | undefined
+  const xExamples = obj['x-examples'] as Record<string, unknown> | undefined
+
+  delete obj['x-example']
+  delete obj['x-examples']
+
+  return { xExample, xExamples }
+}
+
+/** Checks if a value is a non-null object with at least one entry */
+function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && Object.keys(value).length > 0
+}
+
+/** Wraps a value as an ExampleObject, preserving existing structure if valid */
+function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
+  if (typeof value === 'object' && value !== null && 'value' in value) {
+    return value as OpenAPIV3.ExampleObject
+  }
+  return { value }
+}
+
+/** Transforms x-example entries to OpenAPI 3.x examples format */
+function transformXExampleToExamples(xExample: Record<string, unknown>): Record<string, OpenAPIV3.ExampleObject> {
+  return Object.entries(xExample).reduce(
+    (acc, [key, value]) => {
+      acc[key] = { value }
+      return acc
+    },
+    {} as Record<string, OpenAPIV3.ExampleObject>,
+  )
+}
+
 /** Update the flow names to OpenAPI 3.1.0 format */
 const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
   switch (flow) {
@@ -382,11 +422,7 @@ function transformParameterObject(
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
 
-  const xExample = (parameter as Record<string, unknown>)['x-example'] as Record<string, unknown> | undefined
-  const xExamples = (parameter as Record<string, unknown>)['x-examples'] as Record<string, unknown> | undefined
-
-  delete (parameter as Record<string, unknown>)['x-example']
-  delete (parameter as Record<string, unknown>)['x-examples']
+  const { xExample, xExamples } = extractXExampleExtensions(parameter as Record<string, unknown>)
 
   // Input:
   // x-example:
@@ -405,29 +441,12 @@ function transformParameterObject(
   //     value: 'OK'
 
   // We need to transform the x-example to an examples object and add "value" to the structure
-  if (xExample && typeof xExample === 'object' && Object.entries(xExample).length > 0) {
-    parameter.examples = Object.entries(xExample).reduce(
-      (acc, [key, value]) => {
-        acc[key] = {
-          value: value,
-        }
-
-        return acc
-      },
-      {} as Record<string, OpenAPIV3.ExampleObject>,
-    )
-  } else if (xExamples && typeof xExamples === 'object' && Object.entries(xExamples).length > 0) {
+  if (isNonEmptyObject(xExample)) {
+    parameter.examples = transformXExampleToExamples(xExample)
+  } else if (isNonEmptyObject(xExamples)) {
     parameter.examples = Object.entries(xExamples).reduce(
       (acc, [key, exampleValue]) => {
-        // If value already has a 'value' property (proper OpenAPI 3 example structure), use it directly
-        if (typeof exampleValue === 'object' && exampleValue !== null && 'value' in exampleValue) {
-          acc[key] = exampleValue as OpenAPIV3.ExampleObject
-        } else {
-          acc[key] = {
-            value: exampleValue,
-          }
-        }
-
+        acc[key] = wrapAsExampleObject(exampleValue)
         return acc
       },
       {} as Record<string, OpenAPIV3.ExampleObject>,
@@ -542,13 +561,10 @@ function migrateBodyParameter(
 ): OpenAPIV3.RequestBodyObject {
   // Extract x-example and x-examples before deleting other properties
   // @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-examples
-  const xExample = (bodyParameter as Record<string, unknown>)['x-example'] as Record<string, unknown> | undefined
-  const xExamples = (bodyParameter as Record<string, unknown>)['x-examples'] as Record<string, unknown> | undefined
+  const { xExample, xExamples } = extractXExampleExtensions(bodyParameter as Record<string, unknown>)
 
   delete bodyParameter.name
   delete bodyParameter.in
-  delete (bodyParameter as Record<string, unknown>)['x-example']
-  delete (bodyParameter as Record<string, unknown>)['x-examples']
 
   const { schema, ...requestBody } = bodyParameter
 
@@ -574,26 +590,18 @@ function migrateBodyParameter(
       if (xExamples && type in xExamples) {
         const examples = xExamples[type]
 
+        // Check if examples is already in proper OpenAPI 3.x format (object with entries that have 'value' property)
         const isExampleObject =
-          typeof examples === 'object' &&
-          examples !== null &&
-          // has entries
-          Object.entries(examples).length > 0 &&
-          // has 'value' property
+          isNonEmptyObject(examples) &&
           Object.values(examples).every(
-            (example) =>
-              typeof example === 'object' &&
-              example !== null &&
-              Object.entries(example).length > 0 &&
-              'value' in example,
+            (example) => typeof example === 'object' && example !== null && 'value' in example,
           )
+
         if (isExampleObject) {
           requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
         } else {
           requestBodyObject.content[type].examples = {
-            default: {
-              value: examples,
-            },
+            default: wrapAsExampleObject(examples),
           }
         }
       }
