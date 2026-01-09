@@ -11,7 +11,7 @@ public class PropertyOrderJsonConverterTests
         const PropertyOrder orderBy = PropertyOrder.Alpha;
 
         // Act
-        var json = JsonSerializer.Serialize(orderBy);
+        var json = JsonSerializer.Serialize(orderBy, typeof(PropertyOrder), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"alpha\"");

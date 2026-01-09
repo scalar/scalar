@@ -11,7 +11,7 @@ public class ScalarTargetJsonConverterTests
         const ScalarTarget scalarTarget = ScalarTarget.CSharp;
 
         // Act
-        var json = JsonSerializer.Serialize(scalarTarget);
+        var json = JsonSerializer.Serialize(scalarTarget, typeof(ScalarTarget), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"csharp\"");

@@ -11,7 +11,7 @@ public class OperationTitleSourceJsonConverterTests
         const OperationTitleSource operationTitleSource = OperationTitleSource.Summary;
 
         // Act
-        var json = JsonSerializer.Serialize(operationTitleSource);
+        var json = JsonSerializer.Serialize(operationTitleSource, typeof(OperationTitleSource), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"summary\"");
