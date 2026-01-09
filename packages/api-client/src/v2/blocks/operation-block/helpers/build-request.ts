@@ -133,7 +133,12 @@ export const buildRequest = ({
 
     /** Build the js request object */
     const request = new Request(proxiedUrl, {
-      method,
+      /**
+       * Ensure that all methods are uppercased (though only needed for patch)
+       *
+       * @see https://github.com/whatwg/fetch/issues/50
+       */
+      method: method.toUpperCase(),
       headers,
       signal: controller.signal,
       body,
