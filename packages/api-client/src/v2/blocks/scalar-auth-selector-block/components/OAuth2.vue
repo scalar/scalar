@@ -4,6 +4,7 @@ import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
 import type { OAuthFlowAuthorizationCode } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
@@ -47,7 +48,9 @@ const { toast } = useToasts()
 const flow = computed(() => flows[type]!)
 
 /** Updates the flow  */
-const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
+const handleOauth2Update = (
+  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
+): void =>
   emits('update:securityScheme', {
     type: 'oauth2',
     flows: {
@@ -60,7 +63,11 @@ watch(
   () =>
     (flow.value as OAuthFlowAuthorizationCode)['x-scalar-secret-redirect-uri'],
   (newRedirectUri) => {
-    if (newRedirectUri || typeof window === 'undefined') {
+    if (
+      newRedirectUri ||
+      typeof window === 'undefined' ||
+      !('x-scalar-secret-redirect-uri' in flow.value)
+    ) {
       return
     }
     handleOauth2Update({
@@ -99,6 +106,12 @@ const handleAuthorize = async (): Promise<void> => {
     toast(error?.message ?? 'Failed to authorize', 'error')
   }
 }
+
+/** Updates the secret location */
+const handleSecretLocationUpdate = (value: string): void =>
+  handleOauth2Update({
+    'x-scalar-credentials-location': value === 'body' ? 'body' : 'header',
+  })
 </script>
 
 <template>
@@ -236,6 +249,19 @@ const handleAuthorize = async (): Promise<void> => {
             })
         ">
         Use PKCE
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <!-- Secret Location -->
+    <DataTableRow v-if="type !== 'implicit'">
+      <RequestAuthDataTableInput
+        :enum="['header', 'body']"
+        :environment
+        :modelValue="flow['x-scalar-credentials-location'] || 'header'"
+        placeholder="header"
+        readOnly
+        @update:modelValue="(v) => handleSecretLocationUpdate(v)">
+        Secret Location
       </RequestAuthDataTableInput>
     </DataTableRow>
 
