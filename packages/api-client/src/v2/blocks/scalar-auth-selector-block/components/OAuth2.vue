@@ -6,7 +6,11 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
-import type { OAuthFlowAuthorizationCode } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowPassword,
+} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
   OAuthFlow,
   OAuthFlowsObject,
@@ -20,15 +24,21 @@ import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { environment, flows, type, selectedScopes, server, proxyUrl } =
-  defineProps<{
-    environment: XScalarEnvironment
-    flows: OAuthFlowsObject
-    type: keyof OAuthFlowsObject
-    selectedScopes: string[]
-    server: ServerObject | null
-    proxyUrl: string
-  }>()
+const {
+  environment,
+  flows,
+  type,
+  selectedScopes: selectedScopesProp,
+  server,
+  proxyUrl,
+} = defineProps<{
+  environment: XScalarEnvironment
+  flows: OAuthFlowsObject
+  type: keyof OAuthFlowsObject
+  selectedScopes: string[]
+  server: ServerObject | null
+  proxyUrl: string
+}>()
 
 const emits = defineEmits<{
   (
@@ -37,7 +47,10 @@ const emits = defineEmits<{
   ): void
   (
     e: 'update:selectedScopes',
-    payload: Pick<ApiReferenceEvents['auth:update:selected-scopes'], 'scopes'>,
+    payload: Pick<
+      ApiReferenceEvents['auth:update:selected-scopes'],
+      'scopes' | 'newScopePayload'
+    >,
   ): void
 }>()
 
@@ -46,6 +59,15 @@ const { toast } = useToasts()
 
 /** The current OAuth flow based on the selected type */
 const flow = computed(() => flows[type]!)
+type NonImplicitFlow =
+  | OAuthFlowPassword
+  | OAuthFlowClientCredentials
+  | OAuthFlowAuthorizationCode
+
+/** We filter selected scopes to only include scopes that are in this flow*/
+const selectedScopes = computed(() =>
+  selectedScopesProp.filter((scope) => scope in flow.value.scopes),
+)
 
 /** Updates the flow  */
 const handleOauth2Update = (
@@ -92,7 +114,7 @@ const handleAuthorize = async (): Promise<void> => {
   const [error, accessToken] = await authorizeOauth2(
     flows,
     type,
-    selectedScopes,
+    selectedScopes.value,
     server,
     proxyUrl,
   )
@@ -257,7 +279,9 @@ const handleSecretLocationUpdate = (value: string): void =>
       <RequestAuthDataTableInput
         :enum="['header', 'body']"
         :environment
-        :modelValue="flow['x-scalar-credentials-location'] || 'header'"
+        :modelValue="
+          (flow as NonImplicitFlow)['x-scalar-credentials-location'] || 'header'
+        "
         placeholder="header"
         readOnly
         @update:modelValue="(v) => handleSecretLocationUpdate(v)">
@@ -265,9 +289,11 @@ const handleSecretLocationUpdate = (value: string): void =>
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
+    <!-- Scopes -->
+    <DataTableRow>
       <OAuthScopesInput
         :flow
+        :flowType="type"
         :selectedScopes
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)" />
     </DataTableRow>

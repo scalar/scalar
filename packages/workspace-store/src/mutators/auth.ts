@@ -7,6 +7,7 @@ import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-secu
 import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
  * AuthMeta defines the meta information needed to specify whether the authentication operation
@@ -236,13 +237,14 @@ export const updateSelectedAuthTab = (
 
 /**
  * Updates the scopes for a specific security requirement in the selected security schemes of
- * a document or operation.
+ * a document or operation. Also allow to add a new scope to the scheme.
  *
  * @param document - The OpenAPI WorkspaceDocument to update.
  * @param id - An array of scheme names that uniquely identifies the target security requirement.
  *             For example: ['OAuth', 'ApiKeyAuth']
  * @param name - The security scheme name to update scopes for (e.g., 'OAuth').
  * @param scopes - The new list of scopes to set. For example: ['read:pets', 'write:pets']
+ * @param newScopePayload - The payload to add a new scope with
  * @param meta - The context specifying whether the update is at the document-level or operation-level.
  *
  * Example usage:
@@ -268,7 +270,7 @@ export const updateSelectedAuthTab = (
  */
 export const updateSelectedScopes = (
   document: WorkspaceDocument | null,
-  { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
+  { id, name, scopes, newScopePayload, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
   if (!document) {
     return
@@ -283,14 +285,12 @@ export const updateSelectedScopes = (
   }
 
   const target = getTarget()
-
   if (!target) {
     return
   }
 
   // Array of security requirement objects under x-scalar-selected-security
   const selectedSchemes = target['x-scalar-selected-security']?.selectedSchemes
-
   if (!selectedSchemes) {
     return
   }
@@ -301,6 +301,19 @@ export const updateSelectedScopes = (
 
   // If the scheme is optional, do nothing as it cannot have scopes
   if (!isNonOptionalSecurityRequirement(scheme)) {
+    return
+  }
+
+  // If we have a new scope payload, add it to the scheme
+  if (newScopePayload) {
+    const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
+    const flow = (securityScheme as OAuth2Object)?.flows?.[newScopePayload?.flowType]
+    if (!flow) {
+      return
+    }
+
+    flow.scopes[newScopePayload.name] = newScopePayload.description
+    scheme[name] = [...scopes, newScopePayload.name]
     return
   }
 

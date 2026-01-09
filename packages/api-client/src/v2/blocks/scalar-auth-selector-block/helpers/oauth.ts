@@ -6,7 +6,7 @@ import { encode, fromUint8Array } from 'js-base64'
 import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
-type NonImplicitFlow = Omit<OAuthFlowsObject, 'implicit'>
+type NonImplicitFlows = Omit<OAuthFlowsObject, 'implicit'>
 
 type PKCEState = {
   codeVerifier: string
@@ -248,8 +248,8 @@ export const authorizeOauth2 = async (
  * Used for clientCredentials and authorizationCode
  */
 export const authorizeServers = async (
-  flows: NonImplicitFlow,
-  type: keyof NonImplicitFlow,
+  flows: NonImplicitFlows,
+  type: keyof NonImplicitFlows,
   scopes: string,
   {
     code,

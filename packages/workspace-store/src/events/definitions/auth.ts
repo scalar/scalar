@@ -1,7 +1,11 @@
 import type { PartialDeep } from 'type-fest'
 
 import type { AuthMeta } from '@/mutators/auth'
-import type { SecurityRequirementObject, SecuritySchemeObject } from '@/schemas/v3.1/strict/openapi-document'
+import type {
+  OAuthFlowsObject,
+  SecurityRequirementObject,
+  SecuritySchemeObject,
+} from '@/schemas/v3.1/strict/openapi-document'
 import type { ApiKeyObject, HttpObject, OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
@@ -78,6 +82,12 @@ export type AuthEvents = {
     name: string
     /** The scopes to update the selected scopes with */
     scopes: string[]
+    /** We can add a new scope as well then select it */
+    newScopePayload?: {
+      name: string
+      description: string
+      flowType: keyof OAuthFlowsObject
+    }
     /** Meta information for the auth update */
     meta: AuthMeta
   }

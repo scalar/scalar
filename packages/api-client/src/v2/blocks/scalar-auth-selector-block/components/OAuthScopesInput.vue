@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
-import type { OAuthFlow } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { ScalarButton, ScalarIcon, useModal } from '@scalar/components'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type {
+  OAuthFlow,
+  OAuthFlowsObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import {
@@ -10,13 +14,22 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 
-const { selectedScopes, flow } = defineProps<{
+import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
+
+const { selectedScopes, flow, flowType } = defineProps<{
+  flowType: keyof OAuthFlowsObject
   flow: OAuthFlow
   selectedScopes: string[]
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:selectedScopes', payload: { scopes: string[] }): void
+  (
+    e: 'update:selectedScopes',
+    payload: Pick<
+      ApiReferenceEvents['auth:update:selected-scopes'],
+      'scopes' | 'newScopePayload'
+    >,
+  ): void
 }>()
 
 /** List of all available scopes */
@@ -46,15 +59,14 @@ function setScope(scopeKey: string, checked: boolean) {
   })
 }
 
-// Select all scopes
-const selectAllScopes = () => {
+/** Select all scopes */
+const selectAllScopes = () =>
   emits('update:selectedScopes', { scopes: Object.keys(flow?.scopes ?? {}) })
-}
 
-// Deselect all scopes
-const deselectAllScopes = () => {
-  emits('update:selectedScopes', { scopes: [] })
-}
+/** Deselect all scopes */
+const deselectAllScopes = () => emits('update:selectedScopes', { scopes: [] })
+
+const addNewScopeModal = useModal()
 </script>
 
 <template>
@@ -76,6 +88,15 @@ const deselectAllScopes = () => {
             {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
           </div>
           <div class="flex items-center gap-1.75">
+            <!-- Add new scope -->
+            <ScalarButton
+              class="pr-0.75 pl-1 transition-none"
+              size="sm"
+              variant="ghost"
+              @click.stop="addNewScopeModal.show()">
+              Add Scope
+            </ScalarButton>
+
             <!-- Deselect All -->
             <ScalarButton
               v-if="allScopesSelected"
@@ -102,6 +123,8 @@ const deselectAllScopes = () => {
               size="md" />
           </div>
         </DisclosureButton>
+
+        <!-- Scopes List -->
         <DisclosurePanel as="template">
           <table
             class="grid auto-rows-auto"
@@ -127,5 +150,16 @@ const deselectAllScopes = () => {
         </DisclosurePanel>
       </Disclosure>
     </div>
+
+    <!-- Add new scope modal -->
+    <OAuthScopesAddModal
+      :state="addNewScopeModal"
+      @submit="
+        (payload) =>
+          emits('update:selectedScopes', {
+            scopes: selectedScopes,
+            newScopePayload: { ...payload, flowType },
+          })
+      " />
   </DataTableCell>
 </template>
