@@ -9,11 +9,13 @@ import {
 } from '@scalar/components'
 import { computed, nextTick, ref, watch } from 'vue'
 
+import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'
+
 const props = withDefaults(
   defineProps<{
-    modelValue: string | number | boolean
+    modelValue: CodeInputModelValue
     value?: string[]
-    default?: string | number | boolean | undefined
+    default?: CodeInputModelValue | undefined
     canAddCustomValue?: boolean
     type?: string | undefined
   }>(),

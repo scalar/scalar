@@ -1,3 +1,37 @@
+<script lang="ts">
+export type CodeInputModelValue =
+  | string
+  | number
+  | boolean
+  | Array<string | number | boolean>
+
+/**
+ * CodeInput
+ *
+ * A versatile input component that adapts its rendering based on props:
+ * - Disabled mode: Read-only text display
+ * - Select mode: Dropdown for enums, booleans, or examples
+ * - Editor mode: CodeMirror with environment variable support
+ *
+ * Type `{{` to trigger environment variable autocomplete when an environment is provided.
+ *d
+ * @example
+ * ```vue
+ * <!-- Basic input with environment variables -->
+ * <CodeInput v-model="value" :environment="env" />
+ *
+ * <!-- Boolean select -->
+ * <CodeInput v-model="flag" type="boolean" />
+ *
+ * <!-- JSON editor with linting -->
+ * <CodeInput v-model="data" language="json" :lint="true" />
+ * ```
+ */
+export default {
+  inheritAttrs: false,
+}
+</script>
+
 <script setup lang="ts">
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
@@ -24,7 +58,7 @@ import { backspaceCommand, pillPlugin } from './code-variable-widget'
  * - A CodeMirror editor with environment variable support
  */
 type Props = {
-  modelValue: string | number | boolean
+  modelValue: CodeInputModelValue
   /** Environment for variable substitution. Pass undefined to disable environment variables */
   environment: XScalarEnvironment | undefined
   /** Type of the input value, affects rendering mode for booleans */
@@ -179,7 +213,7 @@ const handleChange = (value: string): void => {
         changes: {
           from: 0,
           to: codeMirror.value.state.doc.length,
-          insert: String(modelValue),
+          insert: serializeValue(modelValue),
         },
       })
     }
@@ -263,10 +297,43 @@ const codeMirrorExtensions = computed((): Extension[] => [
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
+/**
+ * Converts the model value to a string for CodeMirror.
+ * Arrays are serialized to JSON format.
+ */
+const serializeValue = (value: CodeInputModelValue): string => {
+  if (Array.isArray(value)) {
+    return JSON.stringify(value)
+  }
+  return String(value ?? '')
+}
+
+/**
+ * Parses the CodeMirror string value back to the appropriate type.
+ * Attempts to parse JSON arrays, falls back to string.
+ */
+const deserializeValue = (value: string): string => {
+  // Try to parse as JSON array if it looks like one
+  if (value.trim().startsWith('[') && value.trim().endsWith(']')) {
+    try {
+      const parsed = JSON.parse(value)
+
+      // Return the JSON string representation
+      if (Array.isArray(parsed)) {
+        return value
+      }
+    } catch {
+      // Not valid JSON, treat as string
+      return value
+    }
+  }
+  return value
+}
+
 const { codeMirror } = useCodeMirror({
-  content: toRef(() => String(modelValue ?? '')),
+  content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
-    handleChange(value)
+    handleChange(deserializeValue(value))
     updateDropdownVisibility()
   },
   onFocus: () => {
@@ -394,12 +461,7 @@ defineExpose({
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
 })
 </script>
-<script lang="ts">
-// use normal <script> to declare options
-export default {
-  inheritAttrs: false,
-}
-</script>
+
 <template>
   <!-- Disabled mode: read-only text display -->
   <div
