@@ -382,6 +382,58 @@ function transformParameterObject(
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
 
+  const xExample = (parameter as Record<string, unknown>)['x-example'] as Record<string, unknown> | undefined
+  const xExamples = (parameter as Record<string, unknown>)['x-examples'] as Record<string, unknown> | undefined
+
+  delete (parameter as Record<string, unknown>)['x-example']
+  delete (parameter as Record<string, unknown>)['x-examples']
+
+  // Input:
+  // x-example:
+  //   application/json:
+  //     message: OK
+  //     type: success
+  //   text/plain: 'OK'
+
+  // Output:
+  // examples:
+  //   application/json:
+  //     value:
+  //       message: OK
+  //       type: success
+  //   text/plain:
+  //     value: 'OK'
+
+  // We need to transform the x-example to an examples object and add "value" to the structure
+  if (xExample) {
+    parameter.examples = Object.entries(xExample).reduce(
+      (acc, [key, value]) => {
+        acc[key] = {
+          value: value,
+        }
+
+        return acc
+      },
+      {} as Record<string, OpenAPIV3.ExampleObject>,
+    )
+  } else if (xExamples && typeof xExamples === 'object' && Object.entries(xExamples).length > 0) {
+    parameter.examples = Object.entries(xExamples).reduce(
+      (acc, [key, exampleValue]) => {
+        // If value already has a 'value' property (proper OpenAPI 3 example structure), use it directly
+        if (typeof exampleValue === 'object' && exampleValue !== null && 'value' in exampleValue) {
+          acc[key] = exampleValue as OpenAPIV3.ExampleObject
+        } else {
+          acc[key] = {
+            value: exampleValue,
+          }
+        }
+
+        return acc
+      },
+      {} as Record<string, OpenAPIV3.ExampleObject>,
+    )
+  }
+
   delete parameter.collectionFormat
   delete parameter.default
 
@@ -489,6 +541,7 @@ function migrateBodyParameter(
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
   // Extract x-example and x-examples before deleting other properties
+  // @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-examples
   const xExample = (bodyParameter as Record<string, unknown>)['x-example'] as Record<string, unknown> | undefined
   const xExamples = (bodyParameter as Record<string, unknown>)['x-examples'] as Record<string, unknown> | undefined
 
@@ -519,11 +572,29 @@ function migrateBodyParameter(
       // Handle x-examples (plural) - Redocly extension for Swagger 2.0
       // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
       if (xExamples && type in xExamples) {
-        // Direct value
-        requestBodyObject.content[type].examples = {
-          default: {
-            value: xExamples[type],
-          },
+        const examples = xExamples[type]
+
+        const isExampleObject =
+          typeof examples === 'object' &&
+          examples !== null &&
+          // has entries
+          Object.entries(examples).length > 0 &&
+          // has 'value' property
+          Object.values(examples).every(
+            (example) =>
+              typeof example === 'object' &&
+              example !== null &&
+              Object.entries(example).length > 0 &&
+              'value' in example,
+          )
+        if (isExampleObject) {
+          requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
+        } else {
+          requestBodyObject.content[type].examples = {
+            default: {
+              value: examples,
+            },
+          }
         }
       }
     }
