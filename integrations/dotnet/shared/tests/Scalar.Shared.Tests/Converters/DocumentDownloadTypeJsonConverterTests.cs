@@ -11,7 +11,7 @@ public class DocumentDownloadTypeJsonConverterTests
         const DocumentDownloadType downloadType = DocumentDownloadType.Json;
 
         // Act
-        var json = JsonSerializer.Serialize(downloadType);
+        var json = JsonSerializer.Serialize(downloadType, typeof(DocumentDownloadType), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"json\"");

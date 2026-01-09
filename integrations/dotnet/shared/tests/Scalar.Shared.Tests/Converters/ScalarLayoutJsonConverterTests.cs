@@ -11,7 +11,7 @@ public class ScalarLayoutJsonConverterTests
         const ScalarLayout scalarLayout = ScalarLayout.Modern;
 
         // Act
-        var json = JsonSerializer.Serialize(scalarLayout);
+        var json = JsonSerializer.Serialize(scalarLayout, typeof(ScalarLayout), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"modern\"");

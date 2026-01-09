@@ -11,7 +11,7 @@ public class TagSorterJsonConverterTests
         const TagSorter tagSorter = TagSorter.Alpha;
 
         // Act
-        var json = JsonSerializer.Serialize(tagSorter);
+        var json = JsonSerializer.Serialize(tagSorter, typeof(TagSorter), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"alpha\"");

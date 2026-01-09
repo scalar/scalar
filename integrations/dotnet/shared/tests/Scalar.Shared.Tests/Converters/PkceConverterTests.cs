@@ -11,7 +11,7 @@ public class PkceConverterTests
         const Pkce pkce = Pkce.Sha256;
 
         // Act
-        var json = JsonSerializer.Serialize(pkce);
+        var json = JsonSerializer.Serialize(pkce, typeof(Pkce), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"SHA-256\"");
