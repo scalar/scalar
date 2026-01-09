@@ -5,6 +5,7 @@ import {
   ScalarModal,
   ScalarSidebarItem,
   useModal,
+  type ScalarListboxOption,
 } from '@scalar/components'
 import {
   ScalarIconDotsThree,
@@ -24,46 +25,46 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { sidebarState, layout, activeWorkspace, store, eventBus } = defineProps<{
-  /**
-   * The current layout of the app (e.g., 'desktop', 'web')
-   */
-  layout: ClientLayout
+const { sidebarState, layout, activeWorkspace, workspaces, store, eventBus } =
+  defineProps<{
+    /**
+     * The current layout of the app (e.g., 'desktop', 'web')
+     */
+    layout: ClientLayout
 
-  /**
-   * The sidebar state, holding navigation items and state
-   */
-  sidebarState: SidebarState<TraversedEntry>
+    /**
+     * The sidebar state, holding navigation items and state
+     */
+    sidebarState: SidebarState<TraversedEntry>
 
-  /**
-   * Whether the workspace overview sidebar is currently open
-   */
-  isWorkspaceOpen?: boolean
-  /**
-   * The currently active workspace.
-   * This represents the workspace that the user is currently working in.
-   */
-  activeWorkspace: Workspace
-  /**
-   * The list of all available workspaces.
-   * Used to render options for workspace switching and selection.
-   */
-  workspaces: Workspace[]
-  /**
-   * The workspace event bus for handling workspace-level events.
-   * Used for triggering and responding to workspace changes and actions.
-   */
-  eventBus: WorkspaceEventBus
-  /**
-   * The WorkspaceStore instance for managing workspace state and actions.
-   * Provides methods and state for interacting with the current workspace.
-   */
-  store: WorkspaceStore
-}>()
+    /**
+     * Whether the workspace overview sidebar is currently open
+     */
+    isWorkspaceOpen?: boolean
+    /**
+     * The currently active workspace.
+     * This represents the workspace that the user is currently working in.
+     */
+    activeWorkspace: { id: string; label: string }
+    /**
+     * The list of all available workspaces.
+     * Used to render options for workspace switching and selection.
+     */
+    workspaces: ScalarListboxOption[]
+    /**
+     * The workspace event bus for handling workspace-level events.
+     * Used for triggering and responding to workspace changes and actions.
+     */
+    eventBus: WorkspaceEventBus
+    /**
+     * The WorkspaceStore instance for managing workspace state and actions.
+     * Provides methods and state for interacting with the current workspace.
+     */
+    store: WorkspaceStore
+  }>()
 
 const emit = defineEmits<{
   /** Emitted when the workspace button in the sidebar is clicked */
@@ -77,7 +78,7 @@ const emit = defineEmits<{
 }>()
 
 /** The label for the workspace button in the sidebar */
-const workspaceLabel = computed(() => capitalize(activeWorkspace.name))
+const workspaceLabel = computed(() => capitalize(activeWorkspace.label))
 
 /** Controls the visibility of the sidebar */
 const isSidebarOpen = defineModel<boolean>('isSidebarOpen', {
@@ -280,16 +281,16 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       <!-- Decorator dropdown menu -->
       <template #decorator="{ item }">
         <ScalarIconButton
+          aria-expanded="false"
+          aria-haspopup="menu"
           :icon="ScalarIconDotsThree"
           label="More options"
           size="sm"
           weight="bold"
-          aria-haspopup="menu"
-          aria-expanded="false"
           @click.stop="(e: MouseEvent) => openMenu(e, item)"
+          @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
           @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
           @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
           @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
       </template>
 

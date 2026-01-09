@@ -9,22 +9,19 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
-import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 
 const { activeWorkspace, workspaces } = defineProps<{
   /**
    * The currently active workspace.
    * This represents the workspace that the user is currently working in.
    */
-  activeWorkspace: Workspace
+  activeWorkspace: { id: string }
   /**
    * The list of all available workspaces.
    * Used to render options for workspace switching and selection.
    */
-  workspaces: Workspace[]
+  workspaces: ScalarListboxOption[]
 }>()
 
 const emit = defineEmits<{
@@ -33,13 +30,6 @@ const emit = defineEmits<{
   /** Emitted when the user selects a workspace */
   (e: 'select:workspace', id?: string): void
 }>()
-
-const workspaceOptions = computed<ScalarListboxOption[]>(() =>
-  workspaces.map((ws) => ({
-    label: ws.name,
-    id: ws.id,
-  })),
-)
 </script>
 <template>
   <!-- Desktop app menu -->
@@ -52,7 +42,7 @@ const workspaceOptions = computed<ScalarListboxOption[]>(() =>
         <template #title>Team</template>
         <ScalarMenuWorkspacePicker
           :modelValue="activeWorkspace.id"
-          :workspaceOptions="workspaceOptions"
+          :workspaceOptions="workspaces"
           @createWorkspace="emit('create:workspace')"
           @update:modelValue="(value) => emit('select:workspace', value)" />
 

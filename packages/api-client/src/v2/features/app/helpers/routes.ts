@@ -6,7 +6,6 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
 import Environment from '@/v2/features/collection/components/Environment.vue'
@@ -32,7 +31,7 @@ export type RouteProps = {
   environment: XScalarEnvironment
   securitySchemes: MergedSecuritySchemes
   workspaceStore: WorkspaceStore
-  activeWorkspace: Workspace
+  activeWorkspace: { id: string; label: string }
   plugins: ClientPlugin[]
   // workspaceSlug: string
   // documentSlug?: string
@@ -50,6 +49,8 @@ export type CollectionProps = RouteProps &
         document: null
       }
   )
+
+export type ScalarClientAppRouteParams = 'workspaceSlug' | 'documentSlug' | 'pathEncoded' | 'method' | 'exampleName'
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [

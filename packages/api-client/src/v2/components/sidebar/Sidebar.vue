@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
   ScalarSidebar,
@@ -13,7 +13,6 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { SearchButton } from '@/v2/features/search'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -25,9 +24,9 @@ const { sidebarState, layout } = defineProps<{
   /** Layout for the client */
   layout: ClientLayout
   /** The currently active workspace */
-  activeWorkspace: Workspace
+  activeWorkspace: { id: string }
   /** The list of all available workspaces */
-  workspaces: Workspace[]
+  workspaces: ScalarListboxOption[]
   /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
   /** The documents belonging to the workspace */

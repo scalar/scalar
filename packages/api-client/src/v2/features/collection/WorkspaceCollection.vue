@@ -24,13 +24,13 @@ const props = defineProps<RouteProps>()
     <div class="w-full md:mx-auto md:max-w-[720px]">
       <!-- Header -->
       <div
-        :aria-label="`title: ${activeWorkspace.name}`"
+        :aria-label="`title: ${activeWorkspace.label}`"
         class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
         <ScalarIconGlobe class="text-c-2 size-6" />
 
         <div class="group relative ml-1.25">
           <span class="text-c-1 flex h-8 items-center">
-            {{ activeWorkspace.name }}
+            {{ activeWorkspace.label }}
           </span>
         </div>
       </div>

@@ -205,6 +205,13 @@ export type UIEvents = {
   'copy-url:nav-item': NavigationItemPayload
 
   /**
+   * Used by the api-client to copy the URL for the given tab index.
+   */
+  'tabs:copy:url': {
+    /** The index of the tab to copy the URL for */
+    index: number
+  }
+  /**
    * Route to a page
    * We cannot have any routing in any components used by the modal so we use this event to route to a page
    */

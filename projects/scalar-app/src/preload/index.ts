@@ -1,30 +1,30 @@
-import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron/renderer'
 
-// Custom APIs for renderer
-const api = {
-  openFile: () => ipcRenderer.invoke('openFile'),
-  readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
+/**
+ * Type guard for exposing values in the renderer process
+ * WARNING: This does not handle missing assignments. Ensure that all exposed APIs are defined.
+ */
+const exposeInRenderer = <K extends keyof Window & string>(key: K, value: Window[K]) => {
+  contextBridge.exposeInMainWorld(key, value)
 }
 
-declare global {
-  interface Window {
-    electron: typeof electronAPI
-    api: typeof api
-  }
-}
+try {
+  const platform = process.platform
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  window.electron = electronAPI
-  window.api = api
+  exposeInRenderer('api', {
+    openFilePicker: async () => {
+      await ipcRenderer.invoke('openFilePicker')
+    },
+    readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
+  })
+  exposeInRenderer('electron', true satisfies Window['electron'])
+  exposeInRenderer('ipc', {
+    addEventListener: (event, callback) => ipcRenderer.on(event, (_, params) => callback(params)),
+  })
+  exposeInRenderer(
+    'os',
+    platform === 'darwin' ? 'mac' : platform === 'win32' ? 'windows' : platform === 'linux' ? 'linux' : 'unknown',
+  )
+} catch (error) {
+  console.error(error)
 }

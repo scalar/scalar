@@ -8,8 +8,9 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import type { ScalarListboxOption } from '@scalar/components'
+
 import { SidebarMenu } from '@/v2/components/sidebar'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 
 import DownloadAppButton from './DownloadAppButton.vue'
 
@@ -18,12 +19,12 @@ defineProps<{
    * The currently active workspace.
    * This represents the workspace that the user is currently working in.
    */
-  activeWorkspace: Workspace
+  activeWorkspace: { id: string }
   /**
    * The list of all available workspaces.
    * Used to render options for workspace switching and selection.
    */
-  workspaces: Workspace[]
+  workspaces: ScalarListboxOption[]
 }>()
 
 const emit = defineEmits<{

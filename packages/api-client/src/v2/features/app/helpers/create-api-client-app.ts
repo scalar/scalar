@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 import App from '@/v2/features/app/App.vue'
+import { useAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -41,7 +42,11 @@ export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop',
   const app = createApp(App, { layout, plugins })
 
   // Add the router
-  app.use(createAppRouter(layout))
+  const router = createAppRouter(layout)
+  const state = useAppState()
+  state.router.value = router
+
+  app.use(router)
 
   // Mount the vue app
   if (!el) {
@@ -54,4 +59,9 @@ export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop',
     return
   }
   app.mount(el)
+
+  return {
+    app,
+    state,
+  }
 }

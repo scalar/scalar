@@ -37,6 +37,7 @@ import {
   addScalarClassesToHeadless,
   ScalarTeleportRoot,
   type ModalState,
+  type ScalarListboxOption,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -60,7 +61,6 @@ import {
 
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
@@ -89,8 +89,8 @@ if (typeof window !== 'undefined') {
 /** Initialize color mode to ensure it is set on mount. */
 useColorMode({ workspaceStore })
 
-const activeWorkspace: Workspace = {
-  name: 'default',
+const activeWorkspace: ScalarListboxOption = {
+  label: 'default',
   id: 'default',
 }
 
