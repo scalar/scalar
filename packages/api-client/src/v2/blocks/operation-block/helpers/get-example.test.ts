@@ -304,4 +304,29 @@ describe('getExampleValue', () => {
     const result = getExample(param, '', undefined)
     expect(result?.value).toEqual('large')
   })
+
+  it('returns value from examples for array parameter', () => {
+    const param = {
+      name: 'domains',
+      in: 'query',
+      required: true,
+      examples: {
+        list: {
+          summary: 'A list of domains',
+          value: ['example.com', 'example.org'],
+          'x-disabled': false,
+        },
+      },
+      schema: {
+        type: 'array',
+        title: 'Domains',
+        items: {
+          type: 'string',
+        },
+      },
+    } satisfies ParameterObject
+
+    const result = getExample(param, 'list', undefined)
+    expect(result?.value).toEqual(['example.com', 'example.org'])
+  })
 })
