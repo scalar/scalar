@@ -260,7 +260,7 @@
           "to": "/products/api-references/markdown"
         },
         {
-          "from": "/scalar/scalar-api-references/integrations/html-js",
+          "from": "/scalar/scalar-api-references/integrations/htmljs",
           "to": "/products/api-references/integrations/html-js"
         },
         {
