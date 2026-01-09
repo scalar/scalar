@@ -405,7 +405,7 @@ function transformParameterObject(
   //     value: 'OK'
 
   // We need to transform the x-example to an examples object and add "value" to the structure
-  if (xExample) {
+  if (xExample && typeof xExample === 'object' && Object.entries(xExample).length > 0) {
     parameter.examples = Object.entries(xExample).reduce(
       (acc, [key, value]) => {
         acc[key] = {
