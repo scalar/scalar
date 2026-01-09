@@ -24,9 +24,9 @@ if (window.electron) {
   if (!el) {
     console.error('Missing base element to mount to. Exiting...')
   } else {
-    const { state } = createApiClientApp(el, { layout: 'desktop' })
+    const app = createApiClientApp(el, { layout: 'desktop' })
     // // Hook into the router
-    state.router.afterEach((route) => {
+    app?.state.router.value?.afterEach((route) => {
       if (typeof route.name !== 'string') {
         return
       }
