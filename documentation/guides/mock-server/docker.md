@@ -1,5 +1,11 @@
 # Docker
 
+<div class="flex gap-2">
+<a href="https://hub.docker.com/r/scalarapi/mock-server"><img src="https://img.shields.io/docker/v/scalarapi/mock-server?label=Docker%20image"></a>
+<a href="https://hub.docker.com/r/scalarapi/mock-server"><img src="https://img.shields.io/docker/pulls/scalarapi/mock-server?label=Docker%20pulls"></a>
+<a href="https://discord.gg/scalar"><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+</div>
+
 Run the Scalar Mock Server in a Docker container.
 
 ## Quick Start
@@ -146,10 +152,10 @@ services:
 
 ## Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `OPENAPI_DOCUMENT` | OpenAPI document content (JSON or YAML string) | No* | - |
-| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from | No* | - |
+| Variable               | Description                                    | Required | Default |
+| ---------------------- | ---------------------------------------------- | -------- | ------- |
+| `OPENAPI_DOCUMENT`     | OpenAPI document content (JSON or YAML string) | No*      | -       |
+| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from             | No*      | -       |
 
 \* At least one method (command-line argument, environment variable, or volume mount) must be provided.
 
