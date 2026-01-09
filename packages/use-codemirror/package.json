@@ -70,6 +70,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
+    "jsdom": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"
