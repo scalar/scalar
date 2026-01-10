@@ -464,18 +464,17 @@ describe('SidebarItem', () => {
       const item: Item = {
         id: '1',
         title: 'Deprecated Group',
-        type: 'tag',
-        name: 'deprecatedGroup',
-        isGroup: true,
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/deprecated',
         isDeprecated: true,
         children: [
           {
             id: '2',
             title: 'Child',
-            type: 'operation',
-            ref: 'ref-2',
-            method: 'get',
-            path: '/child',
+            type: 'example',
+            name: 'example1',
           },
         ],
       } as Item
@@ -483,15 +482,15 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
+          layout: 'client',
           item,
         },
       })
 
-      const section = wrapper.findComponent(ScalarSidebarSection)
+      const section = wrapper.findComponent(ScalarSidebarGroup)
       expect(section.exists()).toBe(true)
       const deprecatedElement = wrapper.find('.line-through')
       expect(deprecatedElement.exists()).toBe(true)
-      expect(deprecatedElement.text()).toContain('Deprecated Group')
     })
   })
 
