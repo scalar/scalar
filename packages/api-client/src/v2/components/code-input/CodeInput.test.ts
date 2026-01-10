@@ -792,4 +792,96 @@ describe('CodeInput', () => {
     expect(deserialized).toEqual({})
     expect(typeof deserialized).toBe('object')
   })
+
+  /** Number type preservation */
+  it('correctly serializes and deserializes numbers', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 42,
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(42)
+    expect(serialized).toBe('42')
+
+    const deserialized = componentInstance.deserializeValue('42')
+    expect(deserialized).toBe(42)
+    expect(typeof deserialized).toBe('number')
+  })
+
+  it('correctly serializes and deserializes negative numbers', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: -123,
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(-123)
+    expect(serialized).toBe('-123')
+
+    const deserialized = componentInstance.deserializeValue('-123')
+    expect(deserialized).toBe(-123)
+    expect(typeof deserialized).toBe('number')
+  })
+
+  it('correctly serializes and deserializes decimal numbers', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 3.14,
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(3.14)
+    expect(serialized).toBe('3.14')
+
+    const deserialized = componentInstance.deserializeValue('3.14')
+    expect(deserialized).toBe(3.14)
+    expect(typeof deserialized).toBe('number')
+  })
+
+  /** Boolean type preservation */
+  it('correctly serializes and deserializes booleans', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: true,
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(true)
+    expect(serialized).toBe('true')
+
+    const deserialized = componentInstance.deserializeValue('true')
+    expect(deserialized).toBe(true)
+    expect(typeof deserialized).toBe('boolean')
+  })
+
+  it('correctly serializes and deserializes false boolean', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: false,
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(false)
+    expect(serialized).toBe('false')
+
+    const deserialized = componentInstance.deserializeValue('false')
+    expect(deserialized).toBe(false)
+    expect(typeof deserialized).toBe('boolean')
+  })
 })

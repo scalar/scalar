@@ -313,27 +313,28 @@ const serializeValue = (value: T): string => {
 
 /**
  * Parses the CodeMirror string value back to the appropriate type.
- * Only attempts JSON parsing for arrays and objects (which are serialized with JSON.stringify).
- * Preserves string type for all other values to avoid type corruption.
+ * Preserves the original type of modelValue:
+ * - Arrays and objects: Parse JSON
+ * - Numbers: Parse as number if valid
+ * - Booleans: Parse as boolean if "true" or "false"
+ * - Strings: Keep as string (even if they look like numbers/booleans)
  */
 const deserializeValue = (value: string): T => {
-  // Only parse JSON if the string looks like a JSON array or object
-  // This maintains symmetry with serializeValue which only uses JSON.stringify for arrays/objects
   const trimmed = value.trim()
-  if (
-    (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
-    (trimmed.startsWith('{') && trimmed.endsWith('}'))
-  ) {
+
+  const isJsonLike = trimmed.startsWith('[') || trimmed.startsWith('{')
+  const originalType = typeof modelValue
+
+  // We only parse JSON if the value looks like a JSON array or object, OR used to be a number or boolean
+  if (isJsonLike || originalType === 'number' || originalType === 'boolean') {
     try {
-      const parsed = JSON.parse(value)
-      return parsed as T
+      return JSON.parse(value) as T
     } catch {
-      // If parsing fails, fall through to return as string
+      // If JSON parsing fails, fall through to type-specific parsing
     }
   }
 
-  // For all other cases, preserve as string to avoid type corruption
-  // (e.g., "123" should stay as string "123", not become number 123)
+  // For strings and all other cases, preserve as string
   return value as T
 }
 
