@@ -138,10 +138,8 @@ describe('useClipboard', () => {
 
   it('handles undefined by stringifying it', async () => {
     const { copyToClipboard } = useClipboard()
-
     await copyToClipboard(undefined)
-
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(undefined)
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('undefined')
   })
 
   it('handles nested objects by stringifying them', async () => {
