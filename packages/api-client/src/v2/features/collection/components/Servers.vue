@@ -69,7 +69,11 @@ const handleDeleteServer = () => {
 const { execute } = debounce({ delay: 328, maxWait: 1000 })
 
 /** Handles server property updates with debouncing */
-const handleServerUpdate = (index: number, key: string, value: string) =>
+const handleServerUpdate = (
+  index: number,
+  key: string,
+  value: string | number,
+) =>
   execute(`${index}-${key}`, () =>
     eventBus.emit('server:update:server', {
       index,
