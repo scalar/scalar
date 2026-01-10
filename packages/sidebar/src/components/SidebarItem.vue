@@ -159,9 +159,6 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     v-else-if="isSidebarFolder(layout, item, slots.empty !== undefined)"
     :active="isSelected(item.id)"
     class="relative"
-    :class="{
-      '&': isDeprecated(item),
-    }"
     controlled
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
