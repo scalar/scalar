@@ -13,6 +13,7 @@ import { getHash } from '@/bundle/value-generator'
 import {
   type LoaderPlugin,
   bundle,
+  extensions,
   isLocalRef,
   isRemoteUrl,
   prefixInternalRef,
@@ -37,48 +38,52 @@ describe('bundle', () => {
       }
     })
 
-    it('bundles external urls', async () => {
-      const external = {
-        prop: 'I am external json prop',
-      }
-      server.get('/', (_, reply) => {
-        reply.send(external)
-      })
+    it.each([extensions.externalDocuments, 'x-fake'])(
+      'bundles external urls with key %s',
+      async (externalDocumentsKey: string) => {
+        const external = {
+          prop: 'I am external json prop',
+        }
+        server.get('/', (_, reply) => {
+          reply.send(external)
+        })
 
-      await server.listen({ port: port })
+        await server.listen({ port: port })
 
-      const input = {
-        a: {
-          b: {
-            c: 'hello',
+        const input = {
+          a: {
+            b: {
+              c: 'hello',
+            },
           },
-        },
-        d: {
-          '$ref': `http://localhost:${port}#/prop`,
-        },
-      }
-
-      await bundle(input, {
-        plugins: [fetchUrls(), readFiles()],
-        treeShake: false,
-      })
-
-      expect(input).toEqual({
-        'x-ext': {
-          [getHash(url)]: {
-            ...external,
+          d: {
+            '$ref': `http://localhost:${port}#/prop`,
           },
-        },
-        a: {
-          b: {
-            c: 'hello',
+        }
+
+        await bundle(input, {
+          plugins: [fetchUrls(), readFiles()],
+          treeShake: false,
+          externalDocumentsKey,
+        })
+
+        expect(input).toEqual({
+          [externalDocumentsKey]: {
+            [getHash(url)]: {
+              ...external,
+            },
           },
-        },
-        d: {
-          $ref: `#/x-ext/${getHash(url)}/prop`,
-        },
-      })
-    })
+          a: {
+            b: {
+              c: 'hello',
+            },
+          },
+          d: {
+            $ref: `#/${externalDocumentsKey}/${getHash(url)}/prop`,
+          },
+        })
+      },
+    )
 
     it('bundles external urls from resolved external piece', async () => {
       const chunk2 = {
@@ -346,57 +351,61 @@ describe('bundle', () => {
       })
     })
 
-    it('generated a map when we turn the urlMap on', async () => {
-      server.get('/top-level', (_, reply) => {
-        reply.send({
-          c: 'c',
-        })
-      })
-
-      server.get('/nested/chunk1.json', (_, reply) => {
-        reply.send({
-          b: {
-            '$ref': `${url}/top-level#`,
-          },
-        })
-      })
-
-      server.get('/base/openapi.json', (_, reply) => {
-        reply.send({
-          a: {
-            $ref: '../nested/chunk1.json',
-          },
-        })
-      })
-
-      await server.listen({ port: port })
-
-      const output = await bundle(`${url}/base/openapi.json`, {
-        plugins: [fetchUrls()],
-        treeShake: false,
-        urlMap: true,
-      })
-
-      expect(output).toEqual({
-        'x-ext': {
-          [getHash(`${url}/top-level`)]: {
+    it.each([extensions.externalDocumentsMappings, 'x-fake-urls'])(
+      'generated a map when we turn the urlMap on with key %s',
+      async (externalDocumentsMappingsKey: string) => {
+        server.get('/top-level', (_, reply) => {
+          reply.send({
             c: 'c',
-          },
-          [getHash(`${url}/nested/chunk1.json`)]: {
+          })
+        })
+
+        server.get('/nested/chunk1.json', (_, reply) => {
+          reply.send({
             b: {
-              $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
+              '$ref': `${url}/top-level#`,
+            },
+          })
+        })
+
+        server.get('/base/openapi.json', (_, reply) => {
+          reply.send({
+            a: {
+              $ref: '../nested/chunk1.json',
+            },
+          })
+        })
+
+        await server.listen({ port: port })
+
+        const output = await bundle(`${url}/base/openapi.json`, {
+          plugins: [fetchUrls()],
+          treeShake: false,
+          urlMap: true,
+          externalDocumentsMappingsKey,
+        })
+
+        expect(output).toEqual({
+          'x-ext': {
+            [getHash(`${url}/top-level`)]: {
+              c: 'c',
+            },
+            [getHash(`${url}/nested/chunk1.json`)]: {
+              b: {
+                $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
+              },
             },
           },
-        },
-        'x-ext-urls': {
-          [getHash(`${url}/top-level`)]: `${url}/top-level`,
-          [getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
-        },
-        a: {
-          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
-        },
-      })
-    })
+          [externalDocumentsMappingsKey]: {
+            [getHash(`${url}/top-level`)]: `${url}/top-level`,
+            [getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
+          },
+          a: {
+            $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
+          },
+        })
+      },
+    )
 
     it('prefixes the refs only once', async () => {
       const chunk2 = {
