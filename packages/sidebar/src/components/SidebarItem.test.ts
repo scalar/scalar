@@ -427,7 +427,7 @@ describe('SidebarItem', () => {
       expect(deprecatedElement.text()).toContain('Deprecated API')
     })
 
-    it('applies deprecated class to ScalarSidebarGroup when item is deprecated', () => {
+    it('applies line-through class to deprecated ScalarSidebarGroup items', () => {
       const item: Item = {
         id: '1',
         title: 'Deprecated Folder',
@@ -455,7 +455,43 @@ describe('SidebarItem', () => {
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      expect(group.classes()).toContain('&')
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+      expect(deprecatedElement.text()).toContain('Deprecated Folder')
+    })
+
+    it('applies line-through class to deprecated ScalarSidebarSection items', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Deprecated Group',
+        type: 'tag',
+        name: 'deprecatedGroup',
+        isGroup: true,
+        isDeprecated: true,
+        children: [
+          {
+            id: '2',
+            title: 'Child',
+            type: 'operation',
+            ref: 'ref-2',
+            method: 'get',
+            path: '/child',
+          },
+        ],
+      } as Item
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const section = wrapper.findComponent(ScalarSidebarSection)
+      expect(section.exists()).toBe(true)
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+      expect(deprecatedElement.text()).toContain('Deprecated Group')
     })
   })
 
