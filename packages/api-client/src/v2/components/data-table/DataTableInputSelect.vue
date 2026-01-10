@@ -69,23 +69,24 @@ const initialValue = computed(() => {
   return props.modelValue !== undefined ? props.modelValue : props.default
 })
 
-/** Currently selected array example values */
-const selectedArrayOptions = computed(() => {
-  const selectedValues = new Set(props.modelValue.toString().split(', '))
-  return options.value
-    .filter((option) => selectedValues.has(option))
-    .map((option) => ({ id: option, label: option, value: option }))
-})
-
 /** Options for the array type */
 const arrayOptions = computed(() =>
-  options.value.map((option) => ({ id: option, label: option, value: option })),
+  options.value.map((option) => {
+    const id = option.toString()
+    return { id: id, label: id, value: id }
+  }),
 )
+
+/** Filter the options by what is selected */
+const selectedArrayOptions = computed(() => {
+  const selectedValues = new Set(props.modelValue.toString().split(','))
+  return arrayOptions.value.filter((option) => selectedValues.has(option.id))
+})
 
 /** Update the model value when the selected options change */
 const updateSelectedOptions = (selectedOptions: any) => {
   const selectedValues = selectedOptions.map((option: any) => option.value)
-  emit('update:modelValue', selectedValues.join(', '))
+  emit('update:modelValue', selectedValues.join(','))
 }
 </script>
 
