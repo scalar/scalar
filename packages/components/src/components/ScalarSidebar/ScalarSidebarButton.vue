@@ -87,7 +87,7 @@ const { cx } = useBindCx()
           :icon="icon" />
       </slot>
     </div>
-    <div class="flex-1 min-w-0">
+    <div class="group/button-label flex-1 min-w-0">
       <slot />
     </div>
     <slot name="aside" />

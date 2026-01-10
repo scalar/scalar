@@ -4,7 +4,6 @@ import {
   ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
-  ScalarWrappingText,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
 
@@ -21,6 +20,7 @@ import {
 import type { Item, Layout } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
+import SidebarItemLabel from './SidebarItemLabel.vue'
 
 const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
   defineProps<{
@@ -97,6 +97,12 @@ const isGroup = (
   return 'isGroup' in currentItem && currentItem.isGroup
 }
 
+const isDeprecated = (
+  currentItem: Item,
+): currentItem is Item & { isDeprecated: true } => {
+  return ('isDeprecated' in currentItem && currentItem.isDeprecated) ?? false
+}
+
 /**
  * Handle drag end event and bubble it up to parent.
  */
@@ -168,7 +174,17 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         class="text-c-3 hidden group-hover/group-button:flex"
         :open="open" />
     </template>
-    {{ item.title }}
+    <span
+      v-if="isDeprecated(item)"
+      class="line-through">
+      <SidebarItemLabel
+        :item
+        :operationTitleSource="options?.operationTitleSource" />
+    </span>
+    <SidebarItemLabel
+      v-else
+      :item
+      :operationTitleSource="options?.operationTitleSource" />
     <template
       v-if="'method' in item"
       #aside>
@@ -239,19 +255,17 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
     @click="() => emit('selectItem', item.id)">
-    <template v-if="item.type === 'model'">
-      <ScalarWrappingText
-        preset="property"
-        :text="item.title" />
-    </template>
-    <template v-else>
-      <ScalarWrappingText
-        :text="
-          options?.operationTitleSource === 'path' && 'path' in item
-            ? (item.path as string)
-            : (item.title as string)
-        " />
-    </template>
+    <span
+      v-if="isDeprecated(item)"
+      class="line-through">
+      <SidebarItemLabel
+        :item
+        :operationTitleSource="options?.operationTitleSource" />
+    </span>
+    <SidebarItemLabel
+      v-else
+      :item
+      :operationTitleSource="options?.operationTitleSource" />
     <template
       v-if="'method' in item"
       #aside>

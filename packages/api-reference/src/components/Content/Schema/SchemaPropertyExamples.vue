@@ -24,7 +24,7 @@ const { copyToClipboard } = useClipboard()
         <button
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(String(formatExample(example)))">
+          @click="copyToClipboard(formatExample(example))">
           <span>
             {{ formatExample(example) }}
           </span>
@@ -58,7 +58,7 @@ const { copyToClipboard } = useClipboard()
           :key="key"
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(String(formatExample(ex)))">
+          @click="copyToClipboard(formatExample(ex))">
           <span>{{ formatExample(ex) }} </span>
           <ScalarIcon
             class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
