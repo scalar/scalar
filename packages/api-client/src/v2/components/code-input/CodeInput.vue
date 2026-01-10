@@ -197,8 +197,8 @@ const defaultType = computed((): string | undefined => {
  * Handles value changes during typing.
  * Detects curl commands and manages update flow.
  */
-const handleChange = (value: T): void => {
-  if (!alwaysEmitChange && value === modelValue) {
+const handleChange = (value: string): void => {
+  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
     return
   }
 
@@ -223,11 +223,13 @@ const handleChange = (value: T): void => {
     return
   }
 
+  const deserializedValue = deserializeValue(value)
+
   // Use custom handler or emit update
   if (handleFieldChange) {
-    handleFieldChange(value)
+    handleFieldChange(deserializedValue)
   } else {
-    emit('update:modelValue', value)
+    emit('update:modelValue', deserializedValue)
   }
 }
 
@@ -324,6 +326,12 @@ const deserializeValue = (value: string): T => {
 
   const isJsonLike = trimmed.startsWith('[') || trimmed.startsWith('{')
   const originalType = typeof modelValue
+  const isOriginalArray = Array.isArray(modelValue)
+
+  // Handle comma-separated strings for arrays (from DataTableInputSelect)
+  if (isOriginalArray && !isJsonLike && trimmed.includes(',')) {
+    return trimmed.split(',').map((item) => item.trim()) as T
+  }
 
   // We only parse JSON if the value looks like a JSON array or object, OR used to be a number or boolean
   if (isJsonLike || originalType === 'number' || originalType === 'boolean') {
@@ -341,7 +349,7 @@ const deserializeValue = (value: string): T => {
 const { codeMirror } = useCodeMirror({
   content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
-    handleChange(deserializeValue(value))
+    handleChange(value)
     updateDropdownVisibility()
   },
   onFocus: () => {
