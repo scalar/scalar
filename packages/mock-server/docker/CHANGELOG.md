@@ -1,5 +1,15 @@
 # @scalar/mock-server-docker
 
+## 0.1.5
+
+### Patch Changes
+
+- [#7698](https://github.com/scalar/scalar/pull/7698): feat: update Docker Hub description
+
+#### Updated Dependencies
+
+- **@scalar/hono-api-reference@0.9.32**
+
 ## 0.1.4
 
 ### Patch Changes
