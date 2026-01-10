@@ -574,6 +574,27 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['option2'])
   })
 
+  it('converts comma-separated strings to arrays when modelValue is an array', async () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: ['item1', 'item2'],
+        enum: ['item1', 'item2', 'item3'],
+        type: 'array',
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+    // DataTableInputSelect emits comma-separated strings for arrays
+    await select.vm.$emit('update:modelValue', 'item1,item2,item3')
+
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    const emittedValue = wrapper.emitted('update:modelValue')?.[0]?.[0]
+    expect(Array.isArray(emittedValue)).toBe(true)
+    expect(emittedValue).toEqual(['item1', 'item2', 'item3'])
+  })
+
   /** Special characters in values */
   it('handles special characters in modelValue', () => {
     const wrapper = mount(CodeInput, {
@@ -636,6 +657,22 @@ describe('CodeInput', () => {
 
     const deserialized = componentInstance.deserializeValue('["item1","item2"]')
     expect(deserialized).toEqual(['item1', 'item2'])
+  })
+
+  it('converts comma-separated strings to arrays when modelValue is an array', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: ['item1', 'item2'],
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    // Simulate DataTableInputSelect emitting a comma-separated string
+    const deserialized = componentInstance.deserializeValue('item1,item2,item3')
+    expect(Array.isArray(deserialized)).toBe(true)
+    expect(deserialized).toEqual(['item1', 'item2', 'item3'])
   })
 
   /** Type preservation for string values that look like JSON primitives */

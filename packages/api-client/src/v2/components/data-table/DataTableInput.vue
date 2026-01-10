@@ -17,7 +17,7 @@ const props = withDefaults(
     /** Class for the wrapping cell because attrs is bound to the input */
     containerClass?: VueClassProp | undefined
     required?: boolean
-    modelValue: string | number
+    modelValue: string
     /** Allows adding a custom value to the enum dropdown, defaults to true */
     canAddCustomEnumValue?: boolean
     readOnly?: boolean
