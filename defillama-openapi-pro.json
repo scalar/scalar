@@ -3527,13 +3527,13 @@
         "x-api-plan-only": true
       }
     },
-    "/bridges": {
+    "/bridges/bridges": {
       "get": {
         "tags": ["bridges"],
         "summary": "List all bridges along with summaries of recent bridge volumes.",
         "servers": [
           {
-            "url": "https://bridges.llama.fi"
+            "url": "https://pro-api.llama.fi"
           }
         ],
         "parameters": [
@@ -3663,13 +3663,13 @@
         "x-api-plan-only": true
       }
     },
-    "/bridge/{id}": {
+    "/bridges/bridge/{id}": {
       "get": {
         "tags": ["bridges"],
         "summary": "Get summary of bridge volume and volume breakdown by chain",
         "servers": [
           {
-            "url": "https://bridges.llama.fi"
+            "url": "https://pro-api.llama.fi"
           }
         ],
         "parameters": [
@@ -3933,13 +3933,13 @@
         "x-api-plan-only": true
       }
     },
-    "/bridgevolume/{chain}": {
+    "/bridges/bridgevolume/{chain}": {
       "get": {
         "tags": ["bridges"],
         "summary": "Get historical volumes for a bridge, chain, or bridge on a particular chain",
         "servers": [
           {
-            "url": "https://bridges.llama.fi"
+            "url": "https://pro-api.llama.fi"
           }
         ],
         "parameters": [
@@ -4020,13 +4020,13 @@
         "x-api-plan-only": true
       }
     },
-    "/bridgedaystats/{timestamp}/{chain}": {
+    "/bridges/bridgedaystats/{timestamp}/{chain}": {
       "get": {
         "tags": ["bridges"],
         "summary": "Get a 24hr token and address volume breakdown for a bridge",
         "servers": [
           {
-            "url": "https://bridges.llama.fi"
+            "url": "https://pro-api.llama.fi"
           }
         ],
         "parameters": [
@@ -4217,13 +4217,13 @@
         "x-api-plan-only": true
       }
     },
-    "/transactions/{id}": {
+    "/bridges/transactions/{id}": {
       "get": {
         "tags": ["bridges"],
         "summary": "Get all transactions for a bridge within a date range",
         "servers": [
           {
-            "url": "https://bridges.llama.fi"
+            "url": "https://pro-api.llama.fi"
           }
         ],
         "parameters": [

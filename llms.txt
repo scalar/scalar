@@ -13,7 +13,7 @@ Includes API-Plan-only endpoints (marked with 🔒) and free endpoints, with ful
 - Used for: TVL data, protocols, prices, yields, user metrics, fees
 
 **Bridge API**
-- Base URL: `https://bridges.llama.fi`
+- Base URL: `https://pro-api.llama.fi` (endpoints prefixed with `/bridges/`)
 - Used for: Cross-chain bridge data and transactions
 
 ## Authentication
@@ -24,19 +24,11 @@ API key is inserted between base URL and endpoint:
 https://pro-api.llama.fi/<YOUR_API_KEY>/<ENDPOINT>
 ```
 
-**For Free Endpoints and Other Base URLs:**
-No authentication required - use endpoints directly:
-```
-https://bridges.llama.fi/<ENDPOINT>
-```
-
 **Examples:**
 ```bash
 # Pro endpoints (requires API key in URL)
 GET https://pro-api.llama.fi/abc123key/yields/pools
 
-# Bridge endpoints (no key needed)
-GET https://bridges.llama.fi/bridges
 ```
 
 ===============================================================================
@@ -499,12 +491,150 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 4: VOLUME METRICS (DEXs, Derivatives, Options)
+SECTION 4: STABLECOINS
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-33. **GET /api/overview/dexs**
+31. **GET /stablecoins/stablecoindominance/{chain}**
+    Purpose: Get stablecoin dominance per chain
+    Parameters:
+      - chain (path, required): Chain slug (e.g., "Ethereum")
+    Response:
+    ```json
+    {
+      "dominance": 0.75,
+      "totalCirculating": 50000000000,
+      "largestStablecoin": {
+        "name": "Tether USD",
+        "symbol": "USDT",
+        "circulating": 37500000000,
+        "dominance": 0.75
+      }
+    }
+    ```
+
+32. **GET /stablecoins/stablecoins**
+    Purpose: List all stablecoins with current market data
+    Parameters: None
+    Response:
+    ```json
+    [
+      {
+        "id": 1,
+        "name": "Tether USD",
+        "symbol": "USDT",
+        "gecko_id": "tether",
+        "circulating": 75000000000,
+        "price": 1.001,
+        "chains": ["Ethereum", "Tron", "BSC"],
+        "chainCirculating": {
+          "Ethereum": 45000000000,
+          "Tron": 20000000000,
+          "BSC": 10000000000
+        }
+      }
+    ]
+    ```
+
+33. **GET /stablecoins/stablecoincharts/all**
+    Purpose: Historical market cap data for all stablecoins
+    Parameters: None
+    Response:
+    ```json
+    [
+      {
+        "date": 1609459200,
+        "totalCirculating": {
+          "peggedUSD": 25000000000
+        }
+      }
+    ]
+    ```
+
+34. **GET /stablecoins/stablecoincharts/{chain}**
+    Purpose: Historical stablecoin data for specific chain
+    Parameters:
+      - chain (path, required): Chain name (e.g., "Ethereum")
+      - stablecoin (query, optional): Stablecoin ID for filtering
+    Response:
+    ```json
+    [
+      {
+        "date": 1609459200,
+        "totalCirculating": {
+          "peggedUSD": 45000000000
+        }
+      }
+    ]
+    ```
+
+35. **GET /stablecoins/stablecoin/{asset}**
+    Purpose: Detailed data for specific stablecoin
+    Parameters:
+      - asset (path, required): Stablecoin ID
+    Response:
+    ```json
+    {
+      "id": 1,
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "gecko_id": "tether",
+      "pegType": "peggedUSD",
+      "priceSource": "coingecko",
+      "pegMechanism": "fiat-backed",
+      "circulating": {
+        "peggedUSD": 75000000000
+      },
+      "chainCirculating": {
+        "Ethereum": {"current": {"peggedUSD": 45000000000}},
+        "Tron": {"current": {"peggedUSD": 20000000000}}
+      },
+      "price": 1.001,
+      "mcap": 75075000000
+    }
+    ```
+
+36. **GET /stablecoins/stablecoinchains**
+    Purpose: List all chains with stablecoin data
+    Parameters: None
+    Response:
+    ```json
+    [
+      {
+        "name": "Ethereum",
+        "totalCirculating": {
+          "peggedUSD": 45000000000
+        }
+      }
+    ]
+    ```
+
+37. **GET /stablecoins/stablecoinprices**
+    Purpose: Historical prices for all stablecoins
+    Parameters: None
+    Response:
+    ```json
+    [
+      {
+        "date": 1609459200,
+        "prices": {
+          "USDT": 1.001,
+          "USDC": 0.999,
+          "DAI": 1.002,
+          "BUSD": 1.000
+        }
+      }
+    ]
+    ```
+
+===============================================================================
+SECTION 5: VOLUME METRICS (DEXs, Derivatives, Options)
+===============================================================================
+
+Base URL: `https://pro-api.llama.fi`
+
+38. **GET /api/overview/dexs**
     Purpose: Aggregated DEX volumes
     Parameters:
       - excludeTotalDataChart (query, optional): Exclude chart data
@@ -531,7 +661,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-34. **GET /api/overview/dexs/{chain}**
+39. **GET /api/overview/dexs/{chain}**
     Purpose: DEX volumes for specific chain
     Parameters:
       - chain (path, required): Chain name
@@ -539,7 +669,7 @@ Base URL: `https://pro-api.llama.fi`
       - excludeTotalDataChartBreakdown (query, optional): Exclude breakdown
     Response: Similar to overview but filtered by chain
 
-35. **GET /api/summary/dexs/{protocol}**
+40. **GET /api/summary/dexs/{protocol}**
     Purpose: Specific DEX protocol volumes
     Parameters:
       - protocol (path, required): Protocol slug
@@ -568,7 +698,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-36. **GET /api/overview/options**
+41. **GET /api/overview/options**
     Purpose: Options trading volumes
     Parameters:
       - excludeTotalDataChart (query, optional): Exclude chart
@@ -587,13 +717,13 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-37. **GET /api/overview/options/{chain}**
+42. **GET /api/overview/options/{chain}**
     Purpose: Options volumes for specific chain
     Parameters:
       - chain (path, required): Chain name
     Response: Similar to overview but filtered
 
-38. **GET /api/summary/options/{protocol}**
+43. **GET /api/summary/options/{protocol}**
     Purpose: Specific options protocol data
     Parameters:
       - protocol (path, required): Protocol slug
@@ -617,7 +747,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-39. 🔒 **GET /api/overview/derivatives**
+44. 🔒 **GET /api/overview/derivatives**
     Base: `https://pro-api.llama.fi`
     Purpose: Aggregated derivatives data
     Parameters: None
@@ -637,7 +767,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-40. 🔒 **GET /api/summary/derivatives/{protocol}**
+45. 🔒 **GET /api/summary/derivatives/{protocol}**
     Base: `https://pro-api.llama.fi`
     Purpose: Specific derivatives protocol
     Parameters:
@@ -660,12 +790,12 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 5: FEES & REVENUE
+SECTION 6: FEES & REVENUE
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-41. **GET /api/overview/fees**
+46. **GET /api/overview/fees**
     Purpose: Protocol fees overview
     Parameters:
       - excludeTotalDataChart (query, optional): Exclude chart
@@ -696,14 +826,14 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-42. **GET /api/overview/fees/{chain}**
+47. **GET /api/overview/fees/{chain}**
     Purpose: Fees for specific chain
     Parameters:
       - chain (path, required): Chain name
       - dataType (query, optional): "dailyFees" | "dailyRevenue" | "dailyHoldersRevenue"
     Response: Similar to overview but filtered
 
-43. **GET /api/summary/fees/{protocol}**
+48. **GET /api/summary/fees/{protocol}**
     Purpose: Specific protocol fees
     Parameters:
       - protocol (path, required): Protocol slug
@@ -763,12 +893,12 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 6: UNLOCKS & EMISSIONS
+SECTION 7: UNLOCKS & EMISSIONS
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-44. 🔒 **GET /api/emissions**
+49. 🔒 **GET /api/emissions**
     Purpose: All tokens with unlock schedules
     Parameters: None
     Response:
@@ -807,7 +937,7 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-45. 🔒 **GET /api/emission/{protocol}**
+50. 🔒 **GET /api/emission/{protocol}**
     Purpose: Detailed vesting schedule
     Parameters:
       - protocol (path, required): Protocol slug
@@ -905,12 +1035,12 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 7: ECOSYSTEM DATA
+SECTION 8: ECOSYSTEM DATA
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-46. 🔒 **GET /api/categories**
+51. 🔒 **GET /api/categories**
     Purpose: TVL by category
     Parameters: None
     Response:
@@ -937,7 +1067,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-47. 🔒 **GET /api/forks**
+52. 🔒 **GET /api/forks**
     Purpose: Protocol fork relationships
     Parameters: None
     Response:
@@ -960,7 +1090,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-48. 🔒 **GET /api/oracles**
+53. 🔒 **GET /api/oracles**
     Purpose: Oracle protocol data
     Parameters: None
     Response:
@@ -985,7 +1115,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-49. 🔒 **GET /api/entities**
+54. 🔒 **GET /api/entities**
     Purpose: Company/entity information
     Parameters: None
     Response:
@@ -1026,7 +1156,7 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-50. 🔒 **GET /api/treasuries**
+55. 🔒 **GET /api/treasuries**
     Purpose: Protocol treasury balances
     Parameters: None
     Response:
@@ -1072,7 +1202,7 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-51. 🔒 **GET /api/hacks**
+56. 🔒 **GET /api/hacks**
     Purpose: Historical exploits database
     Parameters: None
     Response:
@@ -1097,7 +1227,7 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-52. 🔒 **GET /api/raises**
+57. 🔒 **GET /api/raises**
     Purpose: Funding rounds database
     Parameters: None
     Response:
@@ -1127,7 +1257,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-53. 🔒 **GET /api/historicalLiquidity/{token}**
+58. 🔒 **GET /api/historicalLiquidity/{token}**
     Purpose: Historical liquidity for token
     Parameters:
       - token (path, required): Token address with chain (e.g., "ethereum:0x...")
@@ -1144,12 +1274,12 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 8: ETF DATA
+SECTION 9: ETF DATA
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-54. 🔒 **GET /etfs/overview**
+59. 🔒 **GET /etfs/overview**
     Purpose: TradFi crypto ETF overview
     Parameters: None
     Response:
@@ -1176,12 +1306,12 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-55. 🔒 **GET /etfs/overviewEth**
+60. 🔒 **GET /etfs/overviewEth**
     Purpose: Ethereum ETF data
     Parameters: None
     Response: Similar to overview but ETH only
 
-56. 🔒 **GET /etfs/history**
+61. 🔒 **GET /etfs/history**
     Purpose: Historical ETF flows
     Parameters: None
     Response:
@@ -1202,12 +1332,12 @@ Base URL: `https://pro-api.llama.fi`
     ]
     ```
 
-57. 🔒 **GET /etfs/historyEth**
+62. 🔒 **GET /etfs/historyEth**
     Purpose: Historical Ethereum ETF data
     Parameters: None
     Response: Similar to history but ETH only
 
-58. 🔒 **GET /fdv/performance/{period}**
+63. 🔒 **GET /fdv/performance/{period}**
     Purpose: FDV performance metrics
     Parameters:
       - period (path, required): One of ['7', '30', 'ytd', '365']
@@ -1243,12 +1373,12 @@ Base URL: `https://pro-api.llama.fi`
     ```
 
 ===============================================================================
-SECTION 9: BRIDGES
+SECTION 10: BRIDGES
 ===============================================================================
 
-Base URL: `https://bridges.llama.fi`
+Base URL: `https://pro-api.llama.fi`
 
-59. 🔒 **GET /bridges**
+64. 🔒 **GET /bridges/bridges**
     Purpose: List all bridges
     Parameters:
       - includeChains (query, optional): Include chain breakdown
@@ -1281,7 +1411,7 @@ Base URL: `https://bridges.llama.fi`
     }
     ```
 
-60. 🔒 **GET /bridge/{id}**
+65. 🔒 **GET /bridges/bridge/{id}**
     Purpose: Detailed bridge data
     Parameters:
       - id (path, required): Bridge ID
@@ -1393,7 +1523,7 @@ Base URL: `https://bridges.llama.fi`
     }
     ```
 
-61. 🔒 **GET /bridgevolume/{chain}**
+66. 🔒 **GET /bridges/bridgevolume/{chain}**
     Purpose: Bridge volume for chain
     Parameters:
       - chain (path, required): Chain name or "all"
@@ -1417,7 +1547,7 @@ Base URL: `https://bridges.llama.fi`
     ]
     ```
 
-62. 🔒 **GET /bridgedaystats/{timestamp}/{chain}**
+67. 🔒 **GET /bridges/bridgedaystats/{timestamp}/{chain}**
     Purpose: Daily bridge stats
     Parameters:
       - timestamp (path, required): Unix timestamp
@@ -1477,7 +1607,7 @@ Base URL: `https://bridges.llama.fi`
     }
     ```
 
-63. 🔒 **GET /transactions/{id}**
+68. 🔒 **GET /bridges/transactions/{id}**
     Purpose: Bridge transactions
     Parameters:
       - id (path, required): Bridge ID
@@ -1595,12 +1725,12 @@ Base URL: `https://bridges.llama.fi`
     ```
 
 ===============================================================================
-SECTION 10: DIGITAL ASSET TREASURY (DAT)
+SECTION 11: DIGITAL ASSET TREASURY (DAT)
 ===============================================================================
 
 Base URL: `https://pro-api.llama.fi`
 
-64. 🔒 **GET /dat/institutions**
+69. 🔒 **GET /dat/institutions**
     Purpose: Get comprehensive Digital Asset Treasury data for all institutions
     Description: Returns detailed data about institutions holding digital assets, including mNAV calculations (realized, realistic, maximum) as described in the DAT Methodology (https://docs.llama.fi/analysts/dat-methodology)
     Parameters: None
@@ -1682,7 +1812,7 @@ Base URL: `https://pro-api.llama.fi`
     }
     ```
 
-65. 🔒 **GET /dat/institutions/{symbol}**
+70. 🔒 **GET /dat/institutions/{symbol}**
     Purpose: Get detailed Digital Asset Treasury data for a specific institution
     Description: Returns comprehensive data for a specific institution, including mNAV calculations, historical data, and transaction history as described in the DAT Methodology
     Parameters:
@@ -1765,10 +1895,10 @@ Base URL: `https://pro-api.llama.fi`
     - ohlcv: [timestamp, open, high, low, close, volume]
 
 ===============================================================================
-SECTION 11: ACCOUNT MANAGEMENT
+SECTION 12: ACCOUNT MANAGEMENT
 ===============================================================================
 
-66. 🔒 **GET /usage/APIKEY**
+71. 🔒 **GET /usage/APIKEY**
     Base: `https://pro-api.llama.fi`
     Purpose: Check API usage
     Parameters: None (uses API key from header)
