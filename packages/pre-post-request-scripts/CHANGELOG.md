@@ -1,5 +1,14 @@
 # @scalar/scripts
 
+## 0.0.61
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
 ## 0.0.60
 
 ### Patch Changes

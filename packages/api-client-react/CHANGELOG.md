@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.65
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.7**
+  - [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
 ## 1.3.64
 
 ### Patch Changes

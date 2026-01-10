@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.43.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
+- **@scalar/api-client@2.17.7**
+  - [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
+- **@scalar/sidebar@0.7.7**
+
 ## 1.43.1
 
 ### Patch Changes
