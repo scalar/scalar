@@ -1,6 +1,5 @@
 import { mockSynchronousResponse } from '@test/utils/mock-synchronous-response'
 import { describe, expect, it } from 'vitest'
-
 import { createResponseAssertions } from './create-response-assertions'
 
 describe('createResponseAssertions', () => {

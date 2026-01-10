@@ -443,11 +443,13 @@ const shouldShowItem = computed(() => {
                 type="button"
                 variant="ghost"
                 @click.stop.prevent="
-                  (ev) =>
+                  (ev: MouseEvent) =>
                     $emit('openMenu', {
                       item,
                       parentUids,
-                      targetRef: ev.currentTarget,
+                      targetRef: ev.currentTarget as
+                        | HTMLButtonElement
+                        | undefined,
                       open: !menuItem.open,
                     })
                 ">
@@ -521,11 +523,12 @@ const shouldShowItem = computed(() => {
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
-                  (ev) =>
+                  (ev: MouseEvent) =>
                     $emit('openMenu', {
                       item,
                       parentUids,
-                      targetRef: ev.currentTarget.parentNode,
+                      targetRef: (ev.currentTarget as HTMLElement)
+                        ?.parentNode as HTMLButtonElement | undefined,
                       open: true,
                     })
                 ">
@@ -604,11 +607,12 @@ const shouldShowItem = computed(() => {
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
-                  (ev) =>
+                  (ev: MouseEvent) =>
                     $emit('openMenu', {
                       item,
                       parentUids,
-                      targetRef: ev.currentTarget.parentNode,
+                      targetRef: (ev.currentTarget as HTMLElement)
+                        ?.parentNode as HTMLButtonElement | undefined,
                       open: true,
                     })
                 ">

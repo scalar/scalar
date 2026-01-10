@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 import type { TestResult } from '../../index'
 import { createTestUtils } from './create-test-utils'
 

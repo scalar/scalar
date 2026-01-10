@@ -142,7 +142,7 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/server-renderer": "^3.5.17",
+    "@vue/server-renderer": "^3.5.26",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "react": "catalog:*",
@@ -151,7 +151,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
     "vitest": "catalog:*"
   }
 }
