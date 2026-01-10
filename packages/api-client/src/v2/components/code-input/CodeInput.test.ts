@@ -619,4 +619,177 @@ describe('CodeInput', () => {
     const container = wrapper.find('#custom-id')
     expect(container.exists()).toBe(true)
   })
+
+  /** Array serialization/deserialization */
+  it('correctly serializes and deserializes arrays', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: ['item1', 'item2'],
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue(['item1', 'item2'])
+    expect(serialized).toBe('["item1","item2"]')
+
+    const deserialized = componentInstance.deserializeValue('["item1","item2"]')
+    expect(deserialized).toEqual(['item1', 'item2'])
+  })
+
+  /** Type preservation for string values that look like JSON primitives */
+  it('preserves string type for values that look like JSON primitives', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: '123',
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue('123')
+    expect(serialized).toBe('123')
+
+    // Should remain a string, not be parsed as number
+    const deserialized = componentInstance.deserializeValue('123')
+    expect(deserialized).toBe('123')
+    expect(typeof deserialized).toBe('string')
+  })
+
+  it('preserves string type for "true"', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'true',
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const deserialized = componentInstance.deserializeValue('true')
+    expect(deserialized).toBe('true')
+    expect(typeof deserialized).toBe('string')
+  })
+
+  it('preserves string type for "false"', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'false',
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const deserialized = componentInstance.deserializeValue('false')
+    expect(deserialized).toBe('false')
+    expect(typeof deserialized).toBe('string')
+  })
+
+  it('preserves string type for "null"', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'null',
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const deserialized = componentInstance.deserializeValue('null')
+    expect(deserialized).toBe('null')
+    expect(typeof deserialized).toBe('string')
+  })
+
+  /** Object serialization/deserialization */
+  it('correctly serializes and deserializes objects', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: { key: 'value', number: 123 },
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue({ key: 'value', number: 123 })
+    expect(serialized).toBe('{"key":"value","number":123}')
+
+    const deserialized = componentInstance.deserializeValue('{"key":"value","number":123}')
+    expect(deserialized).toEqual({ key: 'value', number: 123 })
+    expect(typeof deserialized).toBe('object')
+    expect(Array.isArray(deserialized)).toBe(false)
+  })
+
+  it('correctly serializes and deserializes nested objects', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: { nested: { key: 'value' } },
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const obj = { nested: { key: 'value' } }
+    const serialized = componentInstance.serializeValue(obj)
+    const deserialized = componentInstance.deserializeValue(serialized)
+
+    expect(deserialized).toEqual(obj)
+    expect(deserialized.nested).toEqual({ key: 'value' })
+  })
+
+  it('correctly serializes and deserializes objects with arrays', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: { items: ['a', 'b', 'c'] },
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const obj = { items: ['a', 'b', 'c'] }
+    const serialized = componentInstance.serializeValue(obj)
+    const deserialized = componentInstance.deserializeValue(serialized)
+
+    expect(deserialized).toEqual(obj)
+    expect(Array.isArray(deserialized.items)).toBe(true)
+  })
+
+  it('parses JSON objects when they are detected', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: { key: 'value' },
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    // When a string looks like a JSON object, it should be parsed
+    const deserialized = componentInstance.deserializeValue('{"key":"value"}')
+    expect(typeof deserialized).toBe('object')
+    expect(deserialized).toEqual({ key: 'value' })
+  })
+
+  it('handles empty objects', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: {},
+        layout: 'web',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    const serialized = componentInstance.serializeValue({})
+    expect(serialized).toBe('{}')
+
+    const deserialized = componentInstance.deserializeValue('{}')
+    expect(deserialized).toEqual({})
+    expect(typeof deserialized).toBe('object')
+  })
 })
