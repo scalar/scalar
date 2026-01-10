@@ -4,6 +4,7 @@ export type CodeInputModelValue =
   | number
   | boolean
   | Array<string | number | boolean>
+  | Record<string, unknown>
 
 /**
  * CodeInput
@@ -301,10 +302,10 @@ const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 /**
  * Converts the model value to a string for CodeMirror.
- * Arrays are serialized to JSON format.
+ * Arrays and objects are serialized to JSON format.
  */
 const serializeValue = (value: T): string => {
-  if (Array.isArray(value)) {
+  if (typeof value === 'object') {
     return JSON.stringify(value)
   }
   return String(value ?? '')
@@ -312,16 +313,30 @@ const serializeValue = (value: T): string => {
 
 /**
  * Parses the CodeMirror string value back to the appropriate type.
- * Attempts to parse JSON arrays, falls back to string.
+ * Only attempts JSON parsing for arrays and objects (which are serialized with JSON.stringify).
+ * Preserves string type for all other values to avoid type corruption.
  */
 const deserializeValue = (value: string): T => {
-  // Try to parse array or objects
-  try {
-    return JSON.parse(value)
-  } catch {
-    // Not valid JSON, treat as string
-    return value as T
+  // Only parse JSON if the string looks like a JSON array or object
+  // This maintains symmetry with serializeValue which only uses JSON.stringify for arrays/objects
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+    (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+    trimmed === 'true' ||
+    trimmed === 'false'
+  ) {
+    try {
+      const parsed = JSON.parse(value)
+      return parsed as T
+    } catch {
+      // If parsing fails, fall through to return as string
+    }
   }
+
+  // For all other cases, preserve as string to avoid type corruption
+  // (e.g., "123" should stay as string "123", not become number 123)
+  return value as T
 }
 
 const { codeMirror } = useCodeMirror({
@@ -453,6 +468,8 @@ defineExpose({
   codeMirror,
   modelValue,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
+  serializeValue,
+  deserializeValue,
 })
 </script>
 
