@@ -322,9 +322,7 @@ const deserializeValue = (value: string): T => {
   const trimmed = value.trim()
   if (
     (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
-    (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-    trimmed === 'true' ||
-    trimmed === 'false'
+    (trimmed.startsWith('{') && trimmed.endsWith('}'))
   ) {
     try {
       const parsed = JSON.parse(value)
