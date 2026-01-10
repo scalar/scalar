@@ -5,7 +5,6 @@
     "examples/**",
     "packages/api-client/**",
     "packages/api-reference/**",
-    "packages/api-reference-react/**",
     "packages/postman-to-openapi/**",
     "projects/**",
     "integrations/docker/**",
@@ -50,6 +49,9 @@
   "ignoreBinaries": ["netlify"],
   "workspaces": {
     "packages/api-client-react": {
+      "entry": ["playground/main.tsx"]
+    },
+    "packages/api-reference-react": {
       "entry": ["playground/main.tsx"]
     },
     "packages/build-tooling": {
