@@ -79,6 +79,7 @@ const html = computed(() => {
 
     font-family: var(--scalar-font);
     word-break: break-word;
+    line-height: var(--markdown-line-height);
   }
 
   .markdown > * {
