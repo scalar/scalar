@@ -501,7 +501,7 @@ type Config = {
 
   /**
    * Custom OpenAPI extension key used to maintain a mapping between
-   * hashed keys and their original URLs in x-ext.
+   * hashed keys and their original URLs.
    * This mapping is essential for tracking the source of bundled references
    * @default 'x-ext-urls'
    */
