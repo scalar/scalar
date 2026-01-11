@@ -4,8 +4,13 @@ import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
-import type { OAuthFlowAuthorizationCode } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowPassword,
+} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
   OAuthFlow,
   OAuthFlowsObject,
@@ -19,15 +24,21 @@ import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { environment, flows, type, selectedScopes, server, proxyUrl } =
-  defineProps<{
-    environment: XScalarEnvironment
-    flows: OAuthFlowsObject
-    type: keyof OAuthFlowsObject
-    selectedScopes: string[]
-    server: ServerObject | null
-    proxyUrl: string
-  }>()
+const {
+  environment,
+  flows,
+  type,
+  selectedScopes: selectedScopesProp,
+  server,
+  proxyUrl,
+} = defineProps<{
+  environment: XScalarEnvironment
+  flows: OAuthFlowsObject
+  type: keyof OAuthFlowsObject
+  selectedScopes: string[]
+  server: ServerObject | null
+  proxyUrl: string
+}>()
 
 const emits = defineEmits<{
   (
@@ -36,7 +47,10 @@ const emits = defineEmits<{
   ): void
   (
     e: 'update:selectedScopes',
-    payload: Pick<ApiReferenceEvents['auth:update:selected-scopes'], 'scopes'>,
+    payload: Pick<
+      ApiReferenceEvents['auth:update:selected-scopes'],
+      'scopes' | 'newScopePayload'
+    >,
   ): void
 }>()
 
@@ -45,9 +59,20 @@ const { toast } = useToasts()
 
 /** The current OAuth flow based on the selected type */
 const flow = computed(() => flows[type]!)
+type NonImplicitFlow =
+  | OAuthFlowPassword
+  | OAuthFlowClientCredentials
+  | OAuthFlowAuthorizationCode
+
+/** We filter selected scopes to only include scopes that are in this flow*/
+const selectedScopes = computed(() =>
+  selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
+)
 
 /** Updates the flow  */
-const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
+const handleOauth2Update = (
+  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
+): void =>
   emits('update:securityScheme', {
     type: 'oauth2',
     flows: {
@@ -60,7 +85,11 @@ watch(
   () =>
     (flow.value as OAuthFlowAuthorizationCode)['x-scalar-secret-redirect-uri'],
   (newRedirectUri) => {
-    if (newRedirectUri || typeof window === 'undefined') {
+    if (
+      newRedirectUri ||
+      typeof window === 'undefined' ||
+      !('x-scalar-secret-redirect-uri' in flow.value)
+    ) {
       return
     }
     handleOauth2Update({
@@ -85,7 +114,7 @@ const handleAuthorize = async (): Promise<void> => {
   const [error, accessToken] = await authorizeOauth2(
     flows,
     type,
-    selectedScopes,
+    selectedScopes.value,
     server,
     proxyUrl,
   )
@@ -99,6 +128,12 @@ const handleAuthorize = async (): Promise<void> => {
     toast(error?.message ?? 'Failed to authorize', 'error')
   }
 }
+
+/** Updates the secret location */
+const handleSecretLocationUpdate = (value: string): void =>
+  handleOauth2Update({
+    'x-scalar-credentials-location': value === 'body' ? 'body' : 'header',
+  })
 </script>
 
 <template>
@@ -239,9 +274,26 @@ const handleAuthorize = async (): Promise<void> => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
+    <!-- Credentials Location -->
+    <DataTableRow v-if="type !== 'implicit'">
+      <RequestAuthDataTableInput
+        :enum="['header', 'body']"
+        :environment
+        :modelValue="
+          (flow as NonImplicitFlow)['x-scalar-credentials-location'] || 'header'
+        "
+        placeholder="header"
+        readOnly
+        @update:modelValue="(v) => handleSecretLocationUpdate(v)">
+        Credentials Location
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <!-- Scopes -->
+    <DataTableRow>
       <OAuthScopesInput
         :flow
+        :flowType="type"
         :selectedScopes
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)" />
     </DataTableRow>

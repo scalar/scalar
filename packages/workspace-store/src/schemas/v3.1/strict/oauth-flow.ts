@@ -41,7 +41,6 @@ const OAuthFlowCommonSchema = compose(
   XScalarSecurityQuerySchema,
   XScalarSecurityBodySchema,
   XTokenNameSchema,
-  XScalarCredentialsLocationSchema,
 )
 
 /** Common properties used across all OAuth flows */
@@ -54,8 +53,7 @@ type OAuthFlowCommon = {
   XScalarSecretToken &
   XScalarSecurityQuery &
   XScalarSecurityBody &
-  XTokenName &
-  XScalarCredentialsLocation
+  XTokenName
 
 /** Configuration for the OAuth Implicit flow */
 export const OAuthFlowImplicitSchema = compose(
@@ -82,6 +80,7 @@ export const OAuthFlowPasswordSchema = compose(
   }),
   XScalarSecretHTTPSchema,
   XScalarSecretClientSecretSchema,
+  XScalarCredentialsLocationSchema,
 )
 
 /** Configuration for the OAuth Resource Owner Password flow */
@@ -89,7 +88,8 @@ export type OAuthFlowPassword = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   tokenUrl: string
 } & XScalarSecretHTTP &
-  XScalarSecretClientSecret
+  XScalarSecretClientSecret &
+  XScalarCredentialsLocation
 
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
 export const OAuthFlowClientCredentialsSchema = compose(
@@ -99,13 +99,15 @@ export const OAuthFlowClientCredentialsSchema = compose(
     tokenUrl: Type.String(),
   }),
   XScalarSecretClientSecretSchema,
+  XScalarCredentialsLocationSchema,
 )
 
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
 export type OAuthFlowClientCredentials = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   tokenUrl: string
-} & XScalarSecretClientSecret
+} & XScalarSecretClientSecret &
+  XScalarCredentialsLocation
 
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
 export const OAuthFlowAuthorizationCodeSchema = compose(
@@ -119,6 +121,7 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
   XScalarSecretClientSecretSchema,
   XScalarSecretRedirectUriSchema,
   XusePkceSchema,
+  XScalarCredentialsLocationSchema,
 )
 
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
@@ -129,6 +132,7 @@ export type OAuthFlowAuthorizationCode = OAuthFlowCommon & {
   tokenUrl: string
 } & XScalarSecretClientSecret &
   XScalarSecretRedirectUri &
-  XusePkce
+  XusePkce &
+  XScalarCredentialsLocation
 
 export type OAuthFlow = OAuthFlowImplicit | OAuthFlowPassword | OAuthFlowClientCredentials | OAuthFlowAuthorizationCode

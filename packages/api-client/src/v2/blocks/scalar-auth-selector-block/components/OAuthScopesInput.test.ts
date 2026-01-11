@@ -18,6 +18,7 @@ describe('OAuthScopesInput', () => {
       props: {
         flow: opts?.flow ?? baseFlow,
         selectedScopes: opts?.selected ?? [],
+        flowType: 'authorizationCode',
       },
     })
   }

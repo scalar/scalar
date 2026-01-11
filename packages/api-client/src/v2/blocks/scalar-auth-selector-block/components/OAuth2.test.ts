@@ -154,6 +154,7 @@ describe('OAuth2', () => {
           tokenUrl: 'https://example.com/token',
           'x-scalar-secret-token': '',
           'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
           scopes: {},
           'x-scalar-secret-client-id': '',
           'x-scalar-secret-client-secret': '',
