@@ -90,24 +90,7 @@ const html = computed(() => {
   .markdown > *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):last-child {
     margin-bottom: 0;
   }
-  /* Headings (h1-h6) */
-  .markdown h1 {
-    --font-size: 1.5rem;
-    --markdown-line-height: 32px;
-  }
-
-  .markdown h2,
-  .markdown h3 {
-    --font-size: 1.25rem;
-    --markdown-line-height: 1.3;
-  }
-
-  .markdown h4,
-  .markdown h5,
-  .markdown h6 {
-    --font-size: 1rem;
-  }
-
+  /* Headings */
   .markdown h1,
   .markdown h2,
   .markdown h3,
@@ -115,11 +98,34 @@ const html = computed(() => {
   .markdown h5,
   .markdown h6 {
     display: block;
-    font-size: var(--font-size);
     font-weight: var(--scalar-bold);
     margin-top: var(--scalar-refs-heading-spacing);
     margin-bottom: var(--markdown-spacing-sm);
     scroll-margin-top: 1rem;
+  }
+  .markdown h1 {
+    font-size: var(--scalar-heading-1);
+    line-height: 1.2;
+  }
+  .markdown h2 {
+    font-size: var(--scalar-heading-2);
+    line-height: 1.2;
+  }
+  .markdown h3 {
+    font-size: var(--scalar-heading-3);
+    line-height: 1.3;
+  }
+  .markdown h4 {
+    font-size: var(--scalar-heading-4);
+    line-height: 1.3;
+  }
+  .markdown h5 {
+    font-size: var(--scalar-heading-5);
+    line-height: 1.3;
+  }
+  .markdown h6 {
+    font-size: var(--scalar-heading-6);
+    line-height: 1.3;
   }
 
   /* Text formatting and paragraphs */
