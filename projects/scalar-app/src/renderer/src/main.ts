@@ -37,8 +37,7 @@ if (window.electron) {
       })
     })
 
-    // Set the platform class on the client app
-    document.getElementById('scalar-client-app')?.classList.add('app-platform-desktop', `app-platform-${os}`)
+    el.classList.add('app-platform-desktop', `app-platform-${os}`)
   }
 
   // Open… menu
