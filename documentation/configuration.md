@@ -1123,7 +1123,7 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 
 **Type:** `(item: { title: string; }) => string`
 
-Customize how document page title is generated. This function receives the sidebar item object containing the title.
+Customize how the document page title is generated. This function receives the sidebar item object containing the title.
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
