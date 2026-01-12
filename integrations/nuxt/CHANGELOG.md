@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.5.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.7**
+  - [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
+- **@scalar/api-reference@1.43.2**
+
 ## 0.5.40
 
 ### Patch Changes
