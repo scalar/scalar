@@ -57,12 +57,7 @@ watch(router, (r) => {
     return
   }
 
-  r.beforeEach((to) => handleRouteChange(to))
-  workspaceSlug.value = getRouteParam('workspaceSlug', r.currentRoute.value)
-  documentSlug.value = getRouteParam('documentSlug', r.currentRoute.value)
-  method.value = getRouteParam('method', r.currentRoute.value)
-  path.value = getRouteParam('pathEncoded', r.currentRoute.value)
-  exampleName.value = getRouteParam('exampleName', r.currentRoute.value)
+  r.afterEach((to) => handleRouteChange(to))
 })
 
 const currentRoute = computed(() => router.value?.currentRoute.value ?? null)
@@ -630,11 +625,12 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
+  console.log({ message: 'handleRouteChange', to })
   const workspace = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
-  workspaceSlug.value = getRouteParam('workspaceSlug', to)
-  documentSlug.value = getRouteParam('documentSlug', to)
+  workspaceSlug.value = workspace
+  documentSlug.value = document
   method.value = getRouteParam('method', to)
   path.value = getRouteParam('pathEncoded', to)
   exampleName.value = getRouteParam('exampleName', to)
