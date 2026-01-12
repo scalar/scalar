@@ -281,7 +281,7 @@ describe('getExampleValue', () => {
     expect(result?.value).toEqual('low')
   })
 
-  it('returns [deprecated] schema.example when no other examples exist', () => {
+  it('returns schema.example when no other examples exist', () => {
     const param = {
       name: 'category',
       in: 'query',
