@@ -546,6 +546,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                     'x-scalar-original-document-hash': '',
                   },
                 ),
+                path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
 
               fireWorkspaceChange(event)
@@ -566,6 +567,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                     'x-scalar-original-document-hash': '',
                   },
                 ),
+                path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
 
               fireWorkspaceChange(event)
@@ -653,6 +655,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               type,
               documentName: documentName,
               value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+              path: path.splice(2),
             } satisfies WorkspaceStateChangeEvent
             fireWorkspaceChange(event)
           }
@@ -662,6 +665,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               type,
               documentName: documentName,
               value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+              path: path.splice(2),
             } satisfies WorkspaceStateChangeEvent
             fireWorkspaceChange(event)
           }

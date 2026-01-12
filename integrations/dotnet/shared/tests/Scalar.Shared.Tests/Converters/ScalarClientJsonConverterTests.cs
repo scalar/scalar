@@ -11,7 +11,7 @@ public class ScalarClientJsonConverterTests
         const ScalarClient scalarClient = ScalarClient.Libcurl;
 
         // Act
-        var json = JsonSerializer.Serialize(scalarClient);
+        var json = JsonSerializer.Serialize(scalarClient, typeof(ScalarClient), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"libcurl\"");

@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { getExampleFromSchema } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import {
+  getExampleFromSchema,
+  getResolvedRefDeep,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -8,8 +11,6 @@ import type {
   MediaTypeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-
-import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 const { example, response } = defineProps<{
   response: MediaTypeObject | undefined

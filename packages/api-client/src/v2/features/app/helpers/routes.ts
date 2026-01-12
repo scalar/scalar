@@ -5,6 +5,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import type { Workspace } from '@/v2/features/app/hooks/use-workspace-selector'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
@@ -29,6 +30,7 @@ export type RouteProps = {
   method?: HttpMethod
   exampleName?: string
   environment: XScalarEnvironment
+  securitySchemes: MergedSecuritySchemes
   workspaceStore: WorkspaceStore
   activeWorkspace: Workspace
   plugins: ClientPlugin[]

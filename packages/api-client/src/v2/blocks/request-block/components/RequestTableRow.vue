@@ -155,6 +155,9 @@ const valueModel = computed({
         disableTabIndent
         :enum="enumValue ?? []"
         :environment="environment"
+        :examples="
+          data.schema?.examples?.map((example) => String(example)) ?? []
+        "
         lineWrapping
         :max="maximumValue"
         :min="minimumValue"
@@ -203,7 +206,7 @@ const valueModel = computed({
             size="sm"
             variant="outlined"
             @click="emits('uploadFile')">
-            <span>Upload File</span>
+            <span>Select File</span>
             <ScalarIcon
               class="ml-1"
               icon="Upload"

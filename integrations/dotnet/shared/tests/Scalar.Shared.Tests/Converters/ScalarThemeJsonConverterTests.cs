@@ -11,7 +11,7 @@ public class ScalarThemeJsonConverterTests
         const ScalarTheme scalarTheme = ScalarTheme.Default;
 
         // Act
-        var json = JsonSerializer.Serialize(scalarTheme);
+        var json = JsonSerializer.Serialize(scalarTheme, typeof(ScalarTheme), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"default\"");

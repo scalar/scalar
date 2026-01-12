@@ -345,8 +345,8 @@ describe('RequestAuthTab', () => {
 
       const emitted = wrapper.emitted('update:securityScheme')
       assert(emitted)
-      assert(emitted[0])
-      expect(emitted[0][0]).toEqual({
+      assert(emitted[1])
+      expect(emitted[1][0]).toEqual({
         type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
       })

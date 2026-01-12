@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "0.7.26",
+  "version": "0.7.28",
   "engines": {
     "node": ">=20"
   },
@@ -51,7 +51,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus",
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/docusaurus",
     "image": {
       "url": "https://github.com/scalar/scalar/blob/main/integrations/docusaurus/docusaurus.png?raw=true",
       "altText": "Screenshot of the Docusaurus integration"

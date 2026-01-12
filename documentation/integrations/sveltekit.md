@@ -2,7 +2,7 @@
 
 A SvelteKit integration for the Scalar API Reference
 
-![Screenshot of the SvelteKit integration](/screenshots/sveltekit.png)
+![Screenshot of the SvelteKit integration](../assets/screenshots/sveltekit.png)
 
 ## Installation
 

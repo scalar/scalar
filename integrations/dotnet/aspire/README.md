@@ -15,7 +15,7 @@ Automatically discover and create a unified, interactive API Reference for all y
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspire)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/aspire)
 
 ## Changelog
 

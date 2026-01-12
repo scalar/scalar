@@ -1,6 +1,6 @@
 # Scalar API Reference Plugin for FastAPI
 
-![Screenshot of the FastAPI integration](/screenshots/fastapi.png)
+![Screenshot of the FastAPI integration](../assets/screenshots/fastapi.png)
 
 ## Installation
 
@@ -78,7 +78,7 @@ async def scalar_html():
 
 ## Configuration
 
-Currently available [configuration options](https://guides.scalar.com/scalar/scalar-api-references/configuration) are listed below.
+Currently available [configuration options](../configuration.md) are listed below.
 
 ### Core Configuration
 

@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.34",
+  "version": "0.1.36",
   "engines": {
     "node": ">=20"
   },
@@ -57,7 +57,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/sveltekit"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/sveltekit"
   },
   "sideEffects": [
     "**/*.css"

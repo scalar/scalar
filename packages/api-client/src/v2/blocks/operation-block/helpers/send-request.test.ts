@@ -669,7 +669,7 @@ describe('sendRequest', () => {
         plugins: [mockPlugin],
       })
 
-      expect(beforeRequestMock).toHaveBeenCalledWith(request)
+      expect(beforeRequestMock).toHaveBeenCalledWith({ request })
       expect(beforeRequestMock).toHaveBeenCalledTimes(1)
     })
 
@@ -677,9 +677,9 @@ describe('sendRequest', () => {
       const HEADER_NAME = 'X-Test-Header'
       const HEADER_VALUE = 'test-value'
 
-      const beforeRequestMock = vi.fn().mockImplementation(async (req: Request) => {
+      const beforeRequestMock = vi.fn().mockImplementation(async (req: { request: Request }) => {
         await new Promise((resolve) => setTimeout(resolve, 1))
-        req.headers.append(HEADER_NAME, HEADER_VALUE)
+        req.request.headers.append(HEADER_NAME, HEADER_VALUE)
         return req
       })
 

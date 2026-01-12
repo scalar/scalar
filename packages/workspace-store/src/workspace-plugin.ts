@@ -14,16 +14,19 @@ export type WorkspaceStateChangeEvent =
       type: 'documents'
       documentName: string
       value: InMemoryWorkspace['documents'][string]
+      path: string[]
     }
   | {
       type: 'originalDocuments'
       documentName: string
       value: InMemoryWorkspace['originalDocuments'][string]
+      path: string[]
     }
   | {
       type: 'intermediateDocuments'
       documentName: string
       value: InMemoryWorkspace['intermediateDocuments'][string]
+      path: string[]
     }
   | {
       type: 'documentConfigs'

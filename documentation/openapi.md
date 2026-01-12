@@ -300,9 +300,9 @@ openapi: 3.1.0
 info:
   title: Example
   version: 1.0
-  x-scalar-sdk-installation:
-  - lang: Node
-    description: Install our **Custom SDK** for Node.js from npm:
-    source: |-
-      npm install @your-awesome-company/sdk
++  x-scalar-sdk-installation:
++  - lang: Node
++    description: "Install our **Custom SDK** for Node.js from npm:"
++    source: |-
++      npm install @your-awesome-company/sdk
 ```

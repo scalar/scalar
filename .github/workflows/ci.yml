@@ -1042,6 +1042,14 @@ jobs:
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/api-reference
+          readme-filepath: ./integrations/docker/README.md
+
   mock-server-docker-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -1091,6 +1099,14 @@ jobs:
           tags: |
             scalarapi/mock-server:latest
             scalarapi/mock-server:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/mock-server
+          readme-filepath: ./packages/mock-server/docker/README.md
 
   dotnet-build-test:
     if: needs.check-changes.outputs.dotnet_changed == 'true'
@@ -1262,6 +1278,14 @@ jobs:
           tags: |
             scalarapi/aspire-api-reference:latest
             scalarapi/aspire-api-reference:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/aspire-api-reference
+          readme-filepath: ./integrations/dotnet/aspire/README.md
 
       - name: Set version in Constants.cs
         working-directory: integrations/dotnet/aspire

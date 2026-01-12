@@ -43,6 +43,7 @@ describe('Overview', () => {
         eventBus: mockEventBus,
         layout: 'desktop',
         environment: baseEnvironment,
+        securitySchemes: {},
         collectionType: 'document' as const,
         workspaceStore: createWorkspaceStore(),
         documentSlug: 'test-document',

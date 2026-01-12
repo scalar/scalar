@@ -29,6 +29,7 @@ export const REF_DEFINITIONS = {
   ExampleObject: 'ExampleObject',
   RequestBodyObject: 'RequestBodyObject',
   SecuritySchemeObject: 'SecuritySchemeObject',
+  SecuritySchemes: 'SecuritySchemes',
   LinkObject: 'LinkObject',
   XMLObject: 'XMLObject',
   DiscriminatorObject: 'DiscriminatorObject',

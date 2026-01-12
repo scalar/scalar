@@ -5,12 +5,13 @@ import { useToasts } from '@scalar/use-toasts'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
+import type { OAuthFlowAuthorizationCode } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type {
   OAuthFlow,
   OAuthFlowsObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
@@ -53,6 +54,22 @@ const handleOauth2Update = (payload: Partial<OAuthFlow>): void =>
       [type]: payload,
     },
   })
+
+/** Default the redirect-uri to the current origin if we have access to window */
+watch(
+  () =>
+    (flow.value as OAuthFlowAuthorizationCode)['x-scalar-secret-redirect-uri'],
+  (newRedirectUri) => {
+    if (newRedirectUri || typeof window === 'undefined') {
+      return
+    }
+    handleOauth2Update({
+      'x-scalar-secret-redirect-uri':
+        window.location.origin + window.location.pathname,
+    })
+  },
+  { immediate: true },
+)
 
 /**
  * Authorizes the user using the specified OAuth flow.

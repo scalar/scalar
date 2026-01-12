@@ -227,6 +227,7 @@ const routerViewProps = computed(
       workspaceStore: store.value!,
       activeWorkspace: activeWorkspace.value!,
       plugins,
+      securitySchemes: document.value?.components?.securitySchemes ?? {},
     }) satisfies RouteProps,
 )
 

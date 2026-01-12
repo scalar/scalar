@@ -1,43 +1,38 @@
-import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import Operation from './Operation.vue'
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
 
-// Mock the workspace store
-vi.mock('@scalar/api-client/store', () => ({
-  useWorkspace: () => ({
-    securitySchemes: [],
-  }),
-}))
+const eventBus = createWorkspaceEventBus()
 
-const clientOptions = [
-  {
-    label: 'Curl',
-    options: [
-      {
-        id: 'shell/curl',
-        label: 'Curl',
-        lang: 'shell',
-        title: 'Curl',
-        targetKey: 'shell',
-        targetTitle: 'Shell',
-        clientKey: 'curl',
-      },
-    ],
-  },
-] as ClientOptionGroup[]
-
-const createDocumentWithOperationId = () =>
-  coerceValue(OpenAPIDocumentSchema, {
+/**
+ * Helper function to mount the Operation component with default configuration.
+ * Allows overriding specific props for testing different scenarios.
+ */
+const mountOperationWithConfig = (
+  overrides: {
+    path?: string
+    method?: string
+    pathValue?: any
+    server?: any
+    options?: Partial<ExtractComponentProps<typeof Operation>['options']>
+    document?: any
+  } = {},
+) => {
+  const defaultDocument = coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
-    info: { title: 'Test API', version: '1.0.0' },
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
+    },
     paths: {
       '/users/{userId}': {
         get: {
@@ -46,38 +41,47 @@ const createDocumentWithOperationId = () =>
         },
       },
     },
+    components: {
+      schemas: {},
+    },
   })
 
-const mountOperationWithConfig = (
-  config: Omit<Partial<ExtractComponentProps<typeof Operation>>, 'options'> & {
-    options?: Partial<ExtractComponentProps<typeof Operation>['options']>
-  },
-) => {
-  const doc = createDocumentWithOperationId()
+  const defaultConfig = apiReferenceConfigurationSchema.parse({
+    layout: 'modern',
+    theme: 'default',
+    hideModels: false,
+    showOperationId: false,
+    hideTestRequestButton: false,
+    expandAllResponses: false,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha',
+    ...overrides.options,
+  })
+
+  const props: ExtractComponentProps<typeof Operation> = {
+    id: 'test-operation',
+    method: (overrides.method || 'get') as any,
+    securitySchemes: {},
+    options: defaultConfig,
+    document: overrides.document || defaultDocument,
+    path: overrides.path || '/users/{userId}',
+    pathValue: overrides.pathValue !== undefined ? overrides.pathValue : defaultDocument.paths?.['/users/{userId}'],
+    server: overrides.server !== undefined ? overrides.server : null,
+    clientOptions: [],
+    isCollapsed: false,
+    isWebhook: false,
+    selectedClient: 'c/fetch',
+    eventBus,
+  }
 
   return mount(Operation, {
-    props: {
-      id: 'test-operation',
-      method: 'get',
-      path: '/users/{userId}',
-      pathValue: doc.paths?.['/users/{userId}'],
-      security: doc.security,
-      server: undefined,
-      getSecurityScheme: () => [],
-      isCollapsed: false,
-      eventBus: null,
-      xScalarDefaultClient: 'c/libcurl',
-      ...config,
-      options: {
-        layout: 'modern',
-        isWebhook: false,
-        clientOptions,
-        showOperationId: undefined,
-        hideTestRequestButton: undefined,
-        expandAllResponses: undefined,
-        orderRequiredPropertiesFirst: undefined,
-        orderSchemaPropertiesBy: undefined,
-        ...config.options,
+    props,
+    global: {
+      stubs: {
+        RouterLink: {
+          name: 'RouterLink',
+          template: '<a><slot /></a>',
+        },
       },
     },
   })
@@ -151,8 +155,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: document.paths?.['/users/{userId}'],
-      security: document.security,
-      server: undefined,
+      server: null,
     })
 
     // Check that the component renders
@@ -213,8 +216,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: documentWithOnlyOperationParams.paths?.['/users/{userId}'],
-      security: documentWithOnlyOperationParams.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -257,8 +259,7 @@ describe('Operation', () => {
       path: '/webhook/user-updated',
       method: 'post',
       pathValue: documentWithWebhooks.webhooks?.['/webhook/user-updated'],
-      security: documentWithWebhooks.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -304,8 +305,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: documentWithRefs.paths?.['/users/{userId}'],
-      security: documentWithRefs.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -387,8 +387,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: documentWithOverridingParams.paths?.['/users/{userId}'],
-      security: documentWithOverridingParams.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -418,8 +417,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: document.paths?.['/users/{userId}'],
-      security: document.security,
-      server: undefined,
+      server: null,
       options: {
         layout: 'classic',
       },
@@ -459,8 +457,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: documentWithoutOperation.paths?.['/users/{userId}'],
-      security: undefined,
-      server: undefined,
+      server: null,
     })
 
     // Should not render anything when operation is not available
@@ -503,8 +500,7 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: documentWithResponses.paths?.['/users/{userId}'],
-      security: documentWithResponses.security,
-      server: undefined,
+      server: null,
       options: {
         layout: 'modern',
         expandAllResponses: true,
@@ -526,13 +522,12 @@ describe('Operation', () => {
       path: '/users/{userId}',
       method: 'get',
       pathValue: doc.paths?.['/users/{userId}'],
-      security: doc.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
     expect(modernLayout.exists()).toBe(true)
-    const server = modernLayout.props('server') as { url?: string } | undefined
+    const server = modernLayout.props('selectedServer') as { url?: string } | undefined
     expect(server?.url).toBe('https://op.example.com')
   })
 
@@ -563,13 +558,12 @@ describe('Operation', () => {
       path: '/users',
       method: 'get',
       pathValue: doc.paths?.['/users'],
-      security: doc.security,
-      server: undefined,
+      server: null,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
     expect(modernLayout.exists()).toBe(true)
-    const server = modernLayout.props('server') as { url?: string } | undefined
+    const server = modernLayout.props('selectedServer') as { url?: string } | undefined
     expect(server?.url).toBe('https://path.example.com')
   })
 

@@ -56,6 +56,13 @@ export const mapConfigToWorkspaceStore = ({
     useSeoMeta(toValue(config).metaData)
   }
 
+  // Update the active proxy when the proxyUrl changes
+  watch(
+    () => toValue(config).proxyUrl,
+    (newProxyUrl) => store.update('x-scalar-active-proxy', newProxyUrl),
+    { immediate: true },
+  )
+
   const favicon = computed(() => toValue(config).favicon)
   useFavicon(favicon)
 }

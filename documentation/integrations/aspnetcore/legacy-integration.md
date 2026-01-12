@@ -108,4 +108,4 @@ To use a specific version instead of the latest, specify the version in your HTM
 - **Static files not serving**: Check that `app.UseStaticFiles()` is present in your middleware pipeline
 - **404 errors**: Confirm the directory structure and that the files are correctly named
 
-For more configuration options, refer to the [official Scalar configuration documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration).
+For more configuration options, refer to the [official Scalar configuration documentation](../../configuration.md).

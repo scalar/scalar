@@ -8,7 +8,7 @@ The `Scalar.AspNetCore.Swashbuckle` package provides OpenAPI filters for `Swashb
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/openapi-extensions)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/aspnetcore/openapi-extensions)
 
 ## Community
 

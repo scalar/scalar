@@ -50,7 +50,7 @@ const { cx } = useBindCx()
       :indent="level" />
     <ScalarSidebarButton
       is="div"
-      class="text-sm font-bold"
+      class="text-sm/5 py-1.75 font-bold"
       disabled
       :icon="icon"
       :indent="level">

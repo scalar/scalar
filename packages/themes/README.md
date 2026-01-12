@@ -36,7 +36,7 @@ pnpm i @scalar/themes
 
 ### Usage via CSS Import (Basic)
 
-To import the basic theme styles into your project, you can just import `style.css` which imports the reset, scrollbars, and a copy of the base [Scalar CSS variables](./src/variables.css) and [default theme](./src/presets/default.css).
+To import the basic theme styles into your project, you can just import `style.css` which imports the reset, scrollbars, and a copy of the base [Scalar CSS variables](./src/base/variables.css) and [default theme](./src/presets/default.css).
 
 ```ts
 import '@scalar/themes/styles.css'

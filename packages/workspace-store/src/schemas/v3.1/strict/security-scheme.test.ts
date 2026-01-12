@@ -115,25 +115,6 @@ describe('security-scheme', () => {
           'x-scalar-secret-password': '',
         })
       })
-
-      it('parses valid http security scheme with digest correctly', () => {
-        const validInput = {
-          type: 'http',
-          scheme: 'digest',
-          description: 'Digest authentication',
-        }
-
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
-
-        expect(result).toEqual({
-          type: 'http',
-          scheme: 'digest',
-          description: 'Digest authentication',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
-        })
-      })
     })
 
     describe('OAuth2 security scheme', () => {

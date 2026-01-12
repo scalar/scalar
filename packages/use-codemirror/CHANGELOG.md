@@ -1,5 +1,39 @@
 # @scalar/use-codemirror
 
+## 0.13.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
+## 0.13.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.16**
+
+## 0.13.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.15**
+
+## 0.13.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
 ## 0.13.7
 
 ### Patch Changes

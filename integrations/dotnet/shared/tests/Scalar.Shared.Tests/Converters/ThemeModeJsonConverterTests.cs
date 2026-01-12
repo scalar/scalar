@@ -11,7 +11,7 @@ public class ThemeModeJsonConverterTests
         const ThemeMode themeMode = ThemeMode.Light;
 
         // Act
-        var json = JsonSerializer.Serialize(themeMode);
+        var json = JsonSerializer.Serialize(themeMode, typeof(ThemeMode), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"light\"");

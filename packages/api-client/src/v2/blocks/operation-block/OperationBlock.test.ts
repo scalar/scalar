@@ -132,8 +132,9 @@ const createDefaultProps = () => ({
   exampleKey: 'default',
   authMeta: createMockAuthMeta(),
   securitySchemes: {},
-  selectedSecurity: undefined,
-  securityRequirements: [],
+  documentSecurity: undefined,
+  documentSelectedSecurity: undefined,
+  setOperationSecurity: false,
   plugins: [],
   environment: createMockEnvironment(),
 })
@@ -361,14 +362,12 @@ describe('OperationBlock', () => {
     ])
 
     const mockCookie: XScalarCookie = { name: 'session', value: 'abc123', domain: 'example.com' }
-    const mockSelectedSecurity = { selectedIndex: 0, selectedSchemes: [{ apiKey: [] }] }
 
     const wrapper = mount(OperationBlock, {
       props: {
         ...createDefaultProps(),
         globalCookies: [mockCookie],
         proxyUrl: 'https://proxy.example.com',
-        selectedSecurity: mockSelectedSecurity,
       },
     })
 
@@ -382,8 +381,7 @@ describe('OperationBlock', () => {
       method: 'get',
       operation: wrapper.props().operation,
       path: '/api/users',
-      securitySchemes: {},
-      selectedSecurity: [{ apiKey: [] }],
+      selectedSecuritySchemes: [],
       server: wrapper.props().server,
       proxyUrl: 'https://proxy.example.com',
     })
@@ -413,7 +411,7 @@ describe('OperationBlock', () => {
 
     const mockPlugin = {
       hooks: {
-        beforeRequest: vi.fn((req: Request) => req),
+        beforeRequest: vi.fn((req: { request: Request }) => req),
       },
     }
 

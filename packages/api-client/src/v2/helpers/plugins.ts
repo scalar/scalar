@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 export type ClientPluginHooks = {
-  beforeRequest: (payload: Request) => Request | Promise<Request>
+  beforeRequest: (payload: { request: Request }) => { request: Request } | Promise<{ request: Request }>
   responseReceived: (payload: {
     response: Response
     request: Request

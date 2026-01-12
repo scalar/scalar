@@ -32,8 +32,6 @@ function App() {
 export default App
 ```
 
-We wrote a [detailed integration guide for React](https://guides.scalar.com/scalar/scalar-api-references/integrations/react), too.
-
 ### Example
 
 You can find an example in this repo under [examples/react](https://github.com/scalar/scalar/tree/main/examples/react)
@@ -44,8 +42,7 @@ ApiReference only takes one prop which is the configuration object.
 
 ### configuration: ReferenceProps
 
-You can find the full configuration options under
-[packages/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
+[Read more about the available configuration options.](../configuration.md)
 
 ## Guide
 

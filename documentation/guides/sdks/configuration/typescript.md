@@ -89,10 +89,10 @@ typescript:
 | moduleFormat    | false    | commonjs      | Sets the module format to use when compiling the SDK (`commonjs`, `esm`, or `dual`). Using `dual` provides optimal compatibility while enabling modern bundler optimizations. |
 
 > **Performance optimization**
-> 
+>
 > For optimal bundle size and tree-shaking performance in modern applications, we recommend using `moduleFormat: "dual"` together with `useIndexModules: false`. This combination ensures maximum compatibility while enabling the best possible bundler optimizations.
-> 
-> See the [module format configuration guide](https://guides.scalar.com/docs/customize/typescript/configuring-module-format) and [barrel files documentation](https://guides.scalar.com/docs/customize/typescript/disabling-barrel-files) for detailed information about these optimizations.
+>
+> See the [module format configuration guide](https://www.speakeasy.com/docs/sdks/customize/typescript/configuring-module-format) and [barrel files documentation](https://www.speakeasy.com/docs/sdks/customize/typescript/disabling-barrel-files) for detailed information about these optimizations.
 
 ## Import management
 

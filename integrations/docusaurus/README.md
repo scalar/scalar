@@ -18,7 +18,7 @@ Docusaurus plugin to embed beautiful, interactive API documentation from OpenAPI
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/docusaurus)
 
 ## Changelog
 

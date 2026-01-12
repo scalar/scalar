@@ -2,7 +2,7 @@
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Hono.
 
-![Screenshot of the Hono integration](/screenshots/hono.png)
+![Screenshot of the Hono integration](../assets/screenshots/hono.png)
 
 ## Installation
 
@@ -34,7 +34,7 @@ app.get('/scalar', Scalar((c) => {
 export default app
 ```
 
-The Hono middleware takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) in the core package README.
+The Hono middleware takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
 
 ### Themes
 

@@ -34,7 +34,7 @@ import {
 } from '@/schemas/navigation'
 
 import { CallbackObjectSchemaDefinition } from './callback'
-import { type ComponentsObject, ComponentsObjectSchemaDefinition } from './components'
+import { type ComponentsObject, ComponentsObjectSchemaDefinition, SecuritySchemesSchemaDefinition } from './components'
 import { ContactObjectSchemaDefinition } from './contact'
 import { DiscriminatorObjectSchemaDefinition } from './discriminator'
 import { EncodingObjectSchemaDefinition } from './encoding'
@@ -190,6 +190,7 @@ const module = Type.Module({
   [REF_DEFINITIONS.ParameterObject]: ParameterObjectSchemaDefinition,
   [REF_DEFINITIONS.ExampleObject]: ExampleObjectSchemaDefinition,
   [REF_DEFINITIONS.RequestBodyObject]: RequestBodyObjectSchemaDefinition,
+  [REF_DEFINITIONS.SecuritySchemes]: SecuritySchemesSchemaDefinition,
   [REF_DEFINITIONS.SecuritySchemeObject]: SecuritySchemeObjectSchemaDefinition,
   [REF_DEFINITIONS.LinkObject]: LinkObjectSchemaDefinition,
   [REF_DEFINITIONS.XMLObject]: XMLObjectSchemaDefinition,
@@ -238,6 +239,7 @@ export const ResponsesObjectSchema = module.Import('ResponsesObject')
 export const ParameterObjectSchema = module.Import('ParameterObject')
 export const ExampleObjectSchema = module.Import('ExampleObject')
 export const RequestBodyObjectSchema = module.Import('RequestBodyObject')
+export const SecuritySchemesSchema = module.Import('SecuritySchemes')
 export const SecuritySchemeObjectSchema = module.Import('SecuritySchemeObject')
 export const LinkObjectSchema = module.Import('LinkObject')
 export const XMLObjectSchema = module.Import('XMLObject')
@@ -261,7 +263,7 @@ export type { ServerObject }
 export type { TagObject }
 
 export type { CallbackObject } from './callback'
-export type { ComponentsObject } from './components'
+export type { ComponentsObject, SecuritySchemes } from './components'
 export type { ContactObject } from './contact'
 export type { DiscriminatorObject } from './discriminator'
 export type { EncodingObject } from './encoding'

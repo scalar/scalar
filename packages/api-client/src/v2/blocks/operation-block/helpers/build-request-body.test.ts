@@ -107,8 +107,8 @@ describe('buildRequestBody', () => {
 
     expect(result).toBeInstanceOf(FormData)
     const formData = result as FormData
-    expect(formData.get('file')).toBe(mockFile)
-    expect(formData.get('description')).toBe('Test file')
+    expect(formData.get('file')).toStrictEqual(mockFile)
+    expect(formData.get('description')).toStrictEqual('Test file')
   })
 
   it('skips form entries with empty names and replaces environment variables in field names', () => {

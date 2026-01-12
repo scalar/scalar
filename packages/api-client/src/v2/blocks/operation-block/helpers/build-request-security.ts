@@ -15,10 +15,10 @@ import type {
 import { encode } from 'js-base64'
 
 /**
- * Get the selected security schemes from the selected security.
+ * Get the selected security schemes from security requirements.
  * Takes security requirement objects and resolves them to actual security scheme objects.
  */
-export const getSelectedSecuritySchemes = (
+export const getSecuritySchemes = (
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
   selectedSecurity: SecurityRequirementObject[],
 ): SecuritySchemeObject[] =>
@@ -38,10 +38,8 @@ export const getSelectedSecuritySchemes = (
  * In the future we can add customization for where the security is applied
  */
 export const buildRequestSecurity = (
-  /** Document defined security schemes */
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
   /** Currently selected security for the current operation */
-  selectedSecurity: SecurityRequirementObject[],
+  selectedSecuritySchemes: SecuritySchemeObject[],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** Include this parameter to set the placeholder for empty tokens */
@@ -50,9 +48,6 @@ export const buildRequestSecurity = (
   const headers: Record<string, string> = {}
   const cookies: XScalarCookie[] = []
   const urlParams = new URLSearchParams()
-
-  /** Build the selected security schemes from the selected security */
-  const selectedSecuritySchemes = getSelectedSecuritySchemes(securitySchemes, selectedSecurity)
 
   selectedSecuritySchemes.forEach((scheme) => {
     // Api key

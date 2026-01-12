@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -83,7 +84,7 @@ const selectedContentType = computed(
   () =>
     requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
     Object.keys(requestBody?.content ?? {})[0] ??
-    'other',
+    'none',
 )
 
 watch(
@@ -155,7 +156,20 @@ const tableRows = computed(() => {
     return []
   }
 
-  return Array.isArray(example.value.value) ? example.value.value : []
+  // Already an array of rows
+  if (Array.isArray(example.value.value)) {
+    return example.value.value
+  }
+
+  // We got an object try to convert it to an array of rows
+  if (typeof example.value.value === 'object' && example.value.value) {
+    return objectEntries(example.value.value).map(([key, value]) => ({
+      name: key,
+      value,
+    }))
+  }
+
+  return []
 })
 </script>
 <template>
@@ -174,7 +188,10 @@ const tableRows = computed(() => {
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
             fullWidth
             variant="ghost">
-            <span>{{ selectedContentType }}</span>
+            <span>{{
+              contentTypes[selectedContentType as keyof typeof contentTypes] ??
+              selectedContentType
+            }}</span>
             <ScalarIcon
               icon="ChevronDown"
               size="md" />
@@ -227,7 +244,7 @@ const tableRows = computed(() => {
                       }),
                     )
                 ">
-                <span>Upload File</span>
+                <span>Select File</span>
                 <ScalarIcon
                   class="ml-1"
                   icon="Upload"
@@ -277,15 +294,15 @@ const tableRows = computed(() => {
             @uploadFile="
               (index) =>
                 handleFileUpload((file) => {
-                  if (index !== undefined) {
+                  if (index !== undefined && index < tableRows.length) {
                     return emits('update:formRow', {
                       index,
-                      data: { value: file ?? undefined },
+                      data: { value: file },
                       contentType: selectedContentType,
                     })
                   }
                   emits('add:formRow', {
-                    data: { value: file ?? undefined },
+                    data: { key: file?.name ?? 'file', value: file },
                     contentType: selectedContentType,
                   })
                 })

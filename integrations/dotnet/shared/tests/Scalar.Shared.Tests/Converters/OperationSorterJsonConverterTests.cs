@@ -11,7 +11,7 @@ public class OperationSorterJsonConverterTests
         const OperationSorter operationSorter = OperationSorter.Alpha;
 
         // Act
-        var json = JsonSerializer.Serialize(operationSorter);
+        var json = JsonSerializer.Serialize(operationSorter, typeof(OperationSorter), ScalarConfigurationSerializerContext.Default);
 
         // Assert
         json.Should().Be("\"alpha\"");

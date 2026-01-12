@@ -13,7 +13,12 @@ import DownloadLink from '@/blocks/scalar-info-block/components/DownloadLink.vue
 import IntroductionCard from './IntroductionCard.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
 
-const { options } = defineProps<{
+const {
+  headingSlugGenerator,
+  layout,
+  eventBus,
+  documentDownloadType = 'both',
+} = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
   /** Original openapi version of the input document */
@@ -27,15 +32,13 @@ const { options } = defineProps<{
   /** OpenAPI extension fields at the info object level. */
   infoExtensions?: Record<string, unknown>
   /** The event bus for the handling all events. */
-  eventBus: WorkspaceEventBus | null
-  options: {
-    /** Determines the layout style for the info block ('modern' or 'classic'). */
-    layout?: 'modern' | 'classic'
-    /** The document download type. */
-    documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
-    /** Heading id generator for Markdown headings */
-    headingSlugGenerator: (heading: Heading) => string
-  }
+  eventBus: WorkspaceEventBus
+  /** Heading id generator for Markdown headings */
+  headingSlugGenerator: (heading: Heading) => string
+  /** Determines the layout style for the info block ('modern' or 'classic'). */
+  layout?: 'modern' | 'classic'
+  /** The document download type. */
+  documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
 }>()
 
 /**
@@ -44,7 +47,7 @@ const { options } = defineProps<{
  * - and the aside slot for other layouts.
  */
 const introCardsSlot = computed(() =>
-  options.layout === 'classic' ? 'after' : 'aside',
+  layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 
@@ -54,18 +57,19 @@ const introCardsSlot = computed(() =>
     :documentExtensions
     :eventBus="eventBus"
     :externalDocs
-    :headingSlugGenerator="options.headingSlugGenerator"
+    :headingSlugGenerator
     :info
     :infoExtensions
     :oasVersion>
     <template #[introCardsSlot]>
-      <IntroductionCard :row="options.layout === 'classic'">
+      <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />
       </IntroductionCard>
     </template>
     <template #download-link>
       <DownloadLink
-        :documentDownloadType="options.documentDownloadType ?? 'both'" />
+        :documentDownloadType
+        :eventBus />
     </template>
   </IntroductionLayout>
 </template>

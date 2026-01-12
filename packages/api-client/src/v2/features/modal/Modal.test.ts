@@ -7,6 +7,8 @@ import { computed, nextTick } from 'vue'
 
 import 'fake-indexeddb/auto'
 
+import { mockEventBus } from '@/v2/helpers/test-utils'
+
 import { useModalSidebar } from './hooks/use-modal-sidebar'
 import Modal from './Modal.vue'
 
@@ -87,9 +89,12 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
       document,
       path: computed(() => path.value),
       method: computed(() => method.value),
+      options: {},
+      plugins: [],
       exampleName: computed(() => exampleName.value),
       modalState,
       sidebarState,
+      eventBus: mockEventBus,
     },
   }
 }
@@ -193,9 +198,12 @@ describe('Modal', () => {
         document: emptyDocument,
         path: computed(() => undefined),
         method: computed(() => undefined),
+        options: {},
+        plugins: [],
         exampleName: computed(() => undefined),
         modalState,
         sidebarState,
+        eventBus: mockEventBus,
       },
       attachTo: '#scalar-modal-test',
     })

@@ -1,4 +1,5 @@
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
@@ -45,7 +46,12 @@ export const buildRequestBody = (
 
       // Handle file uploads
       if (value instanceof File && form instanceof FormData) {
-        form.append(replacedName, value)
+        /**
+         * We need to unwrap the proxies to get the file name due to the
+         * "this" context in the proxy causing an illegal invocation error
+         */
+        const unwrappedValue = unpackProxyObject(value)
+        form.append(replacedName, unwrappedValue, unwrappedValue.name)
       }
       // Text input
       else if (typeof value === 'string') {

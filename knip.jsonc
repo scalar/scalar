@@ -3,15 +3,12 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
-    "integrations/docusaurus/**",
     "packages/api-client/**",
     "packages/api-reference/**",
-    "packages/api-reference-react/**",
-    "packages/galaxy/**",
-    "packages/nextjs-openapi/**",
     "packages/postman-to-openapi/**",
     "projects/**",
     "integrations/docker/**",
+    "integrations/docusaurus/**",
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
@@ -31,7 +28,8 @@
     "**/esbuild.ts",
 
     // Referenced in scalar.config.json
-    "documentation/assets/landing.js"
+    "documentation/assets/landing.js",
+    "documentation/assets/fathom.js"
   ],
 
   "ignoreDependencies": [
@@ -51,6 +49,9 @@
   "ignoreBinaries": ["netlify"],
   "workspaces": {
     "packages/api-client-react": {
+      "entry": ["playground/main.tsx"]
+    },
+    "packages/api-reference-react": {
       "entry": ["playground/main.tsx"]
     },
     "packages/build-tooling": {
@@ -105,6 +106,10 @@
         "src/bundle/plugins/browser.ts",
         "src/helpers/escape-json-pointer.ts"
       ]
+    },
+    "packages/nextjs-openapi": {
+      "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
+      "ignoreFiles": ["playground/next.config.js"]
     },
     "packages/oas-utils": {
       "entry": [

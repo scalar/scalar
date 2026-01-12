@@ -23,6 +23,9 @@ describe('generateCodeSnippet', () => {
     path: '/users',
     server: mockServer,
     customCodeSamples: [] as XCodeSample[],
+    contentType: undefined,
+    example: undefined,
+    securitySchemes: [],
   }
 
   beforeEach(() => {
@@ -90,6 +93,11 @@ describe('generateCodeSnippet', () => {
   })
 
   it('returns error message when getSnippet fails', () => {
+    // Mock console.error to suppress expected error output
+    consoleErrorSpy.mockImplementation(() => {
+      // Intentionally empty to suppress console output
+    })
+
     const result = generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
@@ -98,6 +106,7 @@ describe('generateCodeSnippet', () => {
     })
 
     expect(result).toBe('Error generating code snippet')
+    expect(consoleErrorSpy).toHaveBeenCalledWith('[generateCodeSnippet]', expect.any(Error))
   })
 
   it('generates code snippet with request body and content type', () => {
@@ -175,6 +184,11 @@ try {
   })
 
   it('returns error message and logs error when exception is thrown', () => {
+    // Mock console.error to suppress expected error output
+    consoleErrorSpy.mockImplementation(() => {
+      // Intentionally empty to suppress console output
+    })
+
     const result = generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
@@ -184,7 +198,5 @@ try {
 
     expect(result).toBe('Error generating code snippet')
     expect(consoleErrorSpy).toHaveBeenCalledWith('[generateCodeSnippet]', expect.any(Error))
-
-    consoleErrorSpy.mockRestore()
   })
 })

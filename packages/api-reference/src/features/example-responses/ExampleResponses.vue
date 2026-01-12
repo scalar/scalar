@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import {
+  ExamplePicker,
+  getResolvedRefDeep,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -26,7 +29,6 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
-import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples

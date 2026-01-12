@@ -1,17 +1,17 @@
 # Scalar API Reference for Effect
 
-The wonderful TypeScript comes with Scalar already.
+Effect is natively integrated with Scalar, making it easy to use together out of the box.
 
 ## Usage
 
-```diff
+```ts
 // https://github.com/Effect-TS/effect/tree/main/packages/platform#registering-a-httpapi
 import {
   HttpApi,
   HttpApiBuilder,
   HttpApiEndpoint,
   HttpApiGroup,
-+   HttpApiScalar,
+  HttpApiScalar,
   HttpLayerRouter
 } from "@effect/platform"
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
@@ -38,11 +38,11 @@ const HttpApiRoutes = HttpLayerRouter.addHttpApi(MyApi, {
   Layer.provide(UsersApiLayer)
 )
 
-+ // Create a /docs route for the API documentation
-+ const DocsRoute = HttpApiScalar.layerHttpLayerRouter({
-+   api: MyApi,
-+   path: "/docs"
-+ })
+// Create a /docs route for the API documentation
+const DocsRoute = HttpApiScalar.layerHttpLayerRouter({
+  api: MyApi,
+  path: "/docs"
+})
 
 // Finally, we merge all routes and serve them using the Node HTTP server
 const AllRoutes = Layer.mergeAll(HttpApiRoutes, DocsRoute).pipe(

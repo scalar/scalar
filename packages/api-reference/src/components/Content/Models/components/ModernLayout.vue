@@ -12,7 +12,7 @@ const { schema, options } = defineProps<{
   name: string
   schema: SchemaObject
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: WorkspaceEventBus
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -38,7 +38,7 @@ const { schema, options } = defineProps<{
     </template>
     <ScalarErrorBoundary>
       <Schema
-        :eventBus="eventBus"
+        :eventBus
         hideHeading
         hideModelNames
         :level="1"

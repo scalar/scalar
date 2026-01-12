@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+
 import { ApiReference } from '@scalar/nextjs-api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { sync } from 'fast-glob'

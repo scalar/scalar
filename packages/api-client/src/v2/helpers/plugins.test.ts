@@ -6,9 +6,9 @@ import { executeHook } from './plugins'
 describe('executeHook', () => {
   it('returns the original payload when no plugins are provided', async () => {
     const request = new Request('https://example.com')
-    const result = await executeHook(request, 'beforeRequest', [])
+    const result = await executeHook({ request }, 'beforeRequest', [])
 
-    expect(result).toBe(request)
+    expect(result).toEqual({ request })
   })
 
   it('executes a single plugin hook and returns modified payload', async () => {
@@ -16,18 +16,18 @@ describe('executeHook', () => {
     const plugin: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers: { 'X-Custom-Header': 'test-value' },
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
 
-    const result = await executeHook(request, 'beforeRequest', [plugin])
+    const result = await executeHook({ request }, 'beforeRequest', [plugin])
 
-    expect(result.headers.get('X-Custom-Header')).toBe('test-value')
+    expect(result.request.headers.get('X-Custom-Header')).toBe('test-value')
   })
 
   it('chains multiple plugins in order and applies all modifications', async () => {
@@ -36,11 +36,11 @@ describe('executeHook', () => {
     const plugin1: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers: { 'X-Plugin-1': 'first' },
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
@@ -48,13 +48,13 @@ describe('executeHook', () => {
     const plugin2: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          const headers = new Headers(req.headers)
+          const headers = new Headers(req.request.headers)
           headers.set('X-Plugin-2', 'second')
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers,
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
@@ -62,22 +62,22 @@ describe('executeHook', () => {
     const plugin3: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          const headers = new Headers(req.headers)
+          const headers = new Headers(req.request.headers)
           headers.set('X-Plugin-3', 'third')
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers,
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
 
-    const result = await executeHook(request, 'beforeRequest', [plugin1, plugin2, plugin3])
+    const result = await executeHook({ request }, 'beforeRequest', [plugin1, plugin2, plugin3])
 
-    expect(result.headers.get('X-Plugin-1')).toBe('first')
-    expect(result.headers.get('X-Plugin-2')).toBe('second')
-    expect(result.headers.get('X-Plugin-3')).toBe('third')
+    expect(result.request.headers.get('X-Plugin-1')).toBe('first')
+    expect(result.request.headers.get('X-Plugin-2')).toBe('second')
+    expect(result.request.headers.get('X-Plugin-3')).toBe('third')
   })
 
   it('skips plugins without the specified hook', async () => {
@@ -94,18 +94,18 @@ describe('executeHook', () => {
     const pluginWithHook: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers: { 'X-Applied': 'true' },
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
 
-    const result = await executeHook(request, 'beforeRequest', [pluginWithoutHook, pluginWithHook])
+    const result = await executeHook({ request }, 'beforeRequest', [pluginWithoutHook, pluginWithHook])
 
-    expect(result.headers.get('X-Applied')).toBe('true')
+    expect(result.request.headers.get('X-Applied')).toBe('true')
   })
 
   it('handles async hooks and waits for promises to resolve', async () => {
@@ -117,18 +117,18 @@ describe('executeHook', () => {
           // Simulate async operation
           await new Promise((resolve) => setTimeout(resolve, 10))
 
-          const modifiedRequest = new Request(req.url, {
-            ...req,
+          const modifiedRequest = new Request(req.request.url, {
+            ...req.request,
             headers: { 'X-Async': 'completed' },
           })
-          return modifiedRequest
+          return { request: modifiedRequest }
         },
       },
     }
 
-    const result = await executeHook(request, 'beforeRequest', [asyncPlugin])
+    const result = await executeHook({ request }, 'beforeRequest', [asyncPlugin])
 
-    expect(result.headers.get('X-Async')).toBe('completed')
+    expect(result.request.headers.get('X-Async')).toBe('completed')
   })
 
   it('maintains type safety with HookPayloadMap for different hook types', async () => {
@@ -138,14 +138,14 @@ describe('executeHook', () => {
       hooks: {
         beforeRequest: (req) => {
           // Type should be inferred as Request
-          expect(req).toBeInstanceOf(Request)
+          expect(req.request).toBeInstanceOf(Request)
           return req
         },
       },
     }
 
-    const requestResult = await executeHook(request, 'beforeRequest', [beforeRequestPlugin])
-    expect(requestResult).toBeInstanceOf(Request)
+    const requestResult = await executeHook({ request }, 'beforeRequest', [beforeRequestPlugin])
+    expect(requestResult.request).toBeInstanceOf(Request)
 
     // Test responseReceived hook with different payload structure
     const response = new Response('{}', { status: 200 })

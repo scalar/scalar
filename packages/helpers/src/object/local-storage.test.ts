@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { LS_KEYS, REFERENCE_LS_KEYS, safeLocalStorage } from './local-storage'
 
 describe('local-storage', () => {
@@ -21,8 +22,9 @@ describe('local-storage', () => {
   describe('REFERENCE_LS_KEYS', () => {
     it('has all expected keys', () => {
       expect(REFERENCE_LS_KEYS).toEqual({
-        SELECTED_CLIENT_DEPRECATED: 'scalar-reference-selected-client',
         SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
+        AUTH_SCHEMES: 'scalar-reference-auth-schemes',
+        SELECTED_AUTH_SCHEMES: 'scalar-reference-selected-auth-schemes',
       })
     })
   })

@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/docker"
   },
-  "version": "0.4.18",
+  "version": "0.4.23",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -32,7 +32,7 @@
         "package": "scalarapi/api-reference"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/docker"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/docker"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"

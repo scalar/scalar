@@ -1,4 +1,9 @@
 # Getting Started
+<div class="flex gap-2">
+<a href="https://www.npmjs.com/@scalar/api-reference"><img src="https://img.shields.io/npm/v/@scalar/api-reference"></a>
+<a href="https://www.npmjs.com/@scalar/api-reference"><img src="https://img.shields.io/npm/dm/@scalar/api-reference"></a>
+<a href="https://discord.gg/scalar"><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+</div>
 
 The Scalar API Reference renders a modern documentation for your OpenAPI/Swagger documents and all you need is a few lines of code.
 

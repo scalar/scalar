@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { useId } from 'vue'
+
+import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -10,25 +11,19 @@ const { parameters } = defineProps<{
   parameters: ParameterObject[]
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  options: {
-    collapsableItems?: boolean
-    withExamples?: boolean
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
+  collapsableItems?: boolean
+  options: Pick<
+    OperationProps['options'],
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+  >
 }>()
 
 /** Accessible id for the heading */
 const id = useId()
-
-/** Filter out ignored and internal parameters */
-const filteredParameters = computed(() =>
-  parameters.filter((parameter) => !shouldIgnoreEntity(parameter)),
-)
 </script>
 <template>
   <div
-    v-if="filteredParameters?.length"
+    v-if="parameters?.length"
     class="mt-6">
     <div
       :id
@@ -39,9 +34,10 @@ const filteredParameters = computed(() =>
       :aria-labelledby="id"
       class="mb-3 list-none p-0 text-sm">
       <ParameterListItem
-        v-for="item in filteredParameters"
+        v-for="item in parameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
+        :collapsableItems
         :eventBus="eventBus"
         :name="item.name"
         :options="options"

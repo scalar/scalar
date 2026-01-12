@@ -1,5 +1,54 @@
 # @scalar/aspnetcore
 
+## 2.12.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.2**
+
+## 2.12.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.1**
+  - [#7673](https://github.com/scalar/scalar/pull/7673): fix: pass in reactive auth config to client
+
+## 2.12.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.0**
+  - [#7661](https://github.com/scalar/scalar/pull/7661): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.42.0**
+  - [#7605](https://github.com/scalar/scalar/pull/7605): feat: api client v2 integration
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.1**
+
+- **@scalar/api-reference@1.41.1**
+
 ## 2.12.0
 
 ### Minor Changes
@@ -1060,7 +1109,7 @@
 
 ### Minor Changes
 
-- 61c7ec8: feat: Support Multiple OpenAPI documents. Please checkout [the related docs](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents)!
+- 61c7ec8: feat: Support Multiple OpenAPI documents. Please checkout [the related docs](https://github.com/scalar/scalar/blob/main/documentation/integrations/aspnetcore/integration.md#multiple-openapi-documents)!
 
 ### Patch Changes
 

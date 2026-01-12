@@ -18,11 +18,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import {
-  ScalarIconArrowRight,
-  ScalarIconCaretLeft,
-  ScalarIconListDashes,
-} from '@scalar/icons'
+import { ScalarIconArrowRight, ScalarIconCaretLeft } from '@scalar/icons'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
@@ -34,8 +30,7 @@ import type { ScalarSidebarGroupProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
-const { controlled, icon = ScalarIconListDashes } =
-  defineProps<ScalarSidebarGroupProps>()
+const { controlled } = defineProps<ScalarSidebarGroupProps>()
 
 const emit = defineEmits<{
   /** Emitted when the nested item button is clicked */
@@ -126,13 +121,14 @@ const handleBack = (event: MouseEvent) => {
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
-        class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
         :disabled
         :indent="level"
         :selected
         v-bind="$attrs"
         @click="handleClick">
-        <template #icon>
+        <template
+          v-if="icon"
+          #icon>
           <slot name="icon">
             <ScalarIconLegacyAdapter
               :icon="icon"
@@ -161,7 +157,7 @@ const handleBack = (event: MouseEvent) => {
           <slot name="back">
             <ScalarSidebarButton
               is="button"
-              class="text-sidebar-c-1 font-sidebar-active"
+              class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
               @click="handleBack">
               <template #icon>
                 <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />

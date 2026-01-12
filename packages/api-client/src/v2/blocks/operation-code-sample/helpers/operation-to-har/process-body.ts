@@ -109,7 +109,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
 
       return {
         mimeType: _contentType,
-        text: JSON.stringify(extractedExample),
+        text: typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample),
       }
     }
   }

@@ -2,27 +2,31 @@ import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/s
 
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 
-/** Get the selected security for an operation or document, with defaults to the requirements */
+/**
+ * Get the selected security for an operation or document,
+ * Defaults to the first requirement if no selection is made and you pass in requirements
+ */
 export const getSelectedSecurity = (
-  document: OpenApiDocument | null,
-  operation: OperationObject | null,
-  securityRequirements: NonNullable<OpenApiDocument['security']>,
+  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security'],
+  operationSelectedSecurity: OperationObject['x-scalar-selected-security'],
+  securityRequirements: NonNullable<OpenApiDocument['security']> = [],
+  setOperationSecurity = false,
 ) => {
-  const firstRequirement = securityRequirements[0]
-
   // Operation level security
-  if (document?.['x-scalar-set-operation-security']) {
-    if (operation?.['x-scalar-selected-security']) {
-      return operation?.['x-scalar-selected-security']
+  if (setOperationSecurity) {
+    if (operationSelectedSecurity) {
+      return operationSelectedSecurity
     }
   }
   // Document level security
-  else if (document?.['x-scalar-selected-security']) {
-    return document?.['x-scalar-selected-security']
+  else if (documentSelectedSecurity) {
+    return documentSelectedSecurity
   }
 
-  // No need to default if auth is optional
   const isOptional = isAuthOptional(securityRequirements)
+  const firstRequirement = securityRequirements[0]
+
+  // No need to default if auth is optional
   if (isOptional || !firstRequirement) {
     return {
       selectedIndex: -1,

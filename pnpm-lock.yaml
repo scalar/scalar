@@ -1480,15 +1480,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: catalog:*
         version: 5.0.4(vite@7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
-      character-entities:
-        specifier: ^2.0.2
-        version: 2.0.2
-      decode-named-character-reference:
-        specifier: ^1.0.2
-        version: 1.0.2
-      path:
-        specifier: ^0.12.7
-        version: 0.12.7
       random-words:
         specifier: ^2.0.1
         version: 2.0.1
@@ -1504,9 +1495,6 @@ importers:
       vite:
         specifier: catalog:*
         version: 7.1.11(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
-      vue:
-        specifier: catalog:*
-        version: 3.5.21(typescript@5.8.3)
 
   packages/api-reference/playground/ssr:
     dependencies:

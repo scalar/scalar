@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Server } from '@scalar/oas-utils/entities/spec'
-import type { AvailableClients } from '@scalar/snippetz'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import type { AvailableClients } from '@scalar/types/snippetz'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import type {
   Workspace,
@@ -13,51 +15,65 @@ import type {
 } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
-import { AuthSelector } from '@/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
-import type { SecuritySchemeGetter } from '@/helpers/map-config-to-client-store'
 
-const { options, document, items } = defineProps<{
-  activeServer: Server | undefined
-  infoSectionId: string
-  document: WorkspaceDocument | undefined
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  getSecuritySchemes: SecuritySchemeGetter
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  options: {
+const { document, httpClients, items, environment, eventBus, options } =
+  defineProps<{
+    infoSectionId: string
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'authentication'
+      | 'documentDownloadType'
+      | 'expandAllResponses'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'showOperationId'
+    >
+    document: WorkspaceDocument | undefined
     httpClients: AvailableClients
-    layout: 'modern' | 'classic'
-    persistAuth: boolean
-    showOperationId?: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses?: boolean
-    expandAllModelSections: boolean | undefined
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
     headingSlugGenerator: (heading: Heading) => string
-  }
-}>()
+  }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() => generateClientOptions(options.httpClients))
+const clientOptions = computed(() => generateClientOptions(httpClients))
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
 
 /** Computed property to get all OpenAPI extension fields from the document's info object */
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
+
+/** Compute the selected server for the document only (for now) */
+const selectedServer = computed(() => getSelectedServer(document ?? null))
+
+/** Merge authentication config with the document security schemes */
+const securitySchemes = computed(() =>
+  mergeAuthConfig(
+    document?.components?.securitySchemes,
+    options.authentication?.securitySchemes,
+  ),
+)
 </script>
 <template>
   <SectionFlare />
@@ -69,44 +85,44 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
     <Lazy :id="infoSectionId">
       <InfoBlock
         :id="infoSectionId"
+        :documentDownloadType="options.documentDownloadType"
         :documentExtensions
-        :eventBus="eventBus"
+        :eventBus
         :externalDocs="document?.externalDocs"
+        :headingSlugGenerator
         :info="document?.info"
         :infoExtensions
         :layout="options.layout"
-        :oasVersion="document?.['x-original-oas-version']"
-        :options="{
-          headingSlugGenerator: options.headingSlugGenerator,
-          documentDownloadType: options.documentDownloadType,
-          layout: options.layout,
-        }">
+        :oasVersion="document?.['x-original-oas-version']">
         <template #selectors>
+          <!-- Server Selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
               v-if="document?.servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
-                :servers="document?.servers ?? []"
-                :xSelectedServer="document?.['x-scalar-active-server']" />
+                :eventBus
+                :selectedServer
+                :servers="document?.servers ?? []" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
+
+          <!-- Auth selector -->
           <ScalarErrorBoundary>
-            <!-- Auth selector currently requires an active collection -->
             <IntroductionCardItem
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <AuthSelector
-                v-if="
-                  Object.keys(document?.components?.securitySchemes ?? {})
-                    .length
-                "
-                layout="reference"
-                :persistAuth="options.persistAuth"
-                :server="activeServer"
-                title="Authentication" />
+              <Auth
+                :document
+                :environment
+                :eventBus
+                :options
+                :securitySchemes
+                :selectedServer />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
+
+          <!-- Client selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
               v-if="clientOptions.length"
@@ -114,10 +130,11 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
               <ClientSelector
                 class="introduction-card-item scalar-reference-intro-clients"
                 :clientOptions
+                :eventBus
+                :selectedClient="xScalarDefaultClient"
                 :xScalarSdkInstallation="
                   document?.info?.['x-scalar-sdk-installation']
-                "
-                :xSelectedClient="xScalarDefaultClient" />
+                " />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
         </template>
@@ -131,27 +148,16 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      v-if="items.length"
-      :activeServer
+      v-if="items.length && document"
+      :clientOptions
+      :document
       :entries="items"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
-      :getSecuritySchemes="getSecuritySchemes"
-      :options="{
-        layout: options.layout ?? 'modern',
-        showOperationId: options.showOperationId,
-        hideTestRequestButton: options.hideTestRequestButton,
-        expandAllResponses: options.expandAllResponses,
-        clientOptions: clientOptions,
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        expandAllModelSections: options.expandAllModelSections,
-      }"
-      :paths="document?.paths ?? {}"
-      :schemas="document?.components?.schemas ?? {}"
-      :security="document?.security"
-      :webhooks="document?.webhooks ?? {}"
-      :xScalarDefaultClient="xScalarDefaultClient">
+      :eventBus
+      :expandedItems
+      :options
+      :securitySchemes
+      :selectedClient="xScalarDefaultClient"
+      :selectedServer>
     </TraversedEntry>
 
     <!-- Render plugins at content.end view -->

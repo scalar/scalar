@@ -4,9 +4,9 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-const { target, servers, xSelectedServer } = defineProps<{
+const { target, servers, selectedServer } = defineProps<{
   /** The selected server URL */
-  xSelectedServer?: string
+  selectedServer: ServerObject | null
   /** Available servers */
   servers: ServerObject[]
   /** The id of the target to use for the popover (e.g. address bar) */
@@ -25,29 +25,16 @@ const serverOptions = computed(() =>
   })),
 )
 
-const server = computed(() => servers.find((s) => s.url === xSelectedServer))
-
 const serverUrlWithoutTrailingSlash = computed(
-  () => server.value?.url?.replace(/\/$/, '') || '',
+  () => selectedServer?.url?.replace(/\/$/, '') || '',
 )
 
-const selectedServer = computed({
-  get: () => {
-    if (xSelectedServer && serverOptions.value.length > 0) {
-      return serverOptions.value.find((opt) => opt.id === xSelectedServer)
-    }
-    return undefined
-  },
-  set: (option) => {
-    if (option) {
-      emit('update:modelValue', option.id)
-    }
-  },
-})
+const selectedServerOption = computed(() =>
+  serverOptions.value.find((opt) => opt.id === selectedServer?.url),
+)
 
 // For testing
 defineExpose({
-  server,
   servers,
   serverUrlWithoutTrailingSlash,
   serverOptions,
@@ -58,17 +45,20 @@ defineExpose({
   <ScalarListbox
     v-if="serverOptions.length > 1"
     ref="elem"
-    v-model="selectedServer"
     class="group"
+    :modelValue="selectedServerOption"
     :options="serverOptions"
     placement="bottom-start"
     resize
-    :target="target">
+    :target="target"
+    @update:modelValue="(e) => emit('update:modelValue', e.id)">
     <ScalarButton
       class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-lg px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
       <span class="sr-only">Server:</span>
-      <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
+      <span class="overflow-x-auto">{{
+        serverUrlWithoutTrailingSlash || 'Select a server'
+      }}</span>
       <ScalarIconCaretDown
         class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
         weight="bold" />

@@ -58,6 +58,7 @@ describe('Operation', () => {
     },
     workspaceStore: createWorkspaceStore(),
     documentSlug: 'test-document',
+    securitySchemes: {},
     activeWorkspace: {
       id: 'test-workspace',
       name: 'Test Workspace',
@@ -121,11 +122,12 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.securityRequirements).toEqual([{ apiKeyAuth: [] }])
-    expect(props.selectedSecurity).toEqual({
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    expect(props.documentSelectedSecurity).toEqual({
       selectedIndex: 0,
-      selectedSchemes: [{ apiKeyAuth: [] }],
+      selectedSchemes: [{ bearerAuth: [] }],
     })
+    expect(props.setOperationSecurity).toBe(true)
     expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
   })
 
@@ -143,8 +145,8 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props()
-    expect(props.securityRequirements).toEqual([{ bearerAuth: [] }])
-    expect(props.selectedSecurity).toEqual({
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    expect(props.documentSelectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
     })
@@ -174,8 +176,8 @@ describe('Operation', () => {
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.securityRequirements).toEqual([{ bearerAuth: [] }, {}])
-    expect(props.selectedSecurity).toEqual({
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    expect(props.documentSelectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
     })

@@ -1,5 +1,45 @@
 # @scalar/scripts
 
+## 0.0.61
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
+## 0.0.60
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.14**
+
+- **@scalar/components@0.16.16**
+
+## 0.0.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.13**
+
+- **@scalar/components@0.16.15**
+
+## 0.0.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.14**
+  - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
+
+- **@scalar/oas-utils@0.6.12**
+
 ## 0.0.57
 
 ### Patch Changes

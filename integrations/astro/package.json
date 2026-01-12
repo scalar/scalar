@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.6",
+  "version": "0.1.8",
   "engines": {
     "node": ">=20"
   },
@@ -45,7 +45,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/astro"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/astro"
   },
   "dependencies": {
     "@scalar/core": "workspace:*"

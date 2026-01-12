@@ -16,7 +16,7 @@ Nuxt module to render beautiful, interactive API documentation from OpenAPI/Swag
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/nuxt)
+[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/nuxt)
 
 ## Changelog
 

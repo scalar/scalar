@@ -201,7 +201,7 @@ var scalar = builder.AddScalarApiReference(options =>
 ```
 
 :::scalar-callout{ type=info }
-When the proxy is enabled, OAuth token requests are automatically proxied through the Scalar proxy to avoid CORS issues. However, interactive authorization requests are not proxied since they occur directly in the browser, so authorization URLs must be correctly configured and accessible. See the [Aspire playground on GitHub](https://github.com/scalar/scalar/blob/4d509fb6a074b7c779fad9ed17148a9c52db3eb9/integrations/aspire/playground/Scalar.Aspire.BookService/Program.cs#L15-L21).
+When the proxy is enabled, OAuth token requests are automatically proxied through the Scalar proxy to avoid CORS issues. However, interactive authorization requests are not proxied since they occur directly in the browser, so authorization URLs must be correctly configured and accessible. See the [Aspire playground on GitHub](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspire/playground/Scalar.Aspire.BookService/Program.cs#L15-L21).
 :::
 
 ### Service-Specific Authentication
@@ -292,4 +292,4 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ## Additional Resources
 
-For more advanced configuration options see the [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.
+For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.

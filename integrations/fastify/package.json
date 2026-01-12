@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.41.0",
+  "version": "1.43.2",
   "engines": {
     "node": ">=20"
   },
@@ -63,7 +63,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/scalar/scalar-api-references/integrations/fastify"
+    "documentation": "https://guides.scalar.com/products/api-references/integrations/fastify"
   },
   "dependencies": {
     "@scalar/core": "workspace:*",
