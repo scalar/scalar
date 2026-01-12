@@ -1527,4 +1527,74 @@ describe('upgradeFromTwoToThree', () => {
     // x-example should still be removed
     expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
   })
+
+  it('ignores x-example on body parameters when it contains a primitive value', () => {
+    // This should not throw TypeError from using 'in' operator on a primitive
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example primitive body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-example value (string instead of object keyed by media type)
+                'x-example': 'hello',
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have example since x-example was not a valid object
+    expect(requestBody.content?.['application/json']?.example).toBeUndefined()
+  })
+
+  it('ignores x-examples on body parameters when it contains a primitive value', () => {
+    // This should not throw TypeError from using 'in' operator on a primitive
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples primitive body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-examples value (number instead of object keyed by media type)
+                'x-examples': 12345,
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have examples since x-examples was not a valid object
+    expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
+  })
 })

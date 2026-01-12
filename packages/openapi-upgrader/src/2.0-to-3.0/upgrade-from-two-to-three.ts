@@ -594,13 +594,13 @@ function migrateBodyParameter(
 
       // Handle x-example (singular) - Redocly extension for Swagger 2.0
       // Transforms to OpenAPI 3.x `example` field
-      if (xExample && type in xExample) {
+      if (isNonEmptyObject(xExample) && type in xExample) {
         requestBodyObject.content[type].example = xExample[type]
       }
 
       // Handle x-examples (plural) - Redocly extension for Swagger 2.0
       // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
-      if (xExamples && type in xExamples) {
+      if (isNonEmptyObject(xExamples) && type in xExamples) {
         const examples = xExamples[type]
 
         // Check if examples is already in proper OpenAPI 3.x format (object with entries that have 'value' property)
