@@ -70,6 +70,11 @@ export const getExample = (
     if ('examples' in resolvedParam.schema && resolvedParam.schema.examples?.[0]) {
       return { value: resolvedParam.schema.examples[0] }
     }
+
+    // [deprecated] example value
+    if ('example' in resolvedParam.schema && resolvedParam.schema.example) {
+      return { value: resolvedParam.schema.example }
+    }
   }
 
   return undefined

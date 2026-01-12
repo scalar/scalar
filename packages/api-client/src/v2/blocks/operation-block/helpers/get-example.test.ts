@@ -281,6 +281,20 @@ describe('getExampleValue', () => {
     expect(result?.value).toEqual('low')
   })
 
+  it('returns [deprecated] schema.example when no other examples exist', () => {
+    const param = {
+      name: 'category',
+      in: 'query',
+      schema: {
+        type: 'string',
+        example: 'deprecated-example-value',
+      },
+    } satisfies ParameterObject
+
+    const result = getExample(param, undefined, undefined)
+    expect(result?.value).toEqual('deprecated-example-value')
+  })
+
   it('grabs the content.example', () => {
     const param = {
       content: {
