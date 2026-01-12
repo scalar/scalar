@@ -1433,6 +1433,68 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('transforms x-examples on body parameters with named examples without value wrappers', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples named examples without value wrappers', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'user',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    type: { type: 'string' },
+                  },
+                },
+                // This is the "in the wild" format where named examples do not have `value` wrappers
+                'x-examples': {
+                  'application/json': {
+                    'my-example-name': {
+                      message: 'OK',
+                      type: 'success',
+                    },
+                    'another-example': {
+                      message: 'Something went wrong',
+                      type: 'error',
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should wrap each named example individually, not as a single default
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      'my-example-name': {
+        value: {
+          message: 'OK',
+          type: 'success',
+        },
+      },
+      'another-example': {
+        value: {
+          message: 'Something went wrong',
+          type: 'error',
+        },
+      },
+    })
+  })
+
   it('ignores x-example when it contains a non-object value like a string', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

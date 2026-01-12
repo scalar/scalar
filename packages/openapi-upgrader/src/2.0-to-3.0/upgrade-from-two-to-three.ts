@@ -24,6 +24,19 @@ function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && Object.keys(value).length > 0
 }
 
+/**
+ * Checks if a value looks like a collection of named examples (all values are objects).
+ * This helps distinguish between:
+ * - A single example: { message: 'OK', type: 'success' } - values are primitives
+ * - Named examples: { 'my-example': { message: 'OK' } } - values are objects
+ */
+function isNamedExamplesCollection(value: unknown): value is Record<string, Record<string, unknown>> {
+  return (
+    isNonEmptyObject(value) &&
+    Object.values(value).every((v) => typeof v === 'object' && v !== null && !Array.isArray(v))
+  )
+}
+
 /** Wraps a value as an ExampleObject, preserving existing structure if valid */
 function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
   if (typeof value === 'object' && value !== null && 'value' in value) {
@@ -599,7 +612,19 @@ function migrateBodyParameter(
 
         if (isExampleObject) {
           requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
-        } else {
+        }
+        // Named examples without value wrappers - wrap each individually
+        else if (isNamedExamplesCollection(examples)) {
+          requestBodyObject.content[type].examples = Object.entries(examples).reduce(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {} as Record<string, OpenAPIV3.ExampleObject>,
+          )
+        }
+        // Single example value - wrap as default
+        else {
           requestBodyObject.content[type].examples = {
             default: wrapAsExampleObject(examples),
           }
