@@ -1,7 +1,7 @@
+import type { ApiReferenceConfiguration } from '@scalar/api-reference'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
-import type { ApiReferenceConfiguration } from '@scalar/api-reference'
 import { ApiReferenceReact } from '../src'
 
 function App() {
