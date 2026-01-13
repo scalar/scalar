@@ -57,7 +57,7 @@ export function createHtmlResponse(c: Context, data: Record<string, any>) {
  * Loop through object recursively and create a formatted HTML tree.
  * Keys and values are automatically escaped to prevent XSS attacks.
  */
-function createObjectTree(data: Record<string, any>): HtmlEscapedString {
+function createObjectTree(data: Record<string, any>): HtmlEscapedString | Promise<HtmlEscapedString> {
   const entries = Object.entries(data)
 
   return html`${entries.map(([key, value]) =>
