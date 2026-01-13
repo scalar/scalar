@@ -1,9 +1,0 @@
-{
-  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-  "include": ["src/shims.d.ts", "electron.vite.config.*", "src/main/**/*", "src/preload/**/*"],
-  "compilerOptions": {
-    "moduleResolution": "Bundler",
-    "composite": true,
-    "types": ["electron-vite/node"]
-  }
-}
