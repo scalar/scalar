@@ -39,7 +39,23 @@ describe('dereference', () => {
         title: 'Hello World',
         version: '1.0.0',
       },
-      paths: {},
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       components: {
         schemas: {
           Test: {
@@ -54,7 +70,7 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([
       {
         code: 'SELF_REFERENCE',
-        message: 'Circular reference detected: #/components/schemas/Test',
+        message: "Can't resolve reference to itself: #/components/schemas/Test",
       },
     ])
 
