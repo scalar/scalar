@@ -22,7 +22,7 @@ const emit = defineEmits<{
     <div class="flex justify-between gap-10">
       <!-- Cancel -->
       <ScalarButton
-        class="flex h-8 cursor-pointer items-center gap-1.5 px-2.5 shadow-none focus:outline-none"
+        size="sm"
         type="button"
         variant="outlined"
         @click="emit('cancel')">
@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
       <!-- Submit -->
       <ScalarButton
-        class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
+        size="sm"
         type="submit"
         :variant="variant">
         {{ label }}
