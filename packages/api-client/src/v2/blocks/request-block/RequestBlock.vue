@@ -216,7 +216,12 @@ const handleUpdateBodyValue = ({
 }: Pick<
   ApiReferenceEvents['operation:update:requestBody:value'],
   'payload' | 'contentType'
->): void =>
+>): void => {
+  const debounceKey =
+    typeof payload === 'string'
+      ? `update:requestBody:value-${contentType}`
+      : undefined
+
   eventBus.emit(
     'operation:update:requestBody:value',
     {
@@ -225,18 +230,24 @@ const handleUpdateBodyValue = ({
       meta: meta.value,
     },
     {
-      debounceKey: `update:requestBody:${contentType}-value`,
+      debounceKey,
     },
   )
+}
 
 /** Handle request body value update */
 const handleUpdateBodyFormValue = ({
   payload,
   contentType,
+  debounceKeySuffix,
 }: Pick<
   ApiReferenceEvents['operation:update:requestBody:formValue'],
   'payload' | 'contentType'
->): void =>
+> & { debounceKeySuffix: string | undefined }): void => {
+  const debounceKey = debounceKeySuffix
+    ? `update:requestBody:${contentType}-form-value-${debounceKeySuffix}`
+    : undefined
+
   eventBus.emit(
     'operation:update:requestBody:formValue',
     {
@@ -245,9 +256,10 @@ const handleUpdateBodyFormValue = ({
       meta: meta.value,
     },
     {
-      debounceKey: `update:requestBody:${contentType}-form-value`,
+      debounceKey,
     },
   )
+}
 
 const labelRequestNameId = useId()
 </script>

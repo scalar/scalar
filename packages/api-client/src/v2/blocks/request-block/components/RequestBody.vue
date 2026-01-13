@@ -47,7 +47,7 @@ const emits = defineEmits<{
     payload: Pick<
       ApiReferenceEvents['operation:update:requestBody:formValue'],
       'payload' | 'contentType'
-    >,
+    > & { debounceKeySuffix: string | undefined },
   ): void
 }>()
 
@@ -186,6 +186,7 @@ const handleAddRow = (
       ...tableRows.value,
       { name: '', value: '', isDisabled: false, ...payload },
     ],
+    debounceKeySuffix: undefined,
   })
 
 /** Update a row in the table, combines with the previous data so we emit a whole row */
@@ -202,6 +203,7 @@ const handleUpdateRow = (
     payload: tableRows.value.map((row, i) =>
       i === index ? { ...row, ...payload } : row,
     ),
+    debounceKeySuffix: `${index}-${Object.keys(payload).join('-')}`,
   })
 
 /** Delete a row from the table */
@@ -209,6 +211,7 @@ const handleDeleteRow = (index: number) =>
   emits('update:formValue', {
     contentType: selectedContentType.value,
     payload: tableRows.value.filter((_, i) => i !== index),
+    debounceKeySuffix: undefined,
   })
 </script>
 <template>
