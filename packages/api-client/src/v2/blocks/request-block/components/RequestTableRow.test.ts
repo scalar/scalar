@@ -118,7 +118,7 @@ describe('RequestTableRow', () => {
     await keyInput?.vm.$emit('update:modelValue', 'new-key')
 
     expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ key: 'new-key' })
+    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ name: 'new-key' })
   })
 
   it('emits updateRow when value input changes', async () => {

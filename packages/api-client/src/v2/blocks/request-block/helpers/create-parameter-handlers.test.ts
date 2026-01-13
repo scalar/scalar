@@ -15,16 +15,16 @@ describe('createParameterHandlers', () => {
     vi.clearAllMocks()
   })
 
-  it('emits add event with provided key and value', () => {
+  it('emits add event with provided name and value', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta)
 
-    handlers.add({ key: 'foo', value: 'bar' })
+    handlers.add({ name: 'foo', value: 'bar' })
 
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
     expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
       type: 'query',
       payload: {
-        key: 'foo',
+        name: 'foo',
         value: 'bar',
         isDisabled: false,
       },
@@ -32,7 +32,7 @@ describe('createParameterHandlers', () => {
     })
   })
 
-  it('defaults to empty strings when key or value are missing', () => {
+  it('defaults to empty strings when name or value are missing', () => {
     const handlers = createParameterHandlers('header', mockEventBus, mockMeta)
 
     handlers.add({})
@@ -40,7 +40,7 @@ describe('createParameterHandlers', () => {
     expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
       type: 'header',
       payload: {
-        key: '',
+        name: '',
         value: '',
         isDisabled: false,
       },
@@ -49,12 +49,12 @@ describe('createParameterHandlers', () => {
 
     vi.clearAllMocks()
 
-    handlers.add({ key: 'Authorization' })
+    handlers.add({ name: 'Authorization' })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
       type: 'header',
       payload: {
-        key: 'Authorization',
+        name: 'Authorization',
         value: '',
         isDisabled: false,
       },
@@ -90,19 +90,19 @@ describe('createParameterHandlers', () => {
   it('emits update event with partial payload and handles all parameter types', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta)
 
-    // Update only key
-    handlers.update({ index: 1, payload: { key: 'updated-key' } })
+    // Update only name
+    handlers.update({ index: 1, payload: { name: 'updated-key' } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 1,
-        payload: { key: 'updated-key' },
+        payload: { name: 'updated-key' },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-1-key',
+        debounceKey: 'update:parameter-query-1-name',
       },
     )
 
@@ -147,7 +147,7 @@ describe('createParameterHandlers', () => {
     // Update all fields at once
     handlers.update({
       index: 2,
-      payload: { key: 'complete', value: 'update', isDisabled: false },
+      payload: { name: 'complete', value: 'update', isDisabled: false },
     })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
@@ -155,11 +155,11 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         index: 2,
-        payload: { key: 'complete', value: 'update', isDisabled: false },
+        payload: { name: 'complete', value: 'update', isDisabled: false },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-2-key-value-isDisabled',
+        debounceKey: 'update:parameter-query-2-name-value-isDisabled',
       },
     )
   })
