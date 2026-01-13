@@ -76,6 +76,9 @@ const themeStyleTag = computed(() => {
 const handleWorkspaceClick = () =>
   app.router.value?.push({
     name: 'workspace.environment',
+    params: {
+      workspaceSlug: app.activeEntities.workspaceSlug.value,
+    },
   })
 
 const createWorkspaceModalState = useModal()
