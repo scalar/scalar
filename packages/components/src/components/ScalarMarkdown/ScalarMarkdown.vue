@@ -76,6 +76,7 @@ const html = computed(() => {
     --markdown-spacing-sm: 12px;
     --markdown-spacing-md: 16px;
     --markdown-line-height: 1.625;
+    --markdown-heading-line-height: 1.15;
 
     font-family: var(--scalar-font);
     word-break: break-word;
@@ -101,31 +102,20 @@ const html = computed(() => {
     font-weight: var(--scalar-bold);
     margin-top: var(--scalar-refs-heading-spacing);
     margin-bottom: var(--markdown-spacing-sm);
+    line-height: var(--markdown-heading-line-height, 1.15);
     scroll-margin-top: 1rem;
   }
   .markdown h1 {
-    font-size: var(--scalar-heading-1);
-    line-height: 1.2;
+    font-size: 1.5rem;
   }
-  .markdown h2 {
-    font-size: var(--scalar-heading-2);
-    line-height: 1.2;
-  }
+  .markdown h2,
   .markdown h3 {
-    font-size: var(--scalar-heading-3);
-    line-height: 1.3;
+    font-size: 1.25rem;
   }
-  .markdown h4 {
-    font-size: var(--scalar-heading-4);
-    line-height: 1.3;
-  }
-  .markdown h5 {
-    font-size: var(--scalar-heading-5);
-    line-height: 1.3;
-  }
+  .markdown h4,
+  .markdown h5,
   .markdown h6 {
-    font-size: var(--scalar-heading-6);
-    line-height: 1.3;
+    font-size: 1rem;
   }
 
   /* Text formatting and paragraphs */
