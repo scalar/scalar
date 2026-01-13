@@ -186,7 +186,7 @@ const handleAddRow = (
       ...tableRows.value,
       { name: '', value: '', isDisabled: false, ...payload },
     ],
-    debounceKeySuffix: undefined,
+    debounceKeySuffix: `add-${tableRows.value.length}`,
   })
 
 /** Update a row in the table, combines with the previous data so we emit a whole row */
