@@ -608,6 +608,10 @@ describe('operationToHar', () => {
       expect(result.postData?.mimeType).toBe('multipart/form-data')
       expect(result.postData?.params).toEqual([
         {
+          name: 'file',
+          value: '@filename',
+        },
+        {
           name: 'description',
           value: '',
         },
