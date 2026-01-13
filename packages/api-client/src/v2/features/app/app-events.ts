@@ -308,7 +308,7 @@ export function initializeAppEventHandlers({
   })
   eventBus.on('operation:update:requestBody:formValue', (payload) => {
     updateOperationRequestBodyFormValue(document.value, payload)
-    refreshSidebarAfterExampleCreation(payload.meta)
+    onAfterExampleCreation(payload.meta)
   })
 
   //------------------------------------------------------------------------------------
