@@ -2,6 +2,17 @@ import { useToasts } from '@scalar/use-toasts'
 
 import type { UseClipboardOptions } from './types'
 
+/** Safely serialize a value to a string */
+const serializeValue = (value: unknown) => {
+  if (value === undefined) {
+    return 'undefined'
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  return JSON.stringify(value)
+}
+
 /**
  * A hook for interacting with the clipboard
  */
@@ -9,9 +20,10 @@ export function useClipboard(opts: UseClipboardOptions = {}) {
   const { notify = (m) => toast(m, 'info') } = opts
   const { toast } = useToasts()
 
-  async function copyToClipboard(value: string) {
+  async function copyToClipboard(value: unknown) {
     try {
-      await navigator.clipboard.writeText(value)
+      const serialized = serializeValue(value)
+      await navigator.clipboard.writeText(serialized)
       notify('Copied to the clipboard')
     } catch (e) {
       const error = e as Error

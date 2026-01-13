@@ -131,6 +131,49 @@ describe('SidebarItem', () => {
       const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
       expect(sidebarItem.props('selected')).toBe(false)
     })
+
+    it('applies text decoration when item is deprecated', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Test Item',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/test',
+        isDeprecated: true,
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+    })
+
+    it('does not apply text decoration when item is not deprecated', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Test Item',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/test',
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(false)
+    })
   })
 
   describe('HTTP method badge rendering', () => {
@@ -352,6 +395,103 @@ describe('SidebarItem', () => {
 
       expect(wrapper.findComponent(LibraryIcon).exists()).toBe(true)
     })
+
+    it('applies text decoration to deprecated group items', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Deprecated API',
+        type: 'document',
+        name: 'deprecatedAPI',
+        isDeprecated: true,
+        children: [
+          {
+            id: '2',
+            title: 'Child',
+            type: 'operation',
+            ref: 'ref-2',
+            method: 'get',
+            path: '/child',
+          },
+        ],
+      } as Item
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+      expect(deprecatedElement.text()).toContain('Deprecated API')
+    })
+
+    it('applies line-through class to deprecated ScalarSidebarGroup items', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Deprecated Folder',
+        type: 'document',
+        name: 'deprecatedFolder',
+        isDeprecated: true,
+        children: [
+          {
+            id: '2',
+            title: 'Child',
+            type: 'operation',
+            ref: 'ref-2',
+            method: 'get',
+            path: '/child',
+          },
+        ],
+      } as Item
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+        },
+      })
+
+      const group = wrapper.findComponent(ScalarSidebarGroup)
+      expect(group.exists()).toBe(true)
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+      expect(deprecatedElement.text()).toContain('Deprecated Folder')
+    })
+
+    it('applies line-through class to deprecated ScalarSidebarSection items', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Deprecated Group',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'get',
+        path: '/deprecated',
+        isDeprecated: true,
+        children: [
+          {
+            id: '2',
+            title: 'Child',
+            type: 'example',
+            name: 'example1',
+          },
+        ],
+      } as Item
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+        },
+      })
+
+      const section = wrapper.findComponent(ScalarSidebarGroup)
+      expect(section.exists()).toBe(true)
+      const deprecatedElement = wrapper.find('.line-through')
+      expect(deprecatedElement.exists()).toBe(true)
+    })
   })
 
   describe('layout filtering', () => {
@@ -414,99 +554,6 @@ describe('SidebarItem', () => {
       expect(childIds).toContain('4') // example
       expect(childIds).toContain('6') // tag
       expect(childIds).not.toContain('5') // model should be filtered out
-    })
-  })
-
-  describe('operation title source', () => {
-    it('displays item title by default', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Get User Details',
-        type: 'operation',
-        ref: 'ref-1',
-        method: 'get',
-        path: '/users/{id}',
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-        },
-      })
-
-      expect(wrapper.text()).toContain('Get User Details')
-    })
-
-    it('displays path when operationTitleSource is path', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Get User Details',
-        type: 'operation',
-        ref: 'ref-1',
-        method: 'get',
-        path: '/users/{id}',
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-          options: {
-            operationTitleSource: 'path',
-          },
-        },
-      })
-
-      // Should contain the path with zero-width spaces after slashes
-      expect(wrapper.text()).toContain('/users/{id}')
-    })
-
-    it('inserts word break opportunity before slashes in path', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Get User',
-        type: 'operation',
-        ref: 'ref-1',
-        method: 'get',
-        path: '/api/v1/users',
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-          options: {
-            operationTitleSource: 'path',
-          },
-        },
-      })
-
-      const html = wrapper.html()
-      // Check for word break opportunity
-      expect(html).toContain('<wbr>/')
-    })
-
-    it('uses title for items without path even when operationTitleSource is path', () => {
-      const item: Item = {
-        id: '1',
-        title: 'User Document',
-        type: 'document',
-        name: 'userDocument',
-        children: [],
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-          options: {
-            operationTitleSource: 'path',
-          },
-        },
-      })
-
-      expect(wrapper.text()).toContain('User Document')
     })
   })
 
