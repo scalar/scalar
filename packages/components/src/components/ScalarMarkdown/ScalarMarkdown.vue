@@ -404,7 +404,7 @@ const html = computed(() => {
   }
 
   .markdown a:hover {
-    text-decoration-color: var(currentColor, var(--scalar-color-1));
+    text-decoration-color: var(--scalar-color-1, currentColor);
     color: var(--scalar-link-color-hover, var(--scalar-color-accent));
     -webkit-text-decoration: var(--scalar-text-decoration-hover);
     text-decoration: var(--scalar-text-decoration-hover);
