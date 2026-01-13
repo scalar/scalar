@@ -1,5 +1,24 @@
 /**
+ * Character map for XML escaping to prevent XML injection attacks.
+ */
+const XML_ESCAPE_MAP: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&apos;',
+}
+
+/**
+ * Escapes special XML characters to prevent injection attacks.
+ */
+function escapeXml(str: string): string {
+  return str.replace(/[&<>"']/g, (char) => XML_ESCAPE_MAP[char] ?? char)
+}
+
+/**
  * This function converts an object to XML.
+ * Values are automatically escaped to prevent XML injection attacks.
  */
 export function json2xml(
   data: Record<string, any>,
@@ -26,23 +45,24 @@ export function json2xml(
       // Handle attributes (keys starting with @)
       for (const attr in value) {
         if (attr.charAt(0) === '@') {
-          attributes += ' ' + attr.substr(1) + '="' + value[attr].toString() + '"'
+          attributes += ' ' + attr.substr(1) + '="' + escapeXml(value[attr].toString()) + '"'
         }
       }
 
       // Handle children and special content
       for (const child in value) {
         if (child === '#text') {
-          children += value[child]
+          children += escapeXml(value[child])
         } else if (child === '#cdata') {
-          children += '<![CDATA[' + value[child] + ']]>'
+          // Escape ]]> sequences to prevent CDATA injection
+          children += '<![CDATA[' + value[child].replace(/]]>/g, ']]]]><![CDATA[>') + ']]>'
         } else if (child.charAt(0) !== '@') {
           hasChild = true
           children += toXml(value[child], child, currentIndent + indent)
         }
       }
 
-      if (hasChild) {
+      if (hasChild || children) {
         xml += currentIndent + '<' + key + attributes + '>\n'
         xml += children
         xml += currentIndent + '</' + key + '>\n'
@@ -50,7 +70,7 @@ export function json2xml(
         xml += currentIndent + '<' + key + attributes + '/>\n'
       }
     } else {
-      xml += currentIndent + '<' + key + '>' + (value?.toString() || '') + '</' + key + '>\n'
+      xml += currentIndent + '<' + key + '>' + escapeXml(value?.toString() || '') + '</' + key + '>\n'
     }
 
     return xml

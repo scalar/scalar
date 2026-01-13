@@ -120,4 +120,44 @@ describe('json2xml', () => {
 <undefinedValue></undefinedValue>`,
     )
   })
+
+  it('escapes special characters in values to prevent XML injection', () => {
+    const xml = json2xml({
+      message: '<script>alert("xss")</script>',
+      query: 'foo & bar',
+      quote: 'He said "hello"',
+    })
+
+    expect(xml).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;')
+    expect(xml).toContain('foo &amp; bar')
+    expect(xml).toContain('He said &quot;hello&quot;')
+    expect(xml).not.toContain('<script>')
+  })
+
+  it('escapes special characters in attribute values', () => {
+    const xml = json2xml({
+      element: {
+        '@dangerous': '"><injected attr="',
+        '@ampersand': 'foo & bar',
+        content: 'safe',
+      },
+    })
+
+    expect(xml).toContain('dangerous="&quot;&gt;&lt;injected attr=&quot;"')
+    expect(xml).toContain('ampersand="foo &amp; bar"')
+    expect(xml).not.toContain('"><injected')
+  })
+
+  it('escapes CDATA closing sequences to prevent CDATA injection', () => {
+    const xml = json2xml({
+      data: {
+        '#cdata': 'Some content with ]]> closing sequence',
+      },
+    })
+
+    // The ]]> should be escaped by splitting the CDATA section
+    expect(xml).toContain('<![CDATA[Some content with ]]]]><![CDATA[> closing sequence]]>')
+    // The original unescaped ]]> should not appear in the output
+    expect(xml).not.toContain('with ]]> closing')
+  })
 })
