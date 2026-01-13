@@ -89,6 +89,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - '@astrojs/*'
   - '@next/*'
+  - '@vitest/*'
   - '@scalar/typebox'
   - astro
   - hono
