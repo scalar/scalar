@@ -105,6 +105,8 @@ function dereference(
   }
   resolvedSchemas.add(schema)
 
+  const seenRefs = new Set<string>()
+
   function resolveExternal(externalFile: FilesystemEntry) {
     dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
 
@@ -112,14 +114,33 @@ function dereference(
   }
 
   while (schema.$ref !== undefined) {
+    const dereferencedRef = schema.$ref
+
+    if (typeof dereferencedRef === 'string') {
+      if (seenRefs.has(dereferencedRef)) {
+        const message = ERRORS.CIRCULAR_REFERENCE.replace('%s', dereferencedRef)
+
+        if (options?.throwOnError) {
+          throw new Error(message)
+        }
+
+        errors.push({
+          code: 'CIRCULAR_REFERENCE',
+          message,
+        })
+
+        break
+      }
+      seenRefs.add(dereferencedRef)
+    }
+
     // Find the referenced content
-    const resolved = resolveUri(schema.$ref, options, entrypoint, filesystem, resolveExternal, errors)
+    const resolved = resolveUri(dereferencedRef, options, entrypoint, filesystem, resolveExternal, errors)
 
     // invalid
     if (typeof resolved !== 'object' || resolved === null) {
       break
     }
-    const dereferencedRef = schema.$ref
 
     // Get rid of the reference
     delete schema.$ref

@@ -27,6 +27,7 @@ export const ERRORS = {
     "Can't find supported Swagger/OpenAPI version in the provided document, version must be a string.",
   INVALID_REFERENCE: "Can't resolve reference: %s",
   EXTERNAL_REFERENCE_NOT_FOUND: "Can't resolve external reference: %s",
+  CIRCULAR_REFERENCE: 'Circular reference detected: %s',
   FILE_DOES_NOT_EXIST: 'File does not exist: %s',
   NO_CONTENT: 'No content found',
 } as const

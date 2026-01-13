@@ -66,7 +66,12 @@ describe('dereference', () => {
     }
     const result = dereference(openapi)
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([
+      {
+        code: 'CIRCULAR_REFERENCE',
+        message: 'Circular reference detected: #/components/schemas/Test',
+      },
+    ])
     expect(result.schema.info.title).toBe('Hello World')
   })
 
