@@ -2,5 +2,5 @@ export type Option = {
   id: string
   label: string
   disabled?: boolean
-  color?: string
+  [key: string]: any
 }
