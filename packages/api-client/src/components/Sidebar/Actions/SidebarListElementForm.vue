@@ -18,15 +18,15 @@ const emit = defineEmits<{
     <slot />
     <div class="flex justify-between gap-10">
       <ScalarButton
-        class="flex h-8 cursor-pointer items-center gap-1.5 px-2.5 shadow-none focus:outline-none"
+        size="sm"
         type="button"
         variant="outlined"
         @click="emit('cancel')">
         Cancel
       </ScalarButton>
       <ScalarButton
-        class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
         data-testid="sidebar-list-element-form-submit-button"
+        size="sm"
         type="submit"
         :variant="danger ? 'danger' : 'solid'">
         {{ label ?? 'Save' }}
@@ -34,13 +34,3 @@ const emit = defineEmits<{
     </div>
   </form>
 </template>
-<style scoped>
-.scalar-modal-layout .scalar-button-danger {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
-  color: var(--scalar-color-red);
-}
-.scalar-modal-layout .scalar-button-danger:hover,
-.scalar-modal-layout .scalar-button-danger:focus {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
-}
-</style>
