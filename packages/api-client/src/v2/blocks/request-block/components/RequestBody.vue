@@ -186,7 +186,9 @@ const handleAddRow = (
       ...tableRows.value,
       { name: '', value: '', isDisabled: false, ...payload },
     ],
-    debounceKeySuffix: `add-${tableRows.value.length}`,
+    // Use a consistent debounce key for all add operations to batch rapid adds
+    // This prevents race conditions where multiple rapid adds could overwrite each other
+    debounceKeySuffix: 'add',
   })
 
 /** Update a row in the table, combines with the previous data so we emit a whole row */
