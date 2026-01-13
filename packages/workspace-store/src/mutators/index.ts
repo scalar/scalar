@@ -148,18 +148,15 @@ export {
   type OperationExampleMeta,
   type OperationMeta,
   addOperationParameter,
-  addOperationRequestBodyFormRow,
   createOperation,
   deleteAllOperationParameters,
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
-  deleteOperationRequestBodyFormRow,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
-  updateOperationRequestBodyFormRow,
   updateOperationSummary,
 } from './operation'
 export {

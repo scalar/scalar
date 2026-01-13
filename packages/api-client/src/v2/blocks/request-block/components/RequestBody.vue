@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -35,29 +36,11 @@ const emits = defineEmits<{
   /** We use this event to update raw values */
   (
     e: 'update:value',
-    payload: { value?: string | File; contentType: string },
+    payload: Pick<
+      ApiReferenceEvents['operation:update:requestBody:value'],
+      'payload' | 'contentType'
+    >,
   ): void
-  /** We use this event to update  */
-  (
-    e: 'add:formRow',
-    payload: {
-      data: Partial<{ key: string; value?: string | File }>
-      contentType: string
-    },
-  ): void
-  (
-    e: 'update:formRow',
-    payload: {
-      index: number
-      data: Partial<{
-        key: string
-        value: string | File | null
-        isDisabled: boolean
-      }>
-      contentType: string
-    },
-  ): void
-  (e: 'delete:fromRow', payload: { index: number; contentType: string }): void
 }>()
 
 // Map a content type to a language for the code editor
@@ -118,7 +101,7 @@ const selectedContentTypeModel = computed<{ id: string; label: string }>({
   },
 })
 
-function handleFileUpload(callback: (file: File | undefined) => void) {
+function handleFileUpload(callback: (file: File) => void) {
   const { open } = useFileDialog({
     onChange: (files) => {
       const file = files?.[0]
@@ -163,14 +146,57 @@ const tableRows = computed(() => {
 
   // We got an object try to convert it to an array of rows
   if (typeof example.value.value === 'object' && example.value.value) {
-    return objectEntries(example.value.value).map(([key, value]) => ({
-      name: key,
-      value,
-    }))
+    return objectEntries(example.value.value).map(([key, value]) =>
+      // This is for our formData hack
+      'value' in value
+        ? {
+            name: key,
+            ...value,
+          }
+        : {
+            name: key,
+            value,
+          },
+    )
   }
 
   return []
 })
+
+/** Adds a new row safely by defaulting the rest of the values */
+const handleAddRow = (
+  payload: Partial<{ name: string; value: string | File; isDisabled: boolean }>,
+) =>
+  emits('update:value', {
+    contentType: selectedContentType.value,
+    payload: [
+      ...tableRows.value,
+      { name: '', value: '', isDisabled: false, ...payload },
+    ],
+  })
+
+/** Update a row in the table, combines with the previous data so we emit a whole row */
+const handleUpdateRow = (
+  index: number,
+  payload: Partial<{
+    name: string
+    value: string | File | undefined
+    isDisabled: boolean
+  }>,
+) =>
+  emits('update:value', {
+    contentType: selectedContentType.value,
+    payload: tableRows.value.map((row, i) =>
+      i === index ? { ...row, ...payload } : row,
+    ),
+  })
+
+/** Delete a row from the table */
+const handleDeleteRow = (index: number) =>
+  emits('update:value', {
+    contentType: selectedContentType.value,
+    payload: tableRows.value.filter((_, i) => i !== index),
+  })
 </script>
 <template>
   <CollapsibleSection>
@@ -199,12 +225,15 @@ const tableRows = computed(() => {
         </ScalarListbox>
       </DataTableHeader>
       <DataTableRow>
+        <!-- No Body -->
         <template v-if="selectedContentType === 'none'">
           <div
             class="text-c-3 flex min-h-10 w-full items-center justify-center border-t p-2 text-sm">
             <span>No Body</span>
           </div>
         </template>
+
+        <!-- Binary File -->
         <template
           v-else-if="selectedContentType === 'application/octet-stream'">
           <div
@@ -223,7 +252,7 @@ const tableRows = computed(() => {
                 variant="outlined"
                 @click="
                   emits('update:value', {
-                    value: undefined,
+                    payload: undefined,
                     contentType: selectedContentType,
                   })
                 ">
@@ -239,7 +268,7 @@ const tableRows = computed(() => {
                   () =>
                     handleFileUpload((file) =>
                       emits('update:value', {
-                        value: file,
+                        payload: file,
                         contentType: selectedContentType,
                       }),
                     )
@@ -254,60 +283,30 @@ const tableRows = computed(() => {
             </template>
           </div>
         </template>
+
+        <!-- Form Data -->
         <template v-else-if="selectedContentType === 'multipart/form-data'">
           <RequestTable
             :data="tableRows"
             :environment="environment"
             showUploadButton
-            @addRow="
-              (payload) =>
-                emits('add:formRow', {
-                  data: payload,
-                  contentType: selectedContentType,
-                })
-            "
-            @deleteRow="
-              (index) =>
-                emits('delete:fromRow', {
-                  contentType: selectedContentType,
-                  index,
-                })
-            "
+            @addRow="handleAddRow"
+            @deleteRow="(index) => handleDeleteRow(index)"
             @removeFile="
-              (index) =>
-                emits('update:formRow', {
-                  contentType: selectedContentType,
-                  index,
-                  data: {
-                    value: undefined,
-                  },
-                })
+              (index) => handleUpdateRow(index, { value: undefined })
             "
-            @updateRow="
-              (index, payload) =>
-                emits('update:formRow', {
-                  index,
-                  data: payload,
-                  contentType: selectedContentType,
-                })
-            "
+            @updateRow="(index, payload) => handleUpdateRow(index, payload)"
             @uploadFile="
               (index) =>
-                handleFileUpload((file) => {
-                  if (index !== undefined && index < tableRows.length) {
-                    return emits('update:formRow', {
-                      index,
-                      data: { value: file },
-                      contentType: selectedContentType,
-                    })
-                  }
-                  emits('add:formRow', {
-                    data: { key: file?.name ?? 'file', value: file },
-                    contentType: selectedContentType,
-                  })
-                })
+                handleFileUpload((file) =>
+                  index >= tableRows.length
+                    ? handleAddRow({ name: file.name, value: file })
+                    : handleUpdateRow(index, { name: file.name, value: file }),
+                )
             " />
         </template>
+
+        <!-- Form URL Encoded -->
         <template
           v-else-if="
             selectedContentType === 'application/x-www-form-urlencoded'
@@ -315,29 +314,12 @@ const tableRows = computed(() => {
           <RequestTable
             :data="tableRows"
             :environment="environment"
-            @addRow="
-              (payload) =>
-                emits('add:formRow', {
-                  data: payload,
-                  contentType: selectedContentType,
-                })
-            "
-            @deleteRow="
-              (index) =>
-                emits('delete:fromRow', {
-                  contentType: selectedContentType,
-                  index,
-                })
-            "
-            @updateRow="
-              (index, payload) =>
-                emits('update:formRow', {
-                  index,
-                  data: payload,
-                  contentType: selectedContentType,
-                })
-            " />
+            @addRow="handleAddRow"
+            @deleteRow="handleDeleteRow"
+            @updateRow="handleUpdateRow" />
         </template>
+
+        <!-- Code/Other -->
         <template v-else>
           <CodeInput
             class="border-t px-3"
@@ -354,7 +336,7 @@ const tableRows = computed(() => {
             @update:modelValue="
               (value) =>
                 emits('update:value', {
-                  value,
+                  payload: value,
                   contentType: selectedContentType,
                 })
             " />

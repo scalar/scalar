@@ -9,11 +9,11 @@ export const createParameterHandlers = (
   eventBus: WorkspaceEventBus,
   meta: OperationExampleMeta,
 ) => ({
-  add: (payload: { key?: string; value?: string }) =>
+  add: (payload: { name?: string; value?: string }) =>
     eventBus.emit('operation:add:parameter', {
       type,
       payload: {
-        key: payload.key ?? '',
+        name: payload.name ?? '',
         value: payload.value ?? '',
         isDisabled: false,
       },
@@ -30,13 +30,12 @@ export const createParameterHandlers = (
       type,
       meta,
     }),
-  update: (payload: { index: number; payload: Partial<{ key: string; value: string; isDisabled: boolean }> }) =>
+  update: (payload: { index: number; payload: Partial<{ name: string; value: string; isDisabled: boolean }> }) =>
     eventBus.emit(
       'operation:update:parameter',
       {
         type,
-        index: payload.index,
-        payload: payload.payload,
+        ...payload,
         meta,
       },
       {
