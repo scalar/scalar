@@ -45,4 +45,28 @@ describe('create-html-response', () => {
     expect(html).toContain('<strong>city:</strong> Berlin')
     expect(html).toContain('<ul>')
   })
+
+  it('escapes HTML in keys and values to prevent XSS attacks', () => {
+    const mockContext = createMockContext()
+
+    createHtmlResponse(mockContext as any, {
+      '<script>alert("xss")</script>': 'value',
+      name: '<img src=x onerror=alert("xss")>',
+      nested: {
+        dangerous: '"><script>evil()</script>',
+      },
+    })
+
+    const html = mockContext._getHtmlContent()
+
+    // Script and img tags should be escaped, not rendered as executable HTML
+    expect(html).not.toContain('<script>')
+    expect(html).not.toContain('</script>')
+    expect(html).not.toContain('<img')
+
+    // The escaped versions should be present
+    expect(html).toContain('&lt;script&gt;')
+    expect(html).toContain('&lt;img')
+    expect(html).toContain('&lt;/script&gt;')
+  })
 })

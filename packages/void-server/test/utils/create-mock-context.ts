@@ -29,9 +29,19 @@ export function createMockContext(options: MockContextOptions = {}) {
     header: vi.fn((key: string, value: string) => {
       responseHeaders[key] = value
     }),
-    html: vi.fn((content: string) => {
-      htmlContent = content
-      return content
+    html: vi.fn((content: unknown) => {
+      // Handle HtmlEscapedString (nested array structure) from Hono's html tagged template
+      const flatten = (val: unknown): string => {
+        if (typeof val === 'string') {
+          return val
+        }
+        if (Array.isArray(val)) {
+          return val.map(flatten).join('')
+        }
+        return String(val ?? '')
+      }
+      htmlContent = flatten(content)
+      return htmlContent
     }),
     json: vi.fn((data: Record<string, unknown>) => {
       jsonContent = data

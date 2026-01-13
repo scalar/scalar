@@ -1,12 +1,15 @@
 import type { Context } from 'hono'
+import { html } from 'hono/html'
+import type { HtmlEscapedString } from 'hono/utils/html'
 
 /**
- * Transform an object into an XML response
+ * Transform an object into an HTML response with automatic XSS protection.
+ * User-controlled values are escaped by Hono's html tagged template.
  */
 export function createHtmlResponse(c: Context, data: Record<string, any>) {
   c.header('Content-Type', 'text/html')
 
-  const html = `<!doctype html>
+  const content = html`<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -47,26 +50,19 @@ export function createHtmlResponse(c: Context, data: Record<string, any>) {
 </html>
 `
 
-  return c.html(html)
+  return c.html(content)
 }
 
 /**
- * Loop through object recursively and create a JSON string as formatted HTML
+ * Loop through object recursively and create a formatted HTML tree.
+ * Keys and values are automatically escaped to prevent XSS attacks.
  */
-function createObjectTree(data: Record<string, any>) {
-  let html = ''
+function createObjectTree(data: Record<string, any>): HtmlEscapedString {
+  const entries = Object.entries(data)
 
-  for (const key in data) {
-    if (Object.hasOwn(data, key)) {
-      const value = data[key]
-
-      if (typeof value === 'object') {
-        html += `<li><strong>${key}:</strong> <ul>${createObjectTree(value)}</ul></li>`
-      } else {
-        html += `<li><strong>${key}:</strong> ${value}</li>`
-      }
-    }
-  }
-
-  return html
+  return html`${entries.map(([key, value]) =>
+    typeof value === 'object' && value !== null
+      ? html`<li><strong>${key}:</strong> <ul>${createObjectTree(value)}</ul></li>`
+      : html`<li><strong>${key}:</strong> ${String(value ?? '')}</li>`,
+  )}`
 }
