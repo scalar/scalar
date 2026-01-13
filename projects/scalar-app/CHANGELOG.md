@@ -1,17 +1,5 @@
 # scalar-app
 
-## 0.1.259
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/api-client@2.17.8**
-  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
-  - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
-
-- **@scalar/components@0.16.18**
-
 ## 0.1.258
 
 ### Patch Changes
