@@ -32,7 +32,7 @@ const convertToString = (value: unknown) => {
         <button
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(String(formatExample(example)))">
+          @click="copyToClipboard(convertToString(formatExample(example)))">
           <span>
             {{ formatExample(example) }}
           </span>
