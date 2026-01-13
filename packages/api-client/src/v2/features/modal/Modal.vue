@@ -65,7 +65,6 @@ import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
@@ -85,9 +84,6 @@ const {
 if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => workspaceStore
 }
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode({ workspaceStore })
 
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
