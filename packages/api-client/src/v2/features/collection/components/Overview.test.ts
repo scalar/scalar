@@ -49,7 +49,7 @@ describe('Overview', () => {
         documentSlug: 'test-document',
         activeWorkspace: {
           id: 'test-workspace',
-          name: 'Test Workspace',
+          label: 'Test Workspace',
         },
         plugins: [],
       },

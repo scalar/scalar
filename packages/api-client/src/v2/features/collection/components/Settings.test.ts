@@ -268,7 +268,7 @@ describe('Settings', () => {
         workspaceStore,
         activeWorkspace: {
           id: 'custom-workspace',
-          name: 'Custom Workspace',
+          label: 'Custom Workspace',
         },
       })
       const wrapper = mount(Settings, { props })

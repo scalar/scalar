@@ -58,7 +58,7 @@ describe('Environment', () => {
           securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -81,7 +81,7 @@ describe('Environment', () => {
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -107,7 +107,7 @@ describe('Environment', () => {
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -132,7 +132,7 @@ describe('Environment', () => {
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -162,7 +162,7 @@ describe('Environment', () => {
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -185,7 +185,7 @@ describe('Environment', () => {
           securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },
@@ -215,7 +215,7 @@ describe('Environment', () => {
           securitySchemes: {},
           activeWorkspace: {
             id: 'test-workspace',
-            name: 'Test Workspace',
+            label: 'Test Workspace',
           },
           plugins: [],
         },

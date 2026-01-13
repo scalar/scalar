@@ -53,111 +53,44 @@ import {
   upsertEnvironmentVariable,
 } from '@scalar/workspace-store/mutators'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { type ComputedRef, type Ref, toValue } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { type ComputedRef, type ShallowRef, computed } from 'vue'
+import type { Router } from 'vue-router'
 
-import type { UseAppSidebarReturn } from '@/v2/features/app/hooks/use-app-sidebar'
-import type { UseCommandPaletteStateReturn } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import type { OpenCommand } from '../command-palette/hooks/use-command-palette-state'
 
-/**
- * Top level state mutation handling for the workspace store in the client
- */
-export const useWorkspaceClientAppEvents = ({
+export function initializeAppEventHandlers({
   eventBus,
+  getStore,
   document,
-  workspaceStore,
-  isSidebarOpen,
-  commandPaletteState,
-  sidebarState,
+  router,
+  rebuildSidebar,
+  navigateToCurrentTab,
+  onSelectSidebarItem,
+  onAfterExampleCreation,
+  onOpenCommandPalette,
+  onCopyTabUrl,
+  onToggleSidebar,
 }: {
   eventBus: WorkspaceEventBus
+  getStore: () => WorkspaceStore | null
+  /** Current active document */
   document: ComputedRef<WorkspaceDocument | null>
-  workspaceStore: Ref<WorkspaceStore | null>
-  isSidebarOpen: Ref<boolean>
-  commandPaletteState: UseCommandPaletteStateReturn
-  sidebarState: UseAppSidebarReturn
-}) => {
-  /** Use route[r] for some redirect business */
-  const router = useRouter()
-
-  /** Use route for the path variables */
-  const route = useRoute()
-
-  /** Selects between the workspace or document based on the type */
-  const getCollection = (
-    document: ComputedRef<WorkspaceDocument | null>,
-    collectionType: CollectionType['collectionType'],
-  ) => {
-    const store = toValue(workspaceStore)
-
-    if (!store) {
-      return null
-    }
-
-    return collectionType === 'document' ? document.value : store.workspace
-  }
-
-  /**
-   * Navigates to the currently active tab's path using the router.
-   * Returns early if the workspace store or active tab is unavailable.
-   */
-  const navigateToCurrentTab = async (): Promise<void> => {
-    const store = toValue(workspaceStore)
-    if (!store) {
-      return
-    }
-
-    const activeTabIndex = store.workspace['x-scalar-active-tab'] ?? 0
-    const activeTab = store.workspace['x-scalar-tabs']?.[activeTabIndex]
-    if (!activeTab) {
-      return
-    }
-
-    await router.replace(activeTab.path)
-  }
-
-  /**
-   * Rebuilds the sidebar for the given document.
-   * This is used to refresh the sidebar state after structural changes (e.g. after adding or removing items).
-   *
-   * @param documentName - The name (id) of the document for which to rebuild the sidebar
-   */
-  const rebuildSidebar = (documentName: string | undefined) => {
-    if (documentName) {
-      workspaceStore.value?.buildSidebar(documentName)
-    }
-  }
-
-  /**
-   * Ensures the sidebar is refreshed after a new example is created.
-   *
-   * If the sidebar entry for the new example does not exist or is of a different type,
-   * this will rebuild the sidebar for the current document. This helps keep the sidebar state
-   * consistent (e.g., after adding a new example via the UI).
-   */
-  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-    const documentName = document.value?.['x-scalar-navigation']?.name
-    if (!documentName) {
-      return
-    }
-
-    const entry = sidebarState.getEntryByLocation({
-      document: documentName,
-      path: payload.path,
-      method: payload.method,
-      example: payload.exampleKey,
-    })
-
-    if (!entry || entry.type !== 'example') {
-      // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
-      rebuildSidebar(documentName)
-    }
-    return
-  }
+  router: ShallowRef<Router | null>
+  navigateToCurrentTab: () => Promise<void>
+  rebuildSidebar: (documentName?: string) => void
+  onSelectSidebarItem: (id: string) => void
+  onAfterExampleCreation: (o: OperationExampleMeta) => void
+  onOpenCommandPalette: OpenCommand
+  onCopyTabUrl: (tabIndex: number) => void
+  onToggleSidebar: () => void
+}) {
+  const currentRoute = computed(() => router.value?.currentRoute?.value)
 
   /**
    * Checks if the current route params match the specified operation meta.
    * Useful for determining if the sidebar or UI needs to be updated after changes to operations/examples.
+   *
+   * NOTE: It may be beneficial to compare to the active state instead of the router
    */
   const isRouteParamsMatch = ({
     documentName,
@@ -170,39 +103,43 @@ export const useWorkspaceClientAppEvents = ({
     method?: HttpMethod
     exampleName?: string
   }) => {
-    if (documentName !== undefined && documentName !== route.params.documentSlug) {
+    if (documentName !== undefined && documentName !== currentRoute.value?.params.documentSlug) {
       return false
     }
-    if (path !== undefined && encodeURIComponent(path) !== route.params.pathEncoded) {
+    if (path !== undefined && encodeURIComponent(path) !== currentRoute.value?.params.pathEncoded) {
       return false
     }
-    if (method !== undefined && method !== route.params.method) {
+    if (method !== undefined && method !== currentRoute.value?.params.method) {
       return false
     }
-    if (exampleName !== undefined && exampleName !== route.params.exampleName) {
+    if (exampleName !== undefined && exampleName !== currentRoute.value?.params.exampleName) {
       return false
     }
     return true
   }
 
+  /** Selects between the workspace or document based on the type */
+  const getCollection = (document: WorkspaceDocument | null, collectionType: CollectionType['collectionType']) => {
+    const store = getStore()
+    if (!store) {
+      return null
+    }
+
+    return collectionType === 'document' ? document : store.workspace
+  }
+
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('scroll-to:nav-item', ({ id }) => sidebarState.handleSelectItem(id))
+  eventBus.on('scroll-to:nav-item', ({ id }) => onSelectSidebarItem(id))
 
   //------------------------------------------------------------------------------------
   // Workspace Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('workspace:update:active-proxy', (payload) =>
-    updateActiveProxy(workspaceStore.value?.workspace ?? null, payload),
-  )
-  eventBus.on('workspace:update:color-mode', (payload) =>
-    updateColorMode(workspaceStore.value?.workspace ?? null, payload),
-  )
-  eventBus.on('workspace:update:theme', (payload) => updateTheme(workspaceStore.value?.workspace ?? null, payload))
-  eventBus.on('workspace:update:selected-client', (payload) =>
-    updateSelectedClient(workspaceStore.value?.workspace, payload),
-  )
+  eventBus.on('workspace:update:active-proxy', (payload) => updateActiveProxy(getStore()?.workspace ?? null, payload))
+  eventBus.on('workspace:update:color-mode', (payload) => updateColorMode(getStore()?.workspace ?? null, payload))
+  eventBus.on('workspace:update:theme', (payload) => updateTheme(getStore()?.workspace ?? null, payload))
+  eventBus.on('workspace:update:selected-client', (payload) => updateSelectedClient(getStore()?.workspace, payload))
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers
@@ -211,12 +148,12 @@ export const useWorkspaceClientAppEvents = ({
   eventBus.on('document:update:info', (info) => document.value && mergeObjects(document.value.info, info))
   eventBus.on('document:toggle:security', () => toggleSecurity(document.value))
   eventBus.on('document:update:watch-mode', (watchMode: boolean) => updateWatchMode(document.value, watchMode))
-  eventBus.on('document:create:empty-document', (payload) => createEmptyDocument(workspaceStore.value, payload))
+  eventBus.on('document:create:empty-document', (payload) => createEmptyDocument(getStore(), payload))
   eventBus.on('document:delete:document', async (payload) => {
-    deleteDocument(workspaceStore.value, payload)
+    deleteDocument(getStore(), payload)
     // Redirect to the workspace environment page if the document was deleted
-    if (route.params.documentSlug === payload.name) {
-      await router.push({
+    if (currentRoute?.value?.params.documentSlug === payload.name) {
+      await router.value?.push({
         name: 'workspace.environment',
       })
     }
@@ -226,36 +163,41 @@ export const useWorkspaceClientAppEvents = ({
   // Environment Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('environment:upsert:environment', (payload) => {
-    if (!workspaceStore.value) {
+    const store = getStore()
+
+    if (!store) {
       return
     }
-    upsertEnvironment(document.value, workspaceStore.value.workspace, payload)
+    upsertEnvironment(document.value, store.workspace, payload)
   })
 
   eventBus.on(
     'environment:delete:environment',
     ({ environmentName, collectionType }) =>
-      delete getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName],
+      delete getCollection(document.value, collectionType)?.['x-scalar-environments']?.[environmentName],
   )
 
   eventBus.on('environment:upsert:environment-variable', (payload) => {
-    const collection = getCollection(document, payload.collectionType)
+    const collection = getCollection(document.value, payload.collectionType)
     upsertEnvironmentVariable(collection, payload)
   })
 
   eventBus.on('environment:delete:environment-variable', ({ environmentName, index, collectionType }) =>
-    getCollection(document, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1),
+    getCollection(document.value, collectionType)?.['x-scalar-environments']?.[environmentName]?.variables?.splice(
+      index,
+      1,
+    ),
   )
 
   //------------------------------------------------------------------------------------
   // Cookie Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('cookie:upsert:cookie', (payload) => {
-    const collection = getCollection(document, payload.collectionType)
+    const collection = getCollection(document.value, payload.collectionType)
     upsertCookie(collection, payload)
   })
   eventBus.on('cookie:delete:cookie', (payload) => {
-    const collection = getCollection(document, payload.collectionType)
+    const collection = getCollection(document.value, payload.collectionType)
     deleteCookie(collection, payload)
   })
 
@@ -283,17 +225,17 @@ export const useWorkspaceClientAppEvents = ({
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('operation:create:operation', (payload) => createOperation(workspaceStore.value, payload))
+  eventBus.on('operation:create:operation', (payload) => createOperation(getStore(), payload))
   eventBus.on('operation:update:pathMethod', (payload) =>
-    updateOperationPathMethod(document.value, workspaceStore.value, payload, async (status) => {
+    updateOperationPathMethod(document.value, getStore(), payload, async (status) => {
       // Redirect to the new example if the mutation was successful
       if (status === 'success') {
-        await router.replace({
+        await router.value?.replace({
           name: 'example',
           params: {
             method: payload.payload.method,
             pathEncoded: encodeURIComponent(payload.payload.path),
-            exampleName: route.params.exampleName,
+            exampleName: currentRoute.value?.params.exampleName,
           },
         })
 
@@ -305,7 +247,7 @@ export const useWorkspaceClientAppEvents = ({
   )
   eventBus.on('operation:update:summary', (payload) => updateOperationSummary(document.value, payload))
   eventBus.on('operation:delete:operation', async (payload) => {
-    deleteOperation(workspaceStore.value, payload)
+    deleteOperation(getStore(), payload)
     rebuildSidebar(payload.documentName)
     if (
       isRouteParamsMatch({
@@ -314,7 +256,7 @@ export const useWorkspaceClientAppEvents = ({
         method: payload.meta.method,
       })
     ) {
-      await router.replace({
+      await router.value?.replace({
         name: 'document.overview',
         params: {
           documentSlug: payload.documentName,
@@ -323,7 +265,7 @@ export const useWorkspaceClientAppEvents = ({
     }
   })
   eventBus.on('operation:delete:example', async (payload) => {
-    deleteOperationExample(workspaceStore.value, payload)
+    deleteOperationExample(getStore(), payload)
     rebuildSidebar(payload.documentName)
     if (
       isRouteParamsMatch({
@@ -333,7 +275,7 @@ export const useWorkspaceClientAppEvents = ({
         exampleName: payload.meta.exampleKey,
       })
     ) {
-      await router.replace({
+      await router.value?.replace({
         name: 'example',
         params: {
           pathEncoded: encodeURIComponent(payload.meta.path),
@@ -346,12 +288,12 @@ export const useWorkspaceClientAppEvents = ({
   })
   eventBus.on('operation:add:parameter', (payload) => {
     addOperationParameter(document.value, payload)
-    refreshSidebarAfterExampleCreation(payload.meta)
+    onAfterExampleCreation(payload.meta)
   })
   eventBus.on('operation:update:parameter', (payload) => {
     updateOperationParameter(document.value, payload)
     // When updating a path parameter, we need to check if we are creating a new example
-    refreshSidebarAfterExampleCreation(payload.meta)
+    onAfterExampleCreation(payload.meta)
   })
   eventBus.on('operation:delete:parameter', (payload) => deleteOperationParameter(document.value, payload))
   eventBus.on('operation:delete-all:parameters', (payload) => deleteAllOperationParameters(document.value, payload))
@@ -364,11 +306,11 @@ export const useWorkspaceClientAppEvents = ({
   )
   eventBus.on('operation:update:requestBody:value', (payload) => {
     updateOperationRequestBodyExample(document.value, payload)
-    refreshSidebarAfterExampleCreation(payload.meta)
+    onAfterExampleCreation(payload.meta)
   })
   eventBus.on('operation:add:requestBody:formRow', (payload) => {
     addOperationRequestBodyFormRow(document.value, payload)
-    refreshSidebarAfterExampleCreation(payload.meta)
+    onAfterExampleCreation(payload.meta)
   })
   eventBus.on('operation:update:requestBody:formRow', (payload) =>
     updateOperationRequestBodyFormRow(document.value, payload),
@@ -381,60 +323,61 @@ export const useWorkspaceClientAppEvents = ({
   // Tag Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('tag:create:tag', (payload) => {
-    createTag(workspaceStore.value, payload)
+    createTag(getStore(), payload)
     rebuildSidebar(payload.documentName)
   })
   eventBus.on('tag:delete:tag', (payload) => {
-    deleteTag(workspaceStore.value, payload)
+    deleteTag(getStore(), payload)
     rebuildSidebar(payload.documentName)
   })
 
   //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
+  eventBus.on('ui:toggle:sidebar', onToggleSidebar)
   eventBus.on(
     'ui:open:command-palette',
     <P extends CommandPaletteAction['action']>(payload: CommandPaletteAction<P> | undefined) => {
       if (payload) {
-        commandPaletteState.open(payload.action, payload.payload)
+        onOpenCommandPalette(payload.action, payload.payload)
       } else {
-        commandPaletteState.open()
+        onOpenCommandPalette()
       }
     },
   )
-  eventBus.on('ui:route:page', ({ name }) => router.push({ name }))
+  eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('tabs:add:tab', async (payload) => {
-    addTab(workspaceStore.value?.workspace ?? null, payload)
+    addTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
   eventBus.on('tabs:close:tab', async (payload) => {
-    closeTab(workspaceStore.value?.workspace ?? null, payload)
+    closeTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
-  eventBus.on('tabs:close:other-tabs', (payload) => closeOtherTabs(workspaceStore.value?.workspace ?? null, payload))
+  eventBus.on('tabs:close:other-tabs', (payload) => closeOtherTabs(getStore()?.workspace ?? null, payload))
   eventBus.on('tabs:focus:tab', async (payload) => {
-    focusTab(workspaceStore.value?.workspace ?? null, payload)
+    focusTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
   eventBus.on('tabs:focus:tab-last', async (payload) => {
-    focusLastTab(workspaceStore.value?.workspace ?? null, payload)
+    focusLastTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
   eventBus.on('tabs:navigate:previous', async (payload) => {
-    navigatePreviousTab(workspaceStore.value?.workspace ?? null, payload)
+    navigatePreviousTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
   eventBus.on('tabs:navigate:next', async (payload) => {
-    navigateNextTab(workspaceStore.value?.workspace ?? null, payload)
+    navigateNextTab(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
   eventBus.on('tabs:update:tabs', async (payload) => {
-    updateTabs(workspaceStore.value?.workspace ?? null, payload)
+    updateTabs(getStore()?.workspace ?? null, payload)
     await navigateToCurrentTab()
   })
+  eventBus.on('tabs:copy:url', (payload) => onCopyTabUrl(payload.index))
 }
