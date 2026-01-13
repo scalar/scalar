@@ -32,6 +32,44 @@ describe('dereference', () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
+  it('should not work with infinite recursion', () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Test: {
+            $ref: '#/components/schemas/Test',
+          },
+        },
+      },
+    }
+    const result = dereference(openapi)
+
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema.info.title).toBe('Hello World')
+  })
+
   it('dereferences an OpenAPI 3.0.0 file', () => {
     const result = dereference(`{
       "openapi": "3.0.0",
