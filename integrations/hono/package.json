@@ -69,6 +69,6 @@
     "vitest": "catalog:*"
   },
   "peerDependencies": {
-    "hono": "^4.10.3"
+    "hono": "^4.11.4"
   }
 }
