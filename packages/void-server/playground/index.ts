@@ -1,12 +1,12 @@
 import { serve } from '@hono/node-server'
 
-import { createVoidServer } from '../src/createVoidServer'
+import { createVoidServer } from '../src/create-void-server'
 
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 5052
 
 // Create the server instance
-const app = await createVoidServer()
+const app = createVoidServer()
 
 // Start the server
 serve(
