@@ -1,6 +1,6 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-/*
+/**
  * Checks whether a JSON schema is of type object
  */
 export const isTypeObject = (schema: unknown): schema is Extract<SchemaObject, { type: 'object' }> => {

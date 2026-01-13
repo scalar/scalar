@@ -3,6 +3,7 @@ import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isTypeObject } from '@scalar/workspace-store/helpers/is-type-object'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -11,7 +12,6 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -286,21 +286,21 @@ const compositionsToRender = computed(() => {
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               <ScalarWrappingText
-                :text="name"
-                preset="property" />
+                preset="property"
+                :text="name" />
             </span>
           </template>
           <template v-else-if="variant === 'additionalProperties'">
             <span class="property-name-additional-properties">
               <ScalarWrappingText
-                :text="name"
-                preset="property" />
+                preset="property"
+                :text="name" />
             </span>
           </template>
           <template v-else>
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
+              preset="property"
+              :text="name" />
           </template>
         </WithBreadcrumb>
       </template>

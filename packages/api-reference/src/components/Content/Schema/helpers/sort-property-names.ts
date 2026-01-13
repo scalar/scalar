@@ -1,8 +1,7 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isTypeObject } from '@scalar/workspace-store/helpers/is-type-object'
 import type { DiscriminatorObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import { isTypeObject } from './is-type-object'
 
 /** Extract the type of properties */
 type Properties = NonNullable<Extract<SchemaObject, { type: 'object' }>['properties']>

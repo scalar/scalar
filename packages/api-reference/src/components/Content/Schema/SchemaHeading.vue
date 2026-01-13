@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ScalarWrappingText } from '@scalar/components'
+import { isTypeObject } from '@scalar/workspace-store/helpers/is-type-object'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
-
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 
 const { value } = defineProps<{
   value: SchemaObject
@@ -52,8 +51,8 @@ const failsafeType = computed(() => {
     </span>
     <template v-if="name">
       <ScalarWrappingText
-        :text="name"
-        preset="property" />
+        preset="property"
+        :text="name" />
     </template>
     <template v-else>
       {{ failsafeType }}

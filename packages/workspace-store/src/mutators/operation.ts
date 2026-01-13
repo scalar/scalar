@@ -6,6 +6,7 @@ import { findVariables } from '@scalar/helpers/regex/find-variables'
 import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { isTypeObject } from '@/helpers/is-type-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
@@ -899,23 +900,25 @@ export const updateOperationRequestBodyForm = (
   requestBody.content[contentType] ||= {}
   requestBody.content[contentType]!.schema ||= {
     type: 'object',
-    properties: {},
   }
 
+  // Ensure we have a schema object with properties
   const schema = getResolvedRef(requestBody.content[contentType].schema)
-  if (!schema || ('type' in schema && schema.type !== 'object')) {
+  if (!isTypeObject(schema)) {
+    console.error('Schema is not an object', schema)
     return
   }
+  schema.properties ||= {}
 
   // Apply each example to the respective schema object
   for (const row of payload) {
-    // The schema property exists
-    if (schema && 'properties' in schema && schema.properties && Object.hasOwn(schema.properties, row.name)) {
-      const property = getResolvedRef(schema.properties[row.name])
-      if (!property) {
-      }
+    schema.properties[row.name] ||= { type: 'string' }
+
+    const property = getResolvedRef(schema.properties[row.name])
+    if (!property) {
+      console.error('Property not found', row.name)
     }
 
-    // We must add the schema property to the schema object
+    property?.examples[meta.exampleKey] ||= { value: row.value, 'x-disabled': row.isDisabled }
   }
 }

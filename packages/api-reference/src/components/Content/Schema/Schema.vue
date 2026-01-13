@@ -2,6 +2,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isTypeObject } from '@scalar/workspace-store/helpers/is-type-object'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -12,7 +13,6 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
-import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
