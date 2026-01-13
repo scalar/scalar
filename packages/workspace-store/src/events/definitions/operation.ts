@@ -109,7 +109,7 @@ export type OperationEvents = {
      */
     payload: {
       /** The name of the parameter to add */
-      key: string
+      name: string
       /** The example value for the parameter to add */
       value: string
       /** Whether the parameter is enabled */
@@ -134,12 +134,12 @@ export type OperationEvents = {
     index: number
     /**
      * Partial payload with new properties for the parameter (optional).
-     * - key: The new name of the parameter (if being renamed).
+     * - name: The new name of the parameter (if being renamed).
      * - value: The new example value for the parameter.
      * - isDisabled: Whether the parameter is marked as disabled.
      */
     payload: Partial<{
-      key: string
+      name: string
       value: string
       isDisabled: boolean
     }>
@@ -194,54 +194,11 @@ export type OperationEvents = {
    * Triggers when the user updates the example value for a specific request body content type.
    */
   'operation:update:requestBody:value': {
-    payload: {
-      /** The new value for the request body example */
-      value: string | File | undefined
-    }
+    /** The new value for the request body example */
+    payload: string | File | undefined | { name: string; value: string | File; isDisabled: boolean }[]
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated request body value */
-    meta: OperationExampleMeta
-  }
-
-  /**
-   * Add a form-data row to the request body example.
-   * Triggers when the user adds a new form-data row to the request body in the UI.
-   */
-  'operation:add:requestBody:formRow': {
-    /** The payload containing the details of the form-data row to add */
-    payload: Partial<{ key: string; value: string | File }>
-    /** The content type of the request body */
-    contentType: string
-    /** Identifies the target operation and example variant for the added form-data row */
-    meta: OperationExampleMeta
-  }
-
-  /**
-   * Update a form-data row at the specified index for the request body example.
-   * Triggers when the user updates an existing form-data row (name, value) in the UI for a given operation.
-   */
-  'operation:update:requestBody:formRow': {
-    /** The zero-based index of the form-data row to update within the operation. */
-    index: number
-    /** The payload containing the details of the form-data row to update */
-    payload: Partial<{ key: string; value: string | File | null; isDisabled: boolean }>
-    /** The content type of the request body */
-    contentType: string
-    /** Identifies the target operation and example variant for the updated form-data row */
-    meta: OperationExampleMeta
-  }
-
-  /**
-   * Delete a form-data row from the request body example.
-   * Triggers when the user removes a form-data row (by type and index) from the request body in the UI.
-   */
-  'operation:delete:requestBody:formRow': {
-    /** The zero-based index of the form-data row to delete within the operation. */
-    index: number
-    /** The content type of the request body */
-    contentType: string
-    /** Identifies the target operation and example variant for the deleted form-data row */
     meta: OperationExampleMeta
   }
 }

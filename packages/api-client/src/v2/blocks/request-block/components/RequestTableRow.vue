@@ -38,7 +38,7 @@ const {
 const emits = defineEmits<{
   (
     e: 'updateRow',
-    payload: Partial<{ key: string; value: string; isDisabled: boolean }>,
+    payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
   ): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
@@ -126,7 +126,8 @@ const valueModel = computed({
         :modelValue="!data.isDisabled"
         @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
     </template>
-    <!-- Key -->
+
+    <!-- Name -->
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Key`"
@@ -139,8 +140,8 @@ const valueModel = computed({
         :modelValue="data.name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @selectVariable="(v: string) => emits('updateRow', { key: v })"
-        @update:modelValue="(v: string) => emits('updateRow', { key: v })" />
+        @selectVariable="(v: string) => emits('updateRow', { name: v })"
+        @update:modelValue="(v: string) => emits('updateRow', { name: v })" />
     </DataTableCell>
 
     <!-- Value -->

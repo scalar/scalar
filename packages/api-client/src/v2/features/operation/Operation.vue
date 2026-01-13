@@ -77,7 +77,7 @@ watch(
         type: 'header',
         meta: { method, path, exampleKey: exampleName ?? 'default' },
         payload: {
-          key: 'Accept',
+          name: 'Accept',
           value: '*/*',
           isDisabled: false,
         },

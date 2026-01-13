@@ -3,17 +3,14 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   addOperationParameter,
-  addOperationRequestBodyFormRow,
   addServer,
   deleteAllOperationParameters,
   deleteOperationParameter,
-  deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
   updateOperationParameter,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
-  updateOperationRequestBodyFormRow,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedClient,
@@ -86,17 +83,8 @@ export const useWorkspaceClientModalEvents = ({
   eventBus.on('operation:update:requestBody:contentType', (payload) =>
     updateOperationRequestBodyContentType(document.value, payload),
   )
-  eventBus.on('operation:update:requestBody:value', (payload) => {
-    updateOperationRequestBodyExample(document.value, payload)
-  })
-  eventBus.on('operation:add:requestBody:formRow', (payload) => {
-    addOperationRequestBodyFormRow(document.value, payload)
-  })
-  eventBus.on('operation:update:requestBody:formRow', (payload) =>
-    updateOperationRequestBodyFormRow(document.value, payload),
-  )
-  eventBus.on('operation:delete:requestBody:formRow', (payload) =>
-    deleteOperationRequestBodyFormRow(document.value, payload),
+  eventBus.on('operation:update:requestBody:value', (payload) =>
+    updateOperationRequestBodyExample(document.value, payload),
   )
 
   //------------------------------------------------------------------------------------
