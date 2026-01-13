@@ -18,13 +18,17 @@
     "testing",
     "react"
   ],
-  "version": "0.8.20",
+  "version": "0.8.22",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "playground": "vite ./playground -c ./vite.config.ts",
+    "dev": "vite ./playground -c ./vite.config.ts",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -53,15 +57,11 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
-    "character-entities": "^2.0.2",
-    "decode-named-character-reference": "^1.0.2",
-    "path": "^0.12.7",
     "random-words": "^2.0.1",
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "rollup-preserve-directives": "^1.1.1",
-    "vite": "catalog:*",
-    "vue": "catalog:*"
+    "vite": "catalog:*"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

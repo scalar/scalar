@@ -11,7 +11,7 @@ jobs:
   update-cli-docs:
     name: Update CLI Documentation
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -22,8 +22,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
@@ -58,7 +56,7 @@ jobs:
         if: steps.check-changes.outputs.has-changes == 'true'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
         with:
-          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           commit-message: 'docs(cli): update commands'
           title: 'docs(cli): update commands'

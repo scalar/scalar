@@ -32,6 +32,86 @@ describe('dereference', () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
+  it('handles circular references', () => {
+    const DOCUMENT = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Circular Reference',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          CircularReference: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              parent: { $ref: '#/components/schemas/CircularReference' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = dereference(DOCUMENT)
+
+    expect(result.errors).toStrictEqual([])
+
+    // Verify the circular reference is resolved without infinite loop
+    const circularReferenceSchema = result.schema.components.schemas.CircularReference
+
+    expect(circularReferenceSchema.properties.name.type).toBe('string')
+    expect(circularReferenceSchema.properties.parent.properties.name.type).toBe('string')
+
+    // Circular references can't be JSON.stringify'd (easily)
+    expect(() => JSON.stringify(result.schema)).toThrow()
+  })
+
+  it('throws an error for self-referencing schemas', () => {
+    const DOCUMENT = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Test: {
+            $ref: '#/components/schemas/Test',
+          },
+        },
+      },
+    }
+
+    const result = dereference(DOCUMENT)
+
+    expect(result.errors).toStrictEqual([
+      {
+        code: 'SELF_REFERENCE',
+        message: "Can't resolve reference to itself: #/components/schemas/Test",
+      },
+    ])
+
+    expect(result.schema.info.title).toBe('Hello World')
+  })
+
   it('dereferences an OpenAPI 3.0.0 file', () => {
     const result = dereference(`{
       "openapi": "3.0.0",

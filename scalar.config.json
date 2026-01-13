@@ -512,10 +512,7 @@
                   "getting-started": {
                     "filepath": "documentation/guides/docs/getting-started.md",
                     "type": "page",
-                    "title": "Getting Started",
-                    "layout": {
-                      "header": false
-                    }
+                    "title": "Getting Started"
                   },
                   "github-sync": {
                     "filepath": "documentation/guides/docs/github-sync.md",

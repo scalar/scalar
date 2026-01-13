@@ -1,5 +1,24 @@
 # @scalar/api-client-react
 
+## 1.3.66
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.8**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+  - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
+
+## 1.3.65
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.7**
+  - [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
 ## 1.3.64
 
 ### Patch Changes

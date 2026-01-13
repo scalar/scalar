@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.43.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.23.12**
+  - [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
+## 1.43.2
+
 ## 1.43.1
 
 ## 1.43.0

@@ -1,5 +1,45 @@
 # @scalar/api-client
 
+## 2.17.8
+
+### Patch Changes
+
+- [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+- [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.5**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
+- **@scalar/openapi-parser@0.23.12**
+  - [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
+- **@scalar/oas-utils@0.6.15**
+
+- **@scalar/sidebar@0.7.8**
+
+- **@scalar/components@0.16.18**
+
+- **@scalar/postman-to-openapi@0.3.56**
+
+- **@scalar/use-codemirror@0.13.12**
+
+## 2.17.7
+
+### Patch Changes
+
+- [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
+- **@scalar/sidebar@0.7.7**
+
+- **@scalar/use-codemirror@0.13.11**
+
 ## 2.17.6
 
 ### Patch Changes

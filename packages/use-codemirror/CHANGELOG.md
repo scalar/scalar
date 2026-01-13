@@ -1,5 +1,22 @@
 # @scalar/use-codemirror
 
+## 0.13.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.18**
+
+## 0.13.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
 ## 0.13.10
 
 ### Patch Changes

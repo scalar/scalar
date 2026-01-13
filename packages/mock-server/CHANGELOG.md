@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.8.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.23.12**
+  - [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
+- **@scalar/oas-utils@0.6.15**
+
 ## 0.8.9
 
 ### Patch Changes

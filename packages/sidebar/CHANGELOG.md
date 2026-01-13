@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.7.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.5**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
+- **@scalar/components@0.16.18**
+
+## 0.7.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
 ## 0.7.6
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # scalar-app
 
+## 0.1.259
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.17.8**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+  - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
+
+- **@scalar/components@0.16.18**
+
+## 0.1.258
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.17**
+  - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
+- **@scalar/api-client@2.17.7**
+  - [#7675](https://github.com/scalar/scalar/pull/7675): fix: ensure patch is uppercased
+
 ## 0.1.257
 
 ### Patch Changes

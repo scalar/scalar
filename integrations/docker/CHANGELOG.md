@@ -1,5 +1,23 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.3**
+
+## 0.4.23
+
+### Patch Changes
+
+- [#7698](https://github.com/scalar/scalar/pull/7698): feat: update Docker Hub description
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.2**
+
 ## 0.4.22
 
 ### Patch Changes

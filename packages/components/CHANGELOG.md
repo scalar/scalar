@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.16.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.15**
+
+## 0.16.17
+
+### Patch Changes
+
+- [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
+
 ## 0.16.16
 
 ### Patch Changes

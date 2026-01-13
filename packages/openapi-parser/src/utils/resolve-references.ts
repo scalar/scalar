@@ -111,7 +111,36 @@ function dereference(
     return externalFile
   }
 
+  /**
+   * Track seen $ref paths to detect self-referencing schemas.
+   *
+   * This only tracks $refs within the current while loop (one resolution chain).
+   * Each schema object gets its own fresh processedRefs when dereference() is called.
+   *
+   * This catches invalid cases like:
+   *   Test: { $ref: '#/components/schemas/Test' }
+   *
+   * But allows valid recursive schemas where the $ref is nested:
+   *   Person: { type: 'object', properties: { friend: { $ref: '#/components/schemas/Person' } } }
+   */
+  const processedRefs = new Set<string>()
+
   while (schema.$ref !== undefined) {
+    const selfReferenceDetected = processedRefs.has(schema.$ref)
+
+    if (selfReferenceDetected) {
+      errors.push({
+        code: 'SELF_REFERENCE',
+        message: ERRORS.SELF_REFERENCE.replace('%s', schema.$ref),
+      })
+
+      delete schema.$ref
+
+      break
+    }
+
+    processedRefs.add(schema.$ref)
+
     // Find the referenced content
     const resolved = resolveUri(schema.$ref, options, entrypoint, filesystem, resolveExternal, errors)
 

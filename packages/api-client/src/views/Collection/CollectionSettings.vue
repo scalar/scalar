@@ -127,8 +127,8 @@ function handleDeleteCollection() {
           </p>
         </div>
         <ScalarButton
-          class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
-          :variant="'danger'"
+          size="sm"
+          variant="danger"
           @click="deleteModal.show()">
           Delete Collection
         </ScalarButton>
@@ -147,13 +147,3 @@ function handleDeleteCollection() {
       @delete="handleDeleteCollection" />
   </ScalarModal>
 </template>
-<style scoped>
-.scalar-button-danger {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
-  color: var(--scalar-color-red);
-}
-.scalar-button-danger:hover,
-.scalar-button-danger:focus {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
-}
-</style>
