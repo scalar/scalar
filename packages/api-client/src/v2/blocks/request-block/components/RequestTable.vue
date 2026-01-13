@@ -13,14 +13,12 @@ import {
 
 const {
   data,
-  isReadOnly,
   hasCheckboxDisabled,
   showUploadButton,
   showAddRowPlaceholder = true,
   environment,
 } = defineProps<{
   data: TableRow[]
-  isReadOnly?: boolean
   /** Hide the enabled column */
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
@@ -117,7 +115,6 @@ const updateOrAdd = ({
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
       :invalidParams="invalidParams"
-      :isReadOnly="isReadOnly"
       :label="label"
       :showUploadButton="showUploadButton"
       @deleteRow="emits('deleteRow', idx)"

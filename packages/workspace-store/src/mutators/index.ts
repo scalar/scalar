@@ -155,6 +155,7 @@ export {
   deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
+  updateOperationDefaultHeadersParameter,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,

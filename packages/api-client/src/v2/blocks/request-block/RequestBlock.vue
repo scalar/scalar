@@ -19,11 +19,14 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
+import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
+import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
@@ -86,8 +89,77 @@ const sections = computed(() =>
   groupBy(
     operation.parameters?.map((param) => getResolvedRef(param)) ?? [],
     'in',
+    (param) => {
+      const example = getExample(param, exampleKey, undefined)
+
+      return {
+        name: param.name,
+        value: example?.value ?? '',
+        description: param.description,
+        schema: getParameterSchema(param),
+        isRequired: param.required,
+        isDisabled: example?.['x-disabled'] ?? false,
+      }
+    },
   ),
 )
+
+// Generate a reverse map for fast lookup of headers by the name
+const headersMap = computed(() =>
+  groupBy(
+    sections.value.header?.map((it) => ({
+      ...it,
+      name: it.name.toLowerCase(),
+    })) ?? [],
+    'name',
+  ),
+)
+
+const AUTO_GENERATED_HEADERS = computed(() => {
+  const result: { name: string; defaultValue: string }[] = []
+
+  if (canMethodHaveBody(method)) {
+    result.push({
+      name: 'Content-Type',
+      defaultValue:
+        getResolvedRef(operation.requestBody)?.[
+          'x-scalar-selected-content-type'
+        ]?.[exampleKey] ?? 'application/json',
+    })
+  }
+
+  result.push({
+    name: 'Accept',
+    defaultValue: '*/*',
+  })
+
+  return result
+})
+
+const defaultHeaders = computed(() => {
+  const disableParameters =
+    operation['x-scalar-disable-parameters']?.['default-headers']?.[
+      exampleKey
+    ] ?? {}
+
+  return AUTO_GENERATED_HEADERS.value.map((it) => {
+    const realHeader = headersMap.value[it.name.toLowerCase()]
+
+    return {
+      name: it.name,
+      value: it.defaultValue,
+      schema: undefined,
+      isOverridden: realHeader && !realHeader[0]?.isDisabled,
+      isReadonly: true,
+      isDisabled: disableParameters[it.name.toLowerCase()] ?? false,
+    } satisfies TableRow
+  })
+})
+
+const headers = computed(() => [
+  ...defaultHeaders.value,
+  ...(sections.value.header ?? []),
+])
 
 /** Currently selected filter for the request sections */
 const selectedFilter = ref<Filter>('All')
@@ -193,10 +265,12 @@ const handleSummaryUpdate = (event: Event): void => {
 
 /** Parameter handlers */
 const parameterHandlers = computed(() => ({
-  path: createParameterHandlers('path', eventBus, meta.value),
-  cookie: createParameterHandlers('cookie', eventBus, meta.value),
-  header: createParameterHandlers('header', eventBus, meta.value),
-  query: createParameterHandlers('query', eventBus, meta.value),
+  path: createParameterHandlers('path', eventBus, meta.value, {}),
+  cookie: createParameterHandlers('cookie', eventBus, meta.value, {}),
+  header: createParameterHandlers('header', eventBus, meta.value, {
+    defaultParameters: defaultHeaders.value.length,
+  }),
+  query: createParameterHandlers('query', eventBus, meta.value, {}),
 }))
 
 /** Handle request body form row addition */
@@ -333,7 +407,7 @@ const labelRequestNameId = useId()
         :id="filterIds.Variables"
         :environment
         :exampleKey
-        :parameters="sections.path ?? []"
+        :rows="sections.path ?? []"
         :showAddRowPlaceholder="false"
         title="Variables"
         v-on="parameterHandlers.path" />
@@ -344,7 +418,7 @@ const labelRequestNameId = useId()
         :id="filterIds.Cookies"
         :environment
         :exampleKey
-        :parameters="sections.cookie ?? []"
+        :rows="sections.cookie ?? []"
         :showAddRowPlaceholder="true"
         title="Cookies"
         v-on="parameterHandlers.cookie" />
@@ -355,7 +429,7 @@ const labelRequestNameId = useId()
         :id="filterIds.Headers"
         :environment
         :exampleKey
-        :parameters="sections.header ?? []"
+        :rows="headers ?? []"
         title="Headers"
         v-on="parameterHandlers.header" />
 
@@ -365,7 +439,7 @@ const labelRequestNameId = useId()
         :id="filterIds.Query"
         :environment
         :exampleKey
-        :parameters="sections.query ?? []"
+        :rows="sections.query ?? []"
         title="Query Parameters"
         v-on="parameterHandlers.query" />
 

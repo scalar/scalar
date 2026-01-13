@@ -150,6 +150,24 @@ export type OperationEvents = {
   }
 
   /**
+   * Update a parameter of the operation.
+   * Triggers when the user updates an existing parameter (name, value, or enabled/disabled) in the UI for a given operation.
+   */
+  'operation:update:default-headers:parameter': {
+    /**
+     * Partial payload with new properties for the parameter (optional).
+     * - isDisabled: Whether the parameter is marked as disabled.
+     */
+    payload: Partial<{
+      isDisabled: boolean
+    }>
+    /**
+     * Identifies the target operation, example and header name for the updated parameter.
+     */
+    meta: OperationExampleMeta & { key: string }
+  }
+
+  /**
    * Delete a parameter from an operation at the specified index and type.
    * Fires when the user removes a parameter (by type and index) from an operation.
    */

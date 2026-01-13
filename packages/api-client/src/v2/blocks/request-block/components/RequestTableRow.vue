@@ -23,11 +23,9 @@ const {
   environment,
   hasCheckboxDisabled,
   invalidParams,
-  isReadOnly,
   showUploadButton,
 } = defineProps<{
   data: TableRow
-  isReadOnly?: boolean
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
   label?: string
@@ -46,13 +44,27 @@ const emits = defineEmits<{
 }>()
 
 export type TableRow = {
+  /** The parameter or field name/key */
   name: string
+  /** The parameter value, can be a string, file, or null */
   value: string | File | null
+  /** Optional description for the parameter */
   description?: string
+  /** Optional route for global parameters (e.g., cookies shared across workspace) */
   globalRoute?: string
+  /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
+  /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
+  /** Whether the parameter is required */
   isRequired?: boolean
+  /**
+   * Whether the parameter is readonly and can not be modifies directly
+   * User can still override the parameter which is going to show up with the linethrough style
+   */
+  isReadonly?: boolean
+  /** Whether the parameter is overridden later on */
+  isOverridden?: boolean
 }
 
 const defaultValue = computed(() => data.schema?.default as string)
@@ -131,7 +143,7 @@ const valueModel = computed({
       <CodeInput
         :aria-label="`${label} Key`"
         disableCloseBrackets
-        :disabled="isReadOnly"
+        :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
         :environment="environment"
@@ -150,7 +162,7 @@ const valueModel = computed({
         class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
         :default="defaultValue"
         disableCloseBrackets
-        :disabled="isReadOnly"
+        :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
         :enum="enumValue ?? []"
@@ -158,6 +170,7 @@ const valueModel = computed({
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
         "
+        :linethrough="data.isOverridden"
         lineWrapping
         :max="maximumValue"
         :min="minimumValue"
@@ -167,15 +180,24 @@ const valueModel = computed({
         @update:modelValue="(v: string) => emits('updateRow', { value: v })">
         <template #icon>
           <ScalarButton
-            v-if="Boolean(data.name || data.value) && !data.isRequired"
+            v-if="
+              Boolean(data.name || data.value) &&
+              !data.isRequired &&
+              data.isReadonly !== true
+            "
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
             size="sm"
             variant="ghost"
             @click="emits('deleteRow')">
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
+
           <RequestTableTooltip
-            v-if="data.schema"
+            v-if="data.isReadonly"
+            description="This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox"
+            :value="null" />
+          <RequestTableTooltip
+            v-else-if="data.schema"
             :description="data.description"
             :schema="data.schema"
             :value="data.value" />

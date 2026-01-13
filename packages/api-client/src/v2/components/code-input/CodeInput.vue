@@ -112,6 +112,8 @@ type Props = {
   handleFieldChange?: (value: T) => void
   /** Custom submit handler, prevents default emit */
   handleFieldSubmit?: (value: string) => void
+  /** Put a linethrough on the input text */
+  linethrough?: boolean
 }
 
 const {
@@ -485,7 +487,11 @@ defineExpose({
   <div
     v-if="disabled"
     class="text-c-2 flex cursor-default items-center justify-center"
-    :class="layout === 'modal' ? 'font-code pr-2 pl-1 text-base' : 'px-2'"
+    :class="{
+      'font-code pr-2 pl-1 text-base': layout === 'modal',
+      'px-2': layout !== 'modal',
+      'line-through': linethrough,
+    }"
     data-testid="code-input-disabled">
     <span class="whitespace-nowrap">{{ modelValue }}</span>
   </div>
@@ -526,6 +532,7 @@ defineExpose({
       'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:absolute has-[:focus-visible]:z-1':
         lineWrapping,
       'flow-code-input--error': error,
+      'line-through': linethrough,
     }"
     @keydown.down.stop="handleKeyDown('down', $event)"
     @keydown.enter="handleKeyDown('enter', $event)"
