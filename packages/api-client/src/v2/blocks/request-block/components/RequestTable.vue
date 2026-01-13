@@ -50,13 +50,9 @@ const emits = defineEmits<{
    * when the file is selected. If the index is undefined, it means we add the
    * file to the new row at the bottom of the table.
    */
-  (e: 'uploadFile', index?: number): void
+  (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
 }>()
-
-const uploadFile = (index?: number) => {
-  emits('uploadFile', index)
-}
 
 const columns = computed(() => {
   if (showUploadButton) {
@@ -123,7 +119,7 @@ const updateOrAdd = ({
       @deleteRow="emits('deleteRow', idx)"
       @removeFile="emits('removeFile', idx)"
       @updateRow="(payload) => updateOrAdd({ index: idx, payload })"
-      @uploadFile="() => uploadFile(idx)" />
+      @uploadFile="emits('uploadFile', idx)" />
   </DataTable>
 </template>
 <style scoped>

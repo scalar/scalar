@@ -5,7 +5,6 @@ import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import {
   type OperationExampleMeta,
   addOperationParameter,
-  addOperationRequestBodyFormRow,
   addServer,
   addTab,
   closeOtherTabs,
@@ -19,7 +18,6 @@ import {
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
-  deleteOperationRequestBodyFormRow,
   deleteSecurityScheme,
   deleteServer,
   deleteTag,
@@ -35,7 +33,6 @@ import {
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
-  updateOperationRequestBodyFormRow,
   updateOperationSummary,
   updateSecurityScheme,
   updateSelectedAuthTab,
@@ -366,16 +363,6 @@ export const useWorkspaceClientAppEvents = ({
     updateOperationRequestBodyExample(document.value, payload)
     refreshSidebarAfterExampleCreation(payload.meta)
   })
-  eventBus.on('operation:add:requestBody:formRow', (payload) => {
-    addOperationRequestBodyFormRow(document.value, payload)
-    refreshSidebarAfterExampleCreation(payload.meta)
-  })
-  eventBus.on('operation:update:requestBody:formRow', (payload) =>
-    updateOperationRequestBodyFormRow(document.value, payload),
-  )
-  eventBus.on('operation:delete:requestBody:formRow', (payload) =>
-    deleteOperationRequestBodyFormRow(document.value, payload),
-  )
 
   //------------------------------------------------------------------------------------
   // Tag Related Event Handlers

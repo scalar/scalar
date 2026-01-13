@@ -127,8 +127,8 @@ function handleDeleteCollection() {
           </p>
         </div>
         <ScalarButton
-          class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
-          :variant="'danger'"
+          size="sm"
+          variant="danger"
           @click="deleteModal.show()">
           Delete Collection
         </ScalarButton>

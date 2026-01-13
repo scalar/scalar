@@ -18,10 +18,11 @@
 
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
+      import content from './content.json'
       import { sources } from './test/utils/sources.ts'
 
       Scalar.createApiReference('#app', {
-        sources,
+        content,
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
