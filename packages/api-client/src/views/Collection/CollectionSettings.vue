@@ -147,13 +147,3 @@ function handleDeleteCollection() {
       @delete="handleDeleteCollection" />
   </ScalarModal>
 </template>
-<style scoped>
-.scalar-button-danger {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
-  color: var(--scalar-color-red);
-}
-.scalar-button-danger:hover,
-.scalar-button-danger:focus {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
-}
-</style>
