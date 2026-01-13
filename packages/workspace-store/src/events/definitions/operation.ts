@@ -195,7 +195,21 @@ export type OperationEvents = {
    */
   'operation:update:requestBody:value': {
     /** The new value for the request body example */
-    payload: string | File | undefined | { name: string; value: string | File; isDisabled: boolean }[]
+    payload: string | File | undefined
+    /** The content type of the request body */
+    contentType: string
+    /** Identifies the target operation and example variant for the updated request body value */
+    meta: OperationExampleMeta
+  }
+
+  /**
+   * Update the form data for the request body example.
+   * Triggers when the user updates the form data for a specific request body content type.
+   * It will go through and add each example to the respective schema object
+   */
+  'operation:update:requestBody:form': {
+    /** The new value for the request body example */
+    payload: { name: string; value: string | File; isDisabled: boolean }[]
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated request body value */

@@ -832,29 +832,6 @@ export const updateOperationRequestBodyContentType = (
 }
 
 /**
- * Converts a formData array back to an object if needed
- *
- * We internally use an array so we can use the Table,
- * so we must convert it back to an object before saving it to the example.
- */
-const convertFormDataToObject = (
-  payload: OperationEvents['operation:update:requestBody:value']['payload'],
-  schema: ReferenceType<SchemaObject> | undefined,
-) => {
-  if (Array.isArray(payload) && schema && 'type' in schema && schema.type === 'object') {
-    return payload.reduce(
-      (acc, { name, ...rest }) => {
-        acc[name] = rest
-        return acc
-      },
-      {} as Record<string, { value: string | File; isDisabled: boolean }>,
-    )
-  }
-
-  return payload
-}
-
-/**
  * Creates or updates a concrete example value for a specific request-body
  * `contentType` and `exampleKey`. Safely no-ops if the document or operation
  * does not exist.
@@ -873,7 +850,6 @@ export const updateOperationRequestBodyExample = (
   document: WorkspaceDocument | null,
   { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
 ) => {
-  console.log('updateOperationRequestBodyExample', payload, contentType)
   if (!document) {
     return
   }
@@ -896,5 +872,50 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
-  example.value = convertFormDataToObject(payload, mediaType.schema)
+  example.value = payload
+}
+
+/**
+ * Update the form data for the request body example.
+ * Triggers when the user updates the form data for a specific request body content type.
+ * It will go through and add each example to the respective schema object
+ */
+export const updateOperationRequestBodyForm = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:update:requestBody:form'],
+) => {
+  if (!document) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return
+  }
+
+  // Ensure that the example structure exists
+  operation.requestBody ||= { content: {} }
+  const requestBody = getResolvedRef(operation.requestBody)
+  requestBody.content[contentType] ||= {}
+  requestBody.content[contentType]!.schema ||= {
+    type: 'object',
+    properties: {},
+  }
+
+  const schema = getResolvedRef(requestBody.content[contentType].schema)
+  if (!schema || ('type' in schema && schema.type !== 'object')) {
+    return
+  }
+
+  // Apply each example to the respective schema object
+  for (const row of payload) {
+    // The schema property exists
+    if (schema && 'properties' in schema && schema.properties && Object.hasOwn(schema.properties, row.name)) {
+      const property = getResolvedRef(schema.properties[row.name])
+      if (!property) {
+      }
+    }
+
+    // We must add the schema property to the schema object
+  }
 }
