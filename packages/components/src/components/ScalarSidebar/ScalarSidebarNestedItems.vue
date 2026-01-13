@@ -127,11 +127,12 @@ const handleBack = (event: MouseEvent) => {
         v-bind="$attrs"
         @click="handleClick">
         <template
-          v-if="icon"
+          v-if="icon || $slots.icon"
           #icon>
           <slot name="icon">
             <ScalarIconLegacyAdapter
-              :icon="icon"
+              v-if="icon"
+              :icon
               weight="bold" />
           </slot>
         </template>
