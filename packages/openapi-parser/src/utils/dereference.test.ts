@@ -32,30 +32,14 @@ describe('dereference', () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('should not work with infinite recursion', () => {
-    const openapi = {
+  it('throws an error for self-referencing schemas', () => {
+    const DOCUMENT = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
         version: '1.0.0',
       },
-      paths: {
-        '/test': {
-          get: {
-            responses: {
-              '200': {
-                content: {
-                  'application/json': {
-                    schema: {
-                      $ref: '#/components/schemas/Test',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      paths: {},
       components: {
         schemas: {
           Test: {
@@ -64,14 +48,16 @@ describe('dereference', () => {
         },
       },
     }
-    const result = dereference(openapi)
+
+    const result = dereference(DOCUMENT)
 
     expect(result.errors).toStrictEqual([
       {
-        code: 'CIRCULAR_REFERENCE',
+        code: 'SELF_REFERENCE',
         message: 'Circular reference detected: #/components/schemas/Test',
       },
     ])
+
     expect(result.schema.info.title).toBe('Hello World')
   })
 

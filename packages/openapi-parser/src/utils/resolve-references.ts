@@ -118,14 +118,14 @@ function dereference(
 
     if (typeof dereferencedRef === 'string') {
       if (seenRefs.has(dereferencedRef)) {
-        const message = ERRORS.CIRCULAR_REFERENCE.replace('%s', dereferencedRef)
+        const message = ERRORS.SELF_REFERENCE.replace('%s', dereferencedRef)
 
         if (options?.throwOnError) {
           throw new Error(message)
         }
 
         errors.push({
-          code: 'CIRCULAR_REFERENCE',
+          code: 'SELF_REFERENCE',
           message,
         })
 
