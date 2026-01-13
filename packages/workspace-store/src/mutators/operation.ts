@@ -884,9 +884,7 @@ export const updateOperationRequestBodyExample = (
 /**
  * Stores the form data for the request body example
  *
- * This needs special handling as we store it as an array of objects for our UI table
- * We cannot store it in the native openapi format as we would lose the `isDisabled` flag per row
- * Since we need an extension anyway, might as well reduce the compute required to convert back and forth
+ * This needs special handling as we store it as an array of objects with a schema type of object
  */
 export const updateOperationRequestBodyFormValue = (
   document: WorkspaceDocument | null,

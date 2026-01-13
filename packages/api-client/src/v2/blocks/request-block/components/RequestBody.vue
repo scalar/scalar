@@ -155,9 +155,13 @@ const tableRows = computed(() => {
     return []
   }
 
-  // If we have form data already, return it
-  if (example.value['x-scalar-form-data-value']) {
-    return example.value['x-scalar-form-data-value']
+  // We have form data stored as an array
+  if (Array.isArray(example.value.value)) {
+    return example.value.value as {
+      name: string
+      value: string
+      isDisabled: boolean
+    }[]
   }
 
   // We got an object try to convert it to an array of rows
