@@ -70,7 +70,8 @@
   "devDependencies": {
     "@types/node": "catalog:*",
     "@types/picomatch": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "vite-node": "catalog:*"
   },
   "peerDependencies": {
     "vite": "catalog:*"
