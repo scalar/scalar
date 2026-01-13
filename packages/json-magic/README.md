@@ -246,6 +246,36 @@ await bundle(input, {
 })
 ```
 
+##### externalDocumentsKey
+
+The `externalDocumentsKey` option controls the key used to store external references. This key will contain all bundled external documents. The key is used to maintain a clean separation between the main OpenAPI document and its bundled external references. **Defaults** to `x-ext`.
+
+```ts
+import { bundle } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+
+await bundle(input, {
+  plugins: [fetchUrls()],
+  treeShake: false,
+  externalDocumentsKey: 'x-external-docs',
+})
+```
+
+##### externalDocumentsMappingsKey
+
+The `externalDocumentsMappingsKey` option controls the key used to maintain a mapping between hashed keys and their original URLs. This mapping is essential for tracking the source of bundled references. **Defaults** to `x-ext-urls`.
+
+```ts
+import { bundle } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+
+await bundle(input, {
+  plugins: [fetchUrls()],
+  treeShake: false,
+  urlMap: true,
+  externalDocumentsKey: 'x-external-urls',
+})
+```
 
 ## dereference
 

@@ -486,9 +486,26 @@ type Config = {
   /**
    * Optional flag to generate a URL map.
    * When enabled, tracks the original source URLs of bundled references
-   * in an x-ext-urls section for reference mapping.
+   * in an section for reference mapping defined by externalDocumentsMappingsKey.
    */
   urlMap?: boolean
+
+  /**
+   * Custom OpenAPI extension key used to store external references.
+   * This key will contain all bundled external documents.
+   * The key is used to maintain a clean separation between the main
+   * OpenAPI document and its bundled external references.
+   * @default 'x-ext'
+   */
+  externalDocumentsKey?: string
+
+  /**
+   * Custom OpenAPI extension key used to maintain a mapping between
+   * hashed keys and their original URLs.
+   * This mapping is essential for tracking the source of bundled references
+   * @default 'x-ext-urls'
+   */
+  externalDocumentsMappingsKey?: string
 
   /**
    * Optional function to compress input URLs or file paths before bundling.
@@ -533,7 +550,7 @@ type Config = {
  * Extension keys used for bundling external references in OpenAPI documents.
  * These custom extensions help maintain the structure and traceability of bundled documents.
  */
-const extensions = {
+export const extensions = {
   /**
    * Custom OpenAPI extension key used to store external references.
    * This key will contain all bundled external documents.
@@ -616,6 +633,10 @@ const extensions = {
  * // then bundle all its external references into the x-ext section
  */
 export async function bundle(input: UnknownObject | string, config: Config) {
+  // Set the default external documents key and mappings key if not provided in the config
+  config.externalDocumentsKey = config.externalDocumentsKey ?? extensions.externalDocuments
+  config.externalDocumentsMappingsKey = config.externalDocumentsMappingsKey ?? extensions.externalDocumentsMappings
+
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -684,12 +705,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   }
 
   // Create the cache to store the compressed values to their map values
-  if (documentRoot[extensions.externalDocumentsMappings] === undefined) {
-    documentRoot[extensions.externalDocumentsMappings] = {}
+  if (documentRoot[config.externalDocumentsMappingsKey] === undefined) {
+    documentRoot[config.externalDocumentsMappingsKey] = {}
   }
   const { generate } = uniqueValueGeneratorFactory(
     config.compress ?? getHash,
-    documentRoot[extensions.externalDocumentsMappings],
+    documentRoot[config.externalDocumentsMappingsKey],
   )
 
   const bundler = async (
@@ -814,16 +835,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
           await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
-            extensions.externalDocuments,
+            config.externalDocumentsKey,
             compressedPath,
-            documentRoot[extensions.externalDocumentsMappings],
+            documentRoot[config.externalDocumentsMappingsKey],
           ])
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
           setValueAtPath(
             documentRoot,
-            `/${extensions.externalDocumentsMappings}/${escapeJsonPointer(compressedPath)}`,
+            `/${config.externalDocumentsMappingsKey}/${escapeJsonPointer(compressedPath)}`,
             resolvedPath,
           )
         }
@@ -834,9 +855,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // that are referenced, rather than the entire document
           resolveAndCopyReferences(
             documentRoot,
-            { [extensions.externalDocuments]: { [compressedPath]: result.data } },
-            prefixInternalRef(`#${path}`, [extensions.externalDocuments, compressedPath]).substring(1),
-            extensions.externalDocuments,
+            { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
+            prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]).substring(1),
+            config.externalDocumentsKey,
             compressedPath,
           )
         } else if (!seen) {
@@ -845,13 +866,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${extensions.externalDocuments}/${compressedPath}`, result.data)
+          setValueAtPath(documentRoot, `/${config.externalDocumentsKey}/${compressedPath}`, result.data)
         }
 
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [extensions.externalDocuments, compressedPath])
+        root.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
 
         config?.hooks?.onResolveSuccess?.(root)
         lifecyclePlugin.forEach((it) => it.onResolveSuccess?.(root))
@@ -872,7 +893,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
-        if (key === extensions.externalDocuments || key === extensions.externalDocumentsMappings) {
+        if (key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
           return
         }
 
@@ -909,7 +930,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // For full bundling without urlMap config, remove the mappings to clean up the output
   if (!config.urlMap && !isPartialBundling) {
     // Remove the external document mappings from the output when doing a full bundle without urlMap config
-    delete documentRoot[extensions.externalDocumentsMappings]
+    delete documentRoot[config.externalDocumentsMappingsKey]
   }
 
   return rawSpecification
