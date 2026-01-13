@@ -61,7 +61,7 @@ describe('Operation', () => {
     securitySchemes: {},
     activeWorkspace: {
       id: 'test-workspace',
-      name: 'Test Workspace',
+      label: 'Test Workspace',
     },
     plugins: [],
   }

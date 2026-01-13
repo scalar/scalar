@@ -712,7 +712,7 @@
                 "title": "Scalar API References",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/scroll",
+                "icon": "phosphor/regular/notebook",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
@@ -997,7 +997,7 @@
                 "title": "Scalar API Client",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/app-window",
+                "icon": "phosphor/regular/paper-plane-tilt",
                 "children": {
                   "getting-started": {
                     "filepath": "documentation/guides/app/getting-started.md",
@@ -1010,7 +1010,7 @@
                 "title": "Scalar Mock Server",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/jar",
+                "icon": "phosphor/regular/cloud",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
@@ -1045,7 +1045,7 @@
                 "title": "Scalar CLI",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/terminal",
+                "icon": "phosphor/regular/terminal-window",
                 "children": {
                   "getting-started": {
                     "filepath": "documentation/guides/cli/getting-started.md",
@@ -1063,6 +1063,7 @@
                 "type": "openapi",
                 "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
                 "title": "Scalar API",
+                "icon": "phosphor/regular/database",
                 "mode": "nested"
               }
             }

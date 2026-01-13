@@ -93,4 +93,70 @@ describe('useClipboard', () => {
     // Should show error notification since clipboard is not available
     expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
   })
+
+  it('handles objects by stringifying them', async () => {
+    const { copyToClipboard } = useClipboard()
+    const testObject = { name: 'John', age: 30 }
+
+    await copyToClipboard(testObject)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(testObject))
+  })
+
+  it('handles arrays by stringifying them', async () => {
+    const { copyToClipboard } = useClipboard()
+    const testArray = [1, 2, 3, 'four']
+
+    await copyToClipboard(testArray)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(testArray))
+  })
+
+  it('handles numbers by stringifying them', async () => {
+    const { copyToClipboard } = useClipboard()
+
+    await copyToClipboard(42)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('42')
+  })
+
+  it('handles booleans by stringifying them', async () => {
+    const { copyToClipboard } = useClipboard()
+
+    await copyToClipboard(true)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('true')
+  })
+
+  it('handles null by stringifying it', async () => {
+    const { copyToClipboard } = useClipboard()
+
+    await copyToClipboard(null)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('null')
+  })
+
+  it('handles undefined by stringifying it', async () => {
+    const { copyToClipboard } = useClipboard()
+    await copyToClipboard(undefined)
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('undefined')
+  })
+
+  it('handles nested objects by stringifying them', async () => {
+    const { copyToClipboard } = useClipboard()
+    const nestedObject = {
+      user: {
+        name: 'Jane',
+        preferences: {
+          theme: 'dark',
+          notifications: true,
+        },
+      },
+      items: [1, 2, 3],
+    }
+
+    await copyToClipboard(nestedObject)
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(nestedObject))
+  })
 })

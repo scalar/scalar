@@ -32,7 +32,7 @@ export const galaxySidebar = [
         'method': 'post',
         'ref': '#/paths/~1user~1signup/post',
         'type': 'operation',
-        'isDeprecated': false,
+        'isDeprecated': true,
         'children': [
           {
             'type': 'example',
@@ -124,7 +124,7 @@ export const galaxySidebar = [
         'method': 'put',
         'ref': '#/paths/~1planets~1{planetId}/put',
         'type': 'operation',
-        'isDeprecated': false,
+        'isDeprecated': true,
       },
       {
         'id': 'scalar-galaxy/tag/planets/DELETE/planets/{planetId}',
