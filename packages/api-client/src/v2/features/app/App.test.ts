@@ -1,29 +1,14 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
 import App from './App.vue'
-
-/**
- * Mock vue-router to avoid router setup in tests
- */
-vi.mock('vue-router', () => ({
-  RouterView: {
-    name: 'RouterView',
-    template: '<div class="router-view"><slot /></div>',
-  },
-  useRoute: () => ({
-    params: { workspaceSlug: 'default', documentSlug: 'doc1' },
-    query: {},
-  }),
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-  }),
-}))
+import { useAppState } from './app-state'
+import { ROUTES } from './helpers/routes'
 
 /**
  * Critical tests for the main App component
@@ -69,17 +54,42 @@ describe('App', () => {
     })
   }
 
-  it('generates theme style tag from workspace theme configuration', async () => {
+  const setupApp = async (layout: 'web' | 'desktop' = 'web') => {
     await setupWorkspace()
+
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: ROUTES,
+    })
+
+    const appState = useAppState()
+    appState.router.value = router
+
+    await router.push({
+      name: 'document.overview',
+      params: { workspaceSlug: WORKSPACE_ID, documentSlug: DOCUMENT_ID },
+    })
+
+    await router.isReady()
+
     const wrapper = mount(App, {
       props: {
-        layout: 'web',
+        layout,
+      },
+      global: {
+        plugins: [router],
       },
     })
 
     await nextTick()
     await flushPromises()
     await new Promise((resolve) => setTimeout(resolve, 500))
+
+    return { wrapper, appState, router }
+  }
+
+  it('generates theme style tag from workspace theme configuration', async () => {
+    const { wrapper } = await setupApp()
 
     /**
      * Theme styles should be dynamically generated based on the workspace theme ID
@@ -90,65 +100,36 @@ describe('App', () => {
   })
 
   it('merges workspace and document environment variables correctly', async () => {
-    await setupWorkspace()
-    const wrapper = mount(App, {
-      props: {
-        layout: 'web',
-      },
-    })
-
-    await nextTick()
-    await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const { appState } = await setupApp()
 
     /**
      * Environment variables from both workspace and document levels should be merged
      * This ensures that document-specific overrides work correctly with workspace defaults
      */
-    const vm = wrapper.vm as any
-    expect(vm.store.workspace['x-scalar-environments']).toEqual({
+    expect(appState.store.value?.workspace['x-scalar-environments']).toEqual({
       prod: {
         color: '#FFFFFF',
         variables: [{ name: 'BASE_URL', value: 'https://api.prod.com' }],
       },
     })
-    expect(vm.environment.variables).toHaveLength(2)
-    expect(vm.environment.variables[0].name).toBe('BASE_URL')
-    expect(vm.environment.variables[1].name).toBe('API_KEY')
+    expect(appState.environment.value.variables).toHaveLength(2)
+    expect(appState.environment.value.variables?.[0]?.name).toBe('BASE_URL')
+    expect(appState.environment.value.variables?.[1]?.name).toBe('API_KEY')
   })
 
   it('selects the correct document based on route params', async () => {
-    await setupWorkspace()
-    const wrapper = mount(App, {
-      props: {
-        layout: 'web',
-      },
-    })
-
-    await nextTick()
-    await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const { appState } = await setupApp()
 
     /**
      * The document should be selected based on the route slug parameter
      * This is critical for displaying the correct document in the editor
      */
-    const vm = wrapper.vm as any
-    expect(vm.document).toBeDefined()
-    expect(vm.document.info.title).toBe('Test Document')
+    expect(appState.document.value).toBeDefined()
+    expect(appState.document.value?.info.title).toBe('Test Document')
   })
 
   it('renders DesktopTabs for desktop layout', async () => {
-    await setupWorkspace()
-    const wrapper = mount(App, {
-      props: {
-        layout: 'desktop',
-      },
-    })
-
-    await nextTick()
-    await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const { wrapper } = await setupApp('desktop')
 
     /**
      * Desktop layout should show DesktopTabs instead of WebTopNav
@@ -162,16 +143,7 @@ describe('App', () => {
   })
 
   it('renders WebTopNav for web layout', async () => {
-    await setupWorkspace()
-    const wrapper = mount(App, {
-      props: {
-        layout: 'web',
-      },
-    })
-
-    await nextTick()
-    await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const { wrapper } = await setupApp('web')
 
     /**
      * Web layout should show WebTopNav instead of DesktopTabs
