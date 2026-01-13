@@ -19,9 +19,9 @@ function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtens
   return { xExample, xExamples }
 }
 
-/** Checks if a value is a non-null object with at least one entry */
+/** Checks if a value is a non-null, non-array object with at least one entry */
 function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && Object.keys(value).length > 0
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.keys(value).length > 0
 }
 
 /**

@@ -1746,4 +1746,71 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it('ignores x-example when it contains an array value', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example array test', version: '1.0' },
+      paths: {
+        '/test': {
+          get: {
+            parameters: [
+              {
+                in: 'header',
+                name: 'X-Custom-Header',
+                type: 'string',
+                required: false,
+                // This is an invalid x-example value (array instead of object)
+                // It should be ignored to avoid producing garbage output like { "0": { value: 1 }, "1": { value: 2 } }
+                'x-example': [1, 2, 3],
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.get?.parameters?.[0] as OpenAPIV3.ParameterObject
+    // Should not have examples since x-example was an array, not a valid object
+    expect(headerParameter.examples).toBeUndefined()
+    // x-example should still be removed
+    expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
+  })
+
+  it('ignores x-examples on body parameters when it contains an array value', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples array body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-examples value (array instead of object keyed by media type)
+                'x-examples': ['example1', 'example2'],
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have examples since x-examples was an array, not a valid object
+    expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
+  })
 })
