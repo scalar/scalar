@@ -191,7 +191,7 @@ const fastifyApiReference = fp<
         handler(request, reply) {
           // we are in a route without a trailing slash so redirect directly to the one with a trailing slash
           const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
-          return reply.redirect(`${currentUrl.pathname}/`, 301)
+          return reply.redirect(301, `${currentUrl.pathname}/`)
         },
       })
     }
@@ -208,7 +208,7 @@ const fastifyApiReference = fp<
         // Redirect if it's the route without a slash
         const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
         if (!currentUrl.pathname.endsWith('/')) {
-          return reply.redirect(`${currentUrl.pathname}/`, 301)
+          return reply.redirect(301, `${currentUrl.pathname}/`)
         }
 
         /**
