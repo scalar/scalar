@@ -12,7 +12,7 @@ import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
-import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject, SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -832,6 +832,29 @@ export const updateOperationRequestBodyContentType = (
 }
 
 /**
+ * Converts a formData array back to an object if needed
+ *
+ * We internally use an array so we can use the Table,
+ * so we must convert it back to an object before saving it to the example.
+ */
+const convertFormDataToObject = (
+  payload: OperationEvents['operation:update:requestBody:value']['payload'],
+  schema: ReferenceType<SchemaObject> | undefined,
+) => {
+  if (Array.isArray(payload) && schema && 'type' in schema && schema.type === 'object') {
+    return payload.reduce(
+      (acc, { name, ...rest }) => {
+        acc[name] = rest
+        return acc
+      },
+      {} as Record<string, { value: string | File; isDisabled: boolean }>,
+    )
+  }
+
+  return payload
+}
+
+/**
  * Creates or updates a concrete example value for a specific request-body
  * `contentType` and `exampleKey`. Safely no-ops if the document or operation
  * does not exist.
@@ -850,6 +873,7 @@ export const updateOperationRequestBodyExample = (
   document: WorkspaceDocument | null,
   { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
 ) => {
+  console.log('updateOperationRequestBodyExample', payload, contentType)
   if (!document) {
     return
   }
@@ -859,33 +883,18 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
-  let requestBody = getResolvedRef(operation.requestBody)
-  if (!requestBody) {
-    operation.requestBody = {
-      content: {},
-    }
-    requestBody = getResolvedRef(operation.requestBody)
-  }
+  // Ensure that the example structure exists
+  operation.requestBody ||= { content: {} }
+  const requestBody = getResolvedRef(operation.requestBody)
+  requestBody.content[contentType] ||= {}
+  requestBody.content[contentType].examples ||= {}
+  requestBody.content[contentType].examples[meta.exampleKey] ||= {}
 
-  if (!requestBody!.content[contentType]) {
-    requestBody!.content[contentType] = {
-      examples: {},
-    }
-  }
-
-  // Ensure examples object exists and get a resolved reference
-  const mediaType = requestBody!.content[contentType]!
-  mediaType.examples ??= {}
-  const examples = getResolvedRef(mediaType.examples)!
-
-  const example = getResolvedRef(examples[meta.exampleKey])
-
+  const mediaType = requestBody.content[contentType]
+  const example = getResolvedRef(mediaType.examples?.[meta.exampleKey])
   if (!example) {
-    examples[meta.exampleKey] = {
-      value: payload,
-    }
     return
   }
 
-  example.value = payload
+  example.value = convertFormDataToObject(payload, mediaType.schema)
 }

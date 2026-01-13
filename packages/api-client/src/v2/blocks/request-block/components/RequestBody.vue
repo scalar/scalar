@@ -146,10 +146,18 @@ const tableRows = computed(() => {
 
   // We got an object try to convert it to an array of rows
   if (typeof example.value.value === 'object' && example.value.value) {
-    return objectEntries(example.value.value).map(([key, value]) => ({
-      name: key,
-      value,
-    }))
+    return objectEntries(example.value.value).map(([key, value]) =>
+      // This is for our formData hack
+      'value' in value
+        ? {
+            name: key,
+            ...value,
+          }
+        : {
+            name: key,
+            value,
+          },
+    )
   }
 
   return []
