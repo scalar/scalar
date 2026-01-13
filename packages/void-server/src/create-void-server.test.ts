@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createVoidServer } from '@/createVoidServer'
+import { createVoidServer } from '@/create-void-server'
 
 describe('createVoidServer', () => {
   it('GET /foobar', async () => {
@@ -373,5 +373,14 @@ describe('createVoidServer', () => {
 
     expect(await response.text()).toContain('<strong>method:</strong> GET</li>')
     expect(response.headers.get('Content-Type')).toContain('text/html')
+  })
+
+  it('includes security headers in responses', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/')
+
+    expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff')
+    expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'none'; style-src 'unsafe-inline'")
   })
 })

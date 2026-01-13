@@ -5,12 +5,12 @@ import { logger } from 'hono/logger'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { errors } from '@/utils/constants'
-import { createHtmlResponse } from '@/utils/createHtmlResponse'
-import { createJsonResponse } from '@/utils/createJsonResponse'
-import { createStreamResponse } from '@/utils/createStreamResponse'
-import { createXmlResponse } from '@/utils/createXmlResponse'
-import { createZipFileResponse } from '@/utils/createZipFileResponse'
-import { getRequestData } from '@/utils/getRequestData'
+import { createHtmlResponse } from '@/utils/create-html-response'
+import { createJsonResponse } from '@/utils/create-json-response'
+import { createStreamResponse } from '@/utils/create-stream-response'
+import { createXmlResponse } from '@/utils/create-xml-response'
+import { createZipFileResponse } from '@/utils/create-zip-file-response'
+import { getRequestData } from '@/utils/get-request-data'
 
 /**
  * Create a mock server instance
@@ -25,6 +25,13 @@ export function createVoidServer() {
 
   // CORS headers
   app.use(cors())
+
+  // Security headers
+  app.use(async (c, next) => {
+    await next()
+    c.header('X-Content-Type-Options', 'nosniff')
+    c.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'")
+  })
 
   // HTTP errors
   app.all('/:status{[4-5][0-9][0-9]}', (c) => {
