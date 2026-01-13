@@ -37,7 +37,7 @@ export function createMockContext(options: MockContextOptions = {}) {
       jsonContent = data
       return data
     }),
-    text: vi.fn((content: string, status?: number, headers?: Record<string, string>) => {
+    text: vi.fn((content: string, _status?: number, headers?: Record<string, string>) => {
       textContent = content
       if (headers) {
         Object.assign(responseHeaders, headers)

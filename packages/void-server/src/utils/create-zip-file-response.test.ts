@@ -29,8 +29,9 @@ describe('create-zip-file-response', () => {
     mockContext.header.mockImplementation(() => {
       callOrder.push('header')
     })
-    mockContext.body.mockImplementation(() => {
+    mockContext.body.mockImplementation((content: string) => {
       callOrder.push('body')
+      return content
     })
 
     createZipFileResponse(mockContext as unknown as Context)
