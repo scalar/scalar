@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.23.12
+
+### Patch Changes
+
+- [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
 ## 0.23.11
 
 ### Patch Changes

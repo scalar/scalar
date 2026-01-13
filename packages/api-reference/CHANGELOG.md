@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.43.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.5**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
+- **@scalar/api-client@2.17.8**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+  - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
+
+- **@scalar/openapi-parser@0.23.12**
+  - [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
+- **@scalar/oas-utils@0.6.15**
+
+- **@scalar/sidebar@0.7.8**
+
+- **@scalar/components@0.16.18**
+
 ## 1.43.2
 
 ### Patch Changes

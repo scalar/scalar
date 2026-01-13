@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.5**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
 ## 0.6.14
 
 ### Patch Changes
