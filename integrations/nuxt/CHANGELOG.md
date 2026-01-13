@@ -1,5 +1,20 @@
 # @scalar/nuxt
 
+## 0.5.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.5**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
+- **@scalar/api-client@2.17.8**
+  - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+  - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
+
+- **@scalar/api-reference@1.43.3**
+
 ## 0.5.41
 
 ### Patch Changes

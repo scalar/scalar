@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.24.5
+
+### Patch Changes
+
+- [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
+
 ## 0.24.4
 
 ### Patch Changes

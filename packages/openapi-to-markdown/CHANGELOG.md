@@ -1,5 +1,18 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.23.12**
+  - [#7719](https://github.com/scalar/scalar/pull/7719): fix: self-referencing causes infinite loop in `dereference`
+
+- **@scalar/oas-utils@0.6.15**
+
+- **@scalar/components@0.16.18**
+
 ## 0.3.17
 
 ### Patch Changes
