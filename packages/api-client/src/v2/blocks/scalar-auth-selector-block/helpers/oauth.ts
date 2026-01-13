@@ -6,7 +6,7 @@ import { encode, fromUint8Array } from 'js-base64'
 import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
-type NonImplicitFlow = Omit<OAuthFlowsObject, 'implicit'>
+type NonImplicitFlows = Omit<OAuthFlowsObject, 'implicit'>
 
 type PKCEState = {
   codeVerifier: string
@@ -86,8 +86,6 @@ export const authorizeOauth2 = async (
         activeServer,
       )
     }
-
-    // OAuth2 flows with a login popup
 
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
@@ -250,8 +248,8 @@ export const authorizeOauth2 = async (
  * Used for clientCredentials and authorizationCode
  */
 export const authorizeServers = async (
-  flows: NonImplicitFlow,
-  type: keyof NonImplicitFlow,
+  flows: NonImplicitFlows,
+  type: keyof NonImplicitFlows,
   scopes: string,
   {
     code,
@@ -271,19 +269,17 @@ export const authorizeServers = async (
   }
 
   const formData = new URLSearchParams()
-  formData.set('client_id', flow['x-scalar-secret-client-id'])
 
   // Only client credentials and password flows support scopes in the token request
   if (scopes && (type === 'clientCredentials' || type === 'password')) {
     formData.set('scope', scopes)
   }
 
-  // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to body
-  const shouldAddSecretToBody =
-    flow['x-scalar-secret-client-secret'] &&
-    (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'body')
+  /** Where to add the credentials */
+  const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
 
-  if (shouldAddSecretToBody) {
+  if (addCredentialsToBody) {
+    formData.set('client_id', flow['x-scalar-secret-client-id'])
     formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
   if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
@@ -326,13 +322,8 @@ export const authorizeServers = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     }
 
-    // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to header
-    const shouldAddSecretToHeader =
-      flow['x-scalar-secret-client-secret'] &&
-      (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'header')
-
     // Add client id + secret to headers
-    if (shouldAddSecretToHeader) {
+    if (!addCredentialsToBody) {
       headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
     }
 

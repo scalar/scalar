@@ -17,7 +17,7 @@ defineOptions({ inheritAttrs: false })
 const input = ref<HTMLInputElement | null>(null)
 onMounted(() =>
   nextTick(() => {
-    if (!props.autofocus) {
+    if (props.autofocus) {
       input.value?.focus()
     }
   }),
