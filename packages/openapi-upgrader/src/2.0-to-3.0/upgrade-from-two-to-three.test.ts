@@ -1268,4 +1268,549 @@ describe('upgradeFromTwoToThree', () => {
     // This should not throw because body parameters are filtered before reaching getParameterLocation
     expect(() => upgradeFromTwoToThree(invalidSpec)).not.toThrow()
   })
+
+  it('transforms x-example on parameters to examples with value structure', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                in: 'header',
+                name: 'Content-Type',
+                type: 'string',
+                required: true,
+                'x-example': {
+                  'application/json': {
+                    message: 'OK',
+                    type: 'success',
+                  },
+                  'text/plain': 'OK',
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.post?.parameters?.[0] as OpenAPIV3.ParameterObject
+    expect(headerParameter.examples).toStrictEqual({
+      'application/json': {
+        value: {
+          message: 'OK',
+          type: 'success',
+        },
+      },
+      'text/plain': {
+        value: 'OK',
+      },
+    })
+    // x-example should be removed
+    expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
+  })
+
+  it('transforms x-examples on body parameters with direct value to examples with default key', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples direct value test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'user',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    type: { type: 'string' },
+                  },
+                },
+                'x-examples': {
+                  'application/json': {
+                    message: 'OK',
+                    type: 'success',
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody.content?.['application/json']?.examples).toStrictEqual({
+      default: {
+        value: {
+          message: 'OK',
+          type: 'success',
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples on body parameters with value and summary to named examples', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples named examples test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'user',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    type: { type: 'string' },
+                  },
+                },
+                'x-examples': {
+                  'application/json': {
+                    'my-example-name': {
+                      summary: 'Some Example',
+                      value: {
+                        message: 'OK',
+                        type: 'success',
+                      },
+                    },
+                    'another-example': {
+                      summary: 'Another Example',
+                      value: {
+                        message: 'Something went wrong',
+                        type: 'error',
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      'my-example-name': {
+        summary: 'Some Example',
+        value: {
+          message: 'OK',
+          type: 'success',
+        },
+      },
+      'another-example': {
+        summary: 'Another Example',
+        value: {
+          message: 'Something went wrong',
+          type: 'error',
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples on body parameters with named examples without value wrappers', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples named examples without value wrappers', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'user',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    type: { type: 'string' },
+                  },
+                },
+                // This is the "in the wild" format where named examples do not have `value` wrappers
+                'x-examples': {
+                  'application/json': {
+                    'my-example-name': {
+                      message: 'OK',
+                      type: 'success',
+                    },
+                    'another-example': {
+                      message: 'Something went wrong',
+                      type: 'error',
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should wrap each named example individually, not as a single default
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      'my-example-name': {
+        value: {
+          message: 'OK',
+          type: 'success',
+        },
+      },
+      'another-example': {
+        value: {
+          message: 'Something went wrong',
+          type: 'error',
+        },
+      },
+    })
+  })
+
+  it('ignores x-example when it contains a non-object value like a string', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example non-object test', version: '1.0' },
+      paths: {
+        '/test': {
+          get: {
+            parameters: [
+              {
+                in: 'header',
+                name: 'X-Custom-Header',
+                type: 'string',
+                required: false,
+                // This is an invalid x-example value (string instead of object)
+                // It should be ignored to avoid producing garbage output like { "0": { value: "h" }, "1": { value: "e" }, ... }
+                'x-example': 'hello',
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.get?.parameters?.[0] as OpenAPIV3.ParameterObject
+    // Should not have examples since x-example was not a valid object
+    expect(headerParameter.examples).toBeUndefined()
+    // x-example should still be removed
+    expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
+  })
+
+  it('ignores x-example on body parameters when it contains a primitive value', () => {
+    // This should not throw TypeError from using 'in' operator on a primitive
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example primitive body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-example value (string instead of object keyed by media type)
+                'x-example': 'hello',
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have example since x-example was not a valid object
+    expect(requestBody.content?.['application/json']?.example).toBeUndefined()
+  })
+
+  it('ignores x-examples on body parameters when it contains a primitive value', () => {
+    // This should not throw TypeError from using 'in' operator on a primitive
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples primitive body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-examples value (number instead of object keyed by media type)
+                'x-examples': 12345,
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have examples since x-examples was not a valid object
+    expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
+  })
+
+  it('correctly wraps example data that happens to have a value property', () => {
+    // This tests the fix for the false positive where example data with a "value" property
+    // was incorrectly treated as an already-wrapped ExampleObject
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples with value property test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // The example data has a "value" property, but it is NOT an ExampleObject
+                // because it also has "count" which is not an allowed ExampleObject property
+                'x-examples': {
+                  'application/json': {
+                    'my-example': {
+                      value: 'some data',
+                      count: 5,
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // The example should be wrapped properly, preserving the entire object including both "value" and "count"
+    expect(requestBody.content?.['application/json']?.examples).toStrictEqual({
+      'my-example': {
+        value: {
+          value: 'some data',
+          count: 5,
+        },
+      },
+    })
+  })
+
+  it('preserves valid ExampleObjects that only have allowed properties', () => {
+    // This ensures we still recognize proper ExampleObjects (with summary, description, value, externalValue only)
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'valid ExampleObject test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // This is a valid ExampleObject structure - only has allowed properties
+                'x-examples': {
+                  'application/json': {
+                    'my-example': {
+                      summary: 'Example summary',
+                      description: 'Example description',
+                      value: {
+                        name: 'Earth',
+                        population: 8000000000,
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // The ExampleObject should be preserved as-is since it's already valid
+    expect(requestBody.content?.['application/json']?.examples).toStrictEqual({
+      'my-example': {
+        summary: 'Example summary',
+        description: 'Example description',
+        value: {
+          name: 'Earth',
+          population: 8000000000,
+        },
+      },
+    })
+  })
+
+  it('correctly wraps parameter x-examples with data that has a value property', () => {
+    // This tests the fix for parameters (non-body) with x-examples
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'parameter x-examples with value property test', version: '1.0' },
+      paths: {
+        '/test': {
+          get: {
+            parameters: [
+              {
+                in: 'header',
+                name: 'X-Custom-Header',
+                type: 'string',
+                required: false,
+                // The example data has a "value" property but is NOT an ExampleObject
+                'x-examples': {
+                  'example-1': {
+                    value: 'data',
+                    extra: 'field',
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.get?.parameters?.[0] as OpenAPIV3.ParameterObject
+    // Should wrap the example properly since "extra" is not an allowed ExampleObject property
+    expect(headerParameter.examples).toStrictEqual({
+      'example-1': {
+        value: {
+          value: 'data',
+          extra: 'field',
+        },
+      },
+    })
+  })
+
+  it('ignores x-example when it contains an array value', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-example array test', version: '1.0' },
+      paths: {
+        '/test': {
+          get: {
+            parameters: [
+              {
+                in: 'header',
+                name: 'X-Custom-Header',
+                type: 'string',
+                required: false,
+                // This is an invalid x-example value (array instead of object)
+                // It should be ignored to avoid producing garbage output like { "0": { value: 1 }, "1": { value: 2 } }
+                'x-example': [1, 2, 3],
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const headerParameter = result.paths?.['/test']?.get?.parameters?.[0] as OpenAPIV3.ParameterObject
+    // Should not have examples since x-example was an array, not a valid object
+    expect(headerParameter.examples).toBeUndefined()
+    // x-example should still be removed
+    expect((headerParameter as Record<string, unknown>)['x-example']).toBeUndefined()
+  })
+
+  it('ignores x-examples on body parameters when it contains an array value', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples array body test', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                // Invalid x-examples value (array instead of object keyed by media type)
+                'x-examples': ['example1', 'example2'],
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    // Should not have examples since x-examples was an array, not a valid object
+    expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
+  })
 })

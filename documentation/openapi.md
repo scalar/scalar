@@ -71,6 +71,55 @@ paths:
 +          main();
 ```
 
+## x-example / x-examples
+
+For Swagger 2.0 documents, we support `x-example` and `x-examples` extensions on body parameters. These bring OpenAPI 3.x example functionality to older specifications.
+
+Use `x-example` for a single example value:
+
+```yaml
+swagger: '2.0'
+paths:
+  '/planets':
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+          x-example:
+            application/json:
+              name: Earth
+```
+
+Use `x-examples` for multiple named examples with summaries:
+
+```yaml
+swagger: '2.0'
+paths:
+  '/planets':
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+          x-examples:
+            application/json:
+              earth-example:
+                summary: Earth planet
+                value:
+                  name: Earth
+              mars-example:
+                summary: Mars planet
+                value:
+                  name: Mars
+```
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.

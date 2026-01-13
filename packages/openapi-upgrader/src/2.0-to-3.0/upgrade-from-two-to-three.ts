@@ -3,6 +3,83 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
+type XExampleExtensions = {
+  xExample: Record<string, unknown> | undefined
+  xExamples: Record<string, unknown> | undefined
+}
+
+/** Extracts and removes x-example and x-examples extensions from an object */
+function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
+  const xExample = obj['x-example'] as Record<string, unknown> | undefined
+  const xExamples = obj['x-examples'] as Record<string, unknown> | undefined
+
+  delete obj['x-example']
+  delete obj['x-examples']
+
+  return { xExample, xExamples }
+}
+
+/** Checks if a value is a non-null, non-array object with at least one entry */
+function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.keys(value).length > 0
+}
+
+/**
+ * Checks if a value looks like a collection of named examples (all values are objects).
+ * This helps distinguish between:
+ * - A single example: { message: 'OK', type: 'success' } - values are primitives
+ * - Named examples: { 'my-example': { message: 'OK' } } - values are objects
+ */
+function isNamedExamplesCollection(value: unknown): value is Record<string, Record<string, unknown>> {
+  return (
+    isNonEmptyObject(value) &&
+    Object.values(value).every((v) => typeof v === 'object' && v !== null && !Array.isArray(v))
+  )
+}
+
+/** The allowed properties for an OpenAPI 3.x ExampleObject */
+const EXAMPLE_OBJECT_PROPERTIES = new Set(['summary', 'description', 'value', 'externalValue'])
+
+/**
+ * Checks if a value is a valid OpenAPI 3.x ExampleObject.
+ *
+ * An ExampleObject must have a `value` (or `externalValue`) property and can only contain
+ * properties from the allowed set: `summary`, `description`, `value`, `externalValue`.
+ *
+ * This prevents false positives when user's example data happens to have a `value` property
+ * (e.g., `{ value: "some data", count: 5 }` should NOT be treated as an ExampleObject).
+ */
+function isExampleObject(value: unknown): value is OpenAPIV3.ExampleObject {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const obj = value as Record<string, unknown>
+  const hasValueOrExternalValue = 'value' in obj || 'externalValue' in obj
+  const onlyHasAllowedProperties = Object.keys(obj).every((key) => EXAMPLE_OBJECT_PROPERTIES.has(key))
+
+  return hasValueOrExternalValue && onlyHasAllowedProperties
+}
+
+/** Wraps a value as an ExampleObject, preserving existing structure if valid */
+function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
+  if (isExampleObject(value)) {
+    return value
+  }
+  return { value }
+}
+
+/** Transforms x-example entries to OpenAPI 3.x examples format */
+function transformXExampleToExamples(xExample: Record<string, unknown>): Record<string, OpenAPIV3.ExampleObject> {
+  return Object.entries(xExample).reduce(
+    (acc, [key, value]) => {
+      acc[key] = { value }
+      return acc
+    },
+    {} as Record<string, OpenAPIV3.ExampleObject>,
+  )
+}
+
 /** Update the flow names to OpenAPI 3.1.0 format */
 const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
   switch (flow) {
@@ -382,6 +459,37 @@ function transformParameterObject(
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
 
+  const { xExample, xExamples } = extractXExampleExtensions(parameter as Record<string, unknown>)
+
+  // Input:
+  // x-example:
+  //   application/json:
+  //     message: OK
+  //     type: success
+  //   text/plain: 'OK'
+
+  // Output:
+  // examples:
+  //   application/json:
+  //     value:
+  //       message: OK
+  //       type: success
+  //   text/plain:
+  //     value: 'OK'
+
+  // We need to transform the x-example to an examples object and add "value" to the structure
+  if (isNonEmptyObject(xExample)) {
+    parameter.examples = transformXExampleToExamples(xExample)
+  } else if (isNonEmptyObject(xExamples)) {
+    parameter.examples = Object.entries(xExamples).reduce(
+      (acc, [key, exampleValue]) => {
+        acc[key] = wrapAsExampleObject(exampleValue)
+        return acc
+      },
+      {} as Record<string, OpenAPIV3.ExampleObject>,
+    )
+  }
+
   delete parameter.collectionFormat
   delete parameter.default
 
@@ -488,6 +596,10 @@ function migrateBodyParameter(
   bodyParameter: OpenAPIV2.ParameterObject,
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
+  // Extract x-example and x-examples before deleting other properties
+  // @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-examples
+  const { xExample, xExamples } = extractXExampleExtensions(bodyParameter as Record<string, unknown>)
+
   delete bodyParameter.name
   delete bodyParameter.in
 
@@ -502,6 +614,42 @@ function migrateBodyParameter(
     for (const type of consumes) {
       requestBodyObject.content[type] = {
         schema: schema,
+      }
+
+      // Handle x-example (singular) - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `example` field
+      if (isNonEmptyObject(xExample) && type in xExample) {
+        requestBodyObject.content[type].example = xExample[type]
+      }
+
+      // Handle x-examples (plural) - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
+      if (isNonEmptyObject(xExamples) && type in xExamples) {
+        const examples = xExamples[type]
+
+        // Check if examples is already in proper OpenAPI 3.x format (object with entries that are valid ExampleObjects)
+        const isExamplesCollection =
+          isNonEmptyObject(examples) && Object.values(examples).every((example) => isExampleObject(example))
+
+        if (isExamplesCollection) {
+          requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
+        }
+        // Named examples without value wrappers - wrap each individually
+        else if (isNamedExamplesCollection(examples)) {
+          requestBodyObject.content[type].examples = Object.entries(examples).reduce(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {} as Record<string, OpenAPIV3.ExampleObject>,
+          )
+        }
+        // Single example value - wrap as default
+        else {
+          requestBodyObject.content[type].examples = {
+            default: wrapAsExampleObject(examples),
+          }
+        }
       }
     }
   }
