@@ -376,6 +376,11 @@ const labelRequestNameId = useId()
         :path
         :securitySchemes="selectedSecuritySchemes"
         :selectedClient
+        :selectedContentType="
+          getResolvedRef(operation.requestBody)?.[
+            'x-scalar-selected-content-type'
+          ]?.[exampleKey]
+        "
         :selectedServer="server ?? undefined" />
     </div>
   </ViewLayoutSection>

@@ -896,5 +896,5 @@ export const updateOperationRequestBodyFormValue = (
     return
   }
 
-  example.value = payload
+  example.value = unpackProxyObject(payload, { depth: 3 })
 }

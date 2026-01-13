@@ -578,6 +578,10 @@ describe('processBody', () => {
         mimeType: 'multipart/form-data',
         params: [
           {
+            name: 'file',
+            value: '@filename',
+          },
+          {
             name: 'name',
             value: '',
           },
@@ -1191,6 +1195,80 @@ describe('processBody', () => {
             },
           },
         }),
+      })
+    })
+  })
+
+  describe('form data with isDisabled flags', () => {
+    it('handles multipart/form-data with array of objects containing isDisabled flags', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: [
+                {
+                  name: 'test',
+                  value: 'me now',
+                  isDisabled: true,
+                },
+                {
+                  name: 'why',
+                  value: 'is that?',
+                  isDisabled: false,
+                },
+                {
+                  name: 'who',
+                  value: 'is this',
+                  isDisabled: false,
+                },
+              ],
+            },
+          },
+        },
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: [
+                {
+                  name: 'scalar.jpeg',
+                  value: new File(['scalar'], 'scalar.jpeg', { type: 'text/plain' }),
+                  isDisabled: false,
+                },
+                {
+                  name: 'test',
+                  value: 'me',
+                  isDisabled: false,
+                },
+                {
+                  name: 'what',
+                  value: 'name',
+                  isDisabled: true,
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      const requestBody = {
+        content,
+        'x-scalar-selected-content-type': {
+          default: 'multipart/form-data',
+        },
+      }
+
+      const result = processBody({
+        requestBody,
+        contentType: 'multipart/form-data',
+        example: 'default',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'scalar.jpeg', value: '@scalar.jpeg' },
+          { name: 'test', value: 'me' },
+        ],
       })
     })
   })

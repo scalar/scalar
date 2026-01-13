@@ -35,10 +35,11 @@ export const buildRequestBody = (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
     Array.isArray(example.value)
   ) {
+    const exampleValue = example.value.filter((item) => !item.isDisabled) as { name: string; value: string | File }[]
     const form = bodyContentType === 'multipart/form-data' ? new FormData() : new URLSearchParams()
 
     // Loop over all entries and add them to the form
-    example.value.forEach(({ name, value }: { name: string; value: string | File }) => {
+    exampleValue.forEach(({ name, value }) => {
       if (!name) {
         return
       }

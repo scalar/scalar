@@ -188,10 +188,10 @@ const valueModel = computed({
     <DataTableCell
       v-if="showUploadButton"
       class="group/upload flex items-center justify-center whitespace-nowrap">
-      <template v-if="isFileInstance(unpackProxyObject(data.value as any))">
+      <template v-if="isFileInstance(unpackProxyObject(data.value))">
         <div
           class="text-c-2 filemask flex w-full max-w-[100%] items-center justify-center overflow-hidden p-1">
-          <span>{{ getFileName(unpackProxyObject(data.value as any)) }}</span>
+          <span>{{ getFileName(unpackProxyObject(data.value)) }}</span>
         </div>
         <button
           class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
