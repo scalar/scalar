@@ -33,6 +33,7 @@ import {
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormValue,
   updateOperationSummary,
   updateSecurityScheme,
   updateSelectedAuthTab,
@@ -304,6 +305,10 @@ export function initializeAppEventHandlers({
   eventBus.on('operation:update:requestBody:value', (payload) => {
     updateOperationRequestBodyExample(document.value, payload)
     onAfterExampleCreation(payload.meta)
+  })
+  eventBus.on('operation:update:requestBody:formValue', (payload) => {
+    updateOperationRequestBodyFormValue(document.value, payload)
+    refreshSidebarAfterExampleCreation(payload.meta)
   })
 
   //------------------------------------------------------------------------------------

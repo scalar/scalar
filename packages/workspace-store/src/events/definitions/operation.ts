@@ -207,7 +207,7 @@ export type OperationEvents = {
    * Triggers when the user updates the form data for a specific request body content type.
    * It will go through and add each example to the respective schema object
    */
-  'operation:update:requestBody:form': {
+  'operation:update:requestBody:formValue': {
     /** The new value for the request body example */
     payload: { name: string; value: string | File; isDisabled: boolean }[]
     /** The content type of the request body */

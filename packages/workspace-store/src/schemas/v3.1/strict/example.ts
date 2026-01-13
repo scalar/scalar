@@ -2,6 +2,10 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { XDisabled } from '@/schemas/extensions/example/x-disabled'
+import {
+  type XScalarFormDataValue,
+  XScalarFormDataValueSchema,
+} from '@/schemas/extensions/example/x-scalar-form-data-value'
 
 /**
  * An object grouping an internal or external example value with basic summary and description metadata. This object is typically used in fields named examples (plural), and is a referenceable alternative to older example (singular) fields that do not support referencing or metadata.
@@ -20,6 +24,7 @@ export const ExampleObjectSchemaDefinition = compose(
     externalValue: Type.Optional(Type.String()),
   }),
   XDisabled,
+  XScalarFormDataValueSchema,
 )
 
 /**
@@ -45,4 +50,4 @@ export type ExampleObject = {
    * example is "on" (checkbox checked) and will be sent.
    */
   'x-disabled'?: boolean
-}
+} & XScalarFormDataValue

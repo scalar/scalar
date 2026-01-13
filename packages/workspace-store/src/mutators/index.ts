@@ -157,6 +157,7 @@ export {
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormValue,
   updateOperationSummary,
 } from './operation'
 export {

@@ -11,6 +11,7 @@ import {
   updateOperationParameter,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormValue,
   updateSecurityScheme,
   updateSelectedAuthTab,
   updateSelectedClient,
@@ -85,6 +86,9 @@ export const useWorkspaceClientModalEvents = ({
   )
   eventBus.on('operation:update:requestBody:value', (payload) =>
     updateOperationRequestBodyExample(document.value, payload),
+  )
+  eventBus.on('operation:update:requestBody:formValue', (payload) =>
+    updateOperationRequestBodyFormValue(document.value, payload),
   )
 
   //------------------------------------------------------------------------------------

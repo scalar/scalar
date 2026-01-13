@@ -41,6 +41,14 @@ const emits = defineEmits<{
       'payload' | 'contentType'
     >,
   ): void
+  /** We use this event when updating form data only */
+  (
+    e: 'update:formValue',
+    payload: Pick<
+      ApiReferenceEvents['operation:update:requestBody:formValue'],
+      'payload' | 'contentType'
+    >,
+  ): void
 }>()
 
 // Map a content type to a language for the code editor
@@ -115,12 +123,14 @@ function handleFileUpload(callback: (file: File) => void) {
   open()
 }
 
+/** Dereferenced example */
 const example = computed(
   () =>
     requestBody &&
     getExampleFromBody(requestBody, selectedContentType.value, exampleKey),
 )
 
+/** Convert the example value to a string for the code editor */
 const bodyValue = computed(() => {
   if (!example.value) {
     return ''
@@ -134,30 +144,29 @@ const bodyValue = computed(() => {
   return JSON.stringify(value, null, 2)
 })
 
+/** Convert the example value to a table rows array */
 const tableRows = computed(() => {
-  if (!example.value) {
+  // We only need table rows for form data
+  if (
+    !example.value ||
+    (selectedContentType.value !== 'multipart/form-data' &&
+      selectedContentType.value !== 'application/x-www-form-urlencoded')
+  ) {
     return []
   }
 
-  // Already an array of rows
-  if (Array.isArray(example.value.value)) {
-    return example.value.value
+  // If we have form data already, return it
+  if (example.value['x-scalar-form-data-value']) {
+    return example.value['x-scalar-form-data-value']
   }
 
   // We got an object try to convert it to an array of rows
   if (typeof example.value.value === 'object' && example.value.value) {
-    return objectEntries(example.value.value).map(([key, value]) =>
-      // This is for our formData hack
-      'value' in value
-        ? {
-            name: key,
-            ...value,
-          }
-        : {
-            name: key,
-            value,
-          },
-    )
+    return objectEntries(example.value.value).map(([key, value]) => ({
+      name: String(key),
+      value,
+      isDisabled: false,
+    }))
   }
 
   return []
@@ -167,7 +176,7 @@ const tableRows = computed(() => {
 const handleAddRow = (
   payload: Partial<{ name: string; value: string | File; isDisabled: boolean }>,
 ) =>
-  emits('update:value', {
+  emits('update:formValue', {
     contentType: selectedContentType.value,
     payload: [
       ...tableRows.value,
@@ -184,7 +193,7 @@ const handleUpdateRow = (
     isDisabled: boolean
   }>,
 ) =>
-  emits('update:value', {
+  emits('update:formValue', {
     contentType: selectedContentType.value,
     payload: tableRows.value.map((row, i) =>
       i === index ? { ...row, ...payload } : row,
@@ -193,7 +202,7 @@ const handleUpdateRow = (
 
 /** Delete a row from the table */
 const handleDeleteRow = (index: number) =>
-  emits('update:value', {
+  emits('update:formValue', {
     contentType: selectedContentType.value,
     payload: tableRows.value.filter((_, i) => i !== index),
   })

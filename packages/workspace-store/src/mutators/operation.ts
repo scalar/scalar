@@ -12,7 +12,7 @@ import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
-import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -831,6 +831,28 @@ export const updateOperationRequestBodyContentType = (
   }
 }
 
+/** Ensure the json that we need exists up to the example object in the request body */
+const findOrCreateRequestBodyExample = (
+  document: WorkspaceDocument | null,
+  contentType: string,
+  meta: OperationExampleMeta,
+): ExampleObject | null => {
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return null
+  }
+
+  // Ensure that the example structure exists
+  operation.requestBody ||= { content: {} }
+  const requestBody = getResolvedRef(operation.requestBody)
+  requestBody.content[contentType] ||= {}
+  requestBody.content[contentType].examples ||= {}
+  requestBody.content[contentType].examples[meta.exampleKey] ||= {}
+
+  const example = getResolvedRef(requestBody.content[contentType].examples?.[meta.exampleKey])
+  return example ?? null
+}
+
 /**
  * Creates or updates a concrete example value for a specific request-body
  * `contentType` and `exampleKey`. Safely no-ops if the document or operation
@@ -849,35 +871,32 @@ export const updateOperationRequestBodyContentType = (
 export const updateOperationRequestBodyExample = (
   document: WorkspaceDocument | null,
   { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
-  isFormData = false,
 ) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  // Ensure that the example structure exists
-  operation.requestBody ||= { content: {} }
-  const requestBody = getResolvedRef(operation.requestBody)
-  requestBody.content[contentType] ||= {}
-  requestBody.content[contentType].examples ||= {}
-  requestBody.content[contentType].examples[meta.exampleKey] ||= {}
-
-  const mediaType = requestBody.content[contentType]
-  const example = getResolvedRef(mediaType.examples?.[meta.exampleKey])
+  const example = findOrCreateRequestBodyExample(document, contentType, meta)
   if (!example) {
     console.error('Example not found', meta.exampleKey)
     return
   }
 
-  // FormData requires special handling
-  if (isFormData) {
-    example['x-scalar-form-example'] = payload.value
-  } else {
-    example.value = payload.value
+  example.value = payload
+}
+
+/**
+ * Stores the form data for the request body example
+ *
+ * This needs special handling as we store it as an array of objects for our UI table
+ * We cannot store it in the native openapi format as we would lose the `isDisabled` flag per row
+ * Since we need an extension anyway, might as well reduce the compute required to convert back and forth
+ */
+export const updateOperationRequestBodyFormValue = (
+  document: WorkspaceDocument | null,
+  { meta, payload, contentType }: OperationEvents['operation:update:requestBody:formValue'],
+) => {
+  const example = findOrCreateRequestBodyExample(document, contentType, meta)
+  if (!example) {
+    console.error('Example not found', meta.exampleKey)
+    return
   }
+
+  example.value = payload
 }

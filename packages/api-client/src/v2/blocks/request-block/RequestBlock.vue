@@ -225,7 +225,27 @@ const handleUpdateBodyValue = ({
       meta: meta.value,
     },
     {
-      debounceKey: `update:requestBody:value-${contentType}`,
+      debounceKey: `update:requestBody:${contentType}-value`,
+    },
+  )
+
+/** Handle request body value update */
+const handleUpdateBodyFormValue = ({
+  payload,
+  contentType,
+}: Pick<
+  ApiReferenceEvents['operation:update:requestBody:formValue'],
+  'payload' | 'contentType'
+>): void =>
+  eventBus.emit(
+    'operation:update:requestBody:formValue',
+    {
+      payload,
+      contentType,
+      meta: meta.value,
+    },
+    {
+      debounceKey: `update:requestBody:${contentType}-form-value`,
     },
   )
 
@@ -329,6 +349,7 @@ const labelRequestNameId = useId()
         :requestBody="getResolvedRef(operation.requestBody)"
         title="Request Body"
         @update:contentType="handleUpdateContentType"
+        @update:formValue="handleUpdateBodyFormValue"
         @update:value="handleUpdateBodyValue" />
 
       <!-- Inject request section plugin components -->
