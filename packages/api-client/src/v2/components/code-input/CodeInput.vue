@@ -1,4 +1,39 @@
-<script setup lang="ts">
+<script lang="ts">
+export type CodeInputModelValue =
+  | string
+  | number
+  | boolean
+  | Array<string | number | boolean>
+  | Record<string, unknown>
+
+/**
+ * CodeInput
+ *
+ * A versatile input component that adapts its rendering based on props:
+ * - Disabled mode: Read-only text display
+ * - Select mode: Dropdown for enums, booleans, or examples
+ * - Editor mode: CodeMirror with environment variable support
+ *
+ * Type `{{` to trigger environment variable autocomplete when an environment is provided.
+ *d
+ * @example
+ * ```vue
+ * <!-- Basic input with environment variables -->
+ * <CodeInput v-model="value" :environment="env" />
+ *
+ * <!-- Boolean select -->
+ * <CodeInput v-model="flag" type="boolean" />
+ *
+ * <!-- JSON editor with linting -->
+ * <CodeInput v-model="data" language="json" :lint="true" />
+ * ```
+ */
+export default {
+  inheritAttrs: false,
+}
+</script>
+
+<script setup lang="ts" generic="T extends CodeInputModelValue">
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
   colorPicker as colorPickerExtension,
@@ -24,7 +59,7 @@ import { backspaceCommand, pillPlugin } from './code-variable-widget'
  * - A CodeMirror editor with environment variable support
  */
 type Props = {
-  modelValue: string | number | boolean
+  modelValue: T
   /** Environment for variable substitution. Pass undefined to disable environment variables */
   environment: XScalarEnvironment | undefined
   /** Type of the input value, affects rendering mode for booleans */
@@ -74,7 +109,7 @@ type Props = {
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
-  handleFieldChange?: (value: string) => void
+  handleFieldChange?: (value: T) => void
   /** Custom submit handler, prevents default emit */
   handleFieldSubmit?: (value: string) => void
 }
@@ -109,15 +144,13 @@ const {
   handleFieldSubmit,
 } = defineProps<Props>()
 
-const emit = defineEmits<Emits>()
-
-type Emits = {
-  'update:modelValue': [value: string]
+const emit = defineEmits<{
+  'update:modelValue': [value: T]
   'submit': [value: string]
   'blur': [value: string]
   'curl': [value: string]
   'redirectToEnvironment': []
-}
+}>()
 
 // ---------------------------------------------------------------------------
 // Component identity and focus state
@@ -165,12 +198,16 @@ const defaultType = computed((): string | undefined => {
  * Detects curl commands and manages update flow.
  */
 const handleChange = (value: string): void => {
-  if (!alwaysEmitChange && value === modelValue) {
+  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
     return
   }
 
   // Detect curl command import
-  if (importCurl && value.trim().toLowerCase().startsWith('curl')) {
+  if (
+    typeof value === 'string' &&
+    importCurl &&
+    value.trim().toLowerCase().startsWith('curl')
+  ) {
     emit('curl', value)
 
     // Revert to previous value
@@ -179,18 +216,20 @@ const handleChange = (value: string): void => {
         changes: {
           from: 0,
           to: codeMirror.value.state.doc.length,
-          insert: String(modelValue),
+          insert: serializeValue(modelValue),
         },
       })
     }
     return
   }
 
+  const deserializedValue = deserializeValue(value)
+
   // Use custom handler or emit update
   if (handleFieldChange) {
-    handleFieldChange(value)
+    handleFieldChange(deserializedValue)
   } else {
-    emit('update:modelValue', value)
+    emit('update:modelValue', deserializedValue)
   }
 }
 
@@ -222,7 +261,7 @@ const handleBlur = (value: string): void => {
  * Handles model value updates from select components.
  */
 const handleSelectChange = (value: string): void => {
-  emit('update:modelValue', value)
+  emit('update:modelValue', value as T)
 }
 
 // ---------------------------------------------------------------------------
@@ -263,8 +302,52 @@ const codeMirrorExtensions = computed((): Extension[] => [
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
+/**
+ * Converts the model value to a string for CodeMirror.
+ * Arrays and objects are serialized to JSON format.
+ */
+const serializeValue = (value: T): string => {
+  if (typeof value === 'object') {
+    return JSON.stringify(value)
+  }
+  return String(value ?? '')
+}
+
+/**
+ * Parses the CodeMirror string value back to the appropriate type.
+ * Preserves the original type of modelValue:
+ * - Arrays and objects: Parse JSON
+ * - Numbers: Parse as number if valid
+ * - Booleans: Parse as boolean if "true" or "false"
+ * - Strings: Keep as string (even if they look like numbers/booleans)
+ */
+const deserializeValue = (value: string): T => {
+  const trimmed = value.trim()
+
+  const isJsonLike = trimmed.startsWith('[') || trimmed.startsWith('{')
+  const originalType = typeof modelValue
+  const isOriginalArray = Array.isArray(modelValue)
+
+  // Handle comma-separated strings for arrays (from DataTableInputSelect)
+  if (isOriginalArray && !isJsonLike && trimmed.includes(',')) {
+    return trimmed.split(',').map((item) => item.trim()) as T
+  }
+
+  // We only parse JSON if the value looks like a JSON array or object, OR used to be a number or boolean
+  if (isJsonLike || originalType === 'number' || originalType === 'boolean') {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      // If JSON parsing fails, fall through to type-specific parsing
+    }
+  }
+
+  // For strings and all other cases, preserve as string
+  return value as T
+}
+
 const { codeMirror } = useCodeMirror({
-  content: toRef(() => String(modelValue ?? '')),
+  content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
     handleChange(value)
     updateDropdownVisibility()
@@ -392,14 +475,11 @@ defineExpose({
   codeMirror,
   modelValue,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
+  serializeValue,
+  deserializeValue,
 })
 </script>
-<script lang="ts">
-// use normal <script> to declare options
-export default {
-  inheritAttrs: false,
-}
-</script>
+
 <template>
   <!-- Disabled mode: read-only text display -->
   <div

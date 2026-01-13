@@ -23,7 +23,7 @@ export const getExample = (
   if ('content' in param) {
     const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']
     const examples = content?.examples ?? {}
-    const key = exampleKey ?? Object.keys(examples)[0] ?? ''
+    const key = exampleKey || Object.keys(examples)[0] || ''
     const example = getResolvedRefDeep(examples[key])
 
     if (typeof example !== 'undefined') {
@@ -41,7 +41,7 @@ export const getExample = (
   // Schema based parameters
   if ('examples' in param || 'example' in param) {
     const examples = getResolvedRef(param.examples) ?? {}
-    const key = exampleKey ?? Object.keys(examples)[0] ?? ''
+    const key = exampleKey || Object.keys(examples)[0] || ''
     const example = getResolvedRefDeep(examples?.[key])
 
     if (typeof example !== 'undefined') {

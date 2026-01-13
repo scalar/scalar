@@ -16,7 +16,7 @@ defineProps<{
     placeholder: string
   }[]
   data: Record<string, any>
-  onUpdate: (key: string, value: string) => void
+  onUpdate: (key: string, value: string | number) => void
   environment: XScalarEnvironment
 }>()
 

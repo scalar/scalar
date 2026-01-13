@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import RequestTableTooltip from '@/v2/blocks/request-block/components/RequestTableTooltip.vue'
-import { CodeInput } from '@/v2/components/code-input'
 import { DataTableCheckbox } from '@/v2/components/data-table'
 
 import RequestTableRow from './RequestTableRow.vue'
@@ -43,7 +42,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     expect(codeInputs[0]?.props('modelValue')).toBe('test-key')
     expect(codeInputs[1]?.props('modelValue')).toBe('test-value')
   })
@@ -115,7 +114,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents(CodeInput)[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'new-key')
 
     expect(wrapper.emitted('updateRow')).toBeTruthy()
@@ -135,7 +134,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const valueInput = wrapper.findAllComponents(CodeInput)[1]
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
     await valueInput?.vm.$emit('update:modelValue', 'new-value')
 
     expect(wrapper.emitted('updateRow')).toBeTruthy()
@@ -156,7 +155,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents(CodeInput)
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
     expect(codeInputs[0]?.props('disabled')).toBe(true)
     expect(codeInputs[1]?.props('disabled')).toBe(true)
   })
@@ -266,7 +265,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const valueInput = wrapper.findAllComponents(CodeInput)[1]
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
     expect(valueInput?.props('modelValue')).toBe('')
   })
 
@@ -283,7 +282,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents(CodeInput)[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
     expect(keyInput?.props('required')).toBe(true)
   })
 })
