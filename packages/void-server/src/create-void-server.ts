@@ -26,6 +26,13 @@ export function createVoidServer() {
   // CORS headers
   app.use(cors())
 
+  // Security headers
+  app.use(async (c, next) => {
+    await next()
+    c.header('X-Content-Type-Options', 'nosniff')
+    c.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'")
+  })
+
   // HTTP errors
   app.all('/:status{[4-5][0-9][0-9]}', (c) => {
     const { status: originalStatusCode } = c.req.param()
