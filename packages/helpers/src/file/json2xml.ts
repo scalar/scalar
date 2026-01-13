@@ -52,10 +52,11 @@ export function json2xml(
       // Handle children and special content
       for (const child in value) {
         if (child === '#text') {
-          children += escapeXml(value[child])
+          children += escapeXml(value[child]?.toString() ?? '')
         } else if (child === '#cdata') {
           // Escape ]]> sequences to prevent CDATA injection
-          children += '<![CDATA[' + value[child].replace(/]]>/g, ']]]]><![CDATA[>') + ']]>'
+          const cdataContent = value[child]?.toString() ?? ''
+          children += '<![CDATA[' + cdataContent.replace(/]]>/g, ']]]]><![CDATA[>') + ']]>'
         } else if (child.charAt(0) !== '@') {
           hasChild = true
           children += toXml(value[child], child, currentIndent + indent)

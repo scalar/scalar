@@ -160,4 +160,43 @@ describe('json2xml', () => {
     // The original unescaped ]]> should not appear in the output
     expect(xml).not.toContain('with ]]> closing')
   })
+
+  it('handles non-string values in #text without throwing', () => {
+    const xml = json2xml({
+      element: {
+        '#text': 42,
+      },
+    })
+
+    expect(xml).toContain('<element>')
+    expect(xml).toContain('42')
+    expect(xml).toContain('</element>')
+  })
+
+  it('handles non-string values in #cdata without throwing', () => {
+    const xml = json2xml({
+      element: {
+        '#cdata': 123,
+      },
+    })
+
+    expect(xml).toContain('<![CDATA[123]]>')
+  })
+
+  it('handles boolean and null values in #text and #cdata', () => {
+    const xml = json2xml({
+      boolText: { '#text': true },
+      boolCdata: { '#cdata': false },
+      nullText: { '#text': null },
+      nullCdata: { '#cdata': null },
+    })
+
+    expect(xml).toContain('<boolText>')
+    expect(xml).toContain('true')
+    expect(xml).toContain('</boolText>')
+    expect(xml).toContain('<![CDATA[false]]>')
+    /** null #text results in empty content, yielding self-closing tag */
+    expect(xml).toContain('<nullText/>')
+    expect(xml).toContain('<![CDATA[]]>')
+  })
 })
