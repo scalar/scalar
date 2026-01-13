@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 
-export type MockContextOptions = {
+type MockContextOptions = {
   /** Request headers to return from c.req.header() */
   requestHeaders?: Record<string, string>
   /** Request body text to return from c.req.text() */
