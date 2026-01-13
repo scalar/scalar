@@ -37,10 +37,34 @@ function isNamedExamplesCollection(value: unknown): value is Record<string, Reco
   )
 }
 
+/** The allowed properties for an OpenAPI 3.x ExampleObject */
+const EXAMPLE_OBJECT_PROPERTIES = new Set(['summary', 'description', 'value', 'externalValue'])
+
+/**
+ * Checks if a value is a valid OpenAPI 3.x ExampleObject.
+ *
+ * An ExampleObject must have a `value` (or `externalValue`) property and can only contain
+ * properties from the allowed set: `summary`, `description`, `value`, `externalValue`.
+ *
+ * This prevents false positives when user's example data happens to have a `value` property
+ * (e.g., `{ value: "some data", count: 5 }` should NOT be treated as an ExampleObject).
+ */
+function isExampleObject(value: unknown): value is OpenAPIV3.ExampleObject {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const obj = value as Record<string, unknown>
+  const hasValueOrExternalValue = 'value' in obj || 'externalValue' in obj
+  const onlyHasAllowedProperties = Object.keys(obj).every((key) => EXAMPLE_OBJECT_PROPERTIES.has(key))
+
+  return hasValueOrExternalValue && onlyHasAllowedProperties
+}
+
 /** Wraps a value as an ExampleObject, preserving existing structure if valid */
 function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
-  if (typeof value === 'object' && value !== null && 'value' in value) {
-    return value as OpenAPIV3.ExampleObject
+  if (isExampleObject(value)) {
+    return value
   }
   return { value }
 }
@@ -603,14 +627,11 @@ function migrateBodyParameter(
       if (isNonEmptyObject(xExamples) && type in xExamples) {
         const examples = xExamples[type]
 
-        // Check if examples is already in proper OpenAPI 3.x format (object with entries that have 'value' property)
-        const isExampleObject =
-          isNonEmptyObject(examples) &&
-          Object.values(examples).every(
-            (example) => typeof example === 'object' && example !== null && 'value' in example,
-          )
+        // Check if examples is already in proper OpenAPI 3.x format (object with entries that are valid ExampleObjects)
+        const isExamplesCollection =
+          isNonEmptyObject(examples) && Object.values(examples).every((example) => isExampleObject(example))
 
-        if (isExampleObject) {
+        if (isExamplesCollection) {
           requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
         }
         // Named examples without value wrappers - wrap each individually
