@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "240718bnjmcfyp4",
+  "appFiles": ["./dist/renderer/**/*", "./dist/main/**/*", "./dist/preload/**/*"],
+  "icon": "./build/icon.png",
+  "nodeVersion": "20",
+  "packageManager": "pnpm",
+  "pnpmVersion": "10.16.1",
+  "packageJson": {
+    "extends": "package.json",
+    "productName": "Scalar",
+    "author": {
+      "name": "Scalar (https://github.com/scalar)",
+      "email": "support@scalar.com",
+      "url": "https://scalar.com"
+    },
+    "dependencies": {
+      "@scalar/api-client": null,
+      "@scalar/themes": null,
+      "@scalar/components": null,
+      "@scalar/import": null,
+      "@scalar/pre-post-request-scripts": null
+    },
+    "devDependencies": {
+      "@types/node": null,
+      "@vitejs/plugin-vue": null,
+      "@playwright/test": null,
+      "vite": null,
+      "vue": null
+    }
+  }
+}
