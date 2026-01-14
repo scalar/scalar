@@ -143,13 +143,13 @@ const defaultHeaders = computed(() => {
     ] ?? {}
 
   return AUTO_GENERATED_HEADERS.value.map((it) => {
-    const realHeader = headersMap.value[it.name.toLowerCase()]
+    const realHeader = headersMap.value[it.name.toLowerCase()]?.[0]
 
     return {
       name: it.name,
       value: it.defaultValue,
       schema: undefined,
-      isOverridden: realHeader && !realHeader[0]?.isDisabled,
+      isOverridden: realHeader && !realHeader?.isDisabled,
       isReadonly: true,
       isDisabled: disableParameters[it.name.toLowerCase()] ?? false,
     } satisfies TableRow
@@ -265,12 +265,19 @@ const handleSummaryUpdate = (event: Event): void => {
 
 /** Parameter handlers */
 const parameterHandlers = computed(() => ({
-  path: createParameterHandlers('path', eventBus, meta.value, {}),
-  cookie: createParameterHandlers('cookie', eventBus, meta.value, {}),
+  path: createParameterHandlers('path', eventBus, meta.value, {
+    context: sections.value.path ?? [],
+  }),
+  cookie: createParameterHandlers('cookie', eventBus, meta.value, {
+    context: sections.value.cookie ?? [],
+  }),
   header: createParameterHandlers('header', eventBus, meta.value, {
+    context: defaultHeaders.value,
     defaultParameters: defaultHeaders.value.length,
   }),
-  query: createParameterHandlers('query', eventBus, meta.value, {}),
+  query: createParameterHandlers('query', eventBus, meta.value, {
+    context: sections.value.query ?? [],
+  }),
 }))
 
 /** Handle request body form row addition */

@@ -13,6 +13,7 @@ import {
   deleteOperationExample,
   deleteOperationParameter,
   deleteOperationRequestBodyFormRow,
+  updateOperationDefaultHeadersParameter,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
@@ -2281,5 +2282,268 @@ describe('deleteOperationExample', () => {
     expect(param.examples?.default).toBeDefined()
     expect(param.examples?.small).toBeUndefined()
     expect(param.examples?.large).toBeDefined()
+  })
+})
+
+describe('updateOperationDefaultHeadersParameter', () => {
+  it('sets isDisabled for a default header parameter', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
+  })
+
+  it('initializes x-scalar-disable-parameters when it does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/products': {
+          post: {},
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/products', method: 'post', exampleKey: 'example1', key: 'X-API-Key' },
+      payload: { isDisabled: false },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/products']?.post)
+    assert(operation)
+    expect(operation['x-scalar-disable-parameters']).toBeDefined()
+    expect(operation['x-scalar-disable-parameters']?.['default-headers']).toBeDefined()
+    expect(operation['x-scalar-disable-parameters']?.['default-headers']?.example1?.['X-API-Key']).toBe(false)
+  })
+
+  it('initializes default-headers when x-scalar-disable-parameters exists but default-headers does not', () => {
+    const document = createDocument({
+      paths: {
+        '/items': {
+          put: {
+            'x-scalar-disable-parameters': {},
+          },
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/items', method: 'put', exampleKey: 'default', key: 'Content-Type' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/items']?.put)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.['Content-Type']).toBe(true)
+  })
+
+  it('preserves existing settings for other keys when updating one', () => {
+    const document = createDocument({
+      paths: {
+        '/orders': {
+          get: {
+            'x-scalar-disable-parameters': {
+              'default-headers': {
+                default: {
+                  Authorization: true,
+                  'X-API-Version': false,
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/orders', method: 'get', exampleKey: 'default', key: 'X-Request-ID' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/orders']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default).toEqual({
+      Authorization: true,
+      'X-API-Version': false,
+      'X-Request-ID': true,
+    })
+  })
+
+  it('updates an existing header parameter setting', () => {
+    const document = createDocument({
+      paths: {
+        '/customers': {
+          delete: {
+            'x-scalar-disable-parameters': {
+              'default-headers': {
+                default: {
+                  Authorization: false,
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/customers', method: 'delete', exampleKey: 'default', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/customers']?.delete)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
+  })
+
+  it('handles multiple example keys independently', () => {
+    const document = createDocument({
+      paths: {
+        '/reports': {
+          get: {},
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/reports', method: 'get', exampleKey: 'example1', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/reports', method: 'get', exampleKey: 'example2', key: 'Authorization' },
+      payload: { isDisabled: false },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/reports']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example1?.Authorization).toBe(true)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example2?.Authorization).toBe(false)
+  })
+
+  it('handles multiple headers in the same example key', () => {
+    const document = createDocument({
+      paths: {
+        '/analytics': {
+          post: {},
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'Content-Type' },
+      payload: { isDisabled: false },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'X-API-Key' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/analytics']?.post)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default).toEqual({
+      Authorization: true,
+      'Content-Type': false,
+      'X-API-Key': true,
+    })
+  })
+
+  it('defaults to false when isDisabled is undefined', () => {
+    const document = createDocument({
+      paths: {
+        '/webhook': {
+          post: {},
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/webhook', method: 'post', exampleKey: 'default', key: 'X-Webhook-Secret' },
+      payload: { isDisabled: undefined },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/webhook']?.post)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.['X-Webhook-Secret']).toBe(false)
+  })
+
+  it('no-ops when document is null', () => {
+    expect(() =>
+      updateOperationDefaultHeadersParameter(null, {
+        meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+        payload: { isDisabled: true },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {},
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    expect(document.paths?.['/users']).toEqual({})
+  })
+
+  it('no-ops when path does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/existing': {
+          get: {},
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/nonexistent', method: 'get', exampleKey: 'default', key: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/existing']?.get)
+    expect(operation?.['x-scalar-disable-parameters']).toBeUndefined()
+  })
+
+  it('preserves existing settings for different example keys', () => {
+    const document = createDocument({
+      paths: {
+        '/stats': {
+          get: {
+            'x-scalar-disable-parameters': {
+              'default-headers': {
+                example1: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    updateOperationDefaultHeadersParameter(document, {
+      meta: { path: '/stats', method: 'get', exampleKey: 'example2', key: 'X-API-Key' },
+      payload: { isDisabled: false },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/stats']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example1?.Authorization).toBe(true)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example2?.['X-API-Key']).toBe(false)
   })
 })

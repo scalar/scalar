@@ -630,27 +630,47 @@ export const updateOperationParameter = (
   example['x-disabled'] = Boolean(payload.isDisabled ?? example['x-disabled'])
 }
 
+/**
+ * Updates the disabled state of a specific "default-headers" parameter for an operation.
+ * If the relevant "x-scalar-disable-parameters" or "default-headers" objects do not exist,
+ * they are initialized.
+ *
+ * The update is performed at:
+ *   operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey][meta.key]
+ *
+ * @param document The current workspace document.
+ * @param meta.path Path of the operation (e.g., '/users')
+ * @param meta.method HTTP method of the operation (e.g., 'get')
+ * @param meta.exampleKey A key to identify the relevant example (string)
+ * @param meta.key The specific header key being updated (string)
+ * @param payload.isDisabled Boolean indicating if the header is disabled
+ */
 export const updateOperationDefaultHeadersParameter = (
   document: WorkspaceDocument | null,
   { meta, payload }: OperationEvents['operation:update:default-headers:parameter'],
 ) => {
+  // Ensure there's a valid document
   if (!document) {
     return
   }
 
+  // Resolve the referenced operation from the document using the path and method
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   if (!operation) {
     return
   }
 
+  // Initialize the 'x-scalar-disable-parameters' object if it doesn't exist
   if (!operation['x-scalar-disable-parameters']) {
     operation['x-scalar-disable-parameters'] = {}
   }
 
+  // Initialize the 'default-headers' object within 'x-scalar-disable-parameters' if it doesn't exist
   if (!operation['x-scalar-disable-parameters']['default-headers']) {
     operation['x-scalar-disable-parameters']['default-headers'] = {}
   }
 
+  // Update (or create) the entry for the specific example and key, preserving any existing settings
   operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey] = {
     ...(operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey] ?? {}),
     [meta.key]: payload.isDisabled ?? false,

@@ -1,6 +1,8 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
 
+import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
+
 type ParameterType = 'path' | 'cookie' | 'header' | 'query'
 
 /** Create parameter event handlers for a given type */
@@ -9,10 +11,12 @@ export const createParameterHandlers = (
   eventBus: WorkspaceEventBus,
   meta: OperationExampleMeta,
   {
+    context,
     defaultParameters = 0,
     workspaceParameters = 0,
     documentParameters = 0,
   }: {
+    context: TableRow[]
     defaultParameters?: number
     workspaceParameters?: number
     documentParameters?: number
@@ -44,8 +48,9 @@ export const createParameterHandlers = (
       }),
     update: (payload: { index: number; payload: Partial<{ key: string; value: string; isDisabled: boolean }> }) => {
       if (payload.index < defaultParameters) {
+        const row = context[payload.index]
         return eventBus.emit('operation:update:default-headers:parameter', {
-          meta: { ...meta, key: payload.payload.key ?? '' },
+          meta: { ...meta, key: row?.name.toLowerCase() ?? 'NON_VALID' },
           payload: { isDisabled: payload.payload.isDisabled ?? false },
         })
       }
