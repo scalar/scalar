@@ -16,6 +16,7 @@ import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
+import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
@@ -40,8 +41,14 @@ const operation = computed(() =>
 
 /** Combine the workspace and document cookies */
 const globalCookies = computed(() => [
-  ...(workspaceStore.workspace?.['x-scalar-cookies'] ?? []),
-  ...(document?.['x-scalar-cookies'] ?? []),
+  ...((workspaceStore.workspace?.['x-scalar-cookies'] ?? []).map((it) => ({
+    ...it,
+    location: 'workspace',
+  })) satisfies ExtendedScalarCookie[]),
+  ...((document?.['x-scalar-cookies'] ?? []).map((it) => ({
+    ...it,
+    location: 'document',
+  })) satisfies ExtendedScalarCookie[]),
 ])
 
 /** Compute the selected server for the document only for now */

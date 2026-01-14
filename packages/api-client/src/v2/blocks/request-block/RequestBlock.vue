@@ -8,6 +8,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -19,6 +20,7 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
+import { isElectron } from '@/libs/electron'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
@@ -40,6 +42,10 @@ type Filter =
   | 'Query'
   | 'Body'
 
+export type ExtendedScalarCookie = XScalarCookie & {
+  location: 'document' | 'workspace'
+}
+
 const {
   authMeta = { type: 'document' },
   clientOptions,
@@ -57,6 +63,7 @@ const {
   selectedClient,
   selectedSecuritySchemes,
   server,
+  globalCookies,
 } = defineProps<{
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   authMeta: AuthMeta
@@ -75,6 +82,7 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecuritySchemes: SecuritySchemeObject[]
   server: ServerObject | null
+  globalCookies: ExtendedScalarCookie[]
 }>()
 
 /** Operation metadata used across event emissions */
@@ -99,7 +107,7 @@ const sections = computed(() =>
         schema: getParameterSchema(param),
         isRequired: param.required,
         isDisabled: example?.['x-disabled'] ?? false,
-      }
+      } as TableRow
     },
   ),
 )
@@ -133,6 +141,13 @@ const AUTO_GENERATED_HEADERS = computed(() => {
     defaultValue: '*/*',
   })
 
+  if (isElectron()) {
+    result.push({
+      name: 'User-Agent',
+      defaultValue: 'Scalar/1.0',
+    })
+  }
+
   return result
 })
 
@@ -159,6 +174,27 @@ const defaultHeaders = computed(() => {
 const headers = computed(() => [
   ...defaultHeaders.value,
   ...(sections.value.header ?? []),
+])
+
+const defaultCookies = computed(() => {
+  return globalCookies?.map((it) => ({
+    name: it.name,
+    value: it.value,
+    globalRoute:
+      it.location === 'document'
+        ? {
+            name: 'document.cookies',
+          }
+        : {
+            name: 'workspace.cookies',
+          },
+    isReadonly: true,
+  })) as TableRow[]
+})
+
+const cookies = computed(() => [
+  ...(defaultCookies.value ?? []),
+  ...(sections.value.cookie ?? []),
 ])
 
 /** Currently selected filter for the request sections */
@@ -270,6 +306,7 @@ const parameterHandlers = computed(() => ({
   }),
   cookie: createParameterHandlers('cookie', eventBus, meta.value, {
     context: sections.value.cookie ?? [],
+    globalParameters: globalCookies.length,
   }),
   header: createParameterHandlers('header', eventBus, meta.value, {
     context: defaultHeaders.value,
@@ -425,7 +462,7 @@ const labelRequestNameId = useId()
         :id="filterIds.Cookies"
         :environment
         :exampleKey
-        :rows="sections.cookie ?? []"
+        :rows="cookies ?? []"
         :showAddRowPlaceholder="true"
         title="Cookies"
         v-on="parameterHandlers.cookie" />

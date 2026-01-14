@@ -13,16 +13,14 @@ export const createParameterHandlers = (
   {
     context,
     defaultParameters = 0,
-    workspaceParameters = 0,
-    documentParameters = 0,
+    globalParameters = 0,
   }: {
     context: TableRow[]
     defaultParameters?: number
-    workspaceParameters?: number
-    documentParameters?: number
+    globalParameters?: number
   },
 ) => {
-  const offset = defaultParameters + workspaceParameters + documentParameters
+  const offset = defaultParameters + globalParameters
 
   return {
     add: (payload: { key?: string; value?: string }) =>

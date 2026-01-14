@@ -5,7 +5,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -51,7 +51,7 @@ export type TableRow = {
   /** Optional description for the parameter */
   description?: string
   /** Optional route for global parameters (e.g., cookies shared across workspace) */
-  globalRoute?: string
+  globalRoute?: RouteLocationRaw
   /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
