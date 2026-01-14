@@ -1,5 +1,30 @@
 # @scalar/nuxt
 
+## 0.5.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.0**
+  - [#7686](https://github.com/scalar/scalar/pull/7686): feat: add array + object functionality to code input
+  - [#7585](https://github.com/scalar/scalar/pull/7585): feat: add copy url button on the addressbar
+  - [#7713](https://github.com/scalar/scalar/pull/7713): fix: grab deprecated schema.example value
+  - [#7723](https://github.com/scalar/scalar/pull/7723): fix: remove use-color-mode hook from modal
+  - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+- **@scalar/api-reference@1.43.4**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): chore: add test for tagSorter
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+  - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+- **@scalar/use-hooks@0.3.6**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): feat: added object stringification to useClipboard
+
+- **@scalar/types@0.5.7**
+
+- **@scalar/workspace-store@0.24.6**
+
 ## 0.5.42
 
 ### Patch Changes

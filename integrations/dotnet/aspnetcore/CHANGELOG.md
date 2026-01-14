@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.12.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.4**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): chore: add test for tagSorter
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+  - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 2.12.6
 
 ### Patch Changes

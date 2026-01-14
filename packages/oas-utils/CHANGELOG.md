@@ -1,5 +1,23 @@
 # @scalar/oas-utils
 
+## 0.6.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/json-magic@0.9.0**
+  - [#7701](https://github.com/scalar/scalar/pull/7701): Made bundle external document extensions configurable
+
+- **@scalar/object-utils@1.2.21**
+
+- **@scalar/types@0.5.7**
+
+- **@scalar/workspace-store@0.24.6**
+
 ## 0.6.15
 
 ### Patch Changes

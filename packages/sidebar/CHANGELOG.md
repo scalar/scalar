@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.7.9
+
+### Patch Changes
+
+- [#7678](https://github.com/scalar/scalar/pull/7678): fix: added deprecated sidebar support
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.19**
+  - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/use-hooks@0.3.6**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): feat: added object stringification to useClipboard
+
+- **@scalar/workspace-store@0.24.6**
+
 ## 0.7.8
 
 ### Patch Changes

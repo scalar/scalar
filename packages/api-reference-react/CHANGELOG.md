@@ -1,5 +1,18 @@
 # @scalar/api-reference-react
 
+## 0.8.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.4**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): chore: add test for tagSorter
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+  - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+- **@scalar/types@0.5.7**
+
 ## 0.8.22
 
 ### Patch Changes
