@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -15,9 +14,13 @@ import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
+import { getCompositionsToRender } from './helpers/get-compositions-to-render'
+import { getEnumValues } from './helpers/get-enum-values'
+import { getPropertyDescription } from './helpers/get-property-description'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
-import { compositions } from './helpers/schema-composition'
+import { shouldDisplayDescription } from './helpers/should-display-description'
+import { shouldDisplayHeading } from './helpers/should-display-heading'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaEnumValues from './SchemaEnumValues.vue'
@@ -56,25 +59,6 @@ const props = withDefaults(
   },
 )
 
-// Type descriptions for built-in types
-const TYPE_DESCRIPTIONS: Record<string, Record<string, string>> = {
-  integer: {
-    _default: 'Integer numbers.',
-    int32: 'Signed 32-bit integers (commonly used integer type).',
-    int64: 'Signed 64-bit integers (long type).',
-  },
-  string: {
-    'date':
-      'full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21',
-    'date-time':
-      'the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z',
-    'password': 'a hint to UIs to mask the input',
-    'base64': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
-    'byte': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
-    'binary': 'binary data, used to describe files',
-  },
-} as const
-
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
 
@@ -91,84 +75,8 @@ const hasComplexArrayItemsComputed = computed(() =>
   hasComplexArrayItems(optimizedValue.value),
 )
 
-/** Extract enum values from schema or array items */
-const enumValues = computed(() => {
-  const value = optimizedValue.value
-  if (!value) {
-    return []
-  }
-  return (
-    value.enum ||
-    (isArraySchema(value) &&
-    typeof value.items === 'object' &&
-    'enum' in value.items
-      ? value.items.enum
-      : []) ||
-    []
-  )
-})
-
 /** Check if enum should be displayed */
 const hasEnum = computed(() => enumValues.value.length > 0)
-
-/** Generate property description from type/format */
-const propertyDescription = computed(() => {
-  const value = optimizedValue.value
-  if (!value || !('type' in value) || !value.type) {
-    return null
-  }
-
-  const type = typeof value.type === 'string' ? value.type : null
-  if (!type || !TYPE_DESCRIPTIONS[type]) {
-    return null
-  }
-
-  const format =
-    ('format' in value && value.format) ||
-    ('contentEncoding' in value && value.contentEncoding) ||
-    '_default'
-  return TYPE_DESCRIPTIONS[type]?.[format] || null
-})
-
-/** Determine if description should be displayed */
-const displayDescription = computed(() => {
-  const value = optimizedValue.value
-  if (!value) {
-    return null
-  }
-
-  // Don't show description for schemas with properties or compositions
-  if (
-    'properties' in value ||
-    'additionalProperties' in value ||
-    'patternProperties' in value ||
-    value.allOf
-  ) {
-    return null
-  }
-
-  return props.description || value.description || null
-})
-
-/** Determine if property heading should be displayed */
-const shouldDisplayHeading = computed(() => {
-  const value = optimizedValue.value
-  if (!value) {
-    return !!props.name || props.required
-  }
-
-  return !!(
-    props.name ||
-    value.deprecated ||
-    ('const' in value && value.const !== undefined) ||
-    (value.enum && value.enum.length === 1) ||
-    ('type' in value && value.type) ||
-    ('nullable' in value && value.nullable === true) ||
-    value.writeOnly ||
-    value.readOnly ||
-    props.required
-  )
-})
 
 /** Determine if object properties should be displayed */
 const shouldRenderObjectProperties = computed(() => {
@@ -193,61 +101,28 @@ const shouldRenderArrayOfObjects = computed(() => {
   return hasComplexArrayItemsComputed.value
 })
 
-/** Check if array item composition should be rendered */
-const shouldRenderArrayItemComposition = (composition: string): boolean => {
-  const value = optimizedValue.value
-  if (
-    !value ||
-    !isArraySchema(value) ||
-    !value.items ||
-    typeof value.items !== 'object' ||
-    !(composition in value.items)
-  ) {
-    return false
-  }
+/** Extract enum values from schema or array items */
+const enumValues = computed(() => getEnumValues(optimizedValue.value))
 
-  return !hasComplexArrayItemsComputed.value
-}
+/** Generate property description from type/format */
+const propertyDescription = computed(() =>
+  getPropertyDescription(optimizedValue.value),
+)
+
+/** Determine if description should be displayed */
+const displayDescription = computed(() =>
+  shouldDisplayDescription(optimizedValue.value, props.description),
+)
+
+/** Determine if property heading should be displayed */
+const shouldDisplayHeadingComputed = computed(() =>
+  shouldDisplayHeading(optimizedValue.value, props.name, props.required),
+)
 
 /** Computes which compositions should be rendered and with which values */
-const compositionsToRender = computed(() => {
-  const value = optimizedValue.value
-  if (!value) {
-    return []
-  }
-
-  return compositions
-    .map((composition) => {
-      const isArrayWithItemComposition =
-        isArraySchema(value) &&
-        value.items &&
-        typeof value.items === 'object' &&
-        composition in value.items
-
-      // Check if we should render property-level composition
-      if (value[composition] && !isArrayWithItemComposition) {
-        return {
-          composition,
-          value,
-        }
-      }
-
-      // Check if we should render array item composition
-      if (
-        shouldRenderArrayItemComposition(composition) &&
-        isArraySchema(value) &&
-        value.items
-      ) {
-        return {
-          composition,
-          value: value.items,
-        }
-      }
-
-      return null
-    })
-    .filter(isDefined)
-})
+const compositionsToRender = computed(() =>
+  getCompositionsToRender(optimizedValue.value),
+)
 
 /** Get resolved array items for rendering */
 const resolvedArrayItems = computed(() => {
@@ -275,7 +150,7 @@ const isDiscriminatorProperty = computed(
       },
     ]">
     <SchemaPropertyHeading
-      v-if="shouldDisplayHeading"
+      v-if="shouldDisplayHeadingComputed"
       class="group"
       :enum="hasEnum"
       :hideModelNames

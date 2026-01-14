@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SchemaObject } from './schema'
-import { isArraySchema, isNumberSchema, isObjectSchema, isStringSchema } from './type-guards'
+import type { SchemaObject } from '../schemas/v3.1/strict/schema'
+import { isArraySchema, isNumberSchema, isObjectSchema, isSchema, isStringSchema } from './type-guards'
 
 describe('type-guards', () => {
   describe('isObjectSchema', () => {
@@ -99,6 +99,48 @@ describe('type-guards', () => {
     it('returns false for schema with type array not containing number or integer', () => {
       const schema = { type: ['string', 'boolean'] } as SchemaObject
       expect(isNumberSchema(schema)).toBe(false)
+    })
+  })
+
+  describe('isSchema', () => {
+    it('returns true for schema with type string', () => {
+      const schema = { type: 'string' } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns true for schema with type object', () => {
+      const schema = { type: 'object' } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns true for schema with type array', () => {
+      const schema = { type: 'array' } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns true for schema with type number', () => {
+      const schema = { type: 'number' } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns true for schema with type boolean', () => {
+      const schema = { type: 'boolean' } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns true for schema with type array containing multiple types', () => {
+      const schema = { type: ['string', 'number'] } as SchemaObject
+      expect(isSchema(schema)).toBe(true)
+    })
+
+    it('returns false for schema without type property (internal __scalar_ type)', () => {
+      const schema = { __scalar_: '' } as SchemaObject
+      expect(isSchema(schema)).toBe(false)
+    })
+
+    it('returns false for empty schema object', () => {
+      const schema = {} as SchemaObject
+      expect(isSchema(schema)).toBe(false)
     })
   })
 })
