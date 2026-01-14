@@ -36,12 +36,12 @@ catalogs:
     '@hono/node-server': '1.19.5'
     '@playwright/test': 1.56.0
     '@scalar/typebox': 0.1.3
-    '@tailwindcss/vite': ^4.1.7
+    '@tailwindcss/vite': ^4.1.18
     '@types/express': 5.0.3
-    '@types/node': ^22.9.0
+    '@types/node': ^22.19.3
     '@types/picomatch': 4.0.2
-    '@types/react-dom': ^19.1.6
-    '@types/react': ^19.1.8
+    '@types/react-dom': ^19.2.3
+    '@types/react': ^19.2.7
     '@types/semver': 7.5.8
     '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-react': 5.0.4
@@ -73,12 +73,12 @@ catalogs:
     react: ^19.1.0
     semver: 7.7.2
     shx: ^0.4.0
-    tailwindcss: ^4.1.7
+    tailwindcss: ^4.1.18
     type-fest: 5.0.0
     vite-node: 3.2.4
     vite-ssg: 28.1.0
     vite-svg-loader: 5.1.0
-    vite: 7.1.11
+    vite: 7.3.0
     vitest: 3.2.4
     vue-router: 4.6.2
     vue-tsc: ^2.2.0
