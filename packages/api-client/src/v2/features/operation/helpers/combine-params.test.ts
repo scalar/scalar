@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { combineParams } from './combine-params'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
+import { combineParams } from './combine-params'
 
 describe('combineParams', () => {
   it('combines path and operation parameters', () => {
@@ -84,5 +85,21 @@ describe('combineParams', () => {
       { name: 'id', in: 'path', required: true },
       { name: 'limit', in: 'query', required: false },
     ])
+  })
+
+  it('handles multiple path parameters correctly', () => {
+    const pathParams: ParameterObject[] = [
+      { name: 'userId', in: 'path', required: true, description: 'User identifier' },
+      { name: 'postId', in: 'path', required: true, description: 'Post identifier' },
+      { name: 'commentId', in: 'path', required: true, schema: { type: 'string' } },
+    ]
+
+    const operationParams: ParameterObject[] = []
+
+    const result = combineParams(pathParams, operationParams)
+    expect(result).toHaveLength(3)
+    expect(result).toEqual(pathParams)
+    expect(result.every((param) => param.in === 'path')).toBe(true)
+    expect(result.every((param) => param.required === true)).toBe(true)
   })
 })
