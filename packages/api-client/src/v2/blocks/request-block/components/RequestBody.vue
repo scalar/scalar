@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import { getFormBodyRows } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 import { CodeInput } from '@/v2/components/code-input'
 import {
@@ -47,7 +47,7 @@ const emits = defineEmits<{
     payload: Pick<
       ApiReferenceEvents['operation:update:requestBody:formValue'],
       'payload' | 'contentType'
-    > & { debounceKeySuffix: string | undefined },
+    >,
   ): void
 }>()
 
@@ -144,52 +144,37 @@ const bodyValue = computed(() => {
   return JSON.stringify(value, null, 2)
 })
 
-/** Convert the example value to a table rows array */
-const tableRows = computed(() => {
-  // We only need table rows for form data
-  if (
-    !example.value ||
-    (selectedContentType.value !== 'multipart/form-data' &&
-      selectedContentType.value !== 'application/x-www-form-urlencoded')
-  ) {
-    return []
-  }
+/** Local state for form body rows */
+const localFormBodyRows = ref<
+  ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+>([])
 
-  // We have form data stored as an array
-  if (Array.isArray(example.value.value)) {
-    return example.value.value as {
-      name: string
-      value: string
-      isDisabled: boolean
-    }[]
-  }
+/** Sync the local form body rows with the example */
+watch(
+  example,
+  (newExample) => {
+    localFormBodyRows.value = getFormBodyRows(
+      newExample,
+      selectedContentType.value,
+    )
+  },
+  { immediate: true },
+)
 
-  // We got an object try to convert it to an array of rows
-  if (typeof example.value.value === 'object' && example.value.value) {
-    return objectEntries(example.value.value).map(([key, value]) => ({
-      name: String(key),
-      value,
-      isDisabled: false,
-    }))
-  }
-
-  return []
-})
-
-/** Adds a new row safely by defaulting the rest of the values */
+/** Adds a new row safely by defaulting the rest of the values, then emits the update */
 const handleAddRow = (
   payload: Partial<{ name: string; value: string | File; isDisabled: boolean }>,
-) =>
+) => {
+  localFormBodyRows.value = [
+    ...localFormBodyRows.value,
+    { name: '', value: '', isDisabled: false, ...payload },
+  ]
+
   emits('update:formValue', {
     contentType: selectedContentType.value,
-    payload: [
-      ...tableRows.value,
-      { name: '', value: '', isDisabled: false, ...payload },
-    ],
-    // Use a consistent debounce key for all add operations to batch rapid adds
-    // This prevents race conditions where multiple rapid adds could overwrite each other
-    debounceKeySuffix: 'add',
+    payload: localFormBodyRows.value,
   })
+}
 
 /** Update a row in the table, combines with the previous data so we emit a whole row */
 const handleUpdateRow = (
@@ -199,30 +184,31 @@ const handleUpdateRow = (
     value: string | File | undefined
     isDisabled: boolean
   }>,
-) =>
+) => {
+  localFormBodyRows.value = localFormBodyRows.value.map((row, i) =>
+    i === index ? { ...row, ...payload } : row,
+  )
+
   emits('update:formValue', {
     contentType: selectedContentType.value,
-    payload: tableRows.value.map((row, i) =>
-      i === index ? { ...row, ...payload } : row,
-    ),
-    debounceKeySuffix: `${index}-${Object.keys(payload).join('-')}`,
+    payload: localFormBodyRows.value,
   })
+}
 
 /** Delete a row from the table */
-const handleDeleteRow = (index: number) =>
-  emits('update:formValue', {
-    contentType: selectedContentType.value,
-    payload: tableRows.value.filter((_, i) => i !== index),
-    debounceKeySuffix: undefined,
-  })
+const handleDeleteRow = (index: number) => {
+  localFormBodyRows.value = localFormBodyRows.value.filter(
+    (_, i) => i !== index,
+  )
+}
 
 /** Handle file upload for a specific row index */
 const handleFileUpdate = (index: number) => {
   handleFileUpload((file) => {
-    if (index >= tableRows.value.length) {
+    if (index >= localFormBodyRows.value.length) {
       handleAddRow({ name: file.name, value: file })
     } else {
-      const currentRow = tableRows.value[index]
+      const currentRow = localFormBodyRows.value[index]
       handleUpdateRow(index, {
         name: currentRow?.name || file.name,
         value: file,
@@ -320,7 +306,7 @@ const handleFileUpdate = (index: number) => {
         <!-- Form Data -->
         <template v-else-if="selectedContentType === 'multipart/form-data'">
           <RequestTable
-            :data="tableRows"
+            :data="localFormBodyRows"
             :environment="environment"
             showUploadButton
             @addRow="handleAddRow"
@@ -338,7 +324,7 @@ const handleFileUpdate = (index: number) => {
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestTable
-            :data="tableRows"
+            :data="localFormBodyRows"
             :environment="environment"
             @addRow="handleAddRow"
             @deleteRow="handleDeleteRow"

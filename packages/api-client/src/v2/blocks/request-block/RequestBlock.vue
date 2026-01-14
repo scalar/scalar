@@ -9,6 +9,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -239,19 +240,16 @@ const handleUpdateBodyValue = ({
 const handleUpdateBodyFormValue = ({
   payload,
   contentType,
-  debounceKeySuffix,
 }: Pick<
   ApiReferenceEvents['operation:update:requestBody:formValue'],
   'payload' | 'contentType'
-> & { debounceKeySuffix: string | undefined }): void => {
-  const debounceKey = debounceKeySuffix
-    ? `update:requestBody:${contentType}-form-value-${debounceKeySuffix}`
-    : undefined
+>): void => {
+  const debounceKey = `update:requestBody:${contentType}-form-value`
 
   eventBus.emit(
     'operation:update:requestBody:formValue',
     {
-      payload,
+      payload: payload.map((row) => unpackProxyObject(row, { depth: 1 })),
       contentType,
       meta: meta.value,
     },
