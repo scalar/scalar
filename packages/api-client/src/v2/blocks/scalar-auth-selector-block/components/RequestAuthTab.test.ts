@@ -27,6 +27,7 @@ describe('RequestAuthTab', () => {
       isStatic: boolean
       environment: any
       server: any
+      proxyUrl: string
     }> = {},
   ) => {
     const selectedSecuritySchemas = custom.selectedSecuritySchemas ?? {
@@ -45,7 +46,7 @@ describe('RequestAuthTab', () => {
     return mount(RequestAuthTab, {
       attachTo: document.body,
       props: {
-        proxyUrl: '',
+        proxyUrl: custom.proxyUrl ?? '',
         environment: custom.environment ?? baseEnvironment,
         isStatic: custom.isStatic ?? true,
         selectedSecuritySchemas,
@@ -317,6 +318,31 @@ describe('RequestAuthTab', () => {
       expect(oauth2Component.exists()).toBe(true)
     })
 
+    it('passes proxyUrl to OAuth2 component', () => {
+      const wrapper = mountWithProps({
+        proxyUrl: 'https://proxy.example.com',
+        securitySchemes: {
+          'OAuth2': {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { read: 'Read', write: 'Write' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OAuth2': [],
+        },
+      })
+
+      const oauth2Component = wrapper.findComponent(OAuth2)
+      expect(oauth2Component.exists()).toBe(true)
+      expect(oauth2Component.props('proxyUrl')).toBe('https://proxy.example.com')
+    })
+
     it('emits update:securityScheme when OAuth2 component emits update:securityScheme', async () => {
       const wrapper = mountWithProps({
         securitySchemes: {
@@ -346,10 +372,12 @@ describe('RequestAuthTab', () => {
       const emitted = wrapper.emitted('update:securityScheme')
       assert(emitted)
       assert(emitted[0])
+      // RequestAuthTab emits with (payload, name)
       expect(emitted[0][0]).toEqual({
         type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
       })
+      expect(emitted[0][1]).toBe('OAuth2')
     })
 
     it('emits update:selectedScopes when OAuth2 component emits update:selectedScopes', async () => {
