@@ -842,9 +842,16 @@ const findOrCreateRequestBodyExample = (
     return null
   }
 
-  // Ensure that the example structure exists
-  operation.requestBody ||= { content: {} }
-  const requestBody = getResolvedRef(operation.requestBody)
+  // Ensure that the request body exists
+  let requestBody = getResolvedRef(operation.requestBody)
+  if (!requestBody) {
+    operation.requestBody = {
+      content: {},
+    }
+    requestBody = getResolvedRef(operation.requestBody)
+  }
+
+  // Ensure that the example exists
   requestBody.content[contentType] ||= {}
   requestBody.content[contentType].examples ||= {}
   requestBody.content[contentType].examples[meta.exampleKey] ||= {}

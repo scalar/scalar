@@ -215,6 +215,21 @@ const handleDeleteRow = (index: number) =>
     payload: tableRows.value.filter((_, i) => i !== index),
     debounceKeySuffix: undefined,
   })
+
+/** Handle file upload for a specific row index */
+const handleFileUpdate = (index: number) => {
+  handleFileUpload((file) => {
+    if (index >= tableRows.value.length) {
+      handleAddRow({ name: file.name, value: file })
+    } else {
+      const currentRow = tableRows.value[index]
+      handleUpdateRow(index, {
+        name: currentRow?.name || file.name,
+        value: file,
+      })
+    }
+  })
+}
 </script>
 <template>
   <CollapsibleSection>
@@ -314,14 +329,7 @@ const handleDeleteRow = (index: number) =>
               (index) => handleUpdateRow(index, { value: undefined })
             "
             @updateRow="(index, payload) => handleUpdateRow(index, payload)"
-            @uploadFile="
-              (index) =>
-                handleFileUpload((file) =>
-                  index >= tableRows.length
-                    ? handleAddRow({ name: file.name, value: file })
-                    : handleUpdateRow(index, { name: file.name, value: file }),
-                )
-            " />
+            @uploadFile="handleFileUpdate" />
         </template>
 
         <!-- Form URL Encoded -->

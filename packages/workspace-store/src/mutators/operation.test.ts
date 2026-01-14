@@ -1578,6 +1578,42 @@ describe('updateOperationRequestBodyExample', () => {
 
     expect(document.paths?.['/users']).toEqual({})
   })
+
+  it('handles broken $ref in requestBody by creating new object', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          post: {
+            requestBody: {
+              $ref: '#/broken',
+              '$ref-value': {
+                content: {},
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Should not throw and should create a new requestBody object
+    expect(() =>
+      updateOperationRequestBodyExample(document, {
+        contentType: 'application/json',
+        meta: { method: 'post', path: '/users', exampleKey: 'default' },
+        payload: '{"name":"Ada"}',
+      }),
+    ).not.toThrow()
+
+    const op = getResolvedRef(document.paths?.['/users']?.post)
+    assert(op)
+    const rb = getResolvedRef(op.requestBody)
+    assert(rb)
+    const media = rb.content?.['application/json']
+    assert(media)
+    const examples = getResolvedRef(media.examples)
+    assert(examples)
+    expect(getResolvedRef(examples.default)?.value).toBe('{"name":"Ada"}')
+  })
 })
 
 // Note: Form row functions (addOperationRequestBodyFormRow, updateOperationRequestBodyFormRow,
