@@ -1,5 +1,25 @@
 # @scalar/mock-server
 
+## 0.8.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/openapi-upgrader@0.1.7**
+  - [#7739](https://github.com/scalar/scalar/pull/7739): fix: upgrade form to multipart/form
+  - [#7694](https://github.com/scalar/scalar/pull/7694): feat: migrate x-example and x-examples
+
+- **@scalar/json-magic@0.9.0**
+  - [#7701](https://github.com/scalar/scalar/pull/7701): Made bundle external document extensions configurable
+
+- **@scalar/oas-utils@0.6.16**
+
+- **@scalar/openapi-parser@0.23.13**
+
 ## 0.8.10
 
 ### Patch Changes

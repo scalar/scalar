@@ -1,5 +1,12 @@
 # @scalar/openapi-upgrader
 
+## 0.1.7
+
+### Patch Changes
+
+- [#7739](https://github.com/scalar/scalar/pull/7739): fix: upgrade form to multipart/form
+- [#7694](https://github.com/scalar/scalar/pull/7694): feat: migrate x-example and x-examples
+
 ## 0.1.6
 
 ### Patch Changes
