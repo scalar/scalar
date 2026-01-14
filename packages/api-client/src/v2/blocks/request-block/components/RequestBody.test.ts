@@ -10,11 +10,9 @@ import RequestTable from './RequestTable.vue'
 // Mock the useFileDialog hook
 const mockFiles = ref<FileList | null>(null)
 const mockOpen = vi.fn()
-let fileDialogOnChange: ((files: FileList | null) => void) | undefined
 
 vi.mock('@/hooks', () => ({
   useFileDialog: vi.fn((options) => {
-    fileDialogOnChange = options?.onChange
     return {
       files: readonly(mockFiles),
       open: () => {
@@ -55,7 +53,6 @@ describe('RequestBody', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
-    fileDialogOnChange = undefined
   })
 
   it('renders different content types and handles content type selection', async () => {

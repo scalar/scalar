@@ -43,7 +43,6 @@ const handleAddRow = (
     ...localFormBodyRows.value,
     { name: '', value: '', isDisabled: false, ...payload },
   ]
-
   emit('update:formValue', localFormBodyRows.value)
 }
 
@@ -59,7 +58,6 @@ const handleUpdateRow = (
   localFormBodyRows.value = localFormBodyRows.value.map((row, i) =>
     i === index ? { ...row, ...payload } : row,
   )
-
   emit('update:formValue', localFormBodyRows.value)
 }
 
@@ -68,6 +66,7 @@ const handleDeleteRow = (index: number) => {
   localFormBodyRows.value = localFormBodyRows.value.filter(
     (_, i) => i !== index,
   )
+  emit('update:formValue', localFormBodyRows.value)
 }
 
 /** Handle file upload for a specific row index */
