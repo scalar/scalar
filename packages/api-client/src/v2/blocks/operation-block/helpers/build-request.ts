@@ -98,6 +98,10 @@ export const buildRequest = ({
       headers['X-Scalar-User-Agent'] = userAgentHeader
     }
 
+    const disabledGlobalCookies = new Set(
+      Object.keys(operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {}),
+    )
+
     /** Build out the cookies header */
     const cookiesHeader = buildRequestCookieHeader({
       paramCookies: [...params.cookies, ...security.cookies],
@@ -107,6 +111,7 @@ export const buildRequest = ({
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
       url: serverUrl || path,
       useCustomCookieHeader: isElectron() || isUsingProxy,
+      disabledGlobalCookies,
     })
     if (cookiesHeader) {
       headers[cookiesHeader.name] = cookiesHeader.value

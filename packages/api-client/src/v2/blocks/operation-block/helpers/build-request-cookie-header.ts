@@ -42,6 +42,7 @@ export const buildRequestCookieHeader = ({
   originalCookieHeader,
   url,
   useCustomCookieHeader,
+  disabledGlobalCookies,
 }: {
   /** Parsed/replaced cookies from the parameters and security schemes */
   paramCookies: XScalarCookie[]
@@ -60,6 +61,7 @@ export const buildRequestCookieHeader = ({
    * that's then forwarded as a `Cookie` header.
    */
   useCustomCookieHeader: boolean
+  disabledGlobalCookies: Set<string>
 }): null | { name: string; value: string } => {
   /** Filter the global cookies by domain + parse */
   const filteredGlobalCookies = globalCookies.flatMap((cookie) => {
@@ -67,7 +69,8 @@ export const buildRequestCookieHeader = ({
       cookie.isDisabled ||
       !cookie.name ||
       (cookie.domain && !matchesDomain(url, cookie.domain)) ||
-      (cookie.path && !path.startsWith(cookie.path))
+      (cookie.path && !path.startsWith(cookie.path)) ||
+      disabledGlobalCookies.has(cookie.name)
     ) {
       return []
     }

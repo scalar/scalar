@@ -631,23 +631,24 @@ export const updateOperationParameter = (
 }
 
 /**
- * Updates the disabled state of a specific "default-headers" parameter for an operation.
- * If the relevant "x-scalar-disable-parameters" or "default-headers" objects do not exist,
- * they are initialized.
+ * Updates the disabled state of a default parameter for an operation.
+ * Default parameters are inherited from higher-level configurations (like collection or server defaults)
+ * and this allows individual operations to selectively disable them without removing them entirely.
  *
- * The update is performed at:
- *   operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey][meta.key]
+ * The disabled state is stored in the `x-scalar-disable-parameters` extension object, organized by
+ * parameter type and example key. Missing objects are initialized automatically.
  *
- * @param document The current workspace document.
- * @param meta.path Path of the operation (e.g., '/users')
- * @param meta.method HTTP method of the operation (e.g., 'get')
- * @param meta.exampleKey A key to identify the relevant example (string)
- * @param meta.key The specific header key being updated (string)
- * @param payload.isDisabled Boolean indicating if the header is disabled
+ * @param document - The current workspace document
+ * @param type - The parameter type (e.g., 'header'). Determines the storage key ('default-headers' for headers)
+ * @param meta.path - Path of the operation (e.g., '/users')
+ * @param meta.method - HTTP method of the operation (e.g., 'get')
+ * @param meta.exampleKey - Key identifying the relevant example
+ * @param meta.key - The specific parameter key being updated
+ * @param payload.isDisabled - Whether the parameter should be disabled
  */
-export const updateOperationDefaultHeadersParameter = (
+export const updateOperationDefaultParameters = (
   document: WorkspaceDocument | null,
-  { meta, payload }: OperationEvents['operation:update:default-headers:parameter'],
+  { type, meta, payload }: OperationEvents['operation:update:default-parameters'],
 ) => {
   // Ensure there's a valid document
   if (!document) {
@@ -665,14 +666,60 @@ export const updateOperationDefaultHeadersParameter = (
     operation['x-scalar-disable-parameters'] = {}
   }
 
+  const key = type === 'header' ? 'default-headers' : undefined
+
+  if (!key) {
+    // TODO: handle other types of parameters
+    return
+  }
+
   // Initialize the 'default-headers' object within 'x-scalar-disable-parameters' if it doesn't exist
-  if (!operation['x-scalar-disable-parameters']['default-headers']) {
-    operation['x-scalar-disable-parameters']['default-headers'] = {}
+  if (!operation['x-scalar-disable-parameters'][key]) {
+    operation['x-scalar-disable-parameters'][key] = {}
   }
 
   // Update (or create) the entry for the specific example and key, preserving any existing settings
-  operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey] = {
-    ...(operation['x-scalar-disable-parameters']['default-headers'][meta.exampleKey] ?? {}),
+  operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
+    ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
+    [meta.key]: payload.isDisabled ?? false,
+  }
+}
+
+export const updateOperationGlobalParameters = (
+  document: WorkspaceDocument | null,
+  { type, meta, payload }: OperationEvents['operation:update:global-parameters'],
+) => {
+  // Ensure there's a valid document
+  if (!document) {
+    return
+  }
+
+  // Resolve the referenced operation from the document using the path and method
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return
+  }
+
+  // Initialize the 'x-scalar-disable-parameters' object if it doesn't exist
+  if (!operation['x-scalar-disable-parameters']) {
+    operation['x-scalar-disable-parameters'] = {}
+  }
+
+  const key = type === 'cookie' ? 'global-cookies' : undefined
+
+  if (!key) {
+    // TODO: handle other types of parameters
+    return
+  }
+
+  // Initialize the 'default-headers' object within 'x-scalar-disable-parameters' if it doesn't exist
+  if (!operation['x-scalar-disable-parameters'][key]) {
+    operation['x-scalar-disable-parameters'][key] = {}
+  }
+
+  // Update (or create) the entry for the specific example and key, preserving any existing settings
+  operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
+    ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
     [meta.key]: payload.isDisabled ?? false,
   }
 }

@@ -45,9 +45,19 @@ export const createParameterHandlers = (
         meta,
       }),
     update: (payload: { index: number; payload: Partial<{ key: string; value: string; isDisabled: boolean }> }) => {
+      const row = context[payload.index]
+
       if (payload.index < defaultParameters) {
-        const row = context[payload.index]
-        return eventBus.emit('operation:update:default-headers:parameter', {
+        return eventBus.emit('operation:update:default-parameters', {
+          type,
+          meta: { ...meta, key: row?.name.toLowerCase() ?? 'NON_VALID' },
+          payload: { isDisabled: payload.payload.isDisabled ?? false },
+        })
+      }
+
+      if (payload.index < defaultParameters + globalParameters) {
+        return eventBus.emit('operation:update:global-parameters', {
+          type,
           meta: { ...meta, key: row?.name.toLowerCase() ?? 'NON_VALID' },
           payload: { isDisabled: payload.payload.isDisabled ?? false },
         })

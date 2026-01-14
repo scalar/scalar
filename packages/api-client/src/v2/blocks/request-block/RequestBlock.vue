@@ -21,7 +21,9 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import { isElectron } from '@/libs/electron'
+import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -176,20 +178,46 @@ const headers = computed(() => [
   ...(sections.value.header ?? []),
 ])
 
+const filterCookie = (cookie: XScalarCookie, url: string): boolean => {
+  if (cookie.isDisabled || !cookie.name) {
+    return false
+  }
+
+  if (cookie.domain && !matchesDomain(url, cookie.domain)) {
+    return false
+  }
+
+  if (cookie.path && !path.startsWith(cookie.path)) {
+    return false
+  }
+
+  return true
+}
+
 const defaultCookies = computed(() => {
-  return globalCookies?.map((it) => ({
-    name: it.name,
-    value: it.value,
-    globalRoute:
-      it.location === 'document'
-        ? {
-            name: 'document.cookies',
-          }
-        : {
-            name: 'workspace.cookies',
-          },
-    isReadonly: true,
-  })) as TableRow[]
+  const resolvedUrl = getResolvedUrl(environment, server, path)
+
+  const disableParameters =
+    operation['x-scalar-disable-parameters']?.['global-cookies']?.[
+      exampleKey
+    ] ?? {}
+
+  return globalCookies
+    ?.filter((it) => filterCookie(it, resolvedUrl))
+    .map((it) => ({
+      name: it.name,
+      value: it.value,
+      globalRoute:
+        it.location === 'document'
+          ? {
+              name: 'document.cookies',
+            }
+          : {
+              name: 'workspace.cookies',
+            },
+      isReadonly: true,
+      isDisabled: disableParameters[it.name.toLowerCase()] ?? false,
+    })) as TableRow[]
 })
 
 const cookies = computed(() => [
@@ -305,7 +333,7 @@ const parameterHandlers = computed(() => ({
     context: sections.value.path ?? [],
   }),
   cookie: createParameterHandlers('cookie', eventBus, meta.value, {
-    context: sections.value.cookie ?? [],
+    context: cookies.value ?? [],
     globalParameters: globalCookies.length,
   }),
   header: createParameterHandlers('header', eventBus, meta.value, {
