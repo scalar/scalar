@@ -15,6 +15,7 @@ import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
+import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 import { compositions } from './helpers/schema-composition'
 import Schema from './Schema.vue'
@@ -55,12 +56,8 @@ const props = withDefaults(
   },
 )
 
-const childBreadcrumb = computed<string[] | undefined>(() =>
-  props.breadcrumb && props.name
-    ? [...props.breadcrumb, props.name]
-    : undefined,
-)
-const descriptions: Record<string, Record<string, string>> = {
+// Type descriptions for built-in types
+const TYPE_DESCRIPTIONS: Record<string, Record<string, string>> = {
   integer: {
     _default: 'Integer numbers.',
     int32: 'Signed 32-bit integers (commonly used integer type).',
@@ -76,180 +73,174 @@ const descriptions: Record<string, Record<string, string>> = {
     'byte': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
     'binary': 'binary data, used to describe files',
   },
-}
-
-const generatePropertyDescription = (property?: Record<string, any>) => {
-  if (!property) {
-    return null
-  }
-
-  if (!descriptions[property.type]) {
-    return null
-  }
-
-  return (
-    descriptions[property.type]?.[
-      property.format || property.contentEncoding || '_default'
-    ] || null
-  )
-}
-
-const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
-  value?.enum || value?.items?.enum || []
+} as const
 
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
 
+const childBreadcrumb = computed<string[] | undefined>(() =>
+  props.breadcrumb && props.name
+    ? [...props.breadcrumb, props.name]
+    : undefined,
+)
+
+const shouldHaveLink = computed(() => props.level <= 1)
+
+/** Checks if array items have complex structure */
+const hasComplexArrayItemsComputed = computed(() =>
+  hasComplexArrayItems(optimizedValue.value),
+)
+
+/** Extract enum values from schema or array items */
+const enumValues = computed(() => {
+  const value = optimizedValue.value
+  if (!value) {
+    return []
+  }
+  return (
+    value.enum ||
+    (isArraySchema(value) &&
+    typeof value.items === 'object' &&
+    'enum' in value.items
+      ? value.items.enum
+      : []) ||
+    []
+  )
+})
+
+/** Check if enum should be displayed */
+const hasEnum = computed(() => enumValues.value.length > 0)
+
+/** Generate property description from type/format */
+const propertyDescription = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !('type' in value) || !value.type) {
+    return null
+  }
+
+  const type = typeof value.type === 'string' ? value.type : null
+  if (!type || !TYPE_DESCRIPTIONS[type]) {
+    return null
+  }
+
+  const format =
+    ('format' in value && value.format) ||
+    ('contentEncoding' in value && value.contentEncoding) ||
+    '_default'
+  return TYPE_DESCRIPTIONS[type]?.[format] || null
+})
+
+/** Determine if description should be displayed */
 const displayDescription = computed(() => {
   const value = optimizedValue.value
-
   if (!value) {
     return null
   }
 
-  if ('properties' in value) {
+  // Don't show description for schemas with properties or compositions
+  if (
+    'properties' in value ||
+    'additionalProperties' in value ||
+    'patternProperties' in value ||
+    value.allOf
+  ) {
     return null
   }
 
-  if ('additionalProperties' in value) {
-    return null
-  }
-
-  if ('patternProperties' in value) {
-    return null
-  }
-
-  if (value?.allOf) {
-    return null
-  }
-
-  if (value?.allOf) {
-    return null
-  }
-
-  return props.description || value?.description || null
+  return props.description || value.description || null
 })
 
-// Display the property heading if any of the following are true
-const displayPropertyHeading = (
-  value?: Record<string, any>,
-  name?: string,
-  required?: boolean,
-) => {
-  return (
-    name ||
-    value?.deprecated ||
-    value?.const !== undefined ||
-    (value?.enum && value.enum.length === 1) ||
-    value?.type ||
-    value?.nullable === true ||
-    value?.writeOnly ||
-    value?.readOnly ||
-    required
-  )
-}
+/** Determine if property heading should be displayed */
+const shouldDisplayHeading = computed(() => {
+  const value = optimizedValue.value
+  if (!value) {
+    return !!props.name || props.required
+  }
 
-/**
- * Checks if array items have complex structure
- * like: objects, references, discriminators, or compositions
- */
-const hasComplexArrayItems = computed(() => {
+  return !!(
+    props.name ||
+    value.deprecated ||
+    ('const' in value && value.const !== undefined) ||
+    (value.enum && value.enum.length === 1) ||
+    ('type' in value && value.type) ||
+    ('nullable' in value && value.nullable === true) ||
+    value.writeOnly ||
+    value.readOnly ||
+    props.required
+  )
+})
+
+/** Determine if object properties should be displayed */
+const shouldRenderObjectProperties = computed(() => {
+  const value = optimizedValue.value
+  if (!value) {
+    return false
+  }
+
+  return (
+    isTypeObject(value) &&
+    ('properties' in value || 'additionalProperties' in value)
+  )
+})
+
+/** Determine if array of objects should be rendered */
+const shouldRenderArrayOfObjects = computed(() => {
   const value = optimizedValue.value
   if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return false
   }
 
-  const items = value.items
-  return (
-    ('type' in items &&
-      items.type &&
-      (Array.isArray(items.type)
-        ? items.type.includes('object')
-        : ['object'].includes(items.type))) ||
-    'properties' in items ||
-    '$ref' in items ||
-    'discriminator' in items ||
-    'allOf' in items ||
-    'oneOf' in items ||
-    'anyOf' in items
-  )
+  return hasComplexArrayItemsComputed.value
 })
 
+/** Check if array item composition should be rendered */
 const shouldRenderArrayItemComposition = (composition: string): boolean => {
   const value = optimizedValue.value
   if (
-    (value && isArraySchema(value) === false) ||
-    !value?.items ||
+    !value ||
+    !isArraySchema(value) ||
+    !value.items ||
     typeof value.items !== 'object' ||
     !(composition in value.items)
   ) {
     return false
   }
 
-  return !hasComplexArrayItems.value
+  return !hasComplexArrayItemsComputed.value
 }
 
-const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
-
-/**
- * Determine if object properties should be displayed
- * Handles both single type ('object') and array types (['object', 'null'])
- */
-const shouldRenderObjectProperties = computed(() => {
-  if (!optimizedValue.value) {
-    return false
-  }
-
-  const value = optimizedValue.value
-  const isObjectType = isTypeObject(value)
-
-  const hasPropertiesToRender =
-    'properties' in value || 'additionalProperties' in value
-
-  return isObjectType && hasPropertiesToRender
-})
-
-const shouldHaveLink = computed(() => props.level <= 1)
-
-/**
- * Computes which compositions should be rendered and with which values.
- * This consolidates the template logic for better performance and readability.
- */
+/** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() => {
-  if (!optimizedValue.value) {
+  const value = optimizedValue.value
+  if (!value) {
     return []
   }
 
   return compositions
     .map((composition) => {
-      // Check if we should render property composition
-      const hasPropertyComposition =
-        optimizedValue.value?.[composition] &&
-        !(
-          isArraySchema(optimizedValue.value) &&
-          optimizedValue.value?.items &&
-          typeof composition === 'string' &&
-          typeof optimizedValue.value.items === 'object' &&
-          composition in optimizedValue.value.items
-        )
+      const isArrayWithItemComposition =
+        isArraySchema(value) &&
+        value.items &&
+        typeof value.items === 'object' &&
+        composition in value.items
 
-      if (hasPropertyComposition) {
+      // Check if we should render property-level composition
+      if (value[composition] && !isArrayWithItemComposition) {
         return {
           composition,
-          value: optimizedValue.value,
+          value,
         }
       }
 
       // Check if we should render array item composition
       if (
         shouldRenderArrayItemComposition(composition) &&
-        optimizedValue.value &&
-        isArraySchema(optimizedValue.value) &&
-        optimizedValue.value.items
+        isArraySchema(value) &&
+        value.items
       ) {
         return {
           composition,
-          value: optimizedValue.value.items,
+          value: value.items,
         }
       }
 
@@ -257,6 +248,20 @@ const compositionsToRender = computed(() => {
     })
     .filter(isDefined)
 })
+
+/** Get resolved array items for rendering */
+const resolvedArrayItems = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
+    return undefined
+  }
+  return getResolvedRef(value.items)
+})
+
+/** Check if discriminator matches current property */
+const isDiscriminatorProperty = computed(
+  () => props.discriminator?.propertyName === props.name,
+)
 </script>
 <template>
   <component
@@ -270,11 +275,11 @@ const compositionsToRender = computed(() => {
       },
     ]">
     <SchemaPropertyHeading
-      v-if="displayPropertyHeading(optimizedValue, name, required)"
+      v-if="shouldDisplayHeading"
       class="group"
-      :enum="getEnumFromValue(optimizedValue).length > 0"
+      :enum="hasEnum"
       :hideModelNames
-      :isDiscriminator="discriminator && discriminator.propertyName === name"
+      :isDiscriminator="isDiscriminatorProperty"
       :required
       :value="optimizedValue">
       <template
@@ -283,25 +288,24 @@ const compositionsToRender = computed(() => {
         <WithBreadcrumb
           :breadcrumb="shouldHaveLink ? childBreadcrumb : undefined"
           :eventBus="eventBus">
-          <template v-if="variant === 'patternProperties'">
-            <span class="property-name-pattern-properties">
-              <ScalarWrappingText
-                :text="name"
-                preset="property" />
-            </span>
-          </template>
-          <template v-else-if="variant === 'additionalProperties'">
-            <span class="property-name-additional-properties">
-              <ScalarWrappingText
-                :text="name"
-                preset="property" />
-            </span>
-          </template>
-          <template v-else>
+          <span
+            v-if="variant === 'patternProperties'"
+            class="property-name-pattern-properties">
             <ScalarWrappingText
-              :text="name"
-              preset="property" />
-          </template>
+              preset="property"
+              :text="name" />
+          </span>
+          <span
+            v-else-if="variant === 'additionalProperties'"
+            class="property-name-additional-properties">
+            <ScalarWrappingText
+              preset="property"
+              :text="name" />
+          </span>
+          <ScalarWrappingText
+            v-else
+            preset="property"
+            :text="name" />
         </WithBreadcrumb>
       </template>
       <template
@@ -314,28 +318,15 @@ const compositionsToRender = computed(() => {
 
     <!-- Description -->
     <div
-      v-if="displayDescription"
-      class="property-description">
-      <ScalarMarkdown :value="displayDescription" />
-    </div>
-    <div
-      v-else-if="generatePropertyDescription(optimizedValue)"
+      v-if="displayDescription || propertyDescription"
       class="property-description">
       <ScalarMarkdown
-        :value="generatePropertyDescription(optimizedValue) || ''" />
+        :value="displayDescription || propertyDescription || ''" />
     </div>
 
     <!-- Enum -->
     <SchemaEnumValues
-      v-if="
-        (
-          optimizedValue?.enum ||
-          (optimizedValue &&
-            isArraySchema(optimizedValue) &&
-            getResolvedRef(optimizedValue?.items)?.enum) ||
-          []
-        ).length
-      "
+      v-if="hasEnum"
       :value="optimizedValue" />
 
     <!-- Object -->
@@ -353,26 +344,19 @@ const compositionsToRender = computed(() => {
         :schema="optimizedValue" />
     </div>
 
-    <!-- Array of objects -->
-    <template
-      v-if="
-        optimizedValue &&
-        isArraySchema(optimizedValue) &&
-        typeof optimizedValue.items === 'object'
-      ">
-      <div
-        v-if="shouldRenderArrayOfObjects"
-        class="children">
-        <Schema
-          :compact="compact"
-          :eventBus="eventBus"
-          :level="level + 1"
-          :name="name"
-          :noncollapsible="noncollapsible"
-          :options="options"
-          :schema="getResolvedRef(optimizedValue.items)" />
-      </div>
-    </template>
+    <!-- Array of objects or nested arrays -->
+    <div
+      v-if="shouldRenderArrayOfObjects && resolvedArrayItems"
+      class="children">
+      <Schema
+        :compact="compact"
+        :eventBus="eventBus"
+        :level="level + 1"
+        :name="name"
+        :noncollapsible="noncollapsible"
+        :options="options"
+        :schema="resolvedArrayItems" />
+    </div>
 
     <!-- Compositions -->
     <SchemaComposition

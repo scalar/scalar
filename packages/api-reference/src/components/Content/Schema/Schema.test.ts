@@ -540,4 +540,106 @@ describe('Schema', () => {
       expect(text).not.toContain('password')
     })
   })
+
+  describe('array of arrays', () => {
+    it('displays properties for nested array items', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                  },
+                  value: {
+                    type: 'number',
+                  },
+                },
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      // Expand the schemas
+      expect(wrapper.find('.schema-card').exists()).toBe(true)
+      const buttons = wrapper.findAll('button.schema-card-title')
+      expect(buttons.length).toBe(1)
+      await buttons[0]?.trigger('click')
+      const moreButtons = wrapper.findAll('button.schema-card-title')
+      expect(moreButtons.length).toBe(2)
+      await moreButtons[1]?.trigger('click')
+
+      // Check that the nested object properties are displayed
+      // For array of arrays, we should see the nested array and then the object properties
+      const text = wrapper.text()
+
+      expect(text).toContain('name')
+      expect(text).toContain('value')
+    })
+
+    it('displays properties for array of arrays in object property', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              arrayOfArrays: {
+                type: 'array',
+                items: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      name: {
+                        type: 'string',
+                      },
+                      value: {
+                        type: 'number',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      // The schema should be rendered
+      expect(wrapper.find('.schema-card').exists()).toBe(true)
+
+      // Find the arrayOfArrays property
+      const arrayProperty = wrapper
+        .findAllComponents({ name: 'SchemaProperty' })
+        .find((prop) => prop.props('name') === 'arrayOfArrays')
+
+      expect(arrayProperty).toBeDefined()
+
+      // Expand the schemas
+      expect(wrapper.find('.schema-card').exists()).toBe(true)
+      const buttons = wrapper.findAll('button.schema-card-title')
+      expect(buttons.length).toBe(1)
+      await buttons[0]?.trigger('click')
+      const moreButtons = wrapper.findAll('button.schema-card-title')
+      expect(moreButtons.length).toBe(2)
+      await moreButtons[1]?.trigger('click')
+
+      // Check that the nested object properties are displayed
+      // For array of arrays, we should see the nested array and then the object properties
+      const text = wrapper.text()
+
+      expect(text).toContain('arrayOfArrays')
+      expect(text).toContain('name')
+      expect(text).toContain('value')
+    })
+  })
 })
