@@ -5,12 +5,11 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks'
-import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
+import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
-import { getFormBodyRows } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 import { CodeInput } from '@/v2/components/code-input'
 import {
@@ -143,79 +142,6 @@ const bodyValue = computed(() => {
 
   return JSON.stringify(value, null, 2)
 })
-
-/** Local state for form body rows */
-const localFormBodyRows = ref<
-  ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
->([])
-
-/** Sync the local form body rows with the example */
-watch(
-  example,
-  (newExample) => {
-    localFormBodyRows.value = getFormBodyRows(
-      newExample,
-      selectedContentType.value,
-    )
-  },
-  { immediate: true },
-)
-
-/** Adds a new row safely by defaulting the rest of the values, then emits the update */
-const handleAddRow = (
-  payload: Partial<{ name: string; value: string | File; isDisabled: boolean }>,
-) => {
-  localFormBodyRows.value = [
-    ...localFormBodyRows.value,
-    { name: '', value: '', isDisabled: false, ...payload },
-  ]
-
-  emits('update:formValue', {
-    contentType: selectedContentType.value,
-    payload: localFormBodyRows.value,
-  })
-}
-
-/** Update a row in the table, combines with the previous data so we emit a whole row */
-const handleUpdateRow = (
-  index: number,
-  payload: Partial<{
-    name: string
-    value: string | File | undefined
-    isDisabled: boolean
-  }>,
-) => {
-  localFormBodyRows.value = localFormBodyRows.value.map((row, i) =>
-    i === index ? { ...row, ...payload } : row,
-  )
-
-  emits('update:formValue', {
-    contentType: selectedContentType.value,
-    payload: localFormBodyRows.value,
-  })
-}
-
-/** Delete a row from the table */
-const handleDeleteRow = (index: number) => {
-  localFormBodyRows.value = localFormBodyRows.value.filter(
-    (_, i) => i !== index,
-  )
-}
-
-/** Handle file upload for a specific row index */
-const handleFileUpdate = (index: number) => {
-  handleFileUpload((file) => {
-    if (index >= localFormBodyRows.value.length) {
-      handleAddRow({ name: file.name, value: file })
-    } else {
-      const currentRow = localFormBodyRows.value[index]
-      handleUpdateRow(index, {
-        name: currentRow?.name || file.name,
-        value: file,
-      })
-    }
-  })
-}
 </script>
 <template>
   <CollapsibleSection>
@@ -303,32 +229,23 @@ const handleFileUpdate = (index: number) => {
           </div>
         </template>
 
-        <!-- Form Data -->
-        <template v-else-if="selectedContentType === 'multipart/form-data'">
-          <RequestTable
-            :data="localFormBodyRows"
-            :environment="environment"
-            showUploadButton
-            @addRow="handleAddRow"
-            @deleteRow="(index) => handleDeleteRow(index)"
-            @removeFile="
-              (index) => handleUpdateRow(index, { value: undefined })
-            "
-            @updateRow="(index, payload) => handleUpdateRow(index, payload)"
-            @uploadFile="handleFileUpdate" />
-        </template>
-
-        <!-- Form URL Encoded -->
+        <!-- Form Data / URL Encoded -->
         <template
           v-else-if="
+            selectedContentType === 'multipart/form-data' ||
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
-          <RequestTable
-            :data="localFormBodyRows"
-            :environment="environment"
-            @addRow="handleAddRow"
-            @deleteRow="handleDeleteRow"
-            @updateRow="handleUpdateRow" />
+          <RequestBodyForm
+            :environment
+            :example
+            :selectedContentType
+            @update:formValue="
+              (payload) =>
+                emits('update:formValue', {
+                  payload,
+                  contentType: selectedContentType,
+                })
+            " />
         </template>
 
         <!-- Code/Other -->
