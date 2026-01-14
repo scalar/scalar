@@ -390,7 +390,7 @@ describe('upgradeFromTwoToThree', () => {
                       type: 'string',
                       description: 'Additional data to pass to server',
                     },
-                    file: { type: 'string', description: 'file to upload' },
+                    file: { type: 'string', description: 'file to upload', format: 'binary' },
                   },
                   required: [],
                 },

@@ -691,6 +691,7 @@ function migrateFormDataParameter(
             formContent.schema.properties[param.name] = {
               type: param.type,
               description: param.description,
+              ...(param.format ? { format: param.format } : {}),
             }
 
             // Add to required array if param is required
