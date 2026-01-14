@@ -11,7 +11,7 @@
   "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
-    "subdomain": "guides-scalar-com",
+    "subdomain": "scalar",
     "customDomain": "scalar.com",
     "head": {
       "scripts": [
