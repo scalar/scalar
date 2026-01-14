@@ -35,7 +35,7 @@ const {
   hideClientButton,
 } = defineProps<
   RouteProps & {
-    hideClientButton: boolean
+    hideClientButton?: boolean
   }
 >()
 
