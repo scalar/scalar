@@ -86,7 +86,7 @@ Generate type-safe client libraries from your OpenAPI documents. Scalar supports
 | Swift      | Available |
 | C#         | Available |
 
-SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](/products/sdks/getting-started).
+SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](../guides/sdks/getting-started.md).
 
 ### Spectral linting
 
