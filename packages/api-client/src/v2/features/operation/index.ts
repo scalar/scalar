@@ -1,3 +1,4 @@
+export { combineParams } from './helpers/combine-params'
 export { getSecurityRequirements } from './helpers/get-security-requirements'
 export { getSelectedSecurity } from './helpers/get-selected-security'
 export { getSelectedServer } from './helpers/get-selected-server'

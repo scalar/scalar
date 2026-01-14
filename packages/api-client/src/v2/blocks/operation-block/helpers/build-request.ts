@@ -7,10 +7,11 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { SecuritySchemeObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { objectEntries } from '@vueuse/core'
 
 import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
+import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
+import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
 
 import { buildRequestBody } from './build-request-body'
 import { buildRequestCookieHeader } from './build-request-cookie-header'
@@ -65,26 +66,9 @@ export const buildRequest = ({
 }> => {
   try {
     /** Flatten the environment variables array into a key-value object */
-    const env = environment.variables.reduce(
-      (acc, curr) => {
-        acc[curr.name] = typeof curr.value === 'string' ? curr.value : curr.value.default
-        return acc
-      },
-      {} as Record<string, string>,
-    )
+    const env = getEnvironmentVariables(environment)
 
-    /** Extract the server variables default values*/
-    const serverVariables = objectEntries(server?.variables ?? {}).reduce(
-      (acc, [name, variable]) => {
-        if (variable.default) {
-          acc[name] = variable.default
-        }
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-
-    const serverUrl = replaceVariables(server?.url ?? '', { ...env, ...serverVariables })
+    const serverUrl = getServerUrl(server, env)
     const requestBody = getResolvedRef(operation.requestBody)
 
     // Throw for no server or path

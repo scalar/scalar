@@ -40,6 +40,7 @@ export type OperationProps = {
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { combineParams } from '@scalar/api-client/v2/features/operation'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -52,7 +53,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'
 
 import { getFirstServer } from './helpers/get-first-server'

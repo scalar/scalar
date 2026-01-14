@@ -18,6 +18,7 @@ import { computed, onMounted } from 'vue'
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { combineParams } from '@/v2/features/operation/helpers/combine-params'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
 
 const {
@@ -33,11 +34,26 @@ const {
   plugins,
 } = defineProps<RouteProps>()
 
-const operation = computed(() =>
-  path && method
-    ? (getResolvedRef(document?.paths?.[path]?.[method]) ?? null)
-    : null,
-)
+/** Find the operation and augment with any path parameters */
+const operation = computed(() => {
+  if (!path || !method) {
+    return null
+  }
+
+  const operation = getResolvedRef(document?.paths?.[path]?.[method])
+  if (!operation) {
+    return null
+  }
+
+  const pathItem = getResolvedRef(document?.paths?.[path])
+  if (!pathItem) {
+    return operation
+  }
+
+  // We combine any path parameters with the operation parameters
+  const parameters = combineParams(pathItem.parameters, operation.parameters)
+  return { ...operation, parameters }
+})
 
 /** Combine the workspace and document cookies */
 const globalCookies = computed(() => [
