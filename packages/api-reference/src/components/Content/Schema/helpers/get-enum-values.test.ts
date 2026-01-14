@@ -49,5 +49,34 @@ describe('get-enum-values', () => {
 
       expect(getEnumValues(schema)).toEqual([])
     })
+
+    it('returns enum values from array items when items is a $ref object', () => {
+      const schema = {
+        type: 'array',
+        items: {
+          $ref: '#/components/schemas/Color',
+          '$ref-value': {
+            type: 'string',
+            enum: ['red', 'green', 'blue'],
+          },
+        },
+      } as SchemaObject
+
+      expect(getEnumValues(schema)).toEqual(['red', 'green', 'blue'])
+    })
+
+    it('returns empty array when array items $ref has no enum', () => {
+      const schema = {
+        type: 'array',
+        items: {
+          $ref: '#/components/schemas/String',
+          '$ref-value': {
+            type: 'string',
+          },
+        },
+      } as SchemaObject
+
+      expect(getEnumValues(schema)).toEqual([])
+    })
   })
 })
