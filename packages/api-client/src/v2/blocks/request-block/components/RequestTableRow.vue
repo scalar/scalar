@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import { ScalarIconTrash } from '@scalar/icons'
+import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-import { RouterLink, type RouteLocationRaw } from 'vue-router'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -42,6 +42,8 @@ const emits = defineEmits<{
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
 }>()
+
+const router = useRouter()
 
 export type TableRow = {
   /** The parameter or field name/key */
@@ -115,29 +117,11 @@ const valueModel = computed({
       alert: validationResult.ok === false,
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
-    <template v-if="data.globalRoute !== undefined">
-      <RouterLink
-        class="text-c-2 flex items-center justify-center border-t !border-r"
-        :to="data.globalRoute ?? {}">
-        <span class="sr-only">Global</span>
-        <ScalarTooltip
-          content="Global cookies are shared across the whole workspace."
-          placement="top">
-          <ScalarIcon
-            class="text-c-1"
-            icon="Globe"
-            size="xs"
-            tabindex="0" />
-        </ScalarTooltip>
-      </RouterLink>
-    </template>
-    <template v-else>
-      <DataTableCheckbox
-        class="!border-r"
-        :disabled="hasCheckboxDisabled ?? false"
-        :modelValue="!data.isDisabled"
-        @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
-    </template>
+    <DataTableCheckbox
+      class="!border-r"
+      :disabled="hasCheckboxDisabled ?? false"
+      :modelValue="!data.isDisabled"
+      @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
     <!-- Key -->
     <DataTableCell>
       <CodeInput
@@ -191,6 +175,16 @@ const valueModel = computed({
             @click="emits('deleteRow')">
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
+
+          <ScalarIconButton
+            v-if="data.globalRoute !== undefined"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 h-fit"
+            :icon="ScalarIconGlobe"
+            label="Global cookies are shared across the whole workspace. Click to navigate."
+            size="xs"
+            tooltip="top"
+            variant="ghost"
+            @click="router.push(data.globalRoute!)" />
 
           <RequestTableTooltip
             v-if="data.isReadonly"
