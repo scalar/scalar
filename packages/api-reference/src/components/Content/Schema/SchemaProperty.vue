@@ -135,7 +135,7 @@ const resolvedArrayItems = computed(() => {
 
 /** Check if discriminator matches current property */
 const isDiscriminatorProperty = computed(
-  () => props.discriminator?.propertyName === props.name,
+  () => props.name && props.discriminator?.propertyName === props.name,
 )
 </script>
 <template>
