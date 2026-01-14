@@ -3,8 +3,9 @@ import { URL, fileURLToPath } from 'node:url'
 import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import type { PluginOption } from 'vite'
 import svgLoader from 'vite-svg-loader'
+import { defineConfig } from 'vitest/config'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -33,7 +34,7 @@ export default defineConfig({
           },
         ],
       },
-    }),
+    }) as PluginOption,
   ],
   build: createViteBuildOptions({
     entry: ['src/index.ts'],
