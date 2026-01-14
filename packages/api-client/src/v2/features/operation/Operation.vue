@@ -32,7 +32,12 @@ const {
   securitySchemes,
   workspaceStore,
   plugins,
-} = defineProps<RouteProps>()
+  hideClientButton,
+} = defineProps<
+  RouteProps & {
+    hideClientButton: boolean
+  }
+>()
 
 /** Find the operation and augment with any path parameters */
 const operation = computed(() => {
@@ -134,6 +139,7 @@ const APP_VERSION = PACKAGE_VERSION
       :eventBus
       :exampleKey="exampleName"
       :globalCookies
+      :hideClientButton
       :history="[]"
       :httpClients="
         workspaceStore.config['x-scalar-reference-config']?.httpClients
