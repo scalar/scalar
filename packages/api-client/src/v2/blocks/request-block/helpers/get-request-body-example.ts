@@ -23,7 +23,7 @@ export const getExampleFromBody = (
   }
 
   // Generate an example from the schema
-  const example = getExampleFromSchema(schema)
+  const example = getExampleFromSchema(schema, { mode: 'write' })
   if (!example) {
     return null
   }
