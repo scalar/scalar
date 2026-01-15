@@ -59,7 +59,7 @@ scalar document lint ./openapi.yaml
 To use a specific rule from the Scalar Registry, use the `--rule` option:
 
 ```bash
-scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-organization/rules/your-rule
+scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
 
 You can also use a local rule file:
@@ -99,7 +99,7 @@ jobs:
           node-version: 22
 
       - name: Lint OpenAPI Document
-        run: npx @scalar/cli document lint openapi.yaml --rule https://registry.scalar.com/@your-organization/rules/your-rule
+        run: npx @scalar/cli document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
 
 This ensures that all OpenAPI documents meet your organization's standards before they're published or used to generate documentation.
