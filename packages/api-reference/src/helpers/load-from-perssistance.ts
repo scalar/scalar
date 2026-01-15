@@ -79,7 +79,7 @@ const restoreAuthSecretsFromStorage = (store: WorkspaceStore): void => {
     return
   }
 
-  const activeDocument = getActiveDocument(store)
+  const activeDocument = store.workspace.activeDocument
 
   if (!activeDocument) {
     console.warn('Active document not found in workspace, skipping auth secrets loading')
