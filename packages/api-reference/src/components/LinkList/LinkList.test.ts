@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+
 import LinkList from './LinkList.vue'
 
 // Mock MutationObserver
-const mockMutationObserver = vi.fn()
 const mockDisconnect = vi.fn()
 const mockObserve = vi.fn()
 let capturedCallback: (() => void) | null = null
@@ -13,14 +13,13 @@ beforeEach(() => {
   vi.clearAllMocks()
   capturedCallback = null
 
-  global.MutationObserver = mockMutationObserver
-  mockMutationObserver.mockImplementation((callback: () => void) => {
-    capturedCallback = callback
-    return {
-      observe: mockObserve,
-      disconnect: mockDisconnect,
+  globalThis.MutationObserver = class {
+    constructor(callback: MutationCallback) {
+      capturedCallback = callback as () => void
     }
-  })
+    observe = mockObserve
+    disconnect = mockDisconnect
+  }
 
   global.window = {
     ...global.window,
@@ -30,7 +29,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  vi.restoreAllMocks()
+  vi.clearAllMocks()
 })
 
 describe('LinkList', () => {
@@ -98,7 +97,6 @@ describe('LinkList', () => {
       },
     })
 
-    expect(mockMutationObserver).toHaveBeenCalled()
     expect(mockObserve).toHaveBeenCalledWith(expect.any(HTMLElement), {
       childList: true,
       subtree: true,
