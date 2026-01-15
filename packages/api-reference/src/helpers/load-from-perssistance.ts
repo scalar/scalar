@@ -1,5 +1,6 @@
 import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarSelectedSecurity } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-selected-security'
 
 import { authStorage, clientStorage } from '@/helpers/storage'
@@ -12,13 +13,56 @@ export const loadClientFromStorage = (store: WorkspaceStore) => {
 }
 
 /**
+ * Checks if a key is a Scalar secret key.
+ * Secret keys start with 'x-scalar-secret-' prefix.
+ */
+export const isSecretKey = (key: string): boolean => {
+  return key.startsWith('x-scalar-secret-')
+}
+
+const isObjectOrArray = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null
+}
+
+/**
+ * Recursively merges secret values from stored data into the current schema.
+ * Only merges secrets if the corresponding structure exists in the current schema.
+ *
+ * This function walks through both objects in parallel, copying any keys that
+ * start with 'x-scalar-secret-' from the stored object to the current object,
+ * but only if the path exists in the current schema.
+ *
+ * @param current - The current schema object (source of truth for structure)
+ * @param stored - The stored object containing secret values to restore
+ */
+export const mergeSecrets = (current: unknown, stored: unknown): void => {
+  if (!isObjectOrArray(current) || !isObjectOrArray(stored)) {
+    return
+  }
+
+  // Iterate through stored keys to find secrets to restore
+  for (const [key, storedValue] of Object.entries(stored)) {
+    // If this is a secret key and it has a value, restore it to current
+    if (isSecretKey(key) && storedValue && current[key] !== undefined) {
+      current[key] = storedValue
+      continue
+    }
+
+    // If the value is an object (and not null), recurse into it
+    mergeSecrets(getResolvedRef(current[key]), storedValue)
+  }
+}
+
+/**
  * Restores authentication secrets from local storage to the workspace store.
  *
  * This function iterates through stored authentication schemes and restores
- * the secret values (tokens, passwords, client secrets, etc.) to the active
- * document's security schemes if they exist in the current document.
+ * any secret values (keys starting with x-scalar-secret-) to the active
+ * document's security schemes. It uses the current security schemes as the
+ * source of truth, only restoring secrets for structures that exist in the
+ * current document.
  */
-const restoreAuthSecretsFromStorage = (store: WorkspaceStore) => {
+const restoreAuthSecretsFromStorage = (store: WorkspaceStore): void => {
   const slug = store.workspace['x-scalar-active-document'] ?? ''
   if (!slug) {
     console.warn('No active document found, skipping auth secrets loading')
@@ -36,75 +80,11 @@ const restoreAuthSecretsFromStorage = (store: WorkspaceStore) => {
   const authPersistence = authStorage()
   const storedAuthSchemes = authPersistence.getSchemas(slug)
 
+  // Iterate through each stored security scheme
   Object.entries(storedAuthSchemes).forEach(([key, storedScheme]) => {
-    const currentScheme = securitySchemes[key]
+    const currentScheme = getResolvedRef(securitySchemes[key])
 
-    // If the scheme is in the document, we can restore the secrets
-    if (key in securitySchemes && currentScheme && typeof currentScheme === 'object' && !('$ref' in currentScheme)) {
-      // Treat currentScheme as an object we can safely add properties to
-      const scheme = currentScheme as Record<string, any>
-
-      // Restore token secrets (used in apiKey, http, and OAuth flows)
-      if ('x-scalar-secret-token' in storedScheme && storedScheme['x-scalar-secret-token']) {
-        scheme['x-scalar-secret-token'] = storedScheme['x-scalar-secret-token']
-      }
-
-      // Restore HTTP authentication secrets (username and password)
-      if ('x-scalar-secret-username' in storedScheme && storedScheme['x-scalar-secret-username']) {
-        scheme['x-scalar-secret-username'] = storedScheme['x-scalar-secret-username']
-      }
-      if ('x-scalar-secret-password' in storedScheme && storedScheme['x-scalar-secret-password']) {
-        scheme['x-scalar-secret-password'] = storedScheme['x-scalar-secret-password']
-      }
-
-      // Restore OAuth2 secrets from flows
-      if ('type' in scheme && scheme.type === 'oauth2' && 'flows' in scheme && scheme.flows) {
-        const storedFlows =
-          'type' in storedScheme && storedScheme.type === 'oauth2' && 'flows' in storedScheme
-            ? storedScheme.flows
-            : null
-
-        if (storedFlows) {
-          // Iterate through each flow type (implicit, password, clientCredentials, authorizationCode)
-          const flowTypes = ['implicit', 'password', 'clientCredentials', 'authorizationCode'] as const
-
-          flowTypes.forEach((flowType) => {
-            const currentFlow = scheme.flows[flowType]
-            const storedFlow = storedFlows[flowType]
-
-            if (currentFlow && storedFlow && typeof currentFlow === 'object' && typeof storedFlow === 'object') {
-              // Restore client ID
-              if ('x-scalar-secret-client-id' in storedFlow && storedFlow['x-scalar-secret-client-id']) {
-                currentFlow['x-scalar-secret-client-id'] = storedFlow['x-scalar-secret-client-id']
-              }
-
-              // Restore client secret
-              if ('x-scalar-secret-client-secret' in storedFlow && storedFlow['x-scalar-secret-client-secret']) {
-                currentFlow['x-scalar-secret-client-secret'] = storedFlow['x-scalar-secret-client-secret']
-              }
-
-              // Restore redirect URI
-              if ('x-scalar-secret-redirect-uri' in storedFlow && storedFlow['x-scalar-secret-redirect-uri']) {
-                currentFlow['x-scalar-secret-redirect-uri'] = storedFlow['x-scalar-secret-redirect-uri']
-              }
-
-              // Restore token (used in OAuth flows)
-              if ('x-scalar-secret-token' in storedFlow && storedFlow['x-scalar-secret-token']) {
-                currentFlow['x-scalar-secret-token'] = storedFlow['x-scalar-secret-token']
-              }
-
-              // Restore username and password (used in password flow)
-              if ('x-scalar-secret-username' in storedFlow && storedFlow['x-scalar-secret-username']) {
-                currentFlow['x-scalar-secret-username'] = storedFlow['x-scalar-secret-username']
-              }
-              if ('x-scalar-secret-password' in storedFlow && storedFlow['x-scalar-secret-password']) {
-                currentFlow['x-scalar-secret-password'] = storedFlow['x-scalar-secret-password']
-              }
-            }
-          })
-        }
-      }
-    }
+    mergeSecrets(currentScheme, storedScheme)
   })
 }
 
@@ -116,7 +96,6 @@ const restoreAuthSecretsFromStorage = (store: WorkspaceStore) => {
  * the stored schemes still exist in the current document before restoring them.
  */
 export const loadAuthSchemesFromStorage = (store: WorkspaceStore) => {
-  console.log('loadAuthSchemesFromStorage', store.workspace)
   const slug = store.workspace['x-scalar-active-document'] ?? ''
   if (!slug) {
     console.warn('No active document found, skipping auth schemes loading')
