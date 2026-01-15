@@ -63,11 +63,39 @@ beforeEach(() => {
    *
    * @see https://github.com/jsdom/jsdom/issues/3368
    */
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
+  globalThis.ResizeObserver = class {
+    disconnect = vi.fn()
+    observe = vi.fn()
+    unobserve = vi.fn()
+  }
+
+  /**
+   * Mock MutationObserver which is used by CodeMirror's DOMObserver
+   * but is not available in the test environment.
+   */
+  globalThis.MutationObserver = class {
+    constructor(public callback: MutationCallback) {}
+    disconnect = vi.fn()
+    observe = vi.fn()
+    takeRecords = vi.fn(() => [])
+  }
+
+  /**
+   * Mock IntersectionObserver which is used by various components
+   * but is not available in the test environment.
+   *
+   * @see https://github.com/jsdom/jsdom/issues/2032
+   */
+  globalThis.IntersectionObserver = class {
+    constructor(public callback: IntersectionObserverCallback) {}
+    disconnect = vi.fn()
+    observe = vi.fn()
+    unobserve = vi.fn()
+    takeRecords = vi.fn(() => [])
+    root = null
+    rootMargin = ''
+    thresholds = [] as number[]
+  }
 })
 
 afterEach(() => {
