@@ -17,11 +17,11 @@ Schemas allow you to reference shared components across your registry APIs.
 
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Registry > Schemas, then click "+ New" to create your first schema.
 
-![Scalar Schemas Page](../../assets/schema.png "Scalar Schemas Page")
+![Scalar Registry Schemas Page](../../assets/schema.png "Scalar Schemas Page")
 
 You'll be taken to the schema creation page where you can configure your new JSON Schema.
 
-![Scalar Create Schema](../../assets/schema-1.png "Scalar Create Schema")
+![Scalar Registry Create Schema](../../assets/schema-1.png "Scalar Create Schema")
 
 ### Configure Schema Details
 
@@ -93,7 +93,7 @@ After defining your JSON Schema, click "Publish" to make it available in the reg
 
 The registry path follows this format:
 ```
-registry.scalar.com/@your-namespace/schemas/your-schema-name@version
+registry.scalar.com/@your-organization/schemas/your-schema-name@version
 ```
 
 ## Reference Schemas in Your APIs
@@ -108,7 +108,7 @@ If the schema is in the same namespace, you can reference it using a relative pa
 components:
   schemas:
     User:
-      $ref: '@your-namespace/schemas/user-profile@1.0.0'
+      $ref: '@your-organization/schemas/user@1.0.0'
 ```
 
 ### External References
@@ -119,7 +119,7 @@ For schemas in other namespaces or public schemas, use the full registry URL:
 components:
   schemas:
     User:
-      $ref: 'https://registry.scalar.com/@other-namespace/schemas/user-profile@1.0.0'
+      $ref: 'https://registry.scalar.com/@other-namespace/schemas/user@1.0.0'
 ```
 
 ### Example: Using a Schema in an OpenAPI Document
@@ -140,7 +140,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '@your-namespace/schemas/user-profile@1.0.0'
+                  $ref: '@your-organization/schemas/user@1.0.0'
 ```
 
 ## Use the CLI to Manage Schemas
@@ -166,7 +166,7 @@ scalar auth login --token your-api-token
 To publish a JSON Schema file to the registry:
 
 ```bash
-scalar schema publish ./schema.json --namespace your-namespace --name user-profile --version 1.0.0
+scalar schema publish ./schema.json --namespace your-organization --name user --version 1.0.0
 ```
 
 **Required Parameters:**
@@ -183,13 +183,13 @@ scalar schema publish ./schema.json --namespace your-namespace --name user-profi
 
 ```bash
 # Basic publish
-scalar schema publish ./schemas/user-profile.json --namespace myteam --name user-profile
+scalar schema publish ./schemas/user.json --namespace myteam --name user
 
 # Publish with version and make private
 scalar schema publish ./schemas/payment-method.json --namespace myteam --name payment-method --version 2.0.0 --private
 
 # Force update existing version
-scalar schema publish ./schemas/user-profile.json --namespace myteam --name user-profile --version 1.0.0 --force
+scalar schema publish ./schemas/user.json --namespace myteam --name user --version 1.0.0 --force
 ```
 
 ### List Schemas
@@ -197,7 +197,7 @@ scalar schema publish ./schemas/user-profile.json --namespace myteam --name user
 View all schemas for your team namespace:
 
 ```bash
-scalar schema list --namespace your-namespace
+scalar schema list --namespace your-organization
 ```
 
 This will display all schemas in your namespace with their versions and access levels.
@@ -207,7 +207,7 @@ This will display all schemas in your namespace with their versions and access l
 Update schema metadata (name, description) without re-uploading the file:
 
 ```bash
-scalar schema update --namespace your-namespace --name user-profile --description "Updated user profile schema"
+scalar schema update --namespace your-organization --name user --description "Updated user profile schema"
 ```
 
 ### Delete a Schema
@@ -215,7 +215,7 @@ scalar schema update --namespace your-namespace --name user-profile --descriptio
 Remove a schema from the registry:
 
 ```bash
-scalar schema delete --namespace your-namespace --name user-profile --version 1.0.0
+scalar schema delete --namespace your-organization --name user --version 1.0.0
 ```
 
 **Note**: Deleting a schema version will break any references to it in your OpenAPI documents. Make sure to update all references before deleting.
@@ -255,10 +255,13 @@ You can integrate schema publishing into your CI/CD pipelines to automatically p
 **Example GitHub Actions workflow:**
 
 ```yaml
-name: Publish Schemas
+# .github/workflows/publish-user-schema.yml
+name: Publish User Schema
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'schemas/**'
 
@@ -266,17 +269,23 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - run: npm install -g @scalar/cli
-      - run: |
-          scalar auth login --token ${{ secrets.SCALAR_API_TOKEN }}
-          scalar schema publish ./schemas/user-profile.json \
-            --namespace ${{ secrets.SCALAR_NAMESPACE }} \
-            --name user-profile \
-            --version $(node -p "require('./schemas/user-profile.json').version")
+          node-version: 22
+
+      - name: Log in to Scalar Registry
+        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+
+      - name: Publish Schema
+        run: |
+          npx @scalar/cli schema publish ./schemas/user.json \
+            --namespace your-organization \
+            --name user \
+            --version 1.0.0
 ```
 
 This workflow will automatically publish your schemas whenever they're updated in your repository, ensuring your registry stays in sync with your source code.
