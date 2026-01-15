@@ -710,6 +710,11 @@
                     "filepath": "documentation/guides/registry/rules.md",
                     "type": "page",
                     "title": "Rules"
+                  },
+                  "schemas": {
+                    "title": "Schemas",
+                    "filepath": "documentation/guides/registry/schemas.md",
+                    "type": "page"
                   }
                 }
               },
