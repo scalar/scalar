@@ -62,6 +62,10 @@ import {
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
+import {
+  loadAuthSchemesFromStorage,
+  loadClientFromStorage,
+} from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/helpers/map-configuration'
@@ -440,16 +444,6 @@ const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
 ) => {
-  // Always set it to active; if the document is null we show a loading state
-  workspaceStore.update('x-scalar-active-document', slug)
-
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
-  apiClient.value?.route({
-    documentSlug: slug,
-    method: 'get',
-    path: '/',
-  })
-
   const normalized = configList.value[slug]
 
   if (!normalized) {
@@ -489,6 +483,20 @@ const changeSelectedDocument = async (
             config: mapConfiguration(config),
           },
     )
+  }
+
+  // Always set it to active; if the document is null we show a loading state
+  workspaceStore.update('x-scalar-active-document', slug)
+  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  apiClient.value?.route({
+    documentSlug: slug,
+    method: 'get',
+    path: '/',
+  })
+
+  // If the document has persistence enabled we load the auth schemes from storage
+  if (config.persistAuth) {
+    loadAuthSchemesFromStorage(workspaceStore)
   }
 
   // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`
@@ -596,16 +604,18 @@ watch(
 onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
 /** Load the first document on page load */
-onBeforeMount(() =>
-  changeSelectedDocument(
+onBeforeMount(async () => {
+  await changeSelectedDocument(
     activeSlug.value,
     getIdFromUrl(
       window.location.href,
       configList.value[activeSlug.value]?.config.pathRouting?.basePath,
       isMultiDocument.value ? undefined : activeSlug.value,
     ),
-  ),
-)
+  )
+
+  loadClientFromStorage(workspaceStore)
+})
 
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
