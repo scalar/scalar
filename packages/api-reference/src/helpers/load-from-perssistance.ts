@@ -20,8 +20,8 @@ export const isSecretKey = (key: string): boolean => {
   return key.startsWith('x-scalar-secret-')
 }
 
-const isObjectOrArray = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null
+const isObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /**
@@ -36,14 +36,14 @@ const isObjectOrArray = (value: unknown): value is Record<string, unknown> => {
  * @param stored - The stored object containing secret values to restore
  */
 export const mergeSecrets = (current: unknown, stored: unknown): void => {
-  if (!isObjectOrArray(current) || !isObjectOrArray(stored)) {
+  if (!isObject(current) || !isObject(stored)) {
     return
   }
 
   // Iterate through stored keys to find secrets to restore
   for (const [key, storedValue] of Object.entries(stored)) {
     // If this is a secret key and it has a value, restore it to current
-    if (isSecretKey(key) && storedValue && current[key] !== undefined) {
+    if (isSecretKey(key) && storedValue && current[key] === '') {
       current[key] = storedValue
       continue
     }
