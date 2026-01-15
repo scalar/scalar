@@ -1,5 +1,6 @@
 export { default as ClassicHeader } from './ClassicHeader.vue'
 export {
+  Auth,
   Content,
   Model,
   Models,
