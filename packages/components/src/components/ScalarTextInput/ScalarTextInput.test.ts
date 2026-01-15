@@ -1,9 +1,12 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import ScalarTextInput from './ScalarTextInput.vue'
 
 describe('ScalarTextInput', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
   it('renders properly', () => {
     const wrapper = mount(ScalarTextInput)
     expect(wrapper.find('input').exists()).toBe(true)

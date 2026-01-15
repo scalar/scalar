@@ -1,9 +1,12 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import ScalarTextArea from './ScalarTextArea.vue'
 
 describe('ScalarTextArea', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
   it('renders properly', () => {
     const wrapper = mount(ScalarTextArea)
     expect(wrapper.find('textarea').exists()).toBe(true)
