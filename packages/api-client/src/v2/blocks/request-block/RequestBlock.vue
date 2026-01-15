@@ -21,7 +21,7 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import { isElectron } from '@/libs/electron'
-import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
@@ -178,32 +178,24 @@ const headers = computed(() => [
   ...(sections.value.header ?? []),
 ])
 
-const filterCookie = (cookie: XScalarCookie, url: string): boolean => {
-  if (cookie.isDisabled || !cookie.name) {
-    return false
-  }
-
-  if (cookie.domain && !matchesDomain(url, cookie.domain)) {
-    return false
-  }
-
-  if (cookie.path && !path.startsWith(cookie.path)) {
-    return false
-  }
-
-  return true
-}
-
 const defaultCookies = computed(() => {
   const resolvedUrl = getResolvedUrl(environment, server, path)
 
-  const disableParameters =
+  const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[
       exampleKey
     ] ?? {}
 
   return globalCookies
-    ?.filter((it) => filterCookie(it, resolvedUrl))
+    ?.filter((cookie) =>
+      filterGlobalCookie({
+        cookie,
+        url: resolvedUrl,
+        // Do not filter global cookies for the default cookies section (it's already filtered in the buildRequestCookieHeader function)
+        // This is because we still want to show them on the UI
+        disabledGlobalCookies: {},
+      }),
+    )
     .map((it) => ({
       name: it.name,
       value: it.value,
@@ -216,7 +208,7 @@ const defaultCookies = computed(() => {
               name: 'workspace.cookies',
             },
       isReadonly: true,
-      isDisabled: disableParameters[it.name.toLowerCase()] ?? false,
+      isDisabled: disabledGlobalCookies[it.name.toLowerCase()] ?? false,
     })) as TableRow[]
 })
 
@@ -334,7 +326,7 @@ const parameterHandlers = computed(() => ({
   }),
   cookie: createParameterHandlers('cookie', eventBus, meta.value, {
     context: cookies.value ?? [],
-    globalParameters: globalCookies.length,
+    globalParameters: defaultCookies.value.length,
   }),
   header: createParameterHandlers('header', eventBus, meta.value, {
     context: defaultHeaders.value,

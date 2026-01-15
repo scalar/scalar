@@ -4,8 +4,9 @@ import {
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
-import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 
 const CUSTOM_COOKIE_HEADER_WARNING =
   "We're using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons."
@@ -38,11 +39,11 @@ export const buildRequestCookieHeader = ({
   paramCookies,
   globalCookies,
   env,
-  path,
   originalCookieHeader,
   url,
   useCustomCookieHeader,
-  disabledGlobalCookies,
+  operation,
+  exampleKey,
 }: {
   /** Parsed/replaced cookies from the parameters and security schemes */
   paramCookies: XScalarCookie[]
@@ -50,8 +51,6 @@ export const buildRequestCookieHeader = ({
   globalCookies: XScalarCookie[]
   /** Environment variables flattened into a key-value object */
   env: Record<string, string>
-  /** The path of the request used to filter global cookies by path */
-  path: string
   /** Cookie header that previously exists from the spec OR from the user */
   originalCookieHeader: string | undefined
   /** The url of the request used to filter global cookies by domain */
@@ -61,27 +60,24 @@ export const buildRequestCookieHeader = ({
    * that's then forwarded as a `Cookie` header.
    */
   useCustomCookieHeader: boolean
-  disabledGlobalCookies: Set<string>
+  /** The operation object */
+  operation: OperationObject
+  /** The key of the current example */
+  exampleKey: string
 }): null | { name: string; value: string } => {
-  /** Filter the global cookies by domain + parse */
-  const filteredGlobalCookies = globalCookies.flatMap((cookie) => {
-    if (
-      cookie.isDisabled ||
-      !cookie.name ||
-      (cookie.domain && !matchesDomain(url, cookie.domain)) ||
-      (cookie.path && !path.startsWith(cookie.path)) ||
-      disabledGlobalCookies.has(cookie.name)
-    ) {
-      return []
-    }
+  // Get the disabled global cookies for the current example
+  const disabledGlobalCookies = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {}
 
-    // Parse the cookie and replace environment variables
-    return coerceValue(xScalarCookieSchema, {
-      ...cookie,
-      name: replaceEnvVariables(cookie.name, env),
-      value: replaceEnvVariables(cookie.value, env),
+  /** Filter the global cookies by domain + parse */
+  const filteredGlobalCookies = globalCookies
+    .filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
+    .map((cookie) => {
+      return coerceValue(xScalarCookieSchema, {
+        ...cookie,
+        name: replaceEnvVariables(cookie.name, env),
+        value: replaceEnvVariables(cookie.value, env),
+      })
     })
-  })
 
   /** Generate the cookie header */
   const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader)
