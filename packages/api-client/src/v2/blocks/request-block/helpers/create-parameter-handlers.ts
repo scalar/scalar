@@ -64,12 +64,18 @@ export const createParameterHandlers = (
       }
 
       if (payload.index >= offset) {
-        return eventBus.emit('operation:update:parameter', {
-          type,
-          index: payload.index - offset,
-          payload: payload.payload,
-          meta,
-        })
+        return eventBus.emit(
+          'operation:update:parameter',
+          {
+            type,
+            index: payload.index - offset,
+            payload: payload.payload,
+            meta,
+          },
+          {
+            debounceKey: `update:parameter-${type}-${payload.index}-${Object.keys(payload.payload).join('-')}`,
+          },
+        )
       }
     },
   }

@@ -16,7 +16,7 @@ describe('createParameterHandlers', () => {
   })
 
   it('emits add event with provided key and value', () => {
-    const handlers = createParameterHandlers('query', mockEventBus, mockMeta)
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
     handlers.add({ key: 'foo', value: 'bar' })
 
@@ -33,7 +33,7 @@ describe('createParameterHandlers', () => {
   })
 
   it('defaults to empty strings when key or value are missing', () => {
-    const handlers = createParameterHandlers('header', mockEventBus, mockMeta)
+    const handlers = createParameterHandlers('header', mockEventBus, mockMeta, { context: [] })
 
     handlers.add({})
 
@@ -63,7 +63,7 @@ describe('createParameterHandlers', () => {
   })
 
   it('emits delete event with correct index and parameter type', () => {
-    const handlers = createParameterHandlers('path', mockEventBus, mockMeta)
+    const handlers = createParameterHandlers('path', mockEventBus, mockMeta, { context: [] })
 
     handlers.delete({ index: 2 })
 
@@ -76,7 +76,7 @@ describe('createParameterHandlers', () => {
   })
 
   it('emits deleteAll event with correct parameter type', () => {
-    const handlers = createParameterHandlers('cookie', mockEventBus, mockMeta)
+    const handlers = createParameterHandlers('cookie', mockEventBus, mockMeta, { context: [] })
 
     handlers.deleteAll()
 
@@ -88,7 +88,7 @@ describe('createParameterHandlers', () => {
   })
 
   it('emits update event with partial payload and handles all parameter types', () => {
-    const handlers = createParameterHandlers('query', mockEventBus, mockMeta)
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
     // Update only key
     handlers.update({ index: 1, payload: { key: 'updated-key' } })

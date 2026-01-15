@@ -179,37 +179,44 @@ const headers = computed(() => [
 ])
 
 const defaultCookies = computed(() => {
-  const resolvedUrl = getResolvedUrl(environment, server, path)
+  const resolvedUrl = getResolvedUrl({
+    environment,
+    server,
+    path,
+    pathVariables: {},
+  })
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[
       exampleKey
     ] ?? {}
 
-  return globalCookies
-    ?.filter((cookie) =>
-      filterGlobalCookie({
-        cookie,
-        url: resolvedUrl,
-        // Do not filter global cookies for the default cookies section (it's already filtered in the buildRequestCookieHeader function)
-        // This is because we still want to show them on the UI
-        disabledGlobalCookies: {},
-      }),
-    )
-    .map((it) => ({
-      name: it.name,
-      value: it.value,
-      globalRoute:
-        it.location === 'document'
-          ? {
-              name: 'document.cookies',
-            }
-          : {
-              name: 'workspace.cookies',
-            },
-      isReadonly: true,
-      isDisabled: disabledGlobalCookies[it.name.toLowerCase()] ?? false,
-    })) as TableRow[]
+  return (
+    globalCookies
+      ?.filter((cookie) =>
+        filterGlobalCookie({
+          cookie,
+          url: resolvedUrl,
+          // Do not filter global cookies for the default cookies section (it's already filtered in the buildRequestCookieHeader function)
+          // This is because we still want to show them on the UI
+          disabledGlobalCookies: {},
+        }),
+      )
+      .map((it) => ({
+        name: it.name,
+        value: it.value,
+        globalRoute:
+          it.location === 'document'
+            ? {
+                name: 'document.cookies',
+              }
+            : {
+                name: 'workspace.cookies',
+              },
+        isReadonly: true,
+        isDisabled: disabledGlobalCookies[it.name.toLowerCase()] ?? false,
+      })) ?? ([] satisfies TableRow[])
+  )
 })
 
 const cookies = computed(() => [
@@ -329,7 +336,7 @@ const parameterHandlers = computed(() => ({
     globalParameters: defaultCookies.value.length,
   }),
   header: createParameterHandlers('header', eventBus, meta.value, {
-    context: defaultHeaders.value,
+    context: headers.value,
     defaultParameters: defaultHeaders.value.length,
   }),
   query: createParameterHandlers('query', eventBus, meta.value, {

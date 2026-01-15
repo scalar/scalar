@@ -13,7 +13,7 @@ describe('RequestParams', () => {
   it('renders with empty parameters and passes data to table', () => {
     const wrapper = mount(RequestParams, {
       props: {
-        parameters: [],
+        rows: [],
         exampleKey: 'ex',
         title: 'Headers',
         environment,
@@ -27,7 +27,7 @@ describe('RequestParams', () => {
   it('re-emits add, update, and delete events from RequestTable', async () => {
     const wrapper = mount(RequestParams, {
       props: {
-        parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } } as any],
+        rows: [{ name: 'id', value: 'value', isReadonly: true, schema: { type: 'string' } } as any],
         exampleKey: 'ex',
         title: 'Variables',
         environment,

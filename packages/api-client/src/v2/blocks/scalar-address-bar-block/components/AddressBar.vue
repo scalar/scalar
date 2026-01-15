@@ -172,7 +172,9 @@ onBeforeUnmount(() => {
 const { copyToClipboard } = useClipboard()
 
 const copyUrl = async () => {
-  await copyToClipboard(getResolvedUrl(environment, server, path))
+  await copyToClipboard(
+    getResolvedUrl({ environment, server, path, pathVariables: {} }),
+  )
 }
 
 defineExpose({
