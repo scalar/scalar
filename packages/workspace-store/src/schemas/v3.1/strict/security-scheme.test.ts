@@ -80,8 +80,29 @@ describe('security-scheme', () => {
     describe('HTTP security scheme', () => {
       it('parses valid http security scheme with all properties correctly', () => {
         const validInput = {
+          type: 'ttp',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Bearer token authentication',
+        }
+
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+
+        expect(result).toEqual({
           type: 'http',
           scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Bearer token authentication',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
+        })
+      })
+
+      it('parses valid http security scheme with bearerFormat as Bearer correctly with incorrect casing', () => {
+        const validInput = {
+          type: 'Http',
+          scheme: 'Bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
         }
