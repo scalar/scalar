@@ -123,9 +123,18 @@ export const loadAuthSchemesFromStorage = (store: WorkspaceStore) => {
 
   if (storedAuthSchemes && storedSelectedAuthSchemes?.['x-scalar-selected-security']) {
     if (!activeDocument['x-scalar-selected-security']) {
+      const filteredSelectedSchemes =
+        storedSelectedAuthSchemes['x-scalar-selected-security'].selectedSchemes?.filter(isSchemeValid)
+      const currentSelectedIndex = storedSelectedAuthSchemes['x-scalar-selected-security'].selectedIndex
+      // If the selected index is out of bounds, set it to the last available index
+      const newSelectedIndex =
+        currentSelectedIndex >= filteredSelectedSchemes.length
+          ? filteredSelectedSchemes.length - 1
+          : currentSelectedIndex
+
       activeDocument['x-scalar-selected-security'] = {
-        selectedIndex: storedSelectedAuthSchemes['x-scalar-selected-security'].selectedIndex,
-        selectedSchemes: storedSelectedAuthSchemes['x-scalar-selected-security'].selectedSchemes?.filter(isSchemeValid),
+        selectedIndex: newSelectedIndex,
+        selectedSchemes: filteredSelectedSchemes,
       }
     }
 
