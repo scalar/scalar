@@ -502,4 +502,43 @@ describe('loadAuthSchemesFromStorage', () => {
 
     expect(documentApiKeySChema['x-scalar-secret-token']).toBe('my-secret-token')
   })
+
+  it('does not set x-scalar-selected-security when all stored schemes are filtered out', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'My Document' },
+        components: {
+          securitySchemes: {
+            apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+          },
+        },
+      },
+    })
+    store.update('x-scalar-active-document', 'my-doc')
+
+    // Store schemes that don't exist in the current document
+    authStorage().setSchemas('my-doc', {
+      nonExisting: {
+        type: 'apiKey',
+        name: 'X-Old-Key',
+        in: 'header',
+        'x-scalar-secret-token': '',
+      },
+    })
+    authStorage().setSelectedSchemes('my-doc', {
+      'x-scalar-selected-security': {
+        selectedIndex: 0,
+        selectedSchemes: [{ nonExisting: [] }],
+      },
+    })
+
+    loadAuthSchemesFromStorage(store)
+
+    // Should not set x-scalar-selected-security when all schemes are filtered out
+    // This allows the default fallback logic in getSelectedSecurity to work correctly
+    expect(store.workspace.activeDocument?.['x-scalar-selected-security']).toBeUndefined()
+  })
 })

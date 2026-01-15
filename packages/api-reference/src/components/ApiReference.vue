@@ -462,6 +462,13 @@ const changeSelectedDocument = async (
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
+  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  apiClient.value?.route({
+    documentSlug: slug,
+    method: 'get',
+    path: '/',
+  })
+
   const isFirstLoad = !workspaceStore.workspace.documents[slug]
 
   // If the document is not in the store, we asynchronously load it
@@ -487,12 +494,6 @@ const changeSelectedDocument = async (
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
-  apiClient.value?.route({
-    documentSlug: slug,
-    method: 'get',
-    path: '/',
-  })
 
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
