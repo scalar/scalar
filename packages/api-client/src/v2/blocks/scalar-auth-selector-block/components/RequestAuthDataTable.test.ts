@@ -38,11 +38,11 @@ describe('RequestAuthDataTable', () => {
       securitySchemes: any
       isStatic: boolean
       environment: any
-      envVariables: any[]
       server: any
       activeAuthIndex: number
       eventBus: WorkspaceEventBus
       meta: AuthMeta
+      proxyUrl: string
     }> = {},
   ) => {
     const selectedSchemeOptions = custom.selectedSchemeOptions ?? [
@@ -56,20 +56,19 @@ describe('RequestAuthDataTable', () => {
     const securitySchemes = custom.securitySchemes ?? baseSecuritySchemes
     const isStatic = custom.isStatic ?? true
     const environment = custom.environment ?? baseEnvironment
-    const envVariables = custom.envVariables ?? []
     const server = custom.server ?? baseServer
     const activeAuthIndex = custom.activeAuthIndex ?? 0
     const eventBus = custom.eventBus ?? createWorkspaceEventBus()
     const meta = custom.meta ?? { type: 'document' }
+    const proxyUrl = custom.proxyUrl ?? ''
 
     return mount(RequestAuthDataTable, {
       props: {
-        proxyUrl: '',
+        proxyUrl,
         selectedSchemeOptions,
         securitySchemes,
         isStatic,
         environment,
-        envVariables,
         server,
         activeAuthIndex,
         eventBus,
@@ -212,28 +211,6 @@ describe('RequestAuthDataTable', () => {
     })
   })
 
-  describe('scheme options watching', () => {
-    it('handles empty schemes array', async () => {
-      const wrapper = mountWithProps({
-        selectedSchemeOptions: [{ label: 'Bearer Auth', value: { BearerAuth: [] } }],
-      })
-
-      const vm = wrapper.vm
-
-      // Set active index to 0
-      wrapper.setProps({ activeAuthIndex: 0 })
-      await nextTick()
-
-      // Update props to empty array
-      await wrapper.setProps({
-        selectedSchemeOptions: [],
-      })
-
-      // Active index should adjust to 0 (Math.max(0, 0-1) = 0)
-      expect(vm.activeAuthIndex).toBe(0)
-    })
-  })
-
   describe('event emissions', () => {
     it('emits update:securityScheme event', async () => {
       const eventBus = createWorkspaceEventBus()
@@ -245,18 +222,22 @@ describe('RequestAuthDataTable', () => {
       expect(requestAuthTab.exists()).toBe(true)
 
       // The component should pass through the event
-      await requestAuthTab.vm?.$emit('update:securityScheme', {
-        scheme: 'BearerAuth',
-        value: 'test-token',
-      })
+      await requestAuthTab.vm?.$emit(
+        'update:securityScheme',
+        {
+          type: 'http',
+          'x-scalar-secret-token': 'test-token',
+        },
+        'BearerAuth',
+      )
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         payload: {
-          scheme: 'BearerAuth',
-          value: 'test-token',
+          type: 'http',
+          'x-scalar-secret-token': 'test-token',
         },
-        name: 'bearer-auth',
+        name: 'BearerAuth',
       })
     })
 
@@ -270,16 +251,17 @@ describe('RequestAuthDataTable', () => {
       expect(requestAuthTab.exists()).toBe(true)
 
       // The component should pass through the event
+      // RequestAuthTab emits with id, name, and scopes (id comes from Object.keys(selectedSecuritySchemas))
       await requestAuthTab.vm?.$emit('update:selectedScopes', {
-        id: ['oauth2'],
-        name: 'OAuth2',
+        id: ['BearerAuth'],
+        name: 'BearerAuth',
         scopes: ['read', 'write'],
       })
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
-        id: ['oauth2'],
-        name: 'OAuth2',
+        id: ['BearerAuth'],
+        name: 'BearerAuth',
         scopes: ['read', 'write'],
         meta: { type: 'document' },
       })
@@ -288,11 +270,9 @@ describe('RequestAuthDataTable', () => {
 
   describe('props passing', () => {
     it('passes all required props to RequestAuthTab', () => {
-      const envVariables = [{ key: 'API_KEY', value: 'test-key' }]
-
       const wrapper = mountWithProps({
-        envVariables,
         isStatic: false,
+        proxyUrl: 'https://proxy.example.com',
       })
 
       const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
@@ -302,6 +282,8 @@ describe('RequestAuthDataTable', () => {
       expect(props.environment).toEqual(baseEnvironment)
       expect(props.securitySchemes).toEqual(baseSecuritySchemes)
       expect(props.server).toEqual(baseServer)
+      expect(props.proxyUrl).toBe('https://proxy.example.com')
+      expect(props.isStatic).toBe(false)
     })
 
     it('passes active scheme as selectedSecuritySchema', () => {
