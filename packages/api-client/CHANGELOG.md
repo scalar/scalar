@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.18.1
+
+### Patch Changes
+
+- [#7744](https://github.com/scalar/scalar/pull/7744): fix: pass hideClientButton config into client modal
+- [#7743](https://github.com/scalar/scalar/pull/7743): fix: complex auth
+- [#7740](https://github.com/scalar/scalar/pull/7740): fix: filter out readonly properties from requestBody
+- [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.7**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
+- **@scalar/oas-utils@0.6.17**
+
+- **@scalar/sidebar@0.7.10**
+
+- **@scalar/components@0.16.20**
+
+- **@scalar/postman-to-openapi@0.3.58**
+
+- **@scalar/use-codemirror@0.13.14**
+
 ## 2.18.0
 
 ### Minor Changes
