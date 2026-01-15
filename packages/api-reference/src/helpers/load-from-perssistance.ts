@@ -73,15 +73,9 @@ export const mergeSecrets = (current: unknown, stored: unknown): void => {
  */
 const restoreAuthSecretsFromStorage = (store: WorkspaceStore): void => {
   const slug = store.workspace['x-scalar-active-document']
-
-  if (!slug) {
-    console.warn('No active document found, skipping auth secrets loading')
-    return
-  }
-
   const activeDocument = store.workspace.activeDocument
 
-  if (!activeDocument) {
+  if (!activeDocument || !slug) {
     console.warn('Active document not found in workspace, skipping auth secrets loading')
     return
   }
