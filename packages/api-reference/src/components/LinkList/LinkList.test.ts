@@ -19,6 +19,7 @@ beforeEach(() => {
     }
     observe = mockObserve
     disconnect = mockDisconnect
+    takeRecords = vi.fn(() => [])
   }
 
   global.window = {
