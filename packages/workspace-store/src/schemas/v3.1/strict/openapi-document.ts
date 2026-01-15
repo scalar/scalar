@@ -15,7 +15,7 @@ import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
   type XScalarSelectedSecurity,
-  XScalarSelectedSecuritySchema,
+  XScalarSelectedSecuritySchemaDefinition,
 } from '@/schemas/extensions/security/x-scalar-selected-security'
 import {
   type XScalarSelectedServer,
@@ -84,7 +84,7 @@ const OpenApiExtensionsSchema = compose(
   ),
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
-  XScalarSelectedSecuritySchema,
+  XScalarSelectedSecuritySchemaDefinition,
   XScalarSelectedServerSchema,
   XScalarSetOperationSecuritySchema,
   XScalarIconSchema,
@@ -207,6 +207,9 @@ const module = Type.Module({
   [REF_DEFINITIONS.TraversedTagObject]: TraversedTagSchemaDefinition,
   [REF_DEFINITIONS.TraversedEntryObject]: TraversedEntrySchemaDefinition,
   [REF_DEFINITIONS.TraversedDocumentObject]: TraversedDocumentSchemaDefinition,
+
+  // Extensions
+  [REF_DEFINITIONS.XScalarSelectedSecurity]: XScalarSelectedSecuritySchemaDefinition,
   // Enforces that all references are included in the module
 } satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 
@@ -253,6 +256,9 @@ export const TraversedTagSchema = module.Import('TraversedTagObject')
 export const TraversedOperationSchema = module.Import('TraversedOperationObject')
 export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
 export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
+
+// ----- Extensions ----
+export const XScalarSelectedSecuritySchema = module.Import('XScalarSelectedSecurity')
 
 //  ----- Type re-exports ----
 export type { ExternalDocumentationObject }
