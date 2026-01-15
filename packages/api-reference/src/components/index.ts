@@ -1,6 +1,5 @@
 export { default as ClassicHeader } from './ClassicHeader.vue'
 export {
-  Auth,
   Content,
   Model,
   Models,
@@ -11,6 +10,7 @@ export {
   Tag,
   TraversedEntry,
 } from './Content'
+export { Auth } from './Content/Auth'
 export { default as ApiReferenceContent } from './Content/Content.vue'
 export { HttpMethod } from './HttpMethod'
 export { default as IntersectionObserver } from './IntersectionObserver.vue'
