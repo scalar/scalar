@@ -113,15 +113,9 @@ const clampSelectedIndex = (selectedIndex: number, schemesLength: number): numbe
  */
 export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
   const slug = store.workspace['x-scalar-active-document']
-
-  if (!slug) {
-    console.warn('No active document found, skipping auth schemes loading')
-    return
-  }
-
   const activeDocument = store.workspace.activeDocument
 
-  if (!activeDocument) {
+  if (!activeDocument || !slug) {
     console.warn('Active document not found in workspace, skipping auth schemes loading')
     return
   }
@@ -139,7 +133,7 @@ export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
     return
   }
 
-  const availableSchemes = new Set(Object.keys(store.workspace.documents[slug]?.components?.securitySchemes ?? {}))
+  const availableSchemes = new Set(Object.keys(activeDocument.components?.securitySchemes ?? {}))
   const selectedSchemes = storedSelectedAuthSchemes['x-scalar-selected-security'].selectedSchemes ?? []
   const validSchemes = selectedSchemes.filter((scheme) => isSchemeValid(scheme, availableSchemes))
 
