@@ -29,7 +29,7 @@ You'll be taken to the schema creation page where you can configure your new JSO
 
 **Description**: Add a description explaining what this JSON Schema defines and how it should be used.
 
-**Version**: Set the initial version for your schema (e.g., `0.0.1`, `1.0.0`). You can update versions as you publish new iterations.
+**Version**: Set the initial version for your schema (e.g., `0.1.0`, `1.0.0`). You can update versions as you publish new iterations.
 
 **Namespace**: Select the team namespace where this schema will be published. This determines the registry path for referencing the schema.
 
