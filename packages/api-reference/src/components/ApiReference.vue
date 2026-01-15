@@ -605,6 +605,8 @@ onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
+  loadClientFromStorage(workspaceStore)
+
   await changeSelectedDocument(
     activeSlug.value,
     getIdFromUrl(
@@ -613,8 +615,6 @@ onBeforeMount(async () => {
       isMultiDocument.value ? undefined : activeSlug.value,
     ),
   )
-
-  loadClientFromStorage(workspaceStore)
 })
 
 const documentUrl = computed(() => {
