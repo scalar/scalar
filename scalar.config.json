@@ -1084,7 +1084,7 @@
             "mode": "nested",
             "icon": "phosphor/regular/caret-circle-right",
             "children": {
-              "/bump": {
+              "bump": {
                 "title": "Bump.sh",
                 "filepath": "documentation/migration/bump.md",
                 "type": "page"
