@@ -212,12 +212,12 @@ describe('RequestBlock', () => {
 
       // Path (Variables) does not support adding new rows
       if (expectedType !== 'path') {
-        p.vm.$emit('add', { key: 'k', value: 'v' })
+        p.vm.$emit('add', { name: 'k', value: 'v' })
 
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith({
           type: expectedType,
-          payload: { key: 'k', value: 'v', isDisabled: false },
+          payload: { name: 'k', value: 'v', isDisabled: false },
           meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
         })
         fn.mockReset()
@@ -225,13 +225,13 @@ describe('RequestBlock', () => {
 
       // Update events are debounced, so we need to use fake timers
       vi.useFakeTimers()
-      p.vm.$emit('update', { index: 1, payload: { key: 'x', value: 'y', isDisabled: false } })
+      p.vm.$emit('update', { index: 1, payload: { name: 'x', value: 'y', isDisabled: false } })
       vi.advanceTimersByTime(400)
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
         index: 1,
-        payload: { key: 'x', value: 'y', isDisabled: false },
+        payload: { name: 'x', value: 'y', isDisabled: false },
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()
@@ -278,8 +278,7 @@ describe('RequestBlock', () => {
     const fn = vi.fn()
     eventBus.on('operation:update:requestBody:contentType', fn)
     eventBus.on('operation:update:requestBody:value', fn)
-    eventBus.on('operation:add:requestBody:formRow', fn)
-    eventBus.on('operation:update:requestBody:formRow', fn)
+    eventBus.on('operation:update:requestBody:formValue', fn)
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'post', eventBus },
       global: {
@@ -305,36 +304,47 @@ describe('RequestBlock', () => {
     fn.mockReset()
 
     vi.useFakeTimers()
-    const valuePayload = { value: 'hello', contentType: 'application/json' }
+    const valuePayload = { payload: 'hello', contentType: 'application/json' }
     body.vm.$emit('update:value', valuePayload)
     vi.advanceTimersByTime(400)
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
-      payload: { value: 'hello' },
+      payload: 'hello',
       contentType: 'application/json',
       meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
     })
     fn.mockReset()
 
-    const addFormRowPayload = { data: { key: 'a', value: 'b' }, contentType: 'application/json' }
-    body.vm.$emit('add:formRow', addFormRowPayload)
-    expect(fn).toHaveBeenCalledTimes(1)
-    expect(fn).toHaveBeenCalledWith({
-      payload: { key: 'a', value: 'b' },
-      contentType: 'application/json',
-      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
-    })
-    fn.mockReset()
-
-    // Update form row events are debounced, so we need to use fake timers
+    // Add form row events are debounced when debounceKeySuffix is provided
     vi.useFakeTimers()
-    const updateFormRowPayload = { index: 1, data: { key: 'x', value: 'y' }, contentType: 'application/json' }
-    body.vm.$emit('update:formRow', updateFormRowPayload)
+    const addFormRowPayload = {
+      payload: [{ name: 'a', value: 'b', isDisabled: false }],
+      contentType: 'application/json',
+      debounceKeySuffix: 'add-0',
+    }
+    body.vm.$emit('update:formValue', addFormRowPayload)
     vi.advanceTimersByTime(400)
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
-      index: 1,
-      payload: { key: 'x', value: 'y' },
+      payload: [{ name: 'a', value: 'b', isDisabled: false }],
+      contentType: 'application/json',
+      meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
+    })
+    fn.mockReset()
+    vi.useRealTimers()
+
+    // Update form row events are debounced, so we need to use fake timers
+    vi.useFakeTimers()
+    const updateFormRowPayload = {
+      payload: [{ name: 'x', value: 'y', isDisabled: false }],
+      contentType: 'application/json',
+      debounceKeySuffix: '1-name',
+    }
+    body.vm.$emit('update:formValue', updateFormRowPayload)
+    vi.advanceTimersByTime(400)
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      payload: [{ name: 'x', value: 'y', isDisabled: false }],
       contentType: 'application/json',
       meta: { method: 'post', path: 'http://example.com/foo', exampleKey: 'example-1' },
     })

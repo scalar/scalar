@@ -30,12 +30,12 @@ const {
 }>()
 
 const emits = defineEmits<{
-  (e: 'add', payload: Partial<{ key: string; value: string }>): void
+  (e: 'add', payload: Partial<{ name: string; value: string }>): void
   (
     e: 'update',
     payload: {
       index: number
-      payload: Partial<{ key: string; value: string; isDisabled: boolean }>
+      payload: Partial<{ name: string; value: string; isDisabled: boolean }>
     },
   ): void
   (e: 'delete', payload: { index: number }): void

@@ -66,6 +66,12 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
       return resolvedArray
     }
 
+    // Preserve special objects (File, Date, RegExp, etc.) that shouldn't be converted to plain objects
+    if (current instanceof File || current instanceof Date) {
+      visited.delete(raw)
+      return current
+    }
+
     // Handle regular objects - recursively process all properties
     if (typeof current === 'object' && current !== null) {
       const resolvedObject: any = {}

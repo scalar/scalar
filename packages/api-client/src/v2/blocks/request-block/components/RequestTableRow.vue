@@ -38,7 +38,7 @@ const {
 const emits = defineEmits<{
   (
     e: 'updateRow',
-    payload: Partial<{ key: string; value: string; isDisabled: boolean }>,
+    payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
   ): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
@@ -126,7 +126,8 @@ const valueModel = computed({
         :modelValue="!data.isDisabled"
         @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
     </template>
-    <!-- Key -->
+
+    <!-- Name -->
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Key`"
@@ -139,8 +140,8 @@ const valueModel = computed({
         :modelValue="data.name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @selectVariable="(v: string) => emits('updateRow', { key: v })"
-        @update:modelValue="(v: string) => emits('updateRow', { key: v })" />
+        @selectVariable="(v: string) => emits('updateRow', { name: v })"
+        @update:modelValue="(v: string) => emits('updateRow', { name: v })" />
     </DataTableCell>
 
     <!-- Value -->
@@ -187,10 +188,10 @@ const valueModel = computed({
     <DataTableCell
       v-if="showUploadButton"
       class="group/upload flex items-center justify-center whitespace-nowrap">
-      <template v-if="isFileInstance(unpackProxyObject(data.value as any))">
+      <template v-if="isFileInstance(unpackProxyObject(data.value))">
         <div
           class="text-c-2 filemask flex w-full max-w-[100%] items-center justify-center overflow-hidden p-1">
-          <span>{{ getFileName(unpackProxyObject(data.value as any)) }}</span>
+          <span>{{ getFileName(unpackProxyObject(data.value)) }}</span>
         </div>
         <button
           class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
