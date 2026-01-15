@@ -1,9 +1,10 @@
 import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
-import { type MaybeRefOrGetter, type Ref, computed, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, onBeforeMount, toValue, watch } from 'vue'
 
 export const mapConfigToWorkspaceStore = ({
   config,
@@ -14,6 +15,14 @@ export const mapConfigToWorkspaceStore = ({
   store: WorkspaceStore
   isDarkMode: Ref<boolean>
 }) => {
+  // Do this a bit quicker than onMounted
+  onBeforeMount(() => {
+    const storedClient = safeLocalStorage().getItem(REFERENCE_LS_KEYS.SELECTED_CLIENT)
+    if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
+      store.update('x-scalar-default-client', storedClient)
+    }
+  })
+
   // Update the workspace store if default client changes
   watch(
     () => toValue(config).defaultHttpClient,
