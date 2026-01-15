@@ -7,6 +7,7 @@ describe('ScalarTextArea', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
+
   it('renders properly', () => {
     const wrapper = mount(ScalarTextArea)
     expect(wrapper.find('textarea').exists()).toBe(true)

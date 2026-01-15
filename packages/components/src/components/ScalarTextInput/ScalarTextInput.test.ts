@@ -7,6 +7,7 @@ describe('ScalarTextInput', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
+
   it('renders properly', () => {
     const wrapper = mount(ScalarTextInput)
     expect(wrapper.find('input').exists()).toBe(true)
