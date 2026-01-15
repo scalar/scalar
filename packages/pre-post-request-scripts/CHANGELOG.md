@@ -1,5 +1,27 @@
 # @scalar/scripts
 
+## 0.0.64
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.17**
+
+- **@scalar/components@0.16.20**
+
+## 0.0.63
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.19**
+  - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+
+- **@scalar/oas-utils@0.6.16**
+
 ## 0.0.62
 
 ### Patch Changes

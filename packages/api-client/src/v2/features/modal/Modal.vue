@@ -20,7 +20,9 @@ export type ModalProps = {
   plugins: ClientPlugin[]
   /** Subset of the configuration options for the modal */
   options: MaybeRefOrGetter<
-    Pick<ApiReferenceConfigurationRaw, 'authentication'>
+    Partial<
+      Pick<ApiReferenceConfigurationRaw, 'authentication' | 'hideClientButton'>
+    >
   >
 }
 
@@ -229,6 +231,7 @@ defineExpose({
               :environment
               :eventBus
               :exampleName="exampleName?.value"
+              :hideClientButton="toValue(options)?.hideClientButton ?? false"
               layout="modal"
               :method="method?.value"
               :path="path?.value"

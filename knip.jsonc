@@ -94,7 +94,8 @@
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
     },
     "packages/icons": {
-      "ignoreFiles": ["src/library/.svglintrc.js"]
+      "ignoreFiles": ["src/library/.svglintrc.js"],
+      "entry": ["src/index.ts", "src/types.ts", "src/library/index.ts"]
     },
     "packages/json-magic": {
       "entry": [

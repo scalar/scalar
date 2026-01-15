@@ -46,6 +46,23 @@ export const getIdFromUrl = (url: string | URL, basePath: string | undefined, sl
 }
 
 /**
+ * Strips the first segment from an id and preserves trailing slashes
+ * Used in single-document mode where the document slug is not needed in the URL
+ *
+ * @param id - The full id to process
+ * @returns The id with the first segment removed, preserving trailing slash if present
+ */
+const stripFirstSegment = (id: string): string => {
+  // For preserving trailing slash in the id
+  const hasTrailingSlash = id.endsWith('/')
+  const segments = id.split('/').filter(Boolean).slice(1)
+  const result = segments.join('/')
+
+  // Only preserve trailing slash if there's actual content
+  return hasTrailingSlash && result ? `${result}/` : result
+}
+
+/**
  * Generate a new URL and applies the ID to the path or hash
  * depending on the type of routing used
  *
@@ -59,8 +76,7 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
   }
 
   /** When there is only 1 document we don't need to include the document name in the URL */
-  const id = isMultiDocument ? _id : _id.split('/').filter(Boolean).slice(1).join('/')
-
+  const id = isMultiDocument ? _id : stripFirstSegment(_id)
   const url = new URL(window.location.href)
 
   if (typeof basePath === 'string') {

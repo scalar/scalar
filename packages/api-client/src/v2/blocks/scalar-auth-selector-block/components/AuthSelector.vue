@@ -11,6 +11,7 @@ import {
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -154,7 +155,7 @@ const handleAuthIndicatorClick = (event: Event): void => {
 const handleSchemeSelection = (selected: SecuritySchemeOption[]): void => {
   const existingSchemes = selected
     .filter((option) => option.payload === undefined)
-    .map((option) => option.value)
+    .map((option) => unpackProxyObject(option.value, { depth: 2 }))
 
   const newSchemes = selected
     .filter((option) => option.payload !== undefined)

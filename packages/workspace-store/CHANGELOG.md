@@ -1,5 +1,33 @@
 # @scalar/workspace-store
 
+## 0.24.7
+
+### Patch Changes
+
+- [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
+## 0.24.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/openapi-upgrader@0.1.7**
+  - [#7739](https://github.com/scalar/scalar/pull/7739): fix: upgrade form to multipart/form
+  - [#7694](https://github.com/scalar/scalar/pull/7694): feat: migrate x-example and x-examples
+
+- **@scalar/json-magic@0.9.0**
+  - [#7701](https://github.com/scalar/scalar/pull/7701): Made bundle external document extensions configurable
+
+- **@scalar/object-utils@1.2.21**
+
+- **@scalar/types@0.5.7**
+
+- **@scalar/snippetz@0.6.4**
+
 ## 0.24.5
 
 ### Patch Changes

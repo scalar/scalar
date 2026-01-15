@@ -1,5 +1,23 @@
 # @scalar/use-codemirror
 
+## 0.13.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.20**
+
+## 0.13.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.19**
+  - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+
 ## 0.13.12
 
 ### Patch Changes

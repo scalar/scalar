@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.7
+
+### Patch Changes
+
+- [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
 ## 0.2.6
 
 ### Patch Changes

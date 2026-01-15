@@ -1,5 +1,78 @@
 # @scalar/api-client
 
+## 2.18.1
+
+### Patch Changes
+
+- [#7744](https://github.com/scalar/scalar/pull/7744): fix: pass hideClientButton config into client modal
+- [#7743](https://github.com/scalar/scalar/pull/7743): fix: complex auth
+- [#7740](https://github.com/scalar/scalar/pull/7740): fix: filter out readonly properties from requestBody
+- [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.7**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
+- **@scalar/oas-utils@0.6.17**
+
+- **@scalar/sidebar@0.7.10**
+
+- **@scalar/components@0.16.20**
+
+- **@scalar/postman-to-openapi@0.3.58**
+
+- **@scalar/use-codemirror@0.13.14**
+
+## 2.18.0
+
+### Minor Changes
+
+- [#7585](https://github.com/scalar/scalar/pull/7585): feat: add copy url button on the addressbar
+
+### Patch Changes
+
+- [#7686](https://github.com/scalar/scalar/pull/7686): feat: add array + object functionality to code input
+- [#7713](https://github.com/scalar/scalar/pull/7713): fix: grab deprecated schema.example value
+- [#7723](https://github.com/scalar/scalar/pull/7723): fix: remove use-color-mode hook from modal
+- [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.19**
+  - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/json-magic@0.9.0**
+  - [#7701](https://github.com/scalar/scalar/pull/7701): Made bundle external document extensions configurable
+
+- **@scalar/sidebar@0.7.9**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): fix: added deprecated sidebar support
+
+- **@scalar/use-hooks@0.3.6**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): feat: added object stringification to useClipboard
+
+- **@scalar/use-codemirror@0.13.13**
+
+- **@scalar/import@0.4.44**
+
+- **@scalar/oas-utils@0.6.16**
+
+- **@scalar/object-utils@1.2.21**
+
+- **@scalar/postman-to-openapi@0.3.57**
+
+- **@scalar/types@0.5.7**
+
+- **@scalar/workspace-store@0.24.6**
+
+- **@scalar/openapi-parser@0.23.13**
+
+- **@scalar/snippetz@0.6.4**
+
 ## 2.17.8
 
 ### Patch Changes

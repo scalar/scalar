@@ -1,5 +1,38 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.17**
+
+- **@scalar/components@0.16.20**
+
+## 0.3.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.19**
+  - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
+- **@scalar/openapi-upgrader@0.1.7**
+  - [#7739](https://github.com/scalar/scalar/pull/7739): fix: upgrade form to multipart/form
+  - [#7694](https://github.com/scalar/scalar/pull/7694): feat: migrate x-example and x-examples
+
+- **@scalar/oas-utils@0.6.16**
+
+- **@scalar/types@0.5.7**
+
+- **@scalar/openapi-parser@0.23.13**
+
 ## 0.3.18
 
 ### Patch Changes

@@ -37,7 +37,7 @@ scalar auth logout
 To add an OpenAPI document to the registry, use the `publish` command:
 
 ```bash
-scalar registry publish ./openapi.yaml --namespace your-namespace --slug your-slug
+scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 ```
 
 ### Required Parameters
@@ -53,13 +53,13 @@ scalar registry publish ./openapi.yaml --namespace your-namespace --slug your-sl
 ### Examples
 ```bash
 # Basic publish
-scalar registry publish api/openapi.json --namespace myteam --slug user-api
+scalar registry publish api/openapi.json --namespace your-team --slug user-api
 
 # Publish with version and make private
-scalar registry publish api/openapi.json --namespace myteam --slug user-api --version 1.0.0 --private
+scalar registry publish api/openapi.json --namespace your-team --slug user-api --version 1.0.0 --private
 
 # Force update existing version
-scalar registry publish api/openapi.json --namespace myteam --slug user-api --force
+scalar registry publish api/openapi.json --namespace your-team --slug user-api --force
 ```
 
 ## Managing Registry Documents
@@ -68,21 +68,21 @@ scalar registry publish api/openapi.json --namespace myteam --slug user-api --fo
 View all registry APIs for your team:
 
 ```bash
-scalar registry list --namespace your-namespace
+scalar registry list --namespace your-team
 ```
 
 ### Update Document Metadata
 Update title and description without re-uploading the file:
 
 ```bash
-scalar registry update your-namespace your-slug --title "New Title" --description "New description"
+scalar registry update your-team your-api --title "New Title" --description "New description"
 ```
 
 ### Delete Documents
 Remove a document from the registry:
 
 ```bash
-scalar registry delete your-namespace your-slug
+scalar registry delete your-team your-api
 ```
 
 ## Validation and Quality
@@ -96,6 +96,12 @@ You can also lint your document using Spectral rules:
 
 ```bash
 scalar document lint ./openapi.yaml
+```
+
+And use Rules from the Scalar Registry:
+
+```bash
+scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
 
 ## Team Management
@@ -114,9 +120,9 @@ For repositories containing multiple APIs, you can use the CLI in scripts or CI/
 
 ```bash
 # Example: Publish multiple APIs
-scalar registry publish ./apis/user-api/openapi.json --namespace myteam --slug user-api
-scalar registry publish ./apis/product-api/openapi.json --namespace myteam --slug product-api
-scalar registry publish ./apis/order-api/openapi.json --namespace myteam --slug order-api
+scalar registry publish ./apis/user-api/openapi.json --namespace your-team --slug user-api
+scalar registry publish ./apis/product-api/openapi.json --namespace your-team --slug product-api
+scalar registry publish ./apis/order-api/openapi.json --namespace your-team --slug order-api
 ```
 
 ## Integration with CI/CD

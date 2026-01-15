@@ -34,7 +34,7 @@ jobs:
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Push to Scalar Registry
-        run: npx @scalar/cli registry publish --namespace your-namespace --slug your-slug api/openapi.json
+        run: npx @scalar/cli registry publish --namespace your-team --slug your-api api/openapi.json
 ```
 
 ## Environment-Based Deployment

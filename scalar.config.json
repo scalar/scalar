@@ -11,7 +11,7 @@
   "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
-    "subdomain": "guides-scalar-com",
+    "subdomain": "scalar",
     "customDomain": "scalar.com",
     "head": {
       "scripts": [
@@ -691,6 +691,16 @@
                     "filepath": "documentation/guides/registry/upload.md",
                     "type": "page"
                   },
+                  "schemas": {
+                    "title": "Schemas",
+                    "filepath": "documentation/guides/registry/schemas.md",
+                    "type": "page"
+                  },
+                  "rules": {
+                    "filepath": "documentation/guides/registry/rules.md",
+                    "type": "page",
+                    "title": "Rules"
+                  },
                   "cli": {
                     "filepath": "documentation/guides/registry/cli.md",
                     "type": "page",
@@ -1065,6 +1075,19 @@
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
+              }
+            }
+          },
+          "/migration": {
+            "title": "Migration",
+            "type": "group",
+            "mode": "nested",
+            "icon": "phosphor/regular/caret-circle-right",
+            "children": {
+              "bump": {
+                "title": "Bump.sh",
+                "filepath": "documentation/migration/bump.md",
+                "type": "page"
               }
             }
           },

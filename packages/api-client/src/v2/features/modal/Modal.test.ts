@@ -440,4 +440,68 @@ describe('Modal', () => {
 
     wrapper.unmount()
   })
+
+  it('passes hideClientButton option to Operation component', async () => {
+    const { props: baseProps, modalState } = await createModalProps()
+    modalState.open = true
+
+    // Test with hideClientButton: true
+    const wrapperWithHidden = mount(Modal, {
+      props: {
+        ...baseProps,
+        options: { hideClientButton: true },
+      },
+      attachTo: '#scalar-modal-test',
+    })
+    await waitForUpdates()
+
+    /**
+     * When hideClientButton is true, it should be passed as true to Operation.
+     * This allows hiding the client button in the modal.
+     */
+    const operationWithHidden = wrapperWithHidden.findComponent({ name: 'Operation' })
+    expect(operationWithHidden.exists()).toBe(true)
+    expect(operationWithHidden.props('hideClientButton')).toBe(true)
+
+    wrapperWithHidden.unmount()
+
+    // Test with hideClientButton: false
+    const wrapperWithShown = mount(Modal, {
+      props: {
+        ...baseProps,
+        options: { hideClientButton: false },
+      },
+      attachTo: '#scalar-modal-test',
+    })
+    await waitForUpdates()
+
+    /**
+     * When hideClientButton is false, it should be passed as false to Operation.
+     */
+    const operationWithShown = wrapperWithShown.findComponent({ name: 'Operation' })
+    expect(operationWithShown.exists()).toBe(true)
+    expect(operationWithShown.props('hideClientButton')).toBe(false)
+
+    wrapperWithShown.unmount()
+
+    // Test with hideClientButton: undefined (should default to false)
+    const wrapperWithDefault = mount(Modal, {
+      props: {
+        ...baseProps,
+        options: {},
+      },
+      attachTo: '#scalar-modal-test',
+    })
+    await waitForUpdates()
+
+    /**
+     * When hideClientButton is undefined, it should default to false.
+     * This ensures the button is shown by default.
+     */
+    const operationWithDefault = wrapperWithDefault.findComponent({ name: 'Operation' })
+    expect(operationWithDefault.exists()).toBe(true)
+    expect(operationWithDefault.props('hideClientButton')).toBe(false)
+
+    wrapperWithDefault.unmount()
+  })
 })

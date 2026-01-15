@@ -209,7 +209,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               (document.consumes as string[] | undefined) ?? ['application/json'],
             )
           } else if (param.in === 'formData') {
-            bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
+            bodyParams[name] = migrateFormDataParameter(
+              [param as OpenAPIV2.ParameterObject],
+              document.consumes as string[] | undefined,
+            )
           } else {
             const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
             params[name] = convertedParam
@@ -657,32 +660,44 @@ function migrateBodyParameter(
   return requestBodyObject
 }
 
-function migrateFormDataParameter(parameters: OpenAPIV2.ParameterObject[]): OpenAPIV3.RequestBodyObject {
+function migrateFormDataParameter(
+  parameters: OpenAPIV2.ParameterObject[],
+  consumes: string[] | undefined = ['multipart/form-data'],
+): OpenAPIV3.RequestBodyObject {
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},
   }
 
+  // Ensure consumes contains a form data content type
+  const filtered = consumes.filter(
+    (type) => type === 'multipart/form-data' || type === 'application/x-www-form-urlencoded',
+  )
+  const contentTypes = filtered.length > 0 ? filtered : ['multipart/form-data']
+
   if (requestBodyObject.content) {
-    requestBodyObject.content['application/x-www-form-urlencoded'] = {
-      schema: {
-        type: 'object',
-        properties: {},
-        required: [], // Initialize required array
-      },
-    }
+    for (const contentType of contentTypes) {
+      requestBodyObject.content[contentType] = {
+        schema: {
+          type: 'object',
+          properties: {},
+          required: [], // Initialize required array
+        },
+      }
 
-    const formContent = requestBodyObject.content?.['application/x-www-form-urlencoded']
-    if (formContent?.schema && typeof formContent.schema === 'object' && 'properties' in formContent.schema) {
-      for (const param of parameters) {
-        if (param.name && formContent.schema.properties) {
-          formContent.schema.properties[param.name] = {
-            type: param.type,
-            description: param.description,
-          }
+      const formContent = requestBodyObject.content?.[contentType]
+      if (formContent?.schema && typeof formContent.schema === 'object' && 'properties' in formContent.schema) {
+        for (const param of parameters) {
+          if (param.name && formContent.schema.properties) {
+            formContent.schema.properties[param.name] = {
+              type: param.type,
+              description: param.description,
+              ...(param.format ? { format: param.format } : {}),
+            }
 
-          // Add to required array if param is required
-          if (param.required && Array.isArray(formContent.schema.required)) {
-            formContent.schema.required.push(param.name)
+            // Add to required array if param is required
+            if (param.required && Array.isArray(formContent.schema.required)) {
+              formContent.schema.required.push(param.name)
+            }
           }
         }
       }
@@ -710,7 +725,7 @@ function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: st
   const formDataParameters = parameters.filter((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData')
 
   if (formDataParameters.length > 0) {
-    const requestBodyObject = migrateFormDataParameter(formDataParameters)
+    const requestBodyObject = migrateFormDataParameter(formDataParameters, consumes)
 
     if (typeof result.requestBody !== 'object') {
       result.requestBody = requestBodyObject

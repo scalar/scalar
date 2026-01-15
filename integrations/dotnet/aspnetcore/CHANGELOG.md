@@ -1,5 +1,30 @@
 # @scalar/aspnetcore
 
+## 2.12.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.5**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+  - [#7752](https://github.com/scalar/scalar/pull/7752): Export Auth component
+  - [#7746](https://github.com/scalar/scalar/pull/7746): fix: allow trailing slashes in path
+  - [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
+## 2.12.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.4**
+  - [#7678](https://github.com/scalar/scalar/pull/7678): chore: add test for tagSorter
+  - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
+  - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 2.12.6
 
 ### Patch Changes

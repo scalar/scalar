@@ -1,6 +1,5 @@
+import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ParameterObject, ParameterWithContentObject } from '@/schemas/v3.1/strict/parameter'
-
-import type { SchemaObject } from './schema'
 
 export const isObjectSchema = (schema: SchemaObject): schema is Extract<SchemaObject, { type: 'object' }> => {
   return (
@@ -29,6 +28,10 @@ export const isNumberSchema = (
       (Array.isArray(schema.type) && schema.type.includes('integer')))
   )
 }
+
+/** Special type guard to remove our internal type */
+export const isSchema = (schema: SchemaObject | undefined): schema is Exclude<SchemaObject, { __scalar_: string }> =>
+  schema !== undefined && 'type' in schema
 
 /**
  * Type guard to check if the given parameter is a ParameterWithContentObject,
