@@ -63,20 +63,6 @@ export const mergeSecrets = (current: unknown, stored: unknown): void => {
 }
 
 /**
- * Retrieves the active document from the workspace store.
- * Returns null if no active document is found.
- */
-const getActiveDocument = (store: WorkspaceStore) => {
-  const slug = store.workspace['x-scalar-active-document']
-
-  if (!slug) {
-    return null
-  }
-
-  return store.workspace.documents[slug] ?? null
-}
-
-/**
  * Restores authentication secrets from local storage to the workspace store.
  *
  * This function iterates through stored authentication schemes and restores
