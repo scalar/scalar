@@ -7,6 +7,8 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
+
 import { getDelimiter } from './get-delimiter'
 import { getExample } from './get-example'
 
@@ -59,7 +61,7 @@ export const buildRequestParameters = (
       const example = getExample(param, exampleKey, contentType)
 
       // Skip disabled examples
-      if (!example || example['x-disabled']) {
+      if (!example || isParamDisabled(param, example)) {
         return acc
       }
 
