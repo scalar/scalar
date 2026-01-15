@@ -1,5 +1,18 @@
 # @scalar/json-magic
 
+## 0.9.0
+
+### Minor Changes
+
+- [#7701](https://github.com/scalar/scalar/pull/7701): Made bundle external document extensions configurable
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
 ## 0.8.10
 
 ### Patch Changes

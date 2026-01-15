@@ -705,6 +705,11 @@
                     "title": "GitLab CI/CD",
                     "filepath": "documentation/guides/registry/gitlab-ci.md",
                     "type": "page"
+                  },
+                  "rules": {
+                    "filepath": "documentation/guides/registry/rules.md",
+                    "type": "page",
+                    "title": "Rules"
                   }
                 }
               },
@@ -1065,6 +1070,19 @@
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
+              }
+            }
+          },
+          "migration": {
+            "title": "Migration",
+            "type": "group",
+            "mode": "nested",
+            "icon": "phosphor/regular/caret-circle-right",
+            "children": {
+              "bump": {
+                "title": "Bump.sh",
+                "filepath": "documentation/migration/bump.md",
+                "type": "page"
               }
             }
           },

@@ -300,6 +300,108 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('transforms requestBody 2', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+
+      paths: {
+        '/pet/{petId}/uploadImage': {
+          post: {
+            tags: ['pet'],
+            summary: 'uploads an image',
+            description: '',
+            operationId: 'uploadFile',
+            consumes: ['multipart/form-data'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                description: 'ID of pet to update',
+                required: true,
+                type: 'integer',
+                format: 'int64',
+              },
+              {
+                name: 'additionalMetadata',
+                in: 'formData',
+                description: 'Additional data to pass to server',
+                required: false,
+                type: 'string',
+              },
+              {
+                name: 'file',
+                in: 'formData',
+                description: 'file to upload',
+                required: false,
+                type: 'file',
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'successful operation',
+                schema: {
+                  $ref: '#/definitions/ApiResponse',
+                },
+              },
+            },
+            security: [
+              {
+                petstore_auth: ['write:pets', 'read:pets'],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/pet/{petId}/uploadImage': {
+        post: {
+          tags: ['pet'],
+          summary: 'uploads an image',
+          description: '',
+          operationId: 'uploadFile',
+          parameters: [
+            {
+              schema: { type: 'integer', format: 'int64' },
+              name: 'petId',
+              in: 'path',
+              description: 'ID of pet to update',
+              required: true,
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'successful operation',
+              content: {
+                'application/json': { schema: { '$ref': '#/definitions/ApiResponse' } },
+              },
+            },
+          },
+          security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    additionalMetadata: {
+                      type: 'string',
+                      description: 'Additional data to pass to server',
+                    },
+                    file: { type: 'string', description: 'file to upload', format: 'binary' },
+                  },
+                  required: [],
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
   it('uses global consumes for requestBody', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -379,7 +481,7 @@ describe('upgradeFromTwoToThree', () => {
           description: 'Returns all planets from the system that the user has access to',
           requestBody: {
             content: {
-              'application/x-www-form-urlencoded': {
+              'multipart/form-data': {
                 schema: {
                   required: ['additionalMetadata'],
                   properties: {
@@ -977,7 +1079,7 @@ describe('upgradeFromTwoToThree', () => {
 
     expect(result.paths?.['/planets/{planetId}']?.post?.requestBody).toStrictEqual({
       content: {
-        'application/x-www-form-urlencoded': {
+        'multipart/form-data': {
           schema: {
             type: 'object',
             required: ['name'],
@@ -1055,13 +1157,13 @@ describe('upgradeFromTwoToThree', () => {
         '/planets/{planetId}': {
           parameters: [
             {
-              '$ref': '#/parameters/Body',
+              $ref: '#/parameters/Body',
             },
             {
-              '$ref': '#/parameters/content type',
+              $ref: '#/parameters/content type',
             },
             {
-              '$ref': '#/parameters/Accept',
+              $ref: '#/parameters/Accept',
             },
           ],
           post: {
@@ -1077,13 +1179,13 @@ describe('upgradeFromTwoToThree', () => {
 
     expect(result.paths?.['/planets/{planetId}']?.parameters).toMatchObject([
       {
-        '$ref': '#/components/requestBodies/Body',
+        $ref: '#/components/requestBodies/Body',
       },
       {
-        '$ref': '#/components/requestBodies/content type',
+        $ref: '#/components/requestBodies/content type',
       },
       {
-        '$ref': '#/components/requestBodies/Accept',
+        $ref: '#/components/requestBodies/Accept',
       },
     ])
 
@@ -1112,25 +1214,25 @@ describe('upgradeFromTwoToThree', () => {
 
   it('upgrades parameters defined globally and correctly update all the references - parameters', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
-      'swagger': '2.0',
-      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
-      'paths': {
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'Minimal API' },
+      paths: {
         '/items/{id}': {
-          'get': {
-            'summary': 'Get item',
-            'parameters': [{ '$ref': '#/parameters/ItemId' }],
-            'responses': {
-              '200': { 'description': 'OK' },
+          get: {
+            summary: 'Get item',
+            parameters: [{ $ref: '#/parameters/ItemId' }],
+            responses: {
+              '200': { description: 'OK' },
             },
           },
         },
       },
-      'parameters': {
-        'ItemId': {
-          'name': 'id',
-          'in': 'path',
-          'type': 'string',
-          'required': true,
+      parameters: {
+        ItemId: {
+          name: 'id',
+          in: 'path',
+          type: 'string',
+          required: true,
         },
       },
     })
@@ -1138,17 +1240,17 @@ describe('upgradeFromTwoToThree', () => {
     // Update all the $rfs
     expect(result.paths?.['/items/{id}']?.get?.parameters).toMatchObject([
       {
-        '$ref': '#/components/parameters/ItemId',
+        $ref: '#/components/parameters/ItemId',
       },
     ])
 
     expect(result.components?.parameters).toEqual({
-      'ItemId': {
-        'in': 'path',
-        'name': 'id',
-        'required': true,
-        'schema': {
-          'type': 'string',
+      ItemId: {
+        in: 'path',
+        name: 'id',
+        required: true,
+        schema: {
+          type: 'string',
         },
       },
     })
@@ -1156,12 +1258,12 @@ describe('upgradeFromTwoToThree', () => {
 
   it('deletes consumes array even if no request body parameter is specified', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
-      'swagger': '2.0',
-      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
-      'paths': {
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'Minimal API' },
+      paths: {
         '/noRequestBody': {
-          'post': {
-            'consumes': ['application/json', 'application/x-www-form-urlencoded'],
+          post: {
+            consumes: ['application/json', 'application/x-www-form-urlencoded'],
           },
         },
       },
@@ -1172,8 +1274,8 @@ describe('upgradeFromTwoToThree', () => {
 
   it('migrates parameter reference objects accordingly', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
-      'swagger': '2.0',
-      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'Minimal API' },
       parameters: {
         planetId: {
           name: 'planetId',
@@ -1182,9 +1284,9 @@ describe('upgradeFromTwoToThree', () => {
           type: 'string',
         },
       },
-      'paths': {
+      paths: {
         '/planets/{planetId}': {
-          'get': {
+          get: {
             parameters: [
               {
                 $ref: '#/parameters/planetId',
@@ -1202,8 +1304,8 @@ describe('upgradeFromTwoToThree', () => {
 
   it('allows reference objects in global parameters to be stored in components.parameters', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
-      'swagger': '2.0',
-      'info': { 'version': '1.0.0', 'title': 'API with $ref parameters' },
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'API with $ref parameters' },
       parameters: {
         reusableHeader: {
           $ref: '#/someOtherPlace/header',
@@ -1215,11 +1317,11 @@ describe('upgradeFromTwoToThree', () => {
           required: false,
         },
       },
-      'paths': {
+      paths: {
         '/test': {
-          'get': {
-            'responses': {
-              '200': { 'description': 'OK' },
+          get: {
+            responses: {
+              '200': { description: 'OK' },
             },
           },
         },
@@ -1243,11 +1345,11 @@ describe('upgradeFromTwoToThree', () => {
 
   it('validates that body parameters do not reach getParameterLocation', () => {
     const invalidSpec = {
-      'swagger': '2.0',
-      'info': { 'version': '1.0.0', 'title': 'Invalid API' },
-      'paths': {
+      swagger: '2.0',
+      info: { version: '1.0.0', title: 'Invalid API' },
+      paths: {
         '/test': {
-          'post': {
+          post: {
             parameters: [
               {
                 name: 'bodyParam',
@@ -1257,8 +1359,8 @@ describe('upgradeFromTwoToThree', () => {
                 },
               },
             ],
-            'responses': {
-              '200': { 'description': 'OK' },
+            responses: {
+              '200': { description: 'OK' },
             },
           },
         },

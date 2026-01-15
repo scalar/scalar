@@ -1,5 +1,18 @@
 # @scalar/void-server
 
+## 2.3.0
+
+### Minor Changes
+
+- [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape html and xml, add security headers, add more tests
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
 ## 2.2.18
 
 ### Patch Changes

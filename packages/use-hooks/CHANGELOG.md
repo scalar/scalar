@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.3.6
+
+### Patch Changes
+
+- [#7678](https://github.com/scalar/scalar/pull/7678): feat: added object stringification to useClipboard
+
 ## 0.3.5
 
 ### Patch Changes

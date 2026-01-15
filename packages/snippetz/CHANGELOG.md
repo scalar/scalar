@@ -1,5 +1,13 @@
 # @scalar/snippetz
 
+## 0.6.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.7**
+
 ## 0.6.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.4.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.7**
+  - [#7720](https://github.com/scalar/scalar/pull/7720): feat: escape XML in json2xml
+
 ## 0.4.43
 
 ### Patch Changes
