@@ -24,7 +24,7 @@ push_to_scalar_registry:
   image: node:20
   script:
     - npx @scalar/cli auth login --token $SCALAR_API_KEY
-    - npx @scalar/cli registry publish --namespace your-namespace --slug your-slug api/openapi.json
+    - npx @scalar/cli registry publish --namespace your-team --slug your-api api/openapi.json
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:

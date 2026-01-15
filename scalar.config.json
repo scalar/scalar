@@ -691,6 +691,16 @@
                     "filepath": "documentation/guides/registry/upload.md",
                     "type": "page"
                   },
+                  "schemas": {
+                    "title": "Schemas",
+                    "filepath": "documentation/guides/registry/schemas.md",
+                    "type": "page"
+                  },
+                  "rules": {
+                    "filepath": "documentation/guides/registry/rules.md",
+                    "type": "page",
+                    "title": "Rules"
+                  },
                   "cli": {
                     "filepath": "documentation/guides/registry/cli.md",
                     "type": "page",
@@ -705,11 +715,6 @@
                     "title": "GitLab CI/CD",
                     "filepath": "documentation/guides/registry/gitlab-ci.md",
                     "type": "page"
-                  },
-                  "rules": {
-                    "filepath": "documentation/guides/registry/rules.md",
-                    "type": "page",
-                    "title": "Rules"
                   }
                 }
               },
@@ -1073,7 +1078,7 @@
               }
             }
           },
-          "migration": {
+          "/migration": {
             "title": "Migration",
             "type": "group",
             "mode": "nested",
