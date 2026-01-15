@@ -705,6 +705,11 @@
                     "title": "GitLab CI/CD",
                     "filepath": "documentation/guides/registry/gitlab-ci.md",
                     "type": "page"
+                  },
+                  "rules": {
+                    "filepath": "documentation/guides/registry/rules.md",
+                    "type": "page",
+                    "title": "Rules"
                   }
                 }
               },
