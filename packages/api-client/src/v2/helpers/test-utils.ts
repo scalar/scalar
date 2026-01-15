@@ -5,5 +5,5 @@ import { vi } from 'vitest'
 export const mockEventBus = {
   on: vi.fn(),
   off: vi.fn(),
-  emit: vi.fn(),
+  emit: vi.fn(() => null),
 } as unknown as WorkspaceEventBus
