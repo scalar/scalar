@@ -51,4 +51,55 @@ describe('RequestParams', () => {
     await table.vm.$emit('deleteRow', 2)
     expect(wrapper.emitted('delete')?.[0]?.[0]).toEqual({ index: 2 })
   })
+
+  it('ensures optional non-path parameters are disabled by default', () => {
+    const wrapper = mount(RequestParams, {
+      props: {
+        parameters: [
+          // Optional query parameter - should be disabled
+          { name: 'limit', in: 'query', required: false, schema: { type: 'number' } },
+          // Required query parameter - should NOT be disabled
+          { name: 'apiKey', in: 'query', required: true, schema: { type: 'string' } },
+          // Optional header parameter - should be disabled
+          { name: 'X-Custom-Header', in: 'header', required: false, schema: { type: 'string' } },
+          // Required header parameter - should NOT be disabled
+          { name: 'Authorization', in: 'header', required: true, schema: { type: 'string' } },
+          // Optional path parameter - should NOT be disabled (path params are always enabled)
+          { name: 'id', in: 'path', required: false, schema: { type: 'string' } },
+          // Required path parameter - should NOT be disabled
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ] as any,
+        exampleKey: 'ex',
+        title: 'Parameters',
+        environment,
+      },
+    })
+
+    const table = wrapper.findComponent({ name: 'RequestTable' })
+    const tableData = table.props('data')
+
+    // Optional query parameter should be disabled
+    expect(tableData[0].name).toBe('limit')
+    expect(tableData[0].isDisabled).toBe(true)
+
+    // Required query parameter should NOT be disabled
+    expect(tableData[1].name).toBe('apiKey')
+    expect(tableData[1].isDisabled).toBe(false)
+
+    // Optional header parameter should be disabled
+    expect(tableData[2].name).toBe('X-Custom-Header')
+    expect(tableData[2].isDisabled).toBe(true)
+
+    // Required header parameter should NOT be disabled
+    expect(tableData[3].name).toBe('Authorization')
+    expect(tableData[3].isDisabled).toBe(false)
+
+    // Optional path parameter should NOT be disabled
+    expect(tableData[4].name).toBe('id')
+    expect(tableData[4].isDisabled).toBe(false)
+
+    // Required path parameter should NOT be disabled
+    expect(tableData[5].name).toBe('userId')
+    expect(tableData[5].isDisabled).toBe(false)
+  })
 })
