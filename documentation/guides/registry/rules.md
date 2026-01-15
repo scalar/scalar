@@ -8,16 +8,16 @@ Now let's create our first rule!
 
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Rules, then click "+ New".
 
-![Scalar Rules Page](../../assets/screenshots/scalar-rules.png "Scalar Rules Page")
+![Scalar Rules Page](../../assets/scalar-rules.png "Scalar Rules Page")
 
-![Scalar Create Rule](../../assets/screenshots/scalar-rules-1.png "Scalar Create Rule")
+![Scalar Create Rule](../../assets/scalar-rules-1.png "Scalar Create Rule")
 
 Rules allow you to lint and verify your API documents with Spectral-compatible rulesets. Your rules are stored in the Scalar Registry and can be shared across your team or made public.
 
 ### Configure your rule
 When you create a new rule, it will extend the default Spectral OSS ruleset (`spectral:oas`). This provides a solid foundation of OpenAPI linting rules from the [Spectral project](https://stoplight.io/open-source/spectral).
 
-![Scalar Rule Editor](../../assets/screenshots/scalar-rules-edit.png "Scalar Rule Editor")
+![Scalar Rule Editor](../../assets/scalar-rules-edit.png "Scalar Rule Editor")
 
 The default rule configuration looks like this:
 
