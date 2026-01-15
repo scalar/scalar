@@ -24,8 +24,8 @@ export const loadClientFromStorage = (store: WorkspaceStore): void => {
 }
 
 /**
- * Checks if a key represents a Scalar secret.
- * Secret keys are prefixed with 'x-scalar-secret-'.
+ * Checks if a key is a Scalar secret key.
+ * Secret keys start with 'x-scalar-secret-' prefix.
  */
 export const isSecretKey = (key: string): boolean => key.startsWith(SECRET_KEY_PREFIX)
 
@@ -35,11 +35,11 @@ const isObject = (value: unknown): value is Record<string, unknown> => {
 
 /**
  * Recursively merges secret values from stored data into the current schema.
+ * Only merges secrets if the corresponding structure exists in the current schema.
  *
- * This walks through both objects in parallel, restoring any keys prefixed with
- * 'x-scalar-secret-' from the stored object to the current object. Secrets are
- * only restored if the corresponding structure exists in the current schema and
- * the current value is empty.
+ * This function walks through both objects in parallel, copying any keys that
+ * start with 'x-scalar-secret-' from the stored object to the current object,
+ * but only if the path exists in the current schema.
  *
  * @param current - The current schema object (source of truth for structure)
  * @param stored - The stored object containing secret values to restore
@@ -79,10 +79,11 @@ const getActiveDocument = (store: WorkspaceStore) => {
 /**
  * Restores authentication secrets from local storage to the workspace store.
  *
- * This iterates through stored authentication schemes and restores any secret
- * values (keys starting with x-scalar-secret-) to the active document's security
- * schemes. The current security schemes are used as the source of truth, so
- * secrets are only restored for structures that exist in the current document.
+ * This function iterates through stored authentication schemes and restores
+ * any secret values (keys starting with x-scalar-secret-) to the active
+ * document's security schemes. It uses the current security schemes as the
+ * source of truth, only restoring secrets for structures that exist in the
+ * current document.
  */
 const restoreAuthSecretsFromStorage = (store: WorkspaceStore): void => {
   const slug = store.workspace['x-scalar-active-document']
@@ -126,12 +127,9 @@ const clampSelectedIndex = (selectedIndex: number, schemesLength: number): numbe
 /**
  * Loads authentication schemes and selected security settings from local storage.
  *
- * This restores both the available security schemes and the user's selected
- * security configuration for the active document. It validates that the stored
- * schemes still exist in the current document before restoring them.
- *
- * If no valid schemes are found, this function does not set x-scalar-selected-security,
- * allowing the default fallback logic to work correctly.
+ * This function restores both the available security schemes and the user's
+ * selected security configuration for the active document. It validates that
+ * the stored schemes still exist in the current document before restoring them.
  */
 export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
   const slug = store.workspace['x-scalar-active-document']
