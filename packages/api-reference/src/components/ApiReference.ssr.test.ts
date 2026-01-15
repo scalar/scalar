@@ -65,7 +65,7 @@ const EXAMPLE_API_DEFINITIONS = [
   },
 ]
 
-it.each(EXAMPLE_API_DEFINITIONS)('${title} (${url})', { timeout: 40000 }, async ({ title, name }) => {
+it.each(EXAMPLE_API_DEFINITIONS)('$title ($url)', { timeout: 40000 }, async ({ title, name }) => {
   // Spy for console.error to avoid errors in the console
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
