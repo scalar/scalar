@@ -601,23 +601,21 @@ describe('plugins', () => {
       })
 
       // The externally resolved definition should have its scheme normalized
-      expect(input).toEqual(
-        {
-          'components': {
-            'securitySchemes': {
-              'bearerAuth': {
-                '$ref': '#/x-ext/c2e0c6a',
-              },
-            },
-          },
-          'x-ext': {
-            'c2e0c6a': {
-              'scheme': 'bearer',
-              'type': 'http',
+      expect(input).toEqual({
+        'components': {
+          'securitySchemes': {
+            'bearerAuth': {
+              '$ref': '#/x-ext/c2e0c6a',
             },
           },
         },
-      )
+        'x-ext': {
+          'c2e0c6a': {
+            'scheme': 'bearer',
+            'type': 'http',
+          },
+        },
+      })
 
       await server.close()
     })
