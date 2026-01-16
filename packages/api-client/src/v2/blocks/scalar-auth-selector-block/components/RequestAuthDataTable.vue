@@ -67,10 +67,11 @@ const handleTabChange = (index: number) =>
 /** Handles updates to the security scheme configuration */
 const handleSecuritySchemeUpdate = (
   payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
+  name: string,
 ) =>
   eventBus.emit('auth:update:security-scheme', {
     payload,
-    name: activeScheme.value?.id ?? '',
+    name,
   })
 
 /** Handles updates to OAuth scope selection */
@@ -128,7 +129,7 @@ defineExpose({
       :columns="['']"
       presentational>
       <RequestAuthTab
-        :environment="environment"
+        :environment
         :isStatic
         :proxyUrl
         :securitySchemes

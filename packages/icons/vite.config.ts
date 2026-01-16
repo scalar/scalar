@@ -1,7 +1,9 @@
+import { fileURLToPath } from 'node:url'
+
 import { alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
+import { type Plugin, defineConfig } from 'vitest/config'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -26,9 +28,13 @@ export default defineConfig({
           },
         ],
       },
-    }),
+    }) as Plugin,
   ],
   build: createViteBuildOptions({
     entry: ['src/index.ts', 'src/library/index.ts', 'src/types.ts'],
   }),
+  test: {
+    environment: 'jsdom',
+    root: fileURLToPath(new URL('./', import.meta.url)),
+  },
 })

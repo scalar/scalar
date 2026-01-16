@@ -260,6 +260,11 @@ describe('getIdFromHash', () => {
     expect(result).toBe('/users')
   })
 
+  it('handles hash with trailing slash', () => {
+    const result = getIdFromHash('https://example.com#users/', undefined)
+    expect(result).toBe('users/')
+  })
+
   it('handles hash with query parameters', () => {
     const result = getIdFromHash('https://example.com?query=test#tag/users', undefined)
     expect(result).toBe('tag/users')
@@ -529,8 +534,6 @@ describe('getIdFromUrl', () => {
 })
 
 describe('makeUrlFromId', () => {
-  const locationSpy = vi.spyOn(global.window, 'location', 'get')
-
   const createLocationMock = (overrides: Partial<Location> = {}): Partial<Location> => ({
     href: 'https://example.com/',
     protocol: 'https:',
@@ -544,8 +547,10 @@ describe('makeUrlFromId', () => {
   beforeEach(() => {
     vi.unstubAllGlobals()
 
-    locationSpy.mockReset()
-    locationSpy.mockReturnValue(createLocationMock() as Location)
+    // Mock window object with location
+    vi.stubGlobal('window', {
+      location: createLocationMock() as Location,
+    })
   })
 
   it('returns undefined when window is undefined', () => {
@@ -618,12 +623,12 @@ describe('makeUrlFromId', () => {
   })
 
   it('preserves existing query parameters with hash routing', () => {
-    locationSpy.mockReturnValue(
-      createLocationMock({
+    vi.stubGlobal('window', {
+      location: createLocationMock({
         href: 'https://example.com/?query=test',
         search: '?query=test',
       }) as Location,
-    )
+    })
 
     const result = makeUrlFromId('tag/users', undefined, true)
     expect(result?.search).toBe('?query=test')
@@ -631,12 +636,12 @@ describe('makeUrlFromId', () => {
   })
 
   it('preserves existing query parameters with path routing', () => {
-    locationSpy.mockReturnValue(
-      createLocationMock({
+    vi.stubGlobal('window', {
+      location: createLocationMock({
         href: 'https://example.com/?query=test',
         search: '?query=test',
       }) as Location,
-    )
+    })
 
     const result = makeUrlFromId('tag/users', 'api', true)
     expect(result?.search).toBe('?query=test')
@@ -651,6 +656,22 @@ describe('makeUrlFromId', () => {
   it('sanitizes basePath with trailing slashes', () => {
     const result = makeUrlFromId('tag/users', 'api/', true)
     expect(result?.pathname).toBe('/api/tag/users')
+  })
+
+  it('sanitizes basePath with trailing slashes in id', () => {
+    // Test path routing with trailing slashes in both basePath and id
+    const result = makeUrlFromId('tag/users/', 'api/', true)
+    expect(result?.pathname).toBe('/api/tag/users/')
+
+    // Test hash routing with trailing slash in id
+    const result2 = makeUrlFromId('tag/users/', undefined, true)
+    expect(result2?.hash).toBe('#tag/users/')
+    expect(result2?.pathname).toBe('/')
+  })
+
+  it('handles this trailing slash in the id', () => {
+    const result = makeUrlFromId('api-1/tag/planets/GET/planets/', undefined, false)
+    expect(result?.toString()).toBe('https://example.com/#tag/planets/GET/planets/')
   })
 
   it('sanitizes basePath with multiple slashes', () => {
@@ -699,14 +720,14 @@ describe('makeUrlFromId', () => {
   })
 
   it('handles different base URLs', () => {
-    locationSpy.mockReturnValue(
-      createLocationMock({
+    vi.stubGlobal('window', {
+      location: createLocationMock({
         href: 'https://app.example.com:3000/path',
         protocol: 'https:',
         host: 'app.example.com:3000',
         pathname: '/path',
       }) as Location,
-    )
+    })
 
     const result = makeUrlFromId('tag/users', undefined, true)
     expect(result?.href).toBe('https://app.example.com:3000/path#tag/users')

@@ -65,6 +65,7 @@ const {
   eventBus,
   exampleKey,
   globalCookies = [],
+  hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
   method,
   operation,

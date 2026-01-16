@@ -1,31 +1,7 @@
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getExampleFromBody } from './get-request-body-example'
-
-// Mock the dependencies
-vi.mock('@scalar/workspace-store/helpers/get-resolved-ref', () => ({
-  getResolvedRef: vi.fn((node) => {
-    // Simulate $ref resolution - return the $ref-value if it's a ref, otherwise return as-is
-    if (typeof node === 'object' && node !== null && '$ref' in node) {
-      return node['$ref-value']
-    }
-    return node
-  }),
-}))
-
-vi.mock('@/v2/blocks/operation-code-sample/helpers/get-example-from-schema', () => ({
-  getExampleFromSchema: vi.fn((schema) => {
-    // Return a predictable example based on the schema
-    if (schema?.type === 'object') {
-      return { id: 1, name: 'example' }
-    }
-    if (schema?.type === 'string') {
-      return 'example-string'
-    }
-    return null
-  }),
-}))
 
 describe('get-request-body-example', () => {
   it('returns existing example when found in content.examples', () => {
@@ -62,8 +38,7 @@ describe('get-request-body-example', () => {
     } satisfies RequestBodyObject
 
     const result = getExampleFromBody(requestBody, 'application/json', 'default')
-
-    expect(result).toEqual({ value: { id: 1, name: 'example' } })
+    expect(result).toEqual({ value: { id: 1, name: '' } })
   })
 
   it('returns null when content for contentType does not exist', () => {
@@ -111,5 +86,30 @@ describe('get-request-body-example', () => {
     const result = getExampleFromBody(requestBody, 'application/json', 'refExample')
 
     expect(result).toEqual({ value: { id: 456, email: 'ref@example.com' } })
+  })
+
+  it('filters out readOnly properties when generating example from schema', () => {
+    const requestBody = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' },
+              createdAt: { type: 'string', readOnly: true },
+              updatedAt: { type: 'string', readOnly: true },
+            },
+          },
+        },
+      },
+    } satisfies RequestBodyObject
+
+    const result = getExampleFromBody(requestBody, 'application/json', 'default')
+
+    // readOnly properties should be filtered out
+    expect(result).toEqual({ value: { id: 1, name: '' } })
+    expect(result?.value).not.toHaveProperty('createdAt')
+    expect(result?.value).not.toHaveProperty('updatedAt')
   })
 })

@@ -1,3 +1,4 @@
+export { Auth } from './Auth'
 export { default as Content } from './Content.vue'
 export { Model, Models } from './Models'
 export { default as TraversedEntry } from './Operations/TraversedEntry.vue'

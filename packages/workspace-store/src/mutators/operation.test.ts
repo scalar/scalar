@@ -6,19 +6,16 @@ import type { WorkspaceDocument } from '@/schemas'
 
 import {
   addOperationParameter,
-  addOperationRequestBodyFormRow,
   createOperation,
   deleteAllOperationParameters,
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
-  deleteOperationRequestBodyFormRow,
   updateOperationDefaultHeadersParameter,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
-  updateOperationRequestBodyFormRow,
   updateOperationSummary,
 } from './operation'
 
@@ -971,7 +968,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'john', isDisabled: false },
+      payload: { name: 'q', value: 'john', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -997,7 +994,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'id', value: '123', isDisabled: true },
+      payload: { name: 'id', value: '123', isDisabled: true },
     })
 
     const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
@@ -1016,7 +1013,7 @@ describe('addOperationParameter', () => {
       addOperationParameter(null, {
         type: 'query',
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
-        payload: { key: 'q', value: 'x', isDisabled: false },
+        payload: { name: 'q', value: 'x', isDisabled: false },
       }),
     ).not.toThrow()
   })
@@ -1031,7 +1028,7 @@ describe('addOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
-      payload: { key: 'q', value: 'x', isDisabled: false },
+      payload: { name: 'q', value: 'x', isDisabled: false },
     })
 
     expect(document.paths?.['/missing']).toEqual({})
@@ -1054,20 +1051,20 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
 
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'p', value: 'two', isDisabled: false },
+      payload: { name: 'p', value: 'two', isDisabled: false },
     })
 
     updateOperationParameter(document, {
       type: 'query',
       index: 1,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isDisabled: false },
+      payload: { name: 'page', value: '2', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1101,7 +1098,7 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
 
     updateOperationParameter(document, {
@@ -1132,14 +1129,14 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
 
     updateOperationParameter(document, {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
-      payload: { key: 'query', value: 'new value', isDisabled: false },
+      payload: { name: 'query', value: 'new value', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1165,12 +1162,12 @@ describe('updateOperationParameter', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'abc', isDisabled: false },
+      payload: { name: 'X-Trace', value: 'abc', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
 
     // index 0 for type 'query' refers to the second element in the raw array
@@ -1178,7 +1175,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'query', value: '1' },
+      payload: { name: 'query', value: '1' },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1197,7 +1194,7 @@ describe('updateOperationParameter', () => {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
-        payload: { key: 'q' },
+        payload: { name: 'q' },
       }),
     ).not.toThrow()
   })
@@ -1213,7 +1210,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q' },
+      payload: { name: 'q' },
     })
 
     expect(document.paths?.['/search']).toEqual({})
@@ -1234,17 +1231,17 @@ describe('deleteOperationParameter', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'a', isDisabled: false },
+      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isDisabled: false },
+      payload: { name: 'page', value: '2', isDisabled: false },
     })
 
     // Delete the second query (index 1 within filtered query params)
@@ -1303,22 +1300,22 @@ describe('deleteAllOperationParameters', () => {
     addOperationParameter(document, {
       type: 'header',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'X-Trace', value: 'a', isDisabled: false },
+      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'q', value: 'one', isDisabled: false },
+      payload: { name: 'q', value: 'one', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'query',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'page', value: '2', isDisabled: false },
+      payload: { name: 'page', value: '2', isDisabled: false },
     })
     addOperationParameter(document, {
       type: 'path',
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { key: 'id', value: '123', isDisabled: false },
+      payload: { name: 'id', value: '123', isDisabled: false },
     })
 
     deleteAllOperationParameters(document, {
@@ -1476,7 +1473,7 @@ describe('updateOperationRequestBodyExample', () => {
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
-      payload: { value: '{"name":"Ada"}' },
+      payload: '{"name":"Ada"}',
     })
 
     const op = getResolvedRef(document.paths?.['/users']?.post)
@@ -1502,13 +1499,13 @@ describe('updateOperationRequestBodyExample', () => {
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
-      payload: { value: 'v1' },
+      payload: 'v1',
     })
 
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
-      payload: { value: 'v2' },
+      payload: 'v2',
     })
 
     const op = getResolvedRef(document.paths?.['/users']?.post)
@@ -1534,13 +1531,13 @@ describe('updateOperationRequestBodyExample', () => {
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'A' },
-      payload: { value: 'one' },
+      payload: 'one',
     })
 
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'B' },
-      payload: { value: 'two' },
+      payload: 'two',
     })
 
     const op = getResolvedRef(document.paths?.['/users']?.post)
@@ -1560,7 +1557,7 @@ describe('updateOperationRequestBodyExample', () => {
       updateOperationRequestBodyExample(null, {
         contentType: 'application/json',
         meta: { method: 'post', path: '/users', exampleKey: 'default' },
-        payload: { value: 'x' },
+        payload: 'x',
       }),
     ).not.toThrow()
   })
@@ -1575,238 +1572,53 @@ describe('updateOperationRequestBodyExample', () => {
     updateOperationRequestBodyExample(document, {
       contentType: 'application/json',
       meta: { method: 'post', path: '/users', exampleKey: 'default' },
-      payload: { value: 'x' },
+      payload: 'x',
     })
 
     expect(document.paths?.['/users']).toEqual({})
   })
-})
 
-describe('addOperationRequestBodyFormRow', () => {
-  it('initializes example value as array when missing and appends the first row', () => {
+  it('handles broken $ref in requestBody by creating new object', () => {
     const document = createDocument({
       paths: {
-        '/upload': {
-          post: {},
+        '/users': {
+          post: {
+            requestBody: {
+              $ref: '#/broken',
+              '$ref-value': {
+                content: {},
+              },
+            },
+          },
         },
       },
     })
 
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'file', value: new File(['x'], 'a.txt') },
-    })
+    // Should not throw and should create a new requestBody object
+    expect(() =>
+      updateOperationRequestBodyExample(document, {
+        contentType: 'application/json',
+        meta: { method: 'post', path: '/users', exampleKey: 'default' },
+        payload: '{"name":"Ada"}',
+      }),
+    ).not.toThrow()
 
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    const op = getResolvedRef(document.paths?.['/users']?.post)
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
-    const media = rb.content?.['multipart/form-data']
+    const media = rb.content?.['application/json']
     assert(media)
     const examples = getResolvedRef(media.examples)
     assert(examples)
-    const ex = getResolvedRef(examples.default)
-    assert(ex && Array.isArray(ex.value))
-    expect(ex.value).toEqual([{ name: 'file', value: expect.any(File), isDisabled: false }])
-  })
-
-  it('appends a new row when example value is already an array', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'file', value: new File(['x'], 'a.txt') },
-    })
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'description', value: 'Profile picture' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    const rb = getResolvedRef(op.requestBody)
-    assert(rb)
-    const ex = getResolvedRef(rb.content?.['multipart/form-data']?.examples?.default)
-    assert(ex && Array.isArray(ex.value))
-    expect(ex.value).toHaveLength(2)
-    expect(ex.value[1]).toEqual({ name: 'description', value: 'Profile picture', isDisabled: false })
-  })
-
-  it('no-ops when document is null', () => {
-    expect(() =>
-      addOperationRequestBodyFormRow(null, {
-        contentType: 'multipart/form-data',
-        meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-        payload: { key: 'file', value: new File(['x'], 'a.txt') },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when operation does not exist', () => {
-    const document = createDocument({ paths: { '/upload': {} } })
-
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'file', value: new File(['x'], 'a.txt') },
-    })
-
-    expect(document.paths?.['/upload']).toEqual({})
+    expect(getResolvedRef(examples.default)?.value).toBe('{"name":"Ada"}')
   })
 })
 
-describe('updateOperationRequestBodyFormRow', () => {
-  it('updates an existing row by index; undefined value clears to undefined', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'file', value: new File(['x'], 'a.txt') },
-    })
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'description', value: 'Profile picture' },
-    })
-
-    updateOperationRequestBodyFormRow(document, {
-      index: 1,
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'desc', value: undefined },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    const rb2 = getResolvedRef(op.requestBody)
-    const ex = getResolvedRef(rb2?.content?.['multipart/form-data']?.examples?.default)
-    assert(ex && Array.isArray(ex.value))
-    expect(ex.value[1]).toEqual({ name: 'desc', value: undefined, isDisabled: false })
-  })
-
-  it('no-ops when content type or example array is missing', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    // No requestBody/content/examples present
-    updateOperationRequestBodyFormRow(document, {
-      index: 0,
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'x', value: 'y' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    expect(op.requestBody).toEqual({ content: {} })
-  })
-})
-
-describe('deleteOperationRequestBodyFormRow', () => {
-  it('deletes a row by index; removes example when last row removed', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'file', value: new File(['x'], 'a.txt') },
-    })
-
-    deleteOperationRequestBodyFormRow(document, {
-      index: 0,
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    const rb3 = getResolvedRef(op.requestBody)
-    const examples = rb3?.content?.['multipart/form-data']?.examples
-    expect(examples?.default).toBeUndefined()
-  })
-
-  it('deletes the correct row and keeps others intact', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'a', value: '1' },
-    })
-    addOperationRequestBodyFormRow(document, {
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { key: 'b', value: '2' },
-    })
-
-    deleteOperationRequestBodyFormRow(document, {
-      index: 0,
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    const rb4 = getResolvedRef(op.requestBody)
-    const ex = getResolvedRef(rb4?.content?.['multipart/form-data']?.examples?.default)
-    assert(ex && Array.isArray(ex.value))
-    expect(ex.value).toHaveLength(1)
-    expect(ex.value[0]).toEqual({ name: 'b', value: '2', isDisabled: false })
-  })
-
-  it('no-ops when document is null or operation does not exist', () => {
-    expect(() =>
-      deleteOperationRequestBodyFormRow(null, {
-        index: 0,
-        contentType: 'multipart/form-data',
-        meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      }),
-    ).not.toThrow()
-
-    const document = createDocument({ paths: { '/upload': {} } })
-
-    deleteOperationRequestBodyFormRow(document, {
-      index: 0,
-      contentType: 'multipart/form-data',
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-    })
-
-    expect(document.paths?.['/upload']).toEqual({})
-  })
-})
+// Note: Form row functions (addOperationRequestBodyFormRow, updateOperationRequestBodyFormRow,
+// deleteOperationRequestBodyFormRow) do not exist. Form data is handled through
+// updateOperationRequestBodyExample with array payloads.
+// These tests have been removed as they test non-existent functionality.
 
 describe('deleteOperation', () => {
   it('deletes an operation from a path', async () => {

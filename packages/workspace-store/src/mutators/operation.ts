@@ -1,6 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
@@ -13,7 +12,7 @@ import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
-import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
@@ -551,7 +550,7 @@ export const addOperationParameter = (
 
   // Add the new parameter
   operation.parameters.push({
-    name: payload.key,
+    name: payload.name,
     in: type,
     required: type === 'path' ? true : false,
     examples: {
@@ -603,7 +602,7 @@ export const updateOperationParameter = (
     return
   }
 
-  parameter.name = payload.key ?? parameter.name ?? ''
+  parameter.name = payload.name ?? parameter.name ?? ''
 
   if (isContentTypeParameterObject(parameter)) {
     // TODO: handle content-type parameters
@@ -681,7 +680,7 @@ export const updateOperationDefaultParameters = (
   // Update (or create) the entry for the specific example and key, preserving any existing settings
   operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
     ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
-    [meta.key]: payload.isDisabled ?? false,
+    [meta.name]: payload.isDisabled ?? false,
   }
 }
 
@@ -720,7 +719,7 @@ export const updateOperationGlobalParameters = (
   // Update (or create) the entry for the specific example and key, preserving any existing settings
   operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
     ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
-    [meta.key]: payload.isDisabled ?? false,
+    [meta.name]: payload.isDisabled ?? false,
   }
 }
 
@@ -846,6 +845,35 @@ export const updateOperationRequestBodyContentType = (
   requestBody!['x-scalar-selected-content-type'][meta.exampleKey] = payload.contentType
 }
 
+/** Ensure the json that we need exists up to the example object in the request body */
+const findOrCreateRequestBodyExample = (
+  document: WorkspaceDocument | null,
+  contentType: string,
+  meta: OperationExampleMeta,
+): ExampleObject | null => {
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return null
+  }
+
+  // Ensure that the request body exists
+  let requestBody = getResolvedRef(operation.requestBody)
+  if (!requestBody) {
+    operation.requestBody = {
+      content: {},
+    }
+    requestBody = getResolvedRef(operation.requestBody)
+  }
+
+  // Ensure that the example exists
+  requestBody.content[contentType] ||= {}
+  requestBody.content[contentType].examples ||= {}
+  requestBody.content[contentType].examples[meta.exampleKey] ||= {}
+
+  const example = getResolvedRef(requestBody.content[contentType].examples?.[meta.exampleKey])
+  return example ?? null
+}
+
 /**
  * Creates or updates a concrete example value for a specific request-body
  * `contentType` and `exampleKey`. Safely no-ops if the document or operation
@@ -865,229 +893,29 @@ export const updateOperationRequestBodyExample = (
   document: WorkspaceDocument | null,
   { meta, payload, contentType }: OperationEvents['operation:update:requestBody:value'],
 ) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  let requestBody = getResolvedRef(operation.requestBody)
-  if (!requestBody) {
-    operation.requestBody = {
-      content: {},
-    }
-    requestBody = getResolvedRef(operation.requestBody)
-  }
-
-  if (!requestBody!.content[contentType]) {
-    requestBody!.content[contentType] = {
-      examples: {},
-    }
-  }
-
-  // Ensure examples object exists and get a resolved reference
-  const mediaType = requestBody!.content[contentType]!
-  mediaType.examples ??= {}
-  const examples = getResolvedRef(mediaType.examples)!
-
-  const example = getResolvedRef(examples[meta.exampleKey])
+  const example = findOrCreateRequestBodyExample(document, contentType, meta)
   if (!example) {
-    examples[meta.exampleKey] = {
-      value: payload.value,
-    }
+    console.error('Example not found', meta.exampleKey)
     return
   }
 
-  example.value = payload.value
+  example.value = payload
 }
 
 /**
- * Appends a form-data row to the request-body example identified by
- * `contentType` and `exampleKey`. Initializes the example as an array when
- * needed. Safely no-ops if the document or operation does not exist.
+ * Stores the form data for the request body example
  *
- * Example:
- * ```ts
- * addOperationRequestBodyFormRow({
- *   document,
- *   contentType: 'multipart/form-data',
- *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
- *   payload: { key: 'file', value: new File(['x'], 'a.txt') },
- * })
- * ```
+ * This needs special handling as we store it as an array of objects with a schema type of object
  */
-export const addOperationRequestBodyFormRow = (
+export const updateOperationRequestBodyFormValue = (
   document: WorkspaceDocument | null,
-  { meta, payload, contentType }: OperationEvents['operation:add:requestBody:formRow'],
+  { meta, payload, contentType }: OperationEvents['operation:update:requestBody:formValue'],
 ) => {
-  if (!document) {
+  const example = findOrCreateRequestBodyExample(document, contentType, meta)
+  if (!example) {
+    console.error('Example not found', meta.exampleKey)
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  let requestBody = getResolvedRef(operation.requestBody)
-  if (!requestBody) {
-    operation.requestBody = {
-      content: {},
-    }
-    requestBody = getResolvedRef(operation.requestBody)
-  }
-
-  if (!requestBody!.content[contentType]) {
-    requestBody!.content[contentType] = {
-      examples: {},
-    }
-  }
-
-  if (!requestBody!.content[contentType]!.examples) {
-    requestBody!.content[contentType]!.examples = {}
-  }
-
-  const examples = getResolvedRef(requestBody!.content[contentType]!.examples)
-  const example = getResolvedRef(examples[meta.exampleKey])
-
-  if (!example || !Array.isArray(example.value)) {
-    examples[meta.exampleKey] = {
-      value: [
-        {
-          name: payload.key,
-          value: payload.value,
-          isDisabled: false,
-        },
-      ],
-    }
-    return
-  }
-
-  // Add the new row to the example
-  example.value.push({
-    name: payload.key ?? '',
-    value: payload.value ?? '',
-    isDisabled: false,
-  })
-}
-
-/**
- * Updates a form-data row at a given `index` for the specified example and
- * `contentType`. Setting `payload.value` to `null` clears the value (sets to
- * `undefined`). Safely no-ops if the document, operation, or example does not exist.
- *
- * Example:
- * ```ts
- * updateOperationRequestBodyFormRow({
- *   document,
- *   index: 0,
- *   contentType: 'multipart/form-data',
- *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
- *   payload: { key: 'description', value: 'Profile picture' },
- * })
- * ```
- */
-export const updateOperationRequestBodyFormRow = (
-  document: WorkspaceDocument | null,
-  { meta, index, payload, contentType }: OperationEvents['operation:update:requestBody:formRow'],
-) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  let requestBody = getResolvedRef(operation.requestBody)
-  if (!requestBody) {
-    operation.requestBody = {
-      content: {},
-    }
-    requestBody = getResolvedRef(operation.requestBody)
-  }
-
-  if (!requestBody!.content[contentType]) {
-    return
-  }
-
-  const examples = getResolvedRef(requestBody!.content[contentType]!.examples)
-  if (!examples) {
-    return
-  }
-
-  const example = getResolvedRef(examples[meta.exampleKey])
-  if (!example || !Array.isArray(example.value)) {
-    return
-  }
-
-  // Only set the properties that are present in the payload
-  for (const key of objectKeys(payload)) {
-    if (example.value[index]) {
-      preventPollution(key, 'updateOperationRequestBodyFormRow')
-      example.value[index][key === 'key' ? 'name' : key] = payload[key]
-    }
-  }
-}
-
-/**
- * Deletes a form-data row at a given `index` from the example for the given
- * `contentType`. If the example becomes empty, the example entry is removed.
- * Safely no-ops if the document, operation, example, or row does not exist.
- *
- * Example:
- * ```ts
- * deleteOperationRequestBodyFormRow({
- *   document,
- *   index: 0,
- *   contentType: 'multipart/form-data',
- *   meta: { method: 'post', path: '/upload', exampleKey: 'default' },
- * })
- * ```
- */
-export const deleteOperationRequestBodyFormRow = (
-  document: WorkspaceDocument | null,
-  { meta, index, contentType }: OperationEvents['operation:delete:requestBody:formRow'],
-) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  const requestBody = getResolvedRef(operation.requestBody)
-  if (!requestBody) {
-    return
-  }
-
-  if (!requestBody.content[contentType]) {
-    return
-  }
-
-  const examples = getResolvedRef(requestBody.content[contentType]!.examples)
-  if (!examples) {
-    return
-  }
-
-  const example = getResolvedRef(examples[meta.exampleKey])
-  if (!example || !Array.isArray(example.value)) {
-    return
-  }
-
-  // We cannot call splice on a proxy object, so we unwrap the array and filter it
-  example.value = unpackProxyObject(
-    example.value.filter((_, i) => i !== index),
-    { depth: 1 },
-  )
-
-  if (example.value.length === 0) {
-    delete requestBody.content[contentType]!.examples![meta.exampleKey]
-  }
+  example.value = unpackProxyObject(payload, { depth: 3 })
 }

@@ -4,8 +4,12 @@ import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -344,32 +348,6 @@ const parameterHandlers = computed(() => ({
   }),
 }))
 
-/** Handle request body form row addition */
-const handleAddFormRow = (payload: {
-  data: Partial<{ key: string; value?: string | File }>
-  contentType: string
-}): void => {
-  eventBus.emit('operation:add:requestBody:formRow', {
-    contentType: payload.contentType,
-    meta: meta.value,
-    payload: {
-      key: payload.data.key ?? '',
-      value: payload.data.value ?? '',
-    },
-  })
-}
-
-/** Handle request body form row deletion */
-const handleDeleteFormRow = (payload: {
-  contentType: string
-  index: number
-}): void =>
-  eventBus.emit('operation:delete:requestBody:formRow', {
-    contentType: payload.contentType,
-    index: payload.index,
-    meta: meta.value,
-  })
-
 /** Handle request body content type update */
 const handleUpdateContentType = (payload: { value: string }): void =>
   eventBus.emit('operation:update:requestBody:contentType', {
@@ -377,44 +355,47 @@ const handleUpdateContentType = (payload: { value: string }): void =>
     meta: meta.value,
   })
 
-/** Handle request body form row update */
-const handleUpdateFormRow = (payload: {
-  index: number
-  data: Partial<{
-    key: string
-    value: string | File | null
-    isDisabled: boolean
-  }>
-  contentType: string
-}): void =>
-  eventBus.emit(
-    'operation:update:requestBody:formRow',
-    {
-      contentType: payload.contentType,
-      meta: meta.value,
-      index: payload.index,
-      payload: payload.data,
-    },
-    {
-      debounceKey: `update:requestBody:formRow-${payload.index}-${Object.keys(payload.data).join('-')}`,
-    },
-  )
-
 /** Handle request body value update */
-const handleUpdateBodyValue = (payload: {
-  value?: string | File
-  contentType: string
-}): void => {
+const handleUpdateBodyValue = ({
+  payload,
+  contentType,
+}: Pick<
+  ApiReferenceEvents['operation:update:requestBody:value'],
+  'payload' | 'contentType'
+>): void => {
   const debounceKey =
-    typeof payload.value === 'string'
-      ? `update:requestBody:value-${payload.contentType}`
+    typeof payload === 'string'
+      ? `update:requestBody:value-${contentType}`
       : undefined
 
   eventBus.emit(
     'operation:update:requestBody:value',
     {
-      contentType: payload.contentType,
-      payload: { value: payload.value ?? '' },
+      payload,
+      contentType,
+      meta: meta.value,
+    },
+    {
+      debounceKey,
+    },
+  )
+}
+
+/** Handle request body value update */
+const handleUpdateBodyFormValue = ({
+  payload,
+  contentType,
+}: Pick<
+  ApiReferenceEvents['operation:update:requestBody:formValue'],
+  'payload' | 'contentType'
+>): void => {
+  const debounceKey = `update:requestBody:${contentType}-form-value`
+
+  eventBus.emit(
+    'operation:update:requestBody:formValue',
+    {
+      payload: payload.map((row) => unpackProxyObject(row, { depth: 1 })),
+      contentType,
       meta: meta.value,
     },
     {
@@ -522,10 +503,8 @@ const labelRequestNameId = useId()
         :exampleKey
         :requestBody="getResolvedRef(operation.requestBody)"
         title="Request Body"
-        @add:formRow="handleAddFormRow"
-        @delete:fromRow="handleDeleteFormRow"
         @update:contentType="handleUpdateContentType"
-        @update:formRow="handleUpdateFormRow"
+        @update:formValue="handleUpdateBodyFormValue"
         @update:value="handleUpdateBodyValue" />
 
       <!-- Inject request section plugin components -->
@@ -552,6 +531,11 @@ const labelRequestNameId = useId()
         :path
         :securitySchemes="selectedSecuritySchemes"
         :selectedClient
+        :selectedContentType="
+          getResolvedRef(operation.requestBody)?.[
+            'x-scalar-selected-content-type'
+          ]?.[exampleKey]
+        "
         :selectedServer="server ?? undefined" />
     </div>
   </ViewLayoutSection>

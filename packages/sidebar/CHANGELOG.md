@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.7**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
+- **@scalar/components@0.16.20**
+
 ## 0.7.9
 
 ### Patch Changes

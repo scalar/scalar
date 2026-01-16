@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.24.7
+
+### Patch Changes
+
+- [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
 ## 0.24.6
 
 ### Patch Changes

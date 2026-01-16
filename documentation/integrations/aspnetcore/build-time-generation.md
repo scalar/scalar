@@ -114,13 +114,13 @@ jobs:
 
       - name: Publish to Scalar Registry
         run: |
-          npx @scalar/cli auth login --token ${{ secrets.SCALAR_TOKEN }}
+          npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
           npx @scalar/cli registry publish \
             --namespace ${{ vars.SCALAR_NAMESPACE }} \
             --slug ${{ vars.SCALAR_SLUG }} \
             ./openapi.json
         env:
-          SCALAR_TOKEN: ${{ secrets.SCALAR_TOKEN }}
+          SCALAR_API_KEY: ${{ secrets.SCALAR_API_KEY }}
 ```
 
 ### Using GitLab CI
@@ -159,7 +159,7 @@ publish_to_scalar:
   stage: deploy
   image: node:20
   script:
-    - npx @scalar/cli auth login --token $SCALAR_TOKEN
+    - npx @scalar/cli auth login --token $SCALAR_API_KEY
     - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE --slug $SCALAR_SLUG ./openapi.json
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

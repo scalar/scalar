@@ -23,11 +23,11 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { key?: string; value?: string }) =>
+    add: (payload: { name?: string; value?: string }) =>
       eventBus.emit('operation:add:parameter', {
         type,
         payload: {
-          key: payload.key ?? '',
+          name: payload.name ?? '',
           value: payload.value ?? '',
           isDisabled: false,
         },
@@ -44,13 +44,13 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: Partial<{ key: string; value: string; isDisabled: boolean }> }) => {
+    update: (payload: { index: number; payload: Partial<{ name: string; value: string; isDisabled: boolean }> }) => {
       const row = context[payload.index]
 
       if (payload.index < defaultParameters) {
         return eventBus.emit('operation:update:default-parameters', {
           type,
-          meta: { ...meta, key: row?.name.toLowerCase() ?? 'NON_VALID' },
+          meta: { ...meta, name: row?.name.toLowerCase() ?? 'NON_VALID' },
           payload: { isDisabled: payload.payload.isDisabled ?? false },
         })
       }
@@ -58,7 +58,7 @@ export const createParameterHandlers = (
       if (payload.index < defaultParameters + globalParameters) {
         return eventBus.emit('operation:update:global-parameters', {
           type,
-          meta: { ...meta, key: row?.name.toLowerCase() ?? 'NON_VALID' },
+          meta: { ...meta, name: row?.name.toLowerCase() ?? 'NON_VALID' },
           payload: { isDisabled: payload.payload.isDisabled ?? false },
         })
       }

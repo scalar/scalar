@@ -68,7 +68,7 @@ const guessFromFormat = (
 ): string | File => {
   // Handle binary format specially - return a File object
   if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
-    return new File([''], 'filename')
+    return '@filename'
   }
 
   // Return format-specific example if we have one and are making up data

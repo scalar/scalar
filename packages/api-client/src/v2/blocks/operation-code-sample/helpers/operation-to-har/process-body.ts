@@ -1,5 +1,6 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Param, PostData } from 'har-format'
@@ -17,18 +18,34 @@ type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
  * @param obj - The object to convert
  * @returns Array of form parameters with name and value properties
  */
-const objectToFormParams = (obj: object): Param[] => {
+const objectToFormParams = (obj: object | { name: string; value: string; isDisabled: boolean }[]): Param[] => {
   const params: Param[] = []
 
-  for (const [key, value] of Object.entries(obj)) {
+  /** Ensure we do not include disabled items */
+  const entries = Array.isArray(obj)
+    ? obj.filter((item) => !item.isDisabled).map((item) => [item.name, item.value])
+    : Object.entries(obj)
+
+  for (const [key, value] of entries) {
     if (value === undefined || value === null) {
       continue
     }
 
+    // Handle File objects by converting them to 'BINARY'
+    if (value instanceof File) {
+      const file = unpackProxyObject(value)
+      params.push({ name: key, value: `@${file.name}` })
+    }
     // Handle arrays by adding each item with the same key
-    if (Array.isArray(value)) {
+    else if (Array.isArray(value)) {
       for (const item of value) {
-        params.push({ name: key, value: String(item) })
+        // Check if array item is a File
+        if (item instanceof File) {
+          const file = unpackProxyObject(item)
+          params.push({ name: key, value: `@${file.name}` })
+        } else {
+          params.push({ name: key, value: String(item) })
+        }
       }
     }
     // Handle nested objects by flattening them

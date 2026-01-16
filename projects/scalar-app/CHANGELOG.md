@@ -1,5 +1,19 @@
 # scalar-app
 
+## 0.1.261
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.1**
+  - [#7744](https://github.com/scalar/scalar/pull/7744): fix: pass hideClientButton config into client modal
+  - [#7743](https://github.com/scalar/scalar/pull/7743): fix: complex auth
+  - [#7740](https://github.com/scalar/scalar/pull/7740): fix: filter out readonly properties from requestBody
+  - [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
+- **@scalar/components@0.16.20**
+
 ## 0.1.260
 
 ### Patch Changes

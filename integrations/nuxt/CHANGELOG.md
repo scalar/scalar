@@ -1,5 +1,26 @@
 # @scalar/nuxt
 
+## 0.5.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.7**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+
+- **@scalar/api-reference@1.43.5**
+  - [#7745](https://github.com/scalar/scalar/pull/7745): fix: add nested array support to references
+  - [#7752](https://github.com/scalar/scalar/pull/7752): Export Auth component
+  - [#7746](https://github.com/scalar/scalar/pull/7746): fix: allow trailing slashes in path
+  - [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
+- **@scalar/api-client@2.18.1**
+  - [#7744](https://github.com/scalar/scalar/pull/7744): fix: pass hideClientButton config into client modal
+  - [#7743](https://github.com/scalar/scalar/pull/7743): fix: complex auth
+  - [#7740](https://github.com/scalar/scalar/pull/7740): fix: filter out readonly properties from requestBody
+  - [#7742](https://github.com/scalar/scalar/pull/7742): feat: export auth component + proxy fix
+
 ## 0.5.43
 
 ### Patch Changes

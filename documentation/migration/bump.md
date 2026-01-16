@@ -137,9 +137,9 @@ However, transitioning via the CLI is typically more straightforward:
 
 #### Environment Variables
 
-| Bump.sh      | Scalar                                   |
-| ------------ | ---------------------------------------- |
-| `BUMP_TOKEN` | `scalar auth login --token SCALAR_TOKEN` |
+| Bump.sh      | Scalar                                     |
+| ------------ | ------------------------------------------ |
+| `BUMP_TOKEN` | `scalar auth login --token SCALAR_API_KEY` |
 
 #### GitHub Actions
 
@@ -156,7 +156,7 @@ Replace:
 With:
 
 ```yaml
-- run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_TOKEN }}
+- run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 - run: npx @scalar/cli registry publish api.yaml --namespace my-team --slug my-doc
 ```
 

@@ -18,13 +18,13 @@
     "rest",
     "testing"
   ],
-  "version": "2.18.0",
+  "version": "2.18.1",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "pnpm playground:app",
+    "dev": "pnpm playground:v2:web",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",

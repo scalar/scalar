@@ -1,6 +1,7 @@
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
-import { getResolvedRefDeep } from './get-resolved-ref-deep'
 import { describe, expect, it } from 'vitest'
+
+import { getResolvedRefDeep } from './get-resolved-ref-deep'
 
 describe('getResolvedRefDeep', () => {
   describe('basic functionality', () => {
@@ -255,6 +256,26 @@ describe('getResolvedRefDeep', () => {
       const result = getResolvedRefDeep(arrayRef)
 
       expect(result).toEqual([{ id: 1, name: 'John' }])
+    })
+
+    it('should handle arrays containing File objects', () => {
+      // Create a JavaScript File object
+      const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
+      const value = [
+        { name: 'file', value: file },
+        { name: 'description', value: 'Test file' },
+      ]
+
+      const result = getResolvedRefDeep(value)
+
+      // The function should preserve the File object and other values
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      expect(result[0]).toHaveProperty('name', 'file')
+      expect(result[0]).toHaveProperty('value')
+      expect(result[0]?.value).toBeInstanceOf(File)
+      expect((result[0]?.value as File).name).toBe('test.txt')
+      expect(result[1]).toEqual({ name: 'description', value: 'Test file' })
     })
 
     it('should handle true circular references gracefully', () => {

@@ -1,9 +1,12 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getExampleFromSchema } from '@/v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 
-/** Grab the resolved reference to the example from the request body, or build an example from the schema */
+/**
+ * Basically getExample + we generate an example from the schema if no example is found
+ */
 export const getExampleFromBody = (
   requestBody: RequestBodyObject,
   contentType: string,
@@ -12,9 +15,9 @@ export const getExampleFromBody = (
   const content = requestBody.content?.[contentType]
 
   // Return existing example value if we have one
-  const resolved = getResolvedRef(content?.examples?.[exampleKey])
-  if (resolved) {
-    return resolved
+  const example = getExample(requestBody, exampleKey, contentType)
+  if (example) {
+    return example
   }
 
   const schema = getResolvedRef(content?.schema)
@@ -23,10 +26,10 @@ export const getExampleFromBody = (
   }
 
   // Generate an example from the schema
-  const example = getExampleFromSchema(schema)
-  if (!example) {
+  const schemaExample = getExampleFromSchema(schema, { mode: 'write' })
+  if (!schemaExample) {
     return null
   }
 
-  return { value: example }
+  return { value: schemaExample }
 }
