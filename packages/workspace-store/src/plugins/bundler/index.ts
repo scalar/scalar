@@ -172,3 +172,45 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
     },
   }
 }
+
+/**
+ * Lifecycle plugin to normalize the `scheme` property in securitySchemes to lowercase.
+ *
+ * Our typebox schemas require the `scheme` property to be a lowercase string.
+ * This plugin ensures that any `scheme` field under `components.securitySchemes` is normalized to lowercase, fixing
+ * potential user input errors such as "Bearer" or "BASIC".
+ *
+ * Example:
+ * ```yaml
+ * Before normalization:
+ *   components:
+ *     securitySchemes:
+ *       bearerAuth:
+ *         type: http
+ *         scheme: Bearer
+ * ```
+ * After normalization:
+ * ```yaml
+ *   components:
+ *     securitySchemes:
+ *       bearerAuth:
+ *         type: http
+ *         scheme: bearer
+ * ```
+ */
+export const normalizeAuthSchemes = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node, context) => {
+      const { path } = context
+
+      // Check if we're at components.securitySchemes.{schemeName}
+      if (path.length === 3 && path[0] === 'components' && path[1] === 'securitySchemes') {
+        // If the scheme exists and is a string, normalize to lowercase if not already
+        if ('scheme' in node && typeof node['scheme'] === 'string' && node['scheme'].toLowerCase() !== node['scheme']) {
+          node['scheme'] = node['scheme'].toLowerCase()
+        }
+      }
+    },
+  }
+}

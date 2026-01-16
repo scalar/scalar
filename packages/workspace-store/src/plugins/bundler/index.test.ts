@@ -4,7 +4,13 @@ import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deepClone } from '@/helpers/general'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
+import {
+  externalValueResolver,
+  loadingStatus,
+  normalizeAuthSchemes,
+  refsEverywhere,
+  restoreOriginalRefs,
+} from '@/plugins/bundler'
 
 describe('plugins', () => {
   describe('loadingStatus', () => {
@@ -270,6 +276,274 @@ describe('plugins', () => {
         'x-ext-urls': {
           'ad870b6': 'http://localhost:9088',
         },
+      })
+    })
+  })
+
+  describe('normalizeAuthSchemes', () => {
+    it('normalizes Bearer to lowercase', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'Bearer',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.bearerAuth.scheme).toBe('bearer')
+    })
+
+    it('normalizes BASIC to lowercase', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            basicAuth: {
+              type: 'http',
+              scheme: 'BASIC',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.basicAuth.scheme).toBe('basic')
+    })
+
+    it('normalizes Digest to lowercase', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            digestAuth: {
+              type: 'http',
+              scheme: 'Digest',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.digestAuth.scheme).toBe('digest')
+    })
+
+    it('normalizes multiple security schemes', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'Bearer',
+            },
+            basicAuth: {
+              type: 'http',
+              scheme: 'BASIC',
+            },
+            digestAuth: {
+              type: 'http',
+              scheme: 'Digest',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.bearerAuth.scheme).toBe('bearer')
+      expect(input.components.securitySchemes.basicAuth.scheme).toBe('basic')
+      expect(input.components.securitySchemes.digestAuth.scheme).toBe('digest')
+    })
+
+    it('does not modify scheme that is already lowercase', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.bearerAuth.scheme).toBe('bearer')
+    })
+
+    it('handles security schemes without a scheme property', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            apiKeyAuth: {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.apiKeyAuth).toEqual({
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      })
+    })
+
+    it('handles scheme property that is not a string', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            invalidAuth: {
+              type: 'http',
+              scheme: null as any,
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.invalidAuth.scheme).toBeNull()
+    })
+
+    it('does not normalize scheme outside of components.securitySchemes', async () => {
+      const input = {
+        someOtherPath: {
+          scheme: 'Bearer',
+        },
+        components: {
+          schemas: {
+            Auth: {
+              scheme: 'Bearer',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.someOtherPath.scheme).toBe('Bearer')
+      expect(input.components.schemas.Auth.scheme).toBe('Bearer')
+    })
+
+    it('does not normalize scheme at wrong depth', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              nested: {
+                scheme: 'Bearer',
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.bearerAuth.nested.scheme).toBe('Bearer')
+    })
+
+    it('handles empty securitySchemes object', async () => {
+      const input = {
+        components: {
+          securitySchemes: {},
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes).toEqual({})
+    })
+
+    it('handles mixed case scheme values', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            auth1: {
+              type: 'http',
+              scheme: 'BeArEr',
+            },
+            auth2: {
+              type: 'http',
+              scheme: 'BaSiC',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.auth1.scheme).toBe('bearer')
+      expect(input.components.securitySchemes.auth2.scheme).toBe('basic')
+    })
+
+    it('normalizes scheme with other security scheme properties', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'Bearer',
+              bearerFormat: 'JWT',
+              description: 'JWT Bearer authentication',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      expect(input.components.securitySchemes.bearerAuth).toEqual({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT Bearer authentication',
       })
     })
   })

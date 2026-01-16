@@ -21,7 +21,13 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins/bundler'
+import {
+  externalValueResolver,
+  loadingStatus,
+  normalizeAuthSchemes,
+  refsEverywhere,
+  restoreOriginalRefs,
+} from '@/plugins/bundler'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -821,6 +827,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }),
               externalValueResolver(),
               refsEverywhere(),
+              normalizeAuthSchemes(),
             ],
             urlMap: true,
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
