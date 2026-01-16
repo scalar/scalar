@@ -1,4 +1,5 @@
 import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarSelectedSecurity } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-selected-security'
@@ -28,10 +29,6 @@ export const loadClientFromStorage = (store: WorkspaceStore): void => {
  * Secret keys start with 'x-scalar-secret-' prefix.
  */
 export const isSecretKey = (key: string): boolean => key.startsWith(SECRET_KEY_PREFIX)
-
-const isObject = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 /**
  * Recursively merges secret values from stored data into the current schema.
@@ -127,19 +124,15 @@ export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
   }
 
   const authPersistence = authStorage()
-  const storedAuthSchemes = authPersistence.getSchemas(slug)
   const storedSelectedAuthSchemes = authPersistence.getSelectedSchemes(slug)
-  if (!storedAuthSchemes || !storedSelectedAuthSchemes?.['x-scalar-selected-security']) {
-    return
-  }
 
   const availableSchemes = new Set(Object.keys(activeDocument.components?.securitySchemes ?? {}))
-  const selectedSchemes = storedSelectedAuthSchemes['x-scalar-selected-security'].selectedSchemes ?? []
-  const validSchemes = selectedSchemes.filter((scheme) => isSchemeValid(scheme, availableSchemes))
+  const selectedSchemes = storedSelectedAuthSchemes['x-scalar-selected-security']?.selectedSchemes
+  const validSchemes = selectedSchemes?.filter((scheme) => isSchemeValid(scheme, availableSchemes))
 
   // Only restore if we have valid schemes to prevent breaking default fallback logic
-  if (validSchemes.length > 0) {
-    const selectedIndex = storedSelectedAuthSchemes['x-scalar-selected-security'].selectedIndex
+  if (validSchemes && validSchemes.length > 0) {
+    const selectedIndex = storedSelectedAuthSchemes['x-scalar-selected-security']?.selectedIndex ?? 0
     const clampedIndex = clampSelectedIndex(selectedIndex, validSchemes.length)
 
     activeDocument['x-scalar-selected-security'] = {
