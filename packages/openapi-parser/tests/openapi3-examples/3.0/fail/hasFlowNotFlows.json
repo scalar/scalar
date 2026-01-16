@@ -452,7 +452,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "order placed for purchasing the pet",
               "schema": {
                 "$ref": "#/components/schemas/Order"
               }
@@ -548,7 +547,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Created user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
@@ -738,7 +736,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Updated user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
@@ -945,13 +942,11 @@
       "Pet": {
         "content": {
           "application/json": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
           },
           "application/xml": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
@@ -961,7 +956,6 @@
       "UserArray": {
         "content": {
           "application/json": {
-            "description": "List of user object",
             "schema": {
               "type": "array",
               "items": {
