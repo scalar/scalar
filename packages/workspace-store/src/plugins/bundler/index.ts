@@ -7,6 +7,7 @@
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
+import { getResolvedRef } from '@/plugins/bundler/helpers'
 
 /**
  * A lifecycle plugin that adds a `$status` property to nodes during resolution.
@@ -201,14 +202,22 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
 export const normalizeAuthSchemes = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: (node, context) => {
+    onAfterNodeProcess: (node, context) => {
       const { path } = context
 
       // Check if we're at components.securitySchemes.{schemeName}
       if (path.length === 3 && path[0] === 'components' && path[1] === 'securitySchemes') {
+        const targetNode = getResolvedRef(node, context)
+
         // If the scheme exists and is a string, normalize to lowercase if not already
-        if ('scheme' in node && typeof node['scheme'] === 'string' && node['scheme'].toLowerCase() !== node['scheme']) {
-          node['scheme'] = node['scheme'].toLowerCase()
+        if (
+          typeof targetNode === 'object' &&
+          targetNode !== null &&
+          'scheme' in targetNode &&
+          typeof targetNode['scheme'] === 'string' &&
+          targetNode['scheme'].toLowerCase() !== targetNode['scheme']
+        ) {
+          targetNode['scheme'] = targetNode['scheme'].toLowerCase()
         }
       }
     },

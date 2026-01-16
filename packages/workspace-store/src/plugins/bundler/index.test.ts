@@ -49,13 +49,13 @@ describe('plugins', () => {
                 raw: JSON.stringify({ message: 'Resolved document' }),
               }),
           },
+          loadingStatus(),
           {
             type: 'lifecycle',
             onResolveStart,
             onResolveError,
             onResolveSuccess,
           },
-          loadingStatus(),
         ],
         treeShake: false,
       })

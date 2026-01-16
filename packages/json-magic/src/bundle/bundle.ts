@@ -567,6 +567,10 @@ export const extensions = {
   externalDocumentsMappings: 'x-ext-urls',
 } as const
 
+type HookFn<T extends keyof Config['hooks']> = NonNullable<Config['hooks'][T]> extends (...args: infer A) => any
+  ? (...args: A) => any
+  : never
+
 /**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and embeds external $ref
@@ -713,6 +717,35 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     documentRoot[config.externalDocumentsMappingsKey],
   )
 
+  /**
+   * Executes lifecycle hooks defined both in the bundler configuration and any extended lifecycle plugins.
+   * This utility function ensures that all relevant hooks for a given event type are called in order:
+   * - First, the hook directly provided via the config (if present)
+   * - Then, all matching hooks from registered lifecycle plugins (if present)
+   *
+   * Hooks are awaited in sequence for the given event type and argument list.
+   *
+   * @param type The hook event type, corresponding to a key of Config['hooks'].
+   * @param args Arguments to pass to the hook function, matching HookFn<T>.
+   */
+  const executeHooks = async <T extends keyof Config['hooks']>(
+    type: T,
+    ...args: Parameters<HookFn<T>>
+  ): Promise<void> => {
+    // Run hook defined directly in config, if present
+    const hook = config.hooks?.[type] as HookFn<T> | undefined
+    if (hook) {
+      await hook(...args)
+    }
+    // Additionally run the hook for every lifecycle plugin, if present
+    for (const plugin of lifecyclePlugin) {
+      const pluginHook = plugin[type] as HookFn<T> | undefined
+      if (pluginHook) {
+        await pluginHook(...args)
+      }
+    }
+  }
+
   const bundler = async (
     root: unknown,
     origin: string = defaultOrigin(),
@@ -738,24 +771,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Mark this node as processed before continuing
     processedNodes.add(root)
 
-    // Invoke the onBeforeNodeProcess hook for the current node before any further processing
-    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, {
+    const context = {
       path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
-    })
-    // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
-    for (const plugin of lifecyclePlugin) {
-      await plugin.onBeforeNodeProcess?.(root as UnknownObject, {
-        path: currentPath,
-        resolutionCache: cache,
-        parentNode: parent,
-        rootNode: documentRoot as UnknownObject,
-        loaders: loaderPlugins,
-      })
     }
+
+    await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const id = getId(root)
 
@@ -785,6 +809,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // creating a complete and self-contained partial bundle.
           await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
         }
+        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
         return
       }
 
@@ -805,8 +830,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         cache.set(resolvedPath, resolveContents(resolvedPath, loaderPlugins))
       }
 
-      config?.hooks?.onResolveStart?.(root)
-      lifecyclePlugin.forEach((it) => it.onResolveStart?.(root))
+      await executeHooks('onResolveStart', root)
 
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
@@ -874,15 +898,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
 
-        config?.hooks?.onResolveSuccess?.(root)
-        lifecyclePlugin.forEach((it) => it.onResolveSuccess?.(root))
+        await executeHooks('onResolveSuccess', root)
 
+        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
         return
       }
 
-      config?.hooks?.onResolveError?.(root)
-      lifecyclePlugin.forEach((it) => it.onResolveError?.(root))
+      await executeHooks('onResolveError', root)
 
+      await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -901,27 +925,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       }),
     )
 
-    // Invoke the optional onAfterNodeProcess hook from the config, if provided.
-    // This allows for custom post-processing logic after a node has been handled by the bundler.
-    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, {
-      path: currentPath,
-      resolutionCache: cache,
-      parentNode: parent,
-      rootNode: documentRoot as UnknownObject,
-      loaders: loaderPlugins,
-    })
-
-    // Iterate through all lifecycle plugins and invoke their onAfterNodeProcess hooks, if defined.
-    // This enables plugins to perform additional post-processing or cleanup after the node is processed.
-    for (const plugin of lifecyclePlugin) {
-      await plugin.onAfterNodeProcess?.(root as UnknownObject, {
-        path: currentPath,
-        resolutionCache: cache,
-        parentNode: parent,
-        rootNode: documentRoot as UnknownObject,
-        loaders: loaderPlugins,
-      })
-    }
+    await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
   }
 
   await bundler(rawSpecification)
