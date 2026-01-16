@@ -24,7 +24,7 @@ type CreateApiClientOptions = {
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
  */
-const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
+export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
   // Web uses the standard HTML5 history API
   if (layout === 'web') {
     return createVueRouter({ history: createWebHistory(), routes: ROUTES })
