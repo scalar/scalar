@@ -1,5 +1,46 @@
 # @scalar/api-client
 
+## 2.18.2
+
+### Patch Changes
+
+- [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unneeded export from internal types and values
+- [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+- [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unused files
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/postman-to-openapi@0.3.59**
+  - [#7626](https://github.com/scalar/scalar/pull/7626): fix: remove `@scalar/oas-utils` unused dependency
+
+- **@scalar/openapi-parser@0.24.0**
+  - [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
+- **@scalar/oas-utils@0.6.18**
+
+- **@scalar/sidebar@0.7.11**
+
+- **@scalar/components@0.16.21**
+
+- **@scalar/import@0.4.45**
+
+- **@scalar/json-magic@0.9.1**
+
+- **@scalar/object-utils@1.2.22**
+
+- **@scalar/types@0.5.8**
+
+- **@scalar/use-codemirror@0.13.15**
+
+- **@scalar/snippetz@0.6.5**
+
 ## 2.18.1
 
 ### Patch Changes

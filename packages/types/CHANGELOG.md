@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.5.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 0.5.7
 
 ### Patch Changes

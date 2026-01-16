@@ -1,5 +1,20 @@
 # scalar-app
 
+## 0.1.262
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.2**
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unneeded export from internal types and values
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unused files
+
+- **@scalar/components@0.16.21**
+
+- **@scalar/import@0.4.45**
+
 ## 0.1.261
 
 ### Patch Changes
