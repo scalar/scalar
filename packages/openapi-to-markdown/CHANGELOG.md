@@ -1,5 +1,24 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/oas-utils@0.6.19**
+
+- **@scalar/components@0.16.22**
+
+- **@scalar/types@0.5.8**
+
+- **@scalar/openapi-parser@0.24.1**
+
+- **@scalar/openapi-upgrader@0.1.7**
+
 ## 0.3.21
 
 ### Patch Changes

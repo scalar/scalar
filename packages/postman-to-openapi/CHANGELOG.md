@@ -1,5 +1,14 @@
 # @scalar/postman-to-openapi
 
+## 0.3.60
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 0.3.59
 
 ### Patch Changes

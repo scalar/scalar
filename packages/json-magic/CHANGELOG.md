@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.9.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 0.9.0
 
 ### Minor Changes

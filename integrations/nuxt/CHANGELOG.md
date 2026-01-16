@@ -1,5 +1,21 @@
 # @scalar/nuxt
 
+## 0.5.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.9**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/api-client@2.18.3**
+
+- **@scalar/types@0.5.8**
+
 ## 0.5.45
 
 ### Patch Changes

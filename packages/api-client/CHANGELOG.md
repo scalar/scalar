@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 2.18.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.9**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/oas-utils@0.6.19**
+
+- **@scalar/sidebar@0.7.12**
+
+- **@scalar/components@0.16.22**
+
+- **@scalar/import@0.4.45**
+
+- **@scalar/json-magic@0.9.1**
+
+- **@scalar/object-utils@1.2.22**
+
+- **@scalar/postman-to-openapi@0.3.60**
+
+- **@scalar/types@0.5.8**
+
+- **@scalar/use-codemirror@0.13.16**
+
+- **@scalar/openapi-parser@0.24.1**
+
+- **@scalar/snippetz@0.6.5**
+
 ## 2.18.2
 
 ### Patch Changes
