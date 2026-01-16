@@ -1,6 +1,7 @@
 import type { ClientPlugin } from '@scalar/api-client/v2/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { describe, expect, it, vi } from 'vitest'
+import { type ComputedRef, computed } from 'vue'
 
 import { mapConfigPlugins } from './map-config-plugins'
 
@@ -25,9 +26,9 @@ describe('mapConfigPlugins', () => {
       request: modifiedRequest,
     }))
 
-    const config = {
+    const config = computed(() => ({
       onBeforeRequest: onBeforeRequestMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -73,9 +74,9 @@ describe('mapConfigPlugins', () => {
       console.log('Request intercepted')
     })
 
-    const config = {
+    const config = computed(() => ({
       onBeforeRequest: onBeforeRequestMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -115,9 +116,9 @@ describe('mapConfigPlugins', () => {
 
     const onRequestSentMock = vi.fn()
 
-    const config = {
+    const config = computed(() => ({
       onRequestSent: onRequestSentMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -165,8 +166,12 @@ describe('mapConfigPlugins', () => {
     }
 
     // Act: Map the configs to plugins
-    const pluginsFromEmpty: ClientPlugin[] = mapConfigPlugins(emptyConfig as ApiReferenceConfigurationRaw)
-    const pluginsFromOther: ClientPlugin[] = mapConfigPlugins(configWithOtherProps as ApiReferenceConfigurationRaw)
+    const pluginsFromEmpty: ClientPlugin[] = mapConfigPlugins(
+      computed(() => emptyConfig) as ComputedRef<ApiReferenceConfigurationRaw>,
+    )
+    const pluginsFromOther: ClientPlugin[] = mapConfigPlugins(
+      computed(() => configWithOtherProps) as ComputedRef<ApiReferenceConfigurationRaw>,
+    )
 
     // Assert: Verify empty arrays are returned
     expect(pluginsFromEmpty).toEqual([])
