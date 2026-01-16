@@ -1084,6 +1084,16 @@
             "mode": "nested",
             "icon": "phosphor/regular/caret-circle-right",
             "children": {
+              "stoplight": {
+                "title": "Stoplight",
+                "filepath": "documentation/migration/stoplight.md",
+                "type": "page"
+              },
+              "api-hub": {
+                "title": "API Hub",
+                "filepath": "documentation/migration/api-hub.md",
+                "type": "page"
+              },
               "bump": {
                 "title": "Bump.sh",
                 "filepath": "documentation/migration/bump.md",
