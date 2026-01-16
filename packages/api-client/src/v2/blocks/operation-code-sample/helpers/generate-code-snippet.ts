@@ -12,7 +12,7 @@ import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
 
-export type GenerateCodeSnippetProps = {
+type GenerateCodeSnippetProps = {
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */
   clientId: AvailableClient | CustomCodeSampleId | undefined
   /** The Content-Type header value for the request body (e.g., 'application/json'). */

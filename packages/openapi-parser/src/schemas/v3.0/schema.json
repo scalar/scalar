@@ -744,7 +744,7 @@
       "type": "object",
       "patternProperties": {
         "^\\/": {
-          "$ref": "#/definitions/PathItem"
+          "$ref": "#/definitions/PathItemOrReference"
         },
         "^x-": {}
       },
@@ -753,9 +753,6 @@
     "PathItem": {
       "type": "object",
       "properties": {
-        "$ref": {
-          "type": "string"
-        },
         "summary": {
           "type": "string"
         },
@@ -790,6 +787,16 @@
         "^x-": {}
       },
       "additionalProperties": false
+    },
+    "PathItemOrReference": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/PathItem"
+        },
+        {
+          "$ref": "#/definitions/Reference"
+        }
+      ]
     },
     "Operation": {
       "type": "object",
@@ -1176,7 +1183,10 @@
         {
           "$ref": "#/definitions/OpenIdConnectSecurityScheme"
         }
-      ]
+      ],
+      "discriminator": {
+        "propertyName": "type"
+      }
     },
     "APIKeySecurityScheme": {
       "type": "object",

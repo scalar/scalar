@@ -1,5 +1,4 @@
 import type { ApiClientPlugin, hooksSchema } from '@scalar/types/api-reference'
-import type { InjectionKey } from 'vue'
 import type { z } from 'zod'
 
 export type { ApiClientPlugin }
@@ -55,4 +54,3 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
 }
 
 export type PluginManager = ReturnType<typeof createPluginManager>
-export const PLUGIN_MANAGER_SYMBOL = Symbol() as InjectionKey<PluginManager>

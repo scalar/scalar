@@ -1,7 +1,6 @@
+export { PLUGIN_MANAGER_SYMBOL, usePluginManager } from './hooks/usePluginManager'
 export {
-  createPluginManager,
   type ApiClientPlugin,
   type PluginManager,
+  createPluginManager,
 } from './plugin-manager'
-
-export { PLUGIN_MANAGER_SYMBOL, usePluginManager } from './hooks/usePluginManager'

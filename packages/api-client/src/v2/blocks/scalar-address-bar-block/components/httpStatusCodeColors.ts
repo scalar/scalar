@@ -1,4 +1,4 @@
-export const STATUS_CODES_COLORS = {
+const STATUS_CODES_COLORS = {
   100: {
     color: 'text-yellow',
   },
@@ -31,7 +31,7 @@ export const STATUS_CODES_COLORS = {
   },
 } as const
 
-export type StatusCode = keyof typeof STATUS_CODES_COLORS
+type StatusCode = keyof typeof STATUS_CODES_COLORS
 
 export const getStatusCodeColor = (statusCode: number) => {
   const code = statusCode as StatusCode

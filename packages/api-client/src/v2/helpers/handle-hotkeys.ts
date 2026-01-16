@@ -6,10 +6,10 @@ import type { ClientLayout } from '@/v2/types/layout'
 type HotKeyModifiers = ('altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey' | 'default')[]
 
 /** Hotkey configuration */
-export type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEvents; modifiers: HotKeyModifiers }>
+type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEvents; modifiers: HotKeyModifiers }>
 
 /** Default hotkeys available in most contexts */
-export const DEFAULT_HOTKEYS: HotKeyConfig = {
+const DEFAULT_HOTKEYS: HotKeyConfig = {
   Enter: { event: 'operation:send:request:hotkey', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
   p: { event: 'ui:open:command-palette', modifiers: ['shiftKey'] },
@@ -17,7 +17,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 }
 
 /** Hotkey map by layout, we can allow the user to override this later */
-export const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
+const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
   web: DEFAULT_HOTKEYS,
 
   modal: {

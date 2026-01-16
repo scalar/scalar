@@ -44,26 +44,27 @@ beforeEach(() => {
    *
    * @see https://github.com/jsdom/jsdom/issues/3368
    */
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
+  globalThis.ResizeObserver = class {
+    disconnect = vi.fn()
+    observe = vi.fn()
+    unobserve = vi.fn()
+  }
 
   /**
    * Mock IntersectionObserver which is not available in the test environment.
    *
    * @see https://github.com/jsdom/jsdom/issues/2032
    */
-  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    takeRecords: vi.fn(() => []),
-    root: null,
-    rootMargin: '',
-    thresholds: [],
-  }))
+  globalThis.IntersectionObserver = class {
+    constructor(public callback: IntersectionObserverCallback) {}
+    disconnect = vi.fn()
+    observe = vi.fn()
+    unobserve = vi.fn()
+    takeRecords = vi.fn(() => [])
+    root = null
+    rootMargin = ''
+    thresholds = [] as number[]
+  }
 
   /**
    * Mock scrollIntoView which is not available in the test environment.
@@ -568,7 +569,7 @@ describe('ApiReference Configuration Tests', () => {
 
     await flushPromises()
     const ServerSelector = wrapper.findComponent({ name: 'Selector' })
-    ServerSelector.vm.emit('update:modelValue', 'https://api-staging.example.com')
+    ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
     expect(onServerChange).toHaveBeenCalled()
   })
 

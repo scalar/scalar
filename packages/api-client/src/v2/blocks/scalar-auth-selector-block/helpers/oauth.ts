@@ -31,7 +31,7 @@ const generateCodeVerifier = (): string => {
 /**
  * Creates a code challenge from the code verifier
  */
-export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
+const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
   if (encoding === 'plain') {
     return verifier
   }
@@ -247,7 +247,7 @@ export const authorizeOauth2 = async (
  * Makes the BE authorization call to grab the token server to server
  * Used for clientCredentials and authorizationCode
  */
-export const authorizeServers = async (
+const authorizeServers = async (
   flows: NonImplicitFlows,
   type: keyof NonImplicitFlows,
   scopes: string,

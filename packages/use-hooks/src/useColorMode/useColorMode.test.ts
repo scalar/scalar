@@ -28,6 +28,9 @@ describe('useColorMode', () => {
 
     // Clear localStorage
     localStorage.clear()
+
+    // Provide a default matchMedia mock since jsdom does not implement it
+    window.matchMedia = vi.fn().mockImplementation(createMatchMediaMock('light'))
   })
 
   it('defaults to system mode preference', () => {

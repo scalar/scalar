@@ -11,7 +11,7 @@ import TestRequestButton from './TestRequestButton.vue'
 const createMockEventBus = (): WorkspaceEventBus => ({
   on: vi.fn(),
   off: vi.fn(),
-  emit: vi.fn(),
+  emit: vi.fn(() => null),
 })
 
 describe('TestRequestButton', () => {

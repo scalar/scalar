@@ -12,7 +12,7 @@ import type {
  * Default props that all command components receive.
  * These are injected automatically by the command palette.
  */
-export type DefaultCommandProps = {
+type DefaultCommandProps = {
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting workspace events */
@@ -22,13 +22,13 @@ export type DefaultCommandProps = {
 }
 
 /** Helper type to make all properties writable */
-export type Writable<T> = { -readonly [K in keyof T]: T[K] }
+type Writable<T> = { -readonly [K in keyof T]: T[K] }
 
 /**
  * Extracts the props type from a Vue component.
  * Strips out VNode and Vue-specific props to get only user-defined props.
  */
-export type ComponentProps<C extends Component> = C extends new (
+type ComponentProps<C extends Component> = C extends new (
   ...args: any
 ) => {
   $props: infer P
@@ -40,7 +40,7 @@ export type ComponentProps<C extends Component> = C extends new (
  * Maps command IDs to their actual component props.
  * Used for validating that components accept the correct props.
  */
-export type CommandComponentPropsMap<T extends Record<string, Component>> = {
+type CommandComponentPropsMap<T extends Record<string, Component>> = {
   [K in keyof T]: ComponentProps<T[K]>
 }
 
@@ -48,12 +48,12 @@ export type CommandComponentPropsMap<T extends Record<string, Component>> = {
  * Maps command IDs to their expected props (default props + command-specific props).
  * This is what each command component should accept.
  */
-export type ExpectedCommandComponentPropsMap = {
+type ExpectedCommandComponentPropsMap = {
   [K in UiCommandIds]: DefaultCommandProps & (CommandPropsMap[K] extends undefined ? unknown : CommandPropsMap[K])
 }
 
 /** Helper type to flatten and display complex types in IDE tooltips */
-export type Prettify<T> = { [K in keyof T]: T[K] } & {}
+type Prettify<T> = { [K in keyof T]: T[K] } & {}
 
 /**
  * Type-level assertion that compares actual component props with expected props.
@@ -61,7 +61,7 @@ export type Prettify<T> = { [K in keyof T]: T[K] } & {}
  *
  * Using literals prevents union collapse (true | never = true, but 'valid' | object stays distinct).
  */
-export type AssertPropsMatch<Actual, Expected> = [Actual] extends [Expected]
+type AssertPropsMatch<Actual, Expected> = [Actual] extends [Expected]
   ? 'valid'
   : {
       status: 'invalid'
@@ -74,7 +74,7 @@ export type AssertPropsMatch<Actual, Expected> = [Actual] extends [Expected]
  * Validates that all command components have the correct props.
  * This type is used at the type-checking level to ensure type safety.
  */
-export type CommandComponentPropsCheck<T extends Record<string, Component>> = {
+type CommandComponentPropsCheck<T extends Record<string, Component>> = {
   [K in UiCommandIds]: AssertPropsMatch<
     Writable<CommandComponentPropsMap<T>[K]>,
     Partial<ExpectedCommandComponentPropsMap[K]>
@@ -82,14 +82,14 @@ export type CommandComponentPropsCheck<T extends Record<string, Component>> = {
 }
 
 /** All validation results for command components */
-export type PropsCheckResults<T extends Record<string, Component>> =
+type PropsCheckResults<T extends Record<string, Component>> =
   CommandComponentPropsCheck<T>[keyof CommandComponentPropsCheck<T>]
 
 /**
  * Filter to show only invalid components.
  * Makes error messages clearer by excluding valid components.
  */
-export type InvalidComponents<T extends Record<string, Component>> = {
+type InvalidComponents<T extends Record<string, Component>> = {
   [K in keyof CommandComponentPropsCheck<T> as CommandComponentPropsCheck<T>[K] extends 'valid'
     ? never
     : K]: CommandComponentPropsCheck<T>[K]

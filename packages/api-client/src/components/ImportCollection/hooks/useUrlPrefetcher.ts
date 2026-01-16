@@ -4,7 +4,7 @@ import { reactive } from 'vue'
 
 import { isUrl } from '@/libs'
 
-export type PrefetchResult = {
+type PrefetchResult = {
   state: 'idle' | 'loading'
   content: string | null
   input: string | null

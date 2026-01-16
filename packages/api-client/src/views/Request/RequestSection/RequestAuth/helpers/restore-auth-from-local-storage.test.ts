@@ -29,11 +29,12 @@ describe('restoreAuthFromLocalStorage', () => {
       getItem: vi.fn(),
       setItem: vi.fn(),
       removeItem: vi.fn(),
-    }
+    } as const
 
     // Mock safeLocalStorage to return our mock
     const { safeLocalStorage } = await import('@scalar/helpers/object/local-storage')
-    vi.mocked(safeLocalStorage).mockReturnValue(mockLocalStorage)
+
+    vi.mocked(safeLocalStorage).mockReturnValue(mockLocalStorage as unknown as Storage)
 
     // Setup mock store
     mockStore = {

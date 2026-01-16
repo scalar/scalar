@@ -6,7 +6,7 @@ import { isUrl } from '@/v2/helpers/is-url'
  * Represents parsed details from an OpenAPI or Swagger specification.
  * Used to display information about imported API descriptions in the command palette.
  */
-export type OpenApiDocumentDetails = {
+type OpenApiDocumentDetails = {
   /** The API specification version (e.g., "OpenAPI 3.1.0" or "Swagger 2.0"). */
   version: string
   /** The format of the specification document. */
