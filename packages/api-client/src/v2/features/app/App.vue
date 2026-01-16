@@ -25,17 +25,30 @@ import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { useAppState } from './app-state'
+import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import WebTopNav from './components/WebTopNav.vue'
 
-const { layout, plugins = [] } = defineProps<{
+const {
+  layout,
+  plugins = [],
+  getAppState,
+} = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
+  getAppState: () => AppState
 }>()
 
-const app = useAppState()
+defineSlots<{
+  /**
+   * Slot for customizing the actions section of the sidebar menu.
+   * This slot is used to render custom actions or components within the actions section.
+   */
+  'sidebar-menu-actions': []
+}>()
+
+const app = getAppState()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -147,7 +160,11 @@ const routerViewProps = computed<RouteProps>(() => ({
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="app.workspace.setId"
           @selectItem="app.sidebar.handleSelectItem"
-          @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
+          @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
+          <template #sidebar-menu-actions>
+            <slot name="sidebar-menu-actions" />
+          </template>
+        </AppSidebar>
 
         <!-- Create workspace modal -->
         <CreateWorkspaceModal

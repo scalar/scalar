@@ -38,14 +38,12 @@ const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  * Create the API Client with router and passes in the workspace store as a prop
  */
 export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop', plugins }: CreateApiClientOptions) => {
-  // Pass in our initial props at the top level
-  const app = createApp(App, { layout, plugins })
-
   // Add the router
   const router = createAppRouter(layout)
-  const state = useAppState()
-  state.router.value = router
+  const state = useAppState(router)
 
+  // Pass in our initial props at the top level
+  const app = createApp(App, { layout, plugins, getAppState: () => state })
   app.use(router)
 
   // Mount the vue app

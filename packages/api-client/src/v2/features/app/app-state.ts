@@ -720,7 +720,7 @@ initializeAppEventHandlers({
   onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
 })
 
-export function useAppState(): {
+export type AppState = {
   store: ShallowRef<WorkspaceStore | null>
   sidebar: {
     state: typeof sidebarState
@@ -756,7 +756,12 @@ export function useAppState(): {
   }
   environment: ComputedRef<XScalarEnvironment>
   document: ComputedRef<WorkspaceDocument | null>
-} {
+}
+
+export function useAppState(_router: Router): AppState {
+  if (_router) {
+    router.value = _router
+  }
   return {
     /** Active workspace store */
     store,
