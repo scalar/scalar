@@ -39,7 +39,7 @@ If the generated OpenAPI is being powered by Stoplight CLI without Git then that
 
 Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Scalar Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
-![](https://cdn.scalar.com/images/blog/stoplight/editor.png)
+![](../assets/migration/editor.png)
 
 With that in mind, let's look at how you can switch to a cheaper and better OpenAPI editor and documentation tool.
 
@@ -57,13 +57,13 @@ Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Sca
 
 To use GitHub Sync go to the dashboard, click **Create Documentation**, then select **GitHub Sync**. Pick the appropriate organization from the dropdown and find the repository to link.
 
-![](https://cdn.scalar.com/images/blog/stoplight/create-docs-from-git.png)
+![](../assets/migration/create-docs-from-git.png)
 
 Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
 
 All of this can be changed later so pick whatever and click publish, it'll be private by default so no worries about anyone seeing anything that's not ready.
 
-**Learn more about [GitHub Sync here](https://guides.scalar.com/scalar/scalar-docs/github-sync).**
+**Learn more about [GitHub Sync here](../guides/docs/github-sync.md).**
 
 ### Web Projects: Exporting Stoplight Web Projects
 
@@ -71,11 +71,11 @@ Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting 
 
 Go to your project’s studio page, and click the three line drop down to reveal the **Download project ZIP** option.
 
-![](https://cdn.scalar.com/images/blog/stoplight/export-stoplight-studio-project.png)
+![](../assets/migration/export-stoplight-studio-project.png)
 
 If you only want the OpenAPI document, you could just go to your doc page, click **Export** and then choose **Bundled** to make sure you get any `$ref` to other files included.
 
-![](https://cdn.scalar.com/images/blog/stoplight/export-openapi.png)
+![](../assets/migration/export-openapi.png)
 
 Let's switch these to Git Sync projects to keep the source of truth entirely under your control. To do this we can create a new repository to help track changes, or merge the downloaded OpenAPI/Markdown into the existing source code repository.
 
@@ -87,31 +87,44 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 
 ```json
 {
-  "subdomain": "train-travel-api",
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
   "publishOnMerge": true,
-  "guides": [
-    {
-      "name": "Guides",
-      "sidebar": [
-        {
-          "path": "docs/getting-started.md",
-          "type": "page"
+  "siteConfig": {
+    "subdomain": "name-of-your-api"
+  },
+  "navigation": {
+    "routes": {
+      "/": {
+        "type": "group",
+        "title": "Train Travel API",
+        "children": {
+          "/guides": {
+            "type": "group",
+            "title": "Guides",
+            "children": {
+              "getting-started": {
+                "type": "page",
+                "filepath": "docs/getting-started.md",
+                "title": "Getting Started"
+              }
+            }
+          },
+          "/api": {
+            "type": "openapi",
+            "url": "openapi.yaml",
+            "title": "API Reference"
+          }
         }
-      ]
+      }
     }
-  ],
-  "references": [
-		{
-      "name": "API Reference",
-      "path": "openapi.yaml"
-    }
-  ]
+  }
 }
 ```
 
 The `"publishOnMerge": true` tells Scalar to publish your documentation when a branch is merged into the selected branch, instead of anyone having to manually publish it.
 
-![](https://cdn.scalar.com/images/blog/stoplight/git-deployments.png)
+![](../assets/migration/git-deployments.png)
 
 The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor.
 
@@ -137,38 +150,48 @@ Take this example `toc.json` from a Stoplight project.
 Copy and paste that chunk of JSON out of there, and make the following changes.
 
 1. Change `type: item` to `type: page`.
-2. Remove `title` as Scalar will take that from the Markdown title.
-3. Change `path:` to `uri:`.
+2. Change `uri` to `filepath`.
+3. Keep the `title` field.
 
 ```json
 {
-  "subdomain": "train-travel-api",
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
   "publishOnMerge": true,
-  "guides": [
-    {
-      "name": "Guides",
-      "sidebar": [
-        {
-          "path": "docs/getting-started.md",
-          "type": "page"
+  "siteConfig": {
+    "subdomain": "name-of-your-api"
+  },
+  "navigation": {
+    "routes": {
+      "/": {
+        "type": "group",
+        "title": "Train Travel API",
+        "children": {
+          "/guides": {
+            "type": "group",
+            "title": "Guides",
+            "children": {
+              "getting-started": {
+                "type": "page",
+                "filepath": "docs/getting-started.md",
+                "title": "Getting Started"
+              },
+              "hello-world": {
+                "type": "page",
+                "filepath": "docs/hello-world.md",
+                "title": "Hello World"
+              }
+            }
+          },
+          "/api": {
+            "type": "openapi",
+            "url": "openapi.yaml",
+            "title": "API Reference"
+          }
         }
-		    {
-		      "type": "page",
-		      "uri": "docs/getting-started.md"
-		    },
-		    {
-		      "type": "page",
-		      "uri": "docs/hello-world.md"
-		    }
-      ]
+      }
     }
-  ],
-  "references": [
-		{
-      "name": "API Reference",
-      "path": "openapi.yaml"
-    }
-  ]
+  }
 }
 ```
 
@@ -179,7 +202,7 @@ Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has 
 
 ## Step 4: Review The New Documentation
 
-Click the deployment to see find the projects docs URL, something like `https://yourorg-train-travel-api.apidocumentation.com`.
+Click the deployment to see find the projects docs URL, something like `https://name-of-your-api.apidocumentation.com`.
 
 This will show two distinct sections.
 
@@ -200,7 +223,7 @@ That might not be the end of the story though, as Spectral also supports custom 
 
 To migrate any custom Spectral rulesets hosted in Stoplight Platform, head to Studio, and click **Export Spectral File**.
 
-![](https://cdn.scalar.com/images/blog/stoplight/stoplight-export-spectral.png)
+![](../assets/migration/stoplight-export-spectral.png)
 
 Maybe this is just turning some rules on and off.
 
@@ -212,13 +235,16 @@ Be aware rules with custom functions wont work, so just comment those out.
 
 Once you're happy with your new API documentation, it's time to bring the API client developers along too. Those of you with a custom domain pointing to Stoplight (something like `developers.acme.com`) can update the CNAME to point to Scalar.
 
-First off, [add the custom domain](https://guides.scalar.com/scalar/scalar-docs/github-sync#github-sync__advanced-configuration__use-a-custom-domain) to your Scalar config.
+First off, [add the custom domain](../guides/docs/github-sync.md#github-sync__advanced-configuration__use-a-custom-domain) to your Scalar config.
 
 ```json
 // scalar.config.json
 {
-  "customDomain": "docs.example.com",
-  ...
+  "siteConfig": {
+    "subdomain": "name-of-your-api",
+    "customDomain": "docs.example.com"
+  }
+  // ...
 }
 ```
 
@@ -226,24 +252,26 @@ Then pop over to your DNS and update the CNAME from `developers` (or whatever yo
 
 ## Step 7: (Optional) Add Redirects
 
-If you had a lot of traffic going to your Stoplight docs, you might want to set up some redirects to make sure existing links keep working. Scalar supports redirects via the `routing.redirect` configuration in `scalar.config.json`.
+If you had a lot of traffic going to your Stoplight docs, you might want to set up some redirects to make sure existing links keep working. Scalar supports redirects via the `siteConfig.routing.redirects` configuration in `scalar.config.json`.
 
 If you were using a custom domain with Stoplight hosted documentation then the paths will be passed to Scalar after Step 6. This means Scalar's redirects can be used to point old paths to new ones.
 
 ```json
 // scalar.config.json
 {
-  "routing": {
-    "redirect": [{
-      "from": "/docs/<stoplight-project>/10a1321b3-:wildcard",
-      "to": "/scalar/scalar-registry/github-actions"
-    }]
+  "siteConfig": {
+    "routing": {
+      "redirects": [{
+        "from": "/docs/<stoplight-project>/10a1321b3-:wildcard",
+        "to": "/scalar/scalar-registry/github-actions"
+      }]
+    }
   }
   // ...
 }
 ```
 
-**Learn more about [Scalar Redirects](https://guides.scalar.com/scalar/scalar-docs/redirects) here.**
+**Learn more about [Scalar Redirects](../guides/docs/redirects.md) here.**
 
 ## Summary
 
