@@ -62,8 +62,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = useAppState()
-    appState.router.value = router
+    const appState = useAppState(router)
 
     await router.push({
       name: 'document.overview',
@@ -75,6 +74,7 @@ describe('App', () => {
     const wrapper = mount(App, {
       props: {
         layout,
+        getAppState: () => appState,
       },
       global: {
         plugins: [router],
