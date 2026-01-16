@@ -10,6 +10,7 @@ export const persistencePlugin = ({
   debounceDelay = 500,
   maxWait = 10000,
   prefix = '',
+  persistAuth = false,
 }: {
   debounceDelay?: number
   /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
@@ -20,6 +21,12 @@ export const persistencePlugin = ({
    * For example, to persist data per document, use the document name as the prefix.
    */
   prefix?: string | (() => string)
+  /**
+   * Determines whether authentication details should be persisted.
+   * Accepts a boolean or a function that returns a boolean.
+   * Allows for conditional persistence logic, e.g., based on environment or user settings.
+   */
+  persistAuth?: boolean | (() => boolean)
 }): WorkspacePlugin => {
   // Debounced execute function for batching similar state changes
   const { execute } = debounce({ delay: debounceDelay, maxWait })
@@ -37,6 +44,14 @@ export const persistencePlugin = ({
     }
 
     return prefix()
+  }
+
+  const getPersistAuth = () => {
+    if (typeof persistAuth === 'function') {
+      return persistAuth()
+    }
+
+    return persistAuth
   }
 
   return {
@@ -58,6 +73,11 @@ export const persistencePlugin = ({
 
         // Persist auth and [server](TODO)
         if (event.type === 'documents') {
+          // If the user has configured not to persist auth, we skip
+          if (!getPersistAuth()) {
+            return
+          }
+
           const { path, value: document } = event
           const { securitySchemes = {} } = document.components ?? {}
 

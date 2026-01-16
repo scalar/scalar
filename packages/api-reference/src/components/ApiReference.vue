@@ -289,7 +289,12 @@ function syncSlugAndUrlWithDocument(
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore({
-  plugins: [persistencePlugin({ prefix: () => activeSlug.value })],
+  plugins: [
+    persistencePlugin({
+      prefix: () => activeSlug.value,
+      persistAuth: () => mergedConfig.value.persistAuth ?? false,
+    }),
+  ],
 })
 
 // TODO: persistence should be hoisted into standalone
