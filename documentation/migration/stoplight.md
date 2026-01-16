@@ -271,7 +271,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 }
 ```
 
-**Learn more about [Scalar Redirects](../guides/docs/redirects.md) here.**
+Learn more about [redirects](../guides/docs/redirects.md).
 
 ## Summary
 
