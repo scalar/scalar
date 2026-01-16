@@ -11,7 +11,7 @@ import {
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
-  updateOperationDefaultHeadersParameter,
+  updateOperationDefaultParameters,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
@@ -1433,31 +1433,6 @@ describe('updateOperationRequestBodyContentType', () => {
 
     expect(document.paths?.['/upload']).toEqual({})
   })
-
-  it('sets the content-type header in the operation parameters', () => {
-    const document = createDocument({
-      paths: {
-        '/upload': {
-          post: {},
-        },
-      },
-    })
-
-    updateOperationRequestBodyContentType(document, {
-      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
-      payload: { contentType: 'application/json' },
-    })
-
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
-    assert(op)
-    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
-    expect(params).toHaveLength(1)
-    expect(params[0]).toMatchObject({
-      name: 'Content-Type',
-      in: 'header',
-      examples: { default: { value: 'application/json' } },
-    })
-  })
 })
 
 describe('updateOperationRequestBodyExample', () => {
@@ -2097,7 +2072,7 @@ describe('deleteOperationExample', () => {
   })
 })
 
-describe('updateOperationDefaultHeadersParameter', () => {
+describe('updateOperationDefaultParameters', () => {
   it('sets isDisabled for a default header parameter', () => {
     const document = createDocument({
       paths: {
@@ -2109,8 +2084,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
@@ -2127,8 +2103,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/products', method: 'post', exampleKey: 'example1', key: 'X-API-Key' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/products', method: 'post', exampleKey: 'example1', name: 'X-API-Key' },
       payload: { isDisabled: false },
     })
 
@@ -2150,8 +2127,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/items', method: 'put', exampleKey: 'default', key: 'Content-Type' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/items', method: 'put', exampleKey: 'default', name: 'Content-Type' },
       payload: { isDisabled: true },
     })
 
@@ -2177,8 +2155,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/orders', method: 'get', exampleKey: 'default', key: 'X-Request-ID' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/orders', method: 'get', exampleKey: 'default', name: 'X-Request-ID' },
       payload: { isDisabled: true },
     })
 
@@ -2207,8 +2186,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/customers', method: 'delete', exampleKey: 'default', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/customers', method: 'delete', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
@@ -2225,13 +2205,15 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/reports', method: 'get', exampleKey: 'example1', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/reports', method: 'get', exampleKey: 'example1', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/reports', method: 'get', exampleKey: 'example2', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/reports', method: 'get', exampleKey: 'example2', name: 'Authorization' },
       payload: { isDisabled: false },
     })
 
@@ -2249,18 +2231,21 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'Content-Type' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'Content-Type' },
       payload: { isDisabled: false },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/analytics', method: 'post', exampleKey: 'default', key: 'X-API-Key' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'X-API-Key' },
       payload: { isDisabled: true },
     })
 
@@ -2281,8 +2266,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/webhook', method: 'post', exampleKey: 'default', key: 'X-Webhook-Secret' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/webhook', method: 'post', exampleKey: 'default', name: 'X-Webhook-Secret' },
       payload: { isDisabled: undefined },
     })
 
@@ -2292,8 +2278,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationDefaultHeadersParameter(null, {
-        meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+      updateOperationDefaultParameters(null, {
+        type: 'header',
+        meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
         payload: { isDisabled: true },
       }),
     ).not.toThrow()
@@ -2306,8 +2293,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/users', method: 'get', exampleKey: 'default', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
@@ -2323,8 +2311,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/nonexistent', method: 'get', exampleKey: 'default', key: 'Authorization' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/nonexistent', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
@@ -2349,8 +2338,9 @@ describe('updateOperationDefaultHeadersParameter', () => {
       },
     })
 
-    updateOperationDefaultHeadersParameter(document, {
-      meta: { path: '/stats', method: 'get', exampleKey: 'example2', key: 'X-API-Key' },
+    updateOperationDefaultParameters(document, {
+      type: 'header',
+      meta: { path: '/stats', method: 'get', exampleKey: 'example2', name: 'X-API-Key' },
       payload: { isDisabled: false },
     })
 
