@@ -2,7 +2,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { Component } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
-export type ClientPluginHooks = {
+type ClientPluginHooks = {
   beforeRequest: (payload: { request: Request }) => { request: Request } | Promise<{ request: Request }>
   responseReceived: (payload: {
     response: Response
@@ -12,7 +12,7 @@ export type ClientPluginHooks = {
 }
 
 /** A type representing the components that a client plugin can define */
-export type ClientPluginComponents = {
+type ClientPluginComponents = {
   request: Component
   response: Component
 }

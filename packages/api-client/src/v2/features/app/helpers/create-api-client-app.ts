@@ -7,7 +7,7 @@ import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
 
-export type CreateApiClientOptions = {
+type CreateApiClientOptions = {
   /**
    * The layout of the client, limited to web or desktop in app
    * @see {@link ClientLayout}
@@ -24,7 +24,7 @@ export type CreateApiClientOptions = {
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
  */
-export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
+const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
   // Web uses the standard HTML5 history API
   if (layout === 'web') {
     return createVueRouter({ history: createWebHistory(), routes: ROUTES })
