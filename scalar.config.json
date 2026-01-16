@@ -1088,7 +1088,18 @@
                 "title": "Bump.sh",
                 "filepath": "documentation/migration/bump.md",
                 "type": "page"
-              }
+              },
+                "stoplight": {
+                  "title": "Stoplight",
+                  "filepath": "documentation/migration/stoplight.md",
+                  "type": "page"
+                },
+                "api-hub": {
+                  "title": "API Hub",
+                  "filepath": "documentation/migration/api-hub.md",
+                  "type": "page"
+                }
+
             }
           },
           "/contact": {
