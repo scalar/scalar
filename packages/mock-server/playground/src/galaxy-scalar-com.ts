@@ -60,6 +60,7 @@ export function configureApiReference(app: Hono, port: number, useLocalJsBundle:
       theme: 'default',
       proxyUrl: 'https://proxy.scalar.com',
       baseServerURL: `http://localhost:${port}`,
+      persistAuth: true,
     }),
   )
 
