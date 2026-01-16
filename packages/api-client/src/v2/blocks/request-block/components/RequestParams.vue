@@ -6,6 +6,7 @@ import { computed } from 'vue'
 
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
+import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 import RequestTable from './RequestTable.vue'
@@ -53,7 +54,7 @@ const tableRows = computed<TableRow[]>(() =>
       globalRoute,
       schema: getParameterSchema(param),
       isRequired: param.required,
-      isDisabled: example?.['x-disabled'] ?? false,
+      isDisabled: isParamDisabled(param, example),
     }
   }),
 )
