@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.12.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.9**
+  - [#7778](https://github.com/scalar/scalar/pull/7778): fix: do not persist auth when the option is off
+
 ## 2.12.11
 
 ### Patch Changes

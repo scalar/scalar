@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.43.9
+
+### Patch Changes
+
+- [#7778](https://github.com/scalar/scalar/pull/7778): fix: do not persist auth when the option is off
+
 ## 1.43.8
 
 ### Patch Changes
