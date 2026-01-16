@@ -6,7 +6,6 @@
     "packages/api-reference/**",
     "packages/postman-to-openapi/**",
     "projects/**",
-    "integrations/docker/**",
     "integrations/docusaurus/**",
     "integrations/dotnet/**",
     "integrations/express/**",
@@ -268,14 +267,9 @@
         "./src/server.ts"
       ]
     },
-    "integrations/docusaurus": {
-      "ignoreFiles": [
-        // Loaded dynamically by index.ts
-        "src/ScalarDocusaurus.tsx"
-      ],
+    "integrations/docker": {
       "ignoreDependencies": [
-        // used as polyfill by webpack
-        "path"
+        "@scalar/api-reference" // uses standalone.js during docker build
       ]
     },
     "integrations/fastify": {
