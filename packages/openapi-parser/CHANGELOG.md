@@ -1,5 +1,21 @@
 # @scalar/openapi-parser
 
+## 0.24.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.1**
+
+- **@scalar/openapi-upgrader@0.1.7**
+
+## 0.24.0
+
+### Minor Changes
+
+- [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
 ## 0.23.13
 
 ### Patch Changes

@@ -1,5 +1,52 @@
 # @scalar/nuxt
 
+## 0.5.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/api-reference@1.43.8**
+
+## 0.5.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.9**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/api-client@2.18.3**
+
+- **@scalar/types@0.5.8**
+
+## 0.5.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.2**
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unneeded export from internal types and values
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unused files
+
+- **@scalar/api-reference@1.43.6**
+  - [#7761](https://github.com/scalar/scalar/pull/7761): fix: update the hooks when the configuration changes
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
 ## 0.5.44
 
 ### Patch Changes

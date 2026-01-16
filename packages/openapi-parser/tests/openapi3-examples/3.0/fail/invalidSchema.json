@@ -291,13 +291,11 @@
                 "properties": {
                   "name": {
                     "description": "Updated name of the pet",
-                    "type": "string",
-                    "required": false
+                    "type": "string"
                   },
                   "status": {
                     "description": "Updated status of the pet",
-                    "type": "string",
-                    "required": false
+                    "type": "string"
                   }
                 }
               }
@@ -452,7 +450,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "order placed for purchasing the pet",
               "schema": {
                 "$ref": "#/components/schemas/Order"
               }
@@ -548,7 +545,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Created user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
@@ -738,7 +734,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Updated user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
@@ -945,13 +940,11 @@
       "requestBody1": {
         "content": {
           "application/json": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
           },
           "application/xml": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
@@ -961,7 +954,6 @@
       "requestBody2": {
         "content": {
           "application/json": {
-            "description": "List of user object",
             "schema": {
               "type": "array",
               "items": {

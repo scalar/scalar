@@ -4,7 +4,7 @@ import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-po
  * Represents the extracted details from a Postman collection.
  * Used to display collection metadata in the command palette import UI.
  */
-export type PostmanDocumentDetails = {
+type PostmanDocumentDetails = {
   /** The document format type. */
   type: string
   /** The name of the Postman collection. */

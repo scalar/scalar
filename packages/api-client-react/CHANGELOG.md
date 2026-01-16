@@ -1,5 +1,35 @@
 # @scalar/api-client-react
 
+## 1.3.71
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+## 1.3.70
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.3**
+
+- **@scalar/types@0.5.8**
+
+## 1.3.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.2**
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unneeded export from internal types and values
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+  - [#7765](https://github.com/scalar/scalar/pull/7765): fix: remove unused files
+
 ## 1.3.68
 
 ### Patch Changes

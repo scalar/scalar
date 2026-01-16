@@ -3,11 +3,16 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
-    "packages/api-client/**",
     "packages/api-reference/**",
     "packages/postman-to-openapi/**",
+    "packages/api-reference-react/**",
+    "packages/draggable/**",
+    "packages/galaxy/**",
+    "packages/nextjs-openapi/**",
+    "packages/openapi-upgrader/**",
+    "packages/pre-post-request-scripts/**",
+    "packages/react-renderer/**",
     "projects/**",
-    "integrations/docker/**",
     "integrations/docusaurus/**",
     "integrations/dotnet/**",
     "integrations/express/**",
@@ -48,6 +53,71 @@
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
+    "packages/api-client": {
+      "entry": [
+        "src/index.ts",
+        "src/components/index.ts",
+        "src/components/CodeInput/index.ts",
+        "src/components/CommandPalette/index.ts",
+        "src/components/DataTable/index.ts",
+        "src/components/HttpMethod/index.ts",
+        "src/components/ImportCollection/index.ts",
+        "src/components/Server/index.ts",
+        "src/components/Sidebar/index.ts",
+        "src/components/ViewLayout/index.ts",
+        "src/hooks/index.ts",
+        "src/layouts/App/index.ts",
+        "src/layouts/Modal/index.ts",
+        "src/layouts/Web/index.ts",
+        "src/libs/index.ts",
+        "src/libs/importers/index.ts",
+        "src/libs/send-request/index.ts",
+        "src/plugins/index.ts",
+        "src/store/index.ts",
+        "src/types/index.ts",
+        "src/v2/blocks/operation-block/index.ts",
+        "src/v2/blocks/operation-code-sample/index.ts",
+        "src/v2/blocks/request-block/index.ts",
+        "src/v2/blocks/response-block/index.ts",
+        "src/v2/blocks/scalar-address-bar-block/index.ts",
+        "src/v2/blocks/scalar-auth-selector-block/index.ts",
+        "src/v2/components/code-input/index.ts",
+        "src/v2/components/data-table/index.ts",
+        "src/v2/components/forms/index.ts",
+        "src/v2/components/layout/index.ts",
+        "src/v2/components/modals/index.ts",
+        "src/v2/components/resize/index.ts",
+        "src/v2/components/server/index.ts",
+        "src/v2/components/sidebar/index.ts",
+        "src/v2/features/app/index.ts",
+        "src/v2/features/app/components/index.ts",
+        "src/v2/features/command-palette/components/index.ts",
+        "src/v2/features/environments/index.ts",
+        "src/v2/features/global-cookies/index.ts",
+        "src/v2/features/modal/index.ts",
+        "src/v2/features/operation/index.ts",
+        "src/v2/features/search/index.ts",
+        "src/v2/features/settings/index.ts",
+        "src/v2/helpers/index.ts",
+        "src/views/Components/CodeSnippet/index.ts",
+        "src/views/Request/components/index.ts",
+        "src/views/Request/consts/index.ts",
+        "src/views/Request/libs/index.ts",
+        "src/views/Request/RequestSection/index.ts",
+        "src/views/Request/RequestSection/RequestAuth/index.ts",
+        "src/views/Request/ResponseSection/index.ts",
+        "src/views/Request/types/index.ts",
+        //
+        "playground/{app,modal,web}/main.ts",
+        "playground/v2/{app,modal,web}/main.ts"
+      ],
+      "ignoreDependencies": [
+        "@headlessui/tailwindcss" // used by style.css
+      ],
+      "ignoreFiles": [
+        "src/views/Cookies/CookieRaw.vue" // Untested and disabled for now.
+      ]
+    },
     "packages/api-client-react": {
       "entry": ["playground/main.tsx"]
     },
@@ -204,14 +274,9 @@
         "./src/server.ts"
       ]
     },
-    "integrations/docusaurus": {
-      "ignoreFiles": [
-        // Loaded dynamically by index.ts
-        "src/ScalarDocusaurus.tsx"
-      ],
+    "integrations/docker": {
       "ignoreDependencies": [
-        // used as polyfill by webpack
-        "path"
+        "@scalar/api-reference" // uses standalone.js during docker build
       ]
     },
     "integrations/fastify": {

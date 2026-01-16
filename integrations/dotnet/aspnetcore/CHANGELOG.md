@@ -1,5 +1,33 @@
 # @scalar/aspnetcore
 
+## 2.12.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.8**
+
+## 2.12.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.6**
+  - [#7761](https://github.com/scalar/scalar/pull/7761): fix: update the hooks when the configuration changes
+
 ## 2.12.8
 
 ### Patch Changes

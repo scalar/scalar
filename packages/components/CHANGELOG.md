@@ -1,5 +1,32 @@
 # @scalar/components
 
+## 0.16.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.20**
+
+## 0.16.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/oas-utils@0.6.19**
+
+## 0.16.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.18**
+
 ## 0.16.20
 
 ### Patch Changes

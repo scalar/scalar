@@ -1,5 +1,47 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.20**
+
+- **@scalar/components@0.16.23**
+
+## 0.3.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/oas-utils@0.6.19**
+
+- **@scalar/components@0.16.22**
+
+- **@scalar/types@0.5.8**
+
+- **@scalar/openapi-parser@0.24.1**
+
+- **@scalar/openapi-upgrader@0.1.7**
+
+## 0.3.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.0**
+  - [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
+- **@scalar/oas-utils@0.6.18**
+
+- **@scalar/components@0.16.21**
+
 ## 0.3.20
 
 ### Patch Changes

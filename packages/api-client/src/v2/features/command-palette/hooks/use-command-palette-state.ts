@@ -46,7 +46,7 @@ export type Command = FolderCommand | RouteCommand | HiddenFolderCommand
  * A group of related commands with a label.
  * Used to organize commands into categories in the palette.
  */
-export type CommandGroup = {
+type CommandGroup = {
   /** Label for the command group (empty string for unlabeled groups) */
   label: string
   /** List of commands in this group */
@@ -57,7 +57,7 @@ export type CommandGroup = {
  * Available commands in the command palette.
  * Organized into groups for better UX and discoverability.
  */
-export const commands = [
+const commands = [
   {
     label: '',
     commands: [
@@ -153,7 +153,7 @@ export const commands = [
 type FlatCommand = (typeof commands)[number]['commands'][number]
 
 export type FolderCommandIds = Extract<FlatCommand, { type: 'folder' }>['id']
-export type HiddenFolderCommandIds = Extract<FlatCommand, { type: 'hidden-folder' }>['id']
+type HiddenFolderCommandIds = Extract<FlatCommand, { type: 'hidden-folder' }>['id']
 
 /** Command IDs that map to UI components (folder and hidden-folder types) */
 export type UiCommandIds = FolderCommandIds | HiddenFolderCommandIds

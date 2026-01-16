@@ -23,7 +23,7 @@ export default {
   name: 'TheCommandPalette',
 }
 
-export const PaletteComponents = {
+const PaletteComponents = {
   'Import from OpenAPI/Swagger/Postman/cURL': CommandPaletteImport,
   'Create Request': '',
   'Create Workspace': CommandPaletteWorkspace,
@@ -35,7 +35,7 @@ export const PaletteComponents = {
 } as const
 
 /** Infer the types from the commands  */
-export type CommandNames = keyof typeof PaletteComponents
+type CommandNames = keyof typeof PaletteComponents
 
 export type CommandPaletteEvent = {
   /** The command name which matches with the command palette */

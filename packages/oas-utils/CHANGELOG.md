@@ -1,5 +1,41 @@
 # @scalar/oas-utils
 
+## 0.6.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+## 0.6.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.9**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/json-magic@0.9.1**
+
+- **@scalar/object-utils@1.2.22**
+
+- **@scalar/types@0.5.8**
+
+## 0.6.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
 ## 0.6.17
 
 ### Patch Changes

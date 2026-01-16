@@ -1,15 +1,15 @@
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import type { Dereference } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
-export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
-export type NodeInput<Node> = Node | RefNode<Node>
+type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
+type NodeInput<Node> = Node | RefNode<Node>
 
 /**
  * Recursively resolves $ref objects
  * This type helper ensures proper typing for deeply nested ref resolution.
  * Properties that could contain $ref objects may resolve to '[circular]' if we have a circular reference.
  */
-export type DeepDereference<T> = Dereference<T> extends T
+type DeepDereference<T> = Dereference<T> extends T
   ? T extends readonly (infer U)[]
     ? DeepDereference<U>[]
     : T extends object

@@ -25,7 +25,18 @@ export const createWorkspaceStorePersistence = async () => {
     version: 1,
     tables: {
       workspace: {
-        schema: Type.Object({ id: Type.String(), name: Type.String() }),
+        schema: Type.Object({
+          /** UID for workspaces stored in the DB */
+          id: Type.String(),
+          /** Visual name for a given workspace */
+          name: Type.String(),
+          /** When logged in all new workspaces (remote and local) are scoped to a team  */
+          teamUid: Type.String({ default: 'LOCAL' }),
+          /** Namespace associated with a remote workspace */
+          namespace: Type.String({ default: 'LOCAL' }),
+          /** Slug associated with a remote workspace */
+          slug: Type.String({ default: 'LOCAL' }),
+        }),
         index: ['id'],
       },
       meta: {

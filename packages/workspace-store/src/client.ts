@@ -867,7 +867,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
     workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
-      overrides: overrides[name],
+      overrides: unpackProxyObject(overrides[name]),
     })
   }
 

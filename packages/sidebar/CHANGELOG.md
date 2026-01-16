@@ -1,5 +1,41 @@
 # @scalar/sidebar
 
+## 0.7.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/components@0.16.23**
+
+## 0.7.12
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.9**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/components@0.16.22**
+
+## 0.7.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
+- **@scalar/components@0.16.21**
+
 ## 0.7.10
 
 ### Patch Changes

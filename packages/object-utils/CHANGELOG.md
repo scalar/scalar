@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 1.2.21
 
 ### Patch Changes

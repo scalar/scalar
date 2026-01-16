@@ -6,7 +6,7 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { REF_DEFINITIONS } from '@/schemas/v3.1/strict/ref-definitions'
 import { SecurityRequirementObjectSchemaDefinition } from '@/schemas/v3.1/strict/security-requirement'
 
-import { XScalarSelectedSecuritySchema } from './x-scalar-selected-security'
+import { XScalarSelectedSecuritySchemaDefinition } from './x-scalar-selected-security'
 
 /**
  * Create a test module that registers the SecurityRequirementObject definition
@@ -15,7 +15,7 @@ import { XScalarSelectedSecuritySchema } from './x-scalar-selected-security'
 const createTestModule = () =>
   Type.Module({
     [REF_DEFINITIONS.SecurityRequirementObject]: SecurityRequirementObjectSchemaDefinition,
-    XScalarSelectedSecurity: XScalarSelectedSecuritySchema,
+    XScalarSelectedSecurity: XScalarSelectedSecuritySchemaDefinition,
   })
 
 describe('XScalarSelectedSecuritySchema', () => {
@@ -53,7 +53,7 @@ describe('XScalarSelectedSecuritySchema', () => {
   })
 
   it('handles default values', () => {
-    const result = coerceValue(XScalarSelectedSecuritySchema, { 'x-scalar-selected-security': {} })
+    const result = coerceValue(XScalarSelectedSecuritySchemaDefinition, { 'x-scalar-selected-security': {} })
     expect(result).toEqual({
       'x-scalar-selected-security': {
         selectedIndex: 0,

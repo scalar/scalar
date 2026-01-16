@@ -1,5 +1,31 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.8**
+
+## 0.4.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+## 0.4.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.6**
+  - [#7761](https://github.com/scalar/scalar/pull/7761): fix: update the hooks when the configuration changes
+
 ## 0.4.26
 
 ### Patch Changes

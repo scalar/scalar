@@ -1,5 +1,38 @@
 # @scalar/workspace-store
 
+## 0.24.10
+
+### Patch Changes
+
+- [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+## 0.24.9
+
+### Patch Changes
+
+- [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/json-magic@0.9.1**
+
+- **@scalar/object-utils@1.2.22**
+
+- **@scalar/types@0.5.8**
+
+- **@scalar/openapi-upgrader@0.1.7**
+
+- **@scalar/snippetz@0.6.5**
+
+## 0.24.8
+
+### Patch Changes
+
+- [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
 ## 0.24.7
 
 ### Patch Changes
