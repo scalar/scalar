@@ -1,5 +1,18 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.0**
+  - [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
+- **@scalar/oas-utils@0.6.18**
+
+- **@scalar/components@0.16.21**
+
 ## 0.3.20
 
 ### Patch Changes

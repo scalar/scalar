@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.24.0
+
+### Minor Changes
+
+- [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
 ## 0.23.13
 
 ### Patch Changes

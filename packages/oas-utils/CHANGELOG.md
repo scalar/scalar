@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
 ## 0.6.17
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.8**
+  - [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
+- **@scalar/components@0.16.21**
+
 ## 0.7.10
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.3.59
+
+### Patch Changes
+
+- [#7626](https://github.com/scalar/scalar/pull/7626): fix: remove `@scalar/oas-utils` unused dependency
+
 ## 0.3.58
 
 ### Patch Changes

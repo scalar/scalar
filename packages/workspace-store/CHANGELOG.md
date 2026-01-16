@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.24.8
+
+### Patch Changes
+
+- [#7728](https://github.com/scalar/scalar/pull/7728): fix: formBody handling in api client
+
 ## 0.24.7
 
 ### Patch Changes
