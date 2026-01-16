@@ -11,6 +11,7 @@ import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
+import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
 import type { ExampleObject, OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
@@ -645,10 +646,13 @@ export const updateOperationParameter = (
  * @param meta.key - The specific parameter key being updated
  * @param payload.isDisabled - Whether the parameter should be disabled
  */
-export const updateOperationDefaultParameters = (
+export const updateOperationExtraParameters = (
   document: WorkspaceDocument | null,
-  { type, meta, payload }: OperationEvents['operation:update:default-parameters'],
+  { type, meta, payload, in: location }: OperationEvents['operation:update:extra-parameters'],
 ) => {
+  type Type = OperationEvents['operation:update:extra-parameters']['type']
+  type In = OperationEvents['operation:update:extra-parameters']['in']
+
   // Ensure there's a valid document
   if (!document) {
     return
@@ -665,49 +669,18 @@ export const updateOperationDefaultParameters = (
     operation['x-scalar-disable-parameters'] = {}
   }
 
-  const key = type === 'header' ? 'default-headers' : undefined
+  /**
+   * Maps parameter type and location to the corresponding config key.
+   * Only valid combinations are defined here.
+   */
+  const mapping: Partial<Record<Type, Partial<Record<In, keyof DisableParametersConfig>>>> = {
+    global: { cookie: 'global-cookies' },
+    default: { header: 'default-headers' },
+  }
+
+  const key = mapping[type]?.[location]
 
   if (!key) {
-    // TODO: handle other types of parameters
-    return
-  }
-
-  // Initialize the 'default-headers' object within 'x-scalar-disable-parameters' if it doesn't exist
-  if (!operation['x-scalar-disable-parameters'][key]) {
-    operation['x-scalar-disable-parameters'][key] = {}
-  }
-
-  // Update (or create) the entry for the specific example and key, preserving any existing settings
-  operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
-    ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
-    [meta.name]: payload.isDisabled ?? false,
-  }
-}
-
-export const updateOperationGlobalParameters = (
-  document: WorkspaceDocument | null,
-  { type, meta, payload }: OperationEvents['operation:update:global-parameters'],
-) => {
-  // Ensure there's a valid document
-  if (!document) {
-    return
-  }
-
-  // Resolve the referenced operation from the document using the path and method
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-  if (!operation) {
-    return
-  }
-
-  // Initialize the 'x-scalar-disable-parameters' object if it doesn't exist
-  if (!operation['x-scalar-disable-parameters']) {
-    operation['x-scalar-disable-parameters'] = {}
-  }
-
-  const key = type === 'cookie' ? 'global-cookies' : undefined
-
-  if (!key) {
-    // TODO: handle other types of parameters
     return
   }
 

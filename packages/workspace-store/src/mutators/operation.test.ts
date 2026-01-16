@@ -11,7 +11,7 @@ import {
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
-  updateOperationDefaultParameters,
+  updateOperationExtraParameters,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
@@ -2072,7 +2072,7 @@ describe('deleteOperationExample', () => {
   })
 })
 
-describe('updateOperationDefaultParameters', () => {
+describe('updateOperationExtraParameters', () => {
   it('sets isDisabled for a default header parameter', () => {
     const document = createDocument({
       paths: {
@@ -2084,14 +2084,37 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
     const operation = getResolvedRef(document.paths?.['/users']?.get)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
+  })
+
+  it('sets isDisabled for a global cookie parameter', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'session' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.session).toBe(true)
   })
 
   it('initializes x-scalar-disable-parameters when it does not exist', () => {
@@ -2103,8 +2126,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/products', method: 'post', exampleKey: 'example1', name: 'X-API-Key' },
       payload: { isDisabled: false },
     })
@@ -2127,14 +2151,37 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/items', method: 'put', exampleKey: 'default', name: 'Content-Type' },
       payload: { isDisabled: true },
     })
 
     const operation = getResolvedRef(document.paths?.['/items']?.put)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.['Content-Type']).toBe(true)
+  })
+
+  it('initializes global-cookies when x-scalar-disable-parameters exists but global-cookies does not', () => {
+    const document = createDocument({
+      paths: {
+        '/items': {
+          put: {
+            'x-scalar-disable-parameters': {},
+          },
+        },
+      },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/items', method: 'put', exampleKey: 'default', name: 'auth_token' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/items']?.put)
+    expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.auth_token).toBe(true)
   })
 
   it('preserves existing settings for other keys when updating one', () => {
@@ -2155,8 +2202,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/orders', method: 'get', exampleKey: 'default', name: 'X-Request-ID' },
       payload: { isDisabled: true },
     })
@@ -2186,8 +2234,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/customers', method: 'delete', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
@@ -2205,14 +2254,16 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/reports', method: 'get', exampleKey: 'example1', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/reports', method: 'get', exampleKey: 'example2', name: 'Authorization' },
       payload: { isDisabled: false },
     })
@@ -2231,20 +2282,23 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'Content-Type' },
       payload: { isDisabled: false },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'X-API-Key' },
       payload: { isDisabled: true },
     })
@@ -2257,6 +2311,72 @@ describe('updateOperationDefaultParameters', () => {
     })
   })
 
+  it('handles multiple cookies in the same example key', () => {
+    const document = createDocument({
+      paths: {
+        '/analytics': {
+          post: {},
+        },
+      },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'session' },
+      payload: { isDisabled: true },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'csrf_token' },
+      payload: { isDisabled: false },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/analytics', method: 'post', exampleKey: 'default', name: 'tracking_id' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/analytics']?.post)
+    expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default).toEqual({
+      session: true,
+      csrf_token: false,
+      tracking_id: true,
+    })
+  })
+
+  it('handles both default headers and global cookies independently', () => {
+    const document = createDocument({
+      paths: {
+        '/mixed': {
+          get: {},
+        },
+      },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
+      meta: { path: '/mixed', method: 'get', exampleKey: 'default', name: 'Authorization' },
+      payload: { isDisabled: true },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'global',
+      in: 'cookie',
+      meta: { path: '/mixed', method: 'get', exampleKey: 'default', name: 'session' },
+      payload: { isDisabled: false },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/mixed']?.get)
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
+    expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.session).toBe(false)
+  })
+
   it('defaults to false when isDisabled is undefined', () => {
     const document = createDocument({
       paths: {
@@ -2266,8 +2386,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/webhook', method: 'post', exampleKey: 'default', name: 'X-Webhook-Secret' },
       payload: { isDisabled: undefined },
     })
@@ -2278,8 +2399,9 @@ describe('updateOperationDefaultParameters', () => {
 
   it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationDefaultParameters(null, {
-        type: 'header',
+      updateOperationExtraParameters(null, {
+        type: 'default',
+        in: 'header',
         meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
         payload: { isDisabled: true },
       }),
@@ -2293,8 +2415,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/users', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
@@ -2311,8 +2434,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/nonexistent', method: 'get', exampleKey: 'default', name: 'Authorization' },
       payload: { isDisabled: true },
     })
@@ -2338,8 +2462,9 @@ describe('updateOperationDefaultParameters', () => {
       },
     })
 
-    updateOperationDefaultParameters(document, {
-      type: 'header',
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'header',
       meta: { path: '/stats', method: 'get', exampleKey: 'example2', name: 'X-API-Key' },
       payload: { isDisabled: false },
     })
@@ -2347,5 +2472,27 @@ describe('updateOperationDefaultParameters', () => {
     const operation = getResolvedRef(document.paths?.['/stats']?.get)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example1?.Authorization).toBe(true)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example2?.['X-API-Key']).toBe(false)
+  })
+
+  it('no-ops when type and location combination is invalid', () => {
+    const document = createDocument({
+      paths: {
+        '/invalid': {
+          get: {},
+        },
+      },
+    })
+
+    updateOperationExtraParameters(document, {
+      type: 'default',
+      in: 'cookie',
+      meta: { path: '/invalid', method: 'get', exampleKey: 'default', name: 'invalid' },
+      payload: { isDisabled: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/invalid']?.get)
+    expect(operation?.['x-scalar-disable-parameters']).toEqual({})
+    expect(operation?.['x-scalar-disable-parameters']?.['default-headers']).toBeUndefined()
+    expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']).toBeUndefined()
   })
 })

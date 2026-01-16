@@ -150,32 +150,14 @@ export type OperationEvents = {
   }
 
   /**
-   * Update a parameter of the operation.
-   * Triggers when the user updates an existing parameter (name, value, or enabled/disabled) in the UI for a given operation.
-   */
-  'operation:update:default-parameters': {
-    /** The type of the parameter to update. Can be 'path', 'query', 'header', or 'cookie'. */
-    type: 'path' | 'query' | 'header' | 'cookie'
-    /**
-     * Partial payload with new properties for the parameter (optional).
-     * - isDisabled: Whether the parameter is marked as disabled.
-     */
-    payload: Partial<{
-      isDisabled: boolean
-    }>
-    /**
-     * Identifies the target operation, example and header name for the updated parameter.
-     */
-    meta: OperationExampleMeta & { name: string }
-  }
-
-  /**
    * Update a global parameter of the operation.
    * Triggers when the user updates an existing parameter (name, value, or enabled/disabled) in the UI for a given operation.
    */
-  'operation:update:global-parameters': {
+  'operation:update:extra-parameters': {
     /** The type of the parameter to update. Can be 'path', 'query', 'header', or 'cookie'. */
-    type: 'path' | 'query' | 'header' | 'cookie'
+    in: 'path' | 'query' | 'header' | 'cookie'
+    /** The type of the parameter to update. Can be 'global' or 'default'. */
+    type: 'global' | 'default'
     /**
      * Partial payload with new properties for the parameter (optional).
      * - isDisabled: Whether the parameter is marked as disabled.
