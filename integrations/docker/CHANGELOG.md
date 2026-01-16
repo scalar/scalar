@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 0.4.27
 
 ### Patch Changes

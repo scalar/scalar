@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 0.8.18
 
 ### Patch Changes

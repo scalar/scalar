@@ -1,5 +1,16 @@
 # @scalar/api-reference-react
 
+## 0.8.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.7**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
+- **@scalar/types@0.5.8**
+
 ## 0.8.25
 
 ### Patch Changes

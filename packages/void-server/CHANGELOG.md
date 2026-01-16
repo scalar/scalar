@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.8**
+  - [#7751](https://github.com/scalar/scalar/pull/7751): fix: auth persistence
+
 ## 2.3.0
 
 ### Minor Changes
