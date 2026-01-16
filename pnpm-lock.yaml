@@ -2221,9 +2221,6 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../oas-utils
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
