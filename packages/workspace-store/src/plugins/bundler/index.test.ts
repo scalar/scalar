@@ -546,5 +546,80 @@ describe('plugins', () => {
         description: 'JWT Bearer authentication',
       })
     })
+
+    it('normalizes scheme when using internal $ref', async () => {
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              $ref: '#/x-auth-definitions/bearerDefinition',
+            },
+          },
+        },
+        'x-auth-definitions': {
+          bearerDefinition: {
+            type: 'http',
+            scheme: 'Bearer',
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeAuthSchemes()],
+      })
+
+      // The referenced definition should have its scheme normalized
+      expect(input['x-auth-definitions'].bearerDefinition.scheme).toBe('bearer')
+    })
+
+    it('normalizes scheme when using external $ref', async () => {
+      const server = fastify({ logger: false })
+      const port = 9810
+      const url = `http://localhost:${port}`
+
+      server.get('/auth-definition', () => ({
+        type: 'http',
+        scheme: 'Bearer',
+      }))
+
+      await server.listen({ port })
+
+      const input = {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              $ref: `${url}/auth-definition`,
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [fetchUrls(), normalizeAuthSchemes()],
+      })
+
+      // The externally resolved definition should have its scheme normalized
+      expect(input).toEqual(
+        {
+          'components': {
+            'securitySchemes': {
+              'bearerAuth': {
+                '$ref': '#/x-ext/c2e0c6a',
+              },
+            },
+          },
+          'x-ext': {
+            'c2e0c6a': {
+              'scheme': 'bearer',
+              'type': 'http',
+            },
+          },
+        },
+      )
+
+      await server.close()
+    })
   })
 })
