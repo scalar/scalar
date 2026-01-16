@@ -1,6 +1,7 @@
 import type { ClientPlugin } from '@scalar/api-client/v2/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import { describe, expect, it, vi } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
+import { type ComputedRef, type Ref, computed, nextTick, ref } from 'vue'
 
 import { mapConfigPlugins } from './map-config-plugins'
 
@@ -25,9 +26,9 @@ describe('mapConfigPlugins', () => {
       request: modifiedRequest,
     }))
 
-    const config = {
+    const config = computed(() => ({
       onBeforeRequest: onBeforeRequestMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -73,9 +74,9 @@ describe('mapConfigPlugins', () => {
       console.log('Request intercepted')
     })
 
-    const config = {
+    const config = computed(() => ({
       onBeforeRequest: onBeforeRequestMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -115,9 +116,9 @@ describe('mapConfigPlugins', () => {
 
     const onRequestSentMock = vi.fn()
 
-    const config = {
+    const config = computed(() => ({
       onRequestSent: onRequestSentMock as any,
-    } as ApiReferenceConfigurationRaw
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     // Act: Map the config to plugins
     const plugins: ClientPlugin[] = mapConfigPlugins(config)
@@ -149,36 +150,152 @@ describe('mapConfigPlugins', () => {
     }
   })
 
-  /**
-   * Test 4: Type-safe handling of empty config
-   * Critical because this ensures the function handles edge cases gracefully
-   * and returns an empty array when no callbacks are provided
-   */
-  it('returns an empty array when config has no callback functions', () => {
-    // Arrange: Create configs with no callbacks
-    const emptyConfig: Partial<ApiReferenceConfigurationRaw> = {}
+  it('updates beforeRequest hook when onBeforeRequest callback changes in config', async () => {
+    const fn = vi.fn()
 
-    const configWithOtherProps: Partial<ApiReferenceConfigurationRaw> = {
-      theme: 'default' as any,
-      layout: 'classic' as any,
-      showSidebar: true,
+    const firstCallback = (it: any) => {
+      fn('first')
+      return it
     }
 
-    // Act: Map the configs to plugins
-    const pluginsFromEmpty: ClientPlugin[] = mapConfigPlugins(emptyConfig as ApiReferenceConfigurationRaw)
-    const pluginsFromOther: ClientPlugin[] = mapConfigPlugins(configWithOtherProps as ApiReferenceConfigurationRaw)
+    const secondCallback = (it: any) => {
+      fn('second')
+      return it
+    }
 
-    // Assert: Verify empty arrays are returned
-    expect(pluginsFromEmpty).toEqual([])
-    expect(pluginsFromEmpty).toHaveLength(0)
-    expect(Array.isArray(pluginsFromEmpty)).toBe(true)
+    const config = ref({
+      onBeforeRequest: firstCallback,
+    }) as Ref<ApiReferenceConfigurationRaw>
 
-    expect(pluginsFromOther).toEqual([])
-    expect(pluginsFromOther).toHaveLength(0)
-    expect(Array.isArray(pluginsFromOther)).toBe(true)
+    // Act: Map the config to plugins
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
 
-    // Type-safe assertion: result is always an array of ClientPlugin
-    const _typeCheck: ClientPlugin[] = pluginsFromEmpty
-    expect(_typeCheck).toBeDefined()
+    // Assert: Initial callback works
+    const hooks = plugins[0]?.hooks
+    assert(hooks)
+
+    assert(hooks.beforeRequest)
+
+    await hooks.beforeRequest({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    expect(fn).toHaveBeenCalledTimes(1)
+
+    // Act: Change the config to use a different callback
+    config.value.onBeforeRequest = secondCallback
+    await nextTick()
+
+    // Assert: New callback is now being used, old callback is not called again
+    await hooks.beforeRequest({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn).toHaveBeenNthCalledWith(1, 'first')
+    expect(fn).toHaveBeenNthCalledWith(2, 'second')
+  })
+
+  it('updates responseReceived hook when onRequestSent callback changes in config', async () => {
+    const mockRequest = new Request('https://example.com/api/test', { method: 'GET' })
+    const mockResponse = new Response('{"data": "test"}', { status: 200 })
+    const mockOperation = { operationId: 'test-operation', method: 'get', path: '/test' } as any
+    const fn = vi.fn()
+
+    const firstCallback = (it: any) => {
+      fn('first')
+      return it
+    }
+
+    const secondCallback = (it: any) => {
+      fn('second')
+      return it
+    }
+
+    const config = ref({
+      onRequestSent: firstCallback,
+    }) as Ref<ApiReferenceConfigurationRaw>
+
+    // Act: Map the config to plugins
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+
+    // Assert: Initial callback works
+    const hooks = plugins[0]?.hooks
+    assert(hooks)
+
+    assert(hooks.responseReceived)
+
+    await hooks.responseReceived({ response: mockResponse, request: mockRequest, operation: mockOperation })
+    expect(fn).toHaveBeenCalledTimes(1)
+
+    // Act: Change the config to use a different callback
+    config.value.onRequestSent = secondCallback
+    await nextTick()
+
+    // Assert: New callback is now being used, old callback is not called again
+    await hooks.responseReceived({ response: mockResponse, request: mockRequest, operation: mockOperation })
+    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn).toHaveBeenNthCalledWith(1, 'first')
+    expect(fn).toHaveBeenNthCalledWith(2, 'second')
+  })
+
+  it('adds hooks when callbacks are added to an initially empty config', async () => {
+    const fn = vi.fn()
+
+    const firstCallback = (it: any) => {
+      fn('first')
+      return it
+    }
+
+    const config = ref({}) as Ref<ApiReferenceConfigurationRaw>
+
+    // Act: Map the config to plugins
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+
+    // Assert: Initial callback works
+    const hooks = plugins[0]?.hooks
+    assert(hooks)
+
+    expect(hooks.beforeRequest).toBeUndefined()
+
+    // Act: Change the config to use a different callback
+    config.value.onBeforeRequest = firstCallback
+    await nextTick()
+
+    // Assert: New callback is now being used, old callback is not called again
+    await hooks.beforeRequest?.({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenNthCalledWith(1, 'first')
+  })
+
+  /**
+   * Test 8: Reactivity - hooks continue to work when config changes from having callbacks to not having any
+   * Critical because this ensures the watch mechanism gracefully handles callback removal
+   * and that hooks do not become undefined
+   */
+  it('removes hooks when callbacks are removed from config', async () => {
+    const fn = vi.fn()
+
+    const firstCallback = (it: any) => {
+      fn('first')
+      return it
+    }
+
+    const config = ref({
+      onBeforeRequest: firstCallback,
+    }) as Ref<ApiReferenceConfigurationRaw>
+
+    // Act: Map the config to plugins
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+
+    // Assert: Initial callback works
+    const hooks = plugins[0]?.hooks
+    assert(hooks)
+
+    assert(hooks.beforeRequest)
+
+    await hooks.beforeRequest?.({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenNthCalledWith(1, 'first')
+
+    // Act: Change the config to use a different callback
+    config.value.onBeforeRequest = undefined
+    await nextTick()
+
+    expect(hooks.beforeRequest).toBeUndefined()
   })
 })
