@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.8.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.0**
+  - [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
+- **@scalar/oas-utils@0.6.18**
+
 ## 0.8.12
 
 ### Patch Changes

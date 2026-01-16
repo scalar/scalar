@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 1.43.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.0**
+  - [#7171](https://github.com/scalar/scalar/pull/7171): refactor: new validator class
+
 ## 1.43.5
 
 ## 1.43.4

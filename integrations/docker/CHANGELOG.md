@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.6**
+  - [#7761](https://github.com/scalar/scalar/pull/7761): fix: update the hooks when the configuration changes
+
 ## 0.4.26
 
 ### Patch Changes
