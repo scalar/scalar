@@ -1,7 +1,9 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { handleHotKeyDown, getModifiers, isInput } from './hot-keys'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
 import type { EventBus } from '@/libs/event-bus'
+
+import { getModifiers, handleHotKeyDown, isInput } from './hot-keys'
 
 // Mock isMacOS
 vi.mock('@scalar/helpers/general/is-mac-os', () => ({
@@ -22,7 +24,9 @@ describe('hot-keys', () => {
   } as unknown as EventBus<Partial<Record<string, KeyboardEvent>>>
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.clearAllMocks()
+    // Reset mock to default (non-macOS) between tests
+    vi.mocked(isMacOS).mockReturnValue(false)
   })
 
   describe('handleHotKeyDown', () => {

@@ -13,7 +13,7 @@ import DownloadLink from './DownloadLink.vue'
 const createMockEventBus = (): WorkspaceEventBus => ({
   on: vi.fn(),
   off: vi.fn(),
-  emit: vi.fn(),
+  emit: vi.fn(() => null),
 })
 
 describe('DownloadLink', () => {
