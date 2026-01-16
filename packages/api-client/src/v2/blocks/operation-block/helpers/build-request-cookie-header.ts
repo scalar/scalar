@@ -4,7 +4,6 @@ import {
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 
@@ -42,8 +41,7 @@ export const buildRequestCookieHeader = ({
   originalCookieHeader,
   url,
   useCustomCookieHeader,
-  operation,
-  exampleKey,
+  disabledGlobalCookies,
 }: {
   /** Parsed/replaced cookies from the parameters and security schemes */
   paramCookies: XScalarCookie[]
@@ -60,14 +58,9 @@ export const buildRequestCookieHeader = ({
    * that's then forwarded as a `Cookie` header.
    */
   useCustomCookieHeader: boolean
-  /** The operation object */
-  operation: OperationObject
-  /** The key of the current example */
-  exampleKey: string
+  /** The disabled global cookies for the current example */
+  disabledGlobalCookies: Record<string, boolean>
 }): null | { name: string; value: string } => {
-  // Get the disabled global cookies for the current example
-  const disabledGlobalCookies = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {}
-
   /** Filter the global cookies by domain + parse */
   const filteredGlobalCookies = globalCookies
     .filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))

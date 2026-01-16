@@ -102,8 +102,7 @@ export const buildRequest = ({
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
       url,
       useCustomCookieHeader: isElectron() || isUsingProxy,
-      operation,
-      exampleKey,
+      disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {},
     })
 
     if (cookiesHeader) {
