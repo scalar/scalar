@@ -582,20 +582,17 @@ export const updateOperationParameter = (
     parameter.examples = {}
   }
 
-  const example = getResolvedRef(parameter.examples[meta.exampleKey])
-
   // Create the example if it doesn't exist
-  if (!example) {
-    parameter.examples[meta.exampleKey] = {
-      value: payload.value ?? '',
-      'x-disabled': Boolean(payload.isDisabled),
-    }
-    return
-  }
+  parameter.examples[meta.exampleKey] ||= {}
+  const example = getResolvedRef(parameter.examples[meta.exampleKey])!
 
-  // Update existing example value
-  example.value = payload.value ?? example?.value ?? ''
-  example['x-disabled'] = Boolean(payload.isDisabled ?? example['x-disabled'])
+  // Only update properties if they are provided
+  if ('value' in payload) {
+    example.value = payload.value
+  }
+  if ('isDisabled' in payload) {
+    example['x-disabled'] = payload.isDisabled
+  }
 }
 
 /**

@@ -69,53 +69,109 @@ export type TableRow = {
   isOverridden?: boolean
 }
 
-const defaultValue = computed(() => data.schema?.default as string)
-const enumValue = computed(() => data.schema?.enum as string[])
-const minimumValue = computed(() =>
-  data.schema && 'minimum' in data.schema ? data.schema.minimum : undefined,
-)
-const maximumValue = computed(() =>
-  data.schema && 'maximum' in data.schema ? data.schema.maximum : undefined,
-)
-const typeValue = computed(() =>
-  data.schema && 'type' in data.schema ? data.schema.type : undefined,
-)
+const {
+  data,
+  environment,
+  hasCheckboxDisabled = false,
+  invalidParams,
+  isReadOnly = false,
+  label,
+  showUploadButton = false,
+} = defineProps<{
+  data: TableRow
+  environment: XScalarEnvironment
+  isReadOnly?: boolean
+  hasCheckboxDisabled?: boolean
+  invalidParams?: Set<string>
+  label?: string
+  showUploadButton?: boolean
+}>()
 
-const validationResult = computed(() =>
-  validateParameter(data.schema, data.value),
-)
+const emits = defineEmits<{
+  (
+    e: 'upsertRow',
+    payload: { name: string; value: string; isDisabled: boolean },
+  ): void
+  (e: 'deleteRow'): void
+  (e: 'uploadFile'): void
+  (e: 'removeFile'): void
+}>()
 
-const isFileInstance = (input: unknown): input is File => {
-  return input instanceof File
-}
+/** Unpacked value for consistent access throughout the component */
+const unpackedValue = computed(() => unpackProxyObject(data.value))
 
-const valueModel = computed({
-  get: () => {
-    const rawValue = unpackProxyObject(data.value)
+/** Check if the value is a File instance */
+const isFile = computed(() => unpackedValue.value instanceof File)
 
-    if (rawValue instanceof File) {
-      return getFileName(unpackProxyObject(data.value as any)) ?? ''
+/** Extract schema properties for better readability */
+const schemaProps = computed(() => {
+  if (!data.schema) {
+    return {
+      default: undefined,
+      enum: undefined,
+      minimum: undefined,
+      maximum: undefined,
+      type: undefined,
+      examples: [],
     }
+  }
 
-    if (rawValue === null) {
-      return ''
-    }
-    return rawValue
-  },
-  set: (val: string | File | null) => {
-    if (typeof val === 'string') {
-      emits('updateRow', { value: val })
-    }
-  },
+  return {
+    default: data.schema.default as string | undefined,
+    enum: data.schema.enum as string[] | undefined,
+    minimum: 'minimum' in data.schema ? data.schema.minimum : undefined,
+    maximum: 'maximum' in data.schema ? data.schema.maximum : undefined,
+    type: 'type' in data.schema ? data.schema.type : undefined,
+    examples: data.schema.examples?.map((example) => String(example)) ?? [],
+  }
 })
+
+/** Determine if validation has failed */
+const hasValidationError = computed(
+  () => validateParameter(data.schema, data.value).ok === false,
+)
+
+/** Determine if this specific parameter has an error from the parent */
+const hasInvalidParam = computed(
+  () => hasValidationError.value && invalidParams?.has(data.name),
+)
+
+/** Display value handles File instances and shows filename instead */
+const displayValue = computed(
+  () =>
+    (isFile.value
+      ? getFileName(unpackedValue.value as File)
+      : (unpackedValue.value as string)) ?? '',
+)
+
+/** Determine if the delete button should be shown */
+const showDeleteButton = computed(
+  () => Boolean(data.name || data.value) && !data.isRequired,
+)
+
+/** Handle row updates while preserving existing properties */
+const handleUpdateRow = (
+  payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+): void => {
+  if (isFile.value) {
+    return
+  }
+
+  emits('upsertRow', {
+    name: data.name,
+    value: data.value as string,
+    isDisabled: data.isDisabled ?? false,
+    ...payload,
+  })
+}
 </script>
 
 <template>
   <DataTableRow
     :id="data.name"
     :class="{
-      alert: validationResult.ok === false,
-      error: validationResult.ok === false && invalidParams?.has(data.name),
+      alert: hasValidationError,
+      error: hasInvalidParam,
     }">
     <DataTableCheckbox
       class="!border-r"
@@ -123,7 +179,7 @@ const valueModel = computed({
       :modelValue="!data.isDisabled"
       @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
 
-    <!-- Name -->
+    <!-- Name input -->
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Key`"
@@ -136,33 +192,33 @@ const valueModel = computed({
         :modelValue="data.name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @selectVariable="(v: string) => emits('updateRow', { name: v })"
-        @update:modelValue="(v: string) => emits('updateRow', { name: v })" />
+        @selectVariable="(v: string) => handleUpdateRow({ name: v })"
+        @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
 
-    <!-- Value -->
+    <!-- Value input -->
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Value`"
         class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
-        :default="defaultValue"
+        :default="schemaProps.default"
         disableCloseBrackets
         :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
-        :enum="enumValue ?? []"
+        :enum="schemaProps.enum ?? []"
         :environment="environment"
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
         "
         :linethrough="data.isOverridden"
         lineWrapping
-        :max="maximumValue"
-        :min="minimumValue"
-        :modelValue="valueModel"
+        :max="schemaProps.maximum"
+        :min="schemaProps.minimum"
+        :modelValue="displayValue"
         placeholder="Value"
-        :type="typeValue"
-        @update:modelValue="(v: string) => emits('updateRow', { value: v })">
+        :type="schemaProps.type"
+        @update:modelValue="(v) => handleUpdateRow({ value: v })">
         <template #icon>
           <ScalarButton
             v-if="
@@ -200,17 +256,17 @@ const valueModel = computed({
       </CodeInput>
     </DataTableCell>
 
-    <!-- File upload -->
+    <!-- File upload cell -->
     <DataTableCell
       v-if="showUploadButton"
       class="group/upload flex items-center justify-center whitespace-nowrap">
-      <template v-if="isFileInstance(unpackProxyObject(data.value))">
+      <template v-if="isFile">
         <div
-          class="text-c-2 filemask flex w-full max-w-[100%] items-center justify-center overflow-hidden p-1">
-          <span>{{ getFileName(unpackProxyObject(data.value)) }}</span>
+          class="text-c-2 filemask flex w-full max-w-full items-center justify-center overflow-hidden p-1">
+          <span>{{ displayValue }}</span>
         </div>
         <button
-          class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
+          class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%-8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
           type="button"
           @click="emits('removeFile')">
           Delete
