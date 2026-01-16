@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.9**
+  - [#7778](https://github.com/scalar/scalar/pull/7778): fix: do not persist auth when the option is off
+
 ## 0.8.20
 
 ### Patch Changes
