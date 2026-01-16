@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.24.10
+
+### Patch Changes
+
+- [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
 ## 0.24.9
 
 ### Patch Changes

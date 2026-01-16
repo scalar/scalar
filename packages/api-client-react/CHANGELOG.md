@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.71
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
 ## 1.3.70
 
 ### Patch Changes

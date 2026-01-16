@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.18.4
+
+### Patch Changes
+
+- [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/oas-utils@0.6.20**
+
+- **@scalar/sidebar@0.7.13**
+
+- **@scalar/components@0.16.23**
+
+- **@scalar/use-codemirror@0.13.17**
+
 ## 2.18.3
 
 ### Patch Changes

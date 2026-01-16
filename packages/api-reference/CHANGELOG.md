@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.43.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/oas-utils@0.6.20**
+
+- **@scalar/sidebar@0.7.13**
+
+- **@scalar/components@0.16.23**
+
 ## 1.43.7
 
 ### Patch Changes

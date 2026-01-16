@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
 ## 0.6.19
 
 ### Patch Changes
