@@ -569,7 +569,7 @@ describe('ApiReference Configuration Tests', () => {
 
     await flushPromises()
     const ServerSelector = wrapper.findComponent({ name: 'Selector' })
-    ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
+    await ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
     expect(onServerChange).toHaveBeenCalled()
   })
 
