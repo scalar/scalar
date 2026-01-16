@@ -153,7 +153,9 @@ const showDeleteButton = computed(
 const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
 ): void => {
-  if (isFile.value) {
+  // If the value is a File and we are trying to update the value field,
+  // we should not allow it because we cannot convert a File to a string.
+  if (isFile.value && 'value' in payload) {
     return
   }
 

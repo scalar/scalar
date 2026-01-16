@@ -63,7 +63,7 @@ describe('RequestTableRow', () => {
     expect(wrapper.findComponent(DataTableCheckbox).exists()).toBe(true)
   })
 
-  it('emits updateRow when checkbox is toggled', async () => {
+  it('emits upsertRow when checkbox is toggled', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'test', value: 'value', isDisabled: false },
@@ -79,8 +79,12 @@ describe('RequestTableRow', () => {
     const checkbox = wrapper.findComponent(DataTableCheckbox)
     await checkbox.vm.$emit('update:modelValue', false)
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ isDisabled: true })
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'test',
+      value: 'value',
+      isDisabled: true,
+    })
   })
 
   it('disables checkbox when hasCheckboxDisabled is true', () => {
@@ -101,7 +105,7 @@ describe('RequestTableRow', () => {
     expect(checkbox.props('disabled')).toBe(true)
   })
 
-  it('emits updateRow when key input changes', async () => {
+  it('emits upsertRow when key input changes', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'old-key', value: 'value' },
@@ -117,11 +121,15 @@ describe('RequestTableRow', () => {
     const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'new-key')
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ name: 'new-key' })
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'new-key',
+      value: 'value',
+      isDisabled: false,
+    })
   })
 
-  it('emits updateRow when value input changes', async () => {
+  it('emits upsertRow when value input changes', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {
         data: { name: 'key', value: 'old-value' },
@@ -137,8 +145,12 @@ describe('RequestTableRow', () => {
     const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
     await valueInput?.vm.$emit('update:modelValue', 'new-value')
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]?.[0]).toEqual({ value: 'new-value' })
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'key',
+      value: 'new-value',
+      isDisabled: false,
+    })
   })
 
   it('disables inputs when isReadOnly is true', () => {
@@ -251,23 +263,6 @@ describe('RequestTableRow', () => {
     expect(wrapper.text()).toContain('test.txt')
   })
 
-  it('handles null value correctly', () => {
-    const wrapper = mount(RequestTableRow, {
-      props: {
-        data: { name: 'key', value: null },
-        environment,
-      },
-      global: {
-        stubs: {
-          RouterLink: true,
-        },
-      },
-    })
-
-    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
-    expect(valueInput?.props('modelValue')).toBe('')
-  })
-
   it('marks key input as required when isRequired is true', () => {
     const wrapper = mount(RequestTableRow, {
       props: {
@@ -283,5 +278,446 @@ describe('RequestTableRow', () => {
 
     const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
     expect(keyInput?.props('required')).toBe(true)
+  })
+
+  it('allows name changes when value is a File', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'old-name', value: file },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'new-name')
+
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'new-name',
+    })
+  })
+
+  it('allows checkbox changes when value is a File', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file, isDisabled: false },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const checkbox = wrapper.findComponent(DataTableCheckbox)
+    await checkbox.vm.$emit('update:modelValue', false)
+
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      isDisabled: true,
+    })
+  })
+
+  it('blocks value changes when value is a File', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'new-value')
+
+    // Should not emit upsertRow when trying to change a File value
+    expect(wrapper.emitted('upsertRow')).toBeFalsy()
+  })
+
+  it('displays file name with proper formatting', () => {
+    const file = new File(['content'], 'document.pdf', { type: 'application/pdf' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'attachment', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('document.pdf')
+  })
+
+  it('displays file name for files with special characters', () => {
+    const file = new File(['content'], 'my-file (1).txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'file', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('my-file (1).txt')
+  })
+
+  it('displays file name for files with long names', () => {
+    const longFileName = 'this-is-a-very-long-file-name-that-should-still-be-displayed-correctly.txt'
+    const file = new File(['content'], longFileName, { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'file', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain(longFileName)
+  })
+
+  it('emits removeFile when delete button is clicked on a file', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    // Find the delete button within the file upload cell
+    const deleteButtons = wrapper.findAll('button[type="button"]')
+    const fileDeleteButton = deleteButtons.find((btn) => btn.text() === 'Delete')
+    await fileDeleteButton?.trigger('click')
+
+    expect(wrapper.emitted('removeFile')).toBeTruthy()
+  })
+
+  it('shows delete button when file is present', () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const deleteButtons = wrapper.findAll('button[type="button"]')
+    const fileDeleteButton = deleteButtons.find((btn) => btn.text() === 'Delete')
+    expect(fileDeleteButton?.exists()).toBe(true)
+    expect(fileDeleteButton?.text()).toBe('Delete')
+  })
+
+  it('does not show upload button when showUploadButton is false', () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: '' },
+        environment,
+        showUploadButton: false,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Select File')
+  })
+
+  it('handles file with empty name', () => {
+    const file = new File(['content'], '', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('handles file with various MIME types', () => {
+    const imageFile = new File(['content'], 'image.png', { type: 'image/png' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'image', value: imageFile },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('image.png')
+  })
+
+  it('handles JSON file type', () => {
+    const jsonFile = new File(['{"key": "value"}'], 'data.json', {
+      type: 'application/json',
+    })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'data', value: jsonFile },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('data.json')
+  })
+
+  it('handles large file sizes', () => {
+    const largeContent = new Array(1024 * 1024).fill('a').join('')
+    const largeFile = new File([largeContent], 'large.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'large', value: largeFile },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('large.txt')
+  })
+
+  it('preserves file when name is updated', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'old-name', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'new-name')
+
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    const emittedData = wrapper.emitted('upsertRow')?.[0]?.[0] as {
+      name: string
+      value: string | File
+      isDisabled: boolean
+    }
+    expect(emittedData).toMatchObject({
+      name: 'new-name',
+    })
+    // Value should still be the file, not converted to string
+    expect(emittedData?.value).toBe(file)
+  })
+
+  it('preserves file when checkbox is toggled', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file, isDisabled: false },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const checkbox = wrapper.findComponent(DataTableCheckbox)
+    await checkbox.vm.$emit('update:modelValue', false)
+
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    const emittedData = wrapper.emitted('upsertRow')?.[0]?.[0] as {
+      name: string
+      value: string | File
+      isDisabled: boolean
+    }
+    expect(emittedData).toMatchObject({
+      isDisabled: true,
+    })
+    // Value should still be the file
+    expect(emittedData?.value).toBe(file)
+  })
+
+  it('shows Select File button when value is empty string', () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: '' },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Select File')
+  })
+
+  it('switches from file display to Select File button after file removal', async () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    // Initially shows file name
+    expect(wrapper.text()).toContain('test.txt')
+
+    // After removing file, update props to empty value
+    await wrapper.setProps({
+      data: { name: 'key', value: '' },
+    })
+
+    // Should now show Select File button
+    expect(wrapper.text()).toContain('Select File')
+  })
+
+  it('handles file with no extension', () => {
+    const file = new File(['content'], 'README', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'readme', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('README')
+  })
+
+  it('handles file with multiple dots in name', () => {
+    const file = new File(['content'], 'my.file.name.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'file', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('my.file.name.txt')
+  })
+
+  it('does not show delete row button when value is a required file', () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file, isRequired: true },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const deleteRowButtons = wrapper.findAllComponents({ name: 'ScalarButton' })
+    const deleteRowButton = deleteRowButtons.find((btn) => {
+      const iconComponent = btn.findComponent({ name: 'ScalarIconTrash' })
+      return iconComponent.exists()
+    })
+
+    expect(deleteRowButton).toBeUndefined()
+  })
+
+  it('allows file upload on required field', () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'required-file', value: '', isRequired: true },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Select File')
   })
 })
