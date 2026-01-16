@@ -8,7 +8,10 @@ describe('unknown_container', () => {
     const result = await validate(unknown_container)
 
     // TODO: The message should complain about the unknown container
-    expect(result.errors?.[0]?.message).toBe(`must have required property 'webhooks'`)
+    expect(result.errors?.[0]?.message).toBe(`must have required property 'paths'`)
+    expect(result.errors?.[1]?.message).toBe(`must have required property 'components'`)
+    expect(result.errors?.[2]?.message).toBe(`must have required property 'webhooks'`)
+
     expect(result.valid).toBe(false)
   })
 })
