@@ -2,45 +2,59 @@ import type { ClientPlugin } from '@scalar/api-client/v2/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { type ComputedRef, watch } from 'vue'
 
-/** Map the config functions to plugins */
+/**
+ * Maps API reference configuration callbacks to client plugins.
+ *
+ * This function transforms the legacy onBeforeRequest and onRequestSent callbacks
+ * into the new plugin hook system. The mapping is reactive, so changes to the
+ * configuration will automatically update the plugin hooks.
+ *
+ * Note: onRequestSent is mapped to responseReceived hook. This is not a perfect
+ * one-to-one mapping, but it maintains backward compatibility with the old API.
+ * The old callback receives only the URL string, while the new hook receives
+ * the full response object.
+ *
+ * @param config - Reactive configuration object containing optional hook callbacks
+ * @returns Array containing a single plugin with the mapped hooks
+ */
 export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRaw>): ClientPlugin[] => {
   const plugin: ClientPlugin = { hooks: {} }
 
   watch(
-    config,
-    (newConfig) => {
+    [() => config.value.onBeforeRequest, () => config.value.onRequestSent],
+    ([onBeforeRequest, onRequestSent]) => {
       if (!plugin.hooks) {
         plugin.hooks = {}
       }
 
-      if (newConfig.onBeforeRequest) {
-        plugin.hooks.beforeRequest = async (payload) => {
-          const result = await newConfig.onBeforeRequest?.(payload)
+      plugin.hooks.beforeRequest = onBeforeRequest
+        ? async (payload) => {
+            const result = await onBeforeRequest(payload)
 
-          // Just handles the void case due to the mismatch in types
-          if (result === undefined) {
-            return payload
+            /**
+             * When the callback returns void (for side-effect only callbacks like logging),
+             * we return the original payload to keep the request pipeline working.
+             */
+            if (result === undefined) {
+              return payload
+            }
+
+            return result
           }
+        : undefined
 
-          return result
-        }
-      }
-
-      // TODO: this does not map one-to-one with the old config
-      // onRequestSent != responseReceived but we can currently use it like that for now
-      if (newConfig.onRequestSent) {
-        plugin.hooks.responseReceived = (payload) => {
-          // TODO: matches the old config but we should update it to pass the whole response object instead
-          newConfig.onRequestSent?.(payload.request.url)
-        }
-      }
+      /**
+       * Maps onRequestSent to responseReceived hook.
+       * The old API only passed the URL string, so we extract it from the request.
+       */
+      plugin.hooks.responseReceived = onRequestSent
+        ? (payload) => {
+            onRequestSent(payload.request.url)
+          }
+        : undefined
     },
     { immediate: true },
   )
 
-  if (plugin.hooks?.beforeRequest || plugin.hooks?.responseReceived) {
-    return [plugin]
-  }
-
-  return []
+  return [plugin]
 }
