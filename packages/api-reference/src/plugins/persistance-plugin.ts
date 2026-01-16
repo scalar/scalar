@@ -10,7 +10,7 @@ export const persistencePlugin = ({
   debounceDelay = 500,
   maxWait = 10000,
   prefix = '',
-  persistAuth: shouldPersistAuth = true,
+  persistAuth = false,
 }: {
   debounceDelay?: number
   /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
@@ -47,11 +47,11 @@ export const persistencePlugin = ({
   }
 
   const getPersistAuth = () => {
-    if (typeof shouldPersistAuth === 'function') {
-      return shouldPersistAuth()
+    if (typeof persistAuth === 'function') {
+      return persistAuth()
     }
 
-    return shouldPersistAuth
+    return persistAuth
   }
 
   return {

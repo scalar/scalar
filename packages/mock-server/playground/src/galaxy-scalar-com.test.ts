@@ -136,6 +136,7 @@ describe('galaxy-scalar-com', () => {
         theme: 'default',
         proxyUrl: 'https://proxy.scalar.com',
         baseServerURL: 'http://localhost:5052',
+        persistAuth: true,
       })
     })
 
