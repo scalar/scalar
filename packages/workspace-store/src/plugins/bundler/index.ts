@@ -7,6 +7,7 @@
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
+import { getResolvedRef } from '@/plugins/bundler/helpers'
 
 /**
  * A lifecycle plugin that adds a `$status` property to nodes during resolution.
@@ -169,6 +170,56 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
       // Replace the $ref with the original version from the mapping,
       // or keep the current version if there is no mapping (e.g., for local refs)
       node['$ref'] = (extUrls as Record<string, string>)[key] ?? ref
+    },
+  }
+}
+
+/**
+ * Lifecycle plugin to normalize the `scheme` property in securitySchemes to lowercase.
+ *
+ * Our typebox schemas require the `scheme` property to be a lowercase string.
+ * This plugin ensures that any `scheme` field under `components.securitySchemes` is normalized to lowercase, fixing
+ * potential user input errors such as "Bearer" or "BASIC".
+ *
+ * Example:
+ * ```yaml
+ * Before normalization:
+ *   components:
+ *     securitySchemes:
+ *       bearerAuth:
+ *         type: http
+ *         scheme: Bearer
+ * ```
+ * After normalization:
+ * ```yaml
+ *   components:
+ *     securitySchemes:
+ *       bearerAuth:
+ *         type: http
+ *         scheme: bearer
+ * ```
+ */
+export const normalizeAuthSchemes = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onAfterNodeProcess: (node, context) => {
+      const { path } = context
+
+      // Check if we're at components.securitySchemes.{schemeName}
+      if (path.length === 3 && path[0] === 'components' && path[1] === 'securitySchemes') {
+        const targetNode = getResolvedRef(node, context)
+
+        // If the scheme exists and is a string, normalize to lowercase if not already
+        if (
+          typeof targetNode === 'object' &&
+          targetNode !== null &&
+          'scheme' in targetNode &&
+          typeof targetNode['scheme'] === 'string' &&
+          targetNode['scheme'].toLowerCase() !== targetNode['scheme']
+        ) {
+          targetNode['scheme'] = targetNode['scheme'].toLowerCase()
+        }
+      }
     },
   }
 }

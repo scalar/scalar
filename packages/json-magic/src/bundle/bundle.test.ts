@@ -2322,6 +2322,22 @@ describe('bundle', () => {
 
         expect(onAfterNodeProcessSpy).toHaveBeenCalledTimes(3)
       })
+
+      it('should call `onAfterNodeProcess` even on the $ref nodes after they have been processed', async () => {
+        const onAfterNodeProcessSpy = vi.fn()
+
+        const input = { a: { $ref: 'fake-ref' } }
+
+        await bundle(input, {
+          plugins: [],
+          treeShake: false,
+          hooks: {
+            onAfterNodeProcess: onAfterNodeProcessSpy,
+          },
+        })
+
+        expect(onAfterNodeProcessSpy).toHaveBeenCalledTimes(2)
+      })
     })
   })
 
