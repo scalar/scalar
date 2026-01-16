@@ -1,5 +1,16 @@
 # scalar-app
 
+## 0.1.264
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/components@0.16.23**
+
 ## 0.1.263
 
 ### Patch Changes

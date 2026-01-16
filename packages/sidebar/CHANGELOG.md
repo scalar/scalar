@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/components@0.16.23**
+
 ## 0.7.12
 
 ### Patch Changes

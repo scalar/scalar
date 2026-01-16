@@ -1,5 +1,19 @@
 # @scalar/nuxt
 
+## 0.5.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.24.10**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/api-client@2.18.4**
+  - [#7774](https://github.com/scalar/scalar/pull/7774): Adds exports to V2 client.
+
+- **@scalar/api-reference@1.43.8**
+
 ## 0.5.46
 
 ### Patch Changes
