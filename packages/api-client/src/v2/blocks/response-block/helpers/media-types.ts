@@ -1,8 +1,8 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
+type MediaPreview = 'object' | 'image' | 'video' | 'audio'
 
-export type MediaConfig = {
+type MediaConfig = {
   preview?: MediaPreview
   alpha?: boolean
   raw?: boolean
@@ -11,7 +11,7 @@ export type MediaConfig = {
 }
 
 /** Media Type (MIME Type) Definitions */
-export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
+const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/epub+zip': { extension: '.epub' },
   'application/gzip': { extension: '.gz' },
   'application/java-archive': { extension: '.jar' },

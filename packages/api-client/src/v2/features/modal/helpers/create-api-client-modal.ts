@@ -12,7 +12,7 @@ import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
-export type CreateApiClientModalOptions = {
+type CreateApiClientModalOptions = {
   /** Element to mount the client modal to. */
   el: HTMLElement | null
   /**

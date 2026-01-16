@@ -1,4 +1,4 @@
-export type HttpHeader = { name: string; url: string }
+type HttpHeader = { name: string; url: string }
 
 export const httpHeaders: HttpHeader[] = [
   {

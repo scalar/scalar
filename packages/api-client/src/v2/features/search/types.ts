@@ -1,7 +1,7 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 export type EntryType = 'operation' | 'heading' | 'tag'
 
-export type BaseFuse = {
+type BaseFuse = {
   id: string
   type: EntryType
   documentName: string
@@ -10,18 +10,18 @@ export type BaseFuse = {
   description: string
 }
 
-export type OperationFuse = BaseFuse & {
+type OperationFuse = BaseFuse & {
   type: 'operation'
   method: string
   path: string
   operationId?: string
 }
 
-export type HeadingFuse = BaseFuse & {
+type HeadingFuse = BaseFuse & {
   type: 'heading'
 }
 
-export type TagFuse = BaseFuse & {
+type TagFuse = BaseFuse & {
   type: 'tag'
 }
 

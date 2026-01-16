@@ -25,7 +25,7 @@ export function saveActiveWorkspace(to: RouteLocationNormalized) {
 }
 
 /** Redirect to the saved workspace or the default workspace */
-export function redirectToActiveWorkspace() {
+function redirectToActiveWorkspace() {
   // Access localStorage
   const activeWorkspace = localStorage.getItem(ACTIVE_WORKSPACE_KEY)
 

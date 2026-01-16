@@ -13,7 +13,7 @@ type ProcessedParameters = {
 }
 
 /** Ensures we don't have any references in the parameters */
-export const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
+const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
   (params ?? []).map((param) => getResolvedRef(param))
 
 /**
