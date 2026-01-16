@@ -61,6 +61,8 @@ const slots = defineSlots<{
   footer?(): unknown
   /** Slot to add additional content to the empty folder */
   empty?(props: { item: TraversedEntry }): unknown
+  /** Slot for customizing the actions section of the sidebar menu. */
+  sidebarMenuActions?(): unknown
 }>()
 
 /** Controls the visibility of the search input */
@@ -100,7 +102,11 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
                 @create:workspace="emit('create:workspace')"
-                @select:workspace="(id) => emit('select:workspace', id)" />
+                @select:workspace="(id) => emit('select:workspace', id)">
+                <template #sidebarMenuActions>
+                  <slot name="sidebarMenuActions" />
+                </template>
+              </SidebarMenu>
 
               <!-- Placeholder for the sidebar toggle in modal layout -->
               <div v-else-if="layout === 'modal'"></div>

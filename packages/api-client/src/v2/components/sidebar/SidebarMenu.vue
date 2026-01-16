@@ -30,6 +30,11 @@ const emit = defineEmits<{
   /** Emitted when the user selects a workspace */
   (e: 'select:workspace', id?: string): void
 }>()
+
+defineSlots<{
+  /** Slot for customizing the actions section of the sidebar menu. */
+  sidebarMenuActions?(): unknown
+}>()
 </script>
 <template>
   <!-- Desktop app menu -->
@@ -39,33 +44,21 @@ const emit = defineEmits<{
     </template>
     <template #sections="{ close }">
       <ScalarMenuSection>
-        <template #title>Team</template>
-        <ScalarMenuWorkspacePicker
-          :modelValue="activeWorkspace.id"
-          :workspaceOptions="workspaces"
-          @createWorkspace="emit('create:workspace')"
-          @update:modelValue="(value) => emit('select:workspace', value)" />
-
-        <ScalarMenuLink
-          :is="RouterLink"
-          :icon="ScalarIconGear"
-          to="/settings"
-          @click="close">
-          Settings
-        </ScalarMenuLink>
-
-        <!-- <ScalarMenuLink
-      is="button"
-      icon="Leave"
-      @click="emit('close')">
-      Logout
-    </ScalarMenuLink> -->
+        <slot name="sidebarMenuActions">
+          <ScalarMenuWorkspacePicker
+            :modelValue="activeWorkspace.id"
+            :workspaceOptions="workspaces"
+            @createWorkspace="emit('create:workspace')"
+            @update:modelValue="(value) => emit('select:workspace', value)" />
+          <ScalarMenuLink
+            :is="RouterLink"
+            :icon="ScalarIconGear"
+            to="/settings"
+            @click="close">
+            Settings
+          </ScalarMenuLink>
+        </slot>
       </ScalarMenuSection>
-
-      <!-- <AppHeaderTeam
-                v-if="isLoggedIn"
-                @close="close" />
-              <AppHeaderLoggedOut v-else /> -->
       <ScalarMenuResources />
       <ScalarMenuSupport />
     </template>
