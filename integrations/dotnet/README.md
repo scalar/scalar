@@ -35,4 +35,4 @@ When making changes that affect shared code, update all 3 packages in your chang
 feat: description of changes
 ```
 
-This ensures version consistency across all .NET packages.
+This ensures version consistency across all .NET packages!
