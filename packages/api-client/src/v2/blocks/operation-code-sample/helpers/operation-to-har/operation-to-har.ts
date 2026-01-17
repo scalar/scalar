@@ -9,7 +9,7 @@ import type {
 import type { Request as HarRequest } from 'har-format'
 
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
-import { getdefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
+import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -76,12 +76,12 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
 }: OperationToHarProps): HarRequest => {
-  const defaultHeaders = getdefaultHeaders({
+  const defaultHeaders = getDefaultHeaders({
     method,
     operation,
     exampleKey: example ?? 'default',
     hideDisabledHeaders: true,
-  })
+  }).filter((header) => !header.isOverridden)
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}

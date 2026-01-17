@@ -659,7 +659,7 @@ describe('buildRequest', () => {
         parameters: [
           {
             in: 'header',
-            name: 'user-agent',
+            name: 'User-Agent',
             schema: { type: 'string' },
             examples: {
               default: {
