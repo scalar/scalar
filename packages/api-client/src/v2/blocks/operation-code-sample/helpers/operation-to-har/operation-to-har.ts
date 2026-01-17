@@ -1,11 +1,15 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
+
+import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
+import { getdefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -36,6 +40,8 @@ export type OperationToHarProps = {
   server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
   securitySchemes?: SecuritySchemeObject[]
+  /** Workspace + document cookies */
+  globalCookies?: XScalarCookie[]
 }
 
 /**
@@ -65,26 +71,37 @@ export const operationToHar = ({
   contentType,
   method,
   path,
-  server,
+  server = null,
   example,
   securitySchemes,
+  globalCookies,
 }: OperationToHarProps): HarRequest => {
+  const defaultHeaders = getdefaultHeaders({
+    method,
+    operation,
+    exampleKey: example ?? 'default',
+    hideDisabledHeaders: true,
+  })
+
+  const disabledGlobalCookies =
+    operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}
+
+  const serverUrl = processServerUrl(server, path)
+
   // Initialize the HAR request with basic properties
   const harRequest: HarRequest = {
     method,
-    url: path,
-    headers: [],
+    url: serverUrl,
+    headers: defaultHeaders.map((header) => ({ name: header.name, value: header.defaultValue })),
     queryString: [],
     postData: undefined,
     httpVersion: 'HTTP/1.1',
-    cookies: [],
+    cookies:
+      globalCookies
+        ?.filter((cookie) => filterGlobalCookie({ cookie, url: serverUrl, disabledGlobalCookies }))
+        ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? [],
     headersSize: -1,
     bodySize: -1,
-  }
-
-  // Server URL
-  if (server?.url) {
-    harRequest.url = processServerUrl(server, path)
   }
 
   // Handle parameters

@@ -82,6 +82,10 @@ export type OperationCodeSampleProps = {
    * If true, render this as a webhook request example
    */
   isWebhook?: boolean
+  /**
+   * Workspace + document cookies
+   */
+  globalCookies?: XScalarCookie[]
 }
 
 /**
@@ -113,6 +117,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
   SecuritySchemeObject,
@@ -148,6 +153,7 @@ const {
   operation,
   isWebhook,
   generateLabel,
+  globalCookies,
 } = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
@@ -228,6 +234,7 @@ const generatedCode = computed<string>(() => {
     server: selectedServer,
     securitySchemes,
     example: selectedExampleKey.value,
+    globalCookies,
   })
 })
 

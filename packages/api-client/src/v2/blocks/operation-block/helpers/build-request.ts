@@ -10,6 +10,7 @@ import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
+import { getdefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 
 import { buildRequestBody } from './build-request-body'
 import { buildRequestCookieHeader } from './build-request-cookie-header'
@@ -73,7 +74,14 @@ export const buildRequest = ({
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Combine the headers, cookies and url params
-    const headers = { ...params.headers, ...security.headers }
+    const defaultHeaders = getdefaultHeaders({ method, operation, exampleKey, hideDisabledHeaders: true }).reduce(
+      (acc, header) => {
+        acc[header.name] = header.defaultValue
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+    const headers = { ...defaultHeaders, ...params.headers, ...security.headers }
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
 
     /** Combine the server url, path and url params into a single url */
