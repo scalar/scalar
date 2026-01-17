@@ -6,7 +6,7 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { type CompositionKeyword, compositions } from './schema-composition'
 import { shouldRenderArrayItemComposition } from './should-render-array-item-composition'
 
-export type CompositionToRender = {
+type CompositionToRender = {
   composition: CompositionKeyword
   value: SchemaObject
 }

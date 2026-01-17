@@ -39,7 +39,7 @@ export const getModelNameFromSchema = (schemaOrRef: SchemaObject | ReferenceType
 /**
  * Format the type and model name for display
  */
-export const formatTypeWithModel = (type: Extract<SchemaObject, { type: any }>['type'], modelName: string): string =>
+const formatTypeWithModel = (type: Extract<SchemaObject, { type: any }>['type'], modelName: string): string =>
   `${type} ${modelName}${type === 'array' ? '[]' : ''}`
 
 /**

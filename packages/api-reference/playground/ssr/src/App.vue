@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ApiReference } from '@/index'
+import { ApiReference } from '@scalar/api-reference'
 </script>
 
 <template>

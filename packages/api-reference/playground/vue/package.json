@@ -1,0 +1,21 @@
+{
+  "name": "@scalar-examples/vue-react-renderer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "vue-tsc"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*"
+  }
+}
