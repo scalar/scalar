@@ -19,12 +19,12 @@ export const filterGlobalCookie = ({
   disabledGlobalCookies: Record<string, boolean>
 }): boolean => {
   // Filter out disabled cookies, those disabled globally, or those missing a name.
-  if (cookie.isDisabled || disabledGlobalCookies[cookie.name] === true || !cookie.name) {
+  if (cookie.isDisabled || disabledGlobalCookies[cookie.name.toLowerCase()] === true || !cookie.name) {
     return false
   }
 
   // Parse the URL to extract the pathname for path matching.
-  const urlObject = new URL(url)
+  const urlObject = new URL(url, 'https://example.com')
 
   // If a domain restriction exists, ensure the cookie is only sent for matching domains.
   if (cookie.domain && !matchesDomain(url, cookie.domain)) {
