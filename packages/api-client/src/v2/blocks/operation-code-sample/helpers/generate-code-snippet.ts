@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
   OperationObject,
@@ -31,6 +32,8 @@ type GenerateCodeSnippetProps = {
   securitySchemes: SecuritySchemeObject[]
   /** The server object defining the base URL for the API request. */
   server: ServerObject | null
+  /** Workspace + document cookies */
+  globalCookies?: XScalarCookie[]
 }
 
 /** Generate the code snippet for the selected example OR operation */
@@ -44,6 +47,7 @@ export const generateCodeSnippet = ({
   contentType,
   server,
   securitySchemes,
+  globalCookies,
 }: GenerateCodeSnippetProps): string => {
   try {
     if (!clientId) {
@@ -66,6 +70,7 @@ export const generateCodeSnippet = ({
       server,
       securitySchemes,
       example,
+      globalCookies,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]

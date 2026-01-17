@@ -5,8 +5,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 /**
  * Processes a server URL by replacing variables with their default values and merging with the path
  */
-export const processServerUrl = (server: ServerObject, path: string): string => {
-  if (!server.url) {
+export const processServerUrl = (server: ServerObject | null, path: string): string => {
+  if (!server?.url) {
     return path
   }
   const serverUrl = server.url

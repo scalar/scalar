@@ -32,6 +32,7 @@ const defaultProps = {
   eventBus: createWorkspaceEventBus(),
   clientOptions: [],
   selectedClient: 'shell/curl' as const,
+  globalCookies: [],
 }
 
 describe('RequestBlock', () => {
@@ -230,7 +231,8 @@ describe('RequestBlock', () => {
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
-        index: 1,
+        // We have default header parameters, so when updating the second parameter, the index will be 0
+        index: expectedType === 'header' ? 0 : 1,
         payload: { name: 'x', value: 'y', isDisabled: false },
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
@@ -241,7 +243,8 @@ describe('RequestBlock', () => {
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
-        index: 2,
+        // We have default header parameters, so when updating the second parameter, the index will be 0
+        index: expectedType === 'header' ? 1 : 2,
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()

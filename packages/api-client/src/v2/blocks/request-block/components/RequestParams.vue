@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
-import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 import RequestTable from './RequestTable.vue'
 import type { TableRow } from './RequestTableRow.vue'
 
 const {
-  parameters,
+  rows,
   exampleKey,
   environment,
   title,
   globalRoute,
   showAddRowPlaceholder = true,
 } = defineProps<{
-  parameters: ParameterObject[]
+  rows: TableRow[]
   exampleKey: string
   title: string
   label?: string
@@ -42,28 +39,12 @@ const emits = defineEmits<{
   (e: 'deleteAll'): void
 }>()
 
-const tableRows = computed<TableRow[]>(() =>
-  parameters.map((param) => {
-    const example = getExample(param, exampleKey, undefined)
-
-    return {
-      name: param.name,
-      value: example?.value ?? '',
-      description: param.description,
-      globalRoute,
-      schema: getParameterSchema(param),
-      isRequired: param.required,
-      isDisabled: example?.['x-disabled'] ?? false,
-    }
-  }),
-)
-
-const showTooltip = computed(() => parameters.length > 1)
+const showTooltip = computed(() => rows.length > 1)
 </script>
 <template>
   <CollapsibleSection
     class="group/params"
-    :itemCount="parameters.length">
+    :itemCount="rows.length">
     <template #title>{{ title }}</template>
     <template #actions>
       <div
@@ -86,7 +67,7 @@ const showTooltip = computed(() => parameters.length > 1)
     <RequestTable
       class="flex-1"
       :columns="['32px', '', '']"
-      :data="tableRows"
+      :data="rows"
       :environment="environment"
       :exampleKey="exampleKey"
       :globalRoute="globalRoute"

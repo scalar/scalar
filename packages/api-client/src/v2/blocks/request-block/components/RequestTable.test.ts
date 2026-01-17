@@ -179,7 +179,6 @@ describe('RequestTable', () => {
         data: [{ name: 'test', value: 'value', isEnabled: true }],
         environment,
         envVariables: [],
-        isReadOnly: true,
         hasCheckboxDisabled: true,
         label: 'Custom Label',
         showUploadButton: true,
@@ -187,7 +186,6 @@ describe('RequestTable', () => {
     })
 
     const row = wrapper.findComponent({ name: 'RequestTableRow' })
-    expect(row.props('isReadOnly')).toBe(true)
     expect(row.props('hasCheckboxDisabled')).toBe(true)
     expect(row.props('label')).toBe('Custom Label')
     expect(row.props('showUploadButton')).toBe(true)

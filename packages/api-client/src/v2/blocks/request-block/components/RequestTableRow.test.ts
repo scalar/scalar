@@ -144,9 +144,8 @@ describe('RequestTableRow', () => {
   it('disables inputs when isReadOnly is true', () => {
     const wrapper = mount(RequestTableRow, {
       props: {
-        data: { name: 'key', value: 'value' },
+        data: { name: 'key', value: 'value', isReadonly: true },
         environment,
-        isReadOnly: true,
       },
       global: {
         stubs: {

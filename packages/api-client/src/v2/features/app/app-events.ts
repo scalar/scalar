@@ -29,6 +29,7 @@ import {
   updateActiveProxy,
   updateColorMode,
   updateDocumentIcon,
+  updateOperationExtraParameters,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
@@ -293,6 +294,7 @@ export function initializeAppEventHandlers({
     // When updating a path parameter, we need to check if we are creating a new example
     onAfterExampleCreation(payload.meta)
   })
+  eventBus.on('operation:update:extra-parameters', (payload) => updateOperationExtraParameters(document.value, payload))
   eventBus.on('operation:delete:parameter', (payload) => deleteOperationParameter(document.value, payload))
   eventBus.on('operation:delete-all:parameters', (payload) => deleteAllOperationParameters(document.value, payload))
 

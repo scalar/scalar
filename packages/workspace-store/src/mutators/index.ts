@@ -153,6 +153,7 @@ export {
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
+  updateOperationExtraParameters,
   updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,

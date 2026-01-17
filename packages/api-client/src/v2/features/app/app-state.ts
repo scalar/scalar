@@ -625,7 +625,6 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
-  console.log({ message: 'handleRouteChange', to })
   const workspace = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
