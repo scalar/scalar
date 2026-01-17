@@ -262,7 +262,7 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
   }
 }
 
-export const freeze = (id: string) => {
+const freeze = (id: string): (() => void) => {
   let stop = false
 
   /**

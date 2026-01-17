@@ -6,7 +6,7 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
 /**
  * Formats a property object into a string.
  */
-export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
+function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '

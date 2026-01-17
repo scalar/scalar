@@ -105,7 +105,7 @@ export const normalizeContent = (
 }
 
 /** Process a single spec configuration so that it has a title and a slug */
-export const addSlugAndTitle = (
+const addSlugAndTitle = (
   source: ConfigWithRequiredSource,
   index = 0,
   slugger: GithubSlugger,
