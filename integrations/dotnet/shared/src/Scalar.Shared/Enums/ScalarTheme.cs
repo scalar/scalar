@@ -85,5 +85,17 @@ public enum ScalarTheme
     /// Laserwave theme.
     /// </summary>
     [Description("laserwave")]
-    Laserwave
+    Laserwave,
+
+    /// <summary>
+    /// Elysia.js theme.
+    /// </summary>
+    [Description("elysiajs")]
+    ElysiaJs,
+
+    /// <summary>
+    /// Fastify theme.
+    /// </summary>
+    [Description("fastify")]
+    Fastify
 }
