@@ -103,7 +103,7 @@ const initGallery = debounce(() => {
       buttons.forEach((button) => button.classList.remove('active'))
       this.classList.add('active')
 
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
     })
   })
 
@@ -112,7 +112,7 @@ const initGallery = debounce(() => {
       entries.forEach((entry) => {
         const isMobile = window.innerWidth < 540
 
-        if (isMobile ? entry.intersectionRatio > 0.5 : entry.intersectionRatio === 1) {
+        if (isMobile ? entry.intersectionRatio > 0.5 : entry.intersectionRatio > 0.75) {
           const slideId = entry.target.id
 
           const button = document.querySelector(`button[data-target^="#${slideId}"]`)

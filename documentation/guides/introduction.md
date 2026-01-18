@@ -556,10 +556,9 @@
   }
   .gallery {
     display: flex;
-    gap: 24px;
     --scalar-gallery-item-offset: 140px;
     overflow: scroll;
-    scroll-snap-type: both mandatory;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
     padding: 0 max(var(--scalar-container-sidebar-gap) - 70px, 50px) !important;
     position: relative;
@@ -570,10 +569,12 @@
   }
   .gallery li {
     max-width: calc(100dvw - var(--scalar-sidebar-width) - 50px);
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     display: inline-block;
     font-size: 0;
     aspect-ratio: 16/9;
+    padding-left: 50px;
+    margin-right: 50px;
   }
   .gallery li img {
     min-width: 100%;
@@ -880,9 +881,9 @@
   }
 
   @media screen and (max-width: 590px) {
-    .gallery li:first-child {
-      padding-left: 30px;
-      margin-right: 24px;
+    .gallery li {
+      padding-left: 0 !important;
+      margin-right: 25px;
     }
   }
 
@@ -955,9 +956,15 @@
       --scalar-gallery-item-offset: 10px;
       margin-top: 14px;
     }
+
+    .gallery li img {
+      height: 300px;
+     }
     .gallery li {
       max-width: unset;
       max-height: 300px;
+      padding-left: 30px;
+      margin-right: 30px;
     }
     .logowall.logowall {
       grid-template-columns: repeat(3, 1fr);
