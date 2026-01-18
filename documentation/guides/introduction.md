@@ -586,6 +586,7 @@
   }
   .slider button {
     margin-right: 16px;
+    margin-bottom: 10px;
     color: var(--scalar-color-3);
   }
   .slider button.active {
@@ -877,6 +878,14 @@
     overflow: hidden;
     border-radius: 20px;
   }
+
+  @media screen and (max-width: 590px) {
+    .gallery li:first-child {
+      padding-left: 30px;
+      margin-right: 24px;
+    }
+  }
+
   @media screen and (max-width: 1000px) {
     .t-doc {
       --scalar-sidebar-width: 0px;
@@ -944,10 +953,11 @@
     }
     .gallery {
       --scalar-gallery-item-offset: 10px;
-      margin-top: 24px;
+      margin-top: 14px;
     }
     .gallery li {
-      width: calc(100dvw - 60px);
+      max-width: unset;
+      max-height: 300px;
     }
     .logowall.logowall {
       grid-template-columns: repeat(3, 1fr);
