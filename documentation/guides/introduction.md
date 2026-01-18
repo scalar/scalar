@@ -555,24 +555,12 @@
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
   }
   .gallery {
+    display: flex;
     --scalar-gallery-item-offset: 140px;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(
-      10,
-      calc(
-        100dvw - var(--scalar-sidebar-width) -
-          var(--scalar-container-sidebar-gap) -
-          var(--scalar-container-sidebar-gap) +
-          var(--scalar-gallery-item-offset)
-      )
-    );
-    grid-template-rows: 1fr;
-    grid-column-gap: 24px;
     overflow: scroll;
-    scroll-snap-type: both mandatory;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    padding-left: max(var(--scalar-container-sidebar-gap) - 70px, 50px) !important;
+    padding: 0 max(var(--scalar-container-sidebar-gap) - 70px, 50px) !important;
     position: relative;
     margin-top: 32px;
   }
@@ -581,14 +569,17 @@
   }
   .gallery li {
     max-width: calc(100dvw - var(--scalar-sidebar-width) - 50px);
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     display: inline-block;
     font-size: 0;
     aspect-ratio: 16/9;
+    padding-left: 50px;
+    margin-right: 50px;
   }
   .gallery li img {
-    width: 100%;
+    min-width: 100%;
     height: 100%;
+    max-height: 600px;
     object-fit: cover;
   }
   .slider {
@@ -596,6 +587,7 @@
   }
   .slider button {
     margin-right: 16px;
+    margin-bottom: 10px;
     color: var(--scalar-color-3);
   }
   .slider button.active {
@@ -887,6 +879,14 @@
     overflow: hidden;
     border-radius: 20px;
   }
+
+  @media screen and (max-width: 590px) {
+    .gallery li {
+      padding-left: 0 !important;
+      margin-right: 25px;
+    }
+  }
+
   @media screen and (max-width: 1000px) {
     .t-doc {
       --scalar-sidebar-width: 0px;
@@ -954,10 +954,17 @@
     }
     .gallery {
       --scalar-gallery-item-offset: 10px;
-      margin-top: 24px;
+      margin-top: 14px;
     }
+
+    .gallery li img {
+      height: 300px;
+     }
     .gallery li {
-      width: calc(100dvw - 60px);
+      max-width: unset;
+      max-height: 300px;
+      padding-left: 30px;
+      margin-right: 30px;
     }
     .logowall.logowall {
       grid-template-columns: repeat(3, 1fr);

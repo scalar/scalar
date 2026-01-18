@@ -90,24 +90,41 @@ const initGallery = debounce(() => {
   const buttons = document.querySelectorAll('button[data-target^="#slide-"]')
   const slides = document.querySelectorAll('[id^="slide-"]')
   const gallery = document.querySelector('#gallery')
+
+  let observerPaused = false
+
   if (!buttons.length || !slides.length || !gallery) return
 
   buttons.forEach((button) => {
     button.addEventListener('click', function () {
       const target = document.querySelector(this.getAttribute('data-target'))
-      if (target && gallery) {
-        gallery.scrollTo({
-          left: target.offsetLeft - 16,
-          behavior: 'smooth',
-        })
-      }
+
+      observerPaused = true
+      buttons.forEach((button) => button.classList.remove('active'))
+      this.classList.add('active')
+
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
     })
   })
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        const isMobile = window.innerWidth < 540
+
+        if (isMobile ? entry.intersectionRatio > 0.5 : entry.intersectionRatio > 0.75) {
           const slideId = entry.target.id
+
+          const button = document.querySelector(`button[data-target^="#${slideId}"]`)
+
+          if (button?.classList.contains('active')) {
+            observerPaused = false
+          }
+
+          if (observerPaused) {
+            return
+          }
+
           buttons.forEach((button) => {
             if (button.getAttribute('data-target') === `#${slideId}`) {
               button.classList.add('active')
@@ -120,9 +137,11 @@ const initGallery = debounce(() => {
     },
     {
       root: gallery,
-      threshold: 0.5,
+      threshold: [0, 0.25, 0.5, 0.75, 1],
+      rootMargin: '0px',
     },
   )
+
   slides.forEach((slide) => observer.observe(slide))
   console.log(`Initialized ${slides.length} gallery elements`)
 })
