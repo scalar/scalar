@@ -137,7 +137,7 @@ const initGallery = debounce(() => {
     },
     {
       root: gallery,
-      threshold: [0, 0.25, 0.5, 0.75, 1], // Multiple thresholds for smooth detection
+      threshold: [0, 0.25, 0.5, 0.75, 1],
       rootMargin: '0px',
     },
   )
