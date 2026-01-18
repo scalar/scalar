@@ -52,6 +52,16 @@
       "types": "./dist/helpers/escape-json-pointer.d.ts",
       "default": "./dist/helpers/escape-json-pointer.js"
     },
+    "./helpers/get-segments-from-path": {
+      "import": "./dist/helpers/get-segments-from-path.js",
+      "types": "./dist/helpers/get-segments-from-path.d.ts",
+      "default": "./dist/helpers/get-segments-from-path.js"
+    },
+    "./helpers/unescape-json-pointer": {
+      "import": "./dist/helpers/unescape-json-pointer.js",
+      "types": "./dist/helpers/unescape-json-pointer.d.ts",
+      "default": "./dist/helpers/unescape-json-pointer.js"
+    },
     "./magic-proxy": {
       "import": "./dist/magic-proxy/index.js",
       "types": "./dist/magic-proxy/index.d.ts",
