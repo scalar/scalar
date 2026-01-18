@@ -22,7 +22,7 @@ type ExampleKey = string
  *   "Accept": false         // This parameter is enabled
  * }
  */
-export type ExampleParameterState = Record<ParameterName, boolean>
+type ExampleParameterState = Record<ParameterName, boolean>
 
 /**
  * Maps example keys to their parameter disabled states.
@@ -34,7 +34,7 @@ export type ExampleParameterState = Record<ParameterName, boolean>
  *   "auth-example": { "Authorization": false }
  * }
  */
-export type ExamplesParameterStates = Record<ExampleKey, ExampleParameterState>
+type ExamplesParameterStates = Record<ExampleKey, ExampleParameterState>
 
 /**
  * Configuration for disabled parameters across different parameter categories.

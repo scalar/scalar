@@ -18,7 +18,7 @@ const DEFAULT_ACCEPT = '*/*'
  * Represents a default header with its value and override status.
  * Used to track headers that are automatically added to requests.
  */
-export type DefaultHeader = {
+type DefaultHeader = {
   /** The header name (e.g., "Content-Type", "Accept"). */
   name: string
   /** The default value for this header. */
