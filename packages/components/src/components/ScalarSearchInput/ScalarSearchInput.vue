@@ -14,7 +14,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { ref } from 'vue'
 
@@ -69,9 +69,9 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
     <ScalarIconButton
       v-else-if="model"
       class="p-0 size-5"
-      icon="Close"
+      :icon="ScalarIconX"
       label="Clear Search"
-      thickness="1.5"
+      weight="bold"
       @click.stop.prevent="handleClear" />
   </label>
 </template>
