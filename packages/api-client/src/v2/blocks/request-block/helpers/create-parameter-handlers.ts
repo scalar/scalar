@@ -52,7 +52,7 @@ export const createParameterHandlers = (
         return eventBus.emit('operation:update:extra-parameters', {
           type: extraParameterType,
           in: type,
-          meta: { ...meta, name: row?.name.toLowerCase() ?? 'NON_VALID' },
+          meta: { ...meta, name: row?.name?.toLowerCase?.() ?? 'NON_VALID' },
           payload: { isDisabled: payload.payload.isDisabled ?? false },
         })
       }
