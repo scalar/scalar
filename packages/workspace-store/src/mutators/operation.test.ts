@@ -17,6 +17,7 @@ import {
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormValue,
   updateOperationSummary,
 } from './operation'
 
@@ -2363,5 +2364,102 @@ describe('setHeader', () => {
 
     const param = getResolvedRef(operation.parameters?.[0])
     expect(param?.name).toBe('X-Custom-Header-123')
+  })
+})
+
+describe('updateOperationRequestBodyFormValue', () => {
+  it('creates requestBody and stores form data as unpacked object', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {},
+        },
+      },
+    })
+
+    const formData = [
+      { name: 'file', value: 'document.pdf', isDisabled: false },
+      { name: 'description', value: 'Test upload', isDisabled: false },
+    ]
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'multipart/form-data',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: formData,
+    })
+
+    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    assert(op)
+    const rb = getResolvedRef(op.requestBody)
+    assert(rb)
+    const media = rb.content?.['multipart/form-data']
+    assert(media)
+    const examples = getResolvedRef(media.examples)
+    assert(examples)
+    expect(getResolvedRef(examples.default)?.value).toEqual(formData)
+  })
+
+  it('updates existing form data value', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {},
+        },
+      },
+    })
+
+    const initialFormData = [{ name: 'field1', value: 'value1', isDisabled: false }]
+    const updatedFormData = [
+      { name: 'field1', value: 'updated', isDisabled: false },
+      { name: 'field2', value: 'value2', isDisabled: true },
+    ]
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'application/x-www-form-urlencoded',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: initialFormData,
+    })
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'application/x-www-form-urlencoded',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: updatedFormData,
+    })
+
+    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    assert(op)
+    const rb = getResolvedRef(op.requestBody)
+    assert(rb)
+    const media = rb.content?.['application/x-www-form-urlencoded']
+    assert(media)
+    const examples = getResolvedRef(media.examples)
+    assert(examples)
+    expect(getResolvedRef(examples.default)?.value).toEqual(updatedFormData)
+  })
+
+  it('no-ops when document is null', () => {
+    expect(() =>
+      updateOperationRequestBodyFormValue(null, {
+        contentType: 'multipart/form-data',
+        meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+        payload: [{ name: 'test', value: 'value', isDisabled: false }],
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {},
+      },
+    })
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'multipart/form-data',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: [{ name: 'test', value: 'value', isDisabled: false }],
+    })
+
+    expect(document.paths?.['/upload']).toEqual({})
   })
 })
