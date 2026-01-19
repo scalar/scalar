@@ -4,7 +4,7 @@ export type OperationCodeSampleProps = {
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
    */
-  integration?: 'client' | "reference"
+  integration?: 'client' | 'reference'
   /**
    * List of all http clients formatted into option groups for the client selector
    */

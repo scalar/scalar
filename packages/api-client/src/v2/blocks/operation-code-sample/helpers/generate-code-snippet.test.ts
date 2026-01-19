@@ -48,7 +48,7 @@ describe('generateCodeSnippet', () => {
       path: '/users/{userId}',
     })
 
-    expect(result).toBe("fetch('https://api.example.com/users/{userId}', {\n  headers: {\n    Accept: '*/*'\n  }\n})")
+    expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
   })
 
   it('returns custom code sample source when clientId starts with "custom"', () => {
@@ -138,8 +138,7 @@ describe('generateCodeSnippet', () => {
 
     expect(code).toBe(`requests.post("https://api.example.com/users",
     headers={
-      "Content-Type": "application/json",
-      "Accept": "*/*"
+      "Content-Type": "application/json"
     },
     json={
       "name": "Marc"
@@ -155,7 +154,7 @@ describe('generateCodeSnippet', () => {
 
     expect(code).toBe(`const axios = require('axios').default;
 
-const options = {method: 'GET', url: 'https://api.example.com/users', headers: {Accept: '*/*'}};
+const options = {method: 'GET', url: 'https://api.example.com/users'};
 
 try {
   const { data } = await axios.request(options);
