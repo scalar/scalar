@@ -1,13 +1,13 @@
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ClientLayout } from '@/hooks/useLayout'
 import { ERRORS } from '@/libs/errors'
+import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 
 import { buildRequest } from './helpers/build-request'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'
@@ -117,7 +117,7 @@ const createDefaultProps = () => ({
   eventBus: createMockEventBus(),
   appVersion: '1.0.0',
   proxyUrl: '',
-  globalCookies: [] as XScalarCookie[],
+  globalCookies: [] as ExtendedScalarCookie[],
   path: '/api/users',
   method: 'get' as const,
   httpClients: AVAILABLE_CLIENTS,
@@ -360,7 +360,12 @@ describe('OperationBlock', () => {
       },
     ])
 
-    const mockCookie: XScalarCookie = { name: 'session', value: 'abc123', domain: 'example.com' }
+    const mockCookie: ExtendedScalarCookie = {
+      name: 'session',
+      value: 'abc123',
+      domain: 'example.com',
+      location: 'document',
+    }
 
     const wrapper = mount(OperationBlock, {
       props: {

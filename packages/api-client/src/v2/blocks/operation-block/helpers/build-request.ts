@@ -1,6 +1,4 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -11,7 +9,8 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
-import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
+import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
+import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 
 import { buildRequestBody } from './build-request-body'
 import { buildRequestCookieHeader } from './build-request-cookie-header'
@@ -67,14 +66,7 @@ export const buildRequest = ({
   try {
     /** Flatten the environment variables array into a key-value object */
     const env = getEnvironmentVariables(environment)
-
-    const serverUrl = getServerUrl(server, env)
     const requestBody = getResolvedRef(operation.requestBody)
-
-    // Throw for no server or path
-    if (!serverUrl && !path) {
-      throw ERRORS.URL_EMPTY
-    }
 
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
@@ -82,12 +74,26 @@ export const buildRequest = ({
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Combine the headers, cookies and url params
-    const headers = { ...params.headers, ...security.headers }
+    const defaultHeaders = getDefaultHeaders({ method, operation, exampleKey, hideDisabledHeaders: true })
+      .filter((header) => !header.isOverridden)
+      .reduce(
+        (acc, header) => {
+          acc[header.name] = header.defaultValue
+          return acc
+        },
+        {} as Record<string, string>,
+      )
+    const headers = { ...defaultHeaders, ...params.headers, ...security.headers }
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
-    const processedPath = replaceVariables(path, { ...env, ...params.pathVariables })
 
     /** Combine the server url, path and url params into a single url */
-    const url = mergeUrls(serverUrl, processedPath, urlParams)
+    const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
+
+    // Throw for no server or path
+    if (!url) {
+      throw ERRORS.URL_EMPTY
+    }
+
     const isUsingProxy = shouldUseProxy(proxyUrl, url)
     const proxiedUrl = redirectToProxy(proxyUrl, url)
 
@@ -103,11 +109,12 @@ export const buildRequest = ({
       paramCookies: [...params.cookies, ...security.cookies],
       globalCookies,
       env,
-      path: processedPath,
       originalCookieHeader: headers['Cookie'] || headers['cookie'],
-      url: serverUrl || path,
+      url,
       useCustomCookieHeader: isElectron() || isUsingProxy,
+      disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {},
     })
+
     if (cookiesHeader) {
       headers[cookiesHeader.name] = cookiesHeader.value
     }

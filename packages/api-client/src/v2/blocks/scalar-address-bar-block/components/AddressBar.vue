@@ -6,8 +6,6 @@ import {
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
@@ -27,8 +25,7 @@ import {
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
-import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
-import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
+import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
@@ -175,11 +172,9 @@ onBeforeUnmount(() => {
 const { copyToClipboard } = useClipboard()
 
 const copyUrl = async () => {
-  const environmentVariables = getEnvironmentVariables(environment)
-  const serverUrl = getServerUrl(server, environmentVariables)
-  const pathWithVariables = replaceVariables(path, environmentVariables)
-  const fullPath = mergeUrls(serverUrl, pathWithVariables)
-  await copyToClipboard(fullPath)
+  await copyToClipboard(
+    getResolvedUrl({ environment, server, path, pathVariables: {} }),
+  )
 }
 
 defineExpose({

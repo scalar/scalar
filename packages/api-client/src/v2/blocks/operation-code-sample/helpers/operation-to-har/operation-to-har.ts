@@ -1,11 +1,15 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
+
+import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
+import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -36,6 +40,14 @@ export type OperationToHarProps = {
   server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
   securitySchemes?: SecuritySchemeObject[]
+  /** Workspace + document cookies */
+  globalCookies?: XScalarCookie[]
+  /**
+   * Whether to include default headers (e.g., Accept, Content-Type) automatically.
+   * If false, default headers will be omitted from the HAR request.
+   * @default true
+   */
+  includeDefaultHeaders?: boolean
 }
 
 /**
@@ -61,30 +73,41 @@ export type OperationToHarProps = {
  * @see https://spec.openapis.org/oas/v3.1.0#operation-object
  */
 export const operationToHar = ({
+  includeDefaultHeaders = false,
   operation,
   contentType,
   method,
   path,
-  server,
+  server = null,
   example,
   securitySchemes,
+  globalCookies,
 }: OperationToHarProps): HarRequest => {
+  const defaultHeaders = includeDefaultHeaders
+    ? getDefaultHeaders({
+        method,
+        operation,
+        exampleKey: example ?? 'default',
+        hideDisabledHeaders: true,
+      }).filter((header) => !header.isOverridden)
+    : []
+
+  const disabledGlobalCookies =
+    operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}
+
+  const serverUrl = processServerUrl(server, path)
+
   // Initialize the HAR request with basic properties
   const harRequest: HarRequest = {
     method,
-    url: path,
-    headers: [],
+    url: serverUrl,
+    headers: defaultHeaders.map((header) => ({ name: header.name, value: header.defaultValue })),
     queryString: [],
     postData: undefined,
     httpVersion: 'HTTP/1.1',
     cookies: [],
     headersSize: -1,
     bodySize: -1,
-  }
-
-  // Server URL
-  if (server?.url) {
-    harRequest.url = processServerUrl(server, path)
   }
 
   // Handle parameters
@@ -95,10 +118,17 @@ export const operationToHar = ({
       example,
       contentType,
     })
+
+    // Correctly filter the global cookies by the processed url
+    const filteredGlobalCookies =
+      globalCookies
+        ?.filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
+        ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? []
+
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
-    harRequest.cookies = cookies
+    harRequest.cookies = [...filteredGlobalCookies, ...cookies]
   }
 
   const body = getResolvedRef(operation.requestBody)

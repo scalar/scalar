@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import { ScalarIconTrash } from '@scalar/icons'
+import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -23,11 +23,9 @@ const {
   environment,
   hasCheckboxDisabled,
   invalidParams,
-  isReadOnly,
   showUploadButton,
 } = defineProps<{
   data: TableRow
-  isReadOnly?: boolean
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
   label?: string
@@ -45,14 +43,30 @@ const emits = defineEmits<{
   (e: 'removeFile'): void
 }>()
 
+const router = useRouter()
+
 export type TableRow = {
+  /** The parameter or field name/key */
   name: string
+  /** The parameter value, can be a string, file, or null */
   value: string | File | null
+  /** Optional description for the parameter */
   description?: string
-  globalRoute?: string
+  /** Optional route for global parameters (e.g., cookies shared across workspace) */
+  globalRoute?: RouteLocationRaw
+  /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
+  /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
+  /** Whether the parameter is required */
   isRequired?: boolean
+  /**
+   * Whether the parameter is readonly and can not be modifies directly
+   * User can still override the parameter which is going to show up with the linethrough style
+   */
+  isReadonly?: boolean
+  /** Whether the parameter is overridden later on */
+  isOverridden?: boolean
 }
 
 const defaultValue = computed(() => data.schema?.default as string)
@@ -103,36 +117,18 @@ const valueModel = computed({
       alert: validationResult.ok === false,
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
-    <template v-if="data.globalRoute !== undefined">
-      <RouterLink
-        class="text-c-2 flex items-center justify-center border-t !border-r"
-        :to="data.globalRoute ?? {}">
-        <span class="sr-only">Global</span>
-        <ScalarTooltip
-          content="Global cookies are shared across the whole workspace."
-          placement="top">
-          <ScalarIcon
-            class="text-c-1"
-            icon="Globe"
-            size="xs"
-            tabindex="0" />
-        </ScalarTooltip>
-      </RouterLink>
-    </template>
-    <template v-else>
-      <DataTableCheckbox
-        class="!border-r"
-        :disabled="hasCheckboxDisabled ?? false"
-        :modelValue="!data.isDisabled"
-        @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
-    </template>
+    <DataTableCheckbox
+      class="!border-r"
+      :disabled="hasCheckboxDisabled ?? false"
+      :modelValue="!data.isDisabled"
+      @update:modelValue="(v) => emits('updateRow', { isDisabled: !v })" />
 
     <!-- Name -->
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Key`"
         disableCloseBrackets
-        :disabled="isReadOnly"
+        :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
         :environment="environment"
@@ -151,7 +147,7 @@ const valueModel = computed({
         class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
         :default="defaultValue"
         disableCloseBrackets
-        :disabled="isReadOnly"
+        :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
         :enum="enumValue ?? []"
@@ -159,6 +155,7 @@ const valueModel = computed({
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
         "
+        :linethrough="data.isOverridden"
         lineWrapping
         :max="maximumValue"
         :min="minimumValue"
@@ -168,15 +165,34 @@ const valueModel = computed({
         @update:modelValue="(v: string) => emits('updateRow', { value: v })">
         <template #icon>
           <ScalarButton
-            v-if="Boolean(data.name || data.value) && !data.isRequired"
+            v-if="
+              Boolean(data.name || data.value) &&
+              !data.isRequired &&
+              data.isReadonly !== true
+            "
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
             size="sm"
             variant="ghost"
             @click="emits('deleteRow')">
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
+
+          <ScalarIconButton
+            v-if="data.globalRoute !== undefined"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 h-fit"
+            :icon="ScalarIconGlobe"
+            label="Global cookies are shared across the whole workspace. Click to navigate."
+            size="xs"
+            tooltip="top"
+            variant="ghost"
+            @click="router.push(data.globalRoute!)" />
+
           <RequestTableTooltip
-            v-if="data.schema"
+            v-if="data.isReadonly"
+            description="This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox"
+            :value="null" />
+          <RequestTableTooltip
+            v-else-if="data.schema"
             :description="data.description"
             :schema="data.schema"
             :value="data.value" />

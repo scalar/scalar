@@ -11,6 +11,7 @@ import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
 import type { WorkspaceDocument } from '@/schemas'
+import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
 import type { ExampleObject, OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
@@ -598,6 +599,72 @@ export const updateOperationParameter = (
 }
 
 /**
+ * Updates the disabled state of a default parameter for an operation.
+ * Default parameters are inherited from higher-level configurations (like collection or server defaults)
+ * and this allows individual operations to selectively disable them without removing them entirely.
+ *
+ * The disabled state is stored in the `x-scalar-disable-parameters` extension object, organized by
+ * parameter type and example key. Missing objects are initialized automatically.
+ *
+ * @param document - The current workspace document
+ * @param type - The parameter type (e.g., 'header'). Determines the storage key ('default-headers' for headers)
+ * @param meta.path - Path of the operation (e.g., '/users')
+ * @param meta.method - HTTP method of the operation (e.g., 'get')
+ * @param meta.exampleKey - Key identifying the relevant example
+ * @param meta.key - The specific parameter key being updated
+ * @param payload.isDisabled - Whether the parameter should be disabled
+ */
+export const updateOperationExtraParameters = (
+  document: WorkspaceDocument | null,
+  { type, meta, payload, in: location }: OperationEvents['operation:update:extra-parameters'],
+) => {
+  type Type = OperationEvents['operation:update:extra-parameters']['type']
+  type In = OperationEvents['operation:update:extra-parameters']['in']
+
+  // Ensure there's a valid document
+  if (!document) {
+    return
+  }
+
+  // Resolve the referenced operation from the document using the path and method
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return
+  }
+
+  // Initialize the 'x-scalar-disable-parameters' object if it doesn't exist
+  if (!operation['x-scalar-disable-parameters']) {
+    operation['x-scalar-disable-parameters'] = {}
+  }
+
+  /**
+   * Maps parameter type and location to the corresponding config key.
+   * Only valid combinations are defined here.
+   */
+  const mapping: Partial<Record<Type, Partial<Record<In, keyof DisableParametersConfig>>>> = {
+    global: { cookie: 'global-cookies' },
+    default: { header: 'default-headers' },
+  }
+
+  const key = mapping[type]?.[location]
+
+  if (!key) {
+    return
+  }
+
+  // Initialize the 'default-headers' object within 'x-scalar-disable-parameters' if it doesn't exist
+  if (!operation['x-scalar-disable-parameters'][key]) {
+    operation['x-scalar-disable-parameters'][key] = {}
+  }
+
+  // Update (or create) the entry for the specific example and key, preserving any existing settings
+  operation['x-scalar-disable-parameters'][key][meta.exampleKey] = {
+    ...(operation['x-scalar-disable-parameters'][key][meta.exampleKey] ?? {}),
+    [meta.name]: payload.isDisabled ?? false,
+  }
+}
+
+/**
  * Removes a parameter from the operation by resolving its position within
  * the filtered list of parameters of the specified `type`.
  * Safely no-ops if the document, operation, or parameter does not exist.
@@ -678,75 +745,6 @@ export const deleteAllOperationParameters = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
- * Sets a header parameter value for a specific example key.
- * Creates the header parameter if it does not exist, otherwise updates the existing one.
- *
- * Note: This function does not handle parameters with content (ParameterWithContentObject).
- * Those cases are currently unsupported and will no-op.
- */
-export const setHeader = ({
-  operation,
-  type,
-  name,
-  value,
-  exampleKey,
-}: {
-  operation: OperationObject
-  type: ParameterObject['in']
-  name: string
-  value: string
-  exampleKey: string
-}) => {
-  // Initialize parameters array if it does not exist
-  if (!operation.parameters) {
-    operation.parameters = []
-  }
-
-  // Find existing header parameter (case-insensitive name match)
-  const existingParameter = operation.parameters.find((param) => {
-    const resolvedParam = getResolvedRef(param)
-    return resolvedParam.name.toLowerCase() === name.toLowerCase() && resolvedParam.in === type
-  })
-
-  if (!existingParameter) {
-    // Create a new header parameter with the example value
-    operation.parameters.push({
-      in: type,
-      name,
-      examples: {
-        [exampleKey]: {
-          value,
-        },
-      },
-    })
-    return
-  }
-
-  const resolvedParameter = getResolvedRef(existingParameter)
-
-  // We do not handle parameters with content
-  if (isContentTypeParameterObject(resolvedParameter)) {
-    return
-  }
-
-  // Initialize examples if they do not exist
-  if (!resolvedParameter.examples) {
-    resolvedParameter.examples = {}
-  }
-
-  // Initialize the specific example if it does not exist
-  if (!resolvedParameter.examples[exampleKey]) {
-    resolvedParameter.examples[exampleKey] = {}
-  }
-
-  // Update the example value
-  getResolvedRef(resolvedParameter.examples[exampleKey]).value = value
-  return
-}
-
-const SKIP_CONTENT_TYPE_HEADERS = ['other', 'none']
-
-/**
  * Sets the selected request-body content type for the current `exampleKey`.
  * This stores the selection under `x-scalar-selected-content-type` on the
  * resolved requestBody. Safely no-ops if the document or operation does not exist.
@@ -786,17 +784,6 @@ export const updateOperationRequestBodyContentType = (
   }
 
   requestBody!['x-scalar-selected-content-type'][meta.exampleKey] = payload.contentType
-
-  // Try to also set the content-type header in the operation parameters
-  if (!SKIP_CONTENT_TYPE_HEADERS.includes(payload.contentType)) {
-    setHeader({
-      operation,
-      name: 'Content-Type',
-      type: 'header',
-      exampleKey: meta.exampleKey,
-      value: payload.contentType,
-    })
-  }
 }
 
 /** Ensure the json that we need exists up to the example object in the request body */
@@ -892,6 +879,8 @@ export const operationMutatorsFactory = ({
       deleteOperationExample(store, payload),
     addOperationParameter: (payload: OperationEvents['operation:add:parameter']) =>
       addOperationParameter(document, payload),
+    updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>
+      updateOperationExtraParameters(document, payload),
     updateOperationParameter: (payload: OperationEvents['operation:update:parameter']) =>
       updateOperationParameter(document, payload),
     deleteOperationParameter: (payload: OperationEvents['operation:delete:parameter']) =>

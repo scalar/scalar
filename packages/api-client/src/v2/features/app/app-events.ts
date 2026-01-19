@@ -113,6 +113,10 @@ export function initializeAppEventHandlers({
       'operation:update:parameter': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
       },
+      'operation:update:extra-parameters': {
+        onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
+      },
+
       'operation:delete:operation': {
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)

@@ -30,7 +30,6 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   ServerObject,
@@ -48,6 +47,7 @@ import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-re
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
+import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
@@ -88,7 +88,7 @@ const {
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
-  globalCookies: XScalarCookie[]
+  globalCookies: ExtendedScalarCookie[]
   /** Current request path */
   path: string
   /** Current request method */
@@ -268,6 +268,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :environment
           :eventBus
           :exampleKey
+          :globalCookies
           :layout
           :method
           :operation
