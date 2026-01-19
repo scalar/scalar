@@ -126,12 +126,21 @@
 
         "playground/components/src/main.ts",
         "playground/components/vite.config.ts",
-        "playground/esm/vite.config.ts"
+
+        "playground/esm/vite.config.ts",
+
+        "playground/vue/vite.config.ts",
+        "playground/vue/src/main.ts"
+      ],
+      "ignoreDependencies": [
+        // Used by my-custom-plugin inside playground/vue but code is commented
+        "react",
+        "@scalar/react-renderer"
+      ],
+      "ignoreFiles": [
+        "playground/vue/src/AppWithJsApi.vue",
+        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
       ]
-    },
-    "packages/api-reference/playground/vue": {
-      "entry": ["src/main.ts"],
-      "ignoreFiles": ["src/AppWithJsApi.vue", "src/x-custom-extension-plugin/components/CustomReactComponent.tsx"]
     },
     "packages/api-reference/playground/ssr": {
       "entry": ["src/{main,entry-client,entry-server}.ts"],

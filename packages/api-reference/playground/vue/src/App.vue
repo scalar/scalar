@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createApiReference } from '@scalar/api-reference'
+import { createApiReference } from '../../../src/index'
 
 import '@scalar/api-reference/style.css'
 

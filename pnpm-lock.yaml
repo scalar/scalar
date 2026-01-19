@@ -1389,6 +1389,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/react-renderer':
+        specifier: workspace:*
+        version: link:../react-renderer
       '@tailwindcss/vite':
         specifier: catalog:*
         version: 4.1.18(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
@@ -1407,6 +1410,9 @@ importers:
       jsdom:
         specifier: catalog:*
         version: 26.1.0
+      react:
+        specifier: catalog:*
+        version: 19.2.3
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.50.2)
@@ -1496,25 +1502,6 @@ importers:
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
-      vite:
-        specifier: catalog:*
-        version: 7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
-
-  packages/api-reference/playground/vue:
-    dependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../..
-      vue:
-        specifier: catalog:*
-        version: 3.5.26(typescript@5.8.3)
-    devDependencies:
-      '@types/node':
-        specifier: catalog:*
-        version: 22.19.3
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.3(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.26(typescript@5.8.3))
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
