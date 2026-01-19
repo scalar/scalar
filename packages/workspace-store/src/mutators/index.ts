@@ -1,88 +1,38 @@
 import type { WorkspaceStore } from '@/client'
+import { authMutatorsFactory } from '@/mutators/auth'
+import { cookieMutatorsFactory } from '@/mutators/cookie'
+import { documentMutatorsFactory } from '@/mutators/document'
+import { environmentMutatorsFactory } from '@/mutators/environment'
 import { getDocument } from '@/mutators/helpers'
-import { requestMutators } from '@/mutators/request'
-import { securitySchemeMutators } from '@/mutators/security-schemes'
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+import { operationMutatorsFactory } from '@/mutators/operation'
+import { serverMutatorsFactory } from '@/mutators/server'
+import { tabsMutatorsFactory } from '@/mutators/tabs'
+import { tagMutatorsFactory } from '@/mutators/tag'
+import { workspaceMutatorsFactory } from '@/mutators/workspace'
+import type { WorkspaceDocument } from '@/schemas'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
  *
- * @deprecated use the individual mutators instead, this will be removed after we move fully to the new store
- *
  * @param store - The workspace store containing all documents and workspace-level data
  * @returns An object with mutators for the workspace, the active document, and any named document
  */
-export function generateClientMutators(store: WorkspaceStore) {
-  /**
-   * Provides mutator functions for managing an array of OpenAPI ServerObject entries.
-   *
-   * @param target - The array of ServerObject to mutate. If not provided, mutators will be no-ops.
-   * @returns An object with addServer and deleteServer methods.
-   */
-  const serverMutators = (target?: ServerObject[]) => {
-    /**
-     * Adds a new ServerObject to the target array.
-     * @param server - The ServerObject to add.
-     * @returns true if the server was added, false if target is undefined.
-     */
-    const addServer = (server: ServerObject): boolean => {
-      if (!target) {
-        return false
-      }
-      target.push(server)
-      return true
-    }
-
-    /**
-     * Deletes a ServerObject at the specified index from the target array.
-     * @param index - The index of the server to delete.
-     * @returns true if the server was deleted, false if target is undefined.
-     */
-    const deleteServer = (url: string): boolean => {
-      if (!target) {
-        return false
-      }
-      const newTarget = [...target.filter((it) => it.url !== url)]
-      target.splice(0, target.length)
-      target.push(...newTarget)
-      return true
-    }
-
-    return {
-      addServer,
-      deleteServer,
-    }
-  }
-
+export function generateClientMutators(store: WorkspaceStore | null) {
   /**
    * Returns mutators for a specific document by name.
    *
    * @param documentName - The name of the document to get mutators for
    * @returns An object containing mutators for requests, request examples, security schemes, environments, and cookies
    */
-  const documentMutators = (documentName: string) => {
-    const document = getDocument(store, documentName)
-
-    if (document) {
-      // Make sure the document has a servers array
-      if (!document.servers) {
-        document.servers = []
-      }
-
-      // Make sure the document has the securitySchema object
-      if (!document.components) {
-        document.components = {}
-      }
-
-      if (!document.components.securitySchemes) {
-        document.components.securitySchemes = {}
-      }
-    }
-
+  const documentMutators = (document: WorkspaceDocument | null) => {
     return {
-      requestMutators: requestMutators(document),
-      securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
-      serverMutators: serverMutators(document?.servers),
+      auth: authMutatorsFactory({ document }),
+      cookie: cookieMutatorsFactory({ collection: document }),
+      document: documentMutatorsFactory({ document, store }),
+      operation: operationMutatorsFactory({ document, store }),
+      server: serverMutatorsFactory({ document }),
+      tag: tagMutatorsFactory({ store }),
+      environment: environmentMutatorsFactory({ workspace: store?.workspace ?? null, collection: document }),
     }
   }
 
@@ -92,21 +42,14 @@ export function generateClientMutators(store: WorkspaceStore) {
    * @returns An object containing mutators for environments and cookies at the workspace level
    */
   const workspaceMutators = () => {
-    const workspace = store.workspace
-
-    // Make sure the workspace has a servers array
-    if (!workspace['x-scalar-client-config-servers']) {
-      workspace['x-scalar-client-config-servers'] = []
-    }
-
-    // Make sure the workspace has the securitySchema object
-    if (!store.workspace['x-scalar-client-config-security-schemes']) {
-      store.workspace['x-scalar-client-config-security-schemes'] = {}
-    }
-
     return {
-      serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
-      securitySchemeMutators: securitySchemeMutators(store.workspace['x-scalar-client-config-security-schemes']),
+      cookie: cookieMutatorsFactory({ collection: store?.workspace ?? null }),
+      tabs: tabsMutatorsFactory({ workspace: store?.workspace ?? null }),
+      workspace: workspaceMutatorsFactory({ workspace: store?.workspace ?? null }),
+      environment: environmentMutatorsFactory({
+        workspace: store?.workspace ?? null,
+        collection: store?.workspace ?? null,
+      }),
     }
   }
 
@@ -119,64 +62,12 @@ export function generateClientMutators(store: WorkspaceStore) {
      * Returns mutators for the currently active document.
      * Falls back to the first document if no active document is set.
      */
-    active: () =>
-      documentMutators(store.workspace['x-scalar-active-document'] ?? Object.keys(store.workspace.documents)[0] ?? ''),
+    active: () => documentMutators(store?.workspace.activeDocument ?? null),
     /**
      * Returns mutators for a specific document by name.
      *
      * @param name - The name of the document
      */
-    doc: (name: string) => documentMutators(name),
+    doc: (name: string) => documentMutators(getDocument(store, name)),
   }
 }
-
-export {
-  type AuthMeta,
-  deleteSecurityScheme,
-  updateSecurityScheme,
-  updateSelectedAuthTab,
-  updateSelectedScopes,
-  updateSelectedSecuritySchemes,
-} from './auth'
-export { deleteCookie, upsertCookie } from './cookie'
-export { createEmptyDocument, deleteDocument, toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
-export {
-  upsertEnvironment,
-  upsertEnvironmentVariable,
-} from './environment'
-export {
-  type OperationExampleMeta,
-  type OperationMeta,
-  addOperationParameter,
-  createOperation,
-  deleteAllOperationParameters,
-  deleteOperation,
-  deleteOperationExample,
-  deleteOperationParameter,
-  updateOperationExtraParameters,
-  updateOperationParameter,
-  updateOperationPathMethod,
-  updateOperationRequestBodyContentType,
-  updateOperationRequestBodyExample,
-  updateOperationRequestBodyFormValue,
-  updateOperationSummary,
-} from './operation'
-export {
-  addServer,
-  deleteServer,
-  updateSelectedServer,
-  updateServer,
-  updateServerVariables,
-} from './server'
-export {
-  addTab,
-  closeOtherTabs,
-  closeTab,
-  focusLastTab,
-  focusTab,
-  navigateNextTab,
-  navigatePreviousTab,
-  updateTabs,
-} from './tabs'
-export { createTag, deleteTag } from './tag'
-export { updateActiveProxy, updateColorMode, updateSelectedClient, updateTheme } from './workspace'

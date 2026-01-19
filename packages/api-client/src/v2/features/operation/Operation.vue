@@ -11,8 +11,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import { computed, onMounted } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'

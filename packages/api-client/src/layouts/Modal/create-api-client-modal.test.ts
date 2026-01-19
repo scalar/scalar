@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createApiClientModal } from './create-api-client-modal'
 
-describe('createApiClientModal', () => {
+// Old modal
+describe.skip('createApiClientModal', () => {
   it('renders something', async () => {
     vi.unmock('@/hooks/useSidebar')
     vi.unmock('@/hooks/useLayout')

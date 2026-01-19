@@ -25,7 +25,6 @@ describe('upsertCookie', () => {
   it('returns undefined when collection is null', () => {
     const result = upsertCookie(null, {
       payload: { name: 'test', value: 'value' },
-      collectionType: 'document',
     })
 
     expect(result).toBeUndefined()
@@ -36,7 +35,6 @@ describe('upsertCookie', () => {
 
     const result = upsertCookie(document, {
       payload: { name: 'session', value: 'abc123' },
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -63,7 +61,6 @@ describe('upsertCookie', () => {
 
     const result = upsertCookie(document, {
       payload: { name: 'new', value: 'value' },
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -92,7 +89,6 @@ describe('upsertCookie', () => {
         domain: '.example.com',
         isDisabled: true,
       },
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -132,7 +128,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(document, {
       payload: { value: 'updated-value' },
       index: 1,
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -168,7 +163,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(document, {
       payload: { name: 'new-name' },
       index: 0,
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -191,7 +185,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(document, {
       payload: { name: 'updated' },
       index: -1,
-      collectionType: 'document',
     })
 
     expect(result).toBeUndefined()
@@ -216,7 +209,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(document, {
       payload: { name: 'updated' },
       index: 5,
-      collectionType: 'document',
     })
 
     expect(result).toBeUndefined()
@@ -233,7 +225,6 @@ describe('upsertCookie', () => {
 
     const result = upsertCookie(workspace, {
       payload: { name: 'workspace-cookie', value: 'workspace-value' },
-      collectionType: 'workspace',
     })
 
     expect(result).toEqual({
@@ -261,7 +252,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(workspace, {
       payload: { value: 'updated-value', domain: '.example.com' },
       index: 0,
-      collectionType: 'workspace',
     })
 
     expect(result).toEqual({
@@ -291,7 +281,6 @@ describe('upsertCookie', () => {
     const result = upsertCookie(document, {
       payload: { value: 'updated', isDisabled: true },
       index: 0,
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -305,7 +294,7 @@ describe('upsertCookie', () => {
 
 describe('deleteCookie', () => {
   it('returns false when collection is null', () => {
-    const result = deleteCookie(null, { index: 0, cookieName: 'test', collectionType: 'document' })
+    const result = deleteCookie(null, { index: 0, cookieName: 'test' })
 
     expect(result).toBe(false)
   })
@@ -313,7 +302,7 @@ describe('deleteCookie', () => {
   it('returns false when x-scalar-cookies does not exist', () => {
     const document = createDocument()
 
-    const result = deleteCookie(document, { index: 0, cookieName: 'test', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 0, cookieName: 'test' })
 
     expect(result).toBe(false)
   })
@@ -328,7 +317,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: -1, cookieName: 'test', collectionType: 'document' })
+    const result = deleteCookie(document, { index: -1, cookieName: 'test' })
 
     expect(result).toBe(false)
     expect(document['x-scalar-cookies']).toHaveLength(1)
@@ -344,7 +333,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: 10, cookieName: 'test', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 10, cookieName: 'test' })
 
     expect(result).toBe(false)
     expect(document['x-scalar-cookies']).toHaveLength(1)
@@ -368,7 +357,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: 1, cookieName: 'second', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 1, cookieName: 'second' })
 
     expect(result).toBe(true)
     expect(document['x-scalar-cookies']).toEqual([
@@ -397,7 +386,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: 0, cookieName: 'first', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 0, cookieName: 'first' })
 
     expect(result).toBe(true)
     expect(document['x-scalar-cookies']).toEqual([
@@ -422,7 +411,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: 1, cookieName: 'second', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 1, cookieName: 'second' })
 
     expect(result).toBe(true)
     expect(document['x-scalar-cookies']).toEqual([
@@ -443,7 +432,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(document, { index: 0, cookieName: 'only', collectionType: 'document' })
+    const result = deleteCookie(document, { index: 0, cookieName: 'only' })
 
     expect(result).toBe(true)
     expect(document['x-scalar-cookies']).toEqual([])
@@ -459,7 +448,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    const result = deleteCookie(workspace, { index: 0, cookieName: 'workspace-cookie', collectionType: 'workspace' })
+    const result = deleteCookie(workspace, { index: 0, cookieName: 'workspace-cookie' })
 
     expect(result).toBe(true)
     expect(workspace['x-scalar-cookies']).toEqual([])
@@ -487,7 +476,7 @@ describe('deleteCookie', () => {
       ],
     })
 
-    deleteCookie(document, { index: 1, cookieName: 'b', collectionType: 'document' })
+    deleteCookie(document, { index: 1, cookieName: 'b' })
 
     expect(document['x-scalar-cookies']).toEqual([
       {

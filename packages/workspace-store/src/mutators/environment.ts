@@ -8,6 +8,8 @@ import {
 } from '@/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
+type Event<T extends keyof EnvironmentEvents> = Omit<EnvironmentEvents[T], 'collectionType'>
+
 /**
  * Adds OR updates an environment to the document or workspace.
  *
@@ -19,13 +21,12 @@ import { coerceValue } from '@/schemas/typebox-coerce'
  * @returns the parsed environment that was added or updated or undefined if the collection is not found
  */
 export const upsertEnvironment = (
-  document: WorkspaceDocument | null,
-  workspace: Workspace,
-  { environmentName, payload, collectionType, oldEnvironmentName }: EnvironmentEvents['environment:upsert:environment'],
+  workspace: Workspace | null,
+  collection: WorkspaceDocument | Workspace | null,
+  { environmentName, payload, oldEnvironmentName }: Event<'environment:upsert:environment'>,
 ): XScalarEnvironment | undefined => {
   /** Discriminating between document and workspace */
-  const collection = collectionType === 'document' ? document : workspace
-  if (!collection) {
+  if (!collection || !workspace) {
     return
   }
 
@@ -61,6 +62,18 @@ export const upsertEnvironment = (
   return parsed
 }
 
+export const deleteEnvironment = (
+  workspace: Workspace | null,
+  collection: WorkspaceDocument | Workspace | null,
+  { environmentName }: Event<'environment:delete:environment'>,
+) => {
+  if (!collection || !workspace) {
+    return
+  }
+
+  delete collection['x-scalar-environments']?.[environmentName]
+}
+
 /**
  * Adds OR updates an environment variable to the document or workspace.
  *
@@ -72,7 +85,7 @@ export const upsertEnvironment = (
  */
 export const upsertEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
-  { environmentName, variable, index }: EnvironmentEvents['environment:upsert:environment-variable'],
+  { environmentName, variable, index }: Event<'environment:upsert:environment-variable'>,
 ): XScalarEnvVar | undefined => {
   // The environment should exist by now if we are upserting a variable
   if (!collection?.['x-scalar-environments']?.[environmentName]) {
@@ -99,4 +112,34 @@ export const upsertEnvironmentVariable = (
   }
 
   return parsed
+}
+
+export const deleteEnvironmentVariable = (
+  collection: WorkspaceDocument | Workspace | null,
+  { environmentName, index }: Event<'environment:delete:environment-variable'>,
+) => {
+  if (!collection?.['x-scalar-environments']?.[environmentName]) {
+    console.error('Environment not found', environmentName)
+    return
+  }
+  collection['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1)
+}
+
+export const environmentMutatorsFactory = ({
+  workspace,
+  collection,
+}: {
+  workspace: Workspace | null
+  collection: WorkspaceDocument | Workspace | null
+}) => {
+  return {
+    upsertEnvironment: (payload: Event<'environment:upsert:environment'>) =>
+      upsertEnvironment(workspace, collection, payload),
+    deleteEnvironment: (payload: Event<'environment:delete:environment'>) =>
+      deleteEnvironment(workspace, collection, payload),
+    upsertEnvironmentVariable: (payload: Event<'environment:upsert:environment-variable'>) =>
+      upsertEnvironmentVariable(collection, payload),
+    deleteEnvironmentVariable: (payload: Event<'environment:delete:environment-variable'>) =>
+      deleteEnvironmentVariable(collection, payload),
+  }
 }

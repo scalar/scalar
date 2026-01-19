@@ -1,4 +1,4 @@
-import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
+import type { OperationExampleMeta } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { mockEventBus } from '../../../helpers/test-utils'

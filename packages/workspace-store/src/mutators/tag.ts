@@ -86,3 +86,10 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
     { depth: 2 },
   )
 }
+
+export const tagMutatorsFactory = ({ store }: { store: WorkspaceStore | null }) => {
+  return {
+    createTag: (payload: TagEvents['tag:create:tag']) => createTag(store, payload),
+    deleteTag: (payload: TagEvents['tag:delete:tag']) => deleteTag(store, payload),
+  }
+}

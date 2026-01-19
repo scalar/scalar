@@ -1,9 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import type { WorkspaceDocument } from '@/schemas'
 
-import { deleteDocument, toggleSecurity, updateDocumentIcon, updateWatchMode } from './document'
+import {
+  createEmptyDocument,
+  deleteDocument,
+  toggleSecurity,
+  updateDocumentIcon,
+  updateDocumentInfo,
+  updateWatchMode,
+} from './document'
 
 function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
   return {
@@ -258,6 +265,115 @@ describe('updateDocumentIcon', () => {
 
     expect(document['x-scalar-icon']).toBe('')
     expect(document['x-scalar-navigation']?.icon).toBe('')
+  })
+})
+
+describe('updateDocumentInfo', () => {
+  it('does nothing when document is null', () => {
+    updateDocumentInfo(null, { title: 'New Title' })
+    // Should not throw
+  })
+
+  it('updates document title', () => {
+    const document = createDocument()
+
+    updateDocumentInfo(document, { title: 'Updated Title' })
+
+    expect(document.info.title).toBe('Updated Title')
+    expect(document.info.version).toBe('1.0.0')
+  })
+
+  it('updates multiple info properties at once', () => {
+    const document = createDocument()
+
+    updateDocumentInfo(document, {
+      title: 'New Title',
+      version: '2.0.0',
+      description: 'A new description',
+    })
+
+    expect(document.info.title).toBe('New Title')
+    expect(document.info.version).toBe('2.0.0')
+    expect(document.info.description).toBe('A new description')
+  })
+
+  it('merges nested properties without replacing entire info object', () => {
+    const document = createDocument({
+      info: {
+        title: 'Original Title',
+        version: '1.0.0',
+        description: 'Original description',
+        contact: {
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+      },
+    })
+
+    updateDocumentInfo(document, {
+      title: 'Updated Title',
+      contact: {
+        email: 'newemail@example.com',
+      },
+    })
+
+    expect(document.info.title).toBe('Updated Title')
+    expect(document.info.version).toBe('1.0.0')
+    expect(document.info.description).toBe('Original description')
+    expect(document.info.contact?.email).toBe('newemail@example.com')
+  })
+})
+
+describe('createEmptyDocument', () => {
+  it('does nothing when store is null', async () => {
+    await expect(
+      createEmptyDocument(null, {
+        name: 'test-doc',
+        icon: 'test-icon',
+      }),
+    ).resolves.toBeUndefined()
+  })
+
+  it('creates a new empty document with basic structure', async () => {
+    const store = createWorkspaceStore()
+    const callback = vi.fn()
+
+    await createEmptyDocument(store, {
+      name: 'my-api',
+      icon: 'api-icon',
+      callback: callback,
+    })
+
+    const document = store.workspace.documents['my-api']
+    expect(document).toBeDefined()
+    expect(document?.openapi).toBe('3.1.0')
+    expect(document?.info.title).toBe('my-api')
+    expect(document?.info.version).toBe('1.0.0')
+    expect(document?.paths).toEqual({ '/': { get: {} } })
+    expect(document?.['x-scalar-icon']).toBe('api-icon')
+    expect(callback).toHaveBeenCalledWith(true)
+  })
+
+  it('calls callback with false when document name already exists', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'existing-doc',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Existing', version: '1.0.0' },
+      },
+    })
+
+    const callback = vi.fn()
+
+    await createEmptyDocument(store, {
+      name: 'existing-doc',
+      icon: 'new-icon',
+      callback: callback,
+    })
+
+    expect(callback).toHaveBeenCalledWith(false)
+    expect(store.workspace.documents['existing-doc']?.info.title).toBe('Existing')
   })
 })
 

@@ -3,15 +3,6 @@
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/**",
-    "packages/api-reference/**",
-    "packages/postman-to-openapi/**",
-    "packages/api-reference-react/**",
-    "packages/draggable/**",
-    "packages/galaxy/**",
-    "packages/nextjs-openapi/**",
-    "packages/openapi-upgrader/**",
-    "packages/pre-post-request-scripts/**",
-    "packages/react-renderer/**",
     "projects/**",
     "integrations/docusaurus/**",
     "integrations/dotnet/**",
@@ -48,8 +39,7 @@
 
     // The following values needs to be re-checked once more packages are included
     "tsc-alias",
-    "tsconfig-paths",
-    "vue-tsc"
+    "tsconfig-paths"
   ],
   "ignoreBinaries": ["netlify"],
   "workspaces": {
@@ -120,6 +110,41 @@
     },
     "packages/api-client-react": {
       "entry": ["playground/main.tsx"]
+    },
+    "packages/api-reference": {
+      "entry": [
+        // "src/index.ts", used by playground
+        "src/esm.ts",
+        "src/standalone.ts",
+
+        "src/standalone.bench.ts",
+        "vite.standalone.config.ts",
+
+        // Not sure why test files are marked as unused here
+        "test/**/*",
+        "src/**/*.test.ts",
+
+        "playground/components/src/main.ts",
+        "playground/components/vite.config.ts",
+
+        "playground/esm/vite.config.ts",
+
+        "playground/vue/vite.config.ts",
+        "playground/vue/src/main.ts"
+      ],
+      "ignoreDependencies": [
+        // Used by my-custom-plugin inside playground/vue but code is commented
+        "react",
+        "@scalar/react-renderer"
+      ],
+      "ignoreFiles": [
+        "playground/vue/src/AppWithJsApi.vue",
+        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
+      ]
+    },
+    "packages/api-reference/playground/ssr": {
+      "entry": ["src/{main,entry-client,entry-server}.ts"],
+      "ignoreFiles": ["src/AppWithJsApi.vue"]
     },
     "packages/api-reference-react": {
       "entry": ["playground/main.tsx"]

@@ -1,5 +1,4 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
+import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 

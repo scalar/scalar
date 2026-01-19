@@ -224,3 +224,16 @@ export const focusLastTab = (workspace: Workspace | null, _payload: TabEvents['t
   workspace['x-scalar-active-tab'] = tabs.length - 1
   return true
 }
+
+export const tabsMutatorsFactory = ({ workspace }: { workspace: Workspace | null }) => {
+  return {
+    updateTabs: (payload: TabEvents['tabs:update:tabs']) => updateTabs(workspace, payload),
+    addTab: (payload: TabEvents['tabs:add:tab']) => addTab(workspace, payload),
+    closeTab: (payload: TabEvents['tabs:close:tab']) => closeTab(workspace, payload),
+    closeOtherTabs: (payload: TabEvents['tabs:close:other-tabs']) => closeOtherTabs(workspace, payload),
+    navigatePreviousTab: (payload: TabEvents['tabs:navigate:previous']) => navigatePreviousTab(workspace, payload),
+    navigateNextTab: (payload: TabEvents['tabs:navigate:next']) => navigateNextTab(workspace, payload),
+    focusTab: (payload: TabEvents['tabs:focus:tab']) => focusTab(workspace, payload),
+    focusLastTab: (payload: TabEvents['tabs:focus:tab-last']) => focusLastTab(workspace, payload),
+  }
+}

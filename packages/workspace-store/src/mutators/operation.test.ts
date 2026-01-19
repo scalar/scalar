@@ -16,6 +16,7 @@ import {
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
+  updateOperationRequestBodyFormValue,
   updateOperationSummary,
 } from './operation'
 
@@ -100,20 +101,13 @@ describe('updateOperationPathMethod (method only)', () => {
     const document = store.workspace.documents.test!
     expect(document['x-scalar-order']).toStrictEqual(['test/GET/users', 'test/POST/users'])
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users' },
-        payload: { method: 'put', path: '/users' },
-        callback: (_status) => {
-          return
-        },
-      },
-      (_status) => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users' },
+      payload: { method: 'put', path: '/users' },
+      callback: (_status) => {
         return
       },
-    )
+    })
     expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
 
     // The operation should now be under 'put'
@@ -174,20 +168,13 @@ describe('updateOperationPathMethod (method only)', () => {
       'test2/tag/products/DELETE/products',
     ])
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/products' },
-        payload: { method: 'patch', path: '/products' },
-        callback: (_status) => {
-          return
-        },
-      },
-      (_status) => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/products' },
+      payload: { method: 'patch', path: '/products' },
+      callback: (_status) => {
         return
       },
-    )
+    })
 
     expect(document.tags?.[0]?.['x-scalar-order']).toStrictEqual([
       'test2/tag/products/PATCH/products',
@@ -230,20 +217,13 @@ describe('updateOperationPathMethod (method only)', () => {
 
     let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/items' },
-        payload: { method: 'post', path: '/items' },
-        callback: (status) => {
-          callbackResult = status
-        },
-      },
-      (status) => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/items' },
+      payload: { method: 'post', path: '/items' },
+      callback: (status) => {
         callbackResult = status
       },
-    )
+    })
 
     expect(callbackResult).toBe('success')
     expect(document.paths?.['/items']?.post).toBeDefined()
@@ -270,20 +250,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users' },
-        payload: { method: 'get', path: '/api/users' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users' },
+      payload: { method: 'get', path: '/api/users' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/api/users': {
@@ -326,20 +299,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'post', path: '/posts' },
-        payload: { method: 'post', path: '/api/v2/posts' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'post', path: '/posts' },
+      payload: { method: 'post', path: '/api/v2/posts' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/api/v2/posts': {
@@ -384,20 +350,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users' },
-        payload: { method: 'get', path: '/api/users' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users' },
+      payload: { method: 'get', path: '/api/users' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/users': {
@@ -434,20 +393,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users/{id}' },
-        payload: { method: 'get', path: '/events/{id}' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { method: 'get', path: '/events/{id}' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/events/{id}': {
@@ -484,20 +436,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users/{id}/{limit}' },
-        payload: { method: 'get', path: '/events/{limit}/{id}' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}/{limit}' },
+      payload: { method: 'get', path: '/events/{limit}/{id}' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/events/{limit}/{id}': {
@@ -534,20 +479,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users/{id}' },
-        payload: { method: 'get', path: '/users/{limit}' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { method: 'get', path: '/users/{limit}' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/users/{limit}': {
@@ -583,20 +521,13 @@ describe('updateOperationPathMethod (path only)', () => {
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/users/{id}' },
-        payload: { method: 'get', path: '/users/events/{limit}' },
-        callback: () => {
-          return
-        },
-      },
-      () => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { method: 'get', path: '/users/events/{limit}' },
+      callback: () => {
         return
       },
-    )
+    })
 
     expect(document.paths).toStrictEqual({
       '/users/events/{limit}': {
@@ -630,20 +561,13 @@ describe('updateOperationPathMethod (path only)', () => {
 
     let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/items' },
-        payload: { method: 'get', path: '/api/items' },
-        callback: (status) => {
-          callbackResult = status
-        },
-      },
-      (status) => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/items' },
+      payload: { method: 'get', path: '/api/items' },
+      callback: (status) => {
         callbackResult = status
       },
-    )
+    })
 
     expect(callbackResult).toBe('success')
     expect(document.paths?.['/api/items']?.get).toBeDefined()
@@ -674,20 +598,13 @@ describe('updateOperationPathMethod (path only)', () => {
 
     let callbackResult: 'success' | 'no-change' | 'conflict' | undefined
 
-    updateOperationPathMethod(
-      document,
-      store,
-      {
-        meta: { method: 'get', path: '/items' },
-        payload: { method: 'get', path: '/api/items' },
-        callback: (status) => {
-          callbackResult = status
-        },
-      },
-      (status) => {
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/items' },
+      payload: { method: 'get', path: '/api/items' },
+      callback: (status) => {
         callbackResult = status
       },
-    )
+    })
 
     expect(callbackResult).toBe('conflict')
     // Original operations should remain unchanged
@@ -2494,5 +2411,102 @@ describe('updateOperationExtraParameters', () => {
     expect(operation?.['x-scalar-disable-parameters']).toEqual({})
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']).toBeUndefined()
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']).toBeUndefined()
+  })
+})
+
+describe('updateOperationRequestBodyFormValue', () => {
+  it('creates requestBody and stores form data as unpacked object', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {},
+        },
+      },
+    })
+
+    const formData = [
+      { name: 'file', value: 'document.pdf', isDisabled: false },
+      { name: 'description', value: 'Test upload', isDisabled: false },
+    ]
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'multipart/form-data',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: formData,
+    })
+
+    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    assert(op)
+    const rb = getResolvedRef(op.requestBody)
+    assert(rb)
+    const media = rb.content?.['multipart/form-data']
+    assert(media)
+    const examples = getResolvedRef(media.examples)
+    assert(examples)
+    expect(getResolvedRef(examples.default)?.value).toEqual(formData)
+  })
+
+  it('updates existing form data value', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {},
+        },
+      },
+    })
+
+    const initialFormData = [{ name: 'field1', value: 'value1', isDisabled: false }]
+    const updatedFormData = [
+      { name: 'field1', value: 'updated', isDisabled: false },
+      { name: 'field2', value: 'value2', isDisabled: true },
+    ]
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'application/x-www-form-urlencoded',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: initialFormData,
+    })
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'application/x-www-form-urlencoded',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: updatedFormData,
+    })
+
+    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    assert(op)
+    const rb = getResolvedRef(op.requestBody)
+    assert(rb)
+    const media = rb.content?.['application/x-www-form-urlencoded']
+    assert(media)
+    const examples = getResolvedRef(media.examples)
+    assert(examples)
+    expect(getResolvedRef(examples.default)?.value).toEqual(updatedFormData)
+  })
+
+  it('no-ops when document is null', () => {
+    expect(() =>
+      updateOperationRequestBodyFormValue(null, {
+        contentType: 'multipart/form-data',
+        meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+        payload: [{ name: 'test', value: 'value', isDisabled: false }],
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/upload': {},
+      },
+    })
+
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'multipart/form-data',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload: [{ name: 'test', value: 'value', isDisabled: false }],
+    })
+
+    expect(document.paths?.['/upload']).toEqual({})
   })
 })

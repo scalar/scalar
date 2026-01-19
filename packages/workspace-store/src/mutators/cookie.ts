@@ -3,6 +3,8 @@ import type { Workspace, WorkspaceDocument } from '@/schemas'
 import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
+type Event<T extends keyof CookieEvents> = Omit<CookieEvents[T], 'collectionType'>
+
 /**
  * Adds OR updates a cookie to the document or workspace.
  *
@@ -15,7 +17,7 @@ import { coerceValue } from '@/schemas/typebox-coerce'
  */
 export const upsertCookie = (
   collection: WorkspaceDocument | Workspace | null,
-  { payload, index }: CookieEvents['cookie:upsert:cookie'],
+  { payload, index }: Event<'cookie:upsert:cookie'>,
 ): XScalarCookie | undefined => {
   if (!collection) {
     return
@@ -59,7 +61,7 @@ export const upsertCookie = (
  */
 export const deleteCookie = (
   collection: WorkspaceDocument | Workspace | null,
-  { index }: CookieEvents['cookie:delete:cookie'],
+  { index }: Event<'cookie:delete:cookie'>,
 ): boolean => {
   if (!collection || !collection['x-scalar-cookies']) {
     return false
@@ -71,4 +73,11 @@ export const deleteCookie = (
 
   collection['x-scalar-cookies'].splice(index, 1)
   return true
+}
+
+export const cookieMutatorsFactory = ({ collection }: { collection: WorkspaceDocument | Workspace | null }) => {
+  return {
+    upsertCookie: (payload: Event<'cookie:upsert:cookie'>) => upsertCookie(collection, payload),
+    deleteCookie: (payload: Event<'cookie:delete:cookie'>) => deleteCookie(collection, payload),
+  }
 }
