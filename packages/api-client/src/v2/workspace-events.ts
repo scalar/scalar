@@ -32,11 +32,11 @@ const withHook = <T extends keyof ApiReferenceEvents>(
 ) => {
   return async (args: ApiReferenceEvents[T]) => {
     // Call the before execution hook for this event, if any
-    const result = await hooks[event]?.onBeforeExecute?.(args)
+    const result = (await hooks[event]?.onBeforeExecute?.(args)) ?? args
     // Execute the main function
-    await fn(result ?? args)
+    await fn(result)
     // Call the after execution hook for this event, if any
-    await hooks[event]?.onAfterExecute?.(args)
+    await hooks[event]?.onAfterExecute?.(result)
     return result
   }
 }
