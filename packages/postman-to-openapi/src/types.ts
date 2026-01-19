@@ -15,7 +15,7 @@ type Info = {
   schema: string
 }
 
-type Description =
+export type Description =
   | string
   | {
       content?: string
@@ -56,7 +56,7 @@ export type ItemGroup = {
   variables?: Variable[]
 }
 
-type Event = {
+export type Event = {
   id?: string
   listen: string
   script: Script
@@ -229,6 +229,12 @@ type Cookie = {
     key: string
     value: string
   }>
+}
+
+export type ParsedUrl = {
+  protocol: string
+  hostname: string
+  port: string
 }
 
 export type TableCell = {
