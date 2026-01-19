@@ -34,6 +34,7 @@ const {
   securitySchemes,
   selectedClient,
   globalCookies,
+  integration,
 } = defineProps<OperationCodeSampleProps & { eventBus: WorkspaceEventBus }>()
 
 /** Grab any custom code samples from the operation */
@@ -89,6 +90,7 @@ const generatedCode = computed<string>(() =>
     securitySchemes,
     example: selectedExample,
     globalCookies,
+    includeDefaultHeaders: integration === 'client',
   }),
 )
 </script>

@@ -1,6 +1,11 @@
 <script lang="ts">
 export type OperationCodeSampleProps = {
   /**
+   * Integration type: determines if the code sample is displayed in a client environment
+   * or in an API reference environment.
+   */
+  integration?: 'client' | "reference"
+  /**
    * List of all http clients formatted into option groups for the client selector
    */
   clientOptions: ClientOptionGroup[]
@@ -141,6 +146,7 @@ import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'
 
 const {
+  integration,
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -225,6 +231,7 @@ const generatedCode = computed<string>(() => {
   }
 
   return generateCodeSnippet({
+    includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,

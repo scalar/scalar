@@ -42,6 +42,12 @@ export type OperationToHarProps = {
   securitySchemes?: SecuritySchemeObject[]
   /** Workspace + document cookies */
   globalCookies?: XScalarCookie[]
+  /**
+   * Whether to include default headers (e.g., Accept, Content-Type) automatically.
+   * If false, default headers will be omitted from the HAR request.
+   * @default true
+   */
+  includeDefaultHeaders?: boolean
 }
 
 /**
@@ -67,6 +73,7 @@ export type OperationToHarProps = {
  * @see https://spec.openapis.org/oas/v3.1.0#operation-object
  */
 export const operationToHar = ({
+  includeDefaultHeaders = false,
   operation,
   contentType,
   method,
@@ -76,12 +83,14 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
 }: OperationToHarProps): HarRequest => {
-  const defaultHeaders = getDefaultHeaders({
-    method,
-    operation,
-    exampleKey: example ?? 'default',
-    hideDisabledHeaders: true,
-  }).filter((header) => !header.isOverridden)
+  const defaultHeaders = includeDefaultHeaders
+    ? getDefaultHeaders({
+        method,
+        operation,
+        exampleKey: example ?? 'default',
+        hideDisabledHeaders: true,
+      }).filter((header) => !header.isOverridden)
+    : []
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}

@@ -503,6 +503,7 @@ const labelRequestNameId = useId()
         :clientOptions
         :eventBus
         :globalCookies="globalCookies"
+        integration="client"
         :method
         :operation
         :path

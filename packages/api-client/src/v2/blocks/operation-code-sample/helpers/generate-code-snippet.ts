@@ -34,12 +34,15 @@ type GenerateCodeSnippetProps = {
   server: ServerObject | null
   /** Workspace + document cookies */
   globalCookies?: XScalarCookie[]
+  /** Whether to include default headers (e.g., Accept, Content-Type) automatically. */
+  includeDefaultHeaders?: boolean
 }
 
 /** Generate the code snippet for the selected example OR operation */
 export const generateCodeSnippet = ({
   clientId,
   customCodeSamples,
+  includeDefaultHeaders = false,
   operation,
   method,
   path,
@@ -71,6 +74,7 @@ export const generateCodeSnippet = ({
       securitySchemes,
       example,
       globalCookies,
+      includeDefaultHeaders,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]
