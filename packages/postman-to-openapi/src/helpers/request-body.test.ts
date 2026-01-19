@@ -325,4 +325,24 @@ describe('request-body', () => {
     expect(property?.examples).toEqual(['John'])
     expect(property?.description).toBe('User name')
   })
+
+  it('handles JSON null as valid JSON body', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: 'null',
+    }
+
+    const result = extractRequestBody(body)
+
+    expect(result).toEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            example: null,
+          },
+        },
+      },
+    })
+  })
 })

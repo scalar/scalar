@@ -40,15 +40,18 @@ function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyOb
   const hasVariables = /\{\{[\w-]+\}\}/.test(rawBody)
 
   // Try parsing the raw body as JSON
-  let jsonBody: unknown | null = null
+  // We use a boolean flag because `null` is a valid JSON value
+  let jsonBody: unknown
+  let isJsonBody = false
   try {
     jsonBody = JSON.parse(rawBody)
+    isJsonBody = true
   } catch {
     // Parsing failed - will handle below
   }
 
   // If we have valid JSON, use it
-  if (jsonBody !== null) {
+  if (isJsonBody) {
     requestBody.content = {
       'application/json': {
         schema: {
