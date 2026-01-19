@@ -6,6 +6,7 @@ import { processAuth } from './auth'
 import { parseMdTable } from './markdown'
 import { extractParameters } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
+import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
 import { extractResponses } from './responses'
 import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
@@ -134,6 +135,12 @@ export function processItem(
     parameters: [],
   }
 
+  // Add pre-request scripts if present
+  const preRequestScript = processPreRequestScripts(item.event)
+  if (preRequestScript) {
+    operationObject['x-pre-request'] = preRequestScript
+  }
+
   // Add post-response scripts if present
   const postResponseScript = processPostResponseScripts(item.event)
   if (postResponseScript) {
@@ -201,12 +208,9 @@ export function processItem(
     operationObject.security.push(...security)
   }
 
-  // Extract pre-request script if present
-  const preRequestScript = item.event?.find((e) => e.listen === 'prerequest')?.script?.exec
-
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body, preRequestScript)
+    const requestBody = extractRequestBody(request.body)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {

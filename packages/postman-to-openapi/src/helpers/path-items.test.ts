@@ -451,7 +451,7 @@ describe('path-items', () => {
         },
         body: {
           mode: 'raw',
-          raw: '{{bodyData}}',
+          raw: '{"data": {"modelId": "mistral.mistral-7b-instruct-v0:2"}}',
           options: {
             raw: {
               language: 'json',
@@ -459,20 +459,6 @@ describe('path-items', () => {
           },
         },
       },
-      event: [
-        {
-          listen: 'prerequest',
-          script: {
-            exec: [
-              'pm.environment.set("bodyData", JSON.stringify({',
-              '    "data": {',
-              '        "modelId": "mistral.mistral-7b-instruct-v0:2"',
-              '    }',
-              '}))',
-            ],
-          },
-        },
-      ],
     }
 
     const result = processItem(item)
@@ -520,6 +506,30 @@ describe('path-items', () => {
     const result = processItem(item)
 
     expect(result.paths['/users']?.get?.responses?.['200']).toBeDefined()
+  })
+
+  it('adds pre-request script extension', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/users',
+        },
+      },
+      event: [
+        {
+          listen: 'prerequest',
+          script: {
+            exec: ['pm.environment.set("token", "abc123");'],
+          },
+        },
+      ],
+    }
+
+    const result = processItem(item)
+
+    expect(result.paths['/users']?.get?.['x-pre-request']).toBe('pm.environment.set("token", "abc123");')
   })
 
   it('adds post-response script extension', () => {
