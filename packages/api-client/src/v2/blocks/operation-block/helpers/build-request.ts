@@ -74,13 +74,15 @@ export const buildRequest = ({
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Combine the headers, cookies and url params
-    const defaultHeaders = getDefaultHeaders({ method, operation, exampleKey, hideDisabledHeaders: true }).reduce(
-      (acc, header) => {
-        acc[header.name] = header.defaultValue
-        return acc
-      },
-      {} as Record<string, string>,
-    )
+    const defaultHeaders = getDefaultHeaders({ method, operation, exampleKey, hideDisabledHeaders: true })
+      .filter((header) => !header.isOverridden)
+      .reduce(
+        (acc, header) => {
+          acc[header.name] = header.defaultValue
+          return acc
+        },
+        {} as Record<string, string>,
+      )
     const headers = { ...defaultHeaders, ...params.headers, ...security.headers }
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
 

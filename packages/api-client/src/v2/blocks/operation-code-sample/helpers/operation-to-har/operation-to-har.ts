@@ -96,10 +96,7 @@ export const operationToHar = ({
     queryString: [],
     postData: undefined,
     httpVersion: 'HTTP/1.1',
-    cookies:
-      globalCookies
-        ?.filter((cookie) => filterGlobalCookie({ cookie, url: serverUrl, disabledGlobalCookies }))
-        ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? [],
+    cookies: [],
     headersSize: -1,
     bodySize: -1,
   }
@@ -112,10 +109,17 @@ export const operationToHar = ({
       example,
       contentType,
     })
+
+    // Correctly filter the global cookies by the processed url
+    const filteredGlobalCookies =
+      globalCookies
+        ?.filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
+        ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? []
+
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
-    harRequest.cookies = cookies
+    harRequest.cookies = [...filteredGlobalCookies, ...cookies]
   }
 
   const body = getResolvedRef(operation.requestBody)
