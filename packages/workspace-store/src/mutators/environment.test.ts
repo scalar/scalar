@@ -11,13 +11,12 @@ describe('environment', () => {
       activeDocument: undefined,
     }
 
-    const result = upsertEnvironment(null, workspace, {
+    const result = upsertEnvironment(workspace, workspace, {
       environmentName: 'production',
       payload: {
         color: '#ff0000',
         variables: [],
       },
-      collectionType: 'workspace',
     })
 
     expect(result).toEqual({
@@ -55,13 +54,12 @@ describe('environment', () => {
       'x-scalar-active-environment': 'staging',
     }
 
-    const result = upsertEnvironment(null, workspace, {
+    const result = upsertEnvironment(workspace, workspace, {
       environmentName: 'production',
       payload: {
         description: 'Updated production environment',
         color: '#0000ff',
       },
-      collectionType: 'workspace',
     })
 
     expect(result).toEqual({
@@ -100,12 +98,11 @@ describe('environment', () => {
       'x-scalar-active-environment': 'dev',
     }
 
-    const result = upsertEnvironment(null, workspace, {
+    const result = upsertEnvironment(workspace, workspace, {
       environmentName: 'development',
       payload: {
         description: 'Development environment',
       },
-      collectionType: 'workspace',
       oldEnvironmentName: 'dev',
     })
 
@@ -160,7 +157,6 @@ describe('environment', () => {
           default: 'https://api.example.com',
         },
       },
-      collectionType: 'document',
     })
 
     expect(result).toEqual({
@@ -215,7 +211,6 @@ describe('environment', () => {
         value: 'false',
       },
       index: 1,
-      collectionType: 'workspace',
     })
 
     expect(updateResult).toEqual({
@@ -236,7 +231,6 @@ describe('environment', () => {
         value: '',
       },
       index: 0,
-      collectionType: 'workspace',
     })
 
     expect(deleteResult).toBeUndefined()
