@@ -10,7 +10,6 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@/v2/components/data-table'
-import type { RouteLocationRaw } from 'vue-router';
 
 const {
   data,
