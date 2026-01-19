@@ -1140,12 +1140,12 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
+        uses: fast-actions/setup-dotnet@96559d71076a7134cc1a6da99a6717a6870e55a6 # v1
         with:
-          dotnet-version: |
-            10.x
-            9.x
-            8.x
+          sdk-version: 10.x.x
+          aspnetcore-version: |
+            9.x.x
+            8.x.x
 
       - name: Restore dependencies
         working-directory: integrations/dotnet
@@ -1201,9 +1201,9 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
+        uses: fast-actions/setup-dotnet@96559d71076a7134cc1a6da99a6717a6870e55a6 # v1
         with:
-          dotnet-version: 10.x
+          sdk-version: 10.x.x
 
       - name: Restore dependencies
         working-directory: integrations/dotnet/aspnetcore
@@ -1301,9 +1301,9 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
+        uses: fast-actions/setup-dotnet@96559d71076a7134cc1a6da99a6717a6870e55a6 # v1
         with:
-          dotnet-version: 10.x
+          sdk-version: 10.x.x
 
       - name: Restore dependencies
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
