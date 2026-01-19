@@ -25,8 +25,10 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type {
+  AuthMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {

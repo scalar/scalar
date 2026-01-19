@@ -5,9 +5,12 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
-import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type OperationExampleMeta,
+  type WorkspaceEventBus,
+  createWorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
-import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
@@ -625,7 +628,6 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
-  console.log({ message: 'handleRouteChange', to })
   const workspace = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
@@ -709,8 +711,7 @@ const commandPaletteState = useCommandPaletteState()
 initializeAppEventHandlers({
   eventBus,
   router,
-  getStore: () => store.value,
-  document: activeDocument,
+  store,
   navigateToCurrentTab,
   rebuildSidebar,
   onAfterExampleCreation: refreshSidebarAfterExampleCreation,

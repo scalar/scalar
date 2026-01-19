@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type {
   ApiReferenceEvents,
+  AuthMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { AuthMeta } from '@scalar/workspace-store/mutators'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ComponentsObject,

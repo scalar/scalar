@@ -1,11 +1,15 @@
 import type { WorkspaceStore } from '@/client'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { WorkspaceDocument } from '@/schemas'
 
-export const getDocument = (store: WorkspaceStore, documentName: string): OpenApiDocument | undefined => {
+export const getDocument = (store: WorkspaceStore | null, documentName: string): WorkspaceDocument | null => {
+  if (!store) {
+    return null
+  }
+
   const document = store.workspace.documents[documentName]
 
   if (!document) {
-    return undefined
+    return null
   }
 
   return document

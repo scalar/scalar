@@ -1,5 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -8,23 +6,6 @@ import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
-
-/**
- * AuthMeta defines the meta information needed to specify whether the authentication operation
- * is being performed at the document level (entire API), or for a specific operation (specific path and method).
- *
- * - If type is 'document', the operation applies to the whole OpenAPI document.
- * - If type is 'operation', it targets a specific operation, identified by its path and method.
- */
-export type AuthMeta =
-  | {
-      type: 'document'
-    }
-  | {
-      type: 'operation'
-      path: string
-      method: HttpMethod
-    }
 
 /**
  * Updates the selected security schemes for either the entire document or a specific operation.
@@ -404,4 +385,19 @@ export const deleteSecurityScheme = (
       }
     })
   })
+}
+
+export const authMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
+  return {
+    updateSelectedSecuritySchemes: (payload: AuthEvents['auth:update:selected-security-schemes']) =>
+      updateSelectedSecuritySchemes(document, payload),
+    updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
+      updateSecurityScheme(document, payload),
+    updateSelectedAuthTab: (payload: AuthEvents['auth:update:active-index']) =>
+      updateSelectedAuthTab(document, payload),
+    updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>
+      updateSelectedScopes(document, payload),
+    deleteSecurityScheme: (payload: AuthEvents['auth:delete:security-scheme']) =>
+      deleteSecurityScheme(document, payload),
+  }
 }

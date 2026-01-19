@@ -16,37 +16,6 @@ import type { ExampleObject, OperationObject, ParameterObject } from '@/schemas/
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
-/**
- * Describes the minimal identity for an operation in the workspace document.
- * It is used by mutators to find the target operation under `paths`.
- *
- * Example:
- * ```ts
- * const meta: OperationMeta = { method: 'get', path: '/users/{id}' }
- * ```
- */
-export type OperationMeta = {
-  method: HttpMethod
-  path: string
-}
-
-/**
- * Extends {@link OperationMeta} with an `exampleKey` to address a specific
- * example variant (e.g. per environment or scenario) for request/parameters.
- *
- * Example:
- * ```ts
- * const meta: OperationExampleMeta = {
- *   method: 'post',
- *   path: '/upload',
- *   exampleKey: 'default',
- * }
- * ```
- */
-export type OperationExampleMeta = OperationMeta & {
-  exampleKey: string
-}
-
 /** ------------------------------------------------------------------------------------------------
  * Helper Functions for Path Parameter Synchronization
  * ------------------------------------------------------------------------------------------------ */
@@ -332,8 +301,7 @@ const updateOperationOrderId = ({
 export const updateOperationPathMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method, path } }: OperationEvents['operation:update:pathMethod'],
-  callback: OperationEvents['operation:update:pathMethod']['callback'],
+  { meta, payload: { method, path }, callback }: OperationEvents['operation:update:pathMethod'],
 ): void => {
   const methodChanged = meta.method !== method
   const pathChanged = meta.path !== path
@@ -349,7 +317,7 @@ export const updateOperationPathMethod = (
   const finalPath = pathChanged ? path : meta.path
 
   // Check for conflicts at the target location
-  if (document?.paths?.[finalPath]?.[finalMethod]) {
+  if (document?.paths?.[finalPath]?.[finalMethod as HttpMethod]) {
     callback('conflict')
     return
   }
@@ -360,7 +328,7 @@ export const updateOperationPathMethod = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -835,7 +803,7 @@ export const updateOperationRequestBodyContentType = (
 const findOrCreateRequestBodyExample = (
   document: WorkspaceDocument | null,
   contentType: string,
-  meta: OperationExampleMeta,
+  meta: OperationEvents['operation:update:requestBody:contentType']['meta'],
 ): ExampleObject | null => {
   const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
@@ -904,4 +872,37 @@ export const updateOperationRequestBodyFormValue = (
   }
 
   example.value = unpackProxyObject(payload, { depth: 3 })
+}
+
+export const operationMutatorsFactory = ({
+  document,
+  store,
+}: {
+  document: WorkspaceDocument | null
+  store: WorkspaceStore | null
+}) => {
+  return {
+    createOperation: (payload: OperationEvents['operation:create:operation']) => createOperation(store, payload),
+    updateOperationSummary: (payload: OperationEvents['operation:update:summary']) =>
+      updateOperationSummary(document, payload),
+    updateOperationPathMethod: (payload: OperationEvents['operation:update:pathMethod']) =>
+      updateOperationPathMethod(document, store, payload),
+    deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
+    deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
+      deleteOperationExample(store, payload),
+    addOperationParameter: (payload: OperationEvents['operation:add:parameter']) =>
+      addOperationParameter(document, payload),
+    updateOperationParameter: (payload: OperationEvents['operation:update:parameter']) =>
+      updateOperationParameter(document, payload),
+    deleteOperationParameter: (payload: OperationEvents['operation:delete:parameter']) =>
+      deleteOperationParameter(document, payload),
+    deleteAllOperationParameters: (payload: OperationEvents['operation:delete-all:parameters']) =>
+      deleteAllOperationParameters(document, payload),
+    updateOperationRequestBodyContentType: (payload: OperationEvents['operation:update:requestBody:contentType']) =>
+      updateOperationRequestBodyContentType(document, payload),
+    updateOperationRequestBodyExample: (payload: OperationEvents['operation:update:requestBody:value']) =>
+      updateOperationRequestBodyExample(document, payload),
+    updateOperationRequestBodyFormValue: (payload: OperationEvents['operation:update:requestBody:formValue']) =>
+      updateOperationRequestBodyFormValue(document, payload),
+  }
 }

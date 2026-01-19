@@ -36,11 +36,22 @@ export const updateTheme = (workspace: Workspace | null, payload: WorkspaceEvent
  * @returns
  */
 export const updateSelectedClient = (
-  workspace: Workspace | undefined,
+  workspace: Workspace | null,
   payload: WorkspaceEvents['workspace:update:selected-client'],
 ) => {
   if (!workspace) {
     return
   }
   workspace['x-scalar-default-client'] = payload
+}
+
+export const workspaceMutatorsFactory = ({ workspace }: { workspace: Workspace | null }) => {
+  return {
+    updateActiveProxy: (payload: WorkspaceEvents['workspace:update:active-proxy']) =>
+      updateActiveProxy(workspace, payload),
+    updateColorMode: (payload: WorkspaceEvents['workspace:update:color-mode']) => updateColorMode(workspace, payload),
+    updateTheme: (payload: WorkspaceEvents['workspace:update:theme']) => updateTheme(workspace, payload),
+    updateSelectedClient: (payload: WorkspaceEvents['workspace:update:selected-client']) =>
+      updateSelectedClient(workspace, payload),
+  }
 }

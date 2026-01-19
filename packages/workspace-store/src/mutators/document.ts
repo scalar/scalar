@@ -1,5 +1,6 @@
 import type { WorkspaceStore } from '@/client'
 import type { DocumentEvents } from '@/events/definitions/document'
+import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
@@ -19,6 +20,16 @@ export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: b
   }
 
   document['x-scalar-watch-mode'] = watchMode
+}
+
+export const updateDocumentInfo = (
+  document: WorkspaceDocument | null,
+  payload: DocumentEvents['document:update:info'],
+) => {
+  if (!document) {
+    return
+  }
+  mergeObjects(document.info, payload)
 }
 
 /**
@@ -80,4 +91,22 @@ export const deleteDocument = (store: WorkspaceStore | null, payload: DocumentEv
   }
 
   store.deleteDocument(payload.name)
+}
+
+export const documentMutatorsFactory = ({
+  document,
+  store,
+}: {
+  document: WorkspaceDocument | null
+  store: WorkspaceStore | null
+}) => {
+  return {
+    toggleSecurity: () => toggleSecurity(document),
+    updateDocumentInfo: (payload: DocumentEvents['document:update:info']) => updateDocumentInfo(document, payload),
+    updateWatchMode: (payload: DocumentEvents['document:update:watch-mode']) => updateWatchMode(document, payload),
+    updateDocumentIcon: (payload: DocumentEvents['document:update:icon']) => updateDocumentIcon(document, payload),
+    createEmptyDocument: (payload: DocumentEvents['document:create:empty-document']) =>
+      createEmptyDocument(store, payload),
+    deleteDocument: (payload: DocumentEvents['document:delete:document']) => deleteDocument(store, payload),
+  }
 }
