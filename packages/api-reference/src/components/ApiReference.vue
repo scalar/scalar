@@ -1024,7 +1024,7 @@ const colorMode = computed(() => {
     --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
     /* The header height */
     --refs-header-height: calc(
-      var(--scalar-custom-header-height) + var(--scalar-header-height, 0px)
+      var(--scalar-custom-header-height, 0px) + var(--scalar-header-height, 0px)
     );
     /* The offset of visible references content (minus headers) */
     --refs-viewport-offset: calc(
