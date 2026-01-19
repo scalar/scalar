@@ -235,3 +235,14 @@ export const updateSelectedServer = (
   document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === url ? '' : url
   return document['x-scalar-selected-server']
 }
+
+export const serverMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
+  return {
+    addServer: () => addServer(document),
+    updateServer: (payload: ServerEvents['server:update:server']) => updateServer(document, payload),
+    deleteServer: (payload: ServerEvents['server:delete:server']) => deleteServer(document, payload),
+    updateServerVariables: (payload: ServerEvents['server:update:variables']) =>
+      updateServerVariables(document, payload),
+    updateSelectedServer: (payload: ServerEvents['server:update:selected']) => updateSelectedServer(document, payload),
+  }
+}

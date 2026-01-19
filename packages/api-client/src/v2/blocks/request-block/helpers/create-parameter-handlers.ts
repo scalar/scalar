@@ -1,5 +1,4 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationExampleMeta } from '@scalar/workspace-store/mutators'
+import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 type ParameterType = 'path' | 'cookie' | 'header' | 'query'
 

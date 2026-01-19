@@ -27,5 +27,7 @@ export type ApiReferenceEvents = AuthEvents &
   TagEvents &
   HooksEvents
 
+export type { AuthMeta } from './auth'
 export type { CollectionType } from './common'
+export type { OperationExampleMeta, OperationMeta } from './operation'
 export type { CommandPaletteAction } from './ui'

@@ -1,2 +1,2 @@
 export { type ApiClientModal, createApiClientModal } from './helpers/create-api-client-modal'
-export { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
+export { initializeModalEvents } from './modal-events'

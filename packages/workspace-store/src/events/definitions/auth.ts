@@ -1,12 +1,29 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { PartialDeep } from 'type-fest'
 
-import type { AuthMeta } from '@/mutators/auth'
 import type {
   OAuthFlowsObject,
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { ApiKeyObject, HttpObject, OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
+
+/**
+ * AuthMeta defines the meta information needed to specify whether the authentication operation
+ * is being performed at the document level (entire API), or for a specific operation (specific path and method).
+ *
+ * - If type is 'document', the operation applies to the whole OpenAPI document.
+ * - If type is 'operation', it targets a specific operation, identified by its path and method.
+ */
+export type AuthMeta =
+  | {
+      type: 'document'
+    }
+  | {
+      type: 'operation'
+      path: string
+      method: HttpMethod
+    }
 
 /**
  * SecuritySchemeUpdate represents the possible updates that can be made

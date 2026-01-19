@@ -1,7 +1,37 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { OperationExampleMeta, OperationMeta } from '@/mutators'
 import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
+
+/**
+ * Describes the minimal identity for an operation in the workspace document.
+ * It is used by mutators to find the target operation under `paths`.
+ *
+ * Example:
+ * ```ts
+ * const meta: OperationMeta = { method: 'get', path: '/users/{id}' }
+ * ```
+ */
+export type OperationMeta = {
+  method: HttpMethod
+  path: string
+}
+
+/**
+ * Extends {@link OperationMeta} with an `exampleKey` to address a specific
+ * example variant (e.g. per environment or scenario) for request/parameters.
+ *
+ * Example:
+ * ```ts
+ * const meta: OperationExampleMeta = {
+ *   method: 'post',
+ *   path: '/upload',
+ *   exampleKey: 'default',
+ * }
+ * ```
+ */
+export type OperationExampleMeta = OperationMeta & {
+  exampleKey: string
+}
 
 /** Event definitions for the operation */
 export type OperationEvents = {

@@ -64,13 +64,12 @@ import {
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
+import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
-
-import { useWorkspaceClientModalEvents } from './hooks/use-workspace-client-modal-events'
 
 const {
   modalState,
@@ -95,14 +94,13 @@ const activeWorkspace: ScalarListboxOption = {
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(false)
 
-/** Register workspace client event bus listeners and handlers (navigation, sidebar, etc.) */
-useWorkspaceClientModalEvents({
+/** Initialize modal events */
+initializeModalEvents({
   eventBus,
-  document,
-  workspaceStore,
   isSidebarOpen,
   sidebarState,
   modalState,
+  store: workspaceStore,
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Workspace } from '@/schemas'
 
-import { updateActiveProxy, updateColorMode, updateTheme } from './workspace'
+import { updateActiveProxy, updateColorMode, updateSelectedClient, updateTheme } from './workspace'
 
 function createWorkspace(initial?: Partial<Workspace>): Workspace {
   return {
@@ -254,5 +254,20 @@ describe('updateTheme', () => {
     expect(workspace.documents).toHaveProperty('doc-1')
     expect(workspace['x-scalar-color-mode']).toBe('dark')
     expect(workspace['x-scalar-theme']).toBe('purple')
+  })
+})
+
+describe('updateSelectedClient', () => {
+  it('does nothing when workspace is null', () => {
+    updateSelectedClient(null, 'shell/curl')
+    // Should not throw
+  })
+
+  it('sets x-scalar-default-client to a client identifier', () => {
+    const workspace = createWorkspace()
+
+    updateSelectedClient(workspace, 'js/fetch')
+
+    expect(workspace['x-scalar-default-client']).toBe('js/fetch')
   })
 })

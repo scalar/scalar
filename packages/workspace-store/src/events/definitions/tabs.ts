@@ -25,15 +25,19 @@ export type TabEvents = {
   /**
    * Navigates to the previous tab
    */
-  'tabs:navigate:previous': {
-    event: KeyboardEvent
-  }
+  'tabs:navigate:previous':
+    | undefined
+    | {
+        event: KeyboardEvent
+      }
   /**
    * Navigates to the next tab
    */
-  'tabs:navigate:next': {
-    event: KeyboardEvent
-  }
+  'tabs:navigate:next':
+    | undefined
+    | {
+        event: KeyboardEvent
+      }
   /**
    * Jumps to a specific tab, we can grab the number from the keyboard event
    */
@@ -41,8 +45,10 @@ export type TabEvents = {
   /**
    * Focuses the last tab
    */
-  'tabs:focus:tab-last': {
-    event: KeyboardEvent
-  }
+  'tabs:focus:tab-last':
+    | undefined
+    | {
+        event: KeyboardEvent
+      }
   'tabs:copy:url': { index: number }
 }
