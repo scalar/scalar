@@ -1,5 +1,5 @@
 <script lang="ts">
-export type SelectorProps = {
+type SelectorProps = {
   /** The event bus to use for emitting events */
   eventBus: WorkspaceEventBus
   /** The selected server  */
