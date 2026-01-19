@@ -219,6 +219,13 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('operation:update:parameter', (payload) =>
     withHook('operation:update:parameter', mutators.value.active().operation.updateOperationParameter, hooks)(payload),
   )
+  eventBus.on('operation:update:extra-parameters', (payload) =>
+    withHook(
+      'operation:update:extra-parameters',
+      mutators.value.active().operation.updateOperationExtraParameters,
+      hooks,
+    )(payload),
+  )
   eventBus.on('operation:delete:parameter', (payload) =>
     withHook('operation:delete:parameter', mutators.value.active().operation.deleteOperationParameter, hooks)(payload),
   )

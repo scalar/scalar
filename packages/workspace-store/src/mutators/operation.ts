@@ -879,6 +879,8 @@ export const operationMutatorsFactory = ({
       deleteOperationExample(store, payload),
     addOperationParameter: (payload: OperationEvents['operation:add:parameter']) =>
       addOperationParameter(document, payload),
+    updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>
+      updateOperationExtraParameters(document, payload),
     updateOperationParameter: (payload: OperationEvents['operation:update:parameter']) =>
       updateOperationParameter(document, payload),
     deleteOperationParameter: (payload: OperationEvents['operation:delete:parameter']) =>
