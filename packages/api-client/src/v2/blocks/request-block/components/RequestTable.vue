@@ -10,6 +10,7 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@/v2/components/data-table'
+import type { RouteLocationRaw } from 'vue-router';
 
 const {
   data,
@@ -32,7 +33,7 @@ const {
  * Make this component more generic that can be used also for the operation body
  */
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (e: 'addRow', payload: Partial<{ name: string; value: string }>): void
   (
     e: 'updateRow',
@@ -50,6 +51,7 @@ const emits = defineEmits<{
    */
   (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
+  (e: 'navigate', route: string): void
 }>()
 
 const columns = computed(() => {
@@ -86,12 +88,12 @@ const updateOrAdd = ({
 }) => {
   /** If the update happen on the last row, it means we need to add a new row */
   if (index >= data.length) {
-    emits('addRow', payload)
+    emit('addRow', payload)
     return
   }
 
   /** Otherwise we just update the existing row */
-  emits('updateRow', index, payload)
+  emit('updateRow', index, payload)
 }
 </script>
 <template>
@@ -113,10 +115,11 @@ const updateOrAdd = ({
       :invalidParams="invalidParams"
       :label="label"
       :showUploadButton="showUploadButton"
-      @deleteRow="emits('deleteRow', idx)"
-      @removeFile="emits('removeFile', idx)"
+      @deleteRow="emit('deleteRow', idx)"
+      @navigate="(route) => emit('navigate', route)"
+      @removeFile="emit('removeFile', idx)"
       @updateRow="(payload) => updateOrAdd({ index: idx, payload })"
-      @uploadFile="emits('uploadFile', idx)" />
+      @uploadFile="emit('uploadFile', idx)" />
   </DataTable>
 </template>
 <style scoped>
