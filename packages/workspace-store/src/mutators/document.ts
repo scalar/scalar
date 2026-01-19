@@ -14,14 +14,33 @@ export const toggleSecurity = (document: WorkspaceDocument | null) => {
   document['x-scalar-set-operation-security'] = !document['x-scalar-set-operation-security']
 }
 
+/**
+ * Updates the "watch mode" state of the given document.
+ *
+ * @param document WorkspaceDocument or null – The document to modify.
+ * @param watchMode boolean – True enables watch mode, false disables it.
+ *
+ * If document is null, does nothing.
+ */
 export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: boolean) => {
   if (!document) {
     return
   }
 
+  // Set (or unset) the x-scalar-watch-mode property on the document
   document['x-scalar-watch-mode'] = watchMode
 }
 
+/**
+ * Updates the document's info object (typically, title, description, version, etc.).
+ *
+ * Uses a shallow merge: only properties present in payload will be overwritten or added.
+ *
+ * @param document WorkspaceDocument | null – The document whose info should be updated.
+ * @param payload DocumentEvents['document:update:info'] – Partial info fields to update/merge.
+ *
+ * If document is null, does nothing.
+ */
 export const updateDocumentInfo = (
   document: WorkspaceDocument | null,
   payload: DocumentEvents['document:update:info'],
@@ -29,6 +48,7 @@ export const updateDocumentInfo = (
   if (!document) {
     return
   }
+  // Merge the given payload into the document's info object
   mergeObjects(document.info, payload)
 }
 
@@ -48,6 +68,17 @@ export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: str
   document['x-scalar-navigation'].icon = icon
 }
 
+/**
+ * Creates an empty OpenAPI document and adds it to the workspace.
+ *
+ * - If the store is null, this is a no-op.
+ * - The document name must be unique; if already present, callback is called with `false`.
+ * - On success, a new OpenAPI 3.1.0 document is added with a basic path and info.
+ * - Callback is called with `true` if document is created.
+ *
+ * @param store WorkspaceStore | null – The workspace store to add the document to.
+ * @param payload DocumentEvents['document:create:empty-document'] – Contains name, icon, and callback.
+ */
 export const createEmptyDocument = async (
   store: WorkspaceStore | null,
   payload: DocumentEvents['document:create:empty-document'],
@@ -56,13 +87,14 @@ export const createEmptyDocument = async (
     return
   }
 
-  // Check if the document already exists
-  // name should be unique
+  // Check if the document already exists by name for uniqueness
   if (store.workspace.documents[payload.name]) {
+    // Document name already exists, call callback with false
     payload.callback?.(false)
     return
   }
 
+  // Add a new empty OpenAPI 3.1.0 document with minimal info and icon
   await store.addDocument({
     name: payload.name,
     document: {
@@ -77,6 +109,7 @@ export const createEmptyDocument = async (
     },
   })
 
+  // Notify success via callback
   payload.callback?.(true)
 }
 

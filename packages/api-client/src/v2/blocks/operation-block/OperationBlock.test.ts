@@ -1,6 +1,5 @@
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { AuthMeta } from '@scalar/workspace-store/mutators'
+import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'

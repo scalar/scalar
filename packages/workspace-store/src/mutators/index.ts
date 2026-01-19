@@ -9,6 +9,7 @@ import { serverMutatorsFactory } from '@/mutators/server'
 import { tabsMutatorsFactory } from '@/mutators/tabs'
 import { tagMutatorsFactory } from '@/mutators/tag'
 import { workspaceMutatorsFactory } from '@/mutators/workspace'
+import type { WorkspaceDocument } from '@/schemas'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
@@ -23,9 +24,7 @@ export function generateClientMutators(store: WorkspaceStore | null) {
    * @param documentName - The name of the document to get mutators for
    * @returns An object containing mutators for requests, request examples, security schemes, environments, and cookies
    */
-  const documentMutators = (documentName: string) => {
-    const document = getDocument(store, documentName)
-
+  const documentMutators = (document: WorkspaceDocument | null) => {
     return {
       auth: authMutatorsFactory({ document }),
       cookie: cookieMutatorsFactory({ collection: document }),
@@ -63,15 +62,12 @@ export function generateClientMutators(store: WorkspaceStore | null) {
      * Returns mutators for the currently active document.
      * Falls back to the first document if no active document is set.
      */
-    active: () =>
-      documentMutators(
-        store?.workspace['x-scalar-active-document'] ?? Object.keys(store?.workspace?.documents ?? {})[0] ?? '',
-      ),
+    active: () => documentMutators(store?.workspace.activeDocument ?? null),
     /**
      * Returns mutators for a specific document by name.
      *
      * @param name - The name of the document
      */
-    doc: (name: string) => documentMutators(name),
+    doc: (name: string) => documentMutators(getDocument(store, name)),
   }
 }

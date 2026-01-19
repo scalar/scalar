@@ -100,7 +100,7 @@ initializeModalEvents({
   isSidebarOpen,
   sidebarState,
   modalState,
-  store: ref(workspaceStore),
+  store: workspaceStore,
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */

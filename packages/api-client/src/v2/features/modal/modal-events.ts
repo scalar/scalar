@@ -1,7 +1,7 @@
 import type { ModalState } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { Ref, ShallowRef } from 'vue'
+import { type Ref, ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
@@ -17,11 +17,12 @@ export function initializeModalEvents({
   isSidebarOpen: Ref<boolean>
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
-  store: ShallowRef<WorkspaceStore | null>
+  store: WorkspaceStore
 }) {
+  /** Initialize workspace event handlers */
   initializeWorkspaceEventHandlers({
     eventBus,
-    store,
+    store: ref(store),
     hooks: {},
   })
 
@@ -50,7 +51,7 @@ export function initializeModalEvents({
     else if ('method' in payload && 'path' in payload) {
       sidebarState.handleSelectItem(
         sidebarState.getEntryByLocation({
-          document: store.value?.workspace.activeDocument?.['x-scalar-navigation']?.id ?? '',
+          document: store.workspace.activeDocument?.['x-scalar-navigation']?.id ?? '',
           path: payload.path,
           method: payload.method,
           example: payload.exampleName,
