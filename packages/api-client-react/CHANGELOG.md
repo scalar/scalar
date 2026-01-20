@@ -1,5 +1,18 @@
 # @scalar/api-client-react
 
+## 1.3.72
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.0**
+  - [#7821](https://github.com/scalar/scalar/pull/7821): Fix slot name for menu items
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7806](https://github.com/scalar/scalar/pull/7806): fix: replace star with named exports
+  - [#7762](https://github.com/scalar/scalar/pull/7762): fix: only enable required parameters by default
+
 ## 1.3.71
 
 ### Patch Changes

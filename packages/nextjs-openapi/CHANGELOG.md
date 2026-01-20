@@ -1,5 +1,14 @@
 # @scalar/nextjs-openapi
 
+## 0.2.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.12**
+  - [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.2.37
 
 ### Patch Changes

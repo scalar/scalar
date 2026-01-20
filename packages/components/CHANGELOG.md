@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.16.24
+
+### Patch Changes
+
+- [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.21**
+
 ## 0.16.23
 
 ### Patch Changes

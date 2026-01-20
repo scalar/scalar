@@ -1,5 +1,19 @@
 # @scalar/mock-server-docker
 
+## 0.1.12
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.16**
+  - [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+- **@scalar/hono-api-reference@0.9.35**
+  - [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.1.11
 
 ### Patch Changes

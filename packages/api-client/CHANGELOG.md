@@ -1,5 +1,42 @@
 # @scalar/api-client
 
+## 2.19.0
+
+### Minor Changes
+
+- [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+
+### Patch Changes
+
+- [#7821](https://github.com/scalar/scalar/pull/7821): Fix slot name for menu items
+- [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+- [#7806](https://github.com/scalar/scalar/pull/7806): fix: replace star with named exports
+- [#7762](https://github.com/scalar/scalar/pull/7762): fix: only enable required parameters by default
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.0**
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: normalize securitySchemes 'scheme'
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+- **@scalar/json-magic@0.9.2**
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
+- **@scalar/postman-to-openapi@0.4.0**
+  - [#7571](https://github.com/scalar/scalar/pull/7571): feat: major refactor, improves everything, keeps all the data now
+
+- **@scalar/oas-utils@0.6.21**
+
+- **@scalar/sidebar@0.7.14**
+
+- **@scalar/use-codemirror@0.13.18**
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 2.18.4
 
 ### Patch Changes

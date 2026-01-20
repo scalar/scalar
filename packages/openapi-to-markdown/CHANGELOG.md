@@ -1,5 +1,18 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+- **@scalar/oas-utils@0.6.21**
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 0.3.23
 
 ### Patch Changes

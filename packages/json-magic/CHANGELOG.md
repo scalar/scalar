@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.9.2
+
+### Patch Changes
+
+- [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
 ## 0.9.1
 
 ### Patch Changes

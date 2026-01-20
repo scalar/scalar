@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.9.35
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.9.34
 
 ### Patch Changes

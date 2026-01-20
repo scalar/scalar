@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.9.12
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.9.11
 
 ### Patch Changes

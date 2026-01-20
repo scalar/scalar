@@ -1,5 +1,27 @@
 # @scalar/aspnetcore
 
+## 2.12.12
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.9**
+  - [#7781](https://github.com/scalar/scalar/pull/7781): fix: remove unused dependencies
+    - `@floating-ui/vue`
+    - `@scalar/json-magic`
+    - `@scalar/object-utils`
+    - `@scalar/openapi-upgrader`
+    - `js-base64`
+    - `type-fest`
+    - `zod`
+
+  - [#7778](https://github.com/scalar/scalar/pull/7778): fix: do not persist auth when the option is off
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: can not search in classic layout
+  - [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 2.12.11
 
 ### Patch Changes

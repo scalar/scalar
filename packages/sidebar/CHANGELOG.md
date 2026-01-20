@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.0**
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: normalize securitySchemes 'scheme'
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
 ## 0.7.13
 
 ### Patch Changes

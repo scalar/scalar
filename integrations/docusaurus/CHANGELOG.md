@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.7.31
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.7.30
 
 ### Patch Changes

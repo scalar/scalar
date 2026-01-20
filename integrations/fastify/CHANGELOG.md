@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.43.9
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 1.43.8
 
 ## 1.43.7
