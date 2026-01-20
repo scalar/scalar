@@ -1,8 +1,8 @@
+import { operationSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import { useSearch } from './useSearch'
-import { operationSchema } from '@scalar/oas-utils/entities/spec'
 
 // Mocking the necessary modules and functions
 vi.mock('vue-router', () => ({

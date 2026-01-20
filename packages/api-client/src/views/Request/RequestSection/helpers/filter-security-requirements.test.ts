@@ -1,4 +1,4 @@
-import { securitySchemeSchema, type Collection } from '@scalar/oas-utils/entities/spec'
+import { type Collection, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { filterSecurityRequirements } from './filter-security-requirements'

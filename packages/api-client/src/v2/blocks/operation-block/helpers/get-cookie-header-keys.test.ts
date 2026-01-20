@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { getCookieHeaderKeys } from './get-cookie-header-keys'
 
@@ -32,23 +32,24 @@ describe('getCookieHeaderKeys', () => {
     const mockHeaders = {
       get: () => null,
       has: () => false,
-      forEach: () => {},
-    } as unknown as Headers
+      forEach: vi.fn(),
+    } as Partial<Headers>
 
-    const result = getCookieHeaderKeys(mockHeaders)
+    const result = getCookieHeaderKeys(mockHeaders as Headers)
 
     expect(result).toEqual([])
   })
 
   it('returns empty array when getSetCookie exists but is not a function', () => {
+    // @ts-expect-error testing scenario where getSetCookie is not a function
     const mockHeaders = {
       getSetCookie: 'not-a-function',
       get: () => null,
       has: () => false,
-      forEach: () => {},
-    } as unknown as Headers
+      forEach: vi.fn(),
+    } as Partial<Headers>
 
-    const result = getCookieHeaderKeys(mockHeaders)
+    const result = getCookieHeaderKeys(mockHeaders as Headers)
 
     expect(result).toEqual([])
   })

@@ -1,9 +1,10 @@
-import type { StoreContext } from '@/store/store-context'
-import { type Request, type RequestExample, createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { iterateTitle } from '@scalar/helpers/string/iterate-title'
+import { type Request, type RequestExample, createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import type { StoreContext } from '@/store/store-context'
 
 /** Create top level examples storage for the workspace */
 export function createStoreRequestExamples(useLocalStorage: boolean) {

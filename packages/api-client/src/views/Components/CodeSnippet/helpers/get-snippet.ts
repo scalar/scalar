@@ -1,6 +1,7 @@
-import type { ErrorResponse } from '@/libs/errors'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import type { Request as HarRequest } from 'har-format'
+
+import type { ErrorResponse } from '@/libs/errors'
 
 /** Key used to hack around the invalid urls */
 const INVALID_URLS_PREFIX = 'ws://replace.me'

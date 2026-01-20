@@ -1,6 +1,7 @@
-import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup } from '@/views/Request/consts'
-import { securitySchemeSchema, type Collection, type Request } from '@scalar/oas-utils/entities/spec'
+import { type Collection, type Request, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
+
+import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup } from '@/views/Request/consts'
 
 import { formatComplexScheme, formatScheme, getSchemeOptions, getSecurityRequirements } from './auth'
 

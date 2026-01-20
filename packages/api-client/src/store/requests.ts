@@ -1,4 +1,5 @@
-import type { extendedTagDataFactory } from '@/store/tags'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import {
   type Collection,
   type Request,
@@ -8,11 +9,10 @@ import {
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
-import { LS_KEYS } from '@scalar/helpers/object/local-storage'
-import { iterateTitle } from '@scalar/helpers/string/iterate-title'
-
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import type { extendedTagDataFactory } from '@/store/tags'
 
 import type { StoreContext } from './store-context'
 

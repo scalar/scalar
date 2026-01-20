@@ -14,10 +14,10 @@ describe('RequestSection', () => {
 
     const defaultMockStore = {
       requestMutators: {
-        edit: () => {},
+        edit: vi.fn(),
       },
       requestExampleMutators: {
-        edit: () => {},
+        edit: vi.fn(),
       },
       cookies: {},
       securitySchemes: {},

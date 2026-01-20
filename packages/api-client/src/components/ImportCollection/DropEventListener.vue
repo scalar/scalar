@@ -92,9 +92,7 @@ function handleDragEnter(event: DragEvent) {
 
   if (event.dataTransfer) {
     const items = event.dataTransfer.items
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i]
-
+    for (const item of items) {
       if (
         item?.kind === 'string' ||
         item?.type?.includes('json') ||

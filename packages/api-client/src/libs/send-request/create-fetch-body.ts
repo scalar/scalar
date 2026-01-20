@@ -1,6 +1,7 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
 import type { RequestExample, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /**
  * Create the fetch request body from an example

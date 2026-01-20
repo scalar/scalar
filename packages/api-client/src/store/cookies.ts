@@ -1,5 +1,5 @@
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 

@@ -4,4 +4,11 @@ export {
   createActiveEntitiesStore,
   useActiveEntities,
 } from './active-entities'
-export * from './store'
+export {
+  type CreateWorkspaceStoreOptions,
+  type UpdateScheme,
+  WORKSPACE_SYMBOL,
+  type WorkspaceStore,
+  createWorkspaceStore,
+  useWorkspace,
+} from './store'

@@ -1,5 +1,5 @@
 import './style.css'
 
-export * from './layouts/App'
-export * from './layouts/Modal'
+export { ApiClientApp, createApiClientApp } from './layouts/App'
+export { type ApiClient, createApiClientModal } from './layouts/Modal'
 export { useWorkspace } from './store/store'

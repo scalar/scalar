@@ -1,6 +1,6 @@
+import type { ScalarComboboxOptionGroup } from '@scalar/components'
 import type { SecurityScheme, SecuritySchemePayload } from '@scalar/oas-utils/entities/spec'
 import type { Entries } from 'type-fest'
-import type { ScalarComboboxOptionGroup } from '@scalar/components'
 
 export type SecuritySchemeOption = {
   id: SecurityScheme['uid']

@@ -1,3 +1,10 @@
+import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
+import { parseSchema } from '@scalar/oas-utils/transforms'
+import { useToasts } from '@scalar/use-toasts'
+import { useTimeoutPoll } from '@vueuse/core'
+import microdiff, { type Difference } from 'microdiff'
+import { watch } from 'vue'
+
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { specDictionary } from '@/store/import-spec'
@@ -9,12 +16,6 @@ import {
   mutateServerDiff,
   mutateTagDiff,
 } from '@/views/Request/libs/watch-mode'
-import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
-import { parseSchema } from '@scalar/oas-utils/transforms'
-import { useToasts } from '@scalar/use-toasts'
-import { useTimeoutPoll } from '@vueuse/core'
-import microdiff, { type Difference } from 'microdiff'
-import { watch } from 'vue'
 
 /** Timeout for the watch mode polling */
 const POLLING_INTERVAL = 5 * 1000 // 5 seconds

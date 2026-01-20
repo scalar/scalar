@@ -1,11 +1,12 @@
-import { PathId } from '@/routes'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { isDefined, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { PathId } from '@/routes'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 /**
  * Hook for managing search functionality.

@@ -1,7 +1,8 @@
-import { extractFilename } from '@/libs/extractAttachmentFilename'
+import type { Ref } from 'vue'
 import { computed, isRef } from 'vue'
 import MimeType from 'whatwg-mimetype'
-import type { Ref } from 'vue'
+
+import { extractFilename } from '@/libs/extractAttachmentFilename'
 
 /**
  * Processes the response body of an HTTP request.
