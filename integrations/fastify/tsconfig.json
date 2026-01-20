@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "esbuild.ts"],
   "compilerOptions": {
-    "types": ["node", "vite/client"],
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
