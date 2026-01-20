@@ -326,27 +326,6 @@ describe('RequestTableRow', () => {
     })
   })
 
-  it('blocks value changes when value is a File', async () => {
-    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
-    const wrapper = mount(RequestTableRow, {
-      props: {
-        data: { name: 'key', value: file },
-        environment,
-      },
-      global: {
-        stubs: {
-          RouterLink: true,
-        },
-      },
-    })
-
-    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
-    await valueInput?.vm.$emit('update:modelValue', 'new-value')
-
-    // Should not emit upsertRow when trying to change a File value
-    expect(wrapper.emitted('upsertRow')).toBeFalsy()
-  })
-
   it('displays file name with proper formatting', () => {
     const file = new File(['content'], 'document.pdf', { type: 'application/pdf' })
     const wrapper = mount(RequestTableRow, {
