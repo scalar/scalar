@@ -42,7 +42,7 @@ const handleFetchDiscovery = async (): Promise<void> => {
 
   if (discovery) {
     emits('discovered', discovery)
-    toast('OpenID Connect configuration loaded successfully', 'success')
+    toast('OpenID Connect configuration loaded successfully', 'info')
   } else {
     console.error(error)
     toast(

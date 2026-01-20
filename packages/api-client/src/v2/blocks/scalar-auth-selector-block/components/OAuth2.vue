@@ -21,9 +21,9 @@ import { computed, watch } from 'vue'
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
-import type { OpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-connect'
+import type { OpenIDConnectDiscovery as OpenIDConnectDiscoveryDocument } from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-connect'
 
-import OpenIDConnectDiscovery from './OpenIDConnectDiscovery.vue'
+import OpenIDConnectDiscoveryInput from './OpenIDConnectDiscovery.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const {
@@ -142,9 +142,10 @@ const handleSecretLocationUpdate = (value: string): void =>
  * Maps the discovered endpoints to the appropriate OAuth2 flow fields.
  */
 const handleOpenIDConnectDiscovered = (
-  discovery: OpenIDConnectDiscovery,
+  discovery: OpenIDConnectDiscoveryDocument,
 ): void => {
-  const updates: Partial<OAuthFlow> = {}
+  // Use a flexible type since different flow types have different properties
+  const updates: Record<string, string | Record<string, string>> = {}
 
   // Map authorization endpoint
   if (discovery.authorization_endpoint && 'authorizationUrl' in flow.value) {
@@ -168,7 +169,7 @@ const handleOpenIDConnectDiscovered = (
 
   // Apply all updates at once
   if (Object.keys(updates).length > 0) {
-    handleOauth2Update(updates)
+    handleOauth2Update(updates as Partial<OAuthFlow>)
   }
 }
 </script>
@@ -207,7 +208,7 @@ const handleOpenIDConnectDiscovered = (
   <!-- Authorization Form: Shows when user needs to authorize -->
   <template v-else>
     <!-- OpenID Connect Discovery -->
-    <OpenIDConnectDiscovery
+    <OpenIDConnectDiscoveryInput
       :environment
       @discovered="handleOpenIDConnectDiscovered" />
 
