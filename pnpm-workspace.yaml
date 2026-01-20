@@ -29,6 +29,7 @@ catalogs:
     '@types/react': ^19.2.7
     '@types/react-dom': ^19.2.3
     '@types/semver': 7.5.8
+    '@types/supertest': 6.0.2
     '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-react': 5.0.4
     '@vitejs/plugin-vue': ^6.0.3
@@ -58,6 +59,7 @@ catalogs:
     react: ^19.2.3
     react-dom: ^19.2.3
     semver: 7.7.2
+    supertest: '7.2.2'
     shx: ^0.4.0
     tailwindcss: ^4.1.18
     type-fest: ^5.3.1

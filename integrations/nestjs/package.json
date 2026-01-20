@@ -74,10 +74,10 @@
     "@nestjs/testing": "^11.1.6",
     "@scalar/api-reference": "workspace:*",
     "@types/express": "catalog:*",
-    "@types/supertest": "^2.0.12",
+    "@types/supertest": "catalog:*",
     "express": "catalog:*",
     "fastify": "^5.4.0",
-    "supertest": "^7.1.4",
+    "supertest": "catalog:*",
     "tsup": "^8.3.5",
     "vite": "catalog:*",
     "vitest": "catalog:*"
