@@ -170,4 +170,65 @@ describe('servers', () => {
     expect(result.pathItems.size).toBe(0)
     expect(result.operations.size).toBe(0)
   })
+
+  it('deduplicates operations with same path and method', () => {
+    // This test verifies that duplicate entries (same path/method) are properly deduplicated
+    // and do not cause incorrect placement decisions
+    const serverUsage: ServerUsage[] = [
+      {
+        serverUrl: 'https://api.example.com',
+        path: '/users',
+        method: 'get',
+      },
+      // Duplicate entry - same path and method
+      {
+        serverUrl: 'https://api.example.com',
+        path: '/users',
+        method: 'get',
+      },
+    ]
+
+    // With only one unique path that covers all paths, server should be at document level
+    const allUniquePaths = new Set(['/users'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
+
+    expect(result.document).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+    expect(result.pathItems.size).toBe(0)
+    expect(result.operations.size).toBe(0)
+  })
+
+  it('places server at operation level when only one unique operation exists despite duplicates', () => {
+    // When duplicate entries exist but represent only one unique operation,
+    // and that path is not the only path in the document, it should be operation level
+    const serverUsage: ServerUsage[] = [
+      {
+        serverUrl: 'https://api.special.com',
+        path: '/special',
+        method: 'get',
+      },
+      // Duplicate entry
+      {
+        serverUrl: 'https://api.special.com',
+        path: '/special',
+        method: 'get',
+      },
+    ]
+
+    // There are more paths in the document than just /special
+    const allUniquePaths = new Set(['/users', '/posts', '/special'])
+    const result = analyzeServerDistribution(serverUsage, allUniquePaths)
+
+    expect(result.document).toEqual([])
+    expect(result.pathItems.size).toBe(0)
+    expect(result.operations.size).toBe(1)
+    expect(result.operations.get('/special')?.get('get')).toEqual([
+      {
+        url: 'https://api.special.com',
+      },
+    ])
+  })
 })

@@ -12,6 +12,26 @@ type ServerPlacement = {
 }
 
 /**
+ * Creates a unique key for a path/method combination.
+ * Used to properly deduplicate operations in a Set since JavaScript Sets
+ * compare objects by reference, not by value.
+ */
+function createOperationKey(path: string, method: string): string {
+  return `${path}::${method}`
+}
+
+/**
+ * Parses an operation key back into its path and method components.
+ */
+function parseOperationKey(key: string): { path: string; method: string } {
+  const separatorIndex = key.lastIndexOf('::')
+  return {
+    path: key.substring(0, separatorIndex),
+    method: key.substring(separatorIndex + 2),
+  }
+}
+
+/**
  * Analyzes server usage and determines the optimal placement level for each server.
  * Placement logic:
  * - If server used in all paths → document level
@@ -30,25 +50,26 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniqueP
     return placement
   }
 
-  // Build a map: serverUrl -> Set<{path, method}>
-  const serverMap = new Map<string, Set<{ path: string; method: string }>>()
+  // Build a map: serverUrl -> Set<operationKey>
+  // Using string keys instead of objects because JavaScript Sets compare by reference
+  const serverMap = new Map<string, Set<string>>()
 
   for (const usage of serverUsage) {
     if (!serverMap.has(usage.serverUrl)) {
       serverMap.set(usage.serverUrl, new Set())
     }
-    serverMap.get(usage.serverUrl)!.add({
-      path: usage.path,
-      method: usage.method,
-    })
+    serverMap.get(usage.serverUrl)!.add(createOperationKey(usage.path, usage.method))
   }
 
   // For each server, determine its placement
-  for (const [serverUrl, usages] of serverMap.entries()) {
+  for (const [serverUrl, operationKeys] of serverMap.entries()) {
     const serverObject: OpenAPIV3_1.ServerObject = { url: serverUrl }
 
+    // Parse operation keys back to path/method pairs
+    const operations = Array.from(operationKeys).map(parseOperationKey)
+
     // Count unique paths this server appears in
-    const uniquePaths = new Set(Array.from(usages).map((u) => u.path))
+    const uniquePaths = new Set(operations.map((op) => op.path))
     const pathCount = uniquePaths.size
 
     // Check if server covers all paths in the document
@@ -60,9 +81,9 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniqueP
     if (coversAllPaths || pathCount > 1) {
       // Server used in all paths or multiple paths → document level
       placement.document.push(serverObject)
-    } else if (usages.size > 1) {
+    } else if (operations.length > 1) {
       // Server used in multiple operations within 1 path → path item level
-      const path = Array.from(usages)[0]?.path
+      const path = operations[0]?.path
       if (!path) {
         continue
       }
@@ -72,19 +93,19 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniqueP
       placement.pathItems.get(path)!.push(serverObject)
     } else {
       // Server used in only 1 operation → operation level
-      const usage = Array.from(usages)[0]
-      if (!usage) {
+      const operation = operations[0]
+      if (!operation) {
         continue
       }
       // Use nested Map structure: path -> method -> servers
-      if (!placement.operations.has(usage.path)) {
-        placement.operations.set(usage.path, new Map())
+      if (!placement.operations.has(operation.path)) {
+        placement.operations.set(operation.path, new Map())
       }
-      const methodsMap = placement.operations.get(usage.path)!
-      if (!methodsMap.has(usage.method)) {
-        methodsMap.set(usage.method, [])
+      const methodsMap = placement.operations.get(operation.path)!
+      if (!methodsMap.has(operation.method)) {
+        methodsMap.set(operation.method, [])
       }
-      methodsMap.get(usage.method)!.push(serverObject)
+      methodsMap.get(operation.method)!.push(serverObject)
     }
   }
 
