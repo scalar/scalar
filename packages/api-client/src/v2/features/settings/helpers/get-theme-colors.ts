@@ -13,7 +13,6 @@ export const getThemeColors = (themeId: ThemeId): { light: string; dark: string;
     mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
     deepSpace: { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
     laserwave: { light: '#f4f2f7', dark: '#27212e', accent: '#ed78c2' },
-    elysiajs: { light: '#f8f8f8', dark: '#1a1a2e', accent: '#7c9ef7' },
     none: { light: '#ffffff', dark: '#000000', accent: '#3b82f6' },
   }
   return colors[themeId] || { light: '#ffffff', dark: '#000000', accent: '#3b82f6' }
