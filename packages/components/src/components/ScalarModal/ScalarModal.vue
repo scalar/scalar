@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+import { ScalarIconX } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
 import { reactive } from 'vue'
@@ -120,9 +121,9 @@ export function useModal() {
         class="close-button z-10 fixed right-2 top-2">
         <ScalarIconButton
           class="hover:bg-b-3 focus:outline-none"
-          icon="Close"
-          label="Clear Search"
-          @close="state.hide()" />
+          :icon="ScalarIconX"
+          label="Close modal"
+          @click="state.hide()" />
       </div>
     </div>
   </Dialog>

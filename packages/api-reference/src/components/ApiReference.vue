@@ -940,7 +940,6 @@ const colorMode = computed(() => {
             <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
             <div ref="documentStartRef" />
 
-            <!--  -->
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
               <div class="w-64 *:!p-0 empty:hidden">
                 <DocumentSelector
@@ -952,9 +951,9 @@ const colorMode = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
+                :document="workspaceStore.workspace.activeDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
-                :items="sidebarItems"
                 :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon
@@ -1025,7 +1024,7 @@ const colorMode = computed(() => {
     --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
     /* The header height */
     --refs-header-height: calc(
-      var(--scalar-custom-header-height) + var(--scalar-header-height, 0px)
+      var(--scalar-custom-header-height, 0px) + var(--scalar-header-height, 0px)
     );
     /* The offset of visible references content (minus headers) */
     --refs-viewport-offset: calc(
