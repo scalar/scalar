@@ -1,7 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Header, Request } from '../types'
-import { inferSchemaType } from './schemaHelpers'
+import type { Header, Request } from '@/types'
+
+import { inferSchemaType } from './schemas'
 
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
@@ -115,9 +116,28 @@ export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'h
 
   if (param.value !== undefined) {
     parameter.example = param.value
-    parameter.schema = inferSchemaType(param.value)
+    // For path parameters, prefer string type unless value is explicitly a number type
+    // This prevents converting string IDs like "testId" to integers
+    if (paramIn === 'path') {
+      // Path parameters are typically strings (IDs, slugs, etc.)
+      // Only use number/integer if the value is actually a number type, not a string
+      if (typeof param.value === 'number') {
+        parameter.schema = inferSchemaType(param.value)
+      } else {
+        // For strings (including empty strings), default to string type
+        parameter.schema = { type: 'string' }
+      }
+    } else {
+      parameter.schema = inferSchemaType(param.value)
+    }
   } else {
     parameter.schema = { type: 'string' } // Default to string if no value is provided
+  }
+
+  // Add x-scalar-disabled extension if parameter is disabled
+  if (param.disabled === true) {
+    // @ts-expect-error - x-scalar-disabled is not a valid parameter object property
+    parameter['x-scalar-disabled'] = true
   }
 
   return parameter

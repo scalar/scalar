@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { FormParameter } from '../types'
+import type { FormParameter } from '@/types'
 
 /**
  * Processes form data parameters from a Postman request and converts them into an OpenAPI schema.
@@ -39,6 +39,11 @@ export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.Sc
       property.format = 'binary'
     } else {
       property.example = item.value
+    }
+
+    // Add x-scalar-disabled extension if parameter is disabled
+    if (item.disabled === true) {
+      property['x-scalar-disabled'] = true
     }
 
     schema.properties[item.key] = property

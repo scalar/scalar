@@ -1,4 +1,4 @@
-import type { TableCell, TableObject } from '../types'
+import type { TableCell, TableObject } from '@/types'
 
 const supHeaders = ['object', 'name', 'description', 'example', 'type', 'required']
 
