@@ -5,15 +5,7 @@ import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 const MIGRATION_FLAG_KEY = 'scalar_indexdb_migration_complete'
 
 /**
- * Checks if localStorage data exists and has not been migrated yet.
- *
- * Returns true if:
- * - Migration has not been completed yet (flag not set)
- * - Old data exists in localStorage (workspace, collection, or request keys)
- *
- * Returns false if:
- * - Migration already completed
- * - No old data exists
+ * Checks if migration is needed by verifying the completion flag and presence of old data.
  */
 export const shouldMigrateToIndexDb = (): boolean => {
   // Check if migration already completed
@@ -31,39 +23,15 @@ export const shouldMigrateToIndexDb = (): boolean => {
 }
 
 /**
- * Transforms old localStorage data structure into new IndexedDB workspace structure.
+ * Transforms legacy localStorage data into IndexedDB workspace structure.
  *
- * This function handles the core data transformation logic, converting the old flat
- * structure into the new nested workspace format.
+ * Transformations:
+ * - Collections → Documents (collections were OpenAPI specs)
+ * - Environments → x-scalar-environments in meta
+ * - Cookies → x-scalar-cookies in meta
+ * - Workspace properties → meta extensions (activeEnvironmentId, proxyUrl, themeId)
  *
- * ## Transformation Logic
- *
- * ### Collections → Documents
- * In the old system, collections were essentially OpenAPI documents. Each collection
- * becomes a document in the new system, with the collection's info.title used as the
- * document name.
- *
- * ### Environments → Meta
- * Environments are extracted and stored in workspace meta as `x-scalar-environments`.
- * The old structure had a 'value' field, which is preserved in the new structure.
- *
- * ### Cookies → Meta
- * Cookies are extracted and stored in workspace meta as `x-scalar-cookies`.
- *
- * ### Workspace Properties → Meta
- * Old workspace properties are mapped to new meta structure:
- * - activeEnvironmentId → x-scalar-active-environment
- * - proxyUrl → x-scalar-active-proxy
- * - themeId → x-scalar-theme
- * - First collection → x-scalar-active-document
- *
- * ## Edge Cases Handled
- * - No workspaces but has collections: Creates a default workspace
- * - No data at all: Creates a minimal default workspace with blank document
- * - Missing info.title: Falls back to collection uid
- *
- * @param legacyData - The migrated legacy data from the old system
- * @returns Array of workspace objects ready to be saved to IndexedDB
+ * Creates a default workspace if none exist. Falls back to collection uid if info.title is missing.
  */
 export const transformLegacyDataToWorkspace = (
   legacyData: v_2_5_0['DataArray'],
@@ -334,10 +302,8 @@ export const transformLegacyDataToWorkspace = (
 }
 
 /**
- * Marks the migration as complete in localStorage.
- *
- * Sets a flag to prevent the migration from running again. This is stored in
- * localStorage (not IndexedDB) so it persists even if IndexedDB is cleared.
+ * Marks migration as complete by setting a flag in localStorage.
+ * Stored in localStorage (not IndexedDB) to persist even if IndexedDB is cleared.
  */
 export const markMigrationComplete = (): void => {
   localStorage.setItem(MIGRATION_FLAG_KEY, 'true')
@@ -345,71 +311,19 @@ export const markMigrationComplete = (): void => {
 }
 
 /**
- * LocalStorage to IndexedDB Migration
+ * Migrates localStorage data to IndexedDB workspace structure.
  *
- * Main migration function that handles the one-time migration from the old localStorage-based
- * data structure to the new IndexedDB-based workspace architecture.
+ * Called early in app initialization (app-state.ts) before workspace data loads.
+ * Idempotent and non-destructive - only runs once, preserves old data.
  *
- * This function should be called early in app initialization, before any workspace
- * data is loaded, to ensure data consistency.
+ * Flow:
+ * 1. Check if migration needed
+ * 2. Run existing migrations to get latest data structure
+ * 3. Transform to new workspace format
+ * 4. Save to IndexedDB
+ * 5. Mark complete
  *
- * ## Integration Point
- * Called in `packages/api-client/src/v2/features/app/app-state.ts` during app initialization:
- * ```typescript
- * const { workspace: persistence } = await createWorkspaceStorePersistence()
- * await migrateLocalStorageToIndexDb({ workspace: persistence })
- * ```
- *
- * ## Migration Flow
- * 1. Check if migration is needed (not already done, has old data)
- * 2. Run existing version migrations to get latest data structure
- * 3. Transform old structure (collections, requests, etc.) to new workspace format
- * 4. Save to IndexedDB using persistence layer
- * 5. Mark migration as complete to prevent re-running
- *
- * ## Safety Features
- * - Idempotent: Only runs once per user
- * - Non-destructive: Old localStorage data is preserved
- * - Error handling: Wrapped in try-catch with detailed logging
- * - Graceful fallback: App can still function if migration fails
- *
- * ## Data Structure Transformation
- * Old (localStorage):
- * - collection, cookie, environment, request, workspace (all flatted JSON)
- *
- * New (IndexedDB):
- * - workspace table with meta, documents, originalDocuments, intermediateDocuments, overrides, documentConfigs
- *
- * Key transformations:
- * - Collections → Documents (old collections were OpenAPI specs)
- * - Environments → Meta (stored as x-scalar-environments)
- * - Cookies → Meta (stored as x-scalar-cookies)
- * - Workspace properties → Meta with proper extension fields
- *
- * ## Migration Steps
- * 1. Check if migration is needed (via shouldMigrateToIndexDb)
- * 2. Run existing migrations to get data in latest format (via migrator)
- * 3. Transform legacy data to new workspace structure (via transformLegacyDataToWorkspace)
- * 4. Save each workspace to IndexedDB (via persistence.workspace.setItem)
- * 5. Mark migration as complete (via markMigrationComplete)
- *
- * ## Performance
- * - Typically completes in < 1 second for normal data sizes
- * - Blocks app initialization (intentional for data consistency)
- * - Loads all old data into memory temporarily during migration
- *
- * ## Error Handling
- * If migration fails, the error is logged and re-thrown. The app can still function
- * because the old localStorage data is preserved.
- *
- * ## Testing
- * To test manually:
- * 1. Add old data: `localStorage.setItem('collection', '[{"uid":"test","info":{"title":"Test API"}}]')`
- * 2. Clear flag: `localStorage.removeItem('scalar_indexdb_migration_complete')`
- * 3. Reload app and check console for migration logs
- * 4. Verify data in DevTools → Application → IndexedDB → scalar-workspace-store
- *
- * @param persistence - The IndexedDB persistence layer with workspace.setItem method
+ * Old data is preserved for rollback. Typically completes in < 1 second.
  */
 export const migrateLocalStorageToIndexDb = async (persistence: {
   workspace: {
@@ -457,38 +371,10 @@ export const migrateLocalStorageToIndexDb = async (persistence: {
 /**
  * Clears legacy localStorage data after successful migration.
  *
- * This function is intentionally NOT called automatically to provide a safety net.
- * The old data is preserved in case rollback is needed or issues are discovered.
+ * NOT called automatically - old data is preserved as a safety net for rollback.
+ * Call only after migration succeeds and a grace period passes (e.g., 30 days).
  *
- * ## When to Call
- * Only call this after:
- * - Migration has succeeded
- * - User has successfully used the app with new data
- * - A grace period has passed (e.g., 30 days)
- * - Optional: User has been notified
- *
- * ## Rollback Strategy
- * If issues are discovered before calling this function:
- * 1. Old localStorage data is still present
- * 2. Remove the `scalar_indexdb_migration_complete` flag
- * 3. Clear IndexedDB data
- * 4. Reload app to re-run migration with fixes
- *
- * ## Future Considerations
- * Consider adding:
- * - Migration timestamp storage
- * - Automatic cleanup after grace period
- * - User notification before cleanup
- * - Analytics event for cleanup
- *
- * @example
- * ```typescript
- * // After 30 days grace period
- * const migrationDate = localStorage.getItem('scalar_migration_date')
- * if (migrationDate && Date.now() - Number(migrationDate) > 30 * 24 * 60 * 60 * 1000) {
- *   clearLegacyLocalStorage()
- * }
- * ```
+ * To rollback: remove the migration flag, clear IndexedDB, and reload.
  */
 export const clearLegacyLocalStorage = (): void => {
   const keysToRemove = [
