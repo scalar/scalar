@@ -1022,7 +1022,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { value: 'ONE' },
+      payload: { name: 'q', value: 'ONE', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1092,7 +1092,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'query', value: '1' },
+      payload: { name: 'query', value: '1', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/search']?.get)
@@ -1111,7 +1111,7 @@ describe('updateOperationParameter', () => {
         type: 'query',
         index: 0,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
-        payload: { name: 'q' },
+        payload: { name: 'q', value: '1', isDisabled: false },
       }),
     ).not.toThrow()
   })
