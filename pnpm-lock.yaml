@@ -913,6 +913,10 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+    devDependencies:
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../../packages/snippetz
 
   integrations/nestjs:
     dependencies:

@@ -40,5 +40,7 @@
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@scalar/snippetz": "workspace:*"
+  }
 }
