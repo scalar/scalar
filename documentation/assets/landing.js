@@ -112,7 +112,7 @@ const initGallery = debounce(() => {
       entries.forEach((entry) => {
         const isMobile = window.innerWidth < 540
 
-        if (isMobile ? entry.intersectionRatio > 0.5 : entry.intersectionRatio > 0.75) {
+        if (isMobile ? entry.intersectionRatio > 0.5 : entry.intersectionRatio === 1) {
           const slideId = entry.target.id
 
           const button = document.querySelector(`button[data-target^="#${slideId}"]`)
