@@ -37,6 +37,7 @@ const getRoutePrefix = (routePrefix?: string) => {
  */
 const getDocumentUrls = (openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints']) => {
   const { json = '/openapi.json', yaml = '/openapi.yaml' } = openApiDocumentEndpoints ?? {}
+
   return { json, yaml }
 }
 
