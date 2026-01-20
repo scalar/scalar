@@ -1137,7 +1137,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'customField*': '',
+        'customField': '',
       })
 
       expect(
@@ -1151,7 +1151,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'sensorId*': 1,
+        'sensorId': 1,
       })
 
       expect(
@@ -1165,7 +1165,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'isActive*': true,
+        'isActive': true,
       })
     })
 
@@ -1191,7 +1191,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'metadata*': {
+        'metadata': {
           key: 'version',
           value: '1.0.0',
         },
@@ -1209,7 +1209,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'dynamicField*': null,
+        'dynamicField': null,
       })
     })
 
@@ -1224,7 +1224,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'flexibleProperty*': null,
+        'flexibleProperty': null,
       })
     })
 
@@ -1240,7 +1240,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'trimmedField*': '',
+        'trimmedField': '',
       })
     })
 
@@ -1348,7 +1348,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'field-name*': '',
+        'field-name': '',
       })
 
       expect(
@@ -1362,7 +1362,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'field_name*': '',
+        'field_name': '',
       })
 
       expect(
@@ -1376,7 +1376,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'fieldName*': '',
+        'fieldName': '',
       })
     })
 
@@ -1398,7 +1398,7 @@ describe('getExampleFromSchema', () => {
         ),
       ).toMatchObject({
         config: {
-          'setting*': '',
+          'setting': '',
         },
       })
     })
@@ -1423,11 +1423,11 @@ describe('getExampleFromSchema', () => {
       })
 
       expect(getExampleFromSchema(schema1)).toMatchObject({
-        'tag*': '',
+        'tag': '',
       })
 
       expect(getExampleFromSchema(schema2)).toMatchObject({
-        'score*': 1,
+        'score': 1,
       })
     })
   })
