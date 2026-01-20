@@ -1076,6 +1076,7 @@
                 "icon": "phosphor/regular/arrow-up-right",
                 "children": {
                   "getting-started": {
+                    "title": "Getting Started",
                     "filepath": "documentation/guides/openapi-upgrader/getting-started.md",
                     "type": "page"
                   }
