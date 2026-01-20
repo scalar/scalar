@@ -46,13 +46,38 @@ const orderedStatusCodes = computed<string[]>(() =>
   Object.keys(responses ?? {}).sort(),
 )
 
+/**
+ * Checks if a response for a given status code has body content
+ * (schema, example, or examples).
+ */
+const hasResponseContent = (statusCode: string): boolean => {
+  const response = getResolvedRef(responses?.[statusCode])
+  const normalizedContent = normalizeMimeTypeObject(response?.content)
+  const keys = getObjectKeys(normalizedContent ?? {})
+
+  const mediaType =
+    normalizedContent?.['application/json'] ??
+    normalizedContent?.['application/xml'] ??
+    normalizedContent?.['text/plain'] ??
+    normalizedContent?.['text/html'] ??
+    normalizedContent?.['*/*'] ??
+    normalizedContent?.[keys[0] ?? '']
+
+  return !!(mediaType?.schema || mediaType?.example || mediaType?.examples)
+}
+
+// Filter to only status codes that have response content
+const statusCodesWithContent = computed<string[]>(() =>
+  orderedStatusCodes.value.filter(hasResponseContent),
+)
+
 // Keep track of the current selected tab
 const selectedResponseIndex = ref<number>(0)
 
 // Return the whole response object
 const currentResponse = computed(() => {
   const currentStatusCode =
-    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)] ?? ''
+    toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
 
   return getResolvedRef(responses?.[currentStatusCode])
 })
@@ -124,13 +149,13 @@ const showSchema = ref(false)
 </script>
 <template>
   <ScalarCard
-    v-if="orderedStatusCodes.length"
+    v-if="statusCodesWithContent.length"
     aria-label="Example Responses"
     class="response-card"
     role="region">
     <ExampleResponseTabList @change="changeTab">
       <ExampleResponseTab
-        v-for="statusCode in orderedStatusCodes"
+        v-for="statusCode in statusCodesWithContent"
         :key="statusCode"
         :aria-controls="id">
         <ScreenReader>Status:</ScreenReader>
