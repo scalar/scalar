@@ -1512,7 +1512,7 @@ describe('getExampleFromSchema', () => {
   })
 
   describe('circular references', () => {
-    it('deals with circular references', () => {
+    it('skips circular references', () => {
       const schema = {
         type: 'object',
         properties: {
@@ -1523,12 +1523,11 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties!.foobar = schema
 
-      expect(getExampleFromSchema(schema)).toStrictEqual({
-        'foobar': '[Circular Reference]',
-      })
+      // Circular references should be skipped entirely
+      expect(getExampleFromSchema(schema)).toStrictEqual({})
     })
 
-    it('deals with circular references that expand horizontally', () => {
+    it('skips circular references that expand horizontally', () => {
       const schema = {
         type: 'object',
         properties: {
@@ -1589,9 +1588,9 @@ describe('getExampleFromSchema', () => {
       schema.properties!.y = schema
       schema.properties!.z = schema
 
+      // Circular references should be skipped entirely
       const example = getExampleFromSchema(schema)
-      expect(example).toBeInstanceOf(Object)
-      expect(Object.keys(example).length).toBe(26)
+      expect(example).toStrictEqual({})
     })
   })
 

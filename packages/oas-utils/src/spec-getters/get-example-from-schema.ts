@@ -493,7 +493,7 @@ export const getExampleFromSchema = (
   // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getRaw(unpackOverridesProxy(_schema))
   if (seen.has(targetValue)) {
-    return '[Circular Reference]'
+    return undefined
   }
   seen.add(targetValue)
 
