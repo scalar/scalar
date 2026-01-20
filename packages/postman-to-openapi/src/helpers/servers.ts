@@ -5,7 +5,7 @@ import type { ServerUsage } from './path-items'
 /**
  * Information about where a server should be placed.
  */
-export type ServerPlacement = {
+type ServerPlacement = {
   document: OpenAPIV3_1.ServerObject[]
   pathItems: Map<string, OpenAPIV3_1.ServerObject[]>
   operations: Map<string, Map<string, OpenAPIV3_1.ServerObject[]>>
