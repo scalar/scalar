@@ -5,7 +5,6 @@ import customThemeStarter from './presets/custom-theme-starter.css?inline'
 import deepSpaceTheme from './presets/deepSpace.css?inline'
 import defaultTheme from './presets/default.css?inline'
 import elysiajsTheme from './presets/elysiajs.css?inline'
-import fastifyTheme from './presets/fastify.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
 import laserwaveTheme from './presets/laserwave.css?inline'
 import marsTheme from './presets/mars.css?inline'
@@ -25,7 +24,6 @@ export {
   deepSpaceTheme,
   defaultTheme,
   elysiajsTheme,
-  fastifyTheme,
   keplerTheme,
   marsTheme,
   moonTheme,
@@ -54,7 +52,7 @@ export type Theme = {
 /** List of available theme IDs as a type. */
 export type ThemeId = (typeof themeIds)[number]
 
-export type IntegrationThemeId = 'elysiajs' | 'fastify'
+export type IntegrationThemeId = 'elysiajs'
 
 export const themeIds = [
   'alternate',
@@ -67,7 +65,6 @@ export const themeIds = [
   'saturn',
   'kepler',
   'elysiajs',
-  'fastify',
   'mars',
   'laserwave',
   'none',
@@ -85,7 +82,6 @@ export const themeLabels = {
   purple: 'Purple',
   solarized: 'Solarized',
   elysiajs: 'Elysia.js',
-  fastify: 'Fastify',
   bluePlanet: 'Blue Planet',
   saturn: 'Saturn',
   kepler: 'Kepler-11e',
@@ -187,13 +183,6 @@ export const presets = {
     description: 'Elysia.js theme',
     theme: elysiajsTheme,
     slug: 'elysiajs',
-  },
-  fastify: {
-    uid: 'nTZcdcM2_yHFZFxTQe9Kk',
-    name: 'Fastify',
-    description: 'Fastify theme',
-    theme: fastifyTheme,
-    slug: 'fastify',
   },
 } as const satisfies Record<Exclude<ThemeId, 'none'>, Theme>
 
