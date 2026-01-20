@@ -1069,6 +1069,18 @@
                   }
                 }
               },
+              "/openapi-upgrader": {
+                "title": "OpenAPI Upgrader",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/arrow-up-right",
+                "children": {
+                  "getting-started": {
+                    "filepath": "documentation/guides/openapi-upgrader/getting-started.md",
+                    "type": "page"
+                  }
+                }
+              },
               "/api": {
                 "type": "openapi",
                 "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
