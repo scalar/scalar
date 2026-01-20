@@ -272,7 +272,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       "
       @select:workspace="(id) => emit('select:workspace', id)"
       @selectItem="(id) => emit('selectItem', id)">
-      <template #sidebar-menu-actions>
+      <template #sidebarMenuActions>
         <slot name="sidebarMenuActions" />
       </template>
       <!-- Workspace Identifier -->
