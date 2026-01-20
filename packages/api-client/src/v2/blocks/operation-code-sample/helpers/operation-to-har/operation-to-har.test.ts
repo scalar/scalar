@@ -240,6 +240,7 @@ describe('operationToHar', () => {
           {
             name: 'filter',
             in: 'query',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),

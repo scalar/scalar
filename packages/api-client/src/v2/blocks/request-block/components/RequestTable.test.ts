@@ -87,12 +87,17 @@ describe('RequestTable', () => {
 
     const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Update the last row (index 1, which is the empty row)
-    await rows[1]?.vm.$emit('updateRow', { key: 'new', value: 'row' })
+    await rows[1]?.vm.$emit('upsertRow', {
+      name: 'new',
+      value: 'row',
+      isDisabled: false,
+    })
 
     expect(wrapper.emitted('addRow')).toBeTruthy()
     expect(wrapper.emitted('addRow')?.[0]?.[0]).toEqual({
-      key: 'new',
+      name: 'new',
       value: 'row',
+      isDisabled: false,
     })
   })
 
@@ -110,14 +115,14 @@ describe('RequestTable', () => {
 
     const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
     // Update first row (index 0)
-    await rows[0]?.vm.$emit('updateRow', {
-      key: 'updated',
+    await rows[0]?.vm.$emit('upsertRow', {
+      name: 'updated',
       value: 'value',
-      isEnabled: false,
+      isDisabled: true,
     })
 
     expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { key: 'updated', value: 'value', isEnabled: false }])
+    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { name: 'updated', value: 'value', isDisabled: true }])
   })
 
   it('emits deleteRow with correct index', async () => {
