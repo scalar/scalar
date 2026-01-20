@@ -5,7 +5,7 @@ import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } 
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import fastifyTheme from './assets/theme.css'
+import fastifyTheme from './assets/theme.css?raw'
 import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
 import { getJavaScriptFile } from './utils/get-javascript-file'
 
