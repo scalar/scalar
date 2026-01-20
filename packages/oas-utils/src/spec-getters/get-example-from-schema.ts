@@ -256,7 +256,7 @@ const handleObjectSchema = (
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0
-        ? `${additional['x-additionalPropertiesName'].trim()}`
+        ? additional['x-additionalPropertiesName'].trim()
         : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
     response[additionalName] = isAnyType

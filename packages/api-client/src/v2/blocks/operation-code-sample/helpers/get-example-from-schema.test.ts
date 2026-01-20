@@ -1422,7 +1422,7 @@ describe('getExampleFromSchema', () => {
       })
 
       expect(getExampleFromSchema(schema2)).toMatchObject({
-        'score*': 1,
+        'score': 1,
       })
     })
   })
