@@ -6,6 +6,9 @@ import type { WorkspaceMeta } from '@/schemas/workspace'
 
 type WorkspaceStoreShape = {
   name: string
+  teamUid?: string
+  namespace?: string
+  slug?: string
   workspace: InMemoryWorkspace
 }
 
@@ -37,31 +40,34 @@ export const createWorkspaceStorePersistence = async () => {
           /** Slug associated with a remote workspace */
           slug: Type.String({ default: 'LOCAL' }),
         }),
-        index: ['id'],
+        keyPath: ['id'],
+        indexes: {
+          teamUid: ['teamUid'],
+        },
       },
       meta: {
         schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),
-        index: ['workspaceId'],
+        keyPath: ['workspaceId'],
       },
       documents: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       originalDocuments: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       intermediateDocuments: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       overrides: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       documentConfigs: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
     },
   })
@@ -191,12 +197,28 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
+       * Retrieves all workspaces for a given team UID.
+       */
+      getAllByTeamUid: async (teamUid: string) => {
+        return await workspaceTable.getRange([teamUid], 'teamUid')
+      },
+
+      /**
        * Saves a workspace to the database.
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
       setItem: async (id: string, value: WorkspaceStoreShape): Promise<void> => {
-        await workspaceTable.addItem({ id }, { name: value.name })
+        const LOCAL = 'LOCAL'
+        await workspaceTable.addItem(
+          { id },
+          {
+            name: value.name,
+            teamUid: value.teamUid ?? LOCAL,
+            namespace: value.namespace ?? LOCAL,
+            slug: value.slug ?? LOCAL,
+          },
+        )
 
         // Save all meta info for workspace.
         await metaTable.addItem({ workspaceId: id }, { data: value.workspace.meta })
