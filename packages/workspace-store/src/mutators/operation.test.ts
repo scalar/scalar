@@ -1127,7 +1127,7 @@ describe('updateOperationParameter', () => {
       type: 'query',
       index: 0,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q' },
+      payload: { name: 'q', value: '1', isDisabled: false },
     })
 
     expect(document.paths?.['/search']).toEqual({})
