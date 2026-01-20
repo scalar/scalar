@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -10,10 +11,13 @@ const environment = {
   color: 'c',
 }
 
+const eventBus = createWorkspaceEventBus()
+
 describe('RequestParams', () => {
   it('renders with empty parameters and passes data to table', () => {
     const wrapper = mount(RequestParams, {
       props: {
+        eventBus,
         rows: [],
         exampleKey: 'ex',
         title: 'Headers',
@@ -28,6 +32,7 @@ describe('RequestParams', () => {
   it('re-emits add, update, and delete events from RequestTable', async () => {
     const wrapper = mount(RequestParams, {
       props: {
+        eventBus,
         rows: [{ name: 'id', value: 'value', isReadonly: true, schema: { type: 'string' } } as any],
         exampleKey: 'ex',
         title: 'Variables',
@@ -80,6 +85,7 @@ describe('RequestParams', () => {
 
     const wrapper = mount(RequestParams, {
       props: {
+        eventBus,
         rows,
         exampleKey: 'ex',
         title: 'Parameters',

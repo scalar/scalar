@@ -5,7 +5,6 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
-import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -26,7 +25,7 @@ export type TableRow = {
   /** Optional description for the parameter */
   description?: string
   /** Optional route for global parameters (e.g., cookies shared across workspace) */
-  globalRoute?: RouteLocationRaw
+  globalRoute?: string
   /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
@@ -57,7 +56,7 @@ const {
   showUploadButton?: boolean
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (
     e: 'upsertRow',
     payload: { name: string; value: string | File; isDisabled: boolean },
@@ -65,9 +64,8 @@ const emits = defineEmits<{
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
+  (e: 'navigate', route: string): void
 }>()
-
-const router = useRouter()
 
 /**
  * Track local state for the row
@@ -138,7 +136,7 @@ const handleUpdateRow = (
   }
 
   // Emit all of the local state
-  emits('upsertRow', {
+  emit('upsertRow', {
     name: name.value,
     value: value.value,
     isDisabled: isDisabled.value,
@@ -209,7 +207,7 @@ const handleUpdateRow = (
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
             size="sm"
             variant="ghost"
-            @click="emits('deleteRow')">
+            @click="emit('deleteRow')">
             <ScalarIconTrash class="size-3.5" />
           </ScalarButton>
 
@@ -221,7 +219,7 @@ const handleUpdateRow = (
             size="xs"
             tooltip="top"
             variant="ghost"
-            @click="router.push(data.globalRoute!)" />
+            @click="emit('navigate', data.globalRoute)" />
 
           <RequestTableTooltip
             v-if="data.isReadonly"
@@ -248,7 +246,7 @@ const handleUpdateRow = (
         <button
           class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
           type="button"
-          @click="emits('removeFile')">
+          @click="emit('removeFile')">
           Delete
         </button>
       </template>
@@ -258,7 +256,7 @@ const handleUpdateRow = (
             class="bg-b-2 hover:bg-b-3 text-c-2 h-fit border-0 py-px shadow-none"
             size="sm"
             variant="outlined"
-            @click="emits('uploadFile')">
+            @click="emit('uploadFile')">
             <span>Select File</span>
             <ScalarIcon
               class="ml-1"

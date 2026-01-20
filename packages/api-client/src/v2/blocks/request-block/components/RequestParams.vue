@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
@@ -15,6 +16,7 @@ const {
   title,
   globalRoute,
   showAddRowPlaceholder = true,
+  eventBus,
 } = defineProps<{
   rows: TableRow[]
   exampleKey: string
@@ -24,9 +26,10 @@ const {
   globalRoute?: string
   showAddRowPlaceholder?: boolean
   environment: XScalarEnvironment
+  eventBus: WorkspaceEventBus
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (
     e: 'add',
     payload: Partial<{
@@ -65,7 +68,7 @@ const showTooltip = computed(() => rows.length > 1)
             class="pr-0.75 pl-1 transition-none"
             size="sm"
             variant="ghost"
-            @click.stop="emits('deleteAll')">
+            @click.stop="emit('deleteAll')">
             Clear
             <span class="sr-only">All {{ title }}</span>
           </ScalarButton>
@@ -82,8 +85,9 @@ const showTooltip = computed(() => rows.length > 1)
       :invalidParams="invalidParams"
       :label="label"
       :showAddRowPlaceholder="showAddRowPlaceholder"
-      @addRow="(payload) => emits('add', payload)"
-      @deleteRow="(index) => emits('delete', { index })"
-      @updateRow="(index, payload) => emits('update', { index, payload })" />
+      @addRow="(payload) => emit('add', payload)"
+      @deleteRow="(index) => emit('delete', { index })"
+      @navigate="(route) => eventBus.emit('ui:route:page', { name: route })"
+      @updateRow="(index, payload) => emit('update', { index, payload })" />
   </CollapsibleSection>
 </template>

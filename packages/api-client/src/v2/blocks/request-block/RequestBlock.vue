@@ -187,13 +187,7 @@ const defaultCookies = computed(() => {
         name: it.name,
         value: it.value,
         globalRoute:
-          it.location === 'document'
-            ? {
-                name: 'document.cookies',
-              }
-            : {
-                name: 'workspace.cookies',
-              },
+          it.location === 'document' ? 'document.cookies' : 'workspace.cookies',
         isReadonly: true,
         isDisabled: disabledGlobalCookies[it.name.toLowerCase()] ?? false,
       })) ?? ([] satisfies TableRow[])
@@ -435,6 +429,7 @@ const labelRequestNameId = useId()
         v-show="isSectionVisible('Variables') && sections.path?.length"
         :id="filterIds.Variables"
         :environment
+        :eventBus
         :exampleKey
         :rows="sections.path ?? []"
         :showAddRowPlaceholder="false"
@@ -446,6 +441,7 @@ const labelRequestNameId = useId()
         v-show="isSectionVisible('Cookies')"
         :id="filterIds.Cookies"
         :environment
+        :eventBus
         :exampleKey
         :rows="cookies ?? []"
         :showAddRowPlaceholder="true"
@@ -457,6 +453,7 @@ const labelRequestNameId = useId()
         v-show="isSectionVisible('Headers')"
         :id="filterIds.Headers"
         :environment
+        :eventBus
         :exampleKey
         :rows="headers ?? []"
         title="Headers"
@@ -467,6 +464,7 @@ const labelRequestNameId = useId()
         v-show="isSectionVisible('Query')"
         :id="filterIds.Query"
         :environment
+        :eventBus
         :exampleKey
         :rows="sections.query ?? []"
         title="Query Parameters"
