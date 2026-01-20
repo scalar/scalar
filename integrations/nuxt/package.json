@@ -58,7 +58,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/products/api-references/integrations/nuxt"
+    "documentation": "https://scalar.com/products/api-references/integrations/nuxt"
   },
   "dependencies": {
     "@nuxt/kit": "^4.0.0",

@@ -505,7 +505,7 @@ def get_scalar_api_reference(
             Only tracks whether a request was sent through the API client.
             Default is True which means telemetry is enabled.
 
-            See: https://guides.scalar.com/products/api-references/configuration#configuration__configuration-options__properties__telemetry
+            See: https://scalar.com/products/api-references/configuration#configuration__configuration-options__properties__telemetry
             """
         ),
     ] = True,

@@ -87,7 +87,7 @@
         "package": "scalar_api_reference"
       }
     ],
-    "documentation": "https://guides.scalar.com/products/api-references/integrations/rust"
+    "documentation": "https://scalar.com/products/api-references/integrations/rust"
   },
   "rust": {
     "crate": "scalar_api_reference",

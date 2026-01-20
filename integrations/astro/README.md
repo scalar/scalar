@@ -16,7 +16,7 @@ Scalar API Reference Component for Astro
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/astro)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/astro)
 
 ## Changelog
 

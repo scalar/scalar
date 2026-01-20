@@ -49,7 +49,7 @@ const FEATURES = [
     Uploading documents to the Scalar Registry is a Premium feature. See what
     else is included in our
     <a
-      href="https://guides.scalar.com/"
+      href="https://scalar.com/"
       target="_blank">
       guides</a
     >.

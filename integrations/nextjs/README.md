@@ -16,7 +16,7 @@ Next.js API route handler to serve beautiful, interactive API documentation from
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/nextjs)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/nextjs)
 
 ## Changelog
 

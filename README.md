@@ -124,49 +124,49 @@ And there's an ever-growing list of plugins and integrations:
 
 ### Integrations
 
-- [HTML/JS API](https://guides.scalar.com/products/api-references/integrations/html-js) (works everywhere)
-- [.NET ASP.NET Core](https://guides.scalar.com/products/api-references/integrations/aspnetcore/integration)
-- [.NET Aspire](https://guides.scalar.com/products/api-references/integrations/aspire)
-- [AdonisJS](https://guides.scalar.com/products/api-references/integrations/adonisjs)
-- [Astro](https://guides.scalar.com/products/api-references/integrations/astro)
-- [Django Ninja](https://guides.scalar.com/products/api-references/integrations/django-ninja)
-- [Django](https://guides.scalar.com/products/api-references/integrations/django)
-- [Docker](https://guides.scalar.com/products/api-references/integrations/docker)
-- [Docusaurus](https://guides.scalar.com/products/api-references/integrations/docusaurus)
-- [Elixir](https://guides.scalar.com/products/api-references/integrations/elixir)
-- [Express](https://guides.scalar.com/products/api-references/integrations/express)
-- [FastAPI](https://guides.scalar.com/products/api-references/integrations/fastapi)
-- [Fastify](https://guides.scalar.com/products/api-references/integrations/fastify)
-- [Flask](https://guides.scalar.com/products/api-references/integrations/flask)
-- [Go](https://guides.scalar.com/products/api-references/integrations/go)
-- [Hapi](https://guides.scalar.com/products/api-references/integrations/hapi)
-- [Hono](https://guides.scalar.com/products/api-references/integrations/hono)
-- [Laravel Scribe](https://guides.scalar.com/products/api-references/integrations/laravel-scribe)
-- [Laravel](https://guides.scalar.com/products/api-references/integrations/laravel)
-- [Micronaut](https://guides.scalar.com/products/api-references/integrations/micronaut)
-- [NestJS](https://guides.scalar.com/products/api-references/integrations/nestjs)
-- [Next.js](https://guides.scalar.com/products/api-references/integrations/nextjs)
-- [Nuxt](https://guides.scalar.com/products/api-references/integrations/nuxt)
-- [Python](https://guides.scalar.com/products/api-references/integrations/python)
-- [React](https://guides.scalar.com/products/api-references/integrations/react)
-- [Ruby on Rails](https://guides.scalar.com/products/api-references/integrations/ruby-on-rails)
-- [Rust](https://guides.scalar.com/products/api-references/integrations/rust)
-- [Spring Boot](https://guides.scalar.com/products/api-references/integrations/spring-boot)
-- [SvelteKit](https://guides.scalar.com/products/api-references/integrations/sveltekit)
-- [Ts.ED](https://guides.scalar.com/products/api-references/integrations/tsed)
-- [Vue.js](https://guides.scalar.com/products/api-references/integrations/vue)
+- [HTML/JS API](https://scalar.com/products/api-references/integrations/html-js) (works everywhere)
+- [.NET ASP.NET Core](https://scalar.com/products/api-references/integrations/aspnetcore/integration)
+- [.NET Aspire](https://scalar.com/products/api-references/integrations/aspire)
+- [AdonisJS](https://scalar.com/products/api-references/integrations/adonisjs)
+- [Astro](https://scalar.com/products/api-references/integrations/astro)
+- [Django Ninja](https://scalar.com/products/api-references/integrations/django-ninja)
+- [Django](https://scalar.com/products/api-references/integrations/django)
+- [Docker](https://scalar.com/products/api-references/integrations/docker)
+- [Docusaurus](https://scalar.com/products/api-references/integrations/docusaurus)
+- [Elixir](https://scalar.com/products/api-references/integrations/elixir)
+- [Express](https://scalar.com/products/api-references/integrations/express)
+- [FastAPI](https://scalar.com/products/api-references/integrations/fastapi)
+- [Fastify](https://scalar.com/products/api-references/integrations/fastify)
+- [Flask](https://scalar.com/products/api-references/integrations/flask)
+- [Go](https://scalar.com/products/api-references/integrations/go)
+- [Hapi](https://scalar.com/products/api-references/integrations/hapi)
+- [Hono](https://scalar.com/products/api-references/integrations/hono)
+- [Laravel Scribe](https://scalar.com/products/api-references/integrations/laravel-scribe)
+- [Laravel](https://scalar.com/products/api-references/integrations/laravel)
+- [Micronaut](https://scalar.com/products/api-references/integrations/micronaut)
+- [NestJS](https://scalar.com/products/api-references/integrations/nestjs)
+- [Next.js](https://scalar.com/products/api-references/integrations/nextjs)
+- [Nuxt](https://scalar.com/products/api-references/integrations/nuxt)
+- [Python](https://scalar.com/products/api-references/integrations/python)
+- [React](https://scalar.com/products/api-references/integrations/react)
+- [Ruby on Rails](https://scalar.com/products/api-references/integrations/ruby-on-rails)
+- [Rust](https://scalar.com/products/api-references/integrations/rust)
+- [Spring Boot](https://scalar.com/products/api-references/integrations/spring-boot)
+- [SvelteKit](https://scalar.com/products/api-references/integrations/sveltekit)
+- [Ts.ED](https://scalar.com/products/api-references/integrations/tsed)
+- [Vue.js](https://scalar.com/products/api-references/integrations/vue)
 
 ### Built-in Support
 
 The following frameworks have chosen Scalar API Reference as their default OpenAPI documentation UI, recognizing its developer-friendly features and modern design:
 
-- [Effect](https://guides.scalar.com/products/api-references/integrations/effect)
-- [ElysiaJS](https://guides.scalar.com/products/api-references/integrations/elysiajs)
+- [Effect](https://scalar.com/products/api-references/integrations/effect)
+- [ElysiaJS](https://scalar.com/products/api-references/integrations/elysiajs)
 - [HappyX](https://github.com/HapticX/happyx)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
-- [Nitro](https://guides.scalar.com/products/api-references/integrations/nitro)
+- [Nitro](https://scalar.com/products/api-references/integrations/nitro)
 - [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
-- [Platformatic](https://guides.scalar.com/products/api-references/integrations/platformatic)
+- [Platformatic](https://scalar.com/products/api-references/integrations/platformatic)
 
 <br>
 
@@ -176,7 +176,7 @@ We're offering a free and paid managed hosting on the edge, too:
 
 - Write your API documentation and publish API references (free)
 - `YOUR_NAME_HERE.apidocumentation.com` subdomain and SSL (free)
-- [GitHub Sync](https://guides.scalar.com/products/docs/github-sync)
+- [GitHub Sync](https://scalar.com/products/docs/github-sync)
 - Write free-form documentation
 - Collaborate with your team
 - Use any domain
@@ -187,34 +187,34 @@ Ready? [Create your Scalar Account](https://scalar.com)
 
 ### Documentation
 
-| Topic                                                                            | Description                          |
-| -------------------------------------------------------------------------------- | ------------------------------------ |
-| [Configuration](https://guides.scalar.com/products/api-references/configuration) | The universal configuration object   |
-| [Themes](https://guides.scalar.com/products/api-references/themes)               | Predefined themes, layouts & styling |
-| [OpenAPI](https://guides.scalar.com/products/api-references/openapi)             | OpenAPI specification extensions     |
-| [Markdown](https://guides.scalar.com/products/api-references/markdown)           | Supported Markdown syntax            |
-| [Plugins](https://guides.scalar.com/products/api-references/plugins)             | Extend the functionality             |
+| Topic                                                                     | Description                          |
+| ------------------------------------------------------------------------- | ------------------------------------ |
+| [Configuration](https://scalar.com/products/api-references/configuration) | The universal configuration object   |
+| [Themes](https://scalar.com/products/api-references/themes)               | Predefined themes, layouts & styling |
+| [OpenAPI](https://scalar.com/products/api-references/openapi)             | OpenAPI specification extensions     |
+| [Markdown](https://scalar.com/products/api-references/markdown)           | Supported Markdown syntax            |
+| [Plugins](https://scalar.com/products/api-references/plugins)             | Extend the functionality             |
 
 <br>
 
 ### Projects
 
-| Project                                                                                   | Description                      |
-| ----------------------------------------------------------------------------------------- | -------------------------------- |
-| [Scalar API Reference](https://guides.scalar.com/products/api-references/getting-started) | Self-hosted API Reference        |
-| [Scalar API Client](https://scalar.com/download)                                          | Postman alternative              |
-| [Scalar Registry](https://guides.scalar.com/products/registry/getting-started)            | Manage OpenAPI documents         |
-| [Scalar Docs](https://guides.scalar.com/products/docs/getting-started)                    | Hosted documentation             |
-| [Scalar Docs Starter](https://github.com/scalar/starter)                                  | Starter template for Scalar Docs |
-| [Scalar SDKs](https://guides.scalar.com/products/sdks/getting-started)                    | SDK generation                   |
-| [Scalar CLI](https://scalar.com/tools/cli/getting-started)                                | Command-line interface           |
-| [Scalar Mock Server](https://guides.scalar.com/products/mock-server/getting-started)      | Mock APIs from OpenAPI documents |
-| [Scalar Galaxy](packages/galaxy/README.md)                                                | Our OpenAPI Example              |
-| [Scalar Editor](https://editor.scalar.com/)                                               | OpenAPI Online Editor            |
-| [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                                | Parse OpenAPI documents          |
-| [Scalar OpenAPI to Markdown](packages/openapi-to-markdown/README.md)                      | OpenAPI > Markdown/HTML          |
-| [Scalar OpenAPI Upgrader](packages/openapi-upgrader/README.md)                            | Upgrade OpenAPI documents        |
-| [Scalar Void Server](packages/void-server/README.md)                                      | HTTP Request Mirror              |
+| Project                                                                            | Description                      |
+| ---------------------------------------------------------------------------------- | -------------------------------- |
+| [Scalar API Reference](https://scalar.com/products/api-references/getting-started) | Self-hosted API Reference        |
+| [Scalar API Client](https://scalar.com/download)                                   | Postman alternative              |
+| [Scalar Registry](https://scalar.com/products/registry/getting-started)            | Manage OpenAPI documents         |
+| [Scalar Docs](https://scalar.com/products/docs/getting-started)                    | Hosted documentation             |
+| [Scalar Docs Starter](https://github.com/scalar/starter)                           | Starter template for Scalar Docs |
+| [Scalar SDKs](https://scalar.com/products/sdks/getting-started)                    | SDK generation                   |
+| [Scalar CLI](https://scalar.com/tools/cli/getting-started)                         | Command-line interface           |
+| [Scalar Mock Server](https://scalar.com/products/mock-server/getting-started)      | Mock APIs from OpenAPI documents |
+| [Scalar Galaxy](packages/galaxy/README.md)                                         | Our OpenAPI Example              |
+| [Scalar Editor](https://editor.scalar.com/)                                        | OpenAPI Online Editor            |
+| [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                         | Parse OpenAPI documents          |
+| [Scalar OpenAPI to Markdown](packages/openapi-to-markdown/README.md)               | OpenAPI > Markdown/HTML          |
+| [Scalar OpenAPI Upgrader](packages/openapi-upgrader/README.md)                     | Upgrade OpenAPI documents        |
+| [Scalar Void Server](packages/void-server/README.md)                               | HTTP Request Mirror              |
 
 <br>
 
