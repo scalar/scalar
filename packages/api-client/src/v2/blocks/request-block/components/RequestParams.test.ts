@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { isParamDisabled } from '../helpers/is-param-disabled'
 import RequestParams from './RequestParams.vue'
 
 const environment = {
@@ -53,22 +54,33 @@ describe('RequestParams', () => {
   })
 
   it('ensures optional non-path parameters are disabled by default', () => {
+    const parameters = [
+      // Optional query parameter - should be disabled
+      { name: 'limit', in: 'query', required: false, schema: { type: 'number' } },
+      // Required query parameter - should NOT be disabled
+      { name: 'apiKey', in: 'query', required: true, schema: { type: 'string' } },
+      // Optional header parameter - should be disabled
+      { name: 'X-Custom-Header', in: 'header', required: false, schema: { type: 'string' } },
+      // Required header parameter - should NOT be disabled
+      { name: 'Authorization', in: 'header', required: true, schema: { type: 'string' } },
+      // Optional path parameter - should NOT be disabled (path params are always enabled)
+      { name: 'id', in: 'path', required: false, schema: { type: 'string' } },
+      // Required path parameter - should NOT be disabled
+      { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+    ] as any
+
+    // Transform parameters into rows format, just like RequestBlock does
+    const rows = parameters.map((param: any) => ({
+      name: param.name,
+      value: '',
+      schema: param.schema,
+      isRequired: param.required,
+      isDisabled: isParamDisabled(param, undefined),
+    }))
+
     const wrapper = mount(RequestParams, {
       props: {
-        parameters: [
-          // Optional query parameter - should be disabled
-          { name: 'limit', in: 'query', required: false, schema: { type: 'number' } },
-          // Required query parameter - should NOT be disabled
-          { name: 'apiKey', in: 'query', required: true, schema: { type: 'string' } },
-          // Optional header parameter - should be disabled
-          { name: 'X-Custom-Header', in: 'header', required: false, schema: { type: 'string' } },
-          // Required header parameter - should NOT be disabled
-          { name: 'Authorization', in: 'header', required: true, schema: { type: 'string' } },
-          // Optional path parameter - should NOT be disabled (path params are always enabled)
-          { name: 'id', in: 'path', required: false, schema: { type: 'string' } },
-          // Required path parameter - should NOT be disabled
-          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-        ] as any,
+        rows,
         exampleKey: 'ex',
         title: 'Parameters',
         environment,

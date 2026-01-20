@@ -127,10 +127,10 @@ const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
 ): void => {
   // Update our local state
-  if (payload.name) {
+  if (payload.name !== undefined) {
     name.value = payload.name
   }
-  if (payload.value) {
+  if (payload.value !== undefined) {
     value.value = payload.value
   }
   if (payload.isDisabled !== undefined) {

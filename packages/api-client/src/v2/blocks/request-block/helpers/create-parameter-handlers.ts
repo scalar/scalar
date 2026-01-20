@@ -22,7 +22,7 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { name: string; value: string; index: number }) =>
+    add: (payload: { name?: string; value?: string; index?: number }) =>
       eventBus.emit(
         'operation:add:parameter',
         {
@@ -49,7 +49,7 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: { name: string; value: string; isDisabled: boolean } }) => {
+    update: (payload: { index: number; payload: Partial<{ name: string; value: string; isDisabled: boolean }> }) => {
       const row = context[payload.index]
 
       if (payload.index < defaultParameters + globalParameters) {
@@ -64,6 +64,7 @@ export const createParameterHandlers = (
       }
 
       if (payload.index >= offset) {
+        const fields = Object.keys(payload.payload).join('-')
         return eventBus.emit(
           'operation:update:parameter',
           {
@@ -73,7 +74,7 @@ export const createParameterHandlers = (
             meta,
           },
           {
-            debounceKey: `update:parameter-${type}-${payload.index}`,
+            debounceKey: `update:parameter-${type}-${payload.index - offset}-${fields}`,
           },
         )
       }

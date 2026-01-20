@@ -18,18 +18,24 @@ describe('createParameterHandlers', () => {
   it('emits add event with provided name and value', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
-    handlers.add({ name: 'foo', value: 'bar' })
+    handlers.add({ name: 'foo', value: 'bar', index: 0 })
 
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'query',
-      payload: {
-        name: 'foo',
-        value: 'bar',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'foo',
+          value: 'bar',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-query-0',
+      },
+    )
   })
 
   it('defaults to empty strings when name or value are missing', () => {
@@ -37,29 +43,41 @@ describe('createParameterHandlers', () => {
 
     handlers.add({})
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'header',
-      payload: {
-        name: '',
-        value: '',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'header',
+        payload: {
+          name: '',
+          value: '',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-header-undefined',
+      },
+    )
 
     vi.clearAllMocks()
 
     handlers.add({ name: 'Authorization' })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'header',
-      payload: {
-        name: 'Authorization',
-        value: '',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'header',
+        payload: {
+          name: 'Authorization',
+          value: '',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-header-undefined',
+      },
+    )
   })
 
   it('emits delete event with correct index and parameter type', () => {
