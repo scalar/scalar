@@ -43,7 +43,7 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: Partial<{ name: string; value: string; isDisabled: boolean }> }) => {
+    update: (payload: { index: number; payload: { name: string; value: string; isDisabled: boolean } }) => {
       const row = context[payload.index]
 
       if (payload.index < defaultParameters + globalParameters) {

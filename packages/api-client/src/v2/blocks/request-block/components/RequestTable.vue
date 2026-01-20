@@ -31,13 +31,15 @@ const {
 /**
  * Make this component more generic that can be used also for the operation body
  */
-
 const emits = defineEmits<{
-  (e: 'addRow', payload: { name: string; value: string }): void
+  (
+    e: 'addRow',
+    payload: { name: string; value: string | File; isDisabled: boolean },
+  ): void
   (
     e: 'updateRow',
     index: number,
-    payload: { name: string; value: string; isDisabled: boolean },
+    payload: { name: string; value: string | File; isDisabled: boolean },
   ): void
   (e: 'deleteRow', index: number): void
 
@@ -81,7 +83,7 @@ const updateOrAdd = ({
   payload,
 }: {
   index: number
-  payload: { name: string; value: string; isDisabled: boolean }
+  payload: { name: string; value: string | File; isDisabled: boolean }
 }) => {
   /** If the update happen on the last row, it means we need to add a new row */
   if (index >= data.length) {
