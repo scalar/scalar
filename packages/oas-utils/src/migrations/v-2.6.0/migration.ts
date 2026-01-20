@@ -106,8 +106,8 @@ export const migrate_v_2_6_0 = (data: v_2_5_0.DataRecord): v_2_6_0['DataRecord']
 
   const workspaces = Object.entries(data.workspaces || {}).reduce<Record<string, v_2_6_0['Workspace']>>(
     (acc, [key, workspace]) => {
-      // Convert deprecated 'fastify' theme to 'default'
-      const themeId = workspace.themeId === 'fastify' ? 'default' : workspace.themeId
+      // Convert deprecated 'fastify' and 'elysiajs' themes to 'default'
+      const themeId = ['fastify', 'elysiajs'].includes(workspace.themeId) ? 'default' : workspace.themeId
 
       acc[key] = {
         ...workspace,

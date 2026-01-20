@@ -79,6 +79,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "fastify": "^4.0.0",
+    "esbuild": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"

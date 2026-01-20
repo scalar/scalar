@@ -44,6 +44,45 @@ describe('migrate_v_2_6_0', () => {
     expect(result.workspaces.default!.themeId).toBe('default')
   })
 
+  it('migrates elysiajs theme to default', () => {
+    const mockData: v_2_5_0.DataRecord = {
+      requestExamples: {},
+      collections: {},
+      cookies: {},
+      environments: {},
+      requests: {},
+      securitySchemes: {},
+      servers: {},
+      tags: {},
+      workspaces: {
+        default: {
+          uid: 'default',
+          name: 'Default Workspace',
+          description: 'Default Workspace',
+          collections: [],
+          environments: {},
+          hotKeyConfig: {
+            modifiers: [],
+            hotKeys: {},
+          },
+          activeEnvironmentId: 'default',
+          cookies: [],
+          proxyUrl: '',
+          themeId: 'elysiajs',
+          selectedHttpClient: {
+            targetKey: 'shell',
+            clientKey: 'curl',
+          },
+        },
+      },
+    }
+
+    const result = migrate_v_2_6_0(mockData)
+
+    expectTypeOf(result).toMatchTypeOf<v_2_6_0['DataRecord']>()
+    expect(result.workspaces.default!.themeId).toBe('default')
+  })
+
   it('preserves other theme values', () => {
     const mockData: v_2_5_0.DataRecord = {
       requestExamples: {},
