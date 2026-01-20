@@ -10,7 +10,6 @@
     "integrations/fastapi/**",
     "integrations/django-ninja/**",
     "integrations/hono/**",
-    "integrations/java/**",
     "integrations/nestjs/**",
     "integrations/nextjs/**",
     "integrations/nuxt/**",
@@ -306,9 +305,14 @@
     },
     "integrations/fastify": {
       "ignoreDependencies": [
-        // build step copy standalone file from this package
-        "@scalar/api-reference"
+        "@scalar/api-reference" // build step copy standalone file from this package
       ]
+    },
+    "integrations/java": {
+      "ignoreDependencies": [
+        "@scalar/api-reference" // build step copy standalone file from this package
+      ],
+      "ignoreBinaries": ["mvn"]
     }
   }
 }
