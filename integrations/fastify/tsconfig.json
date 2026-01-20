@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "esbuild.ts"],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "@fastify/swagger"],
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
