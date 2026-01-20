@@ -1,17 +1,40 @@
 import { readFile } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
 
 import { build } from '@scalar/build-tooling/esbuild'
 import type { Plugin } from 'esbuild'
 
 /**
- * Plugin to load files in src/assets as text strings.
+ * Plugin to handle ?raw imports and load files in src/assets as text strings.
  *
- * This is more selective than using global loaders, ensuring only
- * theme.css and scalar.js are inlined as text.
+ * This handles both the ?raw suffix (used by vite-node in development) and
+ * ensures theme.css and scalar.js are inlined as text.
  */
 const assetTextLoader: Plugin = {
   name: 'asset-text-loader',
   setup(build) {
+    /**
+     * Resolve ?raw imports by stripping the suffix and marking them for text loading.
+     */
+    build.onResolve({ filter: /\?raw$/ }, (args) => {
+      const pathWithoutRaw = args.path.replace(/\?raw$/, '')
+      const resolvedPath = resolve(dirname(args.importer), pathWithoutRaw)
+
+      return { path: resolvedPath, namespace: 'raw-text' }
+    })
+
+    /**
+     * Load files in the raw-text namespace as text strings.
+     */
+    build.onLoad({ filter: /.*/, namespace: 'raw-text' }, async (args) => {
+      const contents = await readFile(args.path, 'utf8')
+
+      return { contents: `export default ${JSON.stringify(contents)}`, loader: 'js' as const }
+    })
+
+    /**
+     * Load files in src/assets as text strings (fallback for non-?raw imports).
+     */
     build.onLoad({ filter: /src\/assets\/.+\.(css|js)$/ }, async (args) => {
       const contents = await readFile(args.path, 'utf8')
 

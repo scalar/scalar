@@ -1,4 +1,4 @@
-import scalarJs from '../assets/scalar.js'
+import scalarJs from '../assets/scalar.js?raw'
 
 /**
  * Read the JavaScript file.
