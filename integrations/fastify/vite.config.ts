@@ -9,7 +9,8 @@ export default defineConfig({
   test: {
     /**
      * Mock the getJavaScriptFile module during tests.
-     * The actual scalar.js file is only created during build (via copy:standalone),
+     *
+     * The actual scalar.js file is only created during build (via `pnpm copy:standalone`),
      * but we don't need the real content for testing the plugin logic.
      */
     alias: {
