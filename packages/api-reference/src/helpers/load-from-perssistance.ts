@@ -50,11 +50,15 @@ export const mergeSecuritySchemas = (current: unknown, stored: unknown, level: n
   for (const [key, storedValue] of Object.entries(stored)) {
     // Don't change the type of the schema
     if (level === 0 && key === 'type') {
-      console.log('skipping type', { current, key, storedValue })
       continue
     }
     // If this is a secret key and it has a value, restore it to current
-    if (storedValue) {
+    // We only want to restore primitive values, objects are handled recursively
+    if (
+      (typeof storedValue === 'string' && storedValue !== '') ||
+      typeof storedValue === 'number' ||
+      typeof storedValue === 'boolean'
+    ) {
       current[key] = storedValue
       continue
     }

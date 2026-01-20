@@ -95,43 +95,7 @@ describe('mergeSecuritySchemas', () => {
     })
   })
 
-  it('replaces nested objects with truthy stored values', () => {
-    const current = {
-      type: 'oauth2',
-      flows: {
-        authorizationCode: {
-          authorizationUrl: 'https://example.com/oauth/authorize',
-          tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-client-id': '',
-        },
-      },
-    }
-
-    const stored = {
-      type: 'oauth2',
-      flows: {
-        authorizationCode: {
-          'x-scalar-secret-client-id': 'my-client-id',
-          'x-scalar-secret-client-secret': 'my-client-secret',
-        },
-      },
-    }
-
-    mergeSecuritySchemas(current, stored)
-
-    // The flows object is replaced with the stored one
-    expect(current).toEqual({
-      type: 'oauth2',
-      flows: {
-        authorizationCode: {
-          'x-scalar-secret-client-id': 'my-client-id',
-          'x-scalar-secret-client-secret': 'my-client-secret',
-        },
-      },
-    })
-  })
-
-  it('replaces entire nested objects with stored values', () => {
+  it('merge only keys that exist in the current schema', () => {
     const current = {
       type: 'oauth2',
       flows: {
@@ -148,6 +112,8 @@ describe('mergeSecuritySchemas', () => {
       type: 'oauth2',
       flows: {
         authorizationCode: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-client-id': 'auth-code-client-id',
         },
         password: {
@@ -165,12 +131,9 @@ describe('mergeSecuritySchemas', () => {
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          'x-scalar-secret-client-id': 'auth-code-client-id',
-        },
-        password: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-username': 'user123',
-          'x-scalar-secret-password': 'pass456',
+          'x-scalar-secret-client-id': 'auth-code-client-id',
         },
       },
     })
