@@ -101,8 +101,6 @@ export const baseConfigurationSchema = z.object({
       'deepSpace',
       'saturn',
       'kepler',
-      'elysiajs',
-      'fastify',
       'mars',
       'laserwave',
       'none',
