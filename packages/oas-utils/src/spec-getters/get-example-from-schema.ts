@@ -14,7 +14,7 @@ const MAX_LEVELS_DEEP = 10
 const MAX_PROPERTIES = 10
 
 /** Default name used for additional properties when no custom name is provided */
-const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'propertyName*'
+const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
 /**
  * Pre-computed date/time values to avoid expensive Date operations on every call.

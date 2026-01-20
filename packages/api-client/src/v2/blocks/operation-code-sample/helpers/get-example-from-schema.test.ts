@@ -1030,7 +1030,7 @@ describe('getExampleFromSchema', () => {
           additionalProperties: {},
         } as SchemaObject),
       ).toMatchObject({
-        'propertyName*': 'anything',
+        'additionalProperty': 'anything',
       })
 
       expect(
@@ -1041,7 +1041,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': 'anything',
+        'additionalProperty': 'anything',
       })
     })
 
@@ -1056,7 +1056,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': 1,
+        'additionalProperty': 1,
       })
 
       expect(
@@ -1069,7 +1069,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': true,
+        'additionalProperty': true,
       })
 
       expect(
@@ -1083,7 +1083,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': false,
+        'additionalProperty': false,
       })
 
       expect(
@@ -1096,7 +1096,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1114,7 +1114,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': {
+        'additionalProperty': {
           foo: '',
         },
       })
@@ -1239,7 +1239,7 @@ describe('getExampleFromSchema', () => {
       })
     })
 
-    it('falls back to propertyName* when x-additionalPropertiesName is empty string', () => {
+    it('falls back to additionalProperty when x-additionalPropertiesName is empty string', () => {
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -1251,11 +1251,11 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
-    it('falls back to propertyName* when x-additionalPropertiesName is only whitespace', () => {
+    it('falls back to additionalProperty when x-additionalPropertiesName is only whitespace', () => {
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -1267,7 +1267,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
@@ -1299,7 +1299,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1313,7 +1313,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1327,7 +1327,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
