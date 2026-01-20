@@ -6,7 +6,7 @@ import {
   isSecretKey,
   loadAuthSchemesFromStorage,
   loadClientFromStorage,
-  mergeSecrets,
+  mergeSecuritySchemas,
 } from '@/helpers/load-from-perssistance'
 import { authStorage, clientStorage } from '@/helpers/storage'
 
@@ -26,8 +26,8 @@ describe('isSecretKey', () => {
   })
 })
 
-describe('mergeSecrets', () => {
-  it('merges top-level secret keys from stored to current', () => {
+describe('mergeSecuritySchemas', () => {
+  it('merges top-level truthy values from stored to current', () => {
     const current = {
       type: 'apiKey',
       name: 'Authorization',
@@ -40,7 +40,7 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-token': 'my-secret-token',
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     expect(current).toEqual({
       type: 'apiKey',
@@ -49,7 +49,7 @@ describe('mergeSecrets', () => {
     })
   })
 
-  it('deos not merge when the key is not defined in the current schema', () => {
+  it('merges keys from stored to current even if not previously defined', () => {
     const current = {
       type: 'apiKey',
       name: 'Authorization',
@@ -61,15 +61,16 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-token': 'my-secret-token',
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     expect(current).toEqual({
       type: 'apiKey',
       name: 'Authorization',
+      'x-scalar-secret-token': 'my-secret-token',
     })
   })
 
-  it('merges multiple secret keys', () => {
+  it('merges multiple truthy values', () => {
     const current = {
       type: 'http',
       scheme: 'basic',
@@ -84,7 +85,7 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-password': 'pass456',
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     expect(current).toEqual({
       type: 'http',
@@ -94,7 +95,7 @@ describe('mergeSecrets', () => {
     })
   })
 
-  it('recursively merges secrets in nested objects', () => {
+  it('replaces nested objects with truthy stored values', () => {
     const current = {
       type: 'oauth2',
       flows: {
@@ -102,8 +103,6 @@ describe('mergeSecrets', () => {
           authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
-          'x-scalar-secret-redirect-uri': '',
         },
       },
     }
@@ -112,32 +111,27 @@ describe('mergeSecrets', () => {
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/oauth/authorize',
-          tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-client-id': 'my-client-id',
           'x-scalar-secret-client-secret': 'my-client-secret',
-          'x-scalar-secret-redirect-uri': 'https://example.com/callback',
         },
       },
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
+    // The flows object is replaced with the stored one
     expect(current).toEqual({
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/oauth/authorize',
-          tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-client-id': 'my-client-id',
           'x-scalar-secret-client-secret': 'my-client-secret',
-          'x-scalar-secret-redirect-uri': 'https://example.com/callback',
         },
       },
     })
   })
 
-  it('only merges secrets if the path exists in current schema', () => {
+  it('replaces entire nested objects with stored values', () => {
     const current = {
       type: 'oauth2',
       flows: {
@@ -149,7 +143,7 @@ describe('mergeSecrets', () => {
       },
     }
 
-    // Stored has a 'password' flow that does not exist in current
+    // Stored has a different flows object
     const stored = {
       type: 'oauth2',
       flows: {
@@ -164,25 +158,25 @@ describe('mergeSecrets', () => {
       },
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
-    // Should only merge authorizationCode secrets, not password flow
+    // The entire flows object is replaced with the stored one
     expect(current).toEqual({
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/oauth/authorize',
-          tokenUrl: 'https://example.com/oauth/token',
           'x-scalar-secret-client-id': 'auth-code-client-id',
+        },
+        password: {
+          tokenUrl: 'https://example.com/oauth/token',
+          'x-scalar-secret-username': 'user123',
+          'x-scalar-secret-password': 'pass456',
         },
       },
     })
-
-    // Password flow should not be added
-    expect('password' in (current.flows as Record<string, unknown>)).toBe(false)
   })
 
-  it('does not merge non-secret keys from stored', () => {
+  it('merges all truthy values from stored but skips type at top level', () => {
     const current = {
       type: 'apiKey',
       name: 'Authorization',
@@ -191,24 +185,24 @@ describe('mergeSecrets', () => {
     }
 
     const stored = {
-      type: 'apiKey',
-      name: 'X-API-Key', // Different name in stored
-      in: 'query', // Different location in stored
+      type: 'oauth2', // Different type in stored (should not be merged at top level)
+      name: 'X-API-Key', // Different name in stored (should be merged)
+      in: 'query', // Different location in stored (should be merged)
       'x-scalar-secret-token': 'my-secret-token',
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
-    // Only secret should be merged, not name or in
+    // All truthy values should be merged except type at top level
     expect(current).toEqual({
-      type: 'apiKey',
-      name: 'Authorization', // Unchanged
-      in: 'header', // Unchanged
+      type: 'apiKey', // Unchanged (skipped at top level)
+      name: 'X-API-Key', // Merged
+      in: 'query', // Merged
       'x-scalar-secret-token': 'my-secret-token', // Merged
     })
   })
 
-  it('does not merge secrets with falsy stored values', () => {
+  it('does not merge values with falsy stored values', () => {
     const current = {
       type: 'apiKey',
       'x-scalar-secret-token': 'existing-value',
@@ -219,7 +213,7 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-token': '',
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     // Empty string should not overwrite existing value
     expect(current['x-scalar-secret-token']).toBe('existing-value')
@@ -236,7 +230,7 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-token': null,
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     // Null should not overwrite existing value
     expect(current['x-scalar-secret-token']).toBe('existing-value')
@@ -253,7 +247,7 @@ describe('mergeSecrets', () => {
       'x-scalar-secret-token': undefined,
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     // Undefined should not overwrite existing value
     expect(current['x-scalar-secret-token']).toBe('existing-value')
@@ -266,7 +260,7 @@ describe('mergeSecrets', () => {
     }
 
     // Should not throw, just return early
-    expect(() => mergeSecrets(current, stored)).not.toThrow()
+    expect(() => mergeSecuritySchemas(current, stored)).not.toThrow()
   })
 
   it('returns early when stored is not an object', () => {
@@ -276,7 +270,7 @@ describe('mergeSecrets', () => {
     const stored = 'string-value'
 
     // Should not throw, just return early
-    expect(() => mergeSecrets(current, stored)).not.toThrow()
+    expect(() => mergeSecuritySchemas(current, stored)).not.toThrow()
     expect(current['x-scalar-secret-token']).toBe('')
   })
 
@@ -287,7 +281,7 @@ describe('mergeSecrets', () => {
     }
 
     // Should not throw, just return early
-    expect(() => mergeSecrets(current, stored)).not.toThrow()
+    expect(() => mergeSecuritySchemas(current, stored)).not.toThrow()
   })
 
   it('returns early when stored is null', () => {
@@ -297,16 +291,16 @@ describe('mergeSecrets', () => {
     const stored = null
 
     // Should not throw, just return early
-    expect(() => mergeSecrets(current, stored)).not.toThrow()
+    expect(() => mergeSecuritySchemas(current, stored)).not.toThrow()
     expect(current['x-scalar-secret-token']).toBe('')
   })
 
-  it('handles arrays without merging secrets', () => {
+  it('handles arrays without merging values', () => {
     const current = ['value1', 'value2']
     const stored = ['value3', 'value4']
 
     // Should not throw, arrays are objects but should not be merged
-    expect(() => mergeSecrets(current, stored)).not.toThrow()
+    expect(() => mergeSecuritySchemas(current, stored)).not.toThrow()
     expect(current).toEqual(['value1', 'value2'])
   })
 
@@ -331,9 +325,53 @@ describe('mergeSecrets', () => {
       },
     }
 
-    mergeSecrets(current, stored)
+    mergeSecuritySchemas(current, stored)
 
     expect(current.level1.level2.level3['x-scalar-secret-deep']).toBe('deep-secret')
+  })
+
+  it('skips the type field at the top level (level 0)', () => {
+    const current = {
+      type: 'apiKey',
+      name: 'Authorization',
+    }
+
+    const stored = {
+      type: 'oauth2', // Should not be merged at top level
+      name: 'X-API-Key',
+    }
+
+    mergeSecuritySchemas(current, stored)
+
+    expect(current).toEqual({
+      type: 'apiKey', // Should remain unchanged
+      name: 'X-API-Key', // Should be merged
+    })
+  })
+
+  it('allows type field to be merged at nested levels', () => {
+    const current = {
+      type: 'oauth2',
+      flows: {
+        authorizationCode: {
+          type: 'code',
+        },
+      },
+    }
+
+    const stored = {
+      type: 'http',
+      flows: {
+        authorizationCode: {
+          type: 'updated-type', // Should be merged at nested level
+        },
+      },
+    }
+
+    mergeSecuritySchemas(current, stored)
+
+    expect(current.type).toBe('oauth2') // Top level type unchanged
+    expect(current.flows.authorizationCode.type).toBe('updated-type') // Nested type merged
   })
 })
 
@@ -463,7 +501,7 @@ describe('loadAuthSchemesFromStorage', () => {
     expect(store.workspace.activeDocument!['x-scalar-selected-security']?.selectedIndex).toBe(0)
   })
 
-  it('does not overwrite existing x-scalar-selected-security', async () => {
+  it('overwrites existing security scheme values with stored values', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'my-doc',
@@ -500,7 +538,8 @@ describe('loadAuthSchemesFromStorage', () => {
     const documentApiKeySChema = getResolvedRef(store.workspace.activeDocument?.components?.securitySchemes?.apiKey)
     assert(documentApiKeySChema && documentApiKeySChema.type === 'apiKey')
 
-    expect(documentApiKeySChema['x-scalar-secret-token']).toBe('my-secret-token')
+    // The stored value should overwrite the document value
+    expect(documentApiKeySChema['x-scalar-secret-token']).toBe('another-secret-token')
   })
 
   it('does not set x-scalar-selected-security when all stored schemes are filtered out', async () => {

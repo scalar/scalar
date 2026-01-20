@@ -41,21 +41,26 @@ export const isSecretKey = (key: string): boolean => key.startsWith(SECRET_KEY_P
  * @param current - The current schema object (source of truth for structure)
  * @param stored - The stored object containing secret values to restore
  */
-export const mergeSecrets = (current: unknown, stored: unknown): void => {
+export const mergeSecuritySchemas = (current: unknown, stored: unknown, level: number = 0): void => {
   if (!isObject(current) || !isObject(stored)) {
     return
   }
 
   // Iterate through stored keys to find secrets to restore
   for (const [key, storedValue] of Object.entries(stored)) {
+    // Don't change the type of the schema
+    if (level === 0 && key === 'type') {
+      console.log('skipping type', { current, key, storedValue })
+      continue
+    }
     // If this is a secret key and it has a value, restore it to current
-    if (isSecretKey(key) && storedValue && current[key] === '') {
+    if (storedValue) {
       current[key] = storedValue
       continue
     }
 
     // If the value is an object (and not null), recurse into it
-    mergeSecrets(getResolvedRef(current[key]), storedValue)
+    mergeSecuritySchemas(getResolvedRef(current[key]), storedValue, level + 1)
   }
 }
 
@@ -83,7 +88,7 @@ const restoreAuthSecretsFromStorage = (store: WorkspaceStore): void => {
   for (const [key, storedScheme] of Object.entries(storedAuthSchemes)) {
     const currentScheme = getResolvedRef(securitySchemes[key])
     if (isObject(currentScheme)) {
-      mergeSecrets(currentScheme, storedScheme)
+      mergeSecuritySchemas(currentScheme, storedScheme)
     }
   }
 }
@@ -117,14 +122,15 @@ export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
     return
   }
 
-  // Skip if already configured
-  if (activeDocument['x-scalar-selected-security']) {
-    restoreAuthSecretsFromStorage(store)
-    return
-  }
-
   const authPersistence = authStorage()
   const storedSelectedAuthSchemes = authPersistence.getSelectedSchemes(slug)
+
+  restoreAuthSecretsFromStorage(store)
+
+  // If the selected security schemes are already set, we don't need to restore them
+  if (activeDocument['x-scalar-selected-security'] !== undefined) {
+    return
+  }
 
   const availableSchemes = new Set(Object.keys(activeDocument.components?.securitySchemes ?? {}))
   const selectedSchemes = storedSelectedAuthSchemes['x-scalar-selected-security']?.selectedSchemes
@@ -140,6 +146,4 @@ export const loadAuthSchemesFromStorage = (store: WorkspaceStore): void => {
       selectedSchemes: validSchemes,
     }
   }
-
-  restoreAuthSecretsFromStorage(store)
 }
