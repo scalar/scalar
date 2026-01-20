@@ -29,7 +29,9 @@ export function createFetchQueryParams(
   )
 
   example.parameters.query.forEach((p) => {
-    if (!p.enabled) return
+    if (!p.enabled) {
+      return
+    }
 
     const schema = parameterSchemaMap[p.key]
 

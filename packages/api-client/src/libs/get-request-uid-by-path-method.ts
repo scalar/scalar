@@ -1,6 +1,7 @@
+import type { Operation } from '@scalar/oas-utils/entities/spec'
+
 import type { OpenClientPayload } from '@/libs/create-client'
 import { findRequestByPathMethod } from '@/libs/find-request'
-import type { Operation } from '@scalar/oas-utils/entities/spec'
 
 /**
  * Get the request uid by path and method

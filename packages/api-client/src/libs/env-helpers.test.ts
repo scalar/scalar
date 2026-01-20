@@ -1,6 +1,6 @@
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { describe, expect, it } from 'vitest'
 import { nanoid } from 'nanoid'
+import { describe, expect, it } from 'vitest'
 
 import { getEnvColor } from './env-helpers'
 

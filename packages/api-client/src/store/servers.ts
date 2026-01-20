@@ -1,4 +1,4 @@
-import type { StoreContext } from '@/store/store-context'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import {
   type Collection,
   type Request,
@@ -6,9 +6,10 @@ import {
   type ServerPayload,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import type { StoreContext } from '@/store/store-context'
 
 /** Create storage objects for servers */
 export function createStoreServers(useLocalStorage: boolean) {

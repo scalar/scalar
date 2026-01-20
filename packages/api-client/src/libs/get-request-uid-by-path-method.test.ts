@@ -1,6 +1,7 @@
-import { describe, test, expect } from 'vitest'
+import { type Operation, operationSchema } from '@scalar/oas-utils/entities/spec'
+import { describe, expect, test } from 'vitest'
+
 import { getRequestUidByPathMethod } from './get-request-uid-by-path-method'
-import { operationSchema, type Operation } from '@scalar/oas-utils/entities/spec'
 
 describe('getRequestUidByPathMethod', () => {
   // Mock requests data with various path patterns

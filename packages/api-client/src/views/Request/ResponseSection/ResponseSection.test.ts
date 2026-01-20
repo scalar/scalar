@@ -1,6 +1,8 @@
-import { WORKSPACE_SYMBOL } from '@/store/store'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+import { WORKSPACE_SYMBOL } from '@/store/store'
+
 import ResponseSection from './ResponseSection.vue'
 
 describe('ResponseSection', () => {
@@ -10,18 +12,18 @@ describe('ResponseSection', () => {
     // Mock the workspace store
     const mockWorkspaceStore = {
       requestMutators: {
-        edit: () => {},
+        edit: vi.fn(),
       },
       requestExampleMutators: {
-        edit: () => {},
+        edit: vi.fn(),
       },
       cookies: {},
       securitySchemes: {},
       events: {
         requestStatus: {
-          on: () => {},
-          off: () => {},
-          emit: () => {},
+          on: vi.fn(),
+          off: vi.fn(),
+          emit: vi.fn(),
         },
       },
     }

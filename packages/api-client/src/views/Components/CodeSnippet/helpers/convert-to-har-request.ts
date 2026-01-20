@@ -1,6 +1,6 @@
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
 import { mergeUrls } from '@scalar/oas-utils/helpers'
-import type { HarRequest, FormDataParam } from '@scalar/snippetz'
+import type { FormDataParam, HarRequest } from '@scalar/snippetz'
 
 type Props = {
   baseUrl: string | undefined

@@ -1,5 +1,6 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /** Populate the headers from enabled parameters */
 export function createFetchHeaders(example: Pick<RequestExample, 'parameters'>, env: object) {

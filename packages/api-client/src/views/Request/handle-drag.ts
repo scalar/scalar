@@ -1,8 +1,9 @@
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
+import type { Collection, Tag } from '@scalar/oas-utils/entities/spec'
+
 import { useLayout } from '@/hooks'
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
-import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import type { Collection, Tag } from '@scalar/oas-utils/entities/spec'
 
 /** Create DnD handlers */
 export function dragHandlerFactory(

@@ -1,6 +1,7 @@
-import type { ActiveEntitiesStore } from '@/store/active-entities'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
+
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 
 type CollectionMutator = {
   edit: (uid: Collection['uid'], path: 'x-scalar-environments', value: Collection['x-scalar-environments']) => void

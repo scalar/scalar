@@ -1,5 +1,3 @@
-import type { WorkspaceStore } from '@/store'
-import type { ActiveEntitiesStore } from '@/store/active-entities'
 import json from '@scalar/galaxy/3.1.json'
 import {
   type Request,
@@ -17,6 +15,9 @@ import { parseSchema } from '@scalar/oas-utils/transforms'
 import microdiff, { type Difference } from 'microdiff'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
+
+import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 
 import {
   combineRenameDiffs,

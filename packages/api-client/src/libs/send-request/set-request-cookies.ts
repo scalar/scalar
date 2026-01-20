@@ -1,7 +1,8 @@
-import { replaceTemplateVariables } from '@/libs/string-template'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+
+import { replaceTemplateVariables } from '@/libs/string-template'
 
 /**
  * The %x2F ("/") character is considered a directory separator, and subdirectories match as well.

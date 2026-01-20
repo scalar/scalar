@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { getOpenApiVersion } from './get-openapi-version'
 
 describe('get-openapi-version', () => {
