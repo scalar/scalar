@@ -69,7 +69,7 @@ const emit = defineEmits<{
    * Emitted when the item is selected
    * @param id - The id of the selected item
    */
-  (e: 'selectItem', id: string): void
+  (e: 'selectItem', id: string, event?: MouseEvent): void
   /**
    * Emitted when a drag operation ends for this item
    * @param draggingItem - The item being dragged
@@ -163,7 +163,17 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)">
+    @click="
+      (event: MouseEvent) => {
+        console.log('[SidebarItem] ScalarSidebarGroup click', {
+          id: item.id,
+          hasEvent: !!event,
+          eventType: event?.type,
+          eventTarget: event?.target,
+        })
+        emit('selectItem', item.id, event)
+      }
+    ">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
@@ -254,7 +264,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     class="relative"
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)">
+    @click="(event: MouseEvent) => emit('selectItem', item.id, event)">
     <span
       v-if="isDeprecated(item)"
       class="line-through">
