@@ -212,9 +212,7 @@ describe('migrate-to-indexdb', () => {
             intermediateDocuments: {},
             overrides: {},
             documentConfigs: {
-              default: {
-                selectedServerUid: null,
-              },
+              default: {},
             },
           },
         })
@@ -228,10 +226,10 @@ describe('migrate-to-indexdb', () => {
     describe('workspace entity type coverage', () => {
       it('should handle workspace with all required fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test Description',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'env-1',
           cookies: [],
@@ -243,9 +241,27 @@ describe('migrate-to-indexdb', () => {
           },
         }
 
+        const collection: Collection = {
+          uid: 'collection-1' as Collection['uid'],
+          type: 'collection',
+          openapi: '3.1.0',
+          info: { title: 'Test API', version: '1.0' },
+          security: [],
+          'x-scalar-icon': 'interface-content-folder',
+          securitySchemes: [],
+          selectedSecuritySchemeUids: [],
+          servers: [],
+          requests: [],
+          tags: [],
+          children: [],
+          watchMode: false,
+          watchModeStatus: 'IDLE',
+          useCollectionSecurity: false,
+        }
+
         const data: v_2_5_0['DataArray'] = {
           workspaces: [workspace],
-          collections: [],
+          collections: [collection],
           cookies: [],
           environments: [],
           requestExamples: [],
@@ -267,7 +283,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle workspace with minimal fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-minimal' as any,
+          uid: 'workspace-minimal' as Workspace['uid'],
           name: 'Minimal Workspace',
           description: 'Basic Scalar Workspace',
           collections: [],
@@ -306,7 +322,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle workspace without name (fallback to default)', () => {
         const workspace: Workspace = {
-          uid: 'workspace-no-name' as any,
+          uid: 'workspace-no-name' as Workspace['uid'],
           name: '',
           description: 'Basic Scalar Workspace',
           collections: [],
@@ -339,7 +355,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle multiple workspaces', () => {
         const workspace1: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Workspace One',
           description: 'First workspace',
           collections: [],
@@ -351,7 +367,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const workspace2: Workspace = {
-          uid: 'workspace-2' as any,
+          uid: 'workspace-2' as Workspace['uid'],
           name: 'Workspace Two',
           description: 'Second workspace',
           collections: [],
@@ -389,10 +405,10 @@ describe('migrate-to-indexdb', () => {
     describe('collection entity type coverage', () => {
       it('should transform collection with all fields to document', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -401,7 +417,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: {
@@ -435,9 +451,8 @@ describe('migrate-to-indexdb', () => {
           'x-scalar-icon': 'custom-icon',
           'x-scalar-environments': {
             'env-1': {
-              variables: {
-                baseUrl: 'https://api.prod.com',
-              },
+              color: '#FFFFFF',
+              variables: [],
             },
           },
           'x-scalar-secrets': {
@@ -473,25 +488,25 @@ describe('migrate-to-indexdb', () => {
         expect(result).toHaveLength(1)
         const document = result[0]!.workspace.documents['Test API']
         expect(document).toBeDefined()
-        expect(document.openapi).toBe('3.1.0')
-        expect(document.info.title).toBe('Test API')
-        expect(document.info.version).toBe('2.0.0')
-        expect(document.info.description).toBe('Test API Description')
-        expect(document.components).toEqual(collection.components)
-        expect(document.security).toEqual(collection.security)
-        expect(document.webhooks).toEqual(collection.webhooks)
-        expect(document.externalDocs).toEqual(collection.externalDocs)
-        expect(document['x-scalar-icon']).toBe('custom-icon')
+        expect(document!.openapi).toBe('3.1.0')
+        expect(document!.info.title).toBe('Test API')
+        expect(document!.info.version).toBe('2.0.0')
+        expect(document!.info.description).toBe('Test API Description')
+        expect(document!.components).toEqual(collection.components)
+        expect(document!.security).toEqual(collection.security)
+        expect(document!.webhooks).toEqual(collection.webhooks)
+        expect(document!.externalDocs).toEqual(collection.externalDocs)
+        expect(document!['x-scalar-icon']).toBe('custom-icon')
         expect(document['x-scalar-environments']).toEqual(collection['x-scalar-environments'])
         expect(document['x-scalar-secrets']).toEqual(collection['x-scalar-secrets'])
       })
 
       it('should handle collection without info.title (fallback to uid)', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-no-title' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -500,7 +515,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-no-title' as any,
+          uid: 'collection-no-title' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: {
@@ -539,10 +554,10 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle collection with minimal fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-minimal' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -551,7 +566,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-minimal' as any,
+          uid: 'collection-minimal' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: {
@@ -587,21 +602,21 @@ describe('migrate-to-indexdb', () => {
 
         const document = result[0]!.workspace.documents['Minimal API']
         expect(document).toBeDefined()
-        expect(document.openapi).toBe('3.1.0')
-        expect(document.info.title).toBe('Minimal API')
-        expect(document.servers).toEqual([])
-        expect(document.paths).toEqual({})
-        expect(document.components).toEqual({})
-        expect(document.security).toEqual([])
-        expect(document.tags).toEqual([])
+        expect(document!.openapi).toBe('3.1.0')
+        expect(document!.info.title).toBe('Minimal API')
+        expect(document!.servers).toEqual([])
+        expect(document!.paths).toEqual({})
+        expect(document!.components).toEqual({})
+        expect(document!.security).toEqual([])
+        expect(document!.tags).toEqual([])
       })
 
       it('should handle multiple collections', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid'], 'collection-2' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -610,7 +625,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection1: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'API One', version: '1.0' },
@@ -628,7 +643,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection2: Collection = {
-          uid: 'collection-2' as any,
+          uid: 'collection-2' as Collection['uid'],
           type: 'collection',
           openapi: '3.0.0',
           info: { title: 'API Two', version: '2.0' },
@@ -666,10 +681,10 @@ describe('migrate-to-indexdb', () => {
 
       it('should set first collection as active document in meta', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -678,7 +693,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'First API', version: '1.0' },
@@ -720,7 +735,7 @@ describe('migrate-to-indexdb', () => {
     describe('environment entity type coverage', () => {
       it('should transform environments to meta with all fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -732,7 +747,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-1' as any,
+          uid: 'env-1' as Environment['uid'],
           name: 'Production',
           color: '#00FF00',
           value: 'https://api.prod.com',
@@ -755,15 +770,20 @@ describe('migrate-to-indexdb', () => {
 
         expect(result[0]!.workspace.meta['x-scalar-environments']).toEqual({
           'env-1': {
-            name: 'Production',
-            value: 'https://api.prod.com',
+            color: '#00FF00',
+            variables: [
+              {
+                name: 'Production',
+                value: 'https://api.prod.com',
+              },
+            ],
           },
         })
       })
 
       it('should handle environment with minimal fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -775,7 +795,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-minimal' as any,
+          uid: 'env-minimal' as Environment['uid'],
           name: 'Default Environment',
           color: '#FFFFFF',
           value: '',
@@ -797,15 +817,20 @@ describe('migrate-to-indexdb', () => {
 
         expect(result[0]!.workspace.meta['x-scalar-environments']).toEqual({
           'env-minimal': {
-            name: 'Default Environment',
-            value: '',
+            color: '#FFFFFF',
+            variables: [
+              {
+                name: 'Default Environment',
+                value: '',
+              },
+            ],
           },
         })
       })
 
       it('should handle multiple environments', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -817,21 +842,21 @@ describe('migrate-to-indexdb', () => {
         }
 
         const env1: Environment = {
-          uid: 'env-1' as any,
+          uid: 'env-1' as Environment['uid'],
           name: 'Development',
           color: '#0000FF',
           value: 'https://api.dev.com',
         }
 
         const env2: Environment = {
-          uid: 'env-2' as any,
+          uid: 'env-2' as Environment['uid'],
           name: 'Staging',
           color: '#FFFF00',
           value: 'https://api.staging.com',
         }
 
         const env3: Environment = {
-          uid: 'env-3' as any,
+          uid: 'env-3' as Environment['uid'],
           name: 'Production',
           color: '#00FF00',
           value: 'https://api.prod.com',
@@ -853,22 +878,37 @@ describe('migrate-to-indexdb', () => {
 
         expect(Object.keys(result[0]!.workspace.meta['x-scalar-environments'])).toHaveLength(3)
         expect(result[0]!.workspace.meta['x-scalar-environments']['env-1']).toEqual({
-          name: 'Development',
-          value: 'https://api.dev.com',
+          color: '#0000FF',
+          variables: [
+            {
+              name: 'Development',
+              value: 'https://api.dev.com',
+            },
+          ],
         })
         expect(result[0]!.workspace.meta['x-scalar-environments']['env-2']).toEqual({
-          name: 'Staging',
-          value: 'https://api.staging.com',
+          color: '#FFFF00',
+          variables: [
+            {
+              name: 'Staging',
+              value: 'https://api.staging.com',
+            },
+          ],
         })
         expect(result[0]!.workspace.meta['x-scalar-environments']['env-3']).toEqual({
-          name: 'Production',
-          value: 'https://api.prod.com',
+          color: '#00FF00',
+          variables: [
+            {
+              name: 'Production',
+              value: 'https://api.prod.com',
+            },
+          ],
         })
       })
 
       it('should handle environment without value field (fallback to empty string)', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -880,7 +920,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-no-value' as any,
+          uid: 'env-no-value' as Environment['uid'],
           name: 'No Value Env',
           color: '#FFFFFF',
           value: '',
@@ -900,7 +940,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.meta['x-scalar-environments']['env-no-value'].value).toBe('')
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-no-value'].variables[0].value).toBe('')
       })
     })
 
@@ -911,7 +951,7 @@ describe('migrate-to-indexdb', () => {
     describe('cookie entity type coverage', () => {
       it('should transform cookies to meta with all fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -923,7 +963,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-1' as any,
+          uid: 'cookie-1' as Cookie['uid'],
           name: 'session_token',
           value: 'abc123xyz',
           domain: '.example.com',
@@ -944,19 +984,19 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.meta['x-scalar-cookies']).toEqual({
-          'cookie-1': {
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toEqual([
+          {
             name: 'session_token',
             value: 'abc123xyz',
             domain: '.example.com',
             path: '/',
           },
-        })
+        ])
       })
 
       it('should handle cookie with minimal fields', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -968,7 +1008,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-minimal' as any,
+          uid: 'cookie-minimal' as Cookie['uid'],
           name: 'simple_cookie',
           value: 'value123',
         }
@@ -987,17 +1027,19 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-minimal']).toEqual({
-          name: 'simple_cookie',
-          value: 'value123',
-          domain: undefined,
-          path: undefined,
-        })
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toEqual([
+          {
+            name: 'simple_cookie',
+            value: 'value123',
+            domain: undefined,
+            path: undefined,
+          },
+        ])
       })
 
       it('should handle multiple cookies', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1009,7 +1051,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie1: Cookie = {
-          uid: 'cookie-1' as any,
+          uid: 'cookie-1' as Cookie['uid'],
           name: 'auth_token',
           value: 'token1',
           domain: '.example.com',
@@ -1017,7 +1059,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie2: Cookie = {
-          uid: 'cookie-2' as any,
+          uid: 'cookie-2' as Cookie['uid'],
           name: 'user_pref',
           value: 'dark_mode',
           domain: '.example.com',
@@ -1038,14 +1080,14 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0]!.workspace.meta['x-scalar-cookies'])).toHaveLength(2)
-        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-1'].name).toBe('auth_token')
-        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-2'].name).toBe('user_pref')
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toHaveLength(2)
+        expect(result[0]!.workspace.meta['x-scalar-cookies'][0].name).toBe('auth_token')
+        expect(result[0]!.workspace.meta['x-scalar-cookies'][1].name).toBe('user_pref')
       })
 
       it('should handle cookie with empty name and value', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1057,7 +1099,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-empty' as any,
+          uid: 'cookie-empty' as Cookie['uid'],
           name: '',
           value: '',
         }
@@ -1076,12 +1118,14 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-empty']).toEqual({
-          name: '',
-          value: '',
-          domain: undefined,
-          path: undefined,
-        })
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toEqual([
+          {
+            name: '',
+            value: '',
+            domain: undefined,
+            path: undefined,
+          },
+        ])
       })
     })
 
@@ -1092,7 +1136,7 @@ describe('migrate-to-indexdb', () => {
     describe('collections without workspace scenarios', () => {
       it('should create default workspace when collections exist but no workspace', () => {
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Orphan API', version: '1.0' },
@@ -1131,7 +1175,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle multiple collections without workspace', () => {
         const collection1: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'API One', version: '1.0' },
@@ -1149,7 +1193,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection2: Collection = {
-          uid: 'collection-2' as any,
+          uid: 'collection-2' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'API Two', version: '1.0' },
@@ -1187,7 +1231,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should include environments and cookies in default workspace', () => {
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0' },
@@ -1205,14 +1249,14 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-1' as any,
+          uid: 'env-1' as Environment['uid'],
           name: 'Production',
           color: '#00FF00',
           value: 'https://api.prod.com',
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-1' as any,
+          uid: 'cookie-1' as Cookie['uid'],
           name: 'session',
           value: 'xyz',
         }
@@ -1243,10 +1287,10 @@ describe('migrate-to-indexdb', () => {
     describe('complex integration scenarios', () => {
       it('should handle workspace with all entity types', () => {
         const workspace: Workspace = {
-          uid: 'workspace-full' as any,
+          uid: 'workspace-full' as Workspace['uid'],
           name: 'Full Workspace',
           description: 'Complete workspace',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'env-prod',
           cookies: [],
@@ -1256,7 +1300,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: {
@@ -1283,7 +1327,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-prod' as any,
+          uid: 'env-prod' as Environment['uid'],
           name: 'Production',
           color: '#00FF00',
           value: 'https://api.prod.com',
@@ -1291,7 +1335,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-auth' as any,
+          uid: 'cookie-auth' as Cookie['uid'],
           name: 'auth_token',
           value: 'secret123',
           domain: '.example.com',
@@ -1320,16 +1364,16 @@ describe('migrate-to-indexdb', () => {
         expect(result[0]!.workspace.meta['x-scalar-active-proxy']).toBe('https://proxy.example.com')
         expect(result[0]!.workspace.meta['x-scalar-theme']).toBe('deepSpace')
         expect(result[0]!.workspace.meta['x-scalar-environments']['env-prod']).toBeDefined()
-        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-auth']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toBeDefined()
         expect(result[0]!.workspace.meta['x-scalar-active-document']).toBe('Complete API')
       })
 
       it('should handle workspace with multiple collections, environments, and cookies', () => {
         const workspace: Workspace = {
-          uid: 'workspace-multi' as any,
+          uid: 'workspace-multi' as Workspace['uid'],
           name: 'Multi Workspace',
           description: 'Multiple entities',
-          collections: [],
+          collections: ['col-1' as Collection['uid'], 'col-2' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -1339,7 +1383,7 @@ describe('migrate-to-indexdb', () => {
 
         const collections: Collection[] = [
           {
-            uid: 'col-1' as any,
+            uid: 'col-1' as Collection['uid'],
             type: 'collection',
             openapi: '3.1.0',
             info: { title: 'API 1', version: '1.0' },
@@ -1356,7 +1400,7 @@ describe('migrate-to-indexdb', () => {
             useCollectionSecurity: false,
           },
           {
-            uid: 'col-2' as any,
+            uid: 'col-2' as Collection['uid'],
             type: 'collection',
             openapi: '3.1.0',
             info: { title: 'API 2', version: '1.0' },
@@ -1375,13 +1419,13 @@ describe('migrate-to-indexdb', () => {
         ]
 
         const environments: Environment[] = [
-          { uid: 'env-1' as any, name: 'Dev', color: '#0000FF', value: 'https://dev.com' },
-          { uid: 'env-2' as any, name: 'Prod', color: '#00FF00', value: 'https://prod.com' },
+          { uid: 'env-1' as Environment['uid'], name: 'Dev', color: '#0000FF', value: 'https://dev.com' },
+          { uid: 'env-2' as Environment['uid'], name: 'Prod', color: '#00FF00', value: 'https://prod.com' },
         ]
 
         const cookies: Cookie[] = [
-          { uid: 'cookie-1' as any, name: 'c1', value: 'v1' },
-          { uid: 'cookie-2' as any, name: 'c2', value: 'v2' },
+          { uid: 'cookie-1' as Cookie['uid'], name: 'c1', value: 'v1' },
+          { uid: 'cookie-2' as Cookie['uid'], name: 'c2', value: 'v2' },
         ]
 
         const data: v_2_5_0['DataArray'] = {
@@ -1400,7 +1444,7 @@ describe('migrate-to-indexdb', () => {
 
         expect(Object.keys(result[0]!.workspace.documents)).toHaveLength(2)
         expect(Object.keys(result[0]!.workspace.meta['x-scalar-environments'])).toHaveLength(2)
-        expect(Object.keys(result[0]!.workspace.meta['x-scalar-cookies'])).toHaveLength(2)
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toHaveLength(2)
       })
     })
 
@@ -1411,7 +1455,7 @@ describe('migrate-to-indexdb', () => {
     describe('additional entity types (not directly transformed)', () => {
       it('should handle data with Request entities present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1423,7 +1467,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const request: Request = {
-          uid: 'request-1' as any,
+          uid: 'request-1' as Request['uid'],
           type: 'request',
           path: '/users',
           method: 'get',
@@ -1457,7 +1501,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle data with RequestExample entities present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1469,9 +1513,9 @@ describe('migrate-to-indexdb', () => {
         }
 
         const requestExample: RequestExample = {
-          uid: 'example-1' as any,
+          uid: 'example-1' as RequestExample['uid'],
           type: 'requestExample',
-          requestUid: 'request-1' as any,
+          requestUid: 'request-1' as Request['uid'],
           name: 'Example 1',
           body: {
             activeBody: 'raw',
@@ -1509,7 +1553,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle data with Server entities present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1521,7 +1565,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const server: Server = {
-          uid: 'server-1' as any,
+          uid: 'server-1' as Server['uid'],
           url: 'https://api.example.com',
           description: 'Production server',
           variables: {
@@ -1555,7 +1599,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle data with Tag entities present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1567,7 +1611,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const tag: Tag = {
-          uid: 'tag-1' as any,
+          uid: 'tag-1' as Tag['uid'],
           type: 'tag',
           name: 'Users',
           description: 'User management endpoints',
@@ -1599,7 +1643,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle data with SecurityScheme entities present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1611,7 +1655,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const securityScheme: SecurityScheme = {
-          uid: 'security-1' as any,
+          uid: 'security-1' as SecurityScheme['uid'],
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
@@ -1643,10 +1687,10 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle data with all entity types present', () => {
         const workspace: Workspace = {
-          uid: 'workspace-all' as any,
+          uid: 'workspace-all' as Workspace['uid'],
           name: 'All Entities Workspace',
           description: 'Test all',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -1655,7 +1699,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0' },
@@ -1673,20 +1717,20 @@ describe('migrate-to-indexdb', () => {
         }
 
         const environment: Environment = {
-          uid: 'env-1' as any,
+          uid: 'env-1' as Environment['uid'],
           name: 'Prod',
           color: '#00FF00',
           value: 'https://api.com',
         }
 
         const cookie: Cookie = {
-          uid: 'cookie-1' as any,
+          uid: 'cookie-1' as Cookie['uid'],
           name: 'session',
           value: 'abc',
         }
 
         const request: Request = {
-          uid: 'request-1' as any,
+          uid: 'request-1' as Request['uid'],
           type: 'request',
           path: '/test',
           method: 'get',
@@ -1697,7 +1741,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const requestExample: RequestExample = {
-          uid: 'example-1' as any,
+          uid: 'example-1' as RequestExample['uid'],
           type: 'requestExample',
           name: 'Test Example',
           body: { activeBody: 'raw' },
@@ -1710,19 +1754,19 @@ describe('migrate-to-indexdb', () => {
         }
 
         const server: Server = {
-          uid: 'server-1' as any,
+          uid: 'server-1' as Server['uid'],
           url: 'https://api.example.com',
         }
 
         const tag: Tag = {
-          uid: 'tag-1' as any,
+          uid: 'tag-1' as Tag['uid'],
           type: 'tag',
           name: 'Test',
           children: [],
         }
 
         const securityScheme: SecurityScheme = {
-          uid: 'security-1' as any,
+          uid: 'security-1' as SecurityScheme['uid'],
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
@@ -1760,10 +1804,10 @@ describe('migrate-to-indexdb', () => {
     describe('edge cases and error handling', () => {
       it('should handle collection with OpenAPI 3.0.0', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -1772,7 +1816,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.0.0',
           info: { title: 'Old API', version: '1.0' },
@@ -1803,15 +1847,15 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.documents['Old API'].openapi).toBe('3.0.0')
+        expect(result[0]!.workspace.documents['Old API']!.openapi).toBe('3.0.0')
       })
 
       it('should handle collection without openapi field (fallback to 3.1.0)', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -1820,7 +1864,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Partial<Collection> = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           info: { title: 'No Version API', version: '1.0' },
           security: [],
@@ -1850,15 +1894,15 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.documents['No Version API'].openapi).toBe('3.1.0')
+        expect(result[0]!.workspace.documents['No Version API']!.openapi).toBe('3.1.0')
       })
 
       it('should handle collection without info field (fallback to defaults)', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-no-info' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -1867,7 +1911,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Partial<Collection> = {
-          uid: 'collection-no-info' as any,
+          uid: 'collection-no-info' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           security: [],
@@ -1898,13 +1942,13 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         const document = result[0]!.workspace.documents['collection-no-info']
-        expect(document.info.title).toBe('collection-no-info')
-        expect(document.info.version).toBe('1.0')
+        expect(document!.info.title).toBe('collection-no-info')
+        expect(document!.info.version).toBe('1.0')
       })
 
       it('should handle workspace without activeEnvironmentId', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1935,7 +1979,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle workspace without proxyUrl', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1965,7 +2009,7 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle workspace without themeId', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -1996,10 +2040,10 @@ describe('migrate-to-indexdb', () => {
 
       it('should create documentConfigs for all documents', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['col-1' as Collection['uid'], 'col-2' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -2008,7 +2052,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection1: Collection = {
-          uid: 'col-1' as any,
+          uid: 'col-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'API 1', version: '1.0' },
@@ -2026,7 +2070,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection2: Collection = {
-          uid: 'col-2' as any,
+          uid: 'col-2' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'API 2', version: '1.0' },
@@ -2058,17 +2102,13 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(Object.keys(result[0]!.workspace.documentConfigs)).toHaveLength(2)
-        expect(result[0]!.workspace.documentConfigs['API 1']).toEqual({
-          selectedServerUid: null,
-        })
-        expect(result[0]!.workspace.documentConfigs['API 2']).toEqual({
-          selectedServerUid: null,
-        })
+        expect(result[0]!.workspace.documentConfigs['API 1']).toEqual({})
+        expect(result[0]!.workspace.documentConfigs['API 2']).toEqual({})
       })
 
       it('should initialize originalDocuments, intermediateDocuments, and overrides as empty objects', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
           collections: [],
@@ -2105,10 +2145,10 @@ describe('migrate-to-indexdb', () => {
     describe('collection with special extensions', () => {
       it('should preserve x-scalar-icon in document', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -2117,7 +2157,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Icon API', version: '1.0' },
@@ -2148,15 +2188,15 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0]!.workspace.documents['Icon API']['x-scalar-icon']).toBe('custom-icon-name')
+        expect(result[0]!.workspace.documents['Icon API']!['x-scalar-icon']).toBe('custom-icon-name')
       })
 
       it('should preserve x-scalar-environments in document', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -2165,15 +2205,14 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Env API', version: '1.0' },
           'x-scalar-environments': {
             'env-1': {
-              variables: {
-                baseUrl: 'http://localhost:3000',
-              },
+              color: '#FFFFFF',
+              variables: [],
             },
           },
           security: [],
@@ -2205,19 +2244,18 @@ describe('migrate-to-indexdb', () => {
 
         expect(result[0]!.workspace.documents['Env API']['x-scalar-environments']).toEqual({
           'env-1': {
-            variables: {
-              baseUrl: 'http://localhost:3000',
-            },
+            color: '#FFFFFF',
+            variables: [],
           },
         })
       })
 
       it('should preserve x-scalar-secrets in document', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -2226,7 +2264,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Secrets API', version: '1.0' },
@@ -2273,10 +2311,10 @@ describe('migrate-to-indexdb', () => {
 
       it('should handle collection with undefined optional extensions', () => {
         const workspace: Workspace = {
-          uid: 'workspace-1' as any,
+          uid: 'workspace-1' as Workspace['uid'],
           name: 'Test Workspace',
           description: 'Test',
-          collections: [],
+          collections: ['collection-1' as Collection['uid']],
           environments: {},
           activeEnvironmentId: 'default',
           cookies: [],
@@ -2285,7 +2323,7 @@ describe('migrate-to-indexdb', () => {
         }
 
         const collection: Collection = {
-          uid: 'collection-1' as any,
+          uid: 'collection-1' as Collection['uid'],
           type: 'collection',
           openapi: '3.1.0',
           info: { title: 'Plain API', version: '1.0' },
@@ -2318,7 +2356,7 @@ describe('migrate-to-indexdb', () => {
 
         const document = result[0]!.workspace.documents['Plain API']
         // x-scalar-icon has a default value, so it will always be present
-        expect(document['x-scalar-icon']).toBe('interface-content-folder')
+        expect(document!['x-scalar-icon']).toBe('interface-content-folder')
         expect(document['x-scalar-environments']).toBeUndefined()
         expect(document['x-scalar-secrets']).toBeUndefined()
       })

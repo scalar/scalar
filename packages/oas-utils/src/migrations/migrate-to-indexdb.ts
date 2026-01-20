@@ -1,3 +1,14 @@
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
+import type { Config } from '@scalar/workspace-store/schemas/workspace-specification/config'
+
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
@@ -35,13 +46,13 @@ export const shouldMigrateToIndexDb = (): boolean => {
  */
 export const transformLegacyDataToWorkspace = (
   legacyData: v_2_5_0['DataArray'],
-): Array<{ id: string; name: string; workspace: any }> => {
+): Array<{ id: string; name: string; workspace: InMemoryWorkspace }> => {
   const workspaceMap = new Map<
     string,
     {
       id: string
       name: string
-      workspace: any
+      workspace: InMemoryWorkspace
     }
   >()
 
@@ -50,20 +61,19 @@ export const transformLegacyDataToWorkspace = (
     legacyData.workspaces.forEach((workspace) => {
       // Find collections that belong to this workspace
       // In the old system, collections are essentially OpenAPI documents
-      const workspaceCollections = legacyData.collections.filter(() => {
-        // Collections might have a workspace reference or we treat all as belonging to first workspace
-        return true
-      })
+      const workspaceCollections = legacyData.collections.filter((collection) =>
+        workspace.collections.includes(collection.uid),
+      )
 
       // Create documents from collections
       // Each collection becomes a document in the new system
-      const documents: Record<string, any> = {}
+      const documents: Record<string, OpenApiDocument> = {}
 
       workspaceCollections.forEach((collection) => {
         // The collection IS the OpenAPI document (not wrapped in a spec property)
         const documentName = collection.info?.title || collection.uid
 
-        documents[documentName] = {
+        documents[documentName] = coerceValue(OpenAPIDocumentSchema, {
           openapi: collection.openapi || '3.1.0',
           info: collection.info || {
             title: documentName,
@@ -80,23 +90,18 @@ export const transformLegacyDataToWorkspace = (
           'x-scalar-icon': collection['x-scalar-icon'],
           'x-scalar-environments': collection['x-scalar-environments'],
           'x-scalar-secrets': collection['x-scalar-secrets'],
-        }
+          'x-scalar-original-document-hash': '',
+        })
       })
 
-      // If no collections, create a blank document
-      if (Object.keys(documents).length === 0) {
-        documents.default = {
-          openapi: '3.1.0',
-          info: {
-            title: 'API',
-            version: '1.0',
-          },
-          paths: {},
-        }
-      }
-
       // Build workspace meta from old workspace data
-      const meta: any = {}
+      const meta: WorkspaceMeta & {
+        'x-scalar-environments'?: Record<string, XScalarEnvironment>
+        'x-scalar-active-environment'?: string
+        'x-scalar-cookies'?: XScalarCookie[]
+        'x-scalar-active-proxy'?: string
+        'x-scalar-active-document'?: string
+      } = {}
 
       // Map old workspace properties to new meta structure
       // Note: activeCollection was removed in favor of activeDocument
@@ -114,13 +119,18 @@ export const transformLegacyDataToWorkspace = (
         meta['x-scalar-environments'] = legacyData.environments.reduce(
           (acc, env) => {
             acc[env.uid] = {
-              name: env.name,
-              // Old environment structure had a 'value' field, not 'variables'
-              value: env.value || '',
+              color: env.color || '#FFFFFF',
+              variables: [
+                {
+                  name: env.name || 'Default Environment',
+                  // Old environment structure had a 'value' field, not 'variables'
+                  value: env.value || '',
+                },
+              ],
             }
             return acc
           },
-          {} as Record<string, any>,
+          {} as Record<string, XScalarEnvironment>,
         )
       }
 
@@ -131,18 +141,12 @@ export const transformLegacyDataToWorkspace = (
 
       // Add cookies to meta
       if (legacyData.cookies.length > 0) {
-        meta['x-scalar-cookies'] = legacyData.cookies.reduce(
-          (acc, cookie) => {
-            acc[cookie.uid] = {
-              name: cookie.name,
-              value: cookie.value,
-              domain: cookie.domain,
-              path: cookie.path,
-            }
-            return acc
-          },
-          {} as Record<string, any>,
-        )
+        meta['x-scalar-cookies'] = legacyData.cookies.map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+        }))
       }
 
       // Add proxy URL if present
@@ -166,12 +170,10 @@ export const transformLegacyDataToWorkspace = (
           overrides: {},
           documentConfigs: Object.keys(documents).reduce(
             (acc, docName) => {
-              acc[docName] = {
-                selectedServerUid: null,
-              }
+              acc[docName] = {}
               return acc
             },
-            {} as Record<string, any>,
+            {} as Record<string, Config>,
           ),
         },
       })
@@ -180,7 +182,7 @@ export const transformLegacyDataToWorkspace = (
 
   // Handle case where there are collections but no workspace
   if (workspaceMap.size === 0 && legacyData.collections.length > 0) {
-    const documents: Record<string, any> = {}
+    const documents: Record<string, OpenApiDocument> = {}
 
     legacyData.collections.forEach((collection) => {
       const documentName = collection.info?.title || collection.uid
@@ -201,7 +203,8 @@ export const transformLegacyDataToWorkspace = (
         'x-scalar-icon': collection['x-scalar-icon'],
         'x-scalar-environments': collection['x-scalar-environments'],
         'x-scalar-secrets': collection['x-scalar-secrets'],
-      }
+        'x-scalar-original-document-hash': '',
+      } as OpenApiDocument
     })
 
     // If still no documents, create a default one
@@ -213,38 +216,41 @@ export const transformLegacyDataToWorkspace = (
           version: '1.0',
         },
         paths: {},
-      }
+        'x-scalar-original-document-hash': '',
+      } as OpenApiDocument
     }
 
     // Build meta from environments and cookies
-    const meta: any = {}
+    const meta: WorkspaceMeta & {
+      'x-scalar-environments'?: Record<string, XScalarEnvironment>
+      'x-scalar-cookies'?: XScalarCookie[]
+    } = {}
 
     if (legacyData.environments.length > 0) {
       meta['x-scalar-environments'] = legacyData.environments.reduce(
         (acc, env) => {
           acc[env.uid] = {
-            name: env.name,
-            value: env.value || '',
+            color: env.color || '#FFFFFF',
+            variables: [
+              {
+                name: env.name || 'Default Environment',
+                value: env.value || '',
+              },
+            ],
           }
           return acc
         },
-        {} as Record<string, any>,
+        {} as Record<string, XScalarEnvironment>,
       )
     }
 
     if (legacyData.cookies.length > 0) {
-      meta['x-scalar-cookies'] = legacyData.cookies.reduce(
-        (acc, cookie) => {
-          acc[cookie.uid] = {
-            name: cookie.name,
-            value: cookie.value,
-            domain: cookie.domain,
-            path: cookie.path,
-          }
-          return acc
-        },
-        {} as Record<string, any>,
-      )
+      meta['x-scalar-cookies'] = legacyData.cookies.map((cookie) => ({
+        name: cookie.name,
+        value: cookie.value,
+        domain: cookie.domain,
+        path: cookie.path,
+      }))
     }
 
     workspaceMap.set('default', {
@@ -256,15 +262,7 @@ export const transformLegacyDataToWorkspace = (
         originalDocuments: {},
         intermediateDocuments: {},
         overrides: {},
-        documentConfigs: Object.keys(documents).reduce(
-          (acc, docName) => {
-            acc[docName] = {
-              selectedServerUid: null,
-            }
-            return acc
-          },
-          {} as Record<string, any>,
-        ),
+        documentConfigs: {},
       },
     })
   }
@@ -284,15 +282,14 @@ export const transformLegacyDataToWorkspace = (
               version: '1.0',
             },
             paths: {},
-          },
+            'x-scalar-original-document-hash': '',
+          } as OpenApiDocument,
         },
         originalDocuments: {},
         intermediateDocuments: {},
         overrides: {},
         documentConfigs: {
-          default: {
-            selectedServerUid: null,
-          },
+          default: {},
         },
       },
     })
@@ -327,7 +324,7 @@ export const markMigrationComplete = (): void => {
  */
 export const migrateLocalStorageToIndexDb = async (persistence: {
   workspace: {
-    setItem: (id: string, value: { name: string; workspace: any }) => Promise<void>
+    setItem: (id: string, value: { name: string; workspace: InMemoryWorkspace }) => Promise<void>
   }
 }): Promise<void> => {
   if (!shouldMigrateToIndexDb()) {
