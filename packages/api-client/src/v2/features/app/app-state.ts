@@ -3,6 +3,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -109,6 +110,12 @@ const { workspace: persistence } = await createWorkspaceStorePersistence()
 
 /** Generates a workspace ID from namespace and slug. */
 const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
+
+/**
+ * Run migration from localStorage to IndexedDB if needed
+ * This happens once per user and transforms old data structure to new workspace format
+ */
+await migrateLocalStorageToIndexDb({ workspace: persistence })
 
 /** Update the workspace list when the component is mounted */
 workspaces.value = await persistence.getAll().then((w) =>
