@@ -4,7 +4,7 @@ import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -69,18 +69,31 @@ const emits = defineEmits<{
 
 const router = useRouter()
 
-// Track local state for the row
+/**
+ * Track local state for the row
+ *
+ * Now this is required because of the way we get default values from the schema.
+ * If we have a default value in data.value, then we update isDisabled to true. We lose the default value since now
+ * we have an example where value: ''. This is why we need to track the local state and update all of the params at the
+ * same time.
+ */
 const name = ref<string>(data.name ?? '')
 const value = ref<string | File>(unpackProxyObject(data.value) ?? '')
 const isDisabled = ref<boolean>(data.isDisabled ?? false)
 
-// Sync local state when data prop changes using watchEffect
-watchEffect(() => {
-  console.log('watchEffect triggered', data)
-  name.value = data.name ?? ''
-  value.value = unpackProxyObject(data.value) ?? ''
-  isDisabled.value = data.isDisabled ?? false
-})
+// Keep the above state synced with the data prop
+watch(
+  () => data.name,
+  (newName) => (name.value = newName ?? ''),
+)
+watch(
+  () => data.value,
+  (newValue) => (value.value = newValue ?? ''),
+)
+watch(
+  () => data.isDisabled,
+  (newIsDisabled) => (isDisabled.value = newIsDisabled ?? false),
+)
 
 /** Check if the value is a File instance */
 const isFile = computed(() => value.value instanceof File)

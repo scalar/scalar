@@ -32,6 +32,7 @@ const emits = defineEmits<{
     payload: Partial<{
       name: string
       value: string | File
+      index: number
       isDisabled: boolean
     }>,
   ): void

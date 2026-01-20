@@ -22,16 +22,22 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { name?: string; value?: string }) =>
-      eventBus.emit('operation:add:parameter', {
-        type,
-        payload: {
-          name: payload.name ?? '',
-          value: payload.value ?? '',
-          isDisabled: false,
+    add: (payload: { name: string; value: string; index: number }) =>
+      eventBus.emit(
+        'operation:add:parameter',
+        {
+          type,
+          payload: {
+            name: payload.name ?? '',
+            value: payload.value ?? '',
+            isDisabled: false,
+          },
+          meta,
         },
-        meta,
-      }),
+        {
+          debounceKey: `add:parameter-${type}-${payload.index}`,
+        },
+      ),
     delete: (payload: { index: number }) =>
       eventBus.emit('operation:delete:parameter', {
         type,
@@ -67,7 +73,7 @@ export const createParameterHandlers = (
             meta,
           },
           {
-            debounceKey: `update:parameter-${type}-${payload.index}-${Object.keys(payload.payload).join('-')}`,
+            debounceKey: `update:parameter-${type}-${payload.index}`,
           },
         )
       }
