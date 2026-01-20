@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-fix: replace start with named exports
+fix: replace star with named exports
