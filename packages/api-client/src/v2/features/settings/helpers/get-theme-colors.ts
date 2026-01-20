@@ -1,9 +1,7 @@
-import type { IntegrationThemeId, ThemeId } from '@scalar/themes'
+import type { ThemeId } from '@scalar/themes'
 
-type Themes = Exclude<ThemeId, IntegrationThemeId>
-
-export const getThemeColors = (themeId: Themes): { light: string; dark: string; accent: string } => {
-  const colors: Record<Themes, { light: string; dark: string; accent: string }> = {
+export const getThemeColors = (themeId: ThemeId): { light: string; dark: string; accent: string } => {
+  const colors: Record<ThemeId, { light: string; dark: string; accent: string }> = {
     default: { light: '#fff', dark: '#0f0f0f', accent: '#0099ff' },
     alternate: { light: '#f9f9f9', dark: '#131313', accent: '#e7e7e7' },
     moon: { light: '#ccc9b3', dark: '#313332', accent: '#645b0f' },
@@ -15,6 +13,7 @@ export const getThemeColors = (themeId: Themes): { light: string; dark: string; 
     mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
     deepSpace: { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
     laserwave: { light: '#f4f2f7', dark: '#27212e', accent: '#ed78c2' },
+    elysiajs: { light: '#f8f8f8', dark: '#1a1a2e', accent: '#7c9ef7' },
     none: { light: '#ffffff', dark: '#000000', accent: '#3b82f6' },
   }
   return colors[themeId] || { light: '#ffffff', dark: '#000000', accent: '#3b82f6' }

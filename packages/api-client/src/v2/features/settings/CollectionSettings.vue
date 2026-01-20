@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
-import {
-  themeLabels,
-  type IntegrationThemeId,
-  type ThemeId,
-} from '@scalar/themes'
-
-import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
+import { themeLabels, type ThemeId } from '@scalar/themes'
 
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
@@ -29,7 +23,7 @@ const emit = defineEmits<{
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
-const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
+const themeIds: ThemeId[] = [
   'default',
   'alternate',
   'purple',
@@ -37,8 +31,6 @@ const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   'saturn',
   'kepler',
 ]
-
-const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']
 
 const buttonStyles = cva({
   base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border',
@@ -196,50 +188,6 @@ const buttonStyles = cva({
             </div>
           </ScalarButton>
         </div>
-      </div>
-    </Section>
-
-    <!-- Frameworks -->
-    <Section>
-      <template #title> Framework Themes </template>
-      <template #description>
-        Are you a real fan? Show your support by using your favorite framework's
-        theme!
-      </template>
-
-      <div class="grid grid-cols-2 gap-2">
-        <ScalarButton
-          v-for="themeId in integrationThemeIds"
-          :key="themeId"
-          :class="
-            cx(
-              buttonStyles({
-                active: activeThemeId === themeId,
-              }),
-            )
-          "
-          @click="emit('update:themeId', themeId)">
-          <div class="flex items-center gap-2">
-            <div
-              class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
-              :class="{
-                'bg-c-accent text-b-1 border-transparent':
-                  activeThemeId === themeId,
-              }">
-              <ScalarIcon
-                v-if="activeThemeId === themeId"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
-            </div>
-            {{ themeLabels[themeId] }}
-          </div>
-          <div class="flex items-center gap-1">
-            <div class="size-7 rounded-xl">
-              <IntegrationLogo :integration="themeId" />
-            </div>
-          </div>
-        </ScalarButton>
       </div>
     </Section>
 

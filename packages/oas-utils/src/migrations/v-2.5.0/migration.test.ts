@@ -40,7 +40,7 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
     expect(result.requestExamples.example1!.parameters.headers[0]!.key).toBe('Accept')
     expect(result.requestExamples.example1!.parameters.headers[0]!.value).toBe('*/*')
   })
@@ -82,7 +82,7 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
     expect(result.requestExamples.example2!.parameters.headers.length).toBe(2)
     expect(result.requestExamples.example2!.parameters.headers[0]!.key).toBe('Accept')
     expect(result.requestExamples.example2!.parameters.headers[0]!.value).toBe('application/json')
@@ -121,7 +121,7 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
     expect(result.workspaces.default!.selectedHttpClient).toEqual({
       targetKey: 'shell',
       clientKey: 'curl',
