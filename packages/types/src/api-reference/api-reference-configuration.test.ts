@@ -73,8 +73,6 @@ describe('api-reference-configuration', () => {
         'deepSpace',
         'saturn',
         'kepler',
-        'elysiajs',
-        'fastify',
         'mars',
         'none',
       ]
