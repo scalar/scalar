@@ -1084,6 +1084,11 @@
             "mode": "nested",
             "icon": "phosphor/regular/caret-circle-right",
             "children": {
+              "swagger-ui": {
+                "title": "Swagger UI",
+                "filepath": "documentation/migration/swagger-ui.md",
+                "type": "page"
+              },
               "stoplight": {
                 "title": "Stoplight",
                 "filepath": "documentation/migration/stoplight.md",
