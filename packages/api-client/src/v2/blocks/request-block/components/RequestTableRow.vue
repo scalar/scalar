@@ -88,7 +88,7 @@ watch(
 )
 watch(
   () => data.value,
-  (newValue) => (value.value = newValue ?? ''),
+  (newValue) => (value.value = unpackProxyObject(newValue) ?? ''),
 )
 watch(
   () => data.isDisabled,
