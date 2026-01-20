@@ -1,5 +1,5 @@
 import type { SecurityScheme } from '@scalar/types/entities'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import type { Cookie } from '@/entities/cookie/cookie'
 import type { Environment } from '@/entities/environment/environment'
@@ -236,8 +236,8 @@ describe('migrate-to-indexdb', () => {
           activeEnvironmentId: 'env-1',
           cookies: [],
           proxyUrl: 'https://proxy.example.com',
-          themeId: 'dark',
-          selectedSnippetClient: {
+          themeId: 'deepSpace',
+          selectedHttpClient: {
             targetKey: 'javascript',
             clientKey: 'fetch',
           },
@@ -258,11 +258,11 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
-        expect(result[0].name).toBe('Test Workspace')
-        expect(result[0].workspace.meta['x-scalar-active-environment']).toBe('env-1')
-        expect(result[0].workspace.meta['x-scalar-active-proxy']).toBe('https://proxy.example.com')
-        expect(result[0].workspace.meta['x-scalar-theme']).toBe('dark')
+        expect(result[0]!.id).toBe('workspace-1')
+        expect(result[0]!.name).toBe('Test Workspace')
+        expect(result[0]!.workspace.meta['x-scalar-active-environment']).toBe('env-1')
+        expect(result[0]!.workspace.meta['x-scalar-active-proxy']).toBe('https://proxy.example.com')
+        expect(result[0]!.workspace.meta['x-scalar-theme']).toBe('deepSpace')
       })
 
       it('should handle workspace with minimal fields', () => {
@@ -272,8 +272,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Basic Scalar Workspace',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: {
+          themeId: 'default',
+          selectedHttpClient: {
             targetKey: 'shell',
             clientKey: 'curl',
           },
@@ -294,10 +296,12 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-minimal')
-        expect(result[0].workspace.meta).not.toHaveProperty('x-scalar-active-environment')
-        expect(result[0].workspace.meta).not.toHaveProperty('x-scalar-active-proxy')
-        expect(result[0].workspace.meta).not.toHaveProperty('x-scalar-theme')
+        expect(result[0]!.id).toBe('workspace-minimal')
+        // activeEnvironmentId has a default value of 'default', so it will be in meta
+        expect(result[0]!.workspace.meta['x-scalar-active-environment']).toBe('default')
+        expect(result[0]!.workspace.meta).not.toHaveProperty('x-scalar-active-proxy')
+        // themeId has a default value of 'default', so it will be in meta
+        expect(result[0]!.workspace.meta['x-scalar-theme']).toBe('default')
       })
 
       it('should handle workspace without name (fallback to default)', () => {
@@ -307,8 +311,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Basic Scalar Workspace',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: {
+          themeId: 'default',
+          selectedHttpClient: {
             targetKey: 'shell',
             clientKey: 'curl',
           },
@@ -328,7 +334,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].name).toBe('Workspace')
+        expect(result[0]!.name).toBe('Workspace')
       })
 
       it('should handle multiple workspaces', () => {
@@ -338,8 +344,10 @@ describe('migrate-to-indexdb', () => {
           description: 'First workspace',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const workspace2: Workspace = {
@@ -348,8 +356,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Second workspace',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -367,8 +377,8 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(2)
-        expect(result[0].id).toBe('workspace-1')
-        expect(result[1].id).toBe('workspace-2')
+        expect(result[0]!.id).toBe('workspace-1')
+        expect(result[1]!.id).toBe('workspace-2')
       })
     })
 
@@ -384,8 +394,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -423,14 +435,14 @@ describe('migrate-to-indexdb', () => {
           'x-scalar-icon': 'custom-icon',
           'x-scalar-environments': {
             'env-1': {
-              name: 'Production',
-              value: 'https://api.prod.com',
+              variables: {
+                baseUrl: 'https://api.prod.com',
+              },
             },
           },
           'x-scalar-secrets': {
             'secret-1': {
-              name: 'API Key',
-              value: 'secret-value',
+              example: 'secret-value',
             },
           },
           securitySchemes: [],
@@ -440,6 +452,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -458,7 +471,7 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        const document = result[0].workspace.documents['Test API']
+        const document = result[0]!.workspace.documents['Test API']
         expect(document).toBeDefined()
         expect(document.openapi).toBe('3.1.0')
         expect(document.info.title).toBe('Test API')
@@ -480,8 +493,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -493,6 +508,7 @@ describe('migrate-to-indexdb', () => {
             version: '1.0',
           },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -500,6 +516,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -517,7 +534,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['collection-no-title']).toBeDefined()
+        expect(result[0]!.workspace.documents['collection-no-title']).toBeDefined()
       })
 
       it('should handle collection with minimal fields', () => {
@@ -527,8 +544,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -540,6 +559,7 @@ describe('migrate-to-indexdb', () => {
             version: '1.0',
           },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -547,6 +567,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -564,7 +585,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        const document = result[0].workspace.documents['Minimal API']
+        const document = result[0]!.workspace.documents['Minimal API']
         expect(document).toBeDefined()
         expect(document.openapi).toBe('3.1.0')
         expect(document.info.title).toBe('Minimal API')
@@ -582,8 +603,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection1: Collection = {
@@ -592,6 +615,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'API One', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -599,6 +623,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -608,6 +633,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.0.0',
           info: { title: 'API Two', version: '2.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -615,6 +641,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -632,9 +659,9 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0].workspace.documents)).toHaveLength(2)
-        expect(result[0].workspace.documents['API One']).toBeDefined()
-        expect(result[0].workspace.documents['API Two']).toBeDefined()
+        expect(Object.keys(result[0]!.workspace.documents)).toHaveLength(2)
+        expect(result[0]!.workspace.documents['API One']).toBeDefined()
+        expect(result[0]!.workspace.documents['API Two']).toBeDefined()
       })
 
       it('should set first collection as active document in meta', () => {
@@ -644,8 +671,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -654,6 +683,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'First API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -661,6 +691,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -678,7 +709,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-active-document']).toBe('First API')
+        expect(result[0]!.workspace.meta['x-scalar-active-document']).toBe('First API')
       })
     })
 
@@ -694,13 +725,16 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const environment: Environment = {
           uid: 'env-1' as any,
           name: 'Production',
+          color: '#00FF00',
           value: 'https://api.prod.com',
           isDefault: true,
         }
@@ -719,7 +753,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-environments']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-environments']).toEqual({
           'env-1': {
             name: 'Production',
             value: 'https://api.prod.com',
@@ -734,13 +768,16 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const environment: Environment = {
           uid: 'env-minimal' as any,
           name: 'Default Environment',
+          color: '#FFFFFF',
           value: '',
         }
 
@@ -758,7 +795,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-environments']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-environments']).toEqual({
           'env-minimal': {
             name: 'Default Environment',
             value: '',
@@ -773,25 +810,30 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const env1: Environment = {
           uid: 'env-1' as any,
           name: 'Development',
+          color: '#0000FF',
           value: 'https://api.dev.com',
         }
 
         const env2: Environment = {
           uid: 'env-2' as any,
           name: 'Staging',
+          color: '#FFFF00',
           value: 'https://api.staging.com',
         }
 
         const env3: Environment = {
           uid: 'env-3' as any,
           name: 'Production',
+          color: '#00FF00',
           value: 'https://api.prod.com',
         }
 
@@ -809,16 +851,16 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0].workspace.meta['x-scalar-environments'])).toHaveLength(3)
-        expect(result[0].workspace.meta['x-scalar-environments']['env-1']).toEqual({
+        expect(Object.keys(result[0]!.workspace.meta['x-scalar-environments'])).toHaveLength(3)
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-1']).toEqual({
           name: 'Development',
           value: 'https://api.dev.com',
         })
-        expect(result[0].workspace.meta['x-scalar-environments']['env-2']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-2']).toEqual({
           name: 'Staging',
           value: 'https://api.staging.com',
         })
-        expect(result[0].workspace.meta['x-scalar-environments']['env-3']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-3']).toEqual({
           name: 'Production',
           value: 'https://api.prod.com',
         })
@@ -831,13 +873,16 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const environment: Environment = {
           uid: 'env-no-value' as any,
           name: 'No Value Env',
+          color: '#FFFFFF',
           value: '',
         }
 
@@ -855,7 +900,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-environments']['env-no-value'].value).toBe('')
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-no-value'].value).toBe('')
       })
     })
 
@@ -871,8 +916,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const cookie: Cookie = {
@@ -897,7 +944,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-cookies']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toEqual({
           'cookie-1': {
             name: 'session_token',
             value: 'abc123xyz',
@@ -914,8 +961,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const cookie: Cookie = {
@@ -938,7 +987,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-cookies']['cookie-minimal']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-minimal']).toEqual({
           name: 'simple_cookie',
           value: 'value123',
           domain: undefined,
@@ -953,8 +1002,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const cookie1: Cookie = {
@@ -987,9 +1038,9 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0].workspace.meta['x-scalar-cookies'])).toHaveLength(2)
-        expect(result[0].workspace.meta['x-scalar-cookies']['cookie-1'].name).toBe('auth_token')
-        expect(result[0].workspace.meta['x-scalar-cookies']['cookie-2'].name).toBe('user_pref')
+        expect(Object.keys(result[0]!.workspace.meta['x-scalar-cookies'])).toHaveLength(2)
+        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-1'].name).toBe('auth_token')
+        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-2'].name).toBe('user_pref')
       })
 
       it('should handle cookie with empty name and value', () => {
@@ -999,8 +1050,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const cookie: Cookie = {
@@ -1023,7 +1076,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-cookies']['cookie-empty']).toEqual({
+        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-empty']).toEqual({
           name: '',
           value: '',
           domain: undefined,
@@ -1044,6 +1097,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'Orphan API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1051,6 +1105,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1069,9 +1124,9 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('default')
-        expect(result[0].name).toBe('Default Workspace')
-        expect(result[0].workspace.documents['Orphan API']).toBeDefined()
+        expect(result[0]!.id).toBe('default')
+        expect(result[0]!.name).toBe('Default Workspace')
+        expect(result[0]!.workspace.documents['Orphan API']).toBeDefined()
       })
 
       it('should handle multiple collections without workspace', () => {
@@ -1081,6 +1136,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'API One', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1088,6 +1144,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1097,6 +1154,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'API Two', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1104,6 +1162,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1122,8 +1181,8 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('default')
-        expect(Object.keys(result[0].workspace.documents)).toHaveLength(2)
+        expect(result[0]!.id).toBe('default')
+        expect(Object.keys(result[0]!.workspace.documents)).toHaveLength(2)
       })
 
       it('should include environments and cookies in default workspace', () => {
@@ -1133,6 +1192,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1140,12 +1200,14 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
         const environment: Environment = {
           uid: 'env-1' as any,
           name: 'Production',
+          color: '#00FF00',
           value: 'https://api.prod.com',
         }
 
@@ -1169,8 +1231,8 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-environments']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-cookies']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-environments']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toBeDefined()
       })
     })
 
@@ -1189,8 +1251,8 @@ describe('migrate-to-indexdb', () => {
           activeEnvironmentId: 'env-prod',
           cookies: [],
           proxyUrl: 'https://proxy.example.com',
-          themeId: 'dark',
-          selectedSnippetClient: { targetKey: 'javascript', clientKey: 'axios' },
+          themeId: 'deepSpace',
+          selectedHttpClient: { targetKey: 'javascript', clientKey: 'axios' },
         }
 
         const collection: Collection = {
@@ -1216,12 +1278,14 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
         const environment: Environment = {
           uid: 'env-prod' as any,
           name: 'Production',
+          color: '#00FF00',
           value: 'https://api.prod.com',
           isDefault: true,
         }
@@ -1249,15 +1313,15 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-full')
-        expect(result[0].name).toBe('Full Workspace')
-        expect(result[0].workspace.documents['Complete API']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-active-environment']).toBe('env-prod')
-        expect(result[0].workspace.meta['x-scalar-active-proxy']).toBe('https://proxy.example.com')
-        expect(result[0].workspace.meta['x-scalar-theme']).toBe('dark')
-        expect(result[0].workspace.meta['x-scalar-environments']['env-prod']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-cookies']['cookie-auth']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-active-document']).toBe('Complete API')
+        expect(result[0]!.id).toBe('workspace-full')
+        expect(result[0]!.name).toBe('Full Workspace')
+        expect(result[0]!.workspace.documents['Complete API']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-active-environment']).toBe('env-prod')
+        expect(result[0]!.workspace.meta['x-scalar-active-proxy']).toBe('https://proxy.example.com')
+        expect(result[0]!.workspace.meta['x-scalar-theme']).toBe('deepSpace')
+        expect(result[0]!.workspace.meta['x-scalar-environments']['env-prod']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-cookies']['cookie-auth']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-active-document']).toBe('Complete API')
       })
 
       it('should handle workspace with multiple collections, environments, and cookies', () => {
@@ -1267,8 +1331,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Multiple entities',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collections: Collection[] = [
@@ -1278,6 +1344,7 @@ describe('migrate-to-indexdb', () => {
             openapi: '3.1.0',
             info: { title: 'API 1', version: '1.0' },
             security: [],
+            'x-scalar-icon': 'interface-content-folder',
             securitySchemes: [],
             selectedSecuritySchemeUids: [],
             servers: [],
@@ -1285,6 +1352,7 @@ describe('migrate-to-indexdb', () => {
             tags: [],
             children: [],
             watchMode: false,
+            watchModeStatus: 'IDLE',
             useCollectionSecurity: false,
           },
           {
@@ -1293,6 +1361,7 @@ describe('migrate-to-indexdb', () => {
             openapi: '3.1.0',
             info: { title: 'API 2', version: '1.0' },
             security: [],
+            'x-scalar-icon': 'interface-content-folder',
             securitySchemes: [],
             selectedSecuritySchemeUids: [],
             servers: [],
@@ -1300,13 +1369,14 @@ describe('migrate-to-indexdb', () => {
             tags: [],
             children: [],
             watchMode: false,
+            watchModeStatus: 'IDLE',
             useCollectionSecurity: false,
           },
         ]
 
         const environments: Environment[] = [
-          { uid: 'env-1' as any, name: 'Dev', value: 'https://dev.com' },
-          { uid: 'env-2' as any, name: 'Prod', value: 'https://prod.com' },
+          { uid: 'env-1' as any, name: 'Dev', color: '#0000FF', value: 'https://dev.com' },
+          { uid: 'env-2' as any, name: 'Prod', color: '#00FF00', value: 'https://prod.com' },
         ]
 
         const cookies: Cookie[] = [
@@ -1328,9 +1398,9 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0].workspace.documents)).toHaveLength(2)
-        expect(Object.keys(result[0].workspace.meta['x-scalar-environments'])).toHaveLength(2)
-        expect(Object.keys(result[0].workspace.meta['x-scalar-cookies'])).toHaveLength(2)
+        expect(Object.keys(result[0]!.workspace.documents)).toHaveLength(2)
+        expect(Object.keys(result[0]!.workspace.meta['x-scalar-environments'])).toHaveLength(2)
+        expect(Object.keys(result[0]!.workspace.meta['x-scalar-cookies'])).toHaveLength(2)
       })
     })
 
@@ -1346,8 +1416,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const request: Request = {
@@ -1359,6 +1431,7 @@ describe('migrate-to-indexdb', () => {
           description: 'Retrieve all users',
           tags: ['users'],
           servers: [],
+          selectedServerUid: null,
           examples: [],
           selectedSecuritySchemeUids: [],
         }
@@ -1379,7 +1452,7 @@ describe('migrate-to-indexdb', () => {
 
         // Requests are not directly transformed, but should not cause errors
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
+        expect(result[0]!.id).toBe('workspace-1')
       })
 
       it('should handle data with RequestExample entities present', () => {
@@ -1389,8 +1462,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const requestExample: RequestExample = {
@@ -1429,7 +1504,7 @@ describe('migrate-to-indexdb', () => {
 
         // Request examples are not directly transformed, but should not cause errors
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
+        expect(result[0]!.id).toBe('workspace-1')
       })
 
       it('should handle data with Server entities present', () => {
@@ -1439,8 +1514,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const server: Server = {
@@ -1452,6 +1529,7 @@ describe('migrate-to-indexdb', () => {
               default: 'v1',
               enum: ['v1', 'v2'],
               description: 'API version',
+              value: 'v1',
             },
           },
         }
@@ -1472,7 +1550,7 @@ describe('migrate-to-indexdb', () => {
 
         // Servers are not directly transformed, but should not cause errors
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
+        expect(result[0]!.id).toBe('workspace-1')
       })
 
       it('should handle data with Tag entities present', () => {
@@ -1482,8 +1560,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const tag: Tag = {
@@ -1514,7 +1594,7 @@ describe('migrate-to-indexdb', () => {
 
         // Tags are not directly transformed, but should not cause errors
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
+        expect(result[0]!.id).toBe('workspace-1')
       })
 
       it('should handle data with SecurityScheme entities present', () => {
@@ -1524,8 +1604,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const securityScheme: SecurityScheme = {
@@ -1534,6 +1616,10 @@ describe('migrate-to-indexdb', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'JWT authentication',
+          nameKey: 'bearerAuth',
+          username: '',
+          password: '',
+          token: '',
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1552,7 +1638,7 @@ describe('migrate-to-indexdb', () => {
 
         // Security schemes are not directly transformed, but should not cause errors
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-1')
+        expect(result[0]!.id).toBe('workspace-1')
       })
 
       it('should handle data with all entity types present', () => {
@@ -1562,8 +1648,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test all',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -1572,6 +1660,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1579,12 +1668,14 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
         const environment: Environment = {
           uid: 'env-1' as any,
           name: 'Prod',
+          color: '#00FF00',
           value: 'https://api.com',
         }
 
@@ -1600,6 +1691,7 @@ describe('migrate-to-indexdb', () => {
           path: '/test',
           method: 'get',
           servers: [],
+          selectedServerUid: null,
           examples: [],
           selectedSecuritySchemeUids: [],
         }
@@ -1633,6 +1725,11 @@ describe('migrate-to-indexdb', () => {
           uid: 'security-1' as any,
           type: 'http',
           scheme: 'bearer',
+          bearerFormat: 'JWT',
+          nameKey: 'bearerAuth',
+          username: '',
+          password: '',
+          token: '',
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1650,10 +1747,10 @@ describe('migrate-to-indexdb', () => {
         const result = transformLegacyDataToWorkspace(data)
 
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe('workspace-all')
-        expect(result[0].workspace.documents['Test API']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-environments']).toBeDefined()
-        expect(result[0].workspace.meta['x-scalar-cookies']).toBeDefined()
+        expect(result[0]!.id).toBe('workspace-all')
+        expect(result[0]!.workspace.documents['Test API']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-environments']).toBeDefined()
+        expect(result[0]!.workspace.meta['x-scalar-cookies']).toBeDefined()
       })
     })
 
@@ -1668,8 +1765,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -1678,6 +1777,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.0.0',
           info: { title: 'Old API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1685,6 +1785,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1702,7 +1803,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['Old API'].openapi).toBe('3.0.0')
+        expect(result[0]!.workspace.documents['Old API'].openapi).toBe('3.0.0')
       })
 
       it('should handle collection without openapi field (fallback to 3.1.0)', () => {
@@ -1712,8 +1813,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Partial<Collection> = {
@@ -1721,6 +1824,7 @@ describe('migrate-to-indexdb', () => {
           type: 'collection',
           info: { title: 'No Version API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1728,6 +1832,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1745,7 +1850,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['No Version API'].openapi).toBe('3.1.0')
+        expect(result[0]!.workspace.documents['No Version API'].openapi).toBe('3.1.0')
       })
 
       it('should handle collection without info field (fallback to defaults)', () => {
@@ -1755,8 +1860,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Partial<Collection> = {
@@ -1764,6 +1871,7 @@ describe('migrate-to-indexdb', () => {
           type: 'collection',
           openapi: '3.1.0',
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1771,6 +1879,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1788,7 +1897,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        const document = result[0].workspace.documents['collection-no-info']
+        const document = result[0]!.workspace.documents['collection-no-info']
         expect(document.info.title).toBe('collection-no-info')
         expect(document.info.version).toBe('1.0')
       })
@@ -1800,8 +1909,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1818,7 +1929,8 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-active-environment']).toBeUndefined()
+        // activeEnvironmentId has a default value of 'default', so it will always be present
+        expect(result[0]!.workspace.meta['x-scalar-active-environment']).toBe('default')
       })
 
       it('should handle workspace without proxyUrl', () => {
@@ -1828,8 +1940,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1846,7 +1960,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-active-proxy']).toBeUndefined()
+        expect(result[0]!.workspace.meta['x-scalar-active-proxy']).toBeUndefined()
       })
 
       it('should handle workspace without themeId', () => {
@@ -1856,8 +1970,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1874,7 +1990,8 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.meta['x-scalar-theme']).toBeUndefined()
+        // themeId has a default value of 'default', so it will always be present
+        expect(result[0]!.workspace.meta['x-scalar-theme']).toBe('default')
       })
 
       it('should create documentConfigs for all documents', () => {
@@ -1884,8 +2001,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection1: Collection = {
@@ -1894,6 +2013,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'API 1', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1901,6 +2021,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1910,6 +2031,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'API 2', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -1917,6 +2039,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -1934,11 +2057,11 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(Object.keys(result[0].workspace.documentConfigs)).toHaveLength(2)
-        expect(result[0].workspace.documentConfigs['API 1']).toEqual({
+        expect(Object.keys(result[0]!.workspace.documentConfigs)).toHaveLength(2)
+        expect(result[0]!.workspace.documentConfigs['API 1']).toEqual({
           selectedServerUid: null,
         })
-        expect(result[0].workspace.documentConfigs['API 2']).toEqual({
+        expect(result[0]!.workspace.documentConfigs['API 2']).toEqual({
           selectedServerUid: null,
         })
       })
@@ -1950,8 +2073,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const data: v_2_5_0['DataArray'] = {
@@ -1968,9 +2093,9 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.originalDocuments).toEqual({})
-        expect(result[0].workspace.intermediateDocuments).toEqual({})
-        expect(result[0].workspace.overrides).toEqual({})
+        expect(result[0]!.workspace.originalDocuments).toEqual({})
+        expect(result[0]!.workspace.intermediateDocuments).toEqual({})
+        expect(result[0]!.workspace.overrides).toEqual({})
       })
     })
 
@@ -1985,8 +2110,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -2003,6 +2130,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -2020,7 +2148,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['Icon API']['x-scalar-icon']).toBe('custom-icon-name')
+        expect(result[0]!.workspace.documents['Icon API']['x-scalar-icon']).toBe('custom-icon-name')
       })
 
       it('should preserve x-scalar-environments in document', () => {
@@ -2030,8 +2158,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -2041,11 +2171,13 @@ describe('migrate-to-indexdb', () => {
           info: { title: 'Env API', version: '1.0' },
           'x-scalar-environments': {
             'env-1': {
-              name: 'Local',
-              value: 'http://localhost:3000',
+              variables: {
+                baseUrl: 'http://localhost:3000',
+              },
             },
           },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -2053,6 +2185,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -2070,10 +2203,11 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['Env API']['x-scalar-environments']).toEqual({
+        expect(result[0]!.workspace.documents['Env API']['x-scalar-environments']).toEqual({
           'env-1': {
-            name: 'Local',
-            value: 'http://localhost:3000',
+            variables: {
+              baseUrl: 'http://localhost:3000',
+            },
           },
         })
       })
@@ -2085,8 +2219,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -2096,11 +2232,12 @@ describe('migrate-to-indexdb', () => {
           info: { title: 'Secrets API', version: '1.0' },
           'x-scalar-secrets': {
             'secret-1': {
-              name: 'API Key',
-              value: 'secret-value',
+              description: 'API Key',
+              example: 'secret-value',
             },
           },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -2108,6 +2245,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -2125,10 +2263,10 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        expect(result[0].workspace.documents['Secrets API']['x-scalar-secrets']).toEqual({
+        expect(result[0]!.workspace.documents['Secrets API']['x-scalar-secrets']).toEqual({
           'secret-1': {
-            name: 'API Key',
-            value: 'secret-value',
+            description: 'API Key',
+            example: 'secret-value',
           },
         })
       })
@@ -2140,8 +2278,10 @@ describe('migrate-to-indexdb', () => {
           description: 'Test',
           collections: [],
           environments: {},
+          activeEnvironmentId: 'default',
           cookies: [],
-          selectedSnippetClient: { targetKey: 'shell', clientKey: 'curl' },
+          themeId: 'default',
+          selectedHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         }
 
         const collection: Collection = {
@@ -2150,6 +2290,7 @@ describe('migrate-to-indexdb', () => {
           openapi: '3.1.0',
           info: { title: 'Plain API', version: '1.0' },
           security: [],
+          'x-scalar-icon': 'interface-content-folder',
           securitySchemes: [],
           selectedSecuritySchemeUids: [],
           servers: [],
@@ -2157,6 +2298,7 @@ describe('migrate-to-indexdb', () => {
           tags: [],
           children: [],
           watchMode: false,
+          watchModeStatus: 'IDLE',
           useCollectionSecurity: false,
         }
 
@@ -2174,8 +2316,9 @@ describe('migrate-to-indexdb', () => {
 
         const result = transformLegacyDataToWorkspace(data)
 
-        const document = result[0].workspace.documents['Plain API']
-        expect(document['x-scalar-icon']).toBeUndefined()
+        const document = result[0]!.workspace.documents['Plain API']
+        // x-scalar-icon has a default value, so it will always be present
+        expect(document['x-scalar-icon']).toBe('interface-content-folder')
         expect(document['x-scalar-environments']).toBeUndefined()
         expect(document['x-scalar-secrets']).toBeUndefined()
       })
