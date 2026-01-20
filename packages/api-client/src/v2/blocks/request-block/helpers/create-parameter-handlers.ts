@@ -22,16 +22,22 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { name?: string; value?: string }) =>
-      eventBus.emit('operation:add:parameter', {
-        type,
-        payload: {
-          name: payload.name ?? '',
-          value: payload.value ?? '',
-          isDisabled: false,
+    add: (payload: { name?: string; value?: string; index?: number }) =>
+      eventBus.emit(
+        'operation:add:parameter',
+        {
+          type,
+          payload: {
+            name: payload.name ?? '',
+            value: payload.value ?? '',
+            isDisabled: false,
+          },
+          meta,
         },
-        meta,
-      }),
+        {
+          debounceKey: `add:parameter-${type}-${payload.index}`,
+        },
+      ),
     delete: (payload: { index: number }) =>
       eventBus.emit('operation:delete:parameter', {
         type,
@@ -43,7 +49,7 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: Partial<{ name: string; value: string; isDisabled: boolean }> }) => {
+    update: (payload: { index: number; payload: { name: string; value: string; isDisabled: boolean } }) => {
       const row = context[payload.index]
 
       if (payload.index < defaultParameters + globalParameters) {
@@ -58,6 +64,7 @@ export const createParameterHandlers = (
       }
 
       if (payload.index >= offset) {
+        const fields = Object.keys(payload.payload).join('-')
         return eventBus.emit(
           'operation:update:parameter',
           {
@@ -67,7 +74,7 @@ export const createParameterHandlers = (
             meta,
           },
           {
-            debounceKey: `update:parameter-${type}-${payload.index}-${Object.keys(payload.payload).join('-')}`,
+            debounceKey: `update:parameter-${type}-${payload.index - offset}-${fields}`,
           },
         )
       }

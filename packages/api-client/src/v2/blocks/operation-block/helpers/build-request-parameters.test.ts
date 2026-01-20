@@ -17,6 +17,7 @@ const createParameter = (
   examples?: Record<string, ExampleObject>,
 ): ExtendedParameter =>
   ({
+    required: true, // Set required by default so parameters are not disabled
     ...(examples && { examples }),
     ...overrides,
   }) as ExtendedParameter
@@ -28,6 +29,7 @@ const createContentParameter = (
   examples?: Record<string, ExampleObject>,
 ): ExtendedParameter =>
   ({
+    required: true, // Set required by default so parameters are not disabled
     content: {
       [contentType]: {
         ...(examples && { examples }),
@@ -62,6 +64,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'X-Payload',
           in: 'header',
+          required: true,
           content: {
             'application/json': {
               examples: {
@@ -81,6 +84,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'Content-Type',
           in: 'header',
+          required: true,
           schema: { type: 'string' },
           examples: {
             default: { value: 'application/json' },
@@ -93,6 +97,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'Content-Type',
           in: 'header',
+          required: true,
           schema: { type: 'string' },
           examples: {
             default: { value: 'text/xml' },
@@ -161,6 +166,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'X-Ref-Example',
           in: 'header',
+          required: true,
           schema: { type: 'string' },
           examples: {
             default: {
@@ -189,7 +195,10 @@ describe('buildRequestParameters', () => {
 
     it('returns empty result when all examples are disabled', () => {
       const params = [
-        createParameter({ name: 'X-Api-Key', in: 'header', value: 'secret' }, { default: { 'x-disabled': true } }),
+        createParameter(
+          { name: 'X-Api-Key', in: 'header', value: 'secret' },
+          { default: { value: 'secret', 'x-disabled': true } },
+        ),
       ]
 
       const result = buildRequestParameters(params)
@@ -206,6 +215,34 @@ describe('buildRequestParameters', () => {
       const result = buildRequestParameters(params)
 
       expect(result.headers).toEqual({})
+    })
+
+    it('returns empty result when parameters are optional (not required)', () => {
+      const params = [
+        createParameter(
+          { name: 'X-Optional-Header', in: 'header', value: 'optional', required: false },
+          { default: { value: 'optional' } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Optional parameters are disabled by default
+      expect(result.headers).toEqual({})
+    })
+
+    it('includes optional parameters when explicitly enabled via x-disabled: false', () => {
+      const params = [
+        createParameter(
+          { name: 'X-Optional-Header', in: 'header', value: 'optional', required: false },
+          { default: { value: 'optional', 'x-disabled': false } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Optional parameters with x-disabled: false should be included
+      expect(result.headers['X-Optional-Header']).toBe('optional')
     })
   })
 
@@ -462,7 +499,14 @@ describe('buildRequestParameters', () => {
     describe('simple style (default for path and header)', () => {
       it('handles simple style with primitive value', () => {
         const params = [
-          { name: 'X-Id', in: 'header', style: 'simple', explode: false, examples: { default: { value: 5 } } },
+          {
+            name: 'X-Id',
+            in: 'header',
+            required: true,
+            style: 'simple',
+            explode: false,
+            examples: { default: { value: 5 } },
+          },
         ] satisfies ParameterObject[]
 
         const result = buildRequestParameters(params)
@@ -471,9 +515,30 @@ describe('buildRequestParameters', () => {
 
       it('handles simple style multiple values', () => {
         const params = [
-          { name: 'X-Tags', in: 'header', style: 'simple', explode: false, examples: { default: { value: 'a' } } },
-          { name: 'X-Tags', in: 'header', style: 'simple', explode: false, examples: { default: { value: 'b' } } },
-          { name: 'X-Tags', in: 'header', style: 'simple', explode: false, examples: { default: { value: 'c' } } },
+          {
+            name: 'X-Tags',
+            in: 'header',
+            required: true,
+            style: 'simple',
+            explode: false,
+            examples: { default: { value: 'a' } },
+          },
+          {
+            name: 'X-Tags',
+            in: 'header',
+            required: true,
+            style: 'simple',
+            explode: false,
+            examples: { default: { value: 'b' } },
+          },
+          {
+            name: 'X-Tags',
+            in: 'header',
+            required: true,
+            style: 'simple',
+            explode: false,
+            examples: { default: { value: 'c' } },
+          },
         ] satisfies ParameterObject[]
         const result = buildRequestParameters(params)
 
@@ -485,7 +550,7 @@ describe('buildRequestParameters', () => {
     describe('form style (default for query and cookie)', () => {
       it('handles form style with primitive value', () => {
         const params = [
-          { name: 'id', in: 'query', style: 'form', examples: { default: { value: 5 } } },
+          { name: 'id', in: 'query', required: true, style: 'form', examples: { default: { value: 5 } } },
         ] satisfies ParameterObject[]
         const result = buildRequestParameters(params)
 
@@ -495,9 +560,30 @@ describe('buildRequestParameters', () => {
 
       it('handles form style with array (explode: true - default)', () => {
         const params = [
-          { name: 'color', in: 'query', style: 'form', explode: true, examples: { default: { value: 'blue' } } },
-          { name: 'color', in: 'query', style: 'form', explode: true, examples: { default: { value: 'black' } } },
-          { name: 'color', in: 'query', style: 'form', explode: true, examples: { default: { value: 'brown' } } },
+          {
+            name: 'color',
+            in: 'query',
+            required: true,
+            style: 'form',
+            explode: true,
+            examples: { default: { value: 'blue' } },
+          },
+          {
+            name: 'color',
+            in: 'query',
+            required: true,
+            style: 'form',
+            explode: true,
+            examples: { default: { value: 'black' } },
+          },
+          {
+            name: 'color',
+            in: 'query',
+            required: true,
+            style: 'form',
+            explode: true,
+            examples: { default: { value: 'brown' } },
+          },
         ] satisfies ParameterObject[]
 
         const result = buildRequestParameters(params)
@@ -511,6 +597,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: false,
             examples: { default: { value: ['blue', 'black', 'brown'] } },
@@ -530,6 +617,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             examples: { default: { value: 'blue' } },
@@ -537,6 +625,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             examples: { default: { value: 'black' } },
@@ -544,6 +633,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             examples: { default: { value: 'brown' } },
@@ -561,6 +651,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             examples: { default: { value: ['blue black brown'] } },
@@ -580,6 +671,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'pipeDelimited',
             explode: false,
             examples: { default: { value: 'blue' } },
@@ -587,6 +679,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'pipeDelimited',
             explode: false,
             examples: { default: { value: 'black' } },
@@ -594,6 +687,7 @@ describe('buildRequestParameters', () => {
           {
             name: 'colors',
             in: 'query',
+            required: true,
             style: 'pipeDelimited',
             explode: false,
             examples: { default: { value: 'brown' } },
@@ -614,6 +708,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'Content-Type',
           in: 'header',
+          required: true,
           schema: { type: 'string' },
           examples: {
             default: { value: 'application/json' },
@@ -622,6 +717,7 @@ describe('buildRequestParameters', () => {
         {
           name: 'X-Payload',
           in: 'header',
+          required: true,
           content: { 'application/json': { examples: { default: { value: 'stuff' } } } },
         },
       ] satisfies ParameterObject[]

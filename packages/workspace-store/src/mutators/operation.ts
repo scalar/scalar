@@ -571,7 +571,7 @@ export const updateOperationParameter = (
     return
   }
 
-  parameter.name = payload.name ?? parameter.name ?? ''
+  parameter.name = payload.name
 
   if (isContentTypeParameterObject(parameter)) {
     // TODO: handle content-type parameters
@@ -582,20 +582,13 @@ export const updateOperationParameter = (
     parameter.examples = {}
   }
 
-  const example = getResolvedRef(parameter.examples[meta.exampleKey])
-
   // Create the example if it doesn't exist
-  if (!example) {
-    parameter.examples[meta.exampleKey] = {
-      value: payload.value ?? '',
-      'x-disabled': Boolean(payload.isDisabled),
-    }
-    return
-  }
+  parameter.examples[meta.exampleKey] ||= {}
+  const example = getResolvedRef(parameter.examples[meta.exampleKey])!
 
-  // Update existing example value
-  example.value = payload.value ?? example?.value ?? ''
-  example['x-disabled'] = Boolean(payload.isDisabled ?? example['x-disabled'])
+  // Update the example value and disabled state
+  example.value = payload.value
+  example['x-disabled'] = payload.isDisabled
 }
 
 /**

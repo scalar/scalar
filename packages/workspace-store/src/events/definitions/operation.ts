@@ -168,11 +168,11 @@ export type OperationEvents = {
      * - value: The new example value for the parameter.
      * - isDisabled: Whether the parameter is marked as disabled.
      */
-    payload: Partial<{
+    payload: {
       name: string
       value: string
       isDisabled: boolean
-    }>
+    }
     /**
      * Identifies the target operation and example variant for the updated parameter.
      */

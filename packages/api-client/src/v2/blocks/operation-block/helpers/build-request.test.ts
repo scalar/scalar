@@ -435,6 +435,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'bar',
+                'x-disabled': false,
               },
             },
           },
@@ -465,6 +466,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'foo',
+                'x-disabled': false,
               },
             },
           },
@@ -475,6 +477,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'bar',
+                'x-disabled': false,
               },
             },
           },
@@ -505,6 +508,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'bar',
+                'x-disabled': false,
               },
             },
           },
@@ -568,6 +572,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: '',
+                'x-disabled': false,
               },
             },
           },
@@ -632,6 +637,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'custom-value',
+                'x-disabled': false,
               },
             },
           },
@@ -664,6 +670,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'custom-user-agent',
+                'x-disabled': false,
               },
             },
           },
@@ -696,6 +703,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'abc123',
+                'x-disabled': false,
               },
             },
           },
@@ -819,6 +827,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'abc123',
+                'x-disabled': false,
               },
             },
           },
@@ -852,6 +861,7 @@ describe('buildRequest', () => {
             examples: {
               default: {
                 value: 'abc123',
+                'x-disabled': false,
               },
             },
           },
@@ -1294,6 +1304,7 @@ describe('buildRequest', () => {
               examples: {
                 default: {
                   value: '{{searchTerm}}',
+                  'x-disabled': false,
                 },
               },
             },
@@ -1332,6 +1343,7 @@ describe('buildRequest', () => {
               examples: {
                 default: {
                   value: 'Bearer {{apiKey}}',
+                  'x-disabled': false,
                 },
               },
             },
@@ -1370,6 +1382,7 @@ describe('buildRequest', () => {
               examples: {
                 default: {
                   value: '{{sessionId}}',
+                  'x-disabled': false,
                 },
               },
             },
@@ -1470,6 +1483,7 @@ describe('buildRequest', () => {
                 },
                 custom: {
                   value: 'custom-value',
+                  'x-disabled': false,
                 },
               },
             },
