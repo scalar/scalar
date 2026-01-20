@@ -1146,7 +1146,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'sensorId*': 1,
+        'sensorId': 1,
       })
 
       expect(
@@ -1160,7 +1160,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'isActive*': true,
+        'isActive': true,
       })
     })
 
@@ -1186,7 +1186,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'metadata*': {
+        'metadata': {
           key: 'version',
           value: '1.0.0',
         },
@@ -1204,7 +1204,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'dynamicField*': null,
+        'dynamicField': null,
       })
     })
 
@@ -1219,7 +1219,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'flexibleProperty*': null,
+        'flexibleProperty': null,
       })
     })
 
