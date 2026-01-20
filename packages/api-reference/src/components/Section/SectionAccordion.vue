@@ -67,6 +67,9 @@ const isHovered = useElementHover(button)
 
   border-radius: var(--scalar-radius-lg);
   background: var(--scalar-background-2);
+
+  /* Offset by header height to line up scroll position */
+  scroll-margin-top: var(--refs-viewport-offset);
 }
 
 .section-accordion-transparent {

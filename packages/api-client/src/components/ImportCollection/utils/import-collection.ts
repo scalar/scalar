@@ -1,8 +1,8 @@
 import type { Collection } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 
 import { isUrl } from '@/components/ImportCollection/utils/is-url'
 import type { WorkspaceStore } from '@/store'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 
 export async function importCollection({
   store,

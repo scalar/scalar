@@ -18,18 +18,24 @@ describe('createParameterHandlers', () => {
   it('emits add event with provided name and value', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
-    handlers.add({ name: 'foo', value: 'bar' })
+    handlers.add({ name: 'foo', value: 'bar', index: 0 })
 
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'query',
-      payload: {
-        name: 'foo',
-        value: 'bar',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'foo',
+          value: 'bar',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-query-0',
+      },
+    )
   })
 
   it('defaults to empty strings when name or value are missing', () => {
@@ -37,29 +43,41 @@ describe('createParameterHandlers', () => {
 
     handlers.add({})
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'header',
-      payload: {
-        name: '',
-        value: '',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'header',
+        payload: {
+          name: '',
+          value: '',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-header-undefined',
+      },
+    )
 
     vi.clearAllMocks()
 
     handlers.add({ name: 'Authorization' })
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('operation:add:parameter', {
-      type: 'header',
-      payload: {
-        name: 'Authorization',
-        value: '',
-        isDisabled: false,
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:add:parameter',
+      {
+        type: 'header',
+        payload: {
+          name: 'Authorization',
+          value: '',
+          isDisabled: false,
+        },
+        meta: mockMeta,
       },
-      meta: mockMeta,
-    })
+      {
+        debounceKey: 'add:parameter-header-undefined',
+      },
+    )
   })
 
   it('emits delete event with correct index and parameter type', () => {
@@ -91,54 +109,54 @@ describe('createParameterHandlers', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
     // Update only name
-    handlers.update({ index: 1, payload: { name: 'updated-key' } })
+    handlers.update({ index: 1, payload: { name: 'updated-key', value: '', isDisabled: false } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 1,
-        payload: { name: 'updated-key' },
+        payload: { name: 'updated-key', value: '', isDisabled: false },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-1-name',
+        debounceKey: 'update:parameter-query-1-name-value-isDisabled',
       },
     )
 
     vi.clearAllMocks()
 
     // Update only value
-    handlers.update({ index: 0, payload: { value: 'new-value' } })
+    handlers.update({ index: 0, payload: { name: '', value: 'new-value', isDisabled: false } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 0,
-        payload: { value: 'new-value' },
+        payload: { name: '', value: 'new-value', isDisabled: false },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-0-value',
+        debounceKey: 'update:parameter-query-0-name-value-isDisabled',
       },
     )
 
     vi.clearAllMocks()
 
     // Update only isDisabled
-    handlers.update({ index: 3, payload: { isDisabled: true } })
+    handlers.update({ index: 3, payload: { name: '', value: '', isDisabled: true } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 3,
-        payload: { isDisabled: true },
+        payload: { name: '', value: '', isDisabled: true },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-3-isDisabled',
+        debounceKey: 'update:parameter-query-3-name-value-isDisabled',
       },
     )
 

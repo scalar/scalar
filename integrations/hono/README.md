@@ -16,7 +16,7 @@ Hono middleware to serve beautiful, interactive API documentation from OpenAPI/S
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/hono)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/hono)
 
 ## Changelog
 

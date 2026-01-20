@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { isUrl } from './is-url'
 
 describe('is-url', () => {

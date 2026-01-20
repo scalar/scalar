@@ -479,7 +479,7 @@ export default {
   onDocumentSelect: () => console.log('Document changed'),
 
   // Add any other custom configuration options supported by Scalar
-  // Checkout https://guides.scalar.com/products/api-references/configuration
+  // Checkout https://scalar.com/products/api-references/configuration
 }
 ```
 

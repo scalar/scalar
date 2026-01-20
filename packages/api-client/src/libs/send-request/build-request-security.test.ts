@@ -1,6 +1,6 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
-import { beforeEach, describe, expect, it } from 'vitest'
 import { encode } from 'js-base64'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity } from './build-request-security'
 

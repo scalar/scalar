@@ -432,6 +432,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -453,6 +454,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -475,6 +477,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -501,6 +504,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -522,6 +526,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -548,6 +553,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'form',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -580,6 +586,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -602,6 +609,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'spaceDelimited',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -630,6 +638,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'pipeDelimited',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -652,6 +661,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'pipeDelimited',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -680,6 +690,7 @@ describe('parameter styles', () => {
           {
             name: 'color',
             in: 'query',
+            required: true,
             style: 'deepObject',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -712,6 +723,7 @@ describe('parameter styles', () => {
           {
             name: 'Authorization',
             in: 'header',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'Bearer token123',
@@ -731,6 +743,7 @@ describe('parameter styles', () => {
           {
             name: 'Accept',
             in: 'header',
+            required: true,
             style: 'simple',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -757,6 +770,7 @@ describe('parameter styles', () => {
           {
             name: 'Accept',
             in: 'header',
+            required: true,
             style: 'simple',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -779,6 +793,7 @@ describe('parameter styles', () => {
           {
             name: 'X-Custom-Header',
             in: 'header',
+            required: true,
             style: 'simple',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -804,6 +819,7 @@ describe('parameter styles', () => {
           {
             name: 'X-Custom-Header',
             in: 'header',
+            required: true,
             style: 'simple',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -829,6 +845,7 @@ describe('parameter styles', () => {
           {
             name: 'Authorization',
             in: 'header',
+            required: true,
             style: 'form', // This should be ignored and default to 'simple'
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
@@ -852,6 +869,7 @@ describe('parameter styles', () => {
           {
             name: 'X-New-Header',
             in: 'header',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'newValue',
@@ -876,6 +894,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),
@@ -896,6 +915,7 @@ describe('parameter styles', () => {
           {
             name: 'preferences',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -922,6 +942,7 @@ describe('parameter styles', () => {
           {
             name: 'preferences',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -944,6 +965,7 @@ describe('parameter styles', () => {
           {
             name: 'settings',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: true,
             schema: coerceValue(SchemaObjectSchema, {
@@ -974,6 +996,7 @@ describe('parameter styles', () => {
           {
             name: 'settings',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1000,6 +1023,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             style: 'simple', // This should be ignored and default to 'form'
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
@@ -1020,6 +1044,7 @@ describe('parameter styles', () => {
           {
             name: 'userId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'integer',
               example: 12345,
@@ -1039,6 +1064,7 @@ describe('parameter styles', () => {
           {
             name: 'premium',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'boolean',
               example: true,
@@ -1058,6 +1084,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'abc123',
@@ -1066,6 +1093,7 @@ describe('parameter styles', () => {
           {
             name: 'theme',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'dark',
@@ -1088,6 +1116,7 @@ describe('parameter styles', () => {
           {
             name: 'preferences',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1110,6 +1139,7 @@ describe('parameter styles', () => {
           {
             name: 'settings',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1136,6 +1166,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               nullable: true,
@@ -1156,6 +1187,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),
@@ -1179,6 +1211,7 @@ describe('parameter styles', () => {
           {
             name: 'sessionId',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: '',
@@ -1198,6 +1231,7 @@ describe('parameter styles', () => {
           {
             name: 'auth_token',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example:
@@ -1224,6 +1258,7 @@ describe('parameter styles', () => {
           {
             name: 'user_pref',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'name=John Doe&email=john@example.com',
@@ -1243,6 +1278,7 @@ describe('parameter styles', () => {
           {
             name: 'scores',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1265,6 +1301,7 @@ describe('parameter styles', () => {
           {
             name: 'flags',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1287,6 +1324,7 @@ describe('parameter styles', () => {
           {
             name: 'mixed_data',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1309,6 +1347,7 @@ describe('parameter styles', () => {
           {
             name: 'user_config',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1354,6 +1393,7 @@ describe('parameter styles', () => {
           {
             name: 'tags',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1376,6 +1416,7 @@ describe('parameter styles', () => {
           {
             name: 'config',
             in: 'cookie',
+            required: true,
             style: 'form',
             explode: false,
             schema: coerceValue(SchemaObjectSchema, {
@@ -1400,6 +1441,7 @@ describe('parameter styles', () => {
           {
             name: 'newCookie',
             in: 'cookie',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               example: 'newValue',
@@ -1424,6 +1466,7 @@ describe('parameter styles', () => {
           {
             name: 'email',
             in: 'query',
+            required: true,
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),

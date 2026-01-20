@@ -1,5 +1,6 @@
-import type { ClientLayout } from '@/hooks/useLayout'
 import { type InjectionKey, inject, reactive, readonly, ref } from 'vue'
+
+import type { ClientLayout } from '@/hooks/useLayout'
 
 type CollapsedSidebarFolders = Record<string, boolean>
 

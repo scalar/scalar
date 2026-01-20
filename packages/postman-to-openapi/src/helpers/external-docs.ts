@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { PostmanCollection, Variable } from '../types'
+import type { PostmanCollection, Variable } from '@/types'
 
 // Constants for variable keys
 const VARIABLE_KEYS = {

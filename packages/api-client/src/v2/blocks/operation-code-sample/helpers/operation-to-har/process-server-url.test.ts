@@ -1,7 +1,7 @@
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { processServerUrl } from './process-server-url'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('processServerUrl', () => {
   it('should handle server with no variables', () => {

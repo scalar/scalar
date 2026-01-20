@@ -8,7 +8,7 @@ The `Scalar.AspNetCore.Microsoft` package provides OpenAPI transformers for `Mic
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/aspnetcore/openapi-extensions)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/aspnetcore/openapi-extensions)
 
 ## Community
 

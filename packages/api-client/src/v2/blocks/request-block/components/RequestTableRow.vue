@@ -4,7 +4,7 @@ import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -16,32 +16,6 @@ import {
 } from '@/v2/components/data-table'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
-
-const {
-  data,
-  environment,
-  hasCheckboxDisabled,
-  invalidParams,
-  showUploadButton,
-} = defineProps<{
-  data: TableRow
-  hasCheckboxDisabled?: boolean
-  invalidParams?: Set<string>
-  label?: string
-  environment: XScalarEnvironment
-  showUploadButton?: boolean
-}>()
-
-const emit = defineEmits<{
-  (
-    e: 'updateRow',
-    payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
-  ): void
-  (e: 'deleteRow'): void
-  (e: 'uploadFile'): void
-  (e: 'removeFile'): void
-  (e: 'navigate', route: string): void
-}>()
 
 export type TableRow = {
   /** The parameter or field name/key */
@@ -67,6 +41,69 @@ export type TableRow = {
   isOverridden?: boolean
 }
 
+const {
+  data,
+  environment,
+  hasCheckboxDisabled,
+  invalidParams,
+  showUploadButton,
+} = defineProps<{
+  data: TableRow
+  hasCheckboxDisabled?: boolean
+  invalidParams?: Set<string>
+  label?: string
+  environment: XScalarEnvironment
+  showUploadButton?: boolean
+}>()
+
+const emit = defineEmits<{
+  (
+    e: 'upsertRow',
+    payload: { name: string; value: string | File; isDisabled: boolean },
+  ): void
+  (e: 'deleteRow'): void
+  (e: 'uploadFile'): void
+  (e: 'removeFile'): void
+  (e: 'navigate', route: string): void
+}>()
+
+/**
+ * Track local state for the row
+ *
+ * Now this is required because of the way we get default values from the schema.
+ * If we have a default value in data.value, then we update isDisabled to true. We lose the default value since now
+ * we have an example where value: ''. This is why we need to track the local state and update all of the params at the
+ * same time.
+ */
+const name = ref<string>(data.name ?? '')
+const value = ref<string | File>(unpackProxyObject(data.value) ?? '')
+const isDisabled = ref<boolean>(data.isDisabled ?? false)
+
+// Keep the above state synced with the data prop
+watch(
+  () => data.name,
+  (newName) => (name.value = newName ?? ''),
+)
+watch(
+  () => data.value,
+  (newValue) => (value.value = unpackProxyObject(newValue) ?? ''),
+)
+watch(
+  () => data.isDisabled,
+  (newIsDisabled) => (isDisabled.value = newIsDisabled ?? false),
+)
+
+/** Check if the value is a File instance */
+const isFile = computed(() => value.value instanceof File)
+
+/** Display value handles File instances and shows filename instead */
+const displayValue = computed(
+  () =>
+    (isFile.value
+      ? getFileName(value.value as File)
+      : (value.value as string)) ?? '',
+)
+
 const defaultValue = computed(() => data.schema?.default as string)
 const enumValue = computed(() => data.schema?.enum as string[])
 const minimumValue = computed(() =>
@@ -80,32 +117,31 @@ const typeValue = computed(() =>
 )
 
 const validationResult = computed(() =>
-  validateParameter(data.schema, data.value),
+  validateParameter(data.schema, value.value),
 )
 
-const isFileInstance = (input: unknown): input is File => {
-  return input instanceof File
+/** Handle row updates while preserving existing properties */
+const handleUpdateRow = (
+  payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+): void => {
+  // Update our local state
+  if (payload.name !== undefined) {
+    name.value = payload.name
+  }
+  if (payload.value !== undefined) {
+    value.value = payload.value
+  }
+  if (payload.isDisabled !== undefined) {
+    isDisabled.value = payload.isDisabled
+  }
+
+  // Emit all of the local state
+  emit('upsertRow', {
+    name: name.value,
+    value: value.value,
+    isDisabled: isDisabled.value,
+  })
 }
-
-const valueModel = computed({
-  get: () => {
-    const rawValue = unpackProxyObject(data.value)
-
-    if (rawValue instanceof File) {
-      return getFileName(unpackProxyObject(data.value as any)) ?? ''
-    }
-
-    if (rawValue === null) {
-      return ''
-    }
-    return rawValue
-  },
-  set: (val: string | File | null) => {
-    if (typeof val === 'string') {
-      emit('updateRow', { value: val })
-    }
-  },
-})
 </script>
 
 <template>
@@ -118,8 +154,8 @@ const valueModel = computed({
     <DataTableCheckbox
       class="!border-r"
       :disabled="hasCheckboxDisabled ?? false"
-      :modelValue="!data.isDisabled"
-      @update:modelValue="(v) => emit('updateRow', { isDisabled: !v })" />
+      :modelValue="!isDisabled"
+      @update:modelValue="(v) => handleUpdateRow({ isDisabled: !v })" />
 
     <!-- Name -->
     <DataTableCell>
@@ -131,11 +167,11 @@ const valueModel = computed({
         disableTabIndent
         :environment="environment"
         lineWrapping
-        :modelValue="data.name"
+        :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @selectVariable="(v: string) => emit('updateRow', { name: v })"
-        @update:modelValue="(v: string) => emit('updateRow', { name: v })" />
+        @selectVariable="(v: string) => handleUpdateRow({ name: v })"
+        @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
 
     <!-- Value -->
@@ -157,14 +193,14 @@ const valueModel = computed({
         lineWrapping
         :max="maximumValue"
         :min="minimumValue"
-        :modelValue="valueModel"
+        :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
-        @update:modelValue="(v: string) => emit('updateRow', { value: v })">
+        @update:modelValue="(v) => handleUpdateRow({ value: v })">
         <template #icon>
           <ScalarButton
             v-if="
-              Boolean(data.name || data.value) &&
+              Boolean(data.name || value) &&
               !data.isRequired &&
               data.isReadonly !== true
             "
@@ -193,7 +229,7 @@ const valueModel = computed({
             v-else-if="data.schema"
             :description="data.description"
             :schema="data.schema"
-            :value="data.value" />
+            :value />
         </template>
       </CodeInput>
     </DataTableCell>
@@ -202,10 +238,10 @@ const valueModel = computed({
     <DataTableCell
       v-if="showUploadButton"
       class="group/upload flex items-center justify-center whitespace-nowrap">
-      <template v-if="isFileInstance(unpackProxyObject(data.value))">
+      <template v-if="isFile">
         <div
           class="text-c-2 filemask flex w-full max-w-[100%] items-center justify-center overflow-hidden p-1">
-          <span>{{ getFileName(unpackProxyObject(data.value)) }}</span>
+          <span>{{ displayValue }}</span>
         </div>
         <button
           class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"

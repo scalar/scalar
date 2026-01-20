@@ -4,6 +4,7 @@ import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/g
 import type { Request as HarRequest } from 'har-format'
 
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
 type ProcessedParameters = {
   url: string
@@ -52,24 +53,33 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
 /**
  * Extract the value for a parameter from example data or schema.
  * Prioritizes example data over schema examples.
+ * Returns null if the parameter is disabled so we can skip it.
  */
 const getParameterValue = (
   param: ParameterObject,
   example: string | undefined,
   contentType: string | undefined,
 ): unknown => {
-  const exampleValue = getExample(param, example, contentType)?.value
-  if (exampleValue !== undefined) {
-    return exampleValue
+  // Try to get value from example first
+  const exampleValue = getExample(param, example, contentType)
+
+  // If the parameter is disabled, return undefined so we can skip it.
+  if (isParamDisabled(param, exampleValue)) {
+    return undefined
+  }
+
+  // If the example value is set, return it.
+  if (exampleValue?.value !== undefined) {
+    return exampleValue.value
   }
 
   // Fall back to schema example if available
-  if ('schema' in param && param.schema) {
-    const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
-    return getExampleFromSchema(getResolvedRef(param.schema), options)
+  if (!('schema' in param) || !param.schema) {
+    return undefined
   }
 
-  return undefined
+  const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
+  return getExampleFromSchema(getResolvedRef(param.schema), options)
 }
 
 /**
@@ -104,7 +114,6 @@ export const processParameters = ({
     }
 
     const paramValue = getParameterValue(param, example, contentType)
-
     if (paramValue === undefined) {
       continue
     }

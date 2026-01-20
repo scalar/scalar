@@ -7,7 +7,7 @@
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/react)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/react)
 
 ## Community
 

@@ -36,6 +36,7 @@ import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/creat
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
+import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
@@ -112,7 +113,7 @@ const sections = computed(() =>
         description: param.description,
         schema: getParameterSchema(param),
         isRequired: param.required,
-        isDisabled: example?.['x-disabled'] ?? false,
+        isDisabled: isParamDisabled(param, example),
       } as TableRow
     },
   ),

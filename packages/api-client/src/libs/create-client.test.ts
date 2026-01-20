@@ -113,9 +113,9 @@ describe('createApiClient', () => {
     watchCallbacks.length = 0
 
     // Mock console methods
-    vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(console, 'table').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(vi.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
+    vi.spyOn(console, 'table').mockImplementation(vi.fn())
 
     // Mock localStorage
     Object.defineProperty(window, 'localStorage', {

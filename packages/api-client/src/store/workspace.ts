@@ -1,9 +1,10 @@
-import type { StoreContext } from '@/store/store-context'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { collectionSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import type { StoreContext } from '@/store/store-context'
 
 import { createInitialRequest } from './requests'
 

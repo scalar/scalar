@@ -1,6 +1,7 @@
-import { createSidebarState, useSidebar } from './useSidebar'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { inject } from 'vue'
+
+import { createSidebarState, useSidebar } from './useSidebar'
 
 // Mock the useBreakpoints hook
 vi.mock('@scalar/use-hooks/useBreakpoints', () => ({

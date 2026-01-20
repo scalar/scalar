@@ -1,6 +1,6 @@
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
-import { parse as parseShellCommand } from 'shell-quote'
 import { encode } from 'js-base64'
+import { parse as parseShellCommand } from 'shell-quote'
 
 /** Parse and normalize a curl command */
 export function parseCurlCommand(curlCommand: string) {

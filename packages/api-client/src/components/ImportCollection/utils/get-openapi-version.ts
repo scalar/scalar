@@ -1,4 +1,5 @@
 import { parse } from 'yaml'
+
 import { isDocument } from './is-document'
 
 /**

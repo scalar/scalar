@@ -1,7 +1,7 @@
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
+import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { getCookieHeader, matchesDomain, setRequestCookies } from './set-request-cookies'
 
 describe('setRequestCookies', () => {

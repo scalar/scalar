@@ -1,6 +1,7 @@
+import { CLIENT_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { CLIENT_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
+
 import type { WorkspaceStore } from '@/store/store'
 
 /** Shape of the local storage auth object */

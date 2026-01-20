@@ -31,13 +31,15 @@ const {
 /**
  * Make this component more generic that can be used also for the operation body
  */
-
 const emit = defineEmits<{
-  (e: 'addRow', payload: Partial<{ name: string; value: string }>): void
+  (
+    e: 'addRow',
+    payload: { name: string; value: string | File; isDisabled: boolean },
+  ): void
   (
     e: 'updateRow',
     index: number,
-    payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+    payload: { name: string; value: string | File; isDisabled: boolean },
   ): void
   (e: 'deleteRow', index: number): void
 
@@ -45,8 +47,7 @@ const emit = defineEmits<{
    * File upload events
    *
    * Each row has its own upload button, so we need to know which row to update
-   * when the file is selected. If the index is undefined, it means we add the
-   * file to the new row at the bottom of the table.
+   * when the file is selected.
    */
   (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
@@ -83,7 +84,7 @@ const updateOrAdd = ({
   payload,
 }: {
   index: number
-  payload: Partial<{ name: string; value: string; isDisabled: boolean }>
+  payload: { name: string; value: string | File; isDisabled: boolean }
 }) => {
   /** If the update happen on the last row, it means we need to add a new row */
   if (index >= data.length) {
@@ -117,8 +118,8 @@ const updateOrAdd = ({
       @deleteRow="emit('deleteRow', idx)"
       @navigate="(route) => emit('navigate', route)"
       @removeFile="emit('removeFile', idx)"
-      @updateRow="(payload) => updateOrAdd({ index: idx, payload })"
-      @uploadFile="emit('uploadFile', idx)" />
+      @uploadFile="emit('uploadFile', idx)"
+      @upsertRow="(payload) => updateOrAdd({ index: idx, payload })" />
   </DataTable>
 </template>
 <style scoped>

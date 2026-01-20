@@ -57,7 +57,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/products/api-references/integrations/sveltekit"
+    "documentation": "https://scalar.com/products/api-references/integrations/sveltekit"
   },
   "sideEffects": [
     "**/*.css"

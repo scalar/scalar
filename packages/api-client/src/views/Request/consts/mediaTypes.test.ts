@@ -1,5 +1,6 @@
+import { describe, expect, it } from 'vitest'
+
 import { getMediaTypeConfig, isTextMediaType } from './mediaTypes'
-import { describe, it, expect } from 'vitest'
 
 describe('mediaTypes', () => {
   const cases = [

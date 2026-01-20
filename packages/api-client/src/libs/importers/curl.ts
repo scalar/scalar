@@ -1,5 +1,6 @@
-import { parseCurlCommand } from '@/libs/parse-curl'
 import type { RequestMethod, RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
+
+import { parseCurlCommand } from '@/libs/parse-curl'
 
 /** Define curlCommandResult type */
 type CurlCommandResult = {

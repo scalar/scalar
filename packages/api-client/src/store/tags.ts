@@ -1,9 +1,10 @@
-import type { StoreContext } from '@/store/store-context'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { type Collection, type Tag, type TagPayload, tagSchema } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
-import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import type { StoreContext } from '@/store/store-context'
 
 /** Create cookie mutators for the workspace */
 export function createStoreTags(useLocalStorage: boolean) {

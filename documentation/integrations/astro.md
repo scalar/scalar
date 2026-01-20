@@ -19,7 +19,7 @@ import { ScalarComponent } from '@scalar/astro'
 
 <ScalarComponent configuration={{
   // How to configure Scalar:
-  // https://guides.scalar.com/products/api-references/configuration
+  // https://scalar.com/products/api-references/configuration
   url: '/openapi.json',
 }} />
 ```

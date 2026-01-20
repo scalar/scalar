@@ -1,4 +1,4 @@
-import { collectionSchema, type Operation } from '@scalar/oas-utils/entities/spec'
+import { type Operation, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { isGettingStarted } from './getting-started'

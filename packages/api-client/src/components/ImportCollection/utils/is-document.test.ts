@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { isDocument } from './is-document'
 
 describe('is-document', () => {
