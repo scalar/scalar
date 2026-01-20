@@ -555,6 +555,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
 
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0) {
+                // The document has been modified since it was last saved
+                event.value['x-scalar-is-dirty'] = true
+              }
+
               fireWorkspaceChange(event)
               return
             }
@@ -576,11 +582,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
 
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0) {
+                // The document has been modified since it was last saved
+                event.value['x-scalar-is-dirty'] = true
+              }
+
               fireWorkspaceChange(event)
               return
             }
 
-            /** Document meta changes */
+            /** Workspace meta changes */
             const { activeDocument: _a, documents: _d, ...meta } = workspace
             const event = {
               type: 'meta',
@@ -737,15 +749,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Obtain the raw state of the current document to ensure accurate diffing
-    const updatedDocument = getRaw(workspaceDocument)
+    const activeDocumentRaw = unpackProxyObject(workspaceDocument)
 
     // If either the intermediate or updated document is missing, do nothing
-    if (!intermediateDocument || !updatedDocument) {
+    if (!intermediateDocument || !activeDocumentRaw) {
+      console.warn('Failed to save document, intermediate document and/or active document is missing')
       return
     }
 
+    // Mark the document as not dirty since we are saving it
+    activeDocumentRaw['x-scalar-is-dirty'] = false
+
     // Traverse the document and convert refs back to the original shape
-    const updatedWithOriginalRefs = await bundle(deepClone(updatedDocument), {
+    const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
       plugins: [restoreOriginalRefs()],
       treeShake: false,
       urlMap: true,
