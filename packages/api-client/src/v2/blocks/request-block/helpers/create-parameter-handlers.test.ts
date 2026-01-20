@@ -109,54 +109,54 @@ describe('createParameterHandlers', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [] })
 
     // Update only name
-    handlers.update({ index: 1, payload: { name: 'updated-key' } })
+    handlers.update({ index: 1, payload: { name: 'updated-key', value: '', isDisabled: false } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 1,
-        payload: { name: 'updated-key' },
+        payload: { name: 'updated-key', value: '', isDisabled: false },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-1-name',
+        debounceKey: 'update:parameter-query-1-name-value-isDisabled',
       },
     )
 
     vi.clearAllMocks()
 
     // Update only value
-    handlers.update({ index: 0, payload: { value: 'new-value' } })
+    handlers.update({ index: 0, payload: { name: '', value: 'new-value', isDisabled: false } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 0,
-        payload: { value: 'new-value' },
+        payload: { name: '', value: 'new-value', isDisabled: false },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-0-value',
+        debounceKey: 'update:parameter-query-0-name-value-isDisabled',
       },
     )
 
     vi.clearAllMocks()
 
     // Update only isDisabled
-    handlers.update({ index: 3, payload: { isDisabled: true } })
+    handlers.update({ index: 3, payload: { name: '', value: '', isDisabled: true } })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:update:parameter',
       {
         type: 'query',
         index: 3,
-        payload: { isDisabled: true },
+        payload: { name: '', value: '', isDisabled: true },
         meta: mockMeta,
       },
       {
-        debounceKey: 'update:parameter-query-3-isDisabled',
+        debounceKey: 'update:parameter-query-3-name-value-isDisabled',
       },
     )
 

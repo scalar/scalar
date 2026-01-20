@@ -213,8 +213,10 @@ describe('RequestBlock', () => {
 
       // Path (Variables) does not support adding new rows
       if (expectedType !== 'path') {
+        // Add events are debounced, so we need to use fake timers
+        vi.useFakeTimers()
         p.vm.$emit('add', { name: 'k', value: 'v' })
-
+        vi.advanceTimersByTime(400)
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith({
           type: expectedType,
@@ -222,6 +224,7 @@ describe('RequestBlock', () => {
           meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
         })
         fn.mockReset()
+        vi.useRealTimers()
       }
 
       // Update events are debounced, so we need to use fake timers
