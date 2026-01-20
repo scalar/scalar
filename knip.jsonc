@@ -313,7 +313,8 @@
     },
     "integrations/fastify": {
       "ignoreDependencies": [
-        "@scalar/api-reference" // build step copy standalone file from this package
+        "@scalar/api-reference", // build step copy standalone file from this package
+        "esbuild"
       ]
     },
     "integrations/java": {
