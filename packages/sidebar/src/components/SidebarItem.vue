@@ -89,6 +89,11 @@ const slots = defineSlots<{
    * The slot receives an object with the current item.
    */
   empty?(props: { item: Item }): unknown
+  /**
+   * Adds an optional icon for each item.
+   * The slot receives an object with the current item and the open state.
+   */
+  icon?(props: { item: Item; open: boolean }): unknown
 }>()
 
 const isGroup = (
@@ -150,6 +155,13 @@ const { draggableAttrs, draggableEvents } = useDraggable({
             v-bind="slotProps"
             name="empty" />
         </template>
+        <template
+          v-if="slots.icon"
+          #icon="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="icon" />
+        </template>
       </SidebarItem>
     </template>
   </ScalarSidebarSection>
@@ -165,14 +177,21 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     v-on="draggableEvents"
     @click="() => emit('selectItem', item.id)">
     <template
-      v-if="item.type === 'document'"
+      v-if="item.type === 'document' || slots.icon"
       #icon="{ open }">
-      <LibraryIcon
-        class="text-c-3 block group-hover/group-button:hidden"
-        :src="item.icon ?? 'interface-content-folder'" />
-      <ScalarSidebarGroupToggle
-        class="text-c-3 hidden group-hover/group-button:flex"
+      <slot
+        v-if="slots.icon"
+        :item="item"
+        name="icon"
         :open="open" />
+      <template v-else>
+        <LibraryIcon
+          class="text-c-3 block group-hover/group-button:hidden"
+          :src="('icon' in item && item.icon) || 'interface-content-folder'" />
+        <ScalarSidebarGroupToggle
+          class="text-c-3 hidden group-hover/group-button:flex"
+          :open="open" />
+      </template>
     </template>
     <span
       v-if="isDeprecated(item)"
@@ -236,6 +255,13 @@ const { draggableAttrs, draggableEvents } = useDraggable({
           <slot
             v-bind="slotProps"
             name="empty" />
+        </template>
+        <template
+          v-if="slots.icon"
+          #icon="slotProps">
+          <slot
+            v-bind="slotProps"
+            name="icon" />
         </template>
       </SidebarItem>
       <template v-if="slots.empty && (item.children?.length ?? 0) === 0">

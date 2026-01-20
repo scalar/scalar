@@ -63,6 +63,8 @@ const slots = defineSlots<{
   empty?(props: { item: TraversedEntry }): unknown
   /** Slot for customizing the actions section of the sidebar menu. */
   sidebarMenuActions?(): unknown
+  /** Slot to add additional content to the icon */
+  icon?(props: { item: TraversedEntry }): unknown
 }>()
 
 /** Controls the visibility of the search input */
@@ -130,6 +132,12 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <slot
             v-bind="decoratorProps"
             name="decorator" />
+        </template>
+
+        <template #icon="iconProps">
+          <slot
+            v-bind="iconProps"
+            name="icon" />
         </template>
 
         <!-- Empty folder slot -->

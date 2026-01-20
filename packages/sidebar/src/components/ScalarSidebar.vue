@@ -86,6 +86,8 @@ defineSlots<{
   before?(): unknown
   /** Places content when an item is empty */
   empty?(props: { item: Item }): unknown
+  /** Places content when an item is empty */
+  icon?(props: { item: Item }): unknown
 }>()
 
 /**
@@ -134,6 +136,13 @@ const handleDragEnd = (
             #empty="props">
             <slot
               name="empty"
+              v-bind="props" />
+          </template>
+          <template
+            v-if="$slots.icon"
+            #icon="props">
+            <slot
+              name="icon"
               v-bind="props" />
           </template>
         </SidebarItem>
