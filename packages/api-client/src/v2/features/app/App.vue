@@ -161,7 +161,7 @@ const routerViewProps = computed<RouteProps>(() => ({
           @select:workspace="app.workspace.setId"
           @selectItem="app.sidebar.handleSelectItem"
           @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-          <template #sidebar-menu-actions>
+          <template #sidebarMenuActions>
             <slot name="sidebar-menu-actions" />
           </template>
         </AppSidebar>
