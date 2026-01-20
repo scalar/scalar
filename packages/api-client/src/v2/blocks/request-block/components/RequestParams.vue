@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
@@ -7,7 +8,6 @@ import { CollapsibleSection } from '@/v2/components/layout'
 
 import RequestTable from './RequestTable.vue'
 import type { TableRow } from './RequestTableRow.vue'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 const {
   rows,
