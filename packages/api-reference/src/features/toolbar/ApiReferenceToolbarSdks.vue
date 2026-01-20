@@ -71,7 +71,7 @@ const selectedLanguages = ref<LanguageKey[]>([])
       <ApiReferenceToolbarBlurb>
         Generating SDKs is a paid feature starting at $100/mo, learn more in our
         <a
-          href="https://guides.scalar.com/products/sdks/getting-started"
+          href="https://scalar.com/products/sdks/getting-started"
           target="_blank">
           guides</a
         >.

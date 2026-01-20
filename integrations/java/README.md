@@ -14,7 +14,7 @@ Scalar API Reference Java integrations for Spring Boot
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/java)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/java)
 
 ### Available Packages
 

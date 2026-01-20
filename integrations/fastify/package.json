@@ -63,7 +63,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://guides.scalar.com/products/api-references/integrations/fastify"
+    "documentation": "https://scalar.com/products/api-references/integrations/fastify"
   },
   "dependencies": {
     "@scalar/core": "workspace:*",

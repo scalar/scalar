@@ -15,7 +15,7 @@ The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful A
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/aspnetcore/integration)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/aspnetcore/integration)
 
 ### Extended Examples
 

@@ -44,7 +44,7 @@ Interactive API Reference from OpenAPI/Swagger Documents [Try our Demo](https://
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/products/api-references/integrations/html-js)
+[Read the documentation here](https://scalar.com/products/api-references/integrations/html-js)
 
 ## Community
 

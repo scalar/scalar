@@ -32,7 +32,7 @@
         "package": "scalarapi/api-reference"
       }
     ],
-    "documentation": "https://guides.scalar.com/products/api-references/integrations/docker"
+    "documentation": "https://scalar.com/products/api-references/integrations/docker"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
