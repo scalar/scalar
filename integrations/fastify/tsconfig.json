@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "esbuild.ts"],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
