@@ -1,5 +1,21 @@
 # @scalar/workspace-store
 
+## 0.25.0
+
+### Minor Changes
+
+- [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+
+### Patch Changes
+
+- [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+- [#7763](https://github.com/scalar/scalar/pull/7763): fix: normalize securitySchemes 'scheme'
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.2**
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
 ## 0.24.10
 
 ### Patch Changes

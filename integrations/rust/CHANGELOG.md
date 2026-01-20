@@ -1,5 +1,11 @@
 # scalar_api_reference
 
+## 0.1.3
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.1.2
 
 ### Patch Changes

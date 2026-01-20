@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 1.0.18
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 1.0.17
 
 ### Patch Changes

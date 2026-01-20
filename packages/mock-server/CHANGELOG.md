@@ -1,5 +1,20 @@
 # @scalar/mock-server
 
+## 0.8.16
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.2**
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
+- **@scalar/oas-utils@0.6.21**
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 0.8.15
 
 ### Patch Changes

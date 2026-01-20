@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.24.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.2**
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
 ## 0.24.1
 
 ### Patch Changes

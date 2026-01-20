@@ -1,5 +1,45 @@
 # @scalar/api-reference
 
+## 1.43.9
+
+### Patch Changes
+
+- [#7781](https://github.com/scalar/scalar/pull/7781): fix: remove unused dependencies
+  - `@floating-ui/vue`
+  - `@scalar/json-magic`
+  - `@scalar/object-utils`
+  - `@scalar/openapi-upgrader`
+  - `js-base64`
+  - `type-fest`
+  - `zod`
+
+- [#7778](https://github.com/scalar/scalar/pull/7778): fix: do not persist auth when the option is off
+- [#7802](https://github.com/scalar/scalar/pull/7802): fix: can not search in classic layout
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.0**
+  - [#7821](https://github.com/scalar/scalar/pull/7821): Fix slot name for menu items
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7806](https://github.com/scalar/scalar/pull/7806): fix: replace star with named exports
+  - [#7762](https://github.com/scalar/scalar/pull/7762): fix: only enable required parameters by default
+
+- **@scalar/workspace-store@0.25.0**
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: normalize securitySchemes 'scheme'
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+- **@scalar/oas-utils@0.6.21**
+
+- **@scalar/sidebar@0.7.14**
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 1.43.8
 
 ### Patch Changes

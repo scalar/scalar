@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
 ## 0.13.17
 
 ### Patch Changes

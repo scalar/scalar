@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.6.1
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 1.6.0
 
 ### Minor Changes
