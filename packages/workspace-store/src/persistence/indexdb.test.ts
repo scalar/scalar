@@ -23,8 +23,8 @@ describe('indexdb', () => {
   let dbConnection: Awaited<
     ReturnType<
       typeof createIndexDbConnection<{
-        users: { schema: typeof UserSchema; index: ['id'] }
-        orders: { schema: typeof OrderSchema; index: ['userId', 'orderId'] }
+        users: { schema: typeof UserSchema; keyPath: ['id'] }
+        orders: { schema: typeof OrderSchema; keyPath: ['userId', 'orderId'] }
       }>
     >
   >
@@ -34,8 +34,8 @@ describe('indexdb', () => {
       name: testDbName,
       version: 1,
       tables: {
-        users: { schema: UserSchema, index: ['id'] as const },
-        orders: { schema: OrderSchema, index: ['userId', 'orderId'] as const },
+        users: { schema: UserSchema, keyPath: ['id'] as const },
+        orders: { schema: OrderSchema, keyPath: ['userId', 'orderId'] as const },
       },
     })
 

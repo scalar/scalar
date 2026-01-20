@@ -59,8 +59,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
       expect(workspaces).toHaveLength(2)
       expect(workspaces).toEqual([
-        { id: 'workspace-1', name: 'Workspace One' },
-        { id: 'workspace-2', name: 'Workspace Two' },
+        { id: 'workspace-1', name: 'Workspace One', teamUid: 'LOCAL', namespace: 'LOCAL', slug: 'LOCAL' },
+        { id: 'workspace-2', name: 'Workspace Two', teamUid: 'LOCAL', namespace: 'LOCAL', slug: 'LOCAL' },
       ])
     })
 
@@ -154,8 +154,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
       expect(workspaces).toHaveLength(2)
       expect(workspaces).toEqual([
-        { id: 'workspace-1', name: 'Workspace One' },
-        { id: 'workspace-3', name: 'Workspace Three' },
+        { id: 'workspace-1', name: 'Workspace One', teamUid: 'LOCAL', namespace: 'LOCAL', slug: 'LOCAL' },
+        { id: 'workspace-3', name: 'Workspace Three', teamUid: 'LOCAL', namespace: 'LOCAL', slug: 'LOCAL' },
       ])
     })
 
@@ -193,6 +193,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       expect(workspaces[0]).toEqual({
         id: 'workspace-1',
         name: 'Updated Name',
+        teamUid: 'LOCAL',
+        namespace: 'LOCAL',
+        slug: 'LOCAL',
       })
     })
 
@@ -262,6 +265,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       expect(workspaces[0]).toEqual({
         id: 'complex-workspace',
         name: 'Complex API Workspace',
+        teamUid: 'LOCAL',
+        namespace: 'LOCAL',
+        slug: 'LOCAL',
       })
     })
 
