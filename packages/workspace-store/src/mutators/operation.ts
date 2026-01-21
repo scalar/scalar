@@ -483,55 +483,6 @@ export const deleteOperationExample = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
- * Adds a parameter to the operation with an example value tracked by `exampleKey`.
- * For `path` parameters `required` is set to true automatically.
- * Safely no-ops if the document or operation does not exist.
- *
- * Example:
- * ```ts
- * addOperationParameter({
- *   document,
- *   type: 'query',
- *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
- *   payload: { key: 'q', value: 'john', isDisabled: false },
- * })
- * ```
- */
-// export const addOperationParameter = (
-//   document: WorkspaceDocument | null,
-//   { meta, payload, type }: OperationEvents['operation:add:parameter'],
-// ) => {
-//   if (!document) {
-//     return
-//   }
-
-//   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-//   // Don't proceed if operation doesn't exist
-//   if (!operation) {
-//     return
-//   }
-
-//   // Initialize parameters array if it doesn't exist
-//   if (!operation.parameters) {
-//     operation.parameters = []
-//   }
-
-//   // Add the new parameter
-//   operation.parameters.push({
-//     name: payload.name,
-//     in: type,
-//     required: type === 'path' ? true : false,
-//     examples: {
-//       [meta.exampleKey]: {
-//         value: payload.value,
-//         'x-disabled': Boolean(payload.isDisabled),
-//       },
-//     },
-//   })
-// }
-
-/**
  * Updates an existing parameter of a given `type` by its index within that
  * type subset (e.g. the N-th query parameter). Supports updating name, value,
  * and enabled state for the targeted example.
