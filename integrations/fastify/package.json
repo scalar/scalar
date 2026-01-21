@@ -69,16 +69,16 @@
     "@scalar/core": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "fastify-plugin": "^4.5.1",
+    "fastify-plugin": "catalog:*",
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {
-    "@fastify/basic-auth": "^5.1.1",
-    "@fastify/http-proxy": "^9.0.0",
+    "@fastify/basic-auth": "catalog:*",
+    "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
-    "fastify": "^4.26.2",
+    "fastify": "^4.0.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
