@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.8.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.10**
+  - [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 0.8.21
 
 ### Patch Changes

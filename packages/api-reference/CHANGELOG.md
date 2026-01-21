@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.43.10
+
+### Patch Changes
+
+- [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+- [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/api-client@2.19.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/sidebar@0.7.15**
+
+- **@scalar/components@0.16.25**
+
 ## 1.43.9
 
 ### Patch Changes

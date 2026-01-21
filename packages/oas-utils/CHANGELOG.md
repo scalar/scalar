@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.6.22
+
+### Patch Changes
+
+- [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
 ## 0.6.21
 
 ### Patch Changes

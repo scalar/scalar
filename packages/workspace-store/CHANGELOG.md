@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.25.1
+
+### Patch Changes
+
+- [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
 ## 0.25.0
 
 ### Minor Changes

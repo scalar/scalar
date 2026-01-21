@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.19.1
+
+### Patch Changes
+
+- [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+- [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/sidebar@0.7.15**
+
+- **@scalar/components@0.16.25**
+
+- **@scalar/use-codemirror@0.13.19**
+
 ## 2.19.0
 
 ### Minor Changes
