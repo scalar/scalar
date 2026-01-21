@@ -29,6 +29,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
+import { hasResponseContent } from './has-response-content'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -46,29 +47,11 @@ const orderedStatusCodes = computed<string[]>(() =>
   Object.keys(responses ?? {}).sort(),
 )
 
-/**
- * Checks if a response for a given status code has body content
- * (schema, example, or examples).
- */
-const hasResponseContent = (statusCode: string): boolean => {
-  const response = getResolvedRef(responses?.[statusCode])
-  const normalizedContent = normalizeMimeTypeObject(response?.content)
-  const keys = getObjectKeys(normalizedContent ?? {})
-
-  const mediaType =
-    normalizedContent?.['application/json'] ??
-    normalizedContent?.['application/xml'] ??
-    normalizedContent?.['text/plain'] ??
-    normalizedContent?.['text/html'] ??
-    normalizedContent?.['*/*'] ??
-    normalizedContent?.[keys[0] ?? '']
-
-  return !!(mediaType?.schema || mediaType?.example || mediaType?.examples)
-}
-
 // Filter to only status codes that have response content
 const statusCodesWithContent = computed<string[]>(() =>
-  orderedStatusCodes.value.filter(hasResponseContent),
+  orderedStatusCodes.value.filter((statusCode) =>
+    hasResponseContent(getResolvedRef(responses?.[statusCode])),
+  ),
 )
 
 // Keep track of the current selected tab
