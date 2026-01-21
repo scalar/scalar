@@ -22,7 +22,7 @@ import type {
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, toValue, useId } from 'vue'
+import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
@@ -56,6 +56,19 @@ const statusCodesWithContent = computed<string[]>(() =>
 
 // Keep track of the current selected tab
 const selectedResponseIndex = ref<number>(0)
+
+/**
+ * Clamp the selected index when the filtered list shrinks.
+ * Without this, the index can become out of bounds and cause a mismatch
+ * between the visible tabs and the displayed content.
+ */
+watch(statusCodesWithContent, (codes) => {
+  if (codes.length === 0) {
+    selectedResponseIndex.value = 0
+  } else if (selectedResponseIndex.value >= codes.length) {
+    selectedResponseIndex.value = codes.length - 1
+  }
+})
 
 // Return the whole response object
 const currentResponse = computed(() => {
