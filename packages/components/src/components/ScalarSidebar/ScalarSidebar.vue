@@ -20,7 +20,9 @@ const { cx } = useBindCx()
 <template>
   <aside
     v-bind="
-      cx('flex flex-col border-r bg-sidebar-b-1 border-sidebar-border w-72')
+      cx(
+        'flex flex-col border-r bg-sidebar-b-1 border-sidebar-border w-72 z-10',
+      )
     ">
     <slot />
   </aside>

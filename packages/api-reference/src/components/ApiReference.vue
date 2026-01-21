@@ -13,6 +13,7 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { ScalarIconSparkle, ScalarIconX } from '@scalar/icons'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -618,6 +619,12 @@ const documentUrl = computed(() => {
 })
 
 // --------------------------------------------------------------------------- */
+// Agent Scalar
+
+// Setup the ApiClient on mount
+const showAgent = ref(false)
+
+// --------------------------------------------------------------------------- */
 // Api Client Modal
 
 // Setup the ApiClient on mount
@@ -812,6 +819,25 @@ const colorMode = computed(() => {
         },
         $attrs.class,
       ]">
+      <!-- Agent Scalar -->
+      <div
+        v-show="showAgent"
+        class="scalar-app-exit"
+        @click="showAgent = false">
+        <button
+          class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+          type="button"
+          @click="eventBus.emit('ui:close:client-modal')">
+          <ScalarIconX weight="bold" />
+          <span class="sr-only">Close Client</span>
+        </button>
+      </div>
+      <div
+        v-show="showAgent"
+        class="agent-scalar">
+        <div
+          class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow"></div>
+      </div>
       <!-- Mobile Header and Sidebar when in modern layout -->
 
       <MobileHeader
@@ -855,12 +881,19 @@ const colorMode = computed(() => {
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="flex flex-col p-3 pt-1.5">
+                class="flex gap-1.5 p-3 pt-1.5">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
+                <button
+                  class="bg-sidebar-b-search text-sidebar-c-2 hover:text-sidebar-c-1 flex items-center gap-1.5 rounded border px-2 text-base whitespace-nowrap"
+                  type="button"
+                  @click="showAgent = !showAgent">
+                  <ScalarIconSparkle />
+                  Ask AI
+                </button>
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -1037,11 +1070,6 @@ const colorMode = computed(() => {
     min-height: 100dvh;
     --refs-sidebar-width: 0;
   }
-
-  /* When the toolbar is present, we need to offset the content */
-  .scalar-api-reference:has(.api-reference-toolbar) {
-    --refs-content-offset: 48px;
-  }
 }
 
 /* ----------------------------------------------------- */
@@ -1149,5 +1177,82 @@ const colorMode = computed(() => {
 .darklight-reference {
   width: 100%;
   margin-top: auto;
+}
+.ask-agent-scalar {
+  background: linear-gradient(
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.dark-mode .ask-agent-scalar {
+  background: linear-gradient(
+    var(--scalar-background-2),
+    var(--scalar-background-1)
+  );
+}
+.agent-scalar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - 50px);
+  height: 100dvh;
+  background: var(--scalar-background-1);
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+  transform: translate3d(
+    calc(-100% + var(--scalar-sidebar-width, 288px)),
+    0,
+    0
+  );
+  z-index: 2;
+  animation: 0.35s forwards scalaragentslidein;
+  box-shadow: var(--scalar-shadow-2);
+}
+.agent-scalar-container {
+  width: calc(100% - var(--scalar-sidebar-width, 288px));
+  height: 100%;
+  margin-left: auto;
+  overflow: auto;
+}
+.scalar-app-exit {
+  cursor: pointer;
+  z-index: 2;
+  background: #00000038;
+  width: 100vw;
+  height: 100vh;
+  transition: all 0.3s ease-in-out;
+  animation: 0.35s forwards scalardrawerexitfadein-6c81e410;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+.dark-mode .scalar .scalar-app-exit {
+  background: #00000073;
+}
+@keyframes scalaragentslidein {
+  from {
+    transform: translate3d(
+      calc(-100% + var(--scalar-sidebar-width, 288px)),
+      0,
+      0
+    );
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes scalardrawerexitfadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.app-exit-button {
+  color: white;
+  background: rgba(0, 0, 0, 0.1);
+}
+.app-exit-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>

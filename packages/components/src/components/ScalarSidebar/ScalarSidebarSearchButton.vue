@@ -21,7 +21,7 @@ const { cx } = useBindCx()
     </span>
     <span
       v-if="$slots.shortcut"
-      class="uppercase text-sidebar-c-2 bg-b-2 leading-none py-1 px-1.25 rounded">
+      class="uppercase text-sidebar-c-2 leading-none py-1 px-1.25 rounded text-xs font-medium border">
       <span class="sr-only">Keyboard Shortcut:</span>
       <kbd>
         <slot name="shortcut" />

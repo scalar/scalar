@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarListbox } from '@scalar/components'
-import { ScalarIconCaretUpDown } from '@scalar/icons'
-import { computed } from 'vue'
+import { ScalarIconCaretDown } from '@scalar/icons'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   options: { label: string; id: string }[]
@@ -24,19 +24,23 @@ const selected = computed(() =>
 <template>
   <div
     v-if="options.length > 1"
-    class="document-selector">
+    class="document-selector p-3 pb-0">
     <ScalarListbox
       :modelValue="selected"
       :options="formattedOptions"
       resize
-      @update:modelValue="(e) => emit('update:modelValue', e.id)">
+      @update:modelValue="(e) => emit('update:modelValue', e.id)"
+      v-slot="{ open }">
       <button
-        class="group/dropdown-label hover:bg-b-2 text-c-2 flex h-8 w-full cursor-pointer items-center rounded border px-2 py-1.75"
+        class="group/dropdown-label text-c-2 hover:text-c-1 flex w-full cursor-pointer items-center gap-1 font-medium"
         type="button">
-        <ScalarIconCaretUpDown class="mr-1 size-4 text-current" />
-        <span class="text-c-1 overflow-hidden text-base text-ellipsis">
+        <span class="overflow-hidden text-base text-ellipsis">
           {{ selected?.label || 'Select API' }}
         </span>
+        <ScalarIconCaretDown
+          weight="bold"
+          class="size-3 text-current transition-transform"
+          :class="{ 'rotate-180': open }" />
       </button>
     </ScalarListbox>
   </div>
