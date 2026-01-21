@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.12.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.10**
+  - [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 2.12.12
 
 ### Patch Changes

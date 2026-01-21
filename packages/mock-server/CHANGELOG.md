@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.8.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 0.8.16
 
 ### Patch Changes

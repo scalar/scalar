@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.0.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/components@0.16.25**
+
 ## 0.0.68
 
 ### Patch Changes

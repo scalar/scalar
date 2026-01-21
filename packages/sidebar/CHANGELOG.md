@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/components@0.16.25**
+
 ## 0.7.14
 
 ### Patch Changes

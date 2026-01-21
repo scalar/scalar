@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.266
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/components@0.16.25**
+
 ## 0.1.265
 
 ### Patch Changes
