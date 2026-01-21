@@ -56,11 +56,7 @@
       "default": "./dist/3.1-to-3.2/index.js"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "sideEffects": false,
+  "files": ["dist", "CHANGELOG.md"],
   "readme": {
     "title": "Scalar OpenAPI Upgrader",
     "badges": [
@@ -76,6 +72,7 @@
     ],
     "documentation": "https://scalar.com/tools/openapi-upgrader/getting-started"
   },
+  "sideEffects": false,
   "dependencies": {
     "@scalar/openapi-types": "workspace:*"
   },
