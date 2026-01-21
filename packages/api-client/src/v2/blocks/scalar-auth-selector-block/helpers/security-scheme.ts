@@ -42,6 +42,7 @@ export const formatScheme = ({
   id: generateHash(JSON.stringify(value)),
   label: type === 'openIdConnect' ? `${name} (coming soon)` : name,
   value,
+  isDeletable: true,
 })
 
 /** Formats complex security schemes */
@@ -89,13 +90,11 @@ export const getSecuritySchemeOptions = (
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
   /** We need to add the selected schemes if they do not already exist in the calculated options */
   selectedSchemes: SecurityRequirementObject[],
-  isReadOnly: boolean = false,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   /**
    * Build required schemes formatted as options and track scheme names in a single pass.
    * We use names (not full IDs) because we want to exclude any scheme that is already
    * required, regardless of its specific scopes or hash.
-   * Combined into a reduce to reduce (lol) the number of loops.
    */
   const { requiredFormatted, requiredSchemeNames, existingIds } = security.reduce(
     (acc, requirement) => {
@@ -147,10 +146,6 @@ export const getSecuritySchemeOptions = (
     { label: 'Required authentication', options: requiredFormatted },
     { label: 'Available authentication', options: availableFormatted },
   ]
-
-  if (isReadOnly) {
-    return requiredFormatted.length ? options : availableFormatted
-  }
 
   // Add new authentication options
   options.push({

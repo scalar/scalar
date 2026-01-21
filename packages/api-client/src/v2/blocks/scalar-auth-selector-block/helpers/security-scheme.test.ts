@@ -162,10 +162,10 @@ describe('security-scheme', () => {
       },
     } satisfies ComponentsObject['securitySchemes']
 
-    it('should return grouped options when not readonly', () => {
+    it('should return grouped options', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       expect(Array.isArray(result)).toBe(true)
       expect(result).toHaveLength(3) // Required, Available, Add new
@@ -196,40 +196,196 @@ describe('security-scheme', () => {
       expect(groups[2].options.every((opt) => opt.isDeletable === false)).toBe(true)
     })
 
-    it('should return options when readonly and has required schemes', () => {
+    it('should return all options when it has required schemes and no selected schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(2)
-      expect(result[0]!.label).toBe('Required authentication')
-
-      expect((result[0] as SecuritySchemeGroup).options).toHaveLength(1)
-      expect((result[0] as SecuritySchemeGroup).options[0]!.id).toBe('a4da7d48d8af6c6b')
-      expect((result[0] as SecuritySchemeGroup).options[0]!.label).toBe('apiKey')
-
-      expect(result[1]!.label).toBe('Available authentication')
-      expect((result[1] as SecuritySchemeGroup).options).toHaveLength(3)
-      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === '48cc5a8ff1d2df93')).toBe(true)
-      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === '8da8c10db72dcac3')).toBe(true)
-      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === '0ebf7bc7501f14c3')).toBe(true)
-    })
-
-    it('should return flat list when readonly and no required schemes', () => {
-      const security: NonNullable<OpenApiDocument['security']> = []
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
-
-      expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(4) // Available schemes only
-      expect((result as SecuritySchemeOption[])[0]?.id).toBe('a4da7d48d8af6c6b')
-      expect((result as SecuritySchemeOption[])[1]?.id).toBe('0ebf7bc7501f14c3')
-      expect((result as SecuritySchemeOption[])[2]?.id).toBe('48cc5a8ff1d2df93')
-      expect((result as SecuritySchemeOption[])[3]?.id).toBe('8da8c10db72dcac3')
+      expect(result).toStrictEqual([
+        {
+          label: 'Required authentication',
+          options: [
+            {
+              id: 'a4da7d48d8af6c6b',
+              label: 'apiKey',
+              value: { apiKey: [] },
+            },
+          ],
+        },
+        {
+          label: 'Available authentication',
+          options: [
+            {
+              id: '0ebf7bc7501f14c3',
+              label: 'httpBasic',
+              value: { httpBasic: [] },
+            },
+            {
+              id: '48cc5a8ff1d2df93',
+              label: 'oauth2',
+              value: { oauth2: [] },
+            },
+            {
+              id: '8da8c10db72dcac3',
+              label: 'openIdConnect (coming soon)',
+              value: { openIdConnect: [] },
+            },
+          ],
+        },
+        {
+          label: 'Add new authentication',
+          options: [
+            {
+              id: 'apiKeyCookie',
+              label: 'API Key in Cookies',
+              value: { apiKeyCookie: [] },
+              payload: {
+                type: 'apiKey',
+                in: 'cookie',
+                name: 'apiKeyCookie',
+                'x-scalar-secret-token': '',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'apiKeyHeader',
+              label: 'API Key in Headers',
+              value: { apiKeyHeader: [] },
+              payload: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'apiKeyHeader',
+                'x-scalar-secret-token': '',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'apiKeyQuery',
+              label: 'API Key in Query Params',
+              value: { apiKeyQuery: [] },
+              payload: {
+                type: 'apiKey',
+                in: 'query',
+                name: 'apiKeyQuery',
+                'x-scalar-secret-token': '',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'httpBasic',
+              label: 'HTTP Basic',
+              value: { httpBasic: [] },
+              payload: {
+                type: 'http',
+                scheme: 'basic',
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-username': '',
+                'x-scalar-secret-password': '',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'httpBearer',
+              label: 'HTTP Bearer',
+              value: { httpBearer: [] },
+              payload: {
+                type: 'http',
+                scheme: 'bearer',
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-username': '',
+                'x-scalar-secret-password': '',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'oauth2Implicit',
+              label: 'Oauth2 Implicit Flow',
+              value: { oauth2Implicit: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  implicit: {
+                    authorizationUrl: '',
+                    refreshUrl: '',
+                    'x-scalar-secret-client-id': '',
+                    'x-scalar-secret-redirect-uri': '',
+                    'x-scalar-secret-token': '',
+                    scopes: {},
+                  },
+                },
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'oauth2Password',
+              label: 'Oauth2 Password Flow',
+              value: { oauth2Password: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  password: {
+                    tokenUrl: '',
+                    refreshUrl: '',
+                    'x-scalar-secret-client-id': '',
+                    'x-scalar-secret-username': '',
+                    'x-scalar-secret-password': '',
+                    'x-scalar-secret-token': '',
+                    'x-scalar-secret-client-secret': '',
+                    scopes: {},
+                  },
+                },
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'oauth2ClientCredentials',
+              label: 'Oauth2 Client Credentials',
+              value: { oauth2ClientCredentials: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  clientCredentials: {
+                    tokenUrl: '',
+                    refreshUrl: '',
+                    'x-scalar-secret-client-id': '',
+                    'x-scalar-secret-token': '',
+                    'x-scalar-secret-client-secret': '',
+                    scopes: {},
+                  },
+                },
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'oauth2AuthorizationFlow',
+              label: 'Oauth2 Authorization Code',
+              value: { oauth2AuthorizationFlow: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  authorizationCode: {
+                    authorizationUrl: '',
+                    tokenUrl: '',
+                    refreshUrl: '',
+                    'x-scalar-secret-client-id': '',
+                    'x-scalar-secret-client-secret': '',
+                    'x-scalar-secret-token': '',
+                    'x-scalar-secret-redirect-uri': '',
+                    'x-usePkce': 'no',
+                    scopes: {},
+                  },
+                },
+              },
+              isDeletable: false,
+            },
+          ],
+        },
+      ])
     })
 
     it('should handle complex security schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [], httpBasic: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       const requiredOptions = groups[0]!.options
@@ -240,7 +396,7 @@ describe('security-scheme', () => {
 
     it('should handle missing security schemes gracefully', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ nonExistent: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // Should filter out undefined schemes
@@ -248,7 +404,7 @@ describe('security-scheme', () => {
 
     it('should handle empty security array', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // No required schemes
@@ -257,7 +413,7 @@ describe('security-scheme', () => {
 
     it('should handle empty security schemes object', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, {}, [], false)
+      const result = getSecuritySchemeOptions(security, {}, [])
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // No schemes found
@@ -266,7 +422,7 @@ describe('security-scheme', () => {
 
     it('should include all auth options in add new section', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       const addNewOptions = groups[2]!.options
@@ -288,7 +444,7 @@ describe('security-scheme', () => {
 
     it('should filter out required schemes from available options', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -328,7 +484,7 @@ describe('security-scheme', () => {
         undefinedScheme: undefined,
       } as unknown as NonNullable<ComponentsObject['securitySchemes']>
 
-      const result = getSecuritySchemeOptions(security, securitySchemesWithUndefined, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemesWithUndefined, [])
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -340,7 +496,7 @@ describe('security-scheme', () => {
     it('should create proper value objects for available schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -372,7 +528,7 @@ describe('security-scheme', () => {
     it('should create proper value objects for required schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
       const requiredOptions = groups[0]!.options
@@ -429,7 +585,7 @@ describe('security-scheme', () => {
         },
       }
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, [])
       expect(result[0]).toStrictEqual({
         label: 'Required authentication',
         options: [
@@ -481,7 +637,7 @@ describe('security-scheme', () => {
         },
       ]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes)
       expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
         {
           id: '05f6eac51b164030',
@@ -530,7 +686,7 @@ describe('security-scheme', () => {
         },
       ]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, false)
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes)
       expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
         {
           id: '05f6eac51b164030',

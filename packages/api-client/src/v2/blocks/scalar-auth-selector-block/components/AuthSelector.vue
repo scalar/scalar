@@ -38,7 +38,6 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
-  isReadOnly = false,
   isStatic = false,
   meta,
   proxyUrl,
@@ -50,8 +49,6 @@ const {
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
-  /** Whether we can add or delete auth schemes */
-  isReadOnly?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -98,7 +95,6 @@ const availableSchemeOptions = computed(() =>
     securityRequirements ?? [],
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
-    isReadOnly,
   ),
 )
 
@@ -273,7 +269,7 @@ defineExpose({
             {{ option.label }}
           </div>
           <ScalarIconButton
-            v-if="option.isDeletable ?? !isReadOnly"
+            v-if="option.isDeletable"
             class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
             :icon="ScalarIconTrash"
             :label="`Delete ${option.label}`"
