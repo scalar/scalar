@@ -60,7 +60,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "sideEffects": false,
   "readme": {
     "title": "Scalar OpenAPI Upgrader",
     "badges": [
@@ -76,6 +75,7 @@
     ],
     "documentation": "https://scalar.com/tools/openapi-upgrader/getting-started"
   },
+  "sideEffects": false,
   "dependencies": {
     "@scalar/openapi-types": "workspace:*"
   },

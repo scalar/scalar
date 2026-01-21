@@ -1672,9 +1672,6 @@ importers:
       '@scalar/use-hooks':
         specifier: workspace:*
         version: link:../use-hooks
-      '@vueless/storybook-dark-mode':
-        specifier: ^10.0.4
-        version: 10.0.4(storybook@10.1.10(@testing-library/dom@9.3.4)(prettier@3.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@vueuse/core':
         specifier: catalog:*
         version: 13.9.0(vue@3.5.26(typescript@5.8.3))
@@ -1730,6 +1727,9 @@ importers:
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.6
+      '@vueless/storybook-dark-mode':
+        specifier: ^10.0.4
+        version: 10.0.4(storybook@10.1.10(@testing-library/dom@9.3.4)(prettier@3.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       jsdom:
         specifier: catalog:*
         version: 26.1.0
