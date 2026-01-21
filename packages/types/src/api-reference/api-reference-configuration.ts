@@ -450,6 +450,7 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
   }
 
   // Migrate deprecated theme values to 'default'
+  // @ts-expect-error - We're deleting the deprecated attribute
   if (configuration.theme === 'fastify' || configuration.theme === 'elysiajs') {
     console.warn(
       `[DEPRECATED] You're using the deprecated '${configuration.theme}' theme. It has been replaced with 'default'.`,
