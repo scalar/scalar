@@ -235,6 +235,15 @@ export function initializeAppEventHandlers({
     },
   )
   eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
+  eventBus.on('ui:route:example', async ({ exampleName, callback }) => {
+    await router.value?.replace({
+      name: 'example',
+      params: {
+        exampleName,
+      },
+    })
+    callback('success')
+  })
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers

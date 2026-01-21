@@ -44,8 +44,12 @@ import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
-import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import {
+  buildResponseInstance,
+  sendRequest,
+} from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
+import { harToFetchResponse } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/har-to-fetch-response'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
@@ -103,8 +107,6 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
-  /** List of request history */
-  history: History[]
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Hides the client button on the header */
@@ -194,8 +196,14 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = result.controller
 
-  // Start the animation
-  eventBus.emit('hooks:on:request:sent')
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
@@ -205,8 +213,21 @@ const handleExecute = async () => {
     request: result.request,
   })
 
-  // Stop the animation
-  eventBus.emit('hooks:on:request:complete')
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:complete', {
+    payload: sendResult
+      ? {
+          response: sendResult.oringialResponse,
+          request: sendResult.request,
+          duration: sendResult.response.duration,
+        }
+      : undefined,
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   // Toast the execute error
   if (sendError) {
@@ -227,6 +248,51 @@ onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)
   eventBus.off('operation:cancel:request', cancelRequest)
 })
+
+const history = computed<History[]>(() =>
+  (operation['x-scalar-history'] ?? [])
+    .map((entry) => ({
+      method: entry.request.method as HttpMethodType,
+      path: entry.request.url,
+      duration: entry.time,
+      status: entry.response.status,
+    }))
+    .reverse(),
+)
+
+const handleSelectHistoryItem = ({ index }: { index: number }) => {
+  const historyItem = operation['x-scalar-history']?.[index]
+  if (!historyItem) {
+    return
+  }
+
+  eventBus.emit('ui:route:example', {
+    exampleName: 'draft',
+    callback: async () => {
+      console.log('historyItem', historyItem)
+      const fetchResponse = harToFetchResponse({
+        harResponse: historyItem.response,
+        url: historyItem.request.url,
+      })
+
+      // populate the history for the operation and set the response object
+      const [, responseInstance] = await buildResponseInstance({
+        response: fetchResponse,
+        modifiedRequest: new Request(historyItem.request.url, {
+          method: historyItem.request.method,
+        }),
+        duration: historyItem.time,
+        endTime: Date.now(),
+        isUsingProxy: false,
+        method: historyItem.request.method as HttpMethodType,
+      })
+
+      if (responseInstance) {
+        response.value = responseInstance.response
+      }
+    },
+  })
+}
 
 /**
  * When the path, method, or example key changes, clear the response and request
@@ -256,6 +322,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         :servers
         :source
         @execute="handleExecute"
+        @select:history:item="handleSelectHistoryItem"
         @update:servers="emit('update:servers')" />
     </div>
 

@@ -1,0 +1,183 @@
+import { Type } from '@scalar/typebox'
+
+const HeaderSchema = Type.Object({
+  name: Type.String(),
+  value: Type.String(),
+})
+
+type Header = {
+  name: string
+  value: string
+}
+
+/**
+ * This object contains detailed info about performed request.
+ */
+const RequestSchema = Type.Object({
+  /** Absolute URL of the request (fragments are not included). */
+  url: Type.String(),
+  /** Request method (`GET`, `POST`, ...). */
+  method: Type.String(),
+  /** List of header objects. */
+  headers: Type.Array(HeaderSchema),
+  /** List of cookie objects. */
+  cookies: Type.Array(HeaderSchema),
+  /**
+   * Total number of bytes from the start of the HTTP request message until
+   * (and including) the double CRLF before the body.
+   *
+   * Set to `-1` if the info is not available.
+   */
+  headersSize: Type.Number(),
+  /**
+   * Size of the request body (POST data payload) in bytes.
+   *
+   * Set to `-1` if the info is not available.
+   */
+  bodySize: Type.Number(),
+  /** Posted data info. */
+  postData: Type.Optional(
+    Type.Object({
+      /** Mime type of posted data. */
+      mimeType: Type.String(),
+      text: Type.Optional(Type.String()),
+    }),
+  ),
+})
+
+/**
+ * This object contains detailed info about performed request.
+ */
+type Request = {
+  /** Absolute URL of the request (fragments are not included). */
+  url: string
+  /** Request method (`GET`, `POST`, ...). */
+  method: string
+  /** List of header objects. */
+  headers: Header[]
+  /** List of cookie objects. */
+  cookies: Header[]
+  /**
+   * Total number of bytes from the start of the HTTP request message until
+   * (and including) the double CRLF before the body.
+   *
+   * Set to `-1` if the info is not available.
+   */
+  headersSize: number
+  /**
+   * Size of the request body (POST data payload) in bytes.
+   *
+   * Set to `-1` if the info is not available.
+   */
+  bodySize: number
+  /** Posted data info. */
+  postData?: {
+    /** Mime type of posted data. */
+    mimeType: string
+    text?: string
+  }
+}
+
+const ResponseSchema = Type.Object({
+  status: Type.Number(),
+  statusText: Type.String(),
+  headers: Type.Array(HeaderSchema),
+  cookies: Type.Array(HeaderSchema),
+  httpVersion: Type.String(),
+  redirectURL: Type.String(),
+  headersSize: Type.Number(),
+  bodySize: Type.Number(),
+  content: Type.Object({
+    size: Type.Number(),
+    mimeType: Type.String(),
+    encoding: Type.Optional(Type.String()),
+    text: Type.Optional(Type.String()),
+  }),
+})
+
+type Response = {
+  /** Response status. */
+  status: number
+  /** Response status description. */
+  statusText: string
+  /** Response HTTP Version. */
+  httpVersion: string
+  /** List of cookie objects. */
+  cookies: Header[]
+  /** List of header objects. */
+  headers: Header[]
+  /** Details about the response body. */
+  content: {
+    size: number
+    mimeType: string
+    encoding?: string
+    text?: string
+  }
+  /** Redirection target URL from the Location response header. */
+  redirectURL: string
+  /**
+   * Total number of bytes from the start of the HTTP response message until
+   * (and including) the double CRLF before the body.
+   *
+   * Set to `-1` if the info is not available.
+   *
+   * _The size of received response-headers is computed only from headers
+   * that are really received from the server. Additional headers appended by
+   * the browser are not included in this number, but they appear in the list
+   * of header objects._
+   */
+  headersSize: number
+  /**
+   * Size of the received response body in bytes.
+   *
+   * - Set to zero in case of responses coming from the cache (`304`).
+   * - Set to `-1` if the info is not available.
+   */
+  bodySize: number
+}
+
+const EntrySchema = Type.Object({
+  /**
+   * Total elapsed time of the request in milliseconds.
+   *
+   * This is the sum of all timings available in the timings object
+   * (i.e. not including `-1` values).
+   */
+  time: Type.Number(),
+  /** Detailed info about the request. */
+  request: RequestSchema,
+  /** Detailed info about the response. */
+  response: ResponseSchema,
+  /** Meta data about the request. */
+  meta: Type.Object({
+    /** The example key for the request. */
+    example: Type.String(),
+  }),
+})
+
+export type Entry = {
+  /**
+   * Total elapsed time of the request in milliseconds.
+   *
+   * This is the sum of all timings available in the timings object
+   * (i.e. not including `-1` values).
+   */
+  time: number
+  /** Detailed info about the request. */
+  request: Request
+  /** Detailed info about the response. */
+  response: Response
+  /** Meta data about the request. */
+  meta: {
+    /** The example key for the request. */
+    example: string
+  }
+}
+
+export const XScalarHistorySchema = Type.Object({
+  'x-scalar-history': Type.Optional(Type.Array(EntrySchema)),
+})
+
+export type XScalarHistory = {
+  'x-scalar-history'?: Entry[]
+}

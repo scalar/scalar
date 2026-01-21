@@ -9,6 +9,7 @@ import {
   type XScalarDisableParameters,
   XScalarDisableParametersSchema,
 } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
+import { type XScalarHistory, XScalarHistorySchema } from '@/schemas/extensions/operation/x-scalar-history'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
 import {
   type XScalarSelectedSecurity,
@@ -67,6 +68,7 @@ export const OperationObjectSchemaDefinition = compose(
   XCodeSamplesSchema,
   XScalarStabilitySchema,
   XScalarDisableParametersSchema,
+  XScalarHistorySchema,
 )
 
 export type OperationObject = {
@@ -100,4 +102,5 @@ export type OperationObject = {
   XCodeSamples &
   XScalarStability &
   XScalarSelectedSecurity &
-  XScalarDisableParameters
+  XScalarDisableParameters &
+  XScalarHistory

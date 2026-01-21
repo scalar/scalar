@@ -1,6 +1,15 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "playground", "test", "vite.config.ts"],
+  "include": [
+    "src",
+    "playground",
+    "test",
+    "vite.config.ts",
+    "../workspace-store/src/mutators/fetch-request-to-har.test.ts",
+    "../workspace-store/src/mutators/fetch-request-to-har.ts",
+    "../workspace-store/src/mutators/fetch-response-to-har.test.ts",
+    "../workspace-store/src/mutators/fetch-response-to-har.ts"
+  ],
   "compilerOptions": {
     "types": ["vite/client"],
     "paths": {

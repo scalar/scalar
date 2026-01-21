@@ -1,3 +1,5 @@
+import type { OperationExampleMeta } from '@/events/definitions/operation'
+
 /**
  * Event definitions for hooking into the API client lifecycle.
  *
@@ -12,7 +14,9 @@ export type HooksEvents = {
    * Use this event to trigger loading states, track analytics,
    * or perform actions when a request begins.
    */
-  'hooks:on:request:sent': undefined
+  'hooks:on:request:sent': {
+    meta: OperationExampleMeta
+  }
   /**
    * Fired when a request completes (either successfully or with an error)
    * or when the request is aborted by the user.
@@ -20,5 +24,14 @@ export type HooksEvents = {
    * Use this event to hide loading states, clean up resources,
    * or handle post-request logic regardless of the outcome.
    */
-  'hooks:on:request:complete': undefined
+  'hooks:on:request:complete': {
+    payload:
+      | {
+          response: Response
+          request: Request
+          duration: number
+        }
+      | undefined
+    meta: OperationExampleMeta
+  }
 }
