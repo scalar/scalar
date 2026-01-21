@@ -704,22 +704,7 @@ const handleSelectItem = async (
   caller?: 'sidebar',
   event?: MouseEvent,
 ) => {
-  console.log('[handleSelectItem] START', {
-    id,
-    caller,
-    hasEvent: !!event,
-    eventType: event?.type,
-    eventTarget: event?.target,
-    eventCurrentTarget: event?.currentTarget,
-  })
   const item = sidebarState.getEntryById(id)
-  console.log('[handleSelectItem] item', {
-    item,
-    itemType: item && 'type' in item ? item.type : 'unknown',
-    hasChildren: item && 'children' in item ? !!item.children : false,
-    childrenLength:
-      item && 'children' in item && item.children ? item.children.length : 0,
-  })
 
   // Handle expand/collapse for tags, models, and text items (like Introduction folder) that have children
   const isTag = item && 'type' in item && item.type === 'tag'
@@ -732,29 +717,13 @@ const handleSelectItem = async (
     item.children &&
     item.children.length > 0
   const isFolderType = isTag || isModels || isTextFolder
-  console.log('[handleSelectItem] folder checks', {
-    isTag,
-    isModels,
-    isTextFolder,
-    isFolderType,
-    itemTypeCheck: item && 'type' in item ? item.type : 'N/A',
-    hasChildrenCheck: item && 'children' in item ? !!item.children : false,
-    childrenLengthCheck:
-      item && 'children' in item && item.children ? item.children.length : 0,
-  })
 
   if (isFolderType) {
     // For text folders: check if click was on chevron vs text
     // For tags and models: always just toggle (same as before)
     if (isTextFolder && event) {
-      console.log('[handleSelectItem] isTextFolder with event')
       const target = event.target as HTMLElement
       const button = target?.closest('button')
-      console.log('[handleSelectItem] click target', {
-        targetTag: target?.tagName,
-        targetClass: target?.className,
-        hasButton: !!button,
-      })
 
       if (button) {
         const rect = button.getBoundingClientRect()
@@ -768,16 +737,8 @@ const handleSelectItem = async (
         // Then check position - use smaller threshold (28px or 25% of button, whichever is smaller)
         const clickedOnToggle =
           clickedOnSvg || clickX < Math.min(28, buttonWidth * 0.25)
-        console.log('[handleSelectItem] click analysis', {
-          clickX,
-          buttonWidth,
-          clickedOnSvg,
-          clickedOnToggle,
-          threshold: Math.min(28, buttonWidth * 0.25),
-        })
 
         if (clickedOnToggle) {
-          console.log('[handleSelectItem] Clicked on chevron - toggling only')
           // Clicked on chevron: just toggle (don't navigate)
           const unblock = blockIntersection()
           sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
@@ -785,25 +746,17 @@ const handleSelectItem = async (
           return
         }
 
-        console.log(
-          '[handleSelectItem] Clicked on text - ensuring expanded then navigating',
-        )
         // Clicked on text: ensure folder is expanded, then navigate
         // Don't toggle if already expanded - just ensure it's open
-        const wasExpanded = sidebarState.isExpanded(id)
-        console.log('[handleSelectItem] folder expanded state', { wasExpanded })
-        if (!wasExpanded) {
+        if (!sidebarState.isExpanded(id)) {
           const unblock = blockIntersection()
           sidebarState.setExpanded(id, true)
           unblock()
           // Use nextTick to ensure DOM updates before scrolling
           await nextTick()
-          console.log('[handleSelectItem] folder expanded, waited for nextTick')
         }
-        console.log('[handleSelectItem] Continuing to navigation...')
         // Continue to navigation below
       } else {
-        console.log('[handleSelectItem] No button found - toggling only')
         // No button found, just toggle
         const unblock = blockIntersection()
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
@@ -811,37 +764,6 @@ const handleSelectItem = async (
         return
       }
     } else {
-      console.log(
-        '[handleSelectItem] Not text folder or no event - toggling only',
-        {
-          isTextFolder,
-          hasEvent: !!event,
-          eventValue: event,
-          itemType: item && 'type' in item ? item.type : 'unknown',
-          hasChildren: item && 'children' in item ? !!item.children : false,
-          childrenLength:
-            item && 'children' in item && item.children
-              ? item.children.length
-              : 0,
-          conditionCheck: {
-            isTextType: item && 'type' in item && item.type === 'text',
-            hasChildrenProp: item && 'children' in item,
-            childrenExists:
-              item &&
-              'children' in item &&
-              item.children !== null &&
-              item.children !== undefined,
-            childrenLength:
-              item && 'children' in item && item.children
-                ? item.children.length
-                : 0,
-            childrenLengthGT0:
-              item && 'children' in item && item.children
-                ? item.children.length > 0
-                : false,
-          },
-        },
-      )
       // Tags and models: just toggle
       const unblock = blockIntersection()
       sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
@@ -850,35 +772,22 @@ const handleSelectItem = async (
     }
   }
 
-  console.log('[handleSelectItem] Reached navigation code')
   /** When in mobile menu we close the menu when we select an item that is not a tag, model, or text folder */
   if (!isTag && !isModels && !isTextFolder) {
     isSidebarOpen.value = false
   }
 
-  console.log('[handleSelectItem] Calling scrollToLazyElement', { id })
   scrollToLazyElement(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  console.log('[handleSelectItem] URL generated', {
-    url: url?.toString(),
-    id,
-    basePath: basePath.value,
-    isMultiDocument: isMultiDocument.value,
-  })
   if (url) {
     window.history.pushState({}, '', url)
-    console.log('[handleSelectItem] History updated', { url: url.toString() })
 
     // Trigger the onSidebarClick callback if the caller is sidebar
     if (caller === 'sidebar') {
       mergedConfig.value.onSidebarClick?.(url.toString())
-      console.log('[handleSelectItem] onSidebarClick callback triggered')
     }
-  } else {
-    console.log('[handleSelectItem] No URL generated - navigation skipped')
   }
-  console.log('[handleSelectItem] END')
 }
 eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
@@ -1004,14 +913,8 @@ const colorMode = computed(() => {
             :options="mergedConfig"
             role="navigation"
             @selectItem="
-              (id: string, event?: MouseEvent) => {
-                console.log('[ApiReference] @selectItem received', {
-                  id,
-                  hasEvent: !!event,
-                  event,
-                })
+              (id: string, event?: MouseEvent) =>
                 handleSelectItem(id, 'sidebar', event)
-              }
             ">
             <template #header>
               <!-- Wrap in a div when slot is filled -->

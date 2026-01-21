@@ -163,17 +163,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
-    @click="
-      (event: MouseEvent) => {
-        console.log('[SidebarItem] ScalarSidebarGroup click', {
-          id: item.id,
-          hasEvent: !!event,
-          eventType: event?.type,
-          eventTarget: event?.target,
-        })
-        emit('selectItem', item.id, event)
-      }
-    ">
+    @click="(event: MouseEvent) => emit('selectItem', item.id, event)">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
