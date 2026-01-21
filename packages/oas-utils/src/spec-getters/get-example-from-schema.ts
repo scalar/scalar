@@ -14,7 +14,7 @@ const MAX_LEVELS_DEEP = 10
 const MAX_PROPERTIES = 10
 
 /** Default name used for additional properties when no custom name is provided */
-const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'propertyName*'
+const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
 /**
  * Pre-computed date/time values to avoid expensive Date operations on every call.
@@ -256,7 +256,7 @@ const handleObjectSchema = (
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0
-        ? `${additional['x-additionalPropertiesName'].trim()}*`
+        ? additional['x-additionalPropertiesName'].trim()
         : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
     response[additionalName] = isAnyType
@@ -493,7 +493,7 @@ export const getExampleFromSchema = (
   // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getRaw(unpackOverridesProxy(_schema))
   if (seen.has(targetValue)) {
-    return '[Circular Reference]'
+    return undefined
   }
   seen.add(targetValue)
 
