@@ -61,6 +61,21 @@
     "CHANGELOG.md"
   ],
   "sideEffects": false,
+  "readme": {
+    "title": "Scalar OpenAPI Upgrader",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://scalar.com/tools/openapi-upgrader/getting-started"
+  },
   "dependencies": {
     "@scalar/openapi-types": "workspace:*"
   },
