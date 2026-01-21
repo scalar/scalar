@@ -912,7 +912,7 @@ describe('upsertOperationParameter', () => {
       type: 'path',
       index: 0,
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'id', value: '123', isDisabled: true },
+      payload: { name: 'id', value: '123', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
@@ -1122,8 +1122,7 @@ describe('upsertOperationParameter', () => {
     expect(params[1]).toMatchObject({ name: 'limit', in: 'query' })
     expect(params[2]).toMatchObject({ name: 'offset', in: 'query' })
     assert(params[2] && 'examples' in params[2] && params[2].examples)
-    // Note: When adding a new parameter, x-disabled is always set to false initially
-    expect(getResolvedRef(params[2].examples.default)?.['x-disabled']).toBe(false)
+    expect(getResolvedRef(params[2].examples.default)?.['x-disabled']).toBe(true)
   })
 
   it('no-ops when document is null', () => {
