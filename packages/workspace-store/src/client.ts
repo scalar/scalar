@@ -542,23 +542,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }
 
               const documentName = path[1] as string
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0) {
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
-                event.value['x-scalar-is-dirty'] = true
+                document['x-scalar-is-dirty'] = true
               }
 
               fireWorkspaceChange(event)
@@ -568,24 +567,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             /** Active document changes */
             if (type === 'activeDocument') {
               const documentName = getActiveDocumentName()
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               // Active document changed
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0) {
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
-                event.value['x-scalar-is-dirty'] = true
+                document['x-scalar-is-dirty'] = true
               }
 
               fireWorkspaceChange(event)
@@ -747,6 +745,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (!workspaceDocument) {
       return
     }
+
+    // Mark the document as not dirty since we are saving it
+    workspaceDocument['x-scalar-is-dirty'] = false
 
     // Obtain the raw state of the current document to ensure accurate diffing
     const activeDocumentRaw = unpackProxyObject(workspaceDocument)

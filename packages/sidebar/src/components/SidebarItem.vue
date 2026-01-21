@@ -177,25 +177,23 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     v-on="draggableEvents"
     @click="() => emit('selectItem', item.id)">
     <template
-      v-if="item.type === 'document' || slots.icon"
+      v-if="item.type === 'document'"
       #icon="{ open }">
       <slot
-        v-if="slots.icon"
         :item="item"
         name="icon"
-        :open="open" />
-      <template v-else>
+        :open="open">
         <LibraryIcon
           class="text-c-3 block group-hover/group-button:hidden"
           :src="('icon' in item && item.icon) || 'interface-content-folder'" />
         <ScalarSidebarGroupToggle
           class="text-c-3 hidden group-hover/group-button:flex"
           :open="open" />
-      </template>
+      </slot>
     </template>
     <span
       v-if="isDeprecated(item)"
-      class="line-through">
+      class="line-through">``
       <SidebarItemLabel
         :item
         :operationTitleSource="options?.operationTitleSource" />

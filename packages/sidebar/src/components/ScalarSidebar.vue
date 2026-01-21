@@ -73,7 +73,7 @@ const emit = defineEmits<{
   (e: 'selectItem', id: string): void
 }>()
 
-defineSlots<{
+const slots = defineSlots<{
   /** Overrides the main items list */
   default?(): unknown
   /** Adds an optional decorator for each item like an edit menu */
@@ -87,7 +87,7 @@ defineSlots<{
   /** Places content when an item is empty */
   empty?(props: { item: Item }): unknown
   /** Places content when an item is empty */
-  icon?(props: { item: Item }): unknown
+  icon?(props: { item: Item; open: boolean }): unknown
 }>()
 
 /**
@@ -125,21 +125,21 @@ const handleDragEnd = (
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emit('selectItem', id)">
           <template
-            v-if="$slots.decorator"
+            v-if="slots.decorator"
             #decorator="props">
             <slot
               name="decorator"
               v-bind="props" />
           </template>
           <template
-            v-if="$slots.empty"
+            v-if="slots.empty"
             #empty="props">
             <slot
               name="empty"
               v-bind="props" />
           </template>
           <template
-            v-if="$slots.icon"
+            v-if="slots.icon"
             #icon="props">
             <slot
               name="icon"
