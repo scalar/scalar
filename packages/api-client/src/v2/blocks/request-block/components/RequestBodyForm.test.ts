@@ -71,7 +71,7 @@ describe('RequestBodyForm', () => {
           RequestTable: {
             template: '<div data-testid="request-table"></div>',
             props: ['data', 'environment', 'showUploadButton'],
-            emits: ['addRow', 'updateRow', 'deleteRow', 'removeFile', 'uploadFile'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
           },
         },
       },
@@ -123,7 +123,7 @@ describe('RequestBodyForm', () => {
     expect(requestTable.props('data')).toEqual([])
   })
 
-  it('handles add, update, and delete row operations with correct event emissions', async () => {
+  it('handles upsert and delete row operations with correct event emissions', async () => {
     const example: ExampleObject = {
       value: {
         field1: 'value1',
@@ -141,7 +141,7 @@ describe('RequestBodyForm', () => {
           RequestTable: {
             template: '<div data-testid="request-table"></div>',
             props: ['data', 'environment', 'showUploadButton'],
-            emits: ['addRow', 'updateRow', 'deleteRow', 'removeFile', 'uploadFile'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
           },
         },
       },
@@ -151,8 +151,8 @@ describe('RequestBodyForm', () => {
 
     const requestTable = wrapper.findComponent(RequestTable)
 
-    // Test add row
-    await requestTable.vm.$emit('addRow', { name: 'field2', value: 'value2' })
+    // Test add row (upsert with index >= length)
+    await requestTable.vm.$emit('upsertRow', 10, { name: 'field2', value: 'value2' })
     await nextTick()
 
     const addEvents = wrapper.emitted('update:formValue')
@@ -166,8 +166,8 @@ describe('RequestBodyForm', () => {
       expect(lastAddEvent.some((row) => row.name === 'field2' && row.value === 'value2')).toBe(true)
     }
 
-    // Test update row
-    await requestTable.vm.$emit('updateRow', 0, { name: 'updatedField1', value: 'updatedValue1' })
+    // Test update row (upsert with existing index)
+    await requestTable.vm.$emit('upsertRow', 0, { name: 'updatedField1', value: 'updatedValue1' })
     await nextTick()
 
     const updateEvents = wrapper.emitted('update:formValue')
@@ -180,7 +180,7 @@ describe('RequestBodyForm', () => {
     }
 
     // Test update row with isDisabled
-    await requestTable.vm.$emit('updateRow', 0, { isDisabled: true })
+    await requestTable.vm.$emit('upsertRow', 0, { isDisabled: true })
     await nextTick()
 
     const disabledUpdateEvents = wrapper.emitted('update:formValue')
@@ -194,10 +194,12 @@ describe('RequestBodyForm', () => {
     await requestTable.vm.$emit('deleteRow', 0)
     await nextTick()
 
-    // Delete should update local state but not emit (based on implementation)
-    // The component filters the row but doesn't emit on delete
-    // Note: The current implementation doesn't emit on delete, only on add/update
-    // This test verifies the behavior as implemented
+    const deleteEvents = wrapper.emitted('update:formValue')
+    expect(deleteEvents).toBeTruthy()
+    const lastDeleteEvent = deleteEvents?.[deleteEvents.length - 1]?.[0]
+    if (Array.isArray(lastDeleteEvent)) {
+      expect(lastDeleteEvent).toHaveLength(1)
+    }
   })
 
   it('handles file upload for existing and new rows correctly', async () => {
@@ -216,7 +218,7 @@ describe('RequestBodyForm', () => {
           RequestTable: {
             template: '<div data-testid="request-table"></div>',
             props: ['data', 'environment', 'showUploadButton'],
-            emits: ['addRow', 'updateRow', 'deleteRow', 'removeFile', 'uploadFile'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
           },
         },
       },
@@ -331,7 +333,7 @@ describe('RequestBodyForm', () => {
           RequestTable: {
             template: '<div data-testid="request-table"></div>',
             props: ['data', 'environment', 'showUploadButton'],
-            emits: ['addRow', 'updateRow', 'deleteRow', 'removeFile', 'uploadFile'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
           },
         },
       },
@@ -358,7 +360,7 @@ describe('RequestBodyForm', () => {
           RequestTable: {
             template: '<div data-testid="request-table"></div>',
             props: ['data', 'environment', 'showUploadButton'],
-            emits: ['addRow', 'updateRow', 'deleteRow'],
+            emits: ['upsertRow', 'deleteRow'],
           },
         },
       },

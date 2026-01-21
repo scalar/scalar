@@ -483,55 +483,6 @@ export const deleteOperationExample = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
- * Adds a parameter to the operation with an example value tracked by `exampleKey`.
- * For `path` parameters `required` is set to true automatically.
- * Safely no-ops if the document or operation does not exist.
- *
- * Example:
- * ```ts
- * addOperationParameter({
- *   document,
- *   type: 'query',
- *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
- *   payload: { key: 'q', value: 'john', isDisabled: false },
- * })
- * ```
- */
-export const addOperationParameter = (
-  document: WorkspaceDocument | null,
-  { meta, payload, type }: OperationEvents['operation:add:parameter'],
-) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
-  if (!operation) {
-    return
-  }
-
-  // Initialize parameters array if it doesn't exist
-  if (!operation.parameters) {
-    operation.parameters = []
-  }
-
-  // Add the new parameter
-  operation.parameters.push({
-    name: payload.name,
-    in: type,
-    required: type === 'path' ? true : false,
-    examples: {
-      [meta.exampleKey]: {
-        value: payload.value,
-        'x-disabled': Boolean(payload.isDisabled),
-      },
-    },
-  })
-}
-
-/**
  * Updates an existing parameter of a given `type` by its index within that
  * type subset (e.g. the N-th query parameter). Supports updating name, value,
  * and enabled state for the targeted example.
@@ -548,17 +499,15 @@ export const addOperationParameter = (
  * })
  * ```
  */
-export const updateOperationParameter = (
+export const upsertOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, type, payload, index }: OperationEvents['operation:update:parameter'],
+  { meta, type, payload, index }: OperationEvents['operation:upsert:parameter'],
 ) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
@@ -567,7 +516,21 @@ export const updateOperationParameter = (
   // The passed index corresponds to this filtered list
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
+
+  // If it doesn't exist we probably need to add a new parameter (we can do length check as well if we want)
   if (!parameter) {
+    operation.parameters ||= []
+    operation.parameters.push({
+      name: payload.name,
+      in: type,
+      required: type === 'path' ? true : false,
+      examples: {
+        [meta.exampleKey]: {
+          value: payload.value,
+          'x-disabled': payload.isDisabled ?? false,
+        },
+      },
+    })
     return
   }
 
@@ -870,12 +833,10 @@ export const operationMutatorsFactory = ({
     deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
     deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
       deleteOperationExample(store, payload),
-    addOperationParameter: (payload: OperationEvents['operation:add:parameter']) =>
-      addOperationParameter(document, payload),
     updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>
       updateOperationExtraParameters(document, payload),
-    updateOperationParameter: (payload: OperationEvents['operation:update:parameter']) =>
-      updateOperationParameter(document, payload),
+    upsertOperationParameter: (payload: OperationEvents['operation:upsert:parameter']) =>
+      upsertOperationParameter(document, payload),
     deleteOperationParameter: (payload: OperationEvents['operation:delete:parameter']) =>
       deleteOperationParameter(document, payload),
     deleteAllOperationParameters: (payload: OperationEvents['operation:delete-all:parameters']) =>

@@ -29,7 +29,7 @@ describe('RequestParams', () => {
     expect(table.exists()).toBe(true)
   })
 
-  it('re-emits add, update, and delete events from RequestTable', async () => {
+  it('re-emits upsert and delete events from RequestTable', async () => {
     const wrapper = mount(RequestParams, {
       props: {
         eventBus,
@@ -42,15 +42,13 @@ describe('RequestParams', () => {
 
     const table = wrapper.findComponent({ name: 'RequestTable' })
 
-    // addRow -> add
-    await table.vm.$emit('addRow', { key: 'k', value: 'v' })
-    expect(wrapper.emitted('add')?.[0]?.[0]).toEqual({ key: 'k', value: 'v' })
-
-    // updateRow -> update
-    await table.vm.$emit('updateRow', 1, { key: 'x', value: 'y', isEnabled: true })
-    expect(wrapper.emitted('update')?.[0]?.[0]).toEqual({
-      index: 1,
-      payload: { key: 'x', value: 'y', isEnabled: true },
+    // upsertRow -> upsert
+    await table.vm.$emit('upsertRow', 1, { name: 'x', value: 'y', isDisabled: false })
+    expect(wrapper.emitted('upsert')?.[0]?.[0]).toBe(1)
+    expect(wrapper.emitted('upsert')?.[0]?.[1]).toEqual({
+      name: 'x',
+      value: 'y',
+      isDisabled: false,
     })
 
     // deleteRow -> delete

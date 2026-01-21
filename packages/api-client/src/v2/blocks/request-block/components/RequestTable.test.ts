@@ -15,7 +15,6 @@ describe('RequestTable', () => {
       props: {
         data: [],
         environment,
-        envVariables: [],
       },
     })
 
@@ -33,7 +32,6 @@ describe('RequestTable', () => {
           { name: 'header2', value: 'value2', isEnabled: false },
         ],
         environment,
-        envVariables: [],
       },
     })
 
@@ -50,7 +48,6 @@ describe('RequestTable', () => {
           { name: 'key2', value: 'val2', isEnabled: true },
         ],
         environment,
-        envVariables: [],
       },
     })
 
@@ -67,7 +64,6 @@ describe('RequestTable', () => {
           { name: '', value: '', isEnabled: false },
         ],
         environment,
-        envVariables: [],
       },
     })
 
@@ -76,12 +72,11 @@ describe('RequestTable', () => {
     expect(rows.length).toBe(2)
   })
 
-  it('emits addRow when updating last row', async () => {
+  it('emits upsertRow when updating last row', async () => {
     const wrapper = mount(RequestTable, {
       props: {
         data: [{ name: 'existing', value: 'data', isEnabled: true }],
         environment,
-        envVariables: [],
       },
     })
 
@@ -93,15 +88,18 @@ describe('RequestTable', () => {
       isDisabled: false,
     })
 
-    expect(wrapper.emitted('addRow')).toBeTruthy()
-    expect(wrapper.emitted('addRow')?.[0]?.[0]).toEqual({
-      name: 'new',
-      value: 'row',
-      isDisabled: false,
-    })
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]).toEqual([
+      1,
+      {
+        name: 'new',
+        value: 'row',
+        isDisabled: false,
+      },
+    ])
   })
 
-  it('emits updateRow when updating existing row', async () => {
+  it('emits upsertRow when updating existing row', async () => {
     const wrapper = mount(RequestTable, {
       props: {
         data: [
@@ -109,7 +107,6 @@ describe('RequestTable', () => {
           { name: 'key2', value: 'val2', isEnabled: false },
         ],
         environment,
-        envVariables: [],
       },
     })
 
@@ -121,8 +118,8 @@ describe('RequestTable', () => {
       isDisabled: true,
     })
 
-    expect(wrapper.emitted('updateRow')).toBeTruthy()
-    expect(wrapper.emitted('updateRow')?.[0]).toEqual([0, { name: 'updated', value: 'value', isDisabled: true }])
+    expect(wrapper.emitted('upsertRow')).toBeTruthy()
+    expect(wrapper.emitted('upsertRow')?.[0]).toEqual([0, { name: 'updated', value: 'value', isDisabled: true }])
   })
 
   it('emits deleteRow with correct index', async () => {
@@ -133,7 +130,6 @@ describe('RequestTable', () => {
           { name: 'key2', value: 'val2', isEnabled: true },
         ],
         environment,
-        envVariables: [],
       },
     })
 
@@ -149,7 +145,6 @@ describe('RequestTable', () => {
       props: {
         data: [{ name: 'file', value: '', isEnabled: true }],
         environment,
-        envVariables: [],
         showUploadButton: true,
       },
     })
@@ -166,7 +161,6 @@ describe('RequestTable', () => {
       props: {
         data: [{ name: 'file', value: 'test.pdf', isEnabled: true }],
         environment,
-        envVariables: [],
         showUploadButton: true,
       },
     })
@@ -183,7 +177,6 @@ describe('RequestTable', () => {
       props: {
         data: [{ name: 'test', value: 'value', isEnabled: true }],
         environment,
-        envVariables: [],
         hasCheckboxDisabled: true,
         label: 'Custom Label',
         showUploadButton: true,
@@ -201,7 +194,6 @@ describe('RequestTable', () => {
       props: {
         data: [],
         environment,
-        envVariables: [],
         label: 'Parameter',
       },
     })

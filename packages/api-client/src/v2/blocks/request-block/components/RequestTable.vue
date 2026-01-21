@@ -33,13 +33,13 @@ const {
  */
 const emit = defineEmits<{
   (
-    e: 'addRow',
-    payload: { name: string; value: string | File; isDisabled: boolean },
-  ): void
-  (
-    e: 'updateRow',
+    e: 'upsertRow',
     index: number,
-    payload: { name: string; value: string | File; isDisabled: boolean },
+    payload: {
+      name: string
+      value: string | File | undefined
+      isDisabled: boolean
+    },
   ): void
   (e: 'deleteRow', index: number): void
 
@@ -75,26 +75,6 @@ const displayData = computed(() => {
 
   return data
 })
-
-/**
- * Detect if the incoming event is an add or update and re-emit the event
- */
-const updateOrAdd = ({
-  index,
-  payload,
-}: {
-  index: number
-  payload: { name: string; value: string | File; isDisabled: boolean }
-}) => {
-  /** If the update happen on the last row, it means we need to add a new row */
-  if (index >= data.length) {
-    emit('addRow', payload)
-    return
-  }
-
-  /** Otherwise we just update the existing row */
-  emit('updateRow', index, payload)
-}
 </script>
 <template>
   <DataTable
@@ -107,19 +87,19 @@ const updateOrAdd = ({
     </DataTableRow>
 
     <RequestTableRow
-      v-for="(row, idx) in displayData"
-      :key="idx"
+      v-for="(row, index) in displayData"
+      :key="index"
       :data="row"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
       :invalidParams="invalidParams"
       :label="label"
       :showUploadButton="showUploadButton"
-      @deleteRow="emit('deleteRow', idx)"
+      @deleteRow="emit('deleteRow', index)"
       @navigate="(route) => emit('navigate', route)"
-      @removeFile="emit('removeFile', idx)"
-      @uploadFile="emit('uploadFile', idx)"
-      @upsertRow="(payload) => updateOrAdd({ index: idx, payload })" />
+      @removeFile="emit('removeFile', index)"
+      @uploadFile="emit('uploadFile', index)"
+      @upsertRow="(payload) => emit('upsertRow', index, payload)" />
   </DataTable>
 </template>
 <style scoped>
