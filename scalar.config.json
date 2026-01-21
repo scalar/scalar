@@ -1116,6 +1116,11 @@
                 "title": "Bump.sh",
                 "filepath": "documentation/migration/bump.md",
                 "type": "page"
+              },
+              "zuplo": {
+                "title": "Zuplo",
+                "filepath": "documentation/migration/zuplo.md",
+                "type": "page"
               }
             }
           },
