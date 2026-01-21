@@ -3,7 +3,6 @@ import { assert, describe, expect, it } from 'vitest'
 
 import {
   type SecuritySchemeGroup,
-  type SecuritySchemeOption,
   formatComplexScheme,
   formatScheme,
   getSecuritySchemeOptions,
@@ -21,6 +20,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: 'a4da7d48d8af6c6b',
         label: 'apiKey',
+        isDeletable: true,
         value: { apiKey: [] },
       })
     })
@@ -35,6 +35,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '8da8c10db72dcac3',
         label: 'openIdConnect (coming soon)',
+        isDeletable: true,
         value: { openIdConnect: [] },
       })
     })
@@ -49,6 +50,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: 'ec7e72bfb3525348',
         label: 'complexAuth',
+        isDeletable: true,
         value: { complexAuth: [] },
       })
     })
@@ -63,6 +65,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '0ebf7bc7501f14c3',
         label: 'httpBasic',
+        isDeletable: true,
         value: { httpBasic: [] },
       })
     })
@@ -77,6 +80,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '48cc5a8ff1d2df93',
         label: 'oauth2',
+        isDeletable: true,
         value: { oauth2: [] },
       })
     })
@@ -90,6 +94,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: 'a4da7d48d8af6c6b',
         label: 'apiKey',
+        isDeletable: true,
         value: { apiKey: [] },
       })
     })
@@ -101,6 +106,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '2d07634ebbbf7f6d',
         label: 'apiKey & httpBasic',
+        isDeletable: true,
         value: { apiKey: [], httpBasic: [] },
       })
     })
@@ -112,6 +118,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '01fb1802b124c9d5',
         label: 'apiKey & httpBasic & oauth2',
+        isDeletable: true,
         value: { apiKey: [], httpBasic: [], oauth2: [] },
       })
     })
@@ -123,6 +130,7 @@ describe('security-scheme', () => {
       expect(result).toEqual({
         id: '8fb36f5cafed1c20',
         label: '',
+        isDeletable: true,
         value: {},
       })
     })
@@ -208,6 +216,7 @@ describe('security-scheme', () => {
             {
               id: 'a4da7d48d8af6c6b',
               label: 'apiKey',
+              isDeletable: true,
               value: { apiKey: [] },
             },
           ],
@@ -218,16 +227,19 @@ describe('security-scheme', () => {
             {
               id: '0ebf7bc7501f14c3',
               label: 'httpBasic',
+              isDeletable: true,
               value: { httpBasic: [] },
             },
             {
               id: '48cc5a8ff1d2df93',
               label: 'oauth2',
+              isDeletable: true,
               value: { oauth2: [] },
             },
             {
               id: '8da8c10db72dcac3',
               label: 'openIdConnect (coming soon)',
+              isDeletable: true,
               value: { openIdConnect: [] },
             },
           ],
@@ -455,12 +467,14 @@ describe('security-scheme', () => {
         {
           id: '0ebf7bc7501f14c3',
           label: 'httpBasic',
+          isDeletable: true,
           value: { httpBasic: [] },
         },
-        { id: '48cc5a8ff1d2df93', label: 'oauth2', value: { oauth2: [] } },
+        { id: '48cc5a8ff1d2df93', label: 'oauth2', isDeletable: true, value: { oauth2: [] } },
         {
           id: '8da8c10db72dcac3',
           label: 'openIdConnect (coming soon)',
+          isDeletable: true,
           value: { openIdConnect: [] },
         },
       ])
@@ -470,6 +484,7 @@ describe('security-scheme', () => {
         {
           id: 'a4da7d48d8af6c6b',
           label: 'apiKey',
+          isDeletable: true,
           value: { apiKey: [] },
         },
       ])
@@ -505,21 +520,25 @@ describe('security-scheme', () => {
         {
           id: 'a4da7d48d8af6c6b',
           label: 'apiKey',
+          isDeletable: true,
           value: { apiKey: [] },
         },
         {
           id: '0ebf7bc7501f14c3',
           label: 'httpBasic',
+          isDeletable: true,
           value: { httpBasic: [] },
         },
         {
           id: '48cc5a8ff1d2df93',
           label: 'oauth2',
+          isDeletable: true,
           value: { oauth2: [] },
         },
         {
           id: '8da8c10db72dcac3',
           label: 'openIdConnect (coming soon)',
+          isDeletable: true,
           value: { openIdConnect: [] },
         },
       ])
@@ -592,11 +611,13 @@ describe('security-scheme', () => {
           {
             id: '8c854cac163762c9',
             label: 'UserAccessToken',
+            isDeletable: true,
             value: { UserAccessToken: ['read'] },
           },
           {
             id: 'f7e1089e69466df6',
             label: 'UserAccessToken',
+            isDeletable: true,
             value: { UserAccessToken: ['write'] },
           },
         ],
@@ -642,11 +663,13 @@ describe('security-scheme', () => {
         {
           id: '05f6eac51b164030',
           label: 'UserAccessToken',
+          isDeletable: true,
           value: { UserAccessToken: [] },
         },
         {
           id: '8c854cac163762c9',
           label: 'UserAccessToken',
+          isDeletable: true,
           value: { UserAccessToken: ['read'] },
         },
       ])
@@ -691,6 +714,7 @@ describe('security-scheme', () => {
         {
           id: '05f6eac51b164030',
           label: 'UserAccessToken',
+          isDeletable: true,
           value: { UserAccessToken: [] },
         },
       ])
