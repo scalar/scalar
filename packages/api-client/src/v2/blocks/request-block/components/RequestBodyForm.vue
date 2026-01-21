@@ -44,6 +44,7 @@ const handleUpsertRow = (
     isDisabled: boolean
   }>,
 ) => {
+  // Add new row
   if (index >= localFormBodyRows.value.length) {
     localFormBodyRows.value = [
       ...localFormBodyRows.value,
