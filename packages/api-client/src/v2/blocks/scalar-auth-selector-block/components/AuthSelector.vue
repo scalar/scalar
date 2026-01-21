@@ -97,6 +97,7 @@ const availableSchemeOptions = computed(() =>
   getSecuritySchemeOptions(
     securityRequirements ?? [],
     securitySchemes ?? {},
+    selectedSecurity?.selectedSchemes ?? [],
     isReadOnly,
   ),
 )
