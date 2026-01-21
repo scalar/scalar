@@ -104,6 +104,9 @@ export const baseConfigurationSchema = z.object({
       'mars',
       'laserwave',
       'none',
+      // Deprecated themes - will be migrated to 'default'
+      'fastify',
+      'elysiajs',
     ])
     .optional()
     .default('default')
