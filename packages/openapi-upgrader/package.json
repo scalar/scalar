@@ -56,7 +56,10 @@
       "default": "./dist/3.1-to-3.2/index.js"
     }
   },
-  "files": ["dist", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "readme": {
     "title": "Scalar OpenAPI Upgrader",
     "badges": [
