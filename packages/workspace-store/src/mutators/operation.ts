@@ -527,7 +527,7 @@ export const upsertOperationParameter = (
       examples: {
         [meta.exampleKey]: {
           value: payload.value,
-          'x-disabled': false,
+          'x-disabled': payload.isDisabled ?? false,
         },
       },
     })
