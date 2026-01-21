@@ -181,5 +181,44 @@ describe('has-response-content', () => {
         }),
       ).toBe(false)
     })
+
+    it('returns true for example with falsy value 0', () => {
+      expect(
+        hasResponseContent({
+          description: 'Zero count response',
+          content: {
+            'application/json': {
+              example: 0,
+            },
+          },
+        }),
+      ).toBe(true)
+    })
+
+    it('returns true for example with falsy value false', () => {
+      expect(
+        hasResponseContent({
+          description: 'Boolean false response',
+          content: {
+            'application/json': {
+              example: false,
+            },
+          },
+        }),
+      ).toBe(true)
+    })
+
+    it('returns true for example with falsy value empty string', () => {
+      expect(
+        hasResponseContent({
+          description: 'Empty string response',
+          content: {
+            'application/json': {
+              example: '',
+            },
+          },
+        }),
+      ).toBe(true)
+    })
   })
 })
