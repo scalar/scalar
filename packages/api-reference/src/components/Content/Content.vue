@@ -3,6 +3,7 @@ import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-co
 import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
+import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -33,6 +34,7 @@ const { document, items, environment, eventBus, options } = defineProps<{
   options: Pick<
     ApiReferenceConfigurationRaw,
     | 'authentication'
+    | 'baseServerURL'
     | 'documentDownloadType'
     | 'expandAllResponses'
     | 'hiddenClients'
@@ -42,6 +44,7 @@ const { document, items, environment, eventBus, options } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'persistAuth'
     | 'proxyUrl'
+    | 'servers'
     | 'showOperationId'
   >
   document: WorkspaceDocument | undefined
@@ -65,8 +68,18 @@ const documentExtensions = computed(() => getXKeysFromObject(document))
 /** Computed property to get all OpenAPI extension fields from the document's info object */
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
+/** Compute the servers for the document */
+const servers = computed(() =>
+  getServers(options?.servers ?? document?.servers, {
+    baseServerUrl: options?.baseServerURL,
+    documentUrl: document?.['x-scalar-original-source-url'],
+  }),
+)
+
 /** Compute the selected server for the document only (for now) */
-const selectedServer = computed(() => getSelectedServer(document ?? null))
+const selectedServer = computed(() =>
+  getSelectedServer(document ?? null, servers.value),
+)
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
@@ -99,12 +112,12 @@ const securitySchemes = computed(() =>
           <!-- Server Selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="document?.servers?.length"
+              v-if="servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
                 :eventBus
                 :selectedServer
-                :servers="document?.servers ?? []" />
+                :servers />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
 

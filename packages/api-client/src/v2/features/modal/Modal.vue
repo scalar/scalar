@@ -23,7 +23,11 @@ export type ModalProps = {
     Partial<
       Pick<
         ApiReferenceConfigurationRaw,
-        'authentication' | 'hideClientButton' | 'hiddenClients'
+        | 'authentication'
+        | 'baseServerURL'
+        | 'hideClientButton'
+        | 'hiddenClients'
+        | 'servers'
       >
     >
   >
@@ -66,7 +70,6 @@ import {
 
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -182,11 +185,6 @@ const securitySchemes = computed(() =>
   ),
 )
 
-/** Temporarily use the old config.hiddenClients until we migrate to the new httpClients config */
-const httpClients = computed(() =>
-  mapHiddenClientsConfig(toValue(options)?.hiddenClients),
-)
-
 defineExpose({
   sidebarWidth,
   environment,
@@ -238,10 +236,9 @@ defineExpose({
               :environment
               :eventBus
               :exampleName="exampleName?.value"
-              :hideClientButton="toValue(options)?.hideClientButton ?? false"
-              :httpClients
               layout="modal"
               :method="method?.value"
+              :options
               :path="path?.value"
               :plugins
               :securitySchemes
