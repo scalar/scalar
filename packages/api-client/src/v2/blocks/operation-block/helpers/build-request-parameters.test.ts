@@ -988,6 +988,250 @@ describe('buildRequestParameters', () => {
         expect(result.urlParams.get('colors')).toBe('blue|black|brown')
       })
     })
+
+    describe('object serialization', () => {
+      describe('simple style with objects', () => {
+        it('handles simple style object with explode: false in header', () => {
+          const params = [
+            {
+              name: 'X-Metadata',
+              in: 'header',
+              required: true,
+              style: 'simple',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: false -> role,admin,firstName,Alex
+          expect(result.headers['X-Metadata']).toBe('role,admin,firstName,Alex')
+        })
+
+        it('handles simple style object with explode: true in header', () => {
+          const params = [
+            {
+              name: 'X-Metadata',
+              in: 'header',
+              required: true,
+              style: 'simple',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: true -> role=admin,firstName=Alex
+          expect(result.headers['X-Metadata']).toBe('role=admin,firstName=Alex')
+        })
+
+        it('handles simple style object with explode: false in path', () => {
+          const params = [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style: 'simple',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: false -> role,admin,firstName,Alex (URL encoded)
+          expect(result.pathVariables.id).toBe('role%2Cadmin%2CfirstName%2CAlex')
+        })
+      })
+
+      describe('form style with objects', () => {
+        it('handles form style object with explode: true in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: true -> role=admin&firstName=Alex
+          // URLSearchParams should have separate entries
+          expect(result.urlParams.get('role')).toBe('admin')
+          expect(result.urlParams.get('firstName')).toBe('Alex')
+        })
+
+        it('handles form style object with explode: false in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: false -> filter=role,admin,firstName,Alex
+          expect(result.urlParams.get('filter')).toBe('role,admin,firstName,Alex')
+        })
+
+        it('handles form style object with explode: true in cookie', () => {
+          const params = [
+            {
+              name: 'session',
+              in: 'cookie',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: true creates separate cookie entries
+          expect(result.cookies).toHaveLength(2)
+          expect(result.cookies[0]).toMatchObject({ name: 'role', value: 'admin' })
+          expect(result.cookies[1]).toMatchObject({ name: 'firstName', value: 'Alex' })
+        })
+      })
+
+      describe('deepObject style', () => {
+        it('handles deepObject style in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'deepObject',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // deepObject style -> filter[role]=admin&filter[firstName]=Alex
+          expect(result.urlParams.get('filter[role]')).toBe('admin')
+          expect(result.urlParams.get('filter[firstName]')).toBe('Alex')
+        })
+
+        it('handles deepObject style with nested objects', () => {
+          const params = [
+            {
+              name: 'user',
+              in: 'query',
+              required: true,
+              style: 'deepObject',
+              explode: true,
+              examples: {
+                default: {
+                  value: {
+                    name: { first: 'Alex', last: 'Smith' },
+                    role: 'admin',
+                  },
+                },
+              },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // deepObject style with nested objects -> user[name][first]=Alex&user[name][last]=Smith&user[role]=admin
+          expect(result.urlParams.get('user[name][first]')).toBe('Alex')
+          expect(result.urlParams.get('user[name][last]')).toBe('Smith')
+          expect(result.urlParams.get('user[role]')).toBe('admin')
+        })
+      })
+
+      describe('edge cases with objects', () => {
+        it('handles empty object', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: {} } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Empty object should result in empty parameter value
+          expect(result.urlParams.get('filter')).toBe('')
+        })
+
+        it('handles object with special characters in values', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: { name: 'John Doe', email: 'john@example.com' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Special characters should be preserved in the serialization
+          expect(result.urlParams.get('filter')).toBe('name,John Doe,email,john@example.com')
+        })
+
+        it('handles object with numeric and boolean values', () => {
+          const params = [
+            {
+              name: 'config',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { limit: 10, active: true, offset: 0 } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Numeric and boolean values should be converted to strings
+          expect(result.urlParams.get('limit')).toBe('10')
+          expect(result.urlParams.get('active')).toBe('true')
+          expect(result.urlParams.get('offset')).toBe('0')
+        })
+
+        it('handles object with null and undefined values', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { name: 'John', age: null, city: undefined } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // null and undefined should be handled gracefully
+          expect(result.urlParams.get('name')).toBe('John')
+          expect(result.urlParams.get('age')).toBe('null')
+          // undefined properties may or may not be included depending on implementation
+        })
+      })
+    })
   })
 
   describe('content-based parameters', () => {

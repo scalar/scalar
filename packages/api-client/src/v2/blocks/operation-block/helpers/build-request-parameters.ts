@@ -9,32 +9,15 @@ import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/sch
 
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
-import { getDelimiter } from './get-delimiter'
 import { getExample } from './get-example'
-
-/**
- * Serializes a value based on the content type for content-based query parameters.
- * Content-based query parameters do not use style serialization and instead follow
- * their content type specification (e.g., application/json should be JSON.stringified).
- *
- * @param value - The value to serialize
- * @param contentType - The content type to use for serialization
- * @returns The serialized value as a string
- */
-const serializeContentValue = (value: unknown, contentType: string): string => {
-  // If already a string, return as is
-  if (typeof value === 'string') {
-    return value
-  }
-
-  // Handle JSON content types
-  if (contentType.includes('json')) {
-    return JSON.stringify(value)
-  }
-
-  // Default: convert to string
-  return String(value)
-}
+import {
+  serializeContentValue,
+  serializeDeepObjectStyle,
+  serializeFormStyle,
+  serializePipeDelimitedStyle,
+  serializeSimpleStyle,
+  serializeSpaceDelimitedStyle,
+} from './serialize-parameter'
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
@@ -57,7 +40,7 @@ export const buildRequestParameters = (
   exampleKey: string = 'default',
 ): {
   cookies: XScalarCookie[]
-  headers: Record<string, string>
+  headers: Record<string, unknown>
   pathVariables: Record<string, string>
   urlParams: URLSearchParams
 } => {
@@ -101,23 +84,30 @@ export const buildRequestParameters = (
           return acc
         }
 
-        // headers only support simple style which means we separate the value by commas for multiple values
+        // Headers only support simple style according to OpenAPI 3.1.1
+        const explode = 'explode' in param && param.explode !== undefined ? param.explode : false
+        const serialized = serializeSimpleStyle(replacedValue, explode)
+
+        // If the header already exists, append with comma (convert to string for concatenation)
         if (acc.headers[paramName]) {
-          acc.headers[paramName] += `,${replacedValue}`
+          acc.headers[paramName] = `${acc.headers[paramName]},${serialized}`
         } else {
-          acc.headers[paramName] = replacedValue
+          acc.headers[paramName] = serialized
         }
       }
 
       // Handle path parameters
       if (param.in === 'path') {
-        acc.pathVariables[paramName] = encodeURIComponent(replacedValue)
+        // Path parameters use simple style by default
+        const explode = 'explode' in param && param.explode !== undefined ? param.explode : false
+        const serialized = serializeSimpleStyle(replacedValue, explode)
+        acc.pathVariables[paramName] = encodeURIComponent(String(serialized))
       }
 
-      // Handle query parameters (currently array only)
+      // Handle query parameters
       if (param.in === 'query') {
-        /** If the parameter should be exploded, defaults to true*/
-        const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
+        /** If the parameter should be exploded, defaults to true for form style */
+        const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
 
         /** Style of the parameter, defaults to form */
         const style = 'style' in param && param.style ? param.style : 'form'
@@ -127,42 +117,97 @@ export const buildRequestParameters = (
           const serializedValue = serializeContentValue(replacedValue, contentType)
           acc.urlParams.set(paramName, serializedValue)
         }
-
-        // explode=true only supported on form style
-        else if (explode) {
-          acc.urlParams.append(paramName, replacedValue)
+        // Handle deepObject style
+        else if (style === 'deepObject' && explodeParam) {
+          const entries = serializeDeepObjectStyle(paramName, replacedValue)
+          for (const entry of entries) {
+            acc.urlParams.append(entry.key, entry.value)
+          }
         }
-
-        // handle the rest of the array styles
-        else {
+        // Handle spaceDelimited style
+        else if (style === 'spaceDelimited') {
+          const serialized = serializeSpaceDelimitedStyle(replacedValue)
           const existingValue = acc.urlParams.get(paramName)
-
-          // If the parameter already has a value, append the new value with the delimiter
           if (existingValue) {
-            const delimiter = getDelimiter(style)
-            acc.urlParams.set(paramName, `${existingValue}${delimiter}${replacedValue}`)
+            acc.urlParams.set(paramName, `${existingValue} ${serialized}`)
           } else {
-            acc.urlParams.set(paramName, replacedValue)
+            acc.urlParams.set(paramName, serialized)
+          }
+        }
+        // Handle pipeDelimited style
+        else if (style === 'pipeDelimited') {
+          const serialized = serializePipeDelimitedStyle(replacedValue)
+          const existingValue = acc.urlParams.get(paramName)
+          if (existingValue) {
+            acc.urlParams.set(paramName, `${existingValue}|${serialized}`)
+          } else {
+            acc.urlParams.set(paramName, serialized)
+          }
+        }
+        // Handle form style (default)
+        else {
+          // When explode is not explicitly set and the value is an array or object,
+          // treat it as explode: false to serialize as a single value
+          const explode =
+            explodeParam &&
+            !('explode' in param) &&
+            (Array.isArray(replacedValue) || (typeof replacedValue === 'object' && replacedValue !== null))
+              ? false
+              : explodeParam
+
+          const serialized = serializeFormStyle(replacedValue, explode)
+
+          // If serialized is an array of key-value pairs (exploded object or array)
+          if (Array.isArray(serialized)) {
+            for (const entry of serialized) {
+              // If key is empty, use paramName (for arrays)
+              const key = entry.key || paramName
+              acc.urlParams.append(key, String(entry.value))
+            }
+          }
+          // Otherwise, convert to string for URLSearchParams
+          else {
+            acc.urlParams.append(paramName, String(serialized))
           }
         }
       }
 
       // Handle cookies
       if (param.in === 'cookie') {
-        acc.cookies.push(
-          coerceValue(xScalarCookieSchema, {
-            name: paramName,
-            value: replacedValue,
-            path: '/',
-          }),
-        )
+        // Cookies only support form style according to OpenAPI 3.1.1
+        const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
+        const serialized = serializeFormStyle(replacedValue, explode)
+
+        // If serialized is an array of key-value pairs (exploded object or array)
+        if (Array.isArray(serialized)) {
+          for (const entry of serialized) {
+            const key = entry.key || paramName
+            acc.cookies.push(
+              coerceValue(xScalarCookieSchema, {
+                name: key,
+                value: String(entry.value),
+                path: '/',
+              }),
+            )
+          }
+        }
+        // Otherwise, convert to string for cookie value
+        else {
+          acc.cookies.push(
+            coerceValue(xScalarCookieSchema, {
+              name: paramName,
+              value: String(serialized),
+              path: '/',
+            }),
+          )
+        }
       }
 
       return acc
     },
     {
       cookies: [] as XScalarCookie[],
-      headers: {} as Record<string, string>,
+      headers: {} as Record<string, unknown>,
       pathVariables: {} as Record<string, string>,
       urlParams: new URLSearchParams(),
     },
