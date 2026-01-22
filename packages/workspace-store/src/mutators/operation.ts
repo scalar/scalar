@@ -350,9 +350,11 @@ export const updateOperationPathMethod = (
     }
   }
 
-  // Get the document configuration to generate IDs consistently
-  const documentConfig = store.getDocumentConfiguration(documentNavigation.name)
-  const { generateId } = getNavigationOptions(documentNavigation.name, documentConfig)
+  /**
+   * We don't pass navigation options as we don't have config on the client,
+   * and we don't change path or method on the references
+   */
+  const { generateId } = getNavigationOptions(documentNavigation.name)
 
   /** Grabs all of the current operation entries for the given path and method */
   const operationEntriesMap = getOperationEntries(documentNavigation)

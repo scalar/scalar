@@ -8,6 +8,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
+import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -18,7 +19,6 @@ import {
   type OperationObject,
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
@@ -40,7 +40,6 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
-  config?: DocumentConfiguration
 }
 type CreateServerWorkspaceStore =
   | ({
@@ -237,7 +236,10 @@ function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<Loa
 /**
  * Create server state workspace store
  */
-export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
+export async function createServerWorkspaceStore(
+  workspaceProps: CreateServerWorkspaceStore,
+  navigationOptions?: NavigationOptions,
+) {
   /**
    * Base workspace document containing essential metadata and document references.
    *
@@ -278,7 +280,11 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * @param document - The OpenAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
-  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
+  const addDocumentSync = (
+    document: Record<string, unknown>,
+    meta: { name: string } & WorkspaceDocumentMeta,
+    navigationOptions: NavigationOptions,
+  ) => {
     const { name, ...documentMeta } = meta
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
@@ -298,7 +304,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const navigation = createNavigation(name, documentV3, workspaceProps.config ?? {})
+    const navigation = createNavigation(name, documentV3, navigationOptions)
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -321,7 +327,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    *
    * @param input - The document input containing the document source and metadata
    */
-  const addDocument = async (input: WorkspaceDocumentInput) => {
+  const addDocument = async (input: WorkspaceDocumentInput, navigationOptions: NavigationOptions) => {
     const document = await loadDocument(input)
 
     if (!document.ok) {
@@ -329,11 +335,11 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
   }
 
   // Load and process all initial documents in parallel
-  await Promise.all(workspaceProps.documents.map(addDocument))
+  await Promise.all(workspaceProps.documents.map((document) => addDocument(document, navigationOptions)))
 
   return {
     /**

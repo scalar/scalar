@@ -1,24 +1,36 @@
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { slug } from 'github-slugger'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { IdGenerator } from '@/schemas/navigation'
-import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
+
+export type NavigationOptions =
+  | Pick<
+      ApiReferenceConfigurationRaw,
+      | 'generateHeadingSlug'
+      | 'generateTagSlug'
+      | 'generateOperationSlug'
+      | 'generateWebhookSlug'
+      | 'generateModelSlug'
+      | 'operationsSorter'
+      | 'tagsSorter'
+      | 'hideModels'
+    >
+  | undefined
 
 /**
  * Returns options for traversing an OpenAPI document, allowing customization of
  * how IDs and slugs are generated for tags, headings, models, operations, and webhooks.
  * The returned options can be influenced by the provided DocumentConfiguration
  */
-export const getNavigationOptions = (documentName: string, config?: DocumentConfiguration): TraverseSpecOptions => {
-  const referenceConfig = config?.['x-scalar-reference-config']
-
+export const getNavigationOptions = (documentName: string, options?: NavigationOptions): TraverseSpecOptions => {
   const generateId: IdGenerator = (props) => {
     const documentId = `${slug(documentName)}`
 
     // -------- Default text id generation logic --------
     if (props.type === 'text') {
-      if (referenceConfig?.generateHeadingSlug) {
-        return referenceConfig?.generateHeadingSlug({ slug: props.slug })
+      if (options?.generateHeadingSlug) {
+        return options?.generateHeadingSlug({ slug: props.slug })
       }
 
       if (props.slug) {
@@ -30,8 +42,8 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
 
     // -------- Default tag id generation logic --------
     if (props.type === 'tag') {
-      if (referenceConfig?.generateTagSlug) {
-        return `${documentId}/tag/${referenceConfig.generateTagSlug(props.tag)}`
+      if (options?.generateTagSlug) {
+        return `${documentId}/tag/${options.generateTagSlug(props.tag)}`
       }
 
       return `${documentId}/tag/${slug(props.tag.name ?? '')}`
@@ -47,8 +59,8 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
           })}/`
         : `${documentId}/`
 
-      if (referenceConfig?.generateOperationSlug) {
-        return `${prefixTag}${referenceConfig.generateOperationSlug({
+      if (options?.generateOperationSlug) {
+        return `${prefixTag}${options.generateOperationSlug({
           path: props.path,
           operationId: props.operation.operationId,
           method: props.method.toUpperCase(),
@@ -69,8 +81,8 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
           })}/`
         : `${documentId}/`
 
-      if (referenceConfig?.generateWebhookSlug) {
-        return `${prefixTag}webhook/${referenceConfig.generateWebhookSlug({
+      if (options?.generateWebhookSlug) {
+        return `${prefixTag}webhook/${options.generateWebhookSlug({
           name: props.name,
           method: props.method?.toUpperCase(),
         })}`
@@ -93,8 +105,8 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
           })}/`
         : `${documentId}/`
 
-      if (referenceConfig?.generateModelSlug) {
-        return `${prefixTag}model/${referenceConfig.generateModelSlug({
+      if (options?.generateModelSlug) {
+        return `${prefixTag}model/${options.generateModelSlug({
           name: props.name,
         })}`
       }
@@ -115,14 +127,10 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
     return 'unknown-id'
   }
 
-  const hideModels = referenceConfig?.features?.showModels === false
-  const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter
-  const tagsSorter: TraverseSpecOptions['tagsSorter'] = referenceConfig?.tagSort
-
   return {
-    hideModels,
-    operationsSorter,
-    tagsSorter,
+    hideModels: options?.hideModels ?? false,
+    operationsSorter: options?.operationsSorter,
+    tagsSorter: options?.tagsSorter,
     generateId,
   }
 }
