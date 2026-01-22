@@ -1915,4 +1915,210 @@ describe('upgradeFromTwoToThree', () => {
     // Should not have examples since x-examples was an array, not a valid object
     expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
   })
+
+  it('transforms response examples from Swagger 2.0 to OpenAPI 3.0 format', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Response examples test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/api/dashboard/locations': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Successful response',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    locations: {
+                      type: 'array',
+                      items: { type: 'string' },
+                    },
+                  },
+                },
+                examples: {
+                  'application/json': {
+                    locations: ['New York', 'Los Angeles'],
+                  },
+                },
+              },
+              '400': {
+                description: 'Bad request',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    errors: {
+                      type: 'object',
+                      properties: {
+                        client: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+                examples: {
+                  'application/json': {
+                    errors: {
+                      client: 'Required parameter missing or the value is empty.',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Check 200 response example
+    const response200 = result.paths?.['/api/dashboard/locations']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['application/json']?.example).toStrictEqual({
+      locations: ['New York', 'Los Angeles'],
+    })
+
+    // Check 400 response example
+    const response400 = result.paths?.['/api/dashboard/locations']?.get?.responses?.['400'] as OpenAPIV3.ResponseObject
+    expect(response400.content?.['application/json']?.example).toStrictEqual({
+      errors: {
+        client: 'Required parameter missing or the value is empty.',
+      },
+    })
+
+    // Ensure the old examples property is removed from responses
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+    expect((response400 as Record<string, unknown>).examples).toBeUndefined()
+  })
+
+  it('transforms response examples with multiple media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Response examples multiple media types test', version: '1.0' },
+      produces: ['application/json', 'application/xml'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Successful response',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                  },
+                },
+                examples: {
+                  'application/json': {
+                    message: 'Hello JSON',
+                  },
+                  'application/xml': '<message>Hello XML</message>',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['application/json']?.example).toStrictEqual({
+      message: 'Hello JSON',
+    })
+    expect(response200.content?.['application/xml']?.example).toBe('<message>Hello XML</message>')
+  })
+
+  it('transforms global responses defined in #/responses with examples', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Global responses test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/api/dashboard/locations': {
+          get: {
+            responses: {
+              '200': {
+                $ref: '#/responses/locations-response',
+              },
+              '400': {
+                $ref: '#/responses/error-response',
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        'locations-response': {
+          description: 'Successful response with locations',
+          schema: {
+            type: 'object',
+            properties: {
+              locations: {
+                type: 'array',
+                items: { type: 'string' },
+              },
+            },
+          },
+          examples: {
+            'application/json': {
+              locations: ['New York', 'Los Angeles'],
+            },
+          },
+        },
+        'error-response': {
+          description: 'Error response',
+          schema: {
+            type: 'object',
+            properties: {
+              errors: {
+                type: 'object',
+                properties: {
+                  client: { type: 'string' },
+                },
+              },
+            },
+          },
+          examples: {
+            'application/json': {
+              errors: {
+                client: 'Required parameter missing or the value is empty.',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Check that $refs are updated to point to components/responses
+    expect(result.paths?.['/api/dashboard/locations']?.get?.responses?.['200']).toStrictEqual({
+      $ref: '#/components/responses/locations-response',
+    })
+    expect(result.paths?.['/api/dashboard/locations']?.get?.responses?.['400']).toStrictEqual({
+      $ref: '#/components/responses/error-response',
+    })
+
+    // Check that global responses are moved to components.responses with transformed examples
+    const locationsResponse = result.components?.responses?.['locations-response'] as OpenAPIV3.ResponseObject
+    expect(locationsResponse.description).toBe('Successful response with locations')
+    expect(locationsResponse.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      properties: {
+        locations: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
+    })
+    expect(locationsResponse.content?.['application/json']?.example).toStrictEqual({
+      locations: ['New York', 'Los Angeles'],
+    })
+
+    const errorResponse = result.components?.responses?.['error-response'] as OpenAPIV3.ResponseObject
+    expect(errorResponse.description).toBe('Error response')
+    expect(errorResponse.content?.['application/json']?.example).toStrictEqual({
+      errors: {
+        client: 'Required parameter missing or the value is empty.',
+      },
+    })
+
+    // Ensure the old responses property is removed from document root
+    expect((result as Record<string, unknown>).responses).toBeUndefined()
+  })
 })
