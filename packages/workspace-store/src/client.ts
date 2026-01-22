@@ -203,7 +203,7 @@ export type WorkspaceStore = {
   replaceDocument(
     documentName: string,
     input: Record<string, unknown>,
-    navigationOptions?: NavigationOptions,
+    navigationOptions: NavigationOptions,
   ): Promise<void>
   /**
    * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
@@ -235,7 +235,7 @@ export type WorkspaceStore = {
    *   }
    * })
    */
-  addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions): Promise<boolean>
+  addDocument(input: WorkspaceDocumentInput, navigationOptions: NavigationOptions): Promise<boolean>
   /**
    * Deletes a document from the workspace and all associated data.
    *
@@ -408,7 +408,7 @@ export type WorkspaceStore = {
    */
   importWorkspaceFromSpecification(
     specification: WorkspaceSpecification,
-    navigationOptions?: NavigationOptions,
+    navigationOptions: NavigationOptions,
   ): Promise<boolean[]>
   /**
    * Rebases a document in the workspace by refetching its origin and merging with local edits.
@@ -928,7 +928,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
     },
-    async replaceDocument(documentName: string, input: Record<string, unknown>, navigationOptions?: NavigationOptions) {
+    async replaceDocument(documentName: string, input: Record<string, unknown>, navigationOptions: NavigationOptions) {
       const currentDocument = workspace.documents[documentName]
 
       if (!currentDocument) {
@@ -1015,7 +1015,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
     saveDocument,
-    async revertDocumentChanges(documentName: string, navigationOptions?: NavigationOptions) {
+    async revertDocumentChanges(documentName: string, navigationOptions: NavigationOptions) {
       const workspaceDocument = workspace.documents[documentName]
       const intermediate = intermediateDocuments[documentName]
 
@@ -1074,10 +1074,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
     },
-    importWorkspaceFromSpecification: (
-      specification: WorkspaceSpecification,
-      navigationOptions?: NavigationOptions,
-    ) => {
+    importWorkspaceFromSpecification: (specification: WorkspaceSpecification, navigationOptions: NavigationOptions) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
