@@ -30,7 +30,7 @@ You can customize your rule by:
 - Adding custom rules
 - Overriding existing rules
 
-For more information about Spectral rules and how to write custom rules, see the [Spectral documentation](https://meta.stoplight.io/docs/spectral/docs/getting-started/rulesets.md).
+For more information about Spectral rules and how to write custom rules, see the [Spectral documentation](https://docs.stoplight.io/docs/spectral/01baf06bdd05a-create-a-ruleset).
 
 ## Access Control
 
