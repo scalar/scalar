@@ -43,7 +43,6 @@ import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 import type { OpenCommandEvent } from '@/v2/features/command-palette/hooks/use-command-palette-state'
-import { getFetch } from '@/v2/helpers/get-fetch'
 import { isUrl } from '@/v2/helpers/is-url'
 import { slugify } from '@/v2/helpers/slugify'
 
@@ -166,14 +165,9 @@ const importContents = async (content: string): Promise<ImportResult> => {
       return { success: false }
     }
 
-    const fetch = getFetch({
-      proxyUrl: workspaceStore.workspace['x-scalar-active-proxy'],
-    })
-
     const success = await workspaceStore.addDocument({
       name,
       url: content,
-      fetch,
       meta: {
         'x-scalar-watch-mode': watchMode.value,
       },

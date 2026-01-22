@@ -5,7 +5,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment, getFetch } from '@scalar/api-client/v2/helpers'
+import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -479,7 +479,7 @@ const changeSelectedDocument = async (
         ? {
             name: slug,
             url: normalized.source.url,
-            fetch: getFetch(config),
+            fetch: config.fetch,
           }
         : {
             name: slug,
@@ -541,7 +541,7 @@ watch(
           {
             name: updated.slug,
             url: updated.source.url,
-            fetch: getFetch(updated.config),
+            fetch: updated.config.fetch,
           },
           mergedConfig.value,
         )

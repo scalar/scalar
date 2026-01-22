@@ -3,8 +3,11 @@ import '@/style.css'
 
 import { createApiClientModal } from '@/v2/features/modal/helpers/create-api-client-modal'
 
-const workspaceStore = createWorkspaceStore()
-workspaceStore.update('x-scalar-active-proxy', 'https://proxy.scalar.com')
+const workspaceStore = createWorkspaceStore({
+  meta: {
+    'x-scalar-active-proxy': 'https://proxy.scalar.com',
+  },
+})
 await workspaceStore.addDocument({
   name: 'default',
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',

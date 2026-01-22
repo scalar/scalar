@@ -16,6 +16,7 @@ import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
+import { getFetch } from '@/helpers/get-fetch'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
@@ -811,10 +812,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
 
-    const resolve = await measureAsync(
-      'loadDocument',
-      async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
-    )
+    /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
+    const fetch = getFetch({
+      fetch: input.fetch ?? workspaceProps?.fetch,
+      proxyUrl: workspace['x-scalar-active-proxy'],
+    })
+
+    const resolve = await measureAsync('loadDocument', async () => await loadDocument({ ...input, fetch }))
 
     // Log the time taken to add a document
     return await measureAsync('addDocument', async () => {

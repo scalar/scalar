@@ -48,13 +48,20 @@ export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSche
 export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
 
 export const WorkspaceMetaSchema = Type.Partial(
-  Type.Object({
-    [extensions.workspace.colorMode]: Type.Union([Type.Literal('system'), Type.Literal('light'), Type.Literal('dark')]),
-    [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
-    [extensions.workspace.activeDocument]: Type.String(),
-    [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
-    [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
-  }),
+  compose(
+    Type.Object({
+      [extensions.workspace.colorMode]: Type.Union([
+        Type.Literal('system'),
+        Type.Literal('light'),
+        Type.Literal('dark'),
+      ]),
+      [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
+      [extensions.workspace.activeDocument]: Type.String(),
+      [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
+      [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
+    }),
+    XScalarActiveProxySchema,
+  ),
 )
 
 export type ColorMode = 'system' | 'light' | 'dark'
@@ -65,7 +72,7 @@ export type WorkspaceMeta = {
   [extensions.workspace.activeDocument]?: string
   [extensions.workspace.theme]?: ThemeId
   [extensions.workspace.sidebarWidth]?: number
-}
+} & XScalarActiveProxy
 
 export const WorkspaceExtensionsSchema = compose(
   xScalarEnvironmentsSchema,
@@ -76,7 +83,6 @@ export const WorkspaceExtensionsSchema = compose(
       'x-scalar-client-config-security-schemes': Type.Record(Type.String(), SecuritySchemeObjectSchema),
     }),
   ),
-  XScalarActiveProxySchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
   XScalarTabsSchema,
@@ -87,7 +93,6 @@ export type WorkspaceExtensions = {
   'x-scalar-client-config-security-schemes'?: Record<string, SecuritySchemeObject>
 } & XScalarEnvironments &
   XScalarActiveEnvironment &
-  XScalarActiveProxy &
   XScalarOrder &
   XScalarCookies &
   XScalarTabs
