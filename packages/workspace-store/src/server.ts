@@ -283,7 +283,7 @@ export async function createServerWorkspaceStore(
   const addDocumentSync = (
     document: Record<string, unknown>,
     meta: { name: string } & WorkspaceDocumentMeta,
-    navigationOptions: NavigationOptions,
+    navigationOptions?: NavigationOptions,
   ) => {
     const { name, ...documentMeta } = meta
 
@@ -327,7 +327,7 @@ export async function createServerWorkspaceStore(
    *
    * @param input - The document input containing the document source and metadata
    */
-  const addDocument = async (input: WorkspaceDocumentInput, navigationOptions: NavigationOptions) => {
+  const addDocument = async (input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) => {
     const document = await loadDocument(input)
 
     if (!document.ok) {
