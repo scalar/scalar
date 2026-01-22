@@ -1,3 +1,4 @@
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -834,11 +835,12 @@ describe('ApiReference Configuration Tests', () => {
     })
 
     await flushPromises()
-    const httpClientsSet = new Set(wrapper.findComponent({ name: 'Content' }).props().httpClients)
-    expect(httpClientsSet).not.toContain('node/axios')
-    expect(httpClientsSet).not.toContain('java/unirest')
-    expect(httpClientsSet).toContain('js/axios')
-    expect(httpClientsSet).toContain('java/nethttp')
+    const clientOptions = wrapper.findComponent({ name: 'ClientSelector' }).props().clientOptions as ClientOptionGroup[]
+    const clientKeysSet = new Set<string>(clientOptions.flatMap((group) => group.options.map((option) => option.id)))
+    expect(clientKeysSet.has('node/axios')).toBe(false)
+    expect(clientKeysSet.has('java/unirest')).toBe(false)
+    expect(clientKeysSet.has('js/axios')).toBe(true)
+    expect(clientKeysSet.has('java/nethttp')).toBe(true)
   })
 
   it('documentDownloadType: json -> hides yaml download button', async () => {
