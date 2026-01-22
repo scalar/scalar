@@ -59,60 +59,6 @@ describe('buildRequestParameters', () => {
       expect(result.headers['X-Api-Key']).toBe('prod-key')
     })
 
-    it('retrieves example from content-based parameter using contentType and exampleKey', () => {
-      const params: ParameterObject[] = [
-        {
-          name: 'X-Payload',
-          in: 'header',
-          required: true,
-          content: {
-            'application/json': {
-              examples: {
-                default: { value: '{"type":"json"}' },
-              },
-            },
-            'text/xml': {
-              examples: {
-                default: { value: '<type>xml</type>' },
-              },
-            },
-          },
-        },
-      ]
-
-      const jsonParams: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/json' },
-          },
-        },
-        ...params,
-      ]
-
-      const xmlParams: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'text/xml' },
-          },
-        },
-        ...params,
-      ]
-
-      const jsonResult = buildRequestParameters(jsonParams, {}, 'default')
-      const xmlResult = buildRequestParameters(xmlParams, {}, 'default')
-
-      expect(jsonResult.headers['X-Payload']).toBe('{"type":"json"}')
-      expect(xmlResult.headers['X-Payload']).toBe('<type>xml</type>')
-    })
-
     it('returns undefined when content type does not exist in content-based parameter', () => {
       const params: ParameterObject[] = [
         {
@@ -658,6 +604,45 @@ describe('buildRequestParameters', () => {
 
       // Binary data (base64 encoded) should be passed as-is
       expect(result.urlParams.get('binaryData')).toBe('SGVsbG8gV29ybGQ=')
+    })
+
+    it('serializes query parameter using its own content type, not the Content-Type header', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/plain' },
+          },
+        },
+        {
+          name: 'filter',
+          description: 'JSON filter object',
+          in: 'query',
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+              },
+              examples: {
+                default: {
+                  value: { status: 'active', limit: 10 },
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // The query parameter should be serialized as JSON even though Content-Type header is text/plain
+      // This is because the parameter's content type is application/json
+      expect(result.urlParams.get('filter')).toBe('{"status":"active","limit":10}')
     })
 
     it('handles query parameter with array value (defaults to explode: true)', () => {
@@ -1288,7 +1273,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers['X-Payload']).toBe('stuff')
     })
 
-    it('returns empty when content type does not match', () => {
+    it('grabs the first content type from the parameter', () => {
       const params = [
         createParameter(
           { name: 'Content-Type', in: 'header', value: 'text/plain' },
@@ -1301,7 +1286,7 @@ describe('buildRequestParameters', () => {
       const result = buildRequestParameters(params, {}, 'default')
 
       // No matching content type, so no example found, parameter skipped
-      expect(result.headers).not.toHaveProperty('X-Payload')
+      expect(result.headers).toHaveProperty('X-Payload')
     })
 
     it('filters out Content-Type header when value is multipart/form-data', () => {

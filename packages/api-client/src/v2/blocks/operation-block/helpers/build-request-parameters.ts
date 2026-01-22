@@ -61,27 +61,10 @@ export const buildRequestParameters = (
     return result
   }
 
-  const deReferencedParameters: ParameterObject[] = []
-  let contentType = 'application/json'
-
-  // First pass: dereference and extract content type
-  for (const param of parameters) {
-    const deReferencedParam = getResolvedRef(param)
-    deReferencedParameters.push(deReferencedParam)
-
-    // Grab the content type from the headers
-    if (
-      deReferencedParam.in === 'header' &&
-      deReferencedParam.name.toLowerCase() === 'content-type' &&
-      'examples' in deReferencedParam
-    ) {
-      contentType = getResolvedRef(deReferencedParam?.examples?.[exampleKey])?.value ?? contentType
-    }
-  }
-
   // Second pass: process all parameters
-  for (const param of deReferencedParameters) {
-    const example = getExample(param, exampleKey, contentType)
+  for (const referencedParam of parameters) {
+    const param = getResolvedRef(referencedParam)
+    const example = getExample(param, exampleKey, undefined)
 
     // Skip disabled examples
     if (!example || isParamDisabled(param, example)) {
@@ -130,7 +113,7 @@ export const buildRequestParameters = (
       }
 
       case 'query': {
-        processQueryParameter(param, paramName, replacedValue, contentType, result.urlParams)
+        processQueryParameter(param, paramName, replacedValue, result.urlParams)
         break
       }
 
@@ -152,7 +135,6 @@ const processQueryParameter = (
   param: ParameterObject,
   paramName: string,
   replacedValue: unknown,
-  contentType: string,
   urlParams: URLSearchParams,
 ): void => {
   /** If the parameter should be exploded, defaults to true for form style */
@@ -161,9 +143,11 @@ const processQueryParameter = (
   /** Style of the parameter, defaults to form */
   const style = 'style' in param && param.style ? param.style : 'form'
 
-  // Content type parameters should be serialized according to the content type
+  // Content type parameters should be serialized according to the parameter's own content type
   if ('content' in param && param.content) {
-    const serializedValue = serializeContentValue(replacedValue, contentType)
+    // We grab the first for now but eventually we should support selecting the content type per parameter
+    const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
+    const serializedValue = serializeContentValue(replacedValue, paramContentType)
     urlParams.set(paramName, serializedValue)
     return
   }
