@@ -17,6 +17,6 @@ export const pythonHttpxAsync: Plugin = {
       .map((line) => (line.trim() === '' ? line : '    ' + line))
       .join('\n')
 
-    return `with httpx.AsyncClient() as client:\n${formattedReq}`
+    return `async with httpx.AsyncClient() as client:\n${formattedReq}`
   },
 }
