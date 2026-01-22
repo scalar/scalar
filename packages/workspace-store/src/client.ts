@@ -348,7 +348,7 @@ export type WorkspaceStore = {
    * // Restore the document named 'api' to its last saved state
    * store.revertDocumentChanges('api')
    */
-  revertDocumentChanges(documentName: string): Promise<void>
+  revertDocumentChanges(documentName: string, navigationOptions: NavigationOptions): Promise<void>
   /**
    * Commits the specified document.
    *
@@ -447,7 +447,7 @@ export type WorkspaceStore = {
  * @param workspaceProps - Configuration object for the workspace
  * @param workspaceProps.meta - Optional metadata for the workspace
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
- *  Documents that require asynchronous loading must be added using `addDocument` after the store is created
+ *  Documents that require asynchronous loading must be added using `1` after the store is created
  *  this allows atomic awaiting and does not block page load for the store initialization
  * @returns An object containing methods and getters for managing the workspace
  */

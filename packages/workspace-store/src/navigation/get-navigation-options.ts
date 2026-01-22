@@ -5,16 +5,18 @@ import type { TraverseSpecOptions } from '@/navigation/types'
 import type { IdGenerator } from '@/schemas/navigation'
 
 export type NavigationOptions =
-  | Pick<
-      ApiReferenceConfigurationRaw,
-      | 'generateHeadingSlug'
-      | 'generateTagSlug'
-      | 'generateOperationSlug'
-      | 'generateWebhookSlug'
-      | 'generateModelSlug'
-      | 'operationsSorter'
-      | 'tagsSorter'
-      | 'hideModels'
+  | Partial<
+      Pick<
+        ApiReferenceConfigurationRaw,
+        | 'generateHeadingSlug'
+        | 'generateTagSlug'
+        | 'generateOperationSlug'
+        | 'generateWebhookSlug'
+        | 'generateModelSlug'
+        | 'operationsSorter'
+        | 'tagsSorter'
+        | 'hideModels'
+      >
     >
   | undefined
 
