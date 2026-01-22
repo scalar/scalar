@@ -487,21 +487,6 @@
     }
   },
   "navigation": {
-    "sidebar": [
-      {
-        "title": "Log in",
-        "url": "https://dashboard.scalar.com/login",
-        "newTab": true,
-        "style": "button"
-      }
-    ],
-    "tabs": [
-      {
-        "title": "api",
-        "path": "/api",
-        "icon": "phosphor/regular/plug"
-      }
-    ],
     "header": [
       {
         "title": "Log in",
@@ -510,8 +495,6 @@
       {
         "title": "Register",
         "style": "button",
-        "newTab": true,
-        "icon": "phosphor/regular/user-plus",
         "url": "https://dashboard.scalar.com/register"
       }
     ],
