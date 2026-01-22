@@ -543,7 +543,7 @@ watch(
             url: updated.source.url,
             fetch: updated.config.fetch,
           },
-          mergedConfig.value,
+          updated.config,
         )
 
         return
@@ -571,7 +571,7 @@ watch(
             name: updated.slug,
             document: updated.source.content,
           },
-          mergedConfig.value,
+          updated.config,
         )
       }
     }
