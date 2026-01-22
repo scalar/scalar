@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Response as HarResponse } from 'har-format'
+import type { HarResponse } from '@scalar/snippetz'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
@@ -15,6 +15,15 @@ export type HarToFetchResponseProps = {
   path: string
   /** Time in ms the request took */
   duration?: number
+}
+
+type ProcessedBody = {
+  /** ArrayBuffer for Response body */
+  body: ArrayBuffer | null
+  /** Data for ResponseInstance (string or Blob) */
+  data: string | Blob
+  /** Size in bytes */
+  size: number
 }
 
 /**
@@ -67,73 +76,24 @@ export type HarToFetchResponseProps = {
  */
 export const harToFetchResponse = ({
   harResponse,
-  url,
+  url = '',
   method,
   path,
   duration = 0,
 }: HarToFetchResponseProps): ResponseInstance => {
-  // Reconstruct headers as both a Headers object (for Response) and Record (for ResponseInstance)
-  const headersObj = new Headers()
-  const headersRecord: Record<string, string> = {}
-  for (const header of harResponse.headers) {
-    headersObj.append(header.name, header.value)
-    headersRecord[header.name] = header.value
-  }
+  const headers = buildHeaders(harResponse)
+  const { body, data, size } = processBody(harResponse)
+  const cookieHeaderKeys = getCookieHeaderKeys(headers)
 
-  // Reconstruct the body from HAR content
-  let body: ArrayBuffer | null = null
-  let data: string | Blob = ''
-  let size = 0
-
-  if (harResponse.content.text) {
-    if (harResponse.content.encoding === 'base64') {
-      // Base64 encoded content (legacy or external HAR files)
-      // Decode from base64 to ArrayBuffer
-      body = base64ToArrayBuffer(harResponse.content.text)
-      // For ResponseInstance, we store as Blob for binary data
-      const blob = new Blob([body], {
-        type: harResponse.content.mimeType || 'application/octet-stream',
-      })
-      data = blob
-      size = blob.size
-    } else {
-      // Plain text content (from fetchResponseToHar with text-based responses)
-      // Convert text to ArrayBuffer for the Response body
-      const encoder = new TextEncoder()
-      const encoded = encoder.encode(harResponse.content.text)
-      body = encoded.buffer
-      // Store as string for ResponseInstance
-      data = harResponse.content.text
-      // Calculate size in bytes, not characters (important for multi-byte UTF-8)
-      size = encoded.byteLength
-    }
-  }
-
-  // Create the Fetch Response object
   const response = new Response(body, {
     status: harResponse.status,
     statusText: harResponse.statusText,
-    headers: headersObj,
+    headers,
   })
 
-  // Set the URL if provided. The Response object has a read-only url property,
-  // so we need to use Object.defineProperty to override it.
-  if (url) {
-    Object.defineProperty(response, 'url', {
-      value: url,
-      writable: false,
-      enumerable: true,
-      configurable: true,
-    })
-  }
-
-  // Get cookie header keys
-  const cookieHeaderKeys = getCookieHeaderKeys(headersObj)
-
-  // Create and return the ResponseInstance
   return {
     ...response,
-    headers: headersRecord,
+    headers: Object.fromEntries(headers.entries()),
     cookieHeaderKeys,
     duration,
     status: harResponse.status,
@@ -142,18 +102,37 @@ export const harToFetchResponse = ({
     path,
     data,
     size,
+    url,
   }
 }
 
 /**
- * Converts a base64 encoded string back to an ArrayBuffer.
- * This is the reverse of arrayBufferToBase64.
+ * Builds Headers object and record from HAR response headers.
  */
-const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
-  const binaryString = atob(base64)
-  const bytes = new Uint8Array(binaryString.length)
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i)
+const buildHeaders = (harResponse: HarResponse) => {
+  const headers = new Headers()
+
+  harResponse.headers.forEach(({ name, value }) => {
+    headers.append(name, value)
+  })
+
+  return headers
+}
+
+/**
+ * Processes HAR response body content.
+ * Returns body, data and size for ResponseInstance.
+ */
+const processBody = (harResponse: HarResponse): ProcessedBody => {
+  if (!harResponse.content.text) {
+    return { body: null, data: '', size: 0 }
   }
-  return bytes.buffer
+
+  const { text, encoding } = harResponse.content
+
+  if (encoding) {
+    return { body: null, data: text, size: text.length }
+  }
+
+  return { body: new TextEncoder().encode(text).buffer, data: text, size: text.length }
 }
