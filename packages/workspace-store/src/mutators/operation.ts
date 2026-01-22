@@ -10,6 +10,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { fetchRequestToHar } from '@/mutators/fetch-request-to-har'
 import { fetchResponseToHar } from '@/mutators/fetch-response-to-har'
+import { harToOperation } from '@/mutators/har-to-operation'
 import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
@@ -894,6 +895,31 @@ const addResponseToHistory = async (
   })
 }
 
+export const reloadOperationHistory = (
+  document: WorkspaceDocument | null,
+  { meta, index, callback }: OperationEvents['operation:reload:history'],
+) => {
+  if (!document) {
+    console.error('Document not found', meta.path, meta.method)
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    console.error('Operation not found', meta.path, meta.method)
+    return
+  }
+
+  const historyItem = operation['x-scalar-history']?.[index]
+  if (!historyItem) {
+    console.error('History item not found', index)
+    return
+  }
+
+  harToOperation({ harRequest: historyItem.request, exampleKey: historyItem.meta.example, baseOperation: operation })
+  callback('success')
+}
+
 export const operationMutatorsFactory = ({
   document,
   store,
@@ -928,5 +954,7 @@ export const operationMutatorsFactory = ({
       updateOperationRequestBodyFormValue(document, payload),
     addResponseToHistory: (payload: HooksEvents['hooks:on:request:complete']) =>
       addResponseToHistory(document, payload),
+    reloadOperationHistory: (payload: OperationEvents['operation:reload:history']) =>
+      reloadOperationHistory(document, payload),
   }
 }

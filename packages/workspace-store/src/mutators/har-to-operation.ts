@@ -1,3 +1,4 @@
+import type { HarRequest } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -5,7 +6,6 @@ import type {
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
-import type { Request as HarRequest } from 'har-format'
 
 export type HarToOperationProps = {
   /** HAR request to convert */

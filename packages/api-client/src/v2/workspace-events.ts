@@ -261,6 +261,9 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('operation:reload:history', (payload) =>
+    withHook('operation:reload:history', mutators.value.active().operation.reloadOperationHistory, hooks)(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Tag Related Event Handlers

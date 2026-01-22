@@ -264,24 +264,34 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
     return
   }
 
-  eventBus.emit('ui:route:example', {
-    exampleName: 'draft',
-    callback: async () => {
-      const fetchResponse = harToFetchResponse({
-        harResponse: historyItem.response,
-        url: historyItem.request.url,
-        method: historyItem.request.method as HttpMethodType,
-        path: historyItem.request.url,
-        duration: historyItem.time,
-      })
+  const navigate = () =>
+    eventBus.emit('ui:route:example', {
+      exampleName: 'draft',
+      callback: async () => {
+        const fetchResponse = harToFetchResponse({
+          harResponse: historyItem.response,
+          url: historyItem.request.url,
+          method: historyItem.request.method as HttpMethodType,
+          path: historyItem.request.url,
+          duration: historyItem.time,
+        })
 
-      const fetchRequest = harToFetchRequest({
-        harRequest: historyItem.request,
-      })
+        const fetchRequest = harToFetchRequest({
+          harRequest: historyItem.request,
+        })
 
-      response.value = fetchResponse
-      request.value = fetchRequest
+        response.value = fetchResponse
+        request.value = fetchRequest
+      },
+    })
+
+  eventBus.emit('operation:reload:history', {
+    meta: {
+      path,
+      method,
     },
+    index: transformedIndex,
+    callback: navigate,
   })
 }
 
