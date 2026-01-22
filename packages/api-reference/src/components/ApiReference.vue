@@ -5,7 +5,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
+import { getActiveEnvironment, getFetch } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -25,10 +25,7 @@ import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
-import {
-  createWorkspaceStore,
-  type UrlDoc,
-} from '@scalar/workspace-store/client'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
@@ -477,21 +474,18 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const proxy: UrlDoc['fetch'] = (input, init) =>
-      fetch(redirectToProxy(config.proxyUrl, input.toString()), init)
-
     await workspaceStore.addDocument(
       normalized.source.url
         ? {
             name: slug,
             url: normalized.source.url,
-            fetch: config.fetch ?? proxy,
+            fetch: getFetch(config),
           }
         : {
             name: slug,
             document: normalized.source.content ?? {},
           },
-      mergedConfig.value,
+      config,
     )
   }
 
@@ -543,17 +537,11 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        const proxy: UrlDoc['fetch'] = (input, init) =>
-          fetch(
-            redirectToProxy(updated.config.proxyUrl, input.toString()),
-            init,
-          )
-
         await workspaceStore.addDocument(
           {
             name: updated.slug,
             url: updated.source.url,
-            fetch: updated.config.fetch ?? proxy,
+            fetch: getFetch(updated.config),
           },
           mergedConfig.value,
         )
