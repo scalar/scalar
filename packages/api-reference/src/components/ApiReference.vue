@@ -701,8 +701,8 @@ eventBus.on('ui:download:document', async ({ format }) => {
 const handleSelectItem = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
-  if (mergedConfig.value?.generatePageTitle && item?.title) {
-    document.title = mergedConfig.value.generatePageTitle({
+  if (mergedConfig.value?.setPageTitle && item?.title) {
+    document.title = mergedConfig.value.setPageTitle({
       title: item.title,
     })
   }

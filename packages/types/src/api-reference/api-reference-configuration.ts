@@ -261,7 +261,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @returns A string ID used to generate the URL hash
    * @default undefined
    */
-  generatePageTitle: z
+  setPageTitle: z
     .function({
       input: [z.object({ title: z.string() })],
       output: z.string(),
