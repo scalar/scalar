@@ -459,7 +459,7 @@ describe('Modal', () => {
      * When hideClientButton is true, it should be passed as true to Operation.
      * This allows hiding the client button in the modal.
      */
-    const operationWithHidden = wrapperWithHidden.findComponent({ name: 'Operation' })
+    const operationWithHidden = wrapperWithHidden.findComponent({ name: 'OperationBlock' })
     expect(operationWithHidden.exists()).toBe(true)
     expect(operationWithHidden.props('hideClientButton')).toBe(true)
 
@@ -478,7 +478,7 @@ describe('Modal', () => {
     /**
      * When hideClientButton is false, it should be passed as false to Operation.
      */
-    const operationWithShown = wrapperWithShown.findComponent({ name: 'Operation' })
+    const operationWithShown = wrapperWithShown.findComponent({ name: 'OperationBlock' })
     expect(operationWithShown.exists()).toBe(true)
     expect(operationWithShown.props('hideClientButton')).toBe(false)
 
@@ -498,7 +498,7 @@ describe('Modal', () => {
      * When hideClientButton is undefined, it should default to false.
      * This ensures the button is shown by default.
      */
-    const operationWithDefault = wrapperWithDefault.findComponent({ name: 'Operation' })
+    const operationWithDefault = wrapperWithDefault.findComponent({ name: 'OperationBlock' })
     expect(operationWithDefault.exists()).toBe(true)
     expect(operationWithDefault.props('hideClientButton')).toBe(false)
 
