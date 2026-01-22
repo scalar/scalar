@@ -487,6 +487,21 @@
     }
   },
   "navigation": {
+    "sidebar": [
+      {
+        "title": "Log in",
+        "url": "https://dashboard.scalar.com/login",
+        "newTab": true,
+        "style": "button"
+      }
+    ],
+    "tabs": [
+      {
+        "title": "api",
+        "path": "/api",
+        "icon": "phosphor/regular/plug"
+      }
+    ],
     "header": [
       {
         "title": "Log in",
@@ -495,6 +510,8 @@
       {
         "title": "Register",
         "style": "button",
+        "newTab": true,
+        "icon": "phosphor/regular/user-plus",
         "url": "https://dashboard.scalar.com/register"
       }
     ],
@@ -553,10 +570,28 @@
                     "filepath": "documentation/guides/access.md",
                     "type": "page"
                   },
-                  "redirects": {
-                    "filepath": "documentation/guides/docs/redirects.md",
-                    "type": "page",
-                    "title": "Redirects"
+                  "configuration": {
+                    "title": "Configuration",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/gear",
+                    "children": {
+                      "navigation": {
+                        "title": "Navigation",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/navigation.md"
+                      },
+                      "redirects": {
+                        "filepath": "documentation/guides/docs/configuration/redirects.md",
+                        "type": "page",
+                        "title": "Redirects"
+                      },
+                      "migration": {
+                        "title": "Migrate from 1.0",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/migration.md"
+                      }
+                    }
                   },
                   "components": {
                     "title": "Components",
