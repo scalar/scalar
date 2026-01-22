@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
-test.describe('generatePageTitle', () => {
+test.describe('setPageTitle', () => {
   test('set correct page title', async ({ page }) => {
     const example = await serveExample({
-      generatePageTitle: (item) => `API Reference - ${item.title}`,
+      setPageTitle: (item) => `API Reference - ${item.title}`,
     })
 
     await page.goto(example)
