@@ -1202,7 +1202,7 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
-#### generatePageTitle
+#### setPageTitle
 
 **Type:** `(item: { title: string; }) => string`
 
@@ -1213,7 +1213,7 @@ Customize how the document page title is generated. This function receives the s
 ```js
 // Custom example - results in title: API Reference - sidebar-item-title
 {
-  generatePageTitle: (item) => `API Reference - ${item.title}`
+  setPageTitle: (item) => `API Reference - ${item.title}`
 }
 ```
 

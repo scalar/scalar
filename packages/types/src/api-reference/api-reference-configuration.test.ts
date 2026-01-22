@@ -328,15 +328,15 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
     })
 
-    it('uses custom generatePageTitle', () => {
+    it('uses custom setPageTitle', () => {
       const config = {
-        generatePageTitle: ({ title }) => `API Reference | ${title}`,
+        setPageTitle: ({ title }) => `API Reference | ${title}`,
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
       const item = { title: 'Authentication' }
 
-      const result = migratedConfig.generatePageTitle?.({
+      const result = migratedConfig.setPageTitle?.({
         title: item.title,
       })
 
