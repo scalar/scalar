@@ -1167,9 +1167,9 @@
                     "type": "group",
                     "mode": "flat",
                     "children": {
-                      "azure-ad": {
-                        "title": "Azure AD",
-                        "filepath": "documentation/guides/sso/providers/azure-ad.md",
+                      "auth0": {
+                        "title": "Auth0",
+                        "filepath": "documentation/guides/sso/providers/auth0.md",
                         "type": "page"
                       },
                       "google": {
@@ -1177,14 +1177,14 @@
                         "filepath": "documentation/guides/sso/providers/google.md",
                         "type": "page"
                       },
+                      "microsoft-entra-id": {
+                        "title": "Microsoft Entra ID",
+                        "filepath": "documentation/guides/sso/providers/microsoft-entra-id.md",
+                        "type": "page"
+                      },
                       "okta": {
                         "title": "Okta",
                         "filepath": "documentation/guides/sso/providers/okta.md",
-                        "type": "page"
-                      },
-                      "auth0": {
-                        "title": "Auth0",
-                        "filepath": "documentation/guides/sso/providers/auth0.md",
                         "type": "page"
                       },
                       "onelogin": {
