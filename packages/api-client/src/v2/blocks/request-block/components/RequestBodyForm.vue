@@ -48,7 +48,7 @@ const handleUpsertRow = (
   if (index >= localFormBodyRows.value.length) {
     localFormBodyRows.value = [
       ...localFormBodyRows.value,
-      { name: '', value: '', isDisabled: false, ...payload },
+      { name: '', value: '', ...payload, isDisabled: false },
     ]
     emit('update:formValue', localFormBodyRows.value)
     return
