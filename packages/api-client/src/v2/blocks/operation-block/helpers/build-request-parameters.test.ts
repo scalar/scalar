@@ -798,7 +798,7 @@ describe('buildRequestParameters', () => {
         ] satisfies ParameterObject[]
 
         const result = buildRequestParameters(params)
-        expect(result.headers['X-Id']).toBe(5)
+        expect(result.headers['X-Id']).toBe('5')
       })
 
       it('handles simple style multiple values', () => {
@@ -1331,7 +1331,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers['X-Maybe']).toBeUndefined()
     })
 
-    it('handles parameter with null value', () => {
+    it('removes parameter with null value', () => {
       const params = [
         createParameter(
           { name: 'X-Null', in: 'header', value: null as unknown as string },
@@ -1341,19 +1341,19 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      expect(result.headers['X-Null']).toBeNull()
+      expect(result.headers['X-Null']).toBeUndefined()
     })
 
-    it('handles parameter with numeric value as is', () => {
+    it('headers cast numbers to strings', () => {
       const params = [createParameter({ name: 'X-Count', in: 'header', value: '42' }, { default: { value: 42 } })]
       const result = buildRequestParameters(params)
-      expect(result.headers['X-Count']).toBe(42)
+      expect(result.headers['X-Count']).toBe('42')
     })
 
-    it('handles parameter with boolean value as is', () => {
+    it('headers cast booleans to strings', () => {
       const params = [createParameter({ name: 'X-Flag', in: 'header', value: 'true' }, { default: { value: true } })]
       const result = buildRequestParameters(params)
-      expect(result.headers['X-Flag']).toBe(true)
+      expect(result.headers['X-Flag']).toBe('true')
     })
 
     it('handles parameter names with special characters', () => {

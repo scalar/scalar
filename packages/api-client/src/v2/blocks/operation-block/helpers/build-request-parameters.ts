@@ -1,3 +1,4 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -14,10 +15,15 @@ import {
   serializeContentValue,
   serializeDeepObjectStyle,
   serializeFormStyle,
+  serializeFormStyleForCookies,
   serializePipeDelimitedStyle,
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from './serialize-parameter'
+
+/** Helper to get explode value with default */
+const getExplode = (param: ParameterObject, defaultValue: boolean): boolean =>
+  'explode' in param && param.explode !== undefined ? param.explode : defaultValue
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
@@ -39,13 +45,13 @@ export const buildRequestParameters = (
   exampleKey: string = 'default',
 ): {
   cookies: XScalarCookie[]
-  headers: Record<string, unknown>
+  headers: Record<string, string>
   pathVariables: Record<string, string>
   urlParams: URLSearchParams
 } => {
   const result = {
     cookies: [] as XScalarCookie[],
-    headers: {} as Record<string, unknown>,
+    headers: {} as Record<string, string>,
     pathVariables: {} as Record<string, string>,
     urlParams: new URLSearchParams(),
   }
@@ -86,10 +92,6 @@ export const buildRequestParameters = (
     const replacedValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
     const paramName = replaceEnvVariables(param.name, env)
 
-    /** Helper to get explode value with default */
-    const getExplode = (defaultValue: boolean): boolean =>
-      'explode' in param && param.explode !== undefined ? param.explode : defaultValue
-
     // Handle by parameter location
     switch (param.in) {
       case 'header': {
@@ -100,21 +102,29 @@ export const buildRequestParameters = (
           break
         }
 
-        // Headers only support simple style according to OpenAPI 3.1.1
-        const serialized = serializeSimpleStyle(replacedValue, getExplode(false))
+        /** Headers only support simple style according to OpenAPI 3.1.1 */
+        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
+
+        // Remove undefined/null headers
+        if (!isDefined(serialized)) {
+          break
+        }
+
+        /** Headers can only be strings so we can cast numbers etc */
+        const serializedString = String(serialized)
 
         // If the header already exists, append with comma
         if (result.headers[paramName]) {
-          result.headers[paramName] = `${result.headers[paramName]},${serialized}`
+          result.headers[paramName] = `${result.headers[paramName]},${serializedString}`
         } else {
-          result.headers[paramName] = serialized
+          result.headers[paramName] = serializedString
         }
         break
       }
 
       case 'path': {
         // Path parameters use simple style by default
-        const serialized = serializeSimpleStyle(replacedValue, getExplode(false))
+        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
         result.pathVariables[paramName] = encodeURIComponent(String(serialized))
         break
       }
@@ -125,7 +135,7 @@ export const buildRequestParameters = (
       }
 
       case 'cookie': {
-        processCookieParameter(paramName, replacedValue, getExplode(true), result.cookies)
+        processCookieParameter(paramName, replacedValue, getExplode(param, true), result.cookies)
         break
       }
     }
@@ -219,7 +229,7 @@ const processCookieParameter = (
   cookies: XScalarCookie[],
 ): void => {
   // Cookies only support form style according to OpenAPI 3.1.1
-  const serialized = serializeFormStyle(replacedValue, explode)
+  const serialized = serializeFormStyleForCookies(replacedValue, explode)
 
   // If serialized is an array of key-value pairs (exploded object or array)
   if (Array.isArray(serialized)) {
