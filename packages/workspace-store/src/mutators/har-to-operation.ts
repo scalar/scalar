@@ -1,11 +1,9 @@
 import type { HarRequest } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  OperationObject,
-  ParameterObject,
-  RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+
+import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 export type HarToOperationProps = {
   /** HAR request to convert */
@@ -43,147 +41,140 @@ export const harToOperation = ({
   exampleKey,
   baseOperation = {},
 }: HarToOperationProps): OperationObject => {
-  // Ensure parameters array exists
-  const parameters: ReferenceType<ParameterObject>[] = baseOperation.parameters ? [...baseOperation.parameters] : []
-
-  const operation: OperationObject = {
-    ...baseOperation,
-    parameters,
+  // Ensure parameters array exists on the base operation
+  if (!baseOperation.parameters) {
+    baseOperation.parameters = []
   }
 
-  // Process query string parameters
+  // Mark all existing parameters as disabled for the current example
+  for (const param of baseOperation.parameters) {
+    setParameterDisabled(getResolvedRef(param), exampleKey, true)
+  }
+
+  // Process query string parameters from the HAR request
   if (harRequest.queryString && harRequest.queryString.length > 0) {
     for (const queryParam of harRequest.queryString) {
-      const existingParam = findOrCreateParameter(parameters, queryParam.name, 'query')
+      const param = findOrCreateParameter(baseOperation.parameters, queryParam.name, 'query')
 
-      // Set the example value for this parameter (only works with schema-based parameters)
-      if (isParameterWithSchema(existingParam)) {
-        if (!existingParam.examples) {
-          existingParam.examples = {}
-        }
-        existingParam.examples[exampleKey] = {
-          value: queryParam.value,
-        }
-      }
-    }
-  }
-
-  // Process headers as parameters
-  if (harRequest.headers && harRequest.headers.length > 0) {
-    // Filter out common headers that are typically not parameterized
-    const excludedHeaders = ['content-type', 'accept', 'user-agent', 'host']
-
-    for (const header of harRequest.headers) {
-      const headerName = header.name.toLowerCase()
-
-      // Skip common headers and empty values
-      if (excludedHeaders.includes(headerName) || !header.value) {
+      if (!param || isContentTypeParameterObject(param)) {
         continue
       }
 
-      const existingParam = findOrCreateParameter(parameters, header.name, 'header')
-
-      // Set the example value for this parameter (only works with schema-based parameters)
-      if (isParameterWithSchema(existingParam)) {
-        if (!existingParam.examples) {
-          existingParam.examples = {}
-        }
-        existingParam.examples[exampleKey] = {
-          value: header.value,
-        }
+      param.examples ||= {}
+      param.examples[exampleKey] = {
+        value: queryParam.value,
+        'x-disabled': false,
       }
     }
   }
 
-  // Process cookies as parameters
+  // Process headers from the HAR request
+  if (harRequest.headers && harRequest.headers.length > 0) {
+    for (const header of harRequest.headers) {
+      const param = findOrCreateParameter(baseOperation.parameters, header.name.toLowerCase(), 'header')
+
+      if (!param || isContentTypeParameterObject(param)) {
+        continue
+      }
+
+      param.examples ||= {}
+      param.examples[exampleKey] = {
+        value: header.value,
+        'x-disabled': false,
+      }
+    }
+  }
+
+  // Process cookies from the HAR request
   if (harRequest.cookies && harRequest.cookies.length > 0) {
     for (const cookie of harRequest.cookies) {
-      const existingParam = findOrCreateParameter(parameters, cookie.name, 'cookie')
+      const param = findOrCreateParameter(baseOperation.parameters, cookie.name, 'cookie')
 
-      // Set the example value for this parameter (only works with schema-based parameters)
-      if (isParameterWithSchema(existingParam)) {
-        if (!existingParam.examples) {
-          existingParam.examples = {}
-        }
-        existingParam.examples[exampleKey] = {
-          value: cookie.value,
-        }
+      if (!param || isContentTypeParameterObject(param)) {
+        continue
+      }
+
+      param.examples ||= {}
+      param.examples[exampleKey] = {
+        value: cookie.value,
+        'x-disabled': false,
       }
     }
   }
 
-  // Process request body
+  // Process request body from the HAR request
   if (harRequest.postData) {
-    const contentType = harRequest.postData.mimeType || 'application/json'
+    const { mimeType, text, params } = harRequest.postData
 
-    if (!operation.requestBody) {
-      operation.requestBody = {
+    // Ensure requestBody exists on the base operation
+    if (!baseOperation.requestBody) {
+      baseOperation.requestBody = {
         content: {},
       }
     }
 
-    const requestBody = operation.requestBody as RequestBodyObject
+    // Resolve the request body in case it is a reference
+    const requestBody = getResolvedRef(baseOperation.requestBody)
 
-    if (!requestBody.content) {
-      requestBody.content = {}
-    }
-
-    if (!requestBody.content[contentType]) {
-      requestBody.content[contentType] = {
+    // Ensure the content type exists in the requestBody
+    if (!requestBody.content[mimeType]) {
+      requestBody.content[mimeType] = {
         schema: {
           type: 'object',
         },
       }
     }
 
-    const mediaTypeObject = requestBody.content[contentType]
-
-    if (!mediaTypeObject) {
-      return operation
+    // Get the media type object
+    const mediaType = requestBody.content[mimeType]
+    if (!mediaType) {
+      return baseOperation
     }
 
-    // Set the example value for this media type
-    if (!mediaTypeObject.examples) {
-      mediaTypeObject.examples = {}
-    }
+    // Ensure examples object exists
+    mediaType.examples ||= {}
 
-    // Parse the body based on content type
-    let exampleValue: unknown = harRequest.postData.text
+    // Convert the HAR postData to an example value
+    let exampleValue: any
 
-    if (contentType.includes('application/json') && harRequest.postData.text) {
-      try {
-        exampleValue = JSON.parse(harRequest.postData.text)
-      } catch {
-        // If parsing fails, keep it as text
-        exampleValue = harRequest.postData.text
+    // If params exist (form data), convert to array
+    if (params && params.length > 0) {
+      exampleValue = []
+      for (const param of params) {
+        exampleValue.push({
+          name: param.name,
+          value: param.value,
+          'x-disabled': false,
+        })
       }
-    } else if (contentType.includes('application/x-www-form-urlencoded') && harRequest.postData.params) {
-      // Convert form params to object
-      exampleValue = harRequest.postData.params.reduce(
-        (acc, param) => {
-          acc[param.name ?? ''] = param.value ?? ''
-          return acc
-        },
-        {} as Record<string, string>,
-      )
+    } else {
+      exampleValue = text
     }
 
-    mediaTypeObject.examples[exampleKey] = {
+    // Add the example to the media type
+    mediaType.examples[exampleKey] = {
       value: exampleValue,
+      'x-disabled': false,
     }
+
+    // Update the selected media type
+    requestBody['x-scalar-selected-content-type'] ||= {}
+    requestBody['x-scalar-selected-content-type'][exampleKey] = mimeType
   }
 
-  return operation
+  return baseOperation
 }
 
-/**
- * Type guard to check if a parameter is a ParameterWithSchemaObject.
- * This is needed because ParameterObject is a union type.
- */
-const isParameterWithSchema = (
-  param: ParameterObject,
-): param is ParameterObject & { examples?: Record<string, { value: unknown }> } => {
-  return 'schema' in param || 'examples' in param || 'example' in param
+const setParameterDisabled = (param: ParameterObject, exampleKey: string, disabled: boolean): void => {
+  if (isContentTypeParameterObject(param)) {
+    return
+  }
+
+  if (!param.examples?.[exampleKey]) {
+    return
+  }
+
+  getResolvedRef(param.examples[exampleKey])['x-disabled'] = disabled
 }
 
 /**
@@ -198,7 +189,7 @@ const findOrCreateParameter = (
   // Try to find existing parameter using getResolvedRef to handle references
   for (const param of parameters) {
     const resolved = getResolvedRef(param)
-    if (resolved && resolved.name === name && resolved.in === inValue) {
+    if (resolved && resolved.name === name && resolved.in === inValue && !isContentTypeParameterObject(resolved)) {
       return resolved
     }
   }

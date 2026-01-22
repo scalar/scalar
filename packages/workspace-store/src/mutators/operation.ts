@@ -916,7 +916,7 @@ export const reloadOperationHistory = (
     return
   }
 
-  harToOperation({ harRequest: historyItem.request, exampleKey: historyItem.meta.example, baseOperation: operation })
+  harToOperation({ harRequest: historyItem.request, exampleKey: 'draft', baseOperation: operation })
   callback('success')
 }
 

@@ -84,6 +84,8 @@ export const buildRequest = ({
         {} as Record<string, string>,
       )
     const headers = { ...defaultHeaders, ...params.headers, ...security.headers }
+    delete headers['Content-Type']
+    delete headers['content-type']
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
 
     /** Combine the server url, path and url params into a single url */

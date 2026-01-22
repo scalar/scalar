@@ -35,11 +35,11 @@ export type FetchRequestToHarProps = {
  * - Request body reading (with automatic cloning to preserve the original)
  * - Content-Type detection and MIME type extraction
  * - Size calculations for headers and body
- * - All request bodies are base64 encoded for consistency
+ * - Form data bodies are converted to params array
+ * - Other body types are read as text
  *
  * Note: The Fetch API does not expose the HTTP version, so it defaults to HTTP/1.1
- * unless specified otherwise. All request bodies are encoded as base64, regardless
- * of content type, to ensure consistent handling.
+ * unless specified otherwise.
  *
  * @see https://w3c.github.io/web-performance/specs/HAR/Overview.html
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
@@ -52,7 +52,7 @@ export type FetchRequestToHarProps = {
  * })
  * const harRequest = await fetchRequestToHar({ request })
  * console.log(harRequest.method) // 'POST'
- * console.log(harRequest.postData?.encoding) // 'base64'
+ * console.log(harRequest.postData?.text) // '{"name":"John"}'
  */
 export const fetchRequestToHar = async ({
   request,
@@ -87,22 +87,80 @@ export const fetchRequestToHar = async ({
   // Read the request body if requested
   let bodyText = ''
   let bodySize = -1
-  let mimeType = 'application/octet-stream'
+  const mimeType = request.headers.get('content-type')?.split(';')[0]?.trim() ?? 'text/plain'
+  let params: { name: string; value: string }[] | undefined
 
   if (includeBody && request.body) {
     try {
-      // Get content type
-      const contentTypeHeader = request.headers.get('content-type')
-      if (contentTypeHeader) {
-        mimeType = contentTypeHeader
+      // Check if this is form data
+      const isFormData = ['multipart/form-data', 'application/x-www-form-urlencoded'].some((type) =>
+        mimeType.startsWith(type),
+      )
+
+      console.log('isFormData', isFormData, mimeType)
+
+      if (isFormData) {
+        console.log('reading as FormData')
+
+        // For URL-encoded form data, parse manually
+        if (mimeType.startsWith('application/x-www-form-urlencoded')) {
+          console.log('parsing URL-encoded form data')
+          const arrayBuffer = await clonedRequest.arrayBuffer()
+          bodySize = arrayBuffer.byteLength
+          const text = new TextDecoder().decode(arrayBuffer)
+
+          try {
+            // Parse URL-encoded data
+            params = []
+            const urlParams = new URLSearchParams(text)
+            urlParams.forEach((value, name) => {
+              params?.push({ name, value })
+            })
+            console.log('params', params)
+          } catch (error) {
+            console.log('URL-encoded parsing failed, using text instead', error)
+            // If URLSearchParams parsing fails, just use the text
+            bodyText = text
+          }
+        }
+        // For multipart form data, try using the native formData() method
+        else {
+          // Clone again for fallback in case FormData parsing fails
+          const formDataRequest = clonedRequest.clone()
+
+          try {
+            const formData = await formDataRequest.formData()
+            params = []
+            bodySize = 0
+
+            formData.forEach((value, name) => {
+              // Handle File objects
+              if (value instanceof File) {
+                const fileValue = `@${value.name}`
+                params?.push({ name, value: fileValue })
+                bodySize += name.length + fileValue.length
+              } else {
+                const stringValue = String(value)
+                params?.push({ name, value: stringValue })
+                bodySize += name.length + stringValue.length
+              }
+            })
+            console.log('params', params)
+          } catch (error) {
+            console.log('FormData parsing failed, falling back to text', error)
+            // If FormData parsing fails, fall back to text using the non-consumed clone
+            const arrayBuffer = await clonedRequest.arrayBuffer()
+            bodySize = arrayBuffer.byteLength
+            bodyText = new TextDecoder().decode(arrayBuffer)
+          }
+        }
+      } else {
+        console.log('reading as text')
+        // For non-form data, read as text
+        const arrayBuffer = await clonedRequest.arrayBuffer()
+        bodySize = arrayBuffer.byteLength
+        bodyText = new TextDecoder().decode(arrayBuffer)
       }
-
-      // Read as ArrayBuffer to support all content types
-      const arrayBuffer = await clonedRequest.arrayBuffer()
-      bodySize = arrayBuffer.byteLength
-
-      // Always encode as base64
-      bodyText = arrayBufferToBase64(arrayBuffer)
     } catch {
       // If body cannot be read, leave it empty
       bodyText = ''
@@ -130,7 +188,12 @@ export const fetchRequestToHar = async ({
   }
 
   // Add postData if body is present
-  if (bodyText) {
+  if (params) {
+    harRequest.postData = {
+      mimeType,
+      params,
+    }
+  } else if (bodyText) {
     harRequest.postData = {
       mimeType,
       text: bodyText,
@@ -138,22 +201,6 @@ export const fetchRequestToHar = async ({
   }
 
   return harRequest
-}
-
-/**
- * Converts an ArrayBuffer to a base64 encoded string.
- * This is used for binary content types like images, PDFs, etc.
- */
-const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  for (let i = 0; i < bytes.byteLength; i++) {
-    const byte = bytes[i]
-    if (byte !== undefined) {
-      binary += String.fromCharCode(byte)
-    }
-  }
-  return btoa(binary)
 }
 
 /**

@@ -268,6 +268,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
     eventBus.emit('ui:route:example', {
       exampleName: 'draft',
       callback: async () => {
+        // Reconstruct the response
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,
           url: historyItem.request.url,
@@ -276,10 +277,12 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
           duration: historyItem.time,
         })
 
+        // Reconstruct the request
         const fetchRequest = harToFetchRequest({
           harRequest: historyItem.request,
         })
 
+        // Update the response and request
         response.value = fetchResponse
         request.value = fetchRequest
       },

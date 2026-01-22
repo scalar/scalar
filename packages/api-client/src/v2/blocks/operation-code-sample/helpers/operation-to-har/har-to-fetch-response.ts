@@ -27,12 +27,17 @@ export type HarToFetchResponseProps = {
  * The conversion handles:
  * - Status code and status text restoration
  * - Headers reconstruction from HAR headers array
- * - Body decoding from base64 (if encoded) back to original content
+ * - Body decoding (supports both plain text and base64-encoded content)
  * - Content-Type and other header restoration
  * - URL property setting (if provided)
  * - Cookie header detection
  * - Duration tracking
- * - Response size calculation
+ * - Response size calculation in bytes
+ *
+ * Body Handling:
+ * - Plain text (no encoding): Text-based responses under 1MB from fetchResponseToHar
+ * - Base64 encoded: Binary or legacy data (note: new HAR files won't contain binary data)
+ * - Empty: Streaming responses, large responses (>1MB), or responses without bodies
  *
  * Use cases:
  * - Replaying recorded HTTP responses
@@ -75,26 +80,32 @@ export const harToFetchResponse = ({
     headersRecord[header.name] = header.value
   }
 
-  // Decode the body from base64 if it is encoded
+  // Reconstruct the body from HAR content
   let body: ArrayBuffer | null = null
   let data: string | Blob = ''
   let size = 0
 
   if (harResponse.content.text) {
     if (harResponse.content.encoding === 'base64') {
+      // Base64 encoded content (legacy or external HAR files)
       // Decode from base64 to ArrayBuffer
       body = base64ToArrayBuffer(harResponse.content.text)
-      // For ResponseInstance, we store the decoded text or as Blob
+      // For ResponseInstance, we store as Blob for binary data
       const blob = new Blob([body], {
         type: harResponse.content.mimeType || 'application/octet-stream',
       })
       data = blob
       size = blob.size
     } else {
-      // If not base64 encoded, treat as plain text
-      body = new TextEncoder().encode(harResponse.content.text).buffer
+      // Plain text content (from fetchResponseToHar with text-based responses)
+      // Convert text to ArrayBuffer for the Response body
+      const encoder = new TextEncoder()
+      const encoded = encoder.encode(harResponse.content.text)
+      body = encoded.buffer
+      // Store as string for ResponseInstance
       data = harResponse.content.text
-      size = harResponse.content.text.length
+      // Calculate size in bytes, not characters (important for multi-byte UTF-8)
+      size = encoded.byteLength
     }
   }
 

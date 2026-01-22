@@ -1,11 +1,18 @@
 import type { HarResponse } from '@scalar/snippetz'
 
+/** Maximum response body size to include in HAR (1MB) */
+const MAX_BODY_SIZE = 1048576
+
 export type FetchResponseToHarProps = {
   /** The Fetch API Response object to convert */
   response: Response
   /**
    * Whether to include the response body in the HAR content.
    * Note: Reading the body consumes it, so the response will be cloned automatically.
+   * Bodies will only be included if they meet the following criteria:
+   * - Not a streaming response (text/event-stream)
+   * - Text-based content (not binary)
+   * - Under 1MB in size
    * @default true
    */
   includeBody?: boolean
@@ -78,15 +85,33 @@ export const fetchResponseToHar = async ({
   // Read the response body if requested
   let bodyText = ''
   let bodySize = -1
+  let encoding: 'base64' | undefined
 
   if (includeBody) {
     try {
-      // Read as ArrayBuffer to support all content types
-      const arrayBuffer = await clonedResponse.arrayBuffer()
-      bodySize = arrayBuffer.byteLength
+      // Skip streaming responses
+      if (contentType.startsWith('text/event-stream')) {
+        bodyText = ''
+        bodySize = -1
+      } else {
+        // Read as ArrayBuffer to get the size
+        const arrayBuffer = await clonedResponse.arrayBuffer()
+        bodySize = arrayBuffer.byteLength
 
-      // Always encode as base64 from array buffer
-      bodyText = arrayBufferToBase64(arrayBuffer)
+        // Only include body if it's under 1MB and is text content
+        const shouldIncludeBody = bodySize < MAX_BODY_SIZE && isTextBasedContent(contentType)
+
+        if (shouldIncludeBody) {
+          // Decode as text for text-based content
+          const decoder = new TextDecoder('utf-8')
+          bodyText = decoder.decode(arrayBuffer)
+          // No encoding needed for plain text
+          encoding = undefined
+        } else {
+          // Do not include binary or large bodies
+          bodyText = ''
+        }
+      }
     } catch {
       // If body cannot be read, leave it empty
       bodyText = ''
@@ -112,8 +137,7 @@ export const fetchResponseToHar = async ({
       size: bodySize,
       mimeType: contentType,
       text: bodyText,
-      // Always use base64 encoding when body is present
-      encoding: bodyText ? 'base64' : undefined,
+      encoding,
     },
     redirectURL,
     headersSize,
@@ -124,19 +148,50 @@ export const fetchResponseToHar = async ({
 }
 
 /**
- * Converts an ArrayBuffer to a base64 encoded string.
- * This is used for binary content types like images, PDFs, etc.
+ * Checks if the content type is text-based and should be included in HAR.
+ * Text-based content types include:
+ * - text/* (text/plain, text/html, text/css, etc.)
+ * - application/json
+ * - application/xml and text/xml
+ * - application/javascript
+ * - application/*+json and application/*+xml variants
  */
-const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  for (let i = 0; i < bytes.byteLength; i++) {
-    const byte = bytes[i]
-    if (byte !== undefined) {
-      binary += String.fromCharCode(byte)
-    }
+const isTextBasedContent = (contentType: string): boolean => {
+  const lowerContentType = contentType.toLowerCase()
+
+  // Check for text/* types
+  if (lowerContentType.startsWith('text/')) {
+    return true
   }
-  return btoa(binary)
+
+  // Check for JSON types
+  if (lowerContentType.includes('application/json') || lowerContentType.includes('+json')) {
+    return true
+  }
+
+  // Check for XML types
+  if (
+    lowerContentType.includes('application/xml') ||
+    lowerContentType.includes('text/xml') ||
+    lowerContentType.includes('+xml')
+  ) {
+    return true
+  }
+
+  // Check for JavaScript
+  if (lowerContentType.includes('application/javascript') || lowerContentType.includes('application/x-javascript')) {
+    return true
+  }
+
+  // Check for common text-based formats
+  if (
+    lowerContentType.includes('application/x-www-form-urlencoded') ||
+    lowerContentType.includes('application/graphql')
+  ) {
+    return true
+  }
+
+  return false
 }
 
 /**
