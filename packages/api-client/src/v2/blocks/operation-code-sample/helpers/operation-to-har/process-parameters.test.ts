@@ -756,11 +756,8 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.headers).toEqual([
-        { name: 'Accept', value: 'application/json' },
-        { name: 'Accept', value: 'application/xml' },
-        { name: 'Accept', value: 'text/plain' },
-      ])
+      // Arrays in simple style are always comma-separated regardless of explode
+      expect(result.headers).toEqual([{ name: 'Accept', value: 'application/json,application/xml,text/plain' }])
     })
 
     it('should handle header parameter with simple style and explode=false', () => {

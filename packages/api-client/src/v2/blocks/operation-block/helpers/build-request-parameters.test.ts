@@ -660,7 +660,7 @@ describe('buildRequestParameters', () => {
       expect(result.urlParams.get('binaryData')).toBe('SGVsbG8gV29ybGQ=')
     })
 
-    it('handles query parameter with array value', () => {
+    it('handles query parameter with array value (defaults to explode: true)', () => {
       const params: ParameterObject[] = [
         {
           name: 'tags',
@@ -684,7 +684,37 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      // Array values should be serialized as JSON strings
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters: tags=javascript&tags=typescript&tags=vue
+      expect(result.urlParams.getAll('tags')).toEqual(['javascript', 'typescript', 'vue'])
+    })
+
+    it('handles query parameter with array value and explicit explode: false', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'tags',
+          description: 'Filter by tags',
+          in: 'query',
+          required: false,
+          explode: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          examples: {
+            default: {
+              value: ['javascript', 'typescript', 'vue'],
+              'x-disabled': false,
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // With explicit explode: false, array values should be comma-separated
       expect(result.urlParams.get('tags')).toBe('javascript,typescript,vue')
     })
   })

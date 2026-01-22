@@ -194,16 +194,7 @@ const processQueryParameter = (
   }
 
   // Handle form style (default)
-  // When explode is not explicitly set and the value is an array or object,
-  // treat it as explode: false to serialize as a single value
-  const explode =
-    explodeParam &&
-    !('explode' in param) &&
-    (Array.isArray(replacedValue) || (typeof replacedValue === 'object' && replacedValue !== null))
-      ? false
-      : explodeParam
-
-  const serialized = serializeFormStyle(replacedValue, explode)
+  const serialized = serializeFormStyle(replacedValue, explodeParam)
 
   // If serialized is an array of key-value pairs (exploded object or array)
   if (Array.isArray(serialized)) {

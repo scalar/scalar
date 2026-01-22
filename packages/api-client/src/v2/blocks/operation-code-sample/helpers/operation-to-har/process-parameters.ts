@@ -134,6 +134,7 @@ export const processParameters = ({
         newUrl = processPathParameters(newUrl, param, paramValue, style, explode)
         break
       }
+
       case 'query': {
         // Content type parameters should be serialized according to the content type
         if ('content' in param && param.content) {
@@ -186,24 +187,18 @@ export const processParameters = ({
         }
         break
       }
-      case 'header': {
-        // Headers only support 'simple' style according to OpenAPI 3.1.1
-        const serialized = serializeSimpleStyle(paramValue, explode)
 
-        // For arrays with explode, we need to create multiple header entries
-        if (Array.isArray(paramValue) && explode) {
-          for (const value of paramValue) {
-            newHeaders.push({ name: param.name, value: String(value) })
-          }
-        }
-        // Otherwise, use the serialized value
-        else {
-          newHeaders.push({ name: param.name, value: String(serialized) })
-        }
+      // Headers only support 'simple' style according to OpenAPI 3.1.1
+      // For arrays, simple style always produces comma-separated values regardless of explode
+      // The explode parameter only affects object serialization
+      case 'header': {
+        const serialized = serializeSimpleStyle(paramValue, explode)
+        newHeaders.push({ name: param.name, value: String(serialized) })
         break
       }
+
+      // Cookies only support 'form' style according to OpenAPI 3.1.1
       case 'cookie': {
-        // Cookies only support 'form' style according to OpenAPI 3.1.1
         const serialized = serializeFormStyleForCookies(paramValue, explode)
 
         // If serialized is an array of key-value pairs (exploded object or array)
