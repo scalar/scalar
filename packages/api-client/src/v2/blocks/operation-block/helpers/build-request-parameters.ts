@@ -13,6 +13,30 @@ import { getDelimiter } from './get-delimiter'
 import { getExample } from './get-example'
 
 /**
+ * Serializes a value based on the content type for content-based query parameters.
+ * Content-based query parameters do not use style serialization and instead follow
+ * their content type specification (e.g., application/json should be JSON.stringified).
+ *
+ * @param value - The value to serialize
+ * @param contentType - The content type to use for serialization
+ * @returns The serialized value as a string
+ */
+const serializeContentValue = (value: unknown, contentType: string): string => {
+  // If already a string, return as is
+  if (typeof value === 'string') {
+    return value
+  }
+
+  // Handle JSON content types
+  if (contentType.includes('json')) {
+    return JSON.stringify(value)
+  }
+
+  // Default: convert to string
+  return String(value)
+}
+
+/**
  * Converts the parameters into a set of headers, cookies and url params while
  * replacing environment variables and extracting example values. Also builds up a record of the path
  * parameters which can then be used to replace variables in the path.
@@ -98,8 +122,14 @@ export const buildRequestParameters = (
         /** Style of the parameter, defaults to form */
         const style = 'style' in param && param.style ? param.style : 'form'
 
+        // Content type parameters should be serialized according to the content type
+        if ('content' in param && param.content) {
+          const serializedValue = serializeContentValue(replacedValue, contentType)
+          acc.urlParams.set(paramName, serializedValue)
+        }
+
         // explode=true only supported on form style
-        if (explode) {
+        else if (explode) {
           acc.urlParams.append(paramName, replacedValue)
         }
 

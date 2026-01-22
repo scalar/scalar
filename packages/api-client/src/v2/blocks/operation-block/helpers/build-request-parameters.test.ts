@@ -77,7 +77,7 @@ describe('buildRequestParameters', () => {
               },
             },
           },
-        } as ParameterObject,
+        },
       ]
 
       const jsonParams: ParameterObject[] = [
@@ -89,7 +89,7 @@ describe('buildRequestParameters', () => {
           examples: {
             default: { value: 'application/json' },
           },
-        } as ParameterObject,
+        },
         ...params,
       ]
 
@@ -102,7 +102,7 @@ describe('buildRequestParameters', () => {
           examples: {
             default: { value: 'text/xml' },
           },
-        } as ParameterObject,
+        },
         ...params,
       ]
 
@@ -122,7 +122,7 @@ describe('buildRequestParameters', () => {
           examples: {
             default: { value: 'application/xml' },
           },
-        } as ParameterObject,
+        },
         {
           name: 'X-Missing-Content-Type',
           in: 'header',
@@ -133,7 +133,7 @@ describe('buildRequestParameters', () => {
               },
             },
           },
-        } as ParameterObject,
+        },
       ]
 
       // Request with a content type that does not exist in the parameter
@@ -398,6 +398,294 @@ describe('buildRequestParameters', () => {
 
       expect(result.urlParams.get('search')).toBe('hello world')
       expect(result.urlParams.get('filter')).toBe('name=John&age=30')
+    })
+
+    it('handles query parameter with object value', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'offset',
+          description: 'The number of items to skip before starting to collect the result set',
+          in: 'query',
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+              },
+              examples: {
+                default: {
+                  value: {
+                    test: 'what',
+                  },
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Object values should be serialized as JSON strings
+      expect(result.urlParams.get('offset')).toBe('{"test":"what"}')
+    })
+
+    it('handles query parameter with text/plain content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/plain' },
+          },
+        },
+        {
+          name: 'description',
+          description: 'Plain text description',
+          in: 'query',
+          required: false,
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: 'This is plain text content',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Plain text values should be passed as-is
+      expect(result.urlParams.get('description')).toBe('This is plain text content')
+    })
+
+    it('handles query parameter with text/xml content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/xml' },
+          },
+        },
+        {
+          name: 'xmlData',
+          description: 'XML formatted data',
+          in: 'query',
+          required: false,
+          content: {
+            'text/xml': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<root><item>value</item></root>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // XML values should be passed as-is
+      expect(result.urlParams.get('xmlData')).toBe('<root><item>value</item></root>')
+    })
+
+    it('handles query parameter with application/xml content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/xml' },
+          },
+        },
+        {
+          name: 'payload',
+          description: 'Application XML data',
+          in: 'query',
+          required: false,
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<?xml version="1.0"?><data><field>test</field></data>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Application XML values should be passed as-is
+      expect(result.urlParams.get('payload')).toBe('<?xml version="1.0"?><data><field>test</field></data>')
+    })
+
+    it('handles query parameter with application/x-www-form-urlencoded content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/x-www-form-urlencoded' },
+          },
+        },
+        {
+          name: 'formData',
+          description: 'URL encoded form data',
+          in: 'query',
+          required: false,
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: 'username=john_doe&email=john@example.com',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Form data should be passed as-is when already URL encoded
+      expect(result.urlParams.get('formData')).toBe('username=john_doe&email=john@example.com')
+    })
+
+    it('handles query parameter with text/html content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/html' },
+          },
+        },
+        {
+          name: 'htmlContent',
+          description: 'HTML formatted content',
+          in: 'query',
+          required: false,
+          content: {
+            'text/html': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<div><p>Hello World</p></div>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // HTML values should be passed as-is
+      expect(result.urlParams.get('htmlContent')).toBe('<div><p>Hello World</p></div>')
+    })
+
+    it('handles query parameter with application/octet-stream content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/octet-stream' },
+          },
+        },
+        {
+          name: 'binaryData',
+          description: 'Binary data as base64',
+          in: 'query',
+          required: false,
+          content: {
+            'application/octet-stream': {
+              schema: {
+                type: 'string',
+                format: 'binary',
+              },
+              examples: {
+                default: {
+                  value: 'SGVsbG8gV29ybGQ=',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Binary data (base64 encoded) should be passed as-is
+      expect(result.urlParams.get('binaryData')).toBe('SGVsbG8gV29ybGQ=')
+    })
+
+    it('handles query parameter with array value', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'tags',
+          description: 'Filter by tags',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          examples: {
+            default: {
+              value: ['javascript', 'typescript', 'vue'],
+              'x-disabled': false,
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Array values should be serialized as JSON strings
+      expect(result.urlParams.get('tags')).toBe('javascript,typescript,vue')
     })
   })
 
