@@ -303,12 +303,14 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       </template>
 
       <!-- Dirty document icon slot -->
-      <template #icon="{ item }"> 
-        <template v-if="item.type === 'document' && store.workspace.documents[item.name]?.['x-scalar-is-dirty'] === true">
-<div class="flex items-center">
-            <div
-  
-  class="w-2 h-2 bg-white rounded-full"></div>
+      <template #icon="{ item }">
+        <template
+          v-if="
+            item.type === 'document' &&
+            store.workspace.documents[item.name]?.['x-scalar-is-dirty'] === true
+          ">
+          <div class="flex items-center">
+            <div class="h-2 w-2 rounded-full bg-white"></div>
           </div>
         </template>
       </template>

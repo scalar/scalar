@@ -193,7 +193,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     <span
       v-if="isDeprecated(item)"
-      class="line-through">``
+      class="line-through"
+      >``
       <SidebarItemLabel
         :item
         :operationTitleSource="options?.operationTitleSource" />

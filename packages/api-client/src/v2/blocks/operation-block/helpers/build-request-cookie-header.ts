@@ -73,7 +73,7 @@ export const buildRequestCookieHeader = ({
     })
 
   /** Generate the cookie header */
-  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader)
+  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader ?? undefined)
 
   if (cookieHeader) {
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)
