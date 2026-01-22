@@ -1,5 +1,30 @@
 # @scalar/api-client
 
+## 2.19.2
+
+### Patch Changes
+
+- [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+- [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/sidebar@0.7.16**
+
+- **@scalar/use-codemirror@0.13.20**
+
+- **@scalar/oas-utils@0.6.23**
+
 ## 2.19.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.16.26
+
+### Patch Changes
+
+- [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.23**
+
 ## 0.16.25
 
 ### Patch Changes

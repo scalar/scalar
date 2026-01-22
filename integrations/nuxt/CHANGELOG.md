@@ -1,5 +1,19 @@
 # @scalar/nuxt
 
+## 0.5.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+- **@scalar/api-reference@1.43.11**
+
+- **@scalar/workspace-store@0.25.2**
+
 ## 0.5.49
 
 ### Patch Changes

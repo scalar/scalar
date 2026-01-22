@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.74
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
 ## 1.3.73
 
 ### Patch Changes
