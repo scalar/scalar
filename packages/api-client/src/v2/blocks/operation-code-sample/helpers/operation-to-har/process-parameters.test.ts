@@ -1478,6 +1478,418 @@ describe('parameter styles', () => {
     })
   })
 
+  describe('content-based parameters', () => {
+    it('handles query parameter with object value in application/json content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'offset',
+            description: 'The number of items to skip before starting to collect the result set',
+            in: 'query',
+            required: false,
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'object',
+                }),
+                examples: {
+                  default: {
+                    value: {
+                      test: 'what',
+                    },
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Object values should be serialized as JSON strings
+      expect(result.queryString).toEqual([{ name: 'offset', value: '{"test":"what"}' }])
+    })
+
+    it('handles query parameter with text/plain content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'description',
+            description: 'Plain text description',
+            in: 'query',
+            required: false,
+            content: {
+              'text/plain': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                }),
+                examples: {
+                  default: {
+                    value: 'This is plain text content',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Plain text values should be passed as-is
+      expect(result.queryString).toEqual([{ name: 'description', value: 'This is plain text content' }])
+    })
+
+    it('handles query parameter with text/xml content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'xmlData',
+            description: 'XML formatted data',
+            in: 'query',
+            required: false,
+            content: {
+              'text/xml': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                }),
+                examples: {
+                  default: {
+                    value: '<root><item>value</item></root>',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // XML values should be passed as-is
+      expect(result.queryString).toEqual([{ name: 'xmlData', value: '<root><item>value</item></root>' }])
+    })
+
+    it('handles query parameter with application/xml content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'payload',
+            description: 'Application XML data',
+            in: 'query',
+            required: false,
+            content: {
+              'application/xml': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                }),
+                examples: {
+                  default: {
+                    value: '<?xml version="1.0"?><data><field>test</field></data>',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Application XML values should be passed as-is
+      expect(result.queryString).toEqual([
+        { name: 'payload', value: '<?xml version="1.0"?><data><field>test</field></data>' },
+      ])
+    })
+
+    it('handles query parameter with application/x-www-form-urlencoded content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'formData',
+            description: 'URL encoded form data',
+            in: 'query',
+            required: false,
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                }),
+                examples: {
+                  default: {
+                    value: 'username=john_doe&email=john@example.com',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Form data should be passed as-is when already URL encoded
+      expect(result.queryString).toEqual([{ name: 'formData', value: 'username=john_doe&email=john@example.com' }])
+    })
+
+    it('handles query parameter with text/html content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'htmlContent',
+            description: 'HTML formatted content',
+            in: 'query',
+            required: false,
+            content: {
+              'text/html': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                }),
+                examples: {
+                  default: {
+                    value: '<div><p>Hello World</p></div>',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // HTML values should be passed as-is
+      expect(result.queryString).toEqual([{ name: 'htmlContent', value: '<div><p>Hello World</p></div>' }])
+    })
+
+    it('handles query parameter with application/octet-stream content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'binaryData',
+            description: 'Binary data as base64',
+            in: 'query',
+            required: false,
+            content: {
+              'application/octet-stream': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'string',
+                  format: 'binary',
+                }),
+                examples: {
+                  default: {
+                    value: 'SGVsbG8gV29ybGQ=',
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Binary data (base64 encoded) should be passed as-is
+      expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ=' }])
+    })
+
+    it('handles content-based parameter with matching content type from header', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'Content-Type',
+            in: 'header',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+            examples: {
+              default: { value: 'application/json' },
+            },
+          },
+          {
+            name: 'X-Payload',
+            in: 'header',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: { value: 'json-value' },
+                },
+              },
+              'text/xml': {
+                examples: {
+                  default: { value: 'xml-value' },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Should use the JSON example since Content-Type is application/json
+      expect(result.headers).toContainEqual({ name: 'X-Payload', value: 'json-value' })
+    })
+
+    it('skips content-based parameter when content type does not match', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'Content-Type',
+            in: 'header',
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+            examples: {
+              default: { value: 'application/xml' },
+            },
+          },
+          {
+            name: 'X-Missing-Content-Type',
+            in: 'header',
+            content: {
+              'application/json': {
+                examples: {
+                  default: { value: 'json-value' },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Should skip the parameter since content type does not match
+      expect(result.headers).not.toContainEqual(expect.objectContaining({ name: 'X-Missing-Content-Type' }))
+    })
+
+    it('handles content-based parameter with array value', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'tags',
+            description: 'Filter by tags',
+            in: 'query',
+            required: false,
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                }),
+                examples: {
+                  default: {
+                    value: ['javascript', 'typescript', 'vue'],
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Array values in content should be serialized as JSON strings
+      expect(result.queryString).toEqual([{ name: 'tags', value: '["javascript","typescript","vue"]' }])
+    })
+
+    it('handles content-based parameter with nested object value', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'filter',
+            description: 'Complex filter object',
+            in: 'query',
+            required: false,
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'object',
+                }),
+                examples: {
+                  default: {
+                    value: {
+                      user: {
+                        name: 'John',
+                        age: 30,
+                      },
+                      active: true,
+                    },
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+        contentType: 'application/json',
+      })
+
+      // Nested objects should be serialized as JSON strings
+      expect(result.queryString).toEqual([{ name: 'filter', value: '{"user":{"name":"John","age":30},"active":true}' }])
+    })
+
+    it('handles content-based parameter with multiple content types', () => {
+      const jsonResult = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'X-Payload',
+            in: 'header',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: { value: '{"type":"json"}' },
+                },
+              },
+              'text/xml': {
+                examples: {
+                  default: { value: '<type>xml</type>' },
+                },
+              },
+            },
+          },
+        ],
+        contentType: 'application/json',
+      })
+
+      const xmlResult = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'X-Payload',
+            in: 'header',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: { value: '{"type":"json"}' },
+                },
+              },
+              'text/xml': {
+                examples: {
+                  default: { value: '<type>xml</type>' },
+                },
+              },
+            },
+          },
+        ],
+        contentType: 'text/xml',
+      })
+
+      // Should use the correct example based on content type
+      expect(jsonResult.headers).toContainEqual({ name: 'X-Payload', value: '{"type":"json"}' })
+      expect(xmlResult.headers).toContainEqual({ name: 'X-Payload', value: '<type>xml</type>' })
+    })
+  })
+
   describe('path parameters', () => {
     it('should add variable name if no value or example is provided', () => {
       const result = processParameters({

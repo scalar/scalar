@@ -5,6 +5,7 @@ import type { Request as HarRequest } from 'har-format'
 
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import {
+  serializeContentValue,
   serializeDeepObjectStyle,
   serializeFormStyle,
   serializeFormStyleForCookies,
@@ -134,6 +135,13 @@ export const processParameters = ({
         break
       }
       case 'query': {
+        // Content type parameters should be serialized according to the content type
+        if ('content' in param && param.content) {
+          const serializedValue = serializeContentValue(paramValue, contentType ?? Object.keys(param.content)[0] ?? '')
+          newQueryString.push({ name: param.name, value: serializedValue })
+          break
+        }
+
         // Handle query parameters
         switch (style) {
           case 'form': {
