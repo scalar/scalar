@@ -95,22 +95,19 @@ export const createEmptyDocument = async (
   }
 
   // Add a new empty OpenAPI 3.1.0 document with minimal info and icon
-  await store.addDocument(
-    {
-      name: payload.name,
-      document: {
-        openapi: '3.1.0',
-        info: { title: payload.name, version: '1.0.0' },
-        paths: {
-          '/': {
-            get: {},
-          },
+  await store.addDocument({
+    name: payload.name,
+    document: {
+      openapi: '3.1.0',
+      info: { title: payload.name, version: '1.0.0' },
+      paths: {
+        '/': {
+          get: {},
         },
-        'x-scalar-icon': payload.icon,
       },
+      'x-scalar-icon': payload.icon,
     },
-    {},
-  )
+  })
 
   // Notify success via callback
   payload.callback?.(true)
