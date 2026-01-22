@@ -174,6 +174,16 @@ const EntrySchema = Type.Object({
     /** The example key for the request. */
     example: Type.String(),
   }),
+  requestMetadata: Type.Object({
+    /** Variables used in the request.
+     *
+     * Since HAR format does not support variables, we need to store them here.
+     * This way we can easily re-use the request with the same variables.
+     * We don't need to do any server + variables matching and replacement.
+     */
+    variables: Type.Record(Type.String(), Type.String()),
+    // Other meta fields (e.g., server) can be added here in the future.
+  }),
 })
 
 export type Entry = {
@@ -192,6 +202,12 @@ export type Entry = {
   meta: {
     /** The example key for the request. */
     example: string
+  }
+  /** Metadata about the request. */
+  requestMetadata: {
+    /** Variables used in the request. */
+    variables: Record<string, string>
+    // Other meta fields (e.g., server) can be added here in the future.
   }
 }
 

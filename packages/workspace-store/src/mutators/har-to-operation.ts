@@ -12,6 +12,31 @@ export type HarToOperationProps = {
   exampleKey: string
   /** Optional base operation to merge with */
   baseOperation?: OperationObject
+  /** Optional path variables to merge with */
+  pathVariables?: Record<string, string>
+}
+
+const preprocessParameters = (
+  parameters: ReferenceType<ParameterObject>[],
+  pathVariables: Record<string, string>,
+  exampleKey: string,
+) => {
+  parameters.forEach((param) => {
+    const resolvedParam = getResolvedRef(param)
+    if (isContentTypeParameterObject(resolvedParam)) {
+      return
+    }
+
+    setParameterDisabled(getResolvedRef(param), exampleKey, true)
+
+    if (resolvedParam.in === 'path') {
+      resolvedParam.examples ||= {}
+      resolvedParam.examples[exampleKey] = {
+        value: pathVariables[resolvedParam.name] ?? '',
+        'x-disabled': false,
+      }
+    }
+  })
 }
 
 /**
@@ -40,16 +65,15 @@ export const harToOperation = ({
   harRequest,
   exampleKey,
   baseOperation = {},
+  pathVariables = {},
 }: HarToOperationProps): OperationObject => {
   // Ensure parameters array exists on the base operation
   if (!baseOperation.parameters) {
     baseOperation.parameters = []
   }
 
-  // Mark all existing parameters as disabled for the current example
-  for (const param of baseOperation.parameters) {
-    setParameterDisabled(getResolvedRef(param), exampleKey, true)
-  }
+  // Set any other parameters as disabled and set the path variables
+  preprocessParameters(baseOperation.parameters, pathVariables, exampleKey)
 
   // Process query string parameters from the HAR request
   if (harRequest.queryString && harRequest.queryString.length > 0) {

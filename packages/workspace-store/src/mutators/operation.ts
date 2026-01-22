@@ -876,6 +876,20 @@ const addResponseToHistory = async (
     return
   }
 
+  const operationParameters = operation.parameters ?? []
+
+  // Get all the variables from the operation parameters
+  const variables = operationParameters.reduce<Record<string, string>>((acc, param) => {
+    const resolvedParam = getResolvedRef(param)
+    if (isContentTypeParameterObject(resolvedParam)) {
+      return acc
+    }
+    if (resolvedParam.in === 'path') {
+      acc[resolvedParam.name] = getResolvedRef(resolvedParam.examples?.[meta.exampleKey])?.value ?? ''
+    }
+    return acc
+  }, {})
+
   const requestHar = await fetchRequestToHar({ request: payload.request })
   const responseHar = await fetchResponseToHar({ response: payload.response })
 
@@ -892,6 +906,9 @@ const addResponseToHistory = async (
       example: meta.exampleKey,
     },
     time: payload.duration,
+    requestMetadata: {
+      variables,
+    },
   })
 }
 
@@ -916,7 +933,12 @@ export const reloadOperationHistory = (
     return
   }
 
-  harToOperation({ harRequest: historyItem.request, exampleKey: 'draft', baseOperation: operation })
+  harToOperation({
+    harRequest: historyItem.request,
+    exampleKey: 'draft',
+    baseOperation: operation,
+    pathVariables: historyItem.requestMetadata.variables,
+  })
   callback('success')
 }
 

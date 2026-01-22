@@ -50,7 +50,7 @@ export const buildRequestCookieHeader = ({
   /** Environment variables flattened into a key-value object */
   env: Record<string, string>
   /** Cookie header that previously exists from the spec OR from the user */
-  originalCookieHeader: string | undefined
+  originalCookieHeader: string | undefined | null
   /** The url of the request used to filter global cookies by domain */
   url: string
   /**

@@ -14,6 +14,11 @@ export type FetchRequestToHarProps = {
    * @default 'HTTP/1.1'
    */
   httpVersion?: string
+  /**
+   * The maximum size of the request body to include in the HAR postData.
+   * @default 1MB
+   */
+  bodySizeLimit?: number
 }
 
 /**
@@ -58,122 +63,31 @@ export const fetchRequestToHar = async ({
   request,
   includeBody = true,
   httpVersion = 'HTTP/1.1',
+  // Default to 1MB
+  bodySizeLimit = 1048576,
 }: FetchRequestToHarProps): Promise<HarRequest> => {
-  // Clone the request to avoid consuming the body if we need to read it
-  const clonedRequest = includeBody ? request.clone() : request
-
-  // Extract headers as an array
-  const headers: { name: string; value: string }[] = []
-  const cookies: { name: string; value: string }[] = []
-
-  request.headers.forEach((value, name) => {
-    headers.push({ name, value })
-
-    // Parse Cookie headers into cookies array
-    if (name.toLowerCase() === 'cookie') {
-      const parsedCookies = parseCookieHeader(value)
-      cookies.push(...parsedCookies)
-    }
-  })
-
   // Extract query string from URL
   const url = new URL(request.url)
-  const queryString: { name: string; value: string }[] = []
 
-  url.searchParams.forEach((value, name) => {
-    queryString.push({ name, value })
-  })
+  // Extract the query strings from the URL
+  const queryString = Array.from(url.searchParams.entries()).map(([name, value]) => ({ name, value }))
+
+  // Extract the headers from the request
+  const { headers, headersSize, cookies } = processRequestHeaders(request)
+
+  // Extract the MIME type from the request headers
+  const mimeType = request.headers.get('content-type')?.split(';')[0]?.trim() ?? 'text/plain'
 
   // Read the request body if requested
-  let bodyText = ''
-  let bodySize = -1
-  const mimeType = request.headers.get('content-type')?.split(';')[0]?.trim() ?? 'text/plain'
-  let params: { name: string; value: string }[] | undefined
-
-  if (includeBody && request.body) {
-    try {
-      // Check if this is form data
-      const isFormData = ['multipart/form-data', 'application/x-www-form-urlencoded'].some((type) =>
-        mimeType.startsWith(type),
-      )
-
-      console.log('isFormData', isFormData, mimeType)
-
-      if (isFormData) {
-        console.log('reading as FormData')
-
-        // For URL-encoded form data, parse manually
-        if (mimeType.startsWith('application/x-www-form-urlencoded')) {
-          console.log('parsing URL-encoded form data')
-          const arrayBuffer = await clonedRequest.arrayBuffer()
-          bodySize = arrayBuffer.byteLength
-          const text = new TextDecoder().decode(arrayBuffer)
-
-          try {
-            // Parse URL-encoded data
-            params = []
-            const urlParams = new URLSearchParams(text)
-            urlParams.forEach((value, name) => {
-              params?.push({ name, value })
-            })
-            console.log('params', params)
-          } catch (error) {
-            console.log('URL-encoded parsing failed, using text instead', error)
-            // If URLSearchParams parsing fails, just use the text
-            bodyText = text
-          }
-        }
-        // For multipart form data, try using the native formData() method
-        else {
-          // Clone again for fallback in case FormData parsing fails
-          const formDataRequest = clonedRequest.clone()
-
-          try {
-            const formData = await formDataRequest.formData()
-            params = []
-            bodySize = 0
-
-            formData.forEach((value, name) => {
-              // Handle File objects
-              if (value instanceof File) {
-                const fileValue = `@${value.name}`
-                params?.push({ name, value: fileValue })
-                bodySize += name.length + fileValue.length
-              } else {
-                const stringValue = String(value)
-                params?.push({ name, value: stringValue })
-                bodySize += name.length + stringValue.length
-              }
-            })
-            console.log('params', params)
-          } catch (error) {
-            console.log('FormData parsing failed, falling back to text', error)
-            // If FormData parsing fails, fall back to text using the non-consumed clone
-            const arrayBuffer = await clonedRequest.arrayBuffer()
-            bodySize = arrayBuffer.byteLength
-            bodyText = new TextDecoder().decode(arrayBuffer)
-          }
-        }
-      } else {
-        console.log('reading as text')
-        // For non-form data, read as text
-        const arrayBuffer = await clonedRequest.arrayBuffer()
-        bodySize = arrayBuffer.byteLength
-        bodyText = new TextDecoder().decode(arrayBuffer)
+  const bodyDetails = await (async () => {
+    if (includeBody && request.body) {
+      const details = await processRequestBody(request.clone())
+      if (details.size <= bodySizeLimit) {
+        return details
       }
-    } catch {
-      // If body cannot be read, leave it empty
-      bodyText = ''
-      bodySize = -1
     }
-  }
-
-  // Calculate headers size
-  let headersSize = 0
-  for (const header of headers) {
-    // name + ": " + value + "\r\n"
-    headersSize += header.name.length + 2 + header.value.length + 2
-  }
+    return { text: '', size: -1 }
+  })()
 
   // Create the HAR request object
   const harRequest: HarRequest = {
@@ -184,46 +98,114 @@ export const fetchRequestToHar = async ({
     cookies,
     queryString,
     headersSize,
-    bodySize,
-  }
-
-  // Add postData if body is present
-  if (params) {
-    harRequest.postData = {
-      mimeType,
-      params,
-    }
-  } else if (bodyText) {
-    harRequest.postData = {
-      mimeType,
-      text: bodyText,
-    }
+    bodySize: bodyDetails.size,
+    postData:
+      'params' in bodyDetails
+        ? {
+            mimeType,
+            params: bodyDetails.params,
+          }
+        : {
+            mimeType,
+            text: bodyDetails.text,
+          },
   }
 
   return harRequest
+}
+
+const processRequestBody = async (request: Request) => {
+  const formData = await tryGetRequestFormData(request.clone())
+  if (formData) {
+    return Array.from(formData.entries()).reduce<{ params: { name: string; value: string }[]; size: number }>(
+      (acc, [name, value]) => {
+        if (value instanceof File) {
+          const fileName = `@${value.name}`
+          acc.params.push({ name, value: fileName })
+          acc.size += fileName.length
+          return acc
+        }
+
+        acc.params.push({ name, value })
+        acc.size += value.length
+        return acc
+      },
+      { params: [], size: 0 },
+    )
+  }
+  // Skip binary bodies
+  if (request.headers.get('content-type')?.includes('application/octet-stream')) {
+    return { text: '', size: -1 }
+  }
+
+  // Read the request body as text
+  const arrayBuffer = await request.arrayBuffer()
+  const size = arrayBuffer.byteLength
+  return { size, text: new TextDecoder().decode(arrayBuffer) }
+}
+
+async function tryGetRequestFormData(request: Request): Promise<FormData | null> {
+  if (typeof request.formData !== 'function') {
+    return null
+  }
+
+  if (request.bodyUsed) {
+    return null
+  }
+
+  const contentType = request.headers.get('content-type') ?? ''
+  if (!contentType.includes('multipart/form-data') && !contentType.includes('application/x-www-form-urlencoded')) {
+    return null
+  }
+
+  try {
+    return await request.formData()
+  } catch {
+    return null
+  }
+}
+
+const processRequestHeaders = (request: Request) => {
+  return Array.from(request.headers.entries()).reduce<{
+    headers: { name: string; value: string }[]
+    headersSize: number
+    cookies: { name: string; value: string }[]
+  }>(
+    (acc, [name, value]) => {
+      if (name.toLowerCase() === 'cookie') {
+        const parsedCookies = parseCookieHeader(value)
+        acc.cookies.push(...parsedCookies.cookies)
+      } else {
+        acc.headers.push({ name, value })
+        acc.headersSize += name.length + 2 + value.length + 2
+      }
+      return acc
+    },
+    { headers: [], headersSize: 0, cookies: [] },
+  )
 }
 
 /**
  * Parses a Cookie header value into an array of cookie objects.
  * Cookie format: name1=value1; name2=value2
  */
-const parseCookieHeader = (cookieValue: string): { name: string; value: string }[] => {
-  const cookies: { name: string; value: string }[] = []
-  const parts = cookieValue.split(';')
+const parseCookieHeader = (cookieValue: string) => {
+  return cookieValue.split(';').reduce<{ cookies: { name: string; value: string }[]; size: number }>(
+    (acc, part) => {
+      const trimmedPart = part.trim()
+      const equalIndex = trimmedPart.indexOf('=')
 
-  for (const part of parts) {
-    const trimmedPart = part.trim()
-    const equalIndex = trimmedPart.indexOf('=')
+      if (equalIndex === -1) {
+        return acc
+      }
 
-    if (equalIndex === -1) {
-      continue
-    }
+      const name = trimmedPart.substring(0, equalIndex).trim()
+      const value = trimmedPart.substring(equalIndex + 1).trim()
 
-    const name = trimmedPart.substring(0, equalIndex).trim()
-    const value = trimmedPart.substring(equalIndex + 1).trim()
-
-    cookies.push({ name, value })
-  }
-
-  return cookies
+      acc.cookies.push({ name, value })
+      acc.size += name.length + 2 + value.length + 2
+      return acc
+    },
+    { cookies: [], size: 0 },
+  )
 }

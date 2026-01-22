@@ -1,8 +1,5 @@
 import type { HarResponse } from '@scalar/snippetz'
 
-/** Maximum response body size to include in HAR (1MB) */
-const MAX_BODY_SIZE = 1048576
-
 export type FetchResponseToHarProps = {
   /** The Fetch API Response object to convert */
   response: Response
@@ -21,6 +18,11 @@ export type FetchResponseToHarProps = {
    * @default 'HTTP/1.1'
    */
   httpVersion?: string
+  /**
+   * The maximum size of the response body to include in the HAR content.
+   * @default 1MB
+   */
+  bodySizeLimit?: number
 }
 
 /**
@@ -56,75 +58,27 @@ export const fetchResponseToHar = async ({
   response,
   includeBody = true,
   httpVersion = 'HTTP/1.1',
+  bodySizeLimit = 1048576,
 }: FetchResponseToHarProps): Promise<HarResponse> => {
-  // Clone the response to avoid consuming the body if we need to read it
-  const clonedResponse = includeBody ? response.clone() : response
-
-  // Extract headers as an array
-  const headers: { name: string; value: string }[] = []
-  const cookies: { name: string; value: string }[] = []
-
-  response.headers.forEach((value, name) => {
-    headers.push({ name, value })
-
-    // Parse Set-Cookie headers into cookies array
-    if (name.toLowerCase() === 'set-cookie') {
-      const cookie = parseCookie(value)
-      if (cookie) {
-        cookies.push(cookie)
-      }
-    }
-  })
+  // Extract the headers from the response
+  const { headers, headersSize, cookies } = processResponseHeaders(response)
 
   // Extract redirect URL from Location header
   const redirectURL = response.headers.get('location') || ''
 
   // Get content type
-  const contentType = response.headers.get('content-type') || 'application/octet-stream'
+  const contentType = response.headers.get('content-type') ?? 'text/plain'
 
   // Read the response body if requested
-  let bodyText = ''
-  let bodySize = -1
-  let encoding: 'base64' | undefined
-
-  if (includeBody) {
-    try {
-      // Skip streaming responses
-      if (contentType.startsWith('text/event-stream')) {
-        bodyText = ''
-        bodySize = -1
-      } else {
-        // Read as ArrayBuffer to get the size
-        const arrayBuffer = await clonedResponse.arrayBuffer()
-        bodySize = arrayBuffer.byteLength
-
-        // Only include body if it's under 1MB and is text content
-        const shouldIncludeBody = bodySize < MAX_BODY_SIZE && isTextBasedContent(contentType)
-
-        if (shouldIncludeBody) {
-          // Decode as text for text-based content
-          const decoder = new TextDecoder('utf-8')
-          bodyText = decoder.decode(arrayBuffer)
-          // No encoding needed for plain text
-          encoding = undefined
-        } else {
-          // Do not include binary or large bodies
-          bodyText = ''
-        }
+  const bodyDetails = await (async () => {
+    if (includeBody && response.body) {
+      const details = await processResponseBody(response.clone())
+      if (details.size <= bodySizeLimit) {
+        return details
       }
-    } catch {
-      // If body cannot be read, leave it empty
-      bodyText = ''
-      bodySize = -1
     }
-  }
-
-  // Calculate headers size
-  let headersSize = 0
-  for (const header of headers) {
-    // name + ": " + value + "\r\n"
-    headersSize += header.name.length + 2 + header.value.length + 2
-  }
+    return { text: '', size: -1, encoding: undefined }
+  })()
 
   // Create the HAR response object
   const harResponse: HarResponse = {
@@ -134,17 +88,59 @@ export const fetchResponseToHar = async ({
     headers,
     cookies,
     content: {
-      size: bodySize,
+      size: bodyDetails.size,
       mimeType: contentType,
-      text: bodyText,
-      encoding,
+      text: bodyDetails.text,
+      encoding: bodyDetails.encoding,
     },
     redirectURL,
     headersSize,
-    bodySize,
+    bodySize: bodyDetails.size,
   }
 
   return harResponse
+}
+
+const processResponseHeaders = (response: Response) => {
+  return Array.from(response.headers.entries()).reduce<{
+    headers: { name: string; value: string }[]
+    headersSize: number
+    cookies: { name: string; value: string }[]
+  }>(
+    (acc, [name, value]) => {
+      acc.headers.push({ name, value })
+      acc.headersSize += name.length + 2 + value.length + 2
+
+      // Parse Set-Cookie headers into cookies array
+      if (name.toLowerCase() === 'set-cookie') {
+        const cookie = parseSetCookieHeader(value)
+        if (cookie) {
+          acc.cookies.push(cookie)
+        }
+      }
+
+      return acc
+    },
+    { headers: [], headersSize: 0, cookies: [] },
+  )
+}
+
+const processResponseBody = async (response: Response) => {
+  const contentType = response.headers.get('content-type')
+  if (!contentType || !isTextBasedContent(contentType)) {
+    return { text: '', size: -1, encoding: undefined }
+  }
+
+  try {
+    // Read as ArrayBuffer to get the size
+    const arrayBuffer = await response.arrayBuffer()
+    const bodySize = arrayBuffer.byteLength
+    const text = new TextDecoder('utf-8').decode(arrayBuffer)
+    return { text, size: bodySize, encoding: undefined }
+  } catch {
+    // If body cannot be read, leave it empty
+    return { text: '', size: -1, encoding: undefined }
+  }
 }
 
 /**
@@ -156,7 +152,7 @@ export const fetchResponseToHar = async ({
  * - application/javascript
  * - application/*+json and application/*+xml variants
  */
-const isTextBasedContent = (contentType: string): boolean => {
+export const isTextBasedContent = (contentType: string): boolean => {
   const lowerContentType = contentType.toLowerCase()
 
   // Check for text/* types
@@ -199,7 +195,7 @@ const isTextBasedContent = (contentType: string): boolean => {
  * This is a simplified parser that extracts the name and value.
  * For full cookie parsing with attributes, a more robust parser would be needed.
  */
-const parseCookie = (setCookieValue: string): { name: string; value: string } | null => {
+const parseSetCookieHeader = (setCookieValue: string): { name: string; value: string } | null => {
   // Set-Cookie format: name=value; attribute1=value1; attribute2=value2
   const parts = setCookieValue.split(';')
   if (parts.length === 0 || !parts[0]) {
