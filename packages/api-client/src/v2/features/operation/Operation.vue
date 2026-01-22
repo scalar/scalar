@@ -135,7 +135,6 @@ const APP_VERSION = PACKAGE_VERSION
       :setOperationSecurity="
         document?.['x-scalar-set-operation-security'] ?? false
       "
-      :totalPerformedRequests="0"
       @update:servers="
         eventBus.emit('ui:route:page', { name: 'document.servers' })
       " />

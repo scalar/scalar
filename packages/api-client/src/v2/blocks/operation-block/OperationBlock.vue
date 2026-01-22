@@ -44,11 +44,9 @@ import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
-import {
-  buildResponseInstance,
-  sendRequest,
-} from '@/v2/blocks/operation-block/helpers/send-request'
+import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
+import { harToFetchRequest } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/har-to-fetch-response'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
@@ -107,8 +105,6 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
-  /** Total number of performed requests */
-  totalPerformedRequests: number
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -210,7 +206,7 @@ const handleExecute = async () => {
     isUsingProxy: result.isUsingProxy,
     operation,
     plugins,
-    request: result.request,
+    request: result.request.clone(),
   })
 
   // Execute the hooks
@@ -218,7 +214,7 @@ const handleExecute = async () => {
     payload: sendResult
       ? {
           response: sendResult.oringialResponse,
-          request: sendResult.request,
+          request: result.request.clone(),
           duration: sendResult.response.duration,
         }
       : undefined,
@@ -249,7 +245,7 @@ onBeforeUnmount(() => {
   eventBus.off('operation:cancel:request', cancelRequest)
 })
 
-const history = computed<History[]>(() =>
+const operationHistory = computed<History[]>(() =>
   (operation['x-scalar-history'] ?? [])
     .map((entry) => ({
       method: entry.request.method as HttpMethodType,
@@ -261,7 +257,9 @@ const history = computed<History[]>(() =>
 )
 
 const handleSelectHistoryItem = ({ index }: { index: number }) => {
-  const historyItem = operation['x-scalar-history']?.[index]
+  const transformedIndex =
+    (operation['x-scalar-history']?.length ?? 0) - index - 1
+  const historyItem = operation['x-scalar-history']?.[transformedIndex]
   if (!historyItem) {
     return
   }
@@ -269,27 +267,20 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   eventBus.emit('ui:route:example', {
     exampleName: 'draft',
     callback: async () => {
-      console.log('historyItem', historyItem)
       const fetchResponse = harToFetchResponse({
         harResponse: historyItem.response,
         url: historyItem.request.url,
-      })
-
-      // populate the history for the operation and set the response object
-      const [, responseInstance] = await buildResponseInstance({
-        response: fetchResponse,
-        modifiedRequest: new Request(historyItem.request.url, {
-          method: historyItem.request.method,
-        }),
-        duration: historyItem.time,
-        endTime: Date.now(),
-        isUsingProxy: false,
         method: historyItem.request.method as HttpMethodType,
+        path: historyItem.request.url,
+        duration: historyItem.time,
       })
 
-      if (responseInstance) {
-        response.value = responseInstance.response
-      }
+      const fetchRequest = harToFetchRequest({
+        harRequest: historyItem.request,
+      })
+
+      response.value = fetchResponse
+      request.value = fetchRequest
     },
   })
 }
@@ -313,7 +304,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         :environment
         :eventBus
         :hideClientButton
-        :history
+        :history="operationHistory"
         :integration
         :layout
         :method
@@ -358,7 +349,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :plugins
           :request
           :response
-          :totalPerformedRequests
+          :totalPerformedRequests="operationHistory.length"
           @sendRequest="handleExecute" />
       </ViewLayoutContent>
     </ViewLayout>

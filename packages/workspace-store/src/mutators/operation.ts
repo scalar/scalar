@@ -395,6 +395,9 @@ export const updateOperationPathMethod = (
     }
   }
 
+  // We need to reset the history for the operation when the path or method changes
+  operation['x-scalar-history'] = []
+
   callback('success')
 }
 

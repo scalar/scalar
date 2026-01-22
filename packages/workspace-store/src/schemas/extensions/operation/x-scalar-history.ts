@@ -18,6 +18,8 @@ const RequestSchema = Type.Object({
   url: Type.String(),
   /** Request method (`GET`, `POST`, ...). */
   method: Type.String(),
+  /** Request HTTP Version. */
+  httpVersion: Type.String(),
   /** List of header objects. */
   headers: Type.Array(HeaderSchema),
   /** List of cookie objects. */
@@ -29,6 +31,8 @@ const RequestSchema = Type.Object({
    * Set to `-1` if the info is not available.
    */
   headersSize: Type.Number(),
+  /** List of query string objects. */
+  queryString: Type.Array(HeaderSchema),
   /**
    * Size of the request body (POST data payload) in bytes.
    *
@@ -37,11 +41,18 @@ const RequestSchema = Type.Object({
   bodySize: Type.Number(),
   /** Posted data info. */
   postData: Type.Optional(
-    Type.Object({
-      /** Mime type of posted data. */
-      mimeType: Type.String(),
-      text: Type.Optional(Type.String()),
-    }),
+    Type.Union([
+      Type.Object({
+        /** Mime type of posted data. */
+        mimeType: Type.String(),
+        text: Type.String(),
+      }),
+      Type.Object({
+        /** Mime type of posted data. */
+        mimeType: Type.String(),
+        params: Type.Array(Type.Object({ name: Type.String(), value: Type.Optional(Type.String()) })),
+      }),
+    ]),
   ),
 })
 
@@ -53,6 +64,8 @@ type Request = {
   url: string
   /** Request method (`GET`, `POST`, ...). */
   method: string
+  /** Request HTTP Version. */
+  httpVersion: string
   /** List of header objects. */
   headers: Header[]
   /** List of cookie objects. */
@@ -64,6 +77,8 @@ type Request = {
    * Set to `-1` if the info is not available.
    */
   headersSize: number
+  /** List of query string objects. */
+  queryString: Header[]
   /**
    * Size of the request body (POST data payload) in bytes.
    *
@@ -71,11 +86,17 @@ type Request = {
    */
   bodySize: number
   /** Posted data info. */
-  postData?: {
-    /** Mime type of posted data. */
-    mimeType: string
-    text?: string
-  }
+  postData?:
+    | {
+        /** Mime type of posted data. */
+        mimeType: string
+        text: string
+      }
+    | {
+        /** Mime type of posted data. */
+        mimeType: string
+        params: { name: string; value?: string }[]
+      }
 }
 
 const ResponseSchema = Type.Object({
