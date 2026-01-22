@@ -112,9 +112,9 @@ onMounted(() => {
   /** Select the first server if the user has not specifically unselected it */
   if (
     typeof document?.['x-scalar-selected-server'] === 'undefined' &&
-    document?.servers?.[0]?.url
+    servers.value?.[0]?.url
   ) {
-    eventBus.emit('server:update:selected', { url: document.servers[0].url })
+    eventBus.emit('server:update:selected', { url: servers.value[0]!.url })
   }
 })
 

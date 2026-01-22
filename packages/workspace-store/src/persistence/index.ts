@@ -59,10 +59,6 @@ export const createWorkspaceStorePersistence = async () => {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
         index: ['workspaceId', 'documentName'],
       },
-      documentConfigs: {
-        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
-      },
     },
   })
 
