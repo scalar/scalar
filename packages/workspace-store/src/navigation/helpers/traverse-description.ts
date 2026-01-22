@@ -1,9 +1,7 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
-import type { Heading, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedDescription } from '@/schemas/navigation'
+import type { TraverseSpecOptions } from '@/navigation/types'
+import type { TraversedDescription, TraversedEntry } from '@/schemas/navigation'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
-
-const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 
 /**
  * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.
@@ -12,13 +10,14 @@ const DEFAULT_INTRODUCTION_SLUG = 'introduction'
  * - Level 1: Main sections (based on the lowest heading level found)
  * - Level 2: Subsections (one level deeper than the main sections)
  *
- * If the description starts with content rather than a heading, an "Introduction" section
- * is automatically added as the first entry.
+ * If the description starts with a heading, the headings are returned directly.
+ * If the description starts with content rather than a heading, an "Introduction" folder
+ * is created that contains all markdown headings as children.
  *
  * @param description - The markdown description text to process
  * @param entitiesMap - Map to store heading IDs and titles for mobile header navigation
  * @param getHeadingId - Function to generate unique IDs for headings
- * @returns Array of navigation entries with their hierarchy
+ * @returns Array of description entries (either headings directly, or a single "Introduction" folder)
  */
 export const traverseDescription = ({
   generateId,
@@ -28,46 +27,19 @@ export const traverseDescription = ({
   generateId: TraverseSpecOptions['generateId']
   parentId: string
   info: InfoObject
-}): TraversedDescription[] => {
+}): TraversedEntry[] => {
   if (!info.description?.trim()) {
     return []
   }
 
   const headings = getHeadingsFromMarkdown(info.description)
   const lowestLevel = getLowestHeadingLevel(headings)
+  const descriptionStartsWithHeading = info.description.trim().startsWith('#')
 
-  const entries: TraversedDescription[] = []
+  const children: TraversedDescription[] = []
   let currentParent: TraversedDescription | null = null
 
-  // Add "Introduction" as the first heading
-  if (info.description && !info.description.trim().startsWith('#')) {
-    const heading: Heading = {
-      depth: 1,
-      value: 'Introduction',
-      slug: DEFAULT_INTRODUCTION_SLUG,
-    }
-
-    const id = generateId({
-      type: 'text',
-      depth: heading.depth,
-      slug: heading.slug,
-      parentId: parentId,
-      info: info,
-      value: heading.value,
-    })
-    const title = heading.value
-
-    const entry = {
-      id,
-      title,
-      type: 'text',
-    } satisfies TraversedDescription
-
-    // Push to entries
-    entries.push(entry)
-  }
-
-  // Traverse for the rest
+  // Traverse all markdown headings
   for (const heading of headings) {
     if (heading.depth !== lowestLevel && heading.depth !== lowestLevel + 1) {
       continue
@@ -88,12 +60,39 @@ export const traverseDescription = ({
 
     if (heading.depth === lowestLevel) {
       entry.children = []
-      entries.push(entry)
+      children.push(entry)
       currentParent = entry
     } else if (currentParent) {
       currentParent.children?.push(entry)
     }
   }
 
-  return entries
+  // If description starts with a heading, return headings directly without Introduction folder
+  if (descriptionStartsWithHeading) {
+    return children
+  }
+
+  // If description doesn't start with a heading, create Introduction folder
+  const introductionTitle = 'Introduction'
+
+  // Generate ID for the Introduction folder
+  const introductionId = generateId({
+    type: 'text',
+    depth: 1,
+    slug: 'introduction',
+    parentId: parentId,
+    info: info,
+    value: introductionTitle,
+  })
+
+  // Create description entry (folder) with all markdown entries as children
+  // Always set children as an array (even if empty) so the folder is recognized as collapsible
+  const introductionEntry: TraversedDescription = {
+    id: introductionId,
+    title: introductionTitle,
+    type: 'text',
+    children: children,
+  }
+
+  return [introductionEntry]
 }

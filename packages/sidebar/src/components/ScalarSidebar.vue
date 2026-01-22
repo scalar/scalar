@@ -70,7 +70,7 @@ const emit = defineEmits<{
    * Emitted when a sidebar item is selected.
    * @param id - The id of the selected item.
    */
-  (e: 'selectItem', id: string): void
+  (e: 'selectItem', id: string, event?: MouseEvent): void
 }>()
 
 defineSlots<{
@@ -121,7 +121,7 @@ const handleDragEnd = (
           :layout="layout"
           :options="options"
           @onDragEnd="handleDragEnd"
-          @selectItem="(id) => emit('selectItem', id)">
+          @selectItem="(id, event) => emit('selectItem', id, event)">
           <template
             v-if="$slots.decorator"
             #decorator="props">

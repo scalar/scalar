@@ -35,7 +35,7 @@ describe('traverseDescription', () => {
     expect(result).toEqual([])
   })
 
-  it('should return an introduction entry for description with no headings', () => {
+  it('should return an Introduction folder with no children for description with no headings', () => {
     const description = 'This is a paragraph without any headings.'
     const result = traverseDescription({
       info: { title: 'Openapi Document', version: '1.0.0', description },
@@ -48,10 +48,16 @@ describe('traverseDescription', () => {
       },
       parentId: 'parent-1',
     })
-    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual({
+      id: 'heading-introduction',
+      title: 'Introduction',
+      type: 'text',
+      children: [],
+    })
   })
 
-  it('should create single level entries for h1 headings', () => {
+  it('should return headings directly when description starts with a heading', () => {
     const description = `
 # First Heading
 Some content here
@@ -93,7 +99,7 @@ Final content
     })
   })
 
-  it('should create nested entries for h1 and h2 headings', () => {
+  it('should return headings directly with nested entries for h1 and h2 headings', () => {
     const description = `
 # Main Section
 Some content
@@ -150,7 +156,7 @@ Final content
     })
   })
 
-  it('should handle h2 and h3 headings when they are the lowest levels', () => {
+  it('should return headings directly with h2 and h3 headings when they are the lowest levels', () => {
     const description = `
 ## Section 1
 Content
@@ -207,7 +213,7 @@ Content
     })
   })
 
-  it('should skip headings that are not at the lowest two levels', () => {
+  it('should return headings directly and skip headings that are not at the lowest two levels', () => {
     const description = `
 # Level 1
 ## Level 2
@@ -243,7 +249,7 @@ Content
     })
   })
 
-  it('should handle special characters in headings', () => {
+  it('should return headings directly and handle special characters in headings', () => {
     const description = `
 # Section with @#$%^&*() chars
 ## Sub-section with !@#$%^&*() chars

@@ -37,6 +37,7 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
+  nextTick,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -698,22 +699,81 @@ eventBus.on('ui:download:document', async ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = (id: string, caller?: 'sidebar') => {
+const handleSelectItem = async (
+  id: string,
+  caller?: 'sidebar',
+  event?: MouseEvent,
+) => {
   const item = sidebarState.getEntryById(id)
 
-  if (
-    (item?.type === 'tag' || item?.type === 'models') &&
-    sidebarState.isExpanded(id)
-  ) {
-    // hack until we fix intersection logic
-    const unblock = blockIntersection()
-    sidebarState.setExpanded(id, false)
-    unblock()
-    return
+  // Handle expand/collapse for tags, models, and text items (like Introduction folder) that have children
+  const isTag = item && 'type' in item && item.type === 'tag'
+  const isModels = item && 'type' in item && item.type === 'models'
+  const isTextFolder =
+    item &&
+    'type' in item &&
+    item.type === 'text' &&
+    'children' in item &&
+    item.children &&
+    item.children.length > 0
+  const isFolderType = isTag || isModels || isTextFolder
+
+  if (isFolderType) {
+    // For text folders: check if click was on chevron vs text
+    // For tags and models: always just toggle (same as before)
+    if (isTextFolder && event) {
+      const target = event.target as HTMLElement
+      const button = target?.closest('button')
+
+      if (button) {
+        const rect = button.getBoundingClientRect()
+        const clickX = event.clientX - rect.left
+        const buttonWidth = rect.width
+        // Check if clicked on SVG/path first (most reliable)
+        const clickedOnSvg =
+          target.tagName === 'svg' ||
+          target.tagName === 'path' ||
+          target.closest('svg') !== null
+        // Then check position - use smaller threshold (28px or 25% of button, whichever is smaller)
+        const clickedOnToggle =
+          clickedOnSvg || clickX < Math.min(28, buttonWidth * 0.25)
+
+        if (clickedOnToggle) {
+          // Clicked on chevron: just toggle (don't navigate)
+          const unblock = blockIntersection()
+          sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+          unblock()
+          return
+        }
+
+        // Clicked on text: ensure folder is expanded, then navigate
+        // Don't toggle if already expanded - just ensure it's open
+        if (!sidebarState.isExpanded(id)) {
+          const unblock = blockIntersection()
+          sidebarState.setExpanded(id, true)
+          unblock()
+          // Use nextTick to ensure DOM updates before scrolling
+          await nextTick()
+        }
+        // Continue to navigation below
+      } else {
+        // No button found, just toggle
+        const unblock = blockIntersection()
+        sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+        unblock()
+        return
+      }
+    } else {
+      // Tags and models: just toggle
+      const unblock = blockIntersection()
+      sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+      unblock()
+      return
+    }
   }
 
-  /** When in mobile menu we close the menu when we select an item that is not a tag */
-  if (item?.type !== 'tag' && item?.type !== 'models') {
+  /** When in mobile menu we close the menu when we select an item that is not a tag, model, or text folder */
+  if (!isTag && !isModels && !isTextFolder) {
     isSidebarOpen.value = false
   }
 
@@ -852,7 +912,10 @@ const colorMode = computed(() => {
             layout="reference"
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectItem(id, 'sidebar')">
+            @selectItem="
+              (id: string, event?: MouseEvent) =>
+                handleSelectItem(id, 'sidebar', event)
+            ">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
