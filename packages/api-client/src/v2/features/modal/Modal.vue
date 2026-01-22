@@ -21,7 +21,10 @@ export type ModalProps = {
   /** Subset of the configuration options for the modal */
   options: MaybeRefOrGetter<
     Partial<
-      Pick<ApiReferenceConfigurationRaw, 'authentication' | 'hideClientButton'>
+      Pick<
+        ApiReferenceConfigurationRaw,
+        'authentication' | 'hideClientButton' | 'hiddenClients'
+      >
     >
   >
 }
@@ -63,6 +66,7 @@ import {
 
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -72,13 +76,13 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
 const {
-  modalState,
-  workspaceStore,
-  sidebarState,
-  eventBus,
   document,
-  plugins,
+  eventBus,
+  modalState,
   options,
+  plugins,
+  sidebarState,
+  workspaceStore,
 } = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
@@ -178,6 +182,11 @@ const securitySchemes = computed(() =>
   ),
 )
 
+/** Temporarily use the old config.hiddenClients until we migrate to the new httpClients config */
+const httpClients = computed(() =>
+  mapHiddenClientsConfig(toValue(options)?.hiddenClients),
+)
+
 defineExpose({
   sidebarWidth,
   environment,
@@ -230,6 +239,7 @@ defineExpose({
               :eventBus
               :exampleName="exampleName?.value"
               :hideClientButton="toValue(options)?.hideClientButton ?? false"
+              :httpClients
               layout="modal"
               :method="method?.value"
               :path="path?.value"

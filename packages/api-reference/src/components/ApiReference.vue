@@ -68,7 +68,6 @@ import {
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
-import { mapConfiguration } from '@/helpers/map-configuration'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
@@ -486,14 +485,13 @@ const changeSelectedDocument = async (
         ? {
             name: slug,
             url: normalized.source.url,
-            config: mapConfiguration(config),
             fetch: config.fetch ?? proxy,
           }
         : {
             name: slug,
             document: normalized.source.content ?? {},
-            config: mapConfiguration(config),
           },
+      mergedConfig.value,
     )
   }
 
@@ -551,12 +549,14 @@ watch(
             init,
           )
 
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          url: updated.source.url,
-          config: mapConfiguration(updated.config),
-          fetch: updated.config.fetch ?? proxy,
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            url: updated.source.url,
+            fetch: updated.config.fetch ?? proxy,
+          },
+          mergedConfig.value,
+        )
 
         return
       }
@@ -578,11 +578,13 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          document: updated.source.content,
-          config: mapConfiguration(updated.config),
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            document: updated.source.content,
+          },
+          mergedConfig.value,
+        )
       }
     }
 
@@ -918,9 +920,6 @@ const colorMode = computed(() => {
           :headingSlugGenerator="
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
-          "
-          :httpClients="
-            workspaceStore.config['x-scalar-reference-config']?.httpClients
           "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"

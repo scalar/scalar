@@ -11,6 +11,10 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import {
+  AVAILABLE_CLIENTS,
+  type AvailableClients,
+} from '@scalar/types/snippetz'
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, onMounted } from 'vue'
@@ -25,6 +29,7 @@ const {
   document,
   layout,
   eventBus,
+  httpClients = AVAILABLE_CLIENTS,
   path,
   method,
   environment,
@@ -35,7 +40,10 @@ const {
   hideClientButton,
 } = defineProps<
   RouteProps & {
+    /** Hides the client button on the header */
     hideClientButton?: boolean
+    /** HTTP clients */
+    httpClients?: AvailableClients
   }
 >()
 
@@ -119,9 +127,7 @@ const APP_VERSION = PACKAGE_VERSION
       :globalCookies
       :hideClientButton
       :history="[]"
-      :httpClients="
-        workspaceStore.config['x-scalar-reference-config']?.httpClients
-      "
+      :httpClients
       :layout
       :method
       :operation

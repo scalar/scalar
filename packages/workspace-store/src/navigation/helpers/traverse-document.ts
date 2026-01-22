@@ -19,7 +19,7 @@ import { traverseWebhooks } from './traverse-webhooks'
  * - Tag-based organization of operations and webhooks
  * - Optional schema/model documentation
  */
-export const traverseDocument = (documentName: string, document: OpenApiDocument, options: NavigationOptions) => {
+export const traverseDocument = (documentName: string, document: OpenApiDocument, options?: NavigationOptions) => {
   const { hideModels, tagsSorter, operationsSorter, generateId } = getNavigationOptions(documentName, options)
 
   const documentId = generateId({

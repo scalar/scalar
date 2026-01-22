@@ -200,11 +200,7 @@ export type WorkspaceStore = {
    *   paths: {},
    * })
    */
-  replaceDocument(
-    documentName: string,
-    input: Record<string, unknown>,
-    navigationOptions: NavigationOptions,
-  ): Promise<void>
+  replaceDocument(documentName: string, input: Record<string, unknown>): Promise<void>
   /**
    * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
    * This method traverses the document structure following the given path and resolves any $ref references it encounters.
@@ -235,7 +231,7 @@ export type WorkspaceStore = {
    *   }
    * })
    */
-  addDocument(input: WorkspaceDocumentInput, navigationOptions: NavigationOptions): Promise<boolean>
+  addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions): Promise<boolean>
   /**
    * Deletes a document from the workspace and all associated data.
    *
@@ -330,7 +326,7 @@ export type WorkspaceStore = {
    * @param documentName - The name of the document to build the sidebar for
    * @returns boolean indicating if the sidebar was built successfully
    */
-  buildSidebar: (documentName: string, navigationOptions: NavigationOptions) => boolean
+  buildSidebar: (documentName: string) => boolean
   /**
    * Restores the specified document to its last locally saved state.
    *
@@ -348,7 +344,7 @@ export type WorkspaceStore = {
    * // Restore the document named 'api' to its last saved state
    * store.revertDocumentChanges('api')
    */
-  revertDocumentChanges(documentName: string, navigationOptions: NavigationOptions): Promise<void>
+  revertDocumentChanges(documentName: string): Promise<void>
   /**
    * Commits the specified document.
    *
@@ -406,10 +402,7 @@ export type WorkspaceStore = {
    *
    * @param specification - The workspace specification to import.
    */
-  importWorkspaceFromSpecification(
-    specification: WorkspaceSpecification,
-    navigationOptions: NavigationOptions,
-  ): Promise<boolean[]>
+  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<boolean[]>
   /**
    * Rebases a document in the workspace by refetching its origin and merging with local edits.
    *
@@ -435,7 +428,7 @@ export type WorkspaceStore = {
     | {
         ok: true
         conflicts: ReturnType<typeof merge>['conflicts']
-        applyChanges: (resolvedConflicts: Difference<unknown>[], navigationOptions: NavigationOptions) => Promise<void>
+        applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
       }
   >
 }
@@ -716,7 +709,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
-    navigationOptions: NavigationOptions,
+    navigationOptions?: NavigationOptions,
   ) {
     const { name, meta } = input
     const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
@@ -815,7 +808,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
   // If loading fails, a placeholder error document is added instead.
-  async function addDocument(input: WorkspaceDocumentInput, navigationOptions: NavigationOptions) {
+  async function addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
 
     const resolve = await measureAsync(
@@ -884,7 +877,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @param documentName - The name/key of the document whose sidebar should be built.
    * @returns {boolean} True if the sidebar was built successfully, false if the document does not exist.
    */
-  const buildSidebar = (documentName: string, navigationOptions: NavigationOptions): boolean => {
+  const buildSidebar = (documentName: string): boolean => {
     const document = workspace.documents[documentName]
 
     if (!document) {
@@ -894,7 +887,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Generate the navigation structure for the sidebar.
-    const navigation = createNavigation(documentName, document, navigationOptions)
+    const navigation = createNavigation(documentName, document)
 
     // Set the computed navigation structure on the document metadata.
     document[extensions.document.navigation] = navigation
@@ -928,7 +921,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
     },
-    async replaceDocument(documentName: string, input: Record<string, unknown>, navigationOptions: NavigationOptions) {
+    async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
 
       if (!currentDocument) {
@@ -936,21 +929,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Replace the whole document
-      await addInMemoryDocument(
-        {
-          name: documentName,
-          document: input,
-          // Preserve the current metadata
-          documentSource: currentDocument['x-scalar-original-source-url'],
-          documentHash: currentDocument['x-scalar-original-document-hash'],
-          meta: {
-            'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-            'x-scalar-active-server': currentDocument['x-scalar-active-server'],
-          },
-          initialize: false,
+      await addInMemoryDocument({
+        name: documentName,
+        document: input,
+        // Preserve the current metadata
+        documentSource: currentDocument['x-scalar-original-source-url'],
+        documentHash: currentDocument['x-scalar-original-document-hash'],
+        meta: {
+          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
+          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
         },
-        navigationOptions,
-      )
+        initialize: false,
+      })
     },
     resolve: (path) => {
       const activeDocument = workspace.activeDocument
@@ -1015,7 +1005,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
     saveDocument,
-    async revertDocumentChanges(documentName: string, navigationOptions: NavigationOptions) {
+    async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
       const intermediate = intermediateDocuments[documentName]
 
@@ -1023,16 +1013,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      await addInMemoryDocument(
-        {
-          name: documentName,
-          document: intermediate,
-          documentSource: workspaceDocument['x-scalar-original-source-url'],
-          documentHash: workspaceDocument['x-scalar-original-document-hash'],
-          initialize: false,
-        },
-        navigationOptions,
-      )
+      await addInMemoryDocument({
+        name: documentName,
+        document: intermediate,
+        documentSource: workspaceDocument['x-scalar-original-source-url'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'],
+        initialize: false,
+      })
     },
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
@@ -1074,7 +1061,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
     },
-    importWorkspaceFromSpecification: (specification: WorkspaceSpecification, navigationOptions: NavigationOptions) => {
+    importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
@@ -1083,7 +1070,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Add workspace documents
       return Promise.all(
         Object.entries(documents ?? {}).map(([name, doc]) =>
-          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }, navigationOptions),
+          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }),
         ),
       )
     },
@@ -1158,7 +1145,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return {
         ok: true,
         conflicts: changesA.conflicts,
-        applyChanges: async (resolvedConflicts: Difference<unknown>[], navigationOptions: NavigationOptions) => {
+        applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
           const changesetA = changesA.diffs.concat(resolvedConflicts)
 
           // Apply the changes to the original document to get the new intermediate
@@ -1184,22 +1171,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           )
 
           // add the new active document to the workspace but don't re-initialize
-          await addInMemoryDocument(
-            {
-              ...input,
-              document: {
-                ...newActiveDocument,
-                // force regeneration of navigation
-                // when we are rebasing, we want to ensure that the navigation is always up to date
-                [extensions.document.navigation]: undefined,
-              },
-              documentSource: getDocumentSource(input),
-              // Update the original document hash
-              documentHash: generateHash(resolve.raw),
-              initialize: false,
+          await addInMemoryDocument({
+            ...input,
+            document: {
+              ...newActiveDocument,
+              // force regeneration of navigation
+              // when we are rebasing, we want to ensure that the navigation is always up to date
+              [extensions.document.navigation]: undefined,
             },
-            navigationOptions,
-          )
+            documentSource: getDocumentSource(input),
+            // Update the original document hash
+            documentHash: generateHash(resolve.raw),
+            initialize: false,
+          })
         },
       }
     },

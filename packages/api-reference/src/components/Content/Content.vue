@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
-import type { AvailableClients } from '@scalar/types/snippetz'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -27,36 +27,37 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, httpClients, items, environment, eventBus, options } =
-  defineProps<{
-    infoSectionId: string
-    /** The subset of the configuration object required for the content component */
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      | 'authentication'
-      | 'documentDownloadType'
-      | 'expandAllResponses'
-      | 'hideTestRequestButton'
-      | 'layout'
-      | 'orderRequiredPropertiesFirst'
-      | 'orderSchemaPropertiesBy'
-      | 'persistAuth'
-      | 'proxyUrl'
-      | 'showOperationId'
-    >
-    document: WorkspaceDocument | undefined
-    httpClients: AvailableClients
-    xScalarDefaultClient: Workspace['x-scalar-default-client']
-    items: TraversedEntryType[]
-    expandedItems: Record<string, boolean>
-    eventBus: WorkspaceEventBus
-    environment: XScalarEnvironment
-    /** Heading id generator for Markdown headings */
-    headingSlugGenerator: (heading: Heading) => string
-  }>()
+const { document, items, environment, eventBus, options } = defineProps<{
+  infoSectionId: string
+  /** The subset of the configuration object required for the content component */
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'authentication'
+    | 'documentDownloadType'
+    | 'expandAllResponses'
+    | 'hiddenClients'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'persistAuth'
+    | 'proxyUrl'
+    | 'showOperationId'
+  >
+  document: WorkspaceDocument | undefined
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  items: TraversedEntryType[]
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
+  /** Heading id generator for Markdown headings */
+  headingSlugGenerator: (heading: Heading) => string
+}>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() => generateClientOptions(httpClients))
+const clientOptions = computed(() =>
+  generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
