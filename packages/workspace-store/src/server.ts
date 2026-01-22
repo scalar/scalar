@@ -40,6 +40,7 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
+  navigationOptions?: NavigationOptions
 }
 type CreateServerWorkspaceStore =
   | ({
@@ -236,10 +237,7 @@ function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<Loa
 /**
  * Create server state workspace store
  */
-export async function createServerWorkspaceStore(
-  workspaceProps: CreateServerWorkspaceStore,
-  navigationOptions?: NavigationOptions,
-) {
+export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   /**
    * Base workspace document containing essential metadata and document references.
    *
@@ -280,11 +278,7 @@ export async function createServerWorkspaceStore(
    * @param document - The OpenAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
-  const addDocumentSync = (
-    document: Record<string, unknown>,
-    meta: { name: string } & WorkspaceDocumentMeta,
-    navigationOptions?: NavigationOptions,
-  ) => {
+  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
@@ -304,7 +298,7 @@ export async function createServerWorkspaceStore(
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const navigation = createNavigation(name, documentV3, navigationOptions)
+    const navigation = createNavigation(name, documentV3, workspaceProps.navigationOptions)
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -327,7 +321,7 @@ export async function createServerWorkspaceStore(
    *
    * @param input - The document input containing the document source and metadata
    */
-  const addDocument = async (input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) => {
+  const addDocument = async (input: WorkspaceDocumentInput) => {
     const document = await loadDocument(input)
 
     if (!document.ok) {
@@ -335,11 +329,11 @@ export async function createServerWorkspaceStore(
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
   }
 
   // Load and process all initial documents in parallel
-  await Promise.all(workspaceProps.documents.map((document) => addDocument(document, navigationOptions)))
+  await Promise.all(workspaceProps.documents.map((document) => addDocument(document)))
 
   return {
     /**
