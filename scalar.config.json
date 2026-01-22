@@ -458,6 +458,26 @@
         {
           "from": "/privacy-policy",
           "to": "/legal/privacy-policy"
+        },
+        {
+          "from": "/migration/swagger-ui",
+          "to": "/guides/migration/swagger-ui"
+        },
+        {
+          "from": "/migration/stoplight",
+          "to": "/guides/migration/stoplight"
+        },
+        {
+          "from": "/migration/api-hub",
+          "to": "/guides/migration/api-hub"
+        },
+        {
+          "from": "/migration/bump",
+          "to": "/guides/migration/bump"
+        },
+        {
+          "from": "/migration/zuplo",
+          "to": "/guides/migration/zuplo"
         }
       ]
     }
@@ -1091,36 +1111,96 @@
               }
             }
           },
-          "/migration": {
-            "title": "Migration",
+          "/guides": {
+            "title": "Guides",
             "type": "group",
-            "mode": "nested",
-            "icon": "phosphor/regular/caret-circle-right",
+            "mode": "flat",
+            "icon": "phosphor/regular/notebook",
             "children": {
-              "swagger-ui": {
-                "title": "Swagger UI",
-                "filepath": "documentation/migration/swagger-ui.md",
-                "type": "page"
+              "/migration": {
+                "title": "Migration",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/caret-circle-right",
+                "children": {
+                  "swagger-ui": {
+                    "title": "Swagger UI",
+                    "filepath": "documentation/migration/swagger-ui.md",
+                    "type": "page"
+                  },
+                  "stoplight": {
+                    "title": "Stoplight",
+                    "filepath": "documentation/migration/stoplight.md",
+                    "type": "page"
+                  },
+                  "api-hub": {
+                    "title": "API Hub",
+                    "filepath": "documentation/migration/api-hub.md",
+                    "type": "page"
+                  },
+                  "bump": {
+                    "title": "Bump.sh",
+                    "filepath": "documentation/migration/bump.md",
+                    "type": "page"
+                  },
+                  "zuplo": {
+                    "title": "Zuplo",
+                    "filepath": "documentation/migration/zuplo.md",
+                    "type": "page"
+                  }
+                }
               },
-              "stoplight": {
-                "title": "Stoplight",
-                "filepath": "documentation/migration/stoplight.md",
-                "type": "page"
-              },
-              "api-hub": {
-                "title": "API Hub",
-                "filepath": "documentation/migration/api-hub.md",
-                "type": "page"
-              },
-              "bump": {
-                "title": "Bump.sh",
-                "filepath": "documentation/migration/bump.md",
-                "type": "page"
-              },
-              "zuplo": {
-                "title": "Zuplo",
-                "filepath": "documentation/migration/zuplo.md",
-                "type": "page"
+              "sso": {
+                "title": "SSO/SAML",
+                "filepath": "documentation/guides/sso/getting-started.md",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/key",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/sso/getting-started.md",
+                    "type": "page"
+                  },
+                  "providers": {
+                    "title": "Providers",
+                    "type": "group",
+                    "mode": "flat",
+                    "children": {
+                      "azure-ad": {
+                        "title": "Azure AD",
+                        "filepath": "documentation/guides/sso/providers/azure-ad.md",
+                        "type": "page"
+                      },
+                      "google": {
+                        "title": "Google",
+                        "filepath": "documentation/guides/sso/providers/google.md",
+                        "type": "page"
+                      },
+                      "okta": {
+                        "title": "Okta",
+                        "filepath": "documentation/guides/sso/providers/okta.md",
+                        "type": "page"
+                      },
+                      "auth0": {
+                        "title": "Auth0",
+                        "filepath": "documentation/guides/sso/providers/auth0.md",
+                        "type": "page"
+                      },
+                      "onelogin": {
+                        "title": "OneLogin",
+                        "filepath": "documentation/guides/sso/providers/onelogin.md",
+                        "type": "page"
+                      },
+                      "ping-identity": {
+                        "title": "Ping Identity",
+                        "filepath": "documentation/guides/sso/providers/ping-identity.md",
+                        "type": "page"
+                      }
+                    }
+                  }
+
+                }
               }
             }
           },
