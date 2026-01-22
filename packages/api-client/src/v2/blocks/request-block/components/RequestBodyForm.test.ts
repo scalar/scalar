@@ -386,4 +386,141 @@ describe('RequestBodyForm', () => {
       expect(lastRemoveFileEvent[0].value).toBeUndefined()
     }
   })
+
+  it('defaults isDisabled to false when adding a new row', async () => {
+    const example: ExampleObject = {
+      value: {
+        field1: 'value1',
+      },
+    }
+
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+      global: {
+        stubs: {
+          RequestTable: {
+            template: '<div data-testid="request-table"></div>',
+            props: ['data', 'environment', 'showUploadButton'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const requestTable = wrapper.findComponent(RequestTable)
+
+    // Add a new row by emitting upsertRow with an index beyond the current array length
+    await requestTable.vm.$emit('upsertRow', 10, { name: 'newField', value: 'newValue' })
+    await nextTick()
+
+    const events = wrapper.emitted('update:formValue')
+    expect(events).toBeTruthy()
+    const lastEvent = events?.[events.length - 1]?.[0]
+
+    expect(lastEvent).toBeDefined()
+    expect(Array.isArray(lastEvent)).toBe(true)
+
+    if (Array.isArray(lastEvent)) {
+      // Find the newly added row
+      const newRow = lastEvent.find((row) => row.name === 'newField' && row.value === 'newValue')
+      expect(newRow).toBeDefined()
+      expect(newRow?.isDisabled).toBe(false)
+    }
+  })
+
+  it('defaults isDisabled to false when adding a new row even if isDisabled is not provided in payload', async () => {
+    const example: ExampleObject = {
+      value: [],
+    }
+
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example,
+        selectedContentType: 'application/x-www-form-urlencoded',
+        environment: defaultEnvironment,
+      },
+      global: {
+        stubs: {
+          RequestTable: {
+            template: '<div data-testid="request-table"></div>',
+            props: ['data', 'environment', 'showUploadButton'],
+            emits: ['upsertRow', 'deleteRow'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const requestTable = wrapper.findComponent(RequestTable)
+
+    // Add a new row with only name and value, no isDisabled in payload
+    await requestTable.vm.$emit('upsertRow', 0, { name: 'firstField', value: 'firstValue' })
+    await nextTick()
+
+    const events = wrapper.emitted('update:formValue')
+    expect(events).toBeTruthy()
+    const lastEvent = events?.[events.length - 1]?.[0]
+
+    expect(Array.isArray(lastEvent)).toBe(true)
+
+    if (Array.isArray(lastEvent)) {
+      expect(lastEvent).toHaveLength(1)
+      expect(lastEvent[0]).toEqual({
+        name: 'firstField',
+        value: 'firstValue',
+        isDisabled: false,
+      })
+    }
+  })
+
+  it('defaults isDisabled to false when adding a new row even if isDisabled is explicitly set to true in payload', async () => {
+    const example: ExampleObject = {
+      value: {
+        existingField: 'existingValue',
+      },
+    }
+
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+      global: {
+        stubs: {
+          RequestTable: {
+            template: '<div data-testid="request-table"></div>',
+            props: ['data', 'environment', 'showUploadButton'],
+            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const requestTable = wrapper.findComponent(RequestTable)
+
+    // Try to add a new row with isDisabled: true - it should be overridden to false
+    await requestTable.vm.$emit('upsertRow', 5, { name: 'newField', value: 'newValue', isDisabled: true })
+    await nextTick()
+
+    const events = wrapper.emitted('update:formValue')
+    expect(events).toBeTruthy()
+    const lastEvent = events?.[events.length - 1]?.[0]
+
+    if (Array.isArray(lastEvent)) {
+      const newRow = lastEvent.find((row) => row.name === 'newField')
+      expect(newRow).toBeDefined()
+      // isDisabled should be false even though we tried to set it to true
+      expect(newRow?.isDisabled).toBe(false)
+    }
+  })
 })
