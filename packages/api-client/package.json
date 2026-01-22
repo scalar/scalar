@@ -357,7 +357,7 @@
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-bytes": "^7.1.0",
-    "pretty-ms": "^8.0.0",
+    "pretty-ms": "^9.3.0",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
