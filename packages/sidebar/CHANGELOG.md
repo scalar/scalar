@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
 ## 0.7.15
 
 ### Patch Changes
