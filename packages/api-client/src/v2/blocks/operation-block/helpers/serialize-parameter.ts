@@ -21,7 +21,7 @@ export const serializeContentValue = (value: unknown, contentType: string): stri
   }
 
   // Handle JSON content types
-  if (contentType.includes('json')) {
+  if (contentType.includes('json') || (typeof value === 'object' && value !== null)) {
     return JSON.stringify(value)
   }
 

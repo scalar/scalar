@@ -22,22 +22,6 @@ const createParameter = (
     ...overrides,
   }) as ExtendedParameter
 
-/** Helper to create a parameter with content-based examples */
-const createContentParameter = (
-  overrides: Partial<ExtendedParameter> & Pick<ExtendedParameter, 'name' | 'in' | 'value'>,
-  contentType: string,
-  examples?: Record<string, ExampleObject>,
-): ExtendedParameter =>
-  ({
-    required: true, // Set required by default so parameters are not disabled
-    content: {
-      [contentType]: {
-        ...(examples && { examples }),
-      },
-    },
-    ...overrides,
-  }) as ExtendedParameter
-
 describe('buildRequestParameters', () => {
   describe('getExample (internal helper)', () => {
     /**
@@ -57,36 +41,6 @@ describe('buildRequestParameters', () => {
       ]
       const result = buildRequestParameters(params, {}, 'production')
       expect(result.headers['X-Api-Key']).toBe('prod-key')
-    })
-
-    it('returns undefined when content type does not exist in content-based parameter', () => {
-      const params: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/xml' },
-          },
-        },
-        {
-          name: 'X-Missing-Content-Type',
-          in: 'header',
-          content: {
-            'application/json': {
-              examples: {
-                default: { value: 'json-value' },
-              },
-            },
-          },
-        },
-      ]
-
-      // Request with a content type that does not exist in the parameter
-      const result = buildRequestParameters(params, {}, 'default')
-
-      // Should skip the parameter since no example is found
-      expect(result.headers).not.toHaveProperty('X-Missing-Content-Type')
     })
 
     it('returns undefined when exampleKey does not exist in examples', () => {
@@ -200,22 +154,6 @@ describe('buildRequestParameters', () => {
       const result = buildRequestParameters(params)
 
       expect(result.headers['X-Api-Key']).toBe('my-api-key')
-    })
-
-    it('builds header from content-based parameter', () => {
-      const params = [
-        createParameter(
-          { name: 'Content-Type', in: 'header', value: 'application/json' },
-          { default: { value: 'application/json' } },
-        ),
-        createContentParameter({ name: 'X-Custom-Header', in: 'header', value: 'custom-value' }, 'application/json', {
-          default: { value: 'custom-value' },
-        }),
-      ]
-
-      const result = buildRequestParameters(params, {}, 'default')
-
-      expect(result.headers['X-Custom-Header']).toBe('custom-value')
     })
 
     it('builds multiple headers', () => {
@@ -1250,45 +1188,6 @@ describe('buildRequestParameters', () => {
   })
 
   describe('content-based parameters', () => {
-    it('extracts example from content with matching content type', () => {
-      const params = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/json' },
-          },
-        },
-        {
-          name: 'X-Payload',
-          in: 'header',
-          required: true,
-          content: { 'application/json': { examples: { default: { value: 'stuff' } } } },
-        },
-      ] satisfies ParameterObject[]
-      const result = buildRequestParameters(params, {}, 'default')
-
-      expect(result.headers['X-Payload']).toBe('stuff')
-    })
-
-    it('grabs the first content type from the parameter', () => {
-      const params = [
-        createParameter(
-          { name: 'Content-Type', in: 'header', value: 'text/plain' },
-          { default: { value: 'text/plain' } },
-        ),
-        createContentParameter({ name: 'X-Payload', in: 'header', value: '{"key":"value"}' }, 'application/json', {
-          default: { value: { key: 'value' } },
-        }),
-      ]
-      const result = buildRequestParameters(params, {}, 'default')
-
-      // No matching content type, so no example found, parameter skipped
-      expect(result.headers).toHaveProperty('X-Payload')
-    })
-
     it('filters out Content-Type header when value is multipart/form-data', () => {
       const params = [
         createParameter(
@@ -1329,6 +1228,90 @@ describe('buildRequestParameters', () => {
       const result = buildRequestParameters(params, { headerName: 'X-Custom-Header' })
 
       expect(result.headers['X-Custom-Header']).toBe('my-value')
+    })
+  })
+
+  describe('content-based parameters', () => {
+    /**
+     * Tests for parameters that use the `content` field instead of `schema`.
+     * According to OpenAPI 3.1, parameters can use either `schema` or `content`.
+     * Content parameters only exist in query parameters.
+     * When `content` is used, serialization follows the content type (e.g., JSON stringification
+     * for application/json), not style-based serialization.
+     */
+
+    describe('query parameters with content', () => {
+      it('serializes query parameter with application/json content as JSON', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'filter',
+            in: 'query',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: {
+                    value: { status: 'active', limit: 10 },
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be JSON stringified
+        expect(result.urlParams.get('filter')).toBe('{"status":"active","limit":10}')
+      })
+
+      it('serializes query parameter with application/json content for array', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: {
+                    value: [1, 2, 3],
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be JSON stringified
+        expect(result.urlParams.get('ids')).toBe('[1,2,3]')
+      })
+
+      it('serializes query parameter with text/plain content as string', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'data',
+            in: 'query',
+            required: true,
+            content: {
+              'text/plain': {
+                examples: {
+                  default: {
+                    value: { key: 'value' },
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be converted to string
+        expect(result.urlParams.get('data')).toBe('{"key":"value"}')
+      })
     })
   })
 

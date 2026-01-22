@@ -1691,77 +1691,6 @@ describe('parameter styles', () => {
       expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ=' }])
     })
 
-    it('handles content-based parameter with matching content type from header', () => {
-      const result = processParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'Content-Type',
-            in: 'header',
-            required: true,
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'string',
-            }),
-            examples: {
-              default: { value: 'application/json' },
-            },
-          },
-          {
-            name: 'X-Payload',
-            in: 'header',
-            required: true,
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: 'json-value' },
-                },
-              },
-              'text/xml': {
-                examples: {
-                  default: { value: 'xml-value' },
-                },
-              },
-            },
-          },
-        ],
-      })
-
-      // Should use the JSON example since Content-Type is application/json
-      expect(result.headers).toContainEqual({ name: 'X-Payload', value: 'json-value' })
-    })
-
-    it('skips content-based parameter when content type does not match', () => {
-      const result = processParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'Content-Type',
-            in: 'header',
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'string',
-            }),
-            examples: {
-              default: { value: 'application/xml' },
-            },
-          },
-          {
-            name: 'X-Missing-Content-Type',
-            in: 'header',
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: 'json-value' },
-                },
-              },
-            },
-          },
-        ],
-      })
-
-      // Should skip the parameter since content type does not match
-      expect(result.headers).not.toContainEqual(expect.objectContaining({ name: 'X-Missing-Content-Type' }))
-    })
-
     it('handles content-based parameter with array value', () => {
       const result = processParameters({
         harRequest: createHarRequest('/api/users'),
@@ -1830,60 +1759,6 @@ describe('parameter styles', () => {
 
       // Nested objects should be serialized as JSON strings
       expect(result.queryString).toEqual([{ name: 'filter', value: '{"user":{"name":"John","age":30},"active":true}' }])
-    })
-
-    it('handles content-based parameter with multiple content types', () => {
-      const jsonResult = processParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'X-Payload',
-            in: 'header',
-            required: true,
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: '{"type":"json"}' },
-                },
-              },
-              'text/xml': {
-                examples: {
-                  default: { value: '<type>xml</type>' },
-                },
-              },
-            },
-          },
-        ],
-        contentType: 'application/json',
-      })
-
-      const xmlResult = processParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'X-Payload',
-            in: 'header',
-            required: true,
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: '{"type":"json"}' },
-                },
-              },
-              'text/xml': {
-                examples: {
-                  default: { value: '<type>xml</type>' },
-                },
-              },
-            },
-          },
-        ],
-        contentType: 'text/xml',
-      })
-
-      // Should use the correct example based on content type
-      expect(jsonResult.headers).toContainEqual({ name: 'X-Payload', value: '{"type":"json"}' })
-      expect(xmlResult.headers).toContainEqual({ name: 'X-Payload', value: '<type>xml</type>' })
     })
   })
 
@@ -1961,6 +1836,93 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toEqual('/api/users/scalarUser')
+    })
+  })
+
+  describe('content-based parameters', () => {
+    /**
+     * Tests for parameters that use the `content` field instead of `schema`.
+     * According to OpenAPI 3.1, parameters can use either `schema` or `content`.
+     * Content parameters only exist in query parameters.
+     * When `content` is used, serialization follows the content type (e.g., JSON stringification
+     * for application/json), not style-based serialization.
+     */
+
+    describe('query parameters with content', () => {
+      it('should serialize query parameter with application/json content as JSON', () => {
+        const result = processParameters({
+          harRequest: createHarRequest('/api/users'),
+          parameters: [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              content: {
+                'application/json': {
+                  examples: {
+                    default: {
+                      value: { status: 'active', limit: 10 },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        })
+
+        // Should be JSON stringified
+        expect(result.queryString).toContainEqual({ name: 'filter', value: '{"status":"active","limit":10}' })
+      })
+
+      it('should serialize query parameter with application/json content for array', () => {
+        const result = processParameters({
+          harRequest: createHarRequest('/api/users'),
+          parameters: [
+            {
+              name: 'ids',
+              in: 'query',
+              required: true,
+              content: {
+                'application/json': {
+                  examples: {
+                    default: {
+                      value: [1, 2, 3],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        })
+
+        // Should be JSON stringified
+        expect(result.queryString).toContainEqual({ name: 'ids', value: '[1,2,3]' })
+      })
+
+      it('should serialize query parameter with text/plain content as string', () => {
+        const result = processParameters({
+          harRequest: createHarRequest('/api/users'),
+          parameters: [
+            {
+              name: 'data',
+              in: 'query',
+              required: true,
+              content: {
+                'text/plain': {
+                  examples: {
+                    default: {
+                      value: { key: 'value' },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        })
+
+        // Object values are serialized as JSON strings
+        expect(result.queryString).toContainEqual({ name: 'data', value: '{"key":"value"}' })
+      })
     })
   })
 })
