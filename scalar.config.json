@@ -1152,7 +1152,6 @@
               },
               "/sso": {
                 "title": "SSO/SAML",
-                "filepath": "documentation/guides/sso/getting-started.md",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/key",
