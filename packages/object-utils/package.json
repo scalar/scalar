@@ -71,7 +71,7 @@
     "@scalar/helpers": "workspace:*",
     "flatted": "catalog:*",
     "just-clone": "^6.2.0",
-    "ts-deepmerge": "^7.0.1"
+    "ts-deepmerge": "^7.0.3"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
