@@ -138,11 +138,10 @@ const isDraft = (item: TraversedEntry) => {
             name="decorator" />
         </template>
 
-        <template
-          #icon="iconProps">
+        <template #icon="iconProps">
           <template v-if="slots.icon || isDraft(iconProps.item)">
             <ScalarIconFileDashed v-if="isDraft(iconProps.item)" />
-          <slot
+            <slot
               v-bind="iconProps"
               name="icon" />
           </template>

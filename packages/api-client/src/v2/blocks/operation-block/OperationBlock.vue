@@ -272,8 +272,8 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,
           url: historyItem.request.url,
-          method: historyItem.request.method as HttpMethodType,
-          path: historyItem.request.url,
+          method,
+          path,
           duration: historyItem.time,
         })
 

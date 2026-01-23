@@ -87,7 +87,7 @@ export const buildRequest = ({
 
     const body = buildRequestBody(requestBody, env, exampleKey)
 
-    if (body) {
+    if (body && (body instanceof FormData || body instanceof URLSearchParams)) {
       // Delete the Content-Type header so the browser will set it automatically based on the request body
       headers.delete('Content-Type')
     }
