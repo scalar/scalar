@@ -1754,11 +1754,44 @@ describe('parameter styles', () => {
             },
           },
         ],
-        contentType: 'application/json',
       })
 
       // Nested objects should be serialized as JSON strings
       expect(result.queryString).toEqual([{ name: 'filter', value: '{"user":{"name":"John","age":30},"active":true}' }])
+    })
+
+    it('uses parameter content type, not request content type', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'data',
+            description: 'JSON data parameter',
+            in: 'query',
+            required: false,
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'object',
+                }),
+                examples: {
+                  default: {
+                    value: {
+                      id: 123,
+                      name: 'Test',
+                    },
+                    'x-disabled': false,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      // Should use parameter's content type (application/json), not request's (text/html)
+      // The value should be JSON stringified, not treated as HTML
+      expect(result.queryString).toEqual([{ name: 'data', value: '{"id":123,"name":"Test"}' }])
     })
   })
 

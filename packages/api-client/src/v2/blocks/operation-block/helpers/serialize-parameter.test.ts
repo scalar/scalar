@@ -78,10 +78,10 @@ describe('serializeContentValue', () => {
       expect(result).toBe('123')
     })
 
-    it('converts objects to [object Object] for text/plain', () => {
+    it('serializes objects to JSON strings for text/plain', () => {
       const value = { key: 'value' }
       const result = serializeContentValue(value, 'text/plain')
-      expect(result).toBe('[object Object]')
+      expect(result).toBe('{"key":"value"}')
     })
 
     it('converts arrays to comma-separated strings for text/plain', () => {

@@ -101,13 +101,11 @@ export const processParameters = ({
   harRequest,
   parameters,
   example,
-  contentType,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
   /** The name of the example to use */
   example?: string | undefined
-  contentType?: string | undefined
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -122,7 +120,7 @@ export const processParameters = ({
       continue
     }
 
-    const paramValue = getParameterValue(param, example, contentType)
+    const paramValue = getParameterValue(param, example, undefined)
     if (paramValue === undefined) {
       continue
     }
@@ -136,9 +134,11 @@ export const processParameters = ({
       }
 
       case 'query': {
-        // Content type parameters should be serialized according to the content type
+        // Content type parameters should be serialized according to the parameter's own content type
         if ('content' in param && param.content) {
-          const serializedValue = serializeContentValue(paramValue, contentType ?? Object.keys(param.content)[0] ?? '')
+          // We grab the first for now but eventually we should support selecting the content type per parameter
+          const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
+          const serializedValue = serializeContentValue(paramValue, paramContentType)
           newQueryString.push({ name: param.name, value: serializedValue })
           break
         }
