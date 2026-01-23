@@ -41,7 +41,7 @@ const variants = cva({
         class="absolute m-auto size-3/4 rounded border-[1px] opacity-0"
         :class="
           !disabled &&
-          'group-has-[:focus-visible]/cell:border-c-accent group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
+          'group-has-[:focus-visible]/cell:border-c-accent group-hover:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
         " />
       <ScalarIcon
         icon="Checkmark"

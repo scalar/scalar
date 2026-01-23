@@ -11,10 +11,7 @@ export const combineParams = (
   pathParams: PathItemObject['parameters'] = [],
   operationParams: OperationObject['parameters'] = [],
 ): ParameterObject[] => {
-  const allParams = [...pathParams, ...operationParams]
-    .map((param) => getResolvedRef(param))
-    // For unresolved params, coercion is going to generate a template object with an empty name, we don't want to include those
-    .filter((e) => isDefined(e) && e.name)
+  const allParams = [...pathParams, ...operationParams].map((param) => getResolvedRef(param)).filter(isDefined)
 
   // Use a Map to ensure unique in+name combinations
   // Operation parameters take precedence over path parameters

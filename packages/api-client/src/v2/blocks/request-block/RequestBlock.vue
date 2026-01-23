@@ -114,6 +114,7 @@ const sections = computed(() =>
         schema: getParameterSchema(param),
         isRequired: param.required,
         isDisabled: isParamDisabled(param, example),
+        originalParameter: param,
       } as TableRow
     },
   ),
