@@ -559,6 +559,11 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/gear",
                     "children": {
+                      "scalar.config.json": {
+                        "title": "scalar.config.json",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/scalar.config.json.md"
+                      },
                       "navigation": {
                         "title": "Navigation",
                         "type": "page",
