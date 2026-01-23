@@ -305,11 +305,19 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 
 /**
  * When the path, method, or example key changes, clear the response and request
- * TODO: maybe in the future this will be hooked into the history api but for now we'll just clear the response and request
  */
 watch([() => path, () => method, () => exampleKey], () => {
+  // We reset the response and request
   response.value = null
   request.value = null
+
+  // We cancel the request if it is still in progress
+  cancelRequest()
+})
+
+onBeforeUnmount(() => {
+  // We cancel the request if the component is unmounted
+  cancelRequest()
 })
 </script>
 <template>
