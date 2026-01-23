@@ -268,7 +268,11 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   const navigate = () =>
     eventBus.emit('ui:route:example', {
       exampleName: 'draft',
-      callback: async () => {
+      callback: async (status) => {
+        if (status === 'error') {
+          return
+        }
+
         // Reconstruct the response
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,
