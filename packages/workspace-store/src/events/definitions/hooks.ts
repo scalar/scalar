@@ -30,6 +30,7 @@ export type HooksEvents = {
           response: Response
           request: Request
           duration: number
+          timestamp: number
         }
       | undefined
     meta: OperationExampleMeta

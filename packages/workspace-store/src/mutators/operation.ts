@@ -867,6 +867,7 @@ export const addResponseToHistory = async (
       example: meta.exampleKey,
     },
     time: payload.duration,
+    timestamp: payload.timestamp,
     requestMetadata: {
       variables,
     },

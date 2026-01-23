@@ -216,6 +216,7 @@ const handleExecute = async () => {
           response: sendResult.originalResponse,
           request: sendResult.request.clone(),
           duration: sendResult.response.duration,
+          timestamp: sendResult.timestamp,
         }
       : undefined,
     meta: {

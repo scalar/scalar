@@ -2614,6 +2614,7 @@ describe('addResponseToHistory', () => {
         request: mockRequest,
         response: mockResponse,
         duration: 150,
+        timestamp: Date.now(),
       },
       meta: {
         path: '/users/{id}',
@@ -2658,6 +2659,7 @@ describe('addResponseToHistory', () => {
           ok: true,
         } as Response,
         duration: 100 + index,
+        timestamp: Date.now(),
       },
       meta: {
         path: '/items',
@@ -2709,6 +2711,7 @@ describe('addResponseToHistory', () => {
           ok: true,
         } as Response,
         duration: 200,
+        timestamp: Date.now(),
       },
       meta: {
         path: '/products',
@@ -2750,6 +2753,7 @@ describe('addResponseToHistory', () => {
           ok: true,
         } as Response,
         duration: 120,
+        timestamp: Date.now(),
       },
       meta: {
         path: '/users/{userId}/posts/{postId}',
@@ -2791,6 +2795,7 @@ describe('addResponseToHistory', () => {
           ok: true,
         } as Response,
         duration: 180,
+        timestamp: Date.now(),
       },
       meta: {
         path: '/settings',
@@ -2811,6 +2816,7 @@ describe('addResponseToHistory', () => {
           request: {} as Request,
           response: {} as Response,
           duration: 100,
+          timestamp: Date.now(),
         },
         meta: {
           path: '/test',
@@ -2858,6 +2864,7 @@ describe('addResponseToHistory', () => {
           request: {} as Request,
           response: {} as Response,
           duration: 100,
+          timestamp: Date.now(),
         },
         meta: {
           path: '/test',
@@ -2879,6 +2886,7 @@ describe('reloadOperationHistory', () => {
             'x-scalar-history': [
               {
                 time: 150,
+                timestamp: Date.now(),
                 request: {
                   url: 'https://api.example.com/users?limit=10',
                   method: 'GET',
@@ -2939,6 +2947,7 @@ describe('reloadOperationHistory', () => {
             'x-scalar-history': [
               {
                 time: 100,
+                timestamp: Date.now(),
                 request: {
                   url: 'https://api.example.com/products?page=1',
                   method: 'GET',
@@ -2965,6 +2974,7 @@ describe('reloadOperationHistory', () => {
               },
               {
                 time: 200,
+                timestamp: Date.now(),
                 request: {
                   url: 'https://api.example.com/products?page=2',
                   method: 'GET',
@@ -3018,6 +3028,7 @@ describe('reloadOperationHistory', () => {
             'x-scalar-history': [
               {
                 time: 150,
+                timestamp: Date.now(),
                 request: {
                   url: 'https://api.example.com/orders/12345',
                   method: 'GET',
@@ -3070,12 +3081,16 @@ describe('reloadOperationHistory', () => {
   })
 
   it('logs error when document is null', () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(null, {
       meta: { path: '/test', method: 'get' },
       index: 0,
-      callback: () => {},
+      callback: () => {
+        return
+      },
     })
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', '/test', 'get')
@@ -3089,12 +3104,16 @@ describe('reloadOperationHistory', () => {
       },
     })
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
-      callback: () => {},
+      callback: () => {
+        return
+      },
     })
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Operation not found', '/test', 'get')
@@ -3113,12 +3132,16 @@ describe('reloadOperationHistory', () => {
       },
     })
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(document, {
       meta: { path: '/test', method: 'get' },
       index: 5,
-      callback: () => {},
+      callback: () => {
+        return
+      },
     })
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 5)
@@ -3136,12 +3159,16 @@ describe('reloadOperationHistory', () => {
       },
     })
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
-      callback: () => {},
+      callback: () => {
+        return
+      },
     })
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 0)
@@ -3150,7 +3177,9 @@ describe('reloadOperationHistory', () => {
 
   it('does not call callback when document is missing', () => {
     const callbackSpy = vi.fn()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(null, {
       meta: { path: '/test', method: 'get' },
@@ -3170,7 +3199,9 @@ describe('reloadOperationHistory', () => {
     })
 
     const callbackSpy = vi.fn()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(document, {
       meta: { path: '/test', method: 'get' },
@@ -3195,7 +3226,9 @@ describe('reloadOperationHistory', () => {
     })
 
     const callbackSpy = vi.fn()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
 
     reloadOperationHistory(document, {
       meta: { path: '/test', method: 'get' },

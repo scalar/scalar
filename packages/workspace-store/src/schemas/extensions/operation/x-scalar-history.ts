@@ -165,6 +165,8 @@ const EntrySchema = Type.Object({
    * (i.e. not including `-1` values).
    */
   time: Type.Number(),
+  /** Timestamp of the request. */
+  timestamp: Type.Number(),
   /** Detailed info about the request. */
   request: RequestSchema,
   /** Detailed info about the response. */
@@ -194,6 +196,8 @@ type Entry = {
    * (i.e. not including `-1` values).
    */
   time: number
+  /** Timestamp of the request. */
+  timestamp: number
   /** Detailed info about the request. */
   request: Request
   /** Detailed info about the response. */
