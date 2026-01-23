@@ -1,4 +1,4 @@
-import { assert, describe, expect, it } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -6,11 +6,13 @@ import type { WorkspaceDocument } from '@/schemas'
 
 import {
   addOperationParameter,
+  addResponseToHistory,
   createOperation,
   deleteAllOperationParameters,
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
+  reloadOperationHistory,
   updateOperationExtraParameters,
   updateOperationParameter,
   updateOperationPathMethod,
@@ -2508,5 +2510,631 @@ describe('updateOperationRequestBodyFormValue', () => {
     })
 
     expect(document.paths?.['/upload']).toEqual({})
+  })
+})
+
+describe('addResponseToHistory', () => {
+  it('adds a response to the operation history', async () => {
+    const document = createDocument({
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get user',
+            parameters: [{ name: 'id', in: 'path', examples: { default: { value: '123' } } }],
+          },
+        },
+      },
+    })
+
+    const mockRequest = {
+      url: 'https://api.example.com/users/123',
+      method: 'GET',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    } as Request
+
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      ok: true,
+      json: async () => ({ id: '123', name: 'John' }),
+    } as Response
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: mockRequest,
+        response: mockResponse,
+        duration: 150,
+      },
+      meta: {
+        path: '/users/{id}',
+        method: 'get',
+        exampleKey: 'default',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users/{id}']?.get)
+    assert(operation)
+    expect(operation['x-scalar-history']).toBeDefined()
+    expect(operation['x-scalar-history']?.length).toBe(1)
+
+    const historyEntry = operation['x-scalar-history']?.[0]
+    expect(historyEntry?.time).toBe(150)
+    expect(historyEntry?.meta.example).toBe('default')
+    expect(historyEntry?.requestMetadata.variables).toEqual({ id: '123' })
+  })
+
+  it('enforces history limit of 5 entries', async () => {
+    const document = createDocument({
+      paths: {
+        '/items': {
+          get: {
+            summary: 'Get items',
+          },
+        },
+      },
+    })
+
+    const createMockPayload = (index: number) => ({
+      payload: {
+        request: {
+          url: `https://api.example.com/items?page=${index}`,
+          method: 'GET',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 100 + index,
+      },
+      meta: {
+        path: '/items',
+        method: 'get' as const,
+        exampleKey: 'default',
+      },
+    })
+
+    // Add 6 history entries
+    for (let i = 0; i < 6; i++) {
+      await addResponseToHistory(document, createMockPayload(i))
+    }
+
+    const operation = getResolvedRef(document.paths?.['/items']?.get)
+    assert(operation)
+    expect(operation['x-scalar-history']?.length).toBe(5)
+
+    // Verify the oldest entry (index 0) was removed and entries 1-5 remain
+    expect(operation['x-scalar-history']?.[0]?.time).toBe(101) // Second entry became first
+    expect(operation['x-scalar-history']?.[4]?.time).toBe(105) // Last entry
+  })
+
+  it('initializes history array when it does not exist', async () => {
+    const document = createDocument({
+      paths: {
+        '/products': {
+          post: {
+            summary: 'Create product',
+          },
+        },
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/products']?.post)
+    assert(operation)
+    expect(operation['x-scalar-history']).toBeUndefined()
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/products',
+          method: 'POST',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 201,
+          statusText: 'Created',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 200,
+      },
+      meta: {
+        path: '/products',
+        method: 'post',
+        exampleKey: 'default',
+      },
+    })
+
+    expect(operation['x-scalar-history']).toBeDefined()
+    expect(operation['x-scalar-history']?.length).toBe(1)
+  })
+
+  it('handles multiple path variables', async () => {
+    const document = createDocument({
+      paths: {
+        '/users/{userId}/posts/{postId}': {
+          get: {
+            summary: 'Get user post',
+            parameters: [
+              { name: 'userId', in: 'path', examples: { default: { value: '456' } } },
+              { name: 'postId', in: 'path', examples: { default: { value: '789' } } },
+            ],
+          },
+        },
+      },
+    })
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/users/456/posts/789',
+          method: 'GET',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 120,
+      },
+      meta: {
+        path: '/users/{userId}/posts/{postId}',
+        method: 'get',
+        exampleKey: 'default',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users/{userId}/posts/{postId}']?.get)
+    const historyEntry = operation?.['x-scalar-history']?.[0]
+    expect(historyEntry?.requestMetadata.variables).toEqual({
+      userId: '456',
+      postId: '789',
+    })
+  })
+
+  it('stores the correct example key in history metadata', async () => {
+    const document = createDocument({
+      paths: {
+        '/settings': {
+          put: {
+            summary: 'Update settings',
+          },
+        },
+      },
+    })
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/settings',
+          method: 'PUT',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 180,
+      },
+      meta: {
+        path: '/settings',
+        method: 'put',
+        exampleKey: 'custom-example',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/settings']?.put)
+    const historyEntry = operation?.['x-scalar-history']?.[0]
+    expect(historyEntry?.meta.example).toBe('custom-example')
+  })
+
+  it('no-ops when document is null', async () => {
+    await expect(
+      addResponseToHistory(null, {
+        payload: {
+          request: {} as Request,
+          response: {} as Response,
+          duration: 100,
+        },
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+  })
+
+  it('no-ops when payload is null', async () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {},
+        },
+      },
+    })
+
+    await expect(
+      addResponseToHistory(document, {
+        payload: null as any,
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+
+    const operation = getResolvedRef(document.paths?.['/test']?.get)
+    expect(operation?.['x-scalar-history']).toBeUndefined()
+  })
+
+  it('no-ops when operation does not exist', async () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    await expect(
+      addResponseToHistory(document, {
+        payload: {
+          request: {} as Request,
+          response: {} as Response,
+          duration: 100,
+        },
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+  })
+})
+
+describe('reloadOperationHistory', () => {
+  it('reloads a history item into the operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            'x-scalar-history': [
+              {
+                time: 150,
+                request: {
+                  url: 'https://api.example.com/users?limit=10',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [{ name: 'Content-Type', value: 'application/json' }],
+                  cookies: [],
+                  queryString: [{ name: 'limit', value: '10' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: {
+                    size: 100,
+                    mimeType: 'application/json',
+                    text: '{"users":[]}',
+                  },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 100,
+                },
+                meta: {
+                  example: 'default',
+                },
+                requestMetadata: {
+                  variables: {},
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/users', method: 'get' },
+      index: 0,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+  })
+
+  it('reloads the correct history item by index', () => {
+    const document = createDocument({
+      paths: {
+        '/products': {
+          get: {
+            summary: 'Get products',
+            'x-scalar-history': [
+              {
+                time: 100,
+                request: {
+                  url: 'https://api.example.com/products?page=1',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [{ name: 'page', value: '1' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: { variables: {} },
+              },
+              {
+                time: 200,
+                request: {
+                  url: 'https://api.example.com/products?page=2',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [{ name: 'page', value: '2' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: { variables: {} },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/products', method: 'get' },
+      index: 1,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+  })
+
+  it('handles history with path variables', () => {
+    const document = createDocument({
+      paths: {
+        '/orders/{orderId}': {
+          get: {
+            summary: 'Get order',
+            parameters: [{ name: 'orderId', in: 'path' }],
+            'x-scalar-history': [
+              {
+                time: 150,
+                request: {
+                  url: 'https://api.example.com/orders/12345',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: {
+                  variables: { orderId: '12345' },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/orders/{orderId}', method: 'get' },
+      index: 0,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+
+    // Verify that path parameters were reloaded
+    const operation = getResolvedRef(document.paths?.['/orders/{orderId}']?.get)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    assert(param && 'examples' in param)
+    expect(getResolvedRef(param.examples?.draft)?.value).toBe('12345')
+  })
+
+  it('logs error when document is null', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(null, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {},
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', '/test', 'get')
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('logs error when operation does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {},
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Operation not found', '/test', 'get')
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('logs error when history item does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+            'x-scalar-history': [],
+          },
+        },
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 5,
+      callback: () => {},
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 5)
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('handles operation with no history', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+          },
+        },
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {},
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 0)
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when document is missing', () => {
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(null, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when operation is missing', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when history item is missing', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+            'x-scalar-history': [],
+          },
+        },
+      },
+    })
+
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
   })
 })

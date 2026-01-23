@@ -186,7 +186,7 @@ const EntrySchema = Type.Object({
   }),
 })
 
-export type Entry = {
+type Entry = {
   /**
    * Total elapsed time of the request in milliseconds.
    *

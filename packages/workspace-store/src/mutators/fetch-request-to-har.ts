@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/snippetz'
 
-export type FetchRequestToHarProps = {
+type FetchRequestToHarProps = {
   /** The Fetch API Request object to convert */
   request: Request
   /**

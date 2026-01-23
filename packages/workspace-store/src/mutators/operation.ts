@@ -863,7 +863,7 @@ export const updateOperationRequestBodyFormValue = (
 
 const HISTORY_LIMIT = 5
 
-const addResponseToHistory = async (
+export const addResponseToHistory = async (
   document: WorkspaceDocument | null,
   { payload, meta }: HooksEvents['hooks:on:request:complete'],
 ) => {

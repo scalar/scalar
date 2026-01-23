@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/snippetz'
 
-export type HarToFetchRequestProps = {
+type HarToFetchRequestProps = {
   /** The HAR Request object to convert */
   harRequest: HarRequest
 }

@@ -4,7 +4,7 @@ import type { HarResponse } from '@scalar/snippetz'
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 
-export type HarToFetchResponseProps = {
+type HarToFetchResponseProps = {
   /** The HAR Response object to convert */
   harResponse: HarResponse
   /** Optional URL to set on the Response object */

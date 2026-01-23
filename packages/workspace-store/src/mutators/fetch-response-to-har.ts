@@ -1,6 +1,6 @@
 import type { HarResponse } from '@scalar/snippetz'
 
-export type FetchResponseToHarProps = {
+type FetchResponseToHarProps = {
   /** The Fetch API Response object to convert */
   response: Response
   /**
