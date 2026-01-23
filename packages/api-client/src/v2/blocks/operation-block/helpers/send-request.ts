@@ -78,7 +78,7 @@ export const sendRequest = async ({
 
     // Execute the request and measure duration
     const startTime = Date.now()
-    const response = await fetch(modifiedRequest)
+    const response = await fetch(modifiedRequest.clone())
     const endTime = Date.now()
     const duration = endTime - startTime
 
