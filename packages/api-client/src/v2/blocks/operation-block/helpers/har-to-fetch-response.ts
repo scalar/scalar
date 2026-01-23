@@ -134,5 +134,7 @@ const processBody = (harResponse: HarResponse): ProcessedBody => {
     return { body: null, data: text, size: text.length }
   }
 
-  return { body: new TextEncoder().encode(text).buffer, data: text, size: text.length }
+  const body = new TextEncoder().encode(text).buffer
+
+  return { body, data: text, size: body.byteLength }
 }
