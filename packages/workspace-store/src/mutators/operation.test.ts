@@ -413,6 +413,48 @@ describe('updateOperationPathMethod (path only)', () => {
     })
   })
 
+  it('handles partial path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
+
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { method: 'get', path: '/events/{id}/started{avar' },
+      callback: () => {
+        return
+      },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/events/{id}/started{avar': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
+  })
+
   it('maintains swapped path params', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
