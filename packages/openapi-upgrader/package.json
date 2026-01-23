@@ -20,7 +20,7 @@
     "openapi 3.0",
     "openapi 3.1"
   ],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "engines": {
     "node": ">=20"
   },
@@ -60,6 +60,21 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "readme": {
+    "title": "Scalar OpenAPI Upgrader",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://scalar.com/tools/openapi-upgrader/getting-started"
+  },
   "sideEffects": false,
   "dependencies": {
     "@scalar/openapi-types": "workspace:*"

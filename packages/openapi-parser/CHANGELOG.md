@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.24.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.8**
+  - [#7842](https://github.com/scalar/scalar/pull/7842): feat: migrate swagger 2.0 responses
+
 ## 0.24.2
 
 ### Patch Changes

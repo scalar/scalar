@@ -107,10 +107,7 @@ export function initializeAppEventHandlers({
           },
         }),
       },
-      'operation:add:parameter': {
-        onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
-      },
-      'operation:update:parameter': {
+      'operation:upsert:parameter': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
       },
       'operation:update:extra-parameters': {

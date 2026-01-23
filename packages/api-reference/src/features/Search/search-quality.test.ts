@@ -13,13 +13,7 @@ function search(query: string, document: Partial<OpenApiDocument>) {
     },
     ...document,
   } as OpenApiDocument
-  doc['x-scalar-navigation'] = createNavigation('test', doc, {
-    'x-scalar-reference-config': {
-      features: {
-        showModels: true,
-      },
-    },
-  })
+  doc['x-scalar-navigation'] = createNavigation('test', doc, { hideModels: false })
 
   const fuse = createFuseInstance()
 

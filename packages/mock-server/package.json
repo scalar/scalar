@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.8.16",
+  "version": "0.8.19",
   "engines": {
     "node": ">=20"
   },
@@ -61,7 +61,7 @@
     "documentation": "https://scalar.com/products/mock-server/getting-started"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.0.0",
+    "@faker-js/faker": "^10.2.0",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",

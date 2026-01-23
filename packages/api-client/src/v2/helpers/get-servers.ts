@@ -1,6 +1,5 @@
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
-
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Server processing options containing base URLs for resolving relative server URLs.
@@ -22,10 +21,7 @@ type ServerProcessingOptions = {
  * @param options - Configuration options for server processing
  * @returns Array of validated Server entities
  */
-export function getServersFromDocument(
-  servers: ServerObject[] | undefined,
-  options: ServerProcessingOptions = {},
-): ServerObject[] {
+export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
   // Handle case where no servers are provided
   if (!servers?.length) {
     const fallbackServer = createFallbackServer(options)

@@ -126,34 +126,12 @@ export type OperationEvents = {
   /** ------------------------------------------------------------------------------------------------
    * Operation Parameters Mutators
    * ------------------------------------------------------------------------------------------------ */
-  /**
-   * Add a parameter to the operation.
-   */
-  'operation:add:parameter': {
-    /**
-     * The type of the parameter to add. Can be 'path', 'query', 'header', or 'cookie'.
-     */
-    type: 'path' | 'query' | 'header' | 'cookie'
-    /**
-     * The payload containing the details of the parameter to add.
-     */
-    payload: {
-      /** The name of the parameter to add */
-      name: string
-      /** The example value for the parameter to add */
-      value: string
-      /** Whether the parameter is enabled */
-      isDisabled: boolean
-    }
-    /** Identifies the target operation and example variant for the added parameter */
-    meta: OperationExampleMeta
-  }
 
   /**
    * Update a parameter of the operation.
    * Triggers when the user updates an existing parameter (name, value, or enabled/disabled) in the UI for a given operation.
    */
-  'operation:update:parameter': {
+  'operation:upsert:parameter': {
     /**
      * The type of the parameter to update. Can be 'path', 'query', 'header', or 'cookie'.
      */

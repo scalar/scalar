@@ -1,5 +1,33 @@
 # @scalar/java-integration
 
+## 0.5.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+## 0.5.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.11**
+
+## 0.5.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.10**
+  - [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 0.5.21
 
 ### Patch Changes

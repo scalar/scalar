@@ -15,8 +15,6 @@ import { getThemeColors } from './helpers/get-theme-colors'
 defineProps<{
   /** Currently active proxy URL, when set to null means no proxy */
   activeProxyUrl?: string | null
-  /** Custom proxy url, when set to null means no custom proxy */
-  customProxyUrl?: string | null
   /** Currently active theme ID */
   activeThemeId: ThemeId
   /** Currently active color mode */
@@ -103,7 +101,7 @@ const buttonStyles = cva({
         </ScalarButton>
 
         <!-- Custom proxy (only if configured) -->
-        <ScalarButton
+        <!-- <ScalarButton
           v-if="customProxyUrl && customProxyUrl !== DEFAULT_PROXY_URL"
           :class="
             cx(
@@ -122,7 +120,7 @@ const buttonStyles = cva({
               thickness="3.5" />
           </div>
           Use custom proxy ({{ customProxyUrl }})
-        </ScalarButton>
+        </ScalarButton> -->
 
         <!-- No proxy -->
         <ScalarButton

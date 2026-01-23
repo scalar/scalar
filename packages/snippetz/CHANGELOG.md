@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.6.6
+
+### Patch Changes
+
+- [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
 ## 0.6.5
 
 ### Patch Changes

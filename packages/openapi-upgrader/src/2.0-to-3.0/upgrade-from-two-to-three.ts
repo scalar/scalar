@@ -232,6 +232,91 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete document.parameters
   }
 
+  // Handle global responses defined in #/responses
+  if (Object.hasOwn(document, 'responses') && typeof document.responses === 'object' && document.responses !== null) {
+    // Update all $refs from #/responses/ to #/components/responses/
+    document = traverse(document, (schema) => {
+      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/responses/')) {
+        schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
+      }
+      return schema
+    })
+
+    document.components ??= {}
+
+    const migratedResponses: Record<string, OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject> = {}
+    const responses = document.responses as Record<string, unknown>
+
+    for (const [name, response] of Object.entries(responses)) {
+      if (response && typeof response === 'object') {
+        // Handle reference objects
+        if ('$ref' in response) {
+          migratedResponses[name] = response as OpenAPIV3.ReferenceObject
+        } else {
+          // Transform the response object
+          const responseObj = response as Record<string, unknown>
+          const produces = (document.produces as string[] | undefined) ?? ['application/json']
+
+          // Transform schema to content
+          if (responseObj.schema) {
+            if (typeof responseObj.content !== 'object') {
+              responseObj.content = {}
+            }
+
+            for (const type of produces) {
+              ;(responseObj.content as Record<string, unknown>)[type] = {
+                schema: responseObj.schema,
+              }
+            }
+
+            delete responseObj.schema
+          }
+
+          // Transform examples from Swagger 2.0 to OpenAPI 3.0 format
+          if (responseObj.examples && typeof responseObj.examples === 'object') {
+            if (typeof responseObj.content !== 'object') {
+              responseObj.content = {}
+            }
+
+            for (const [mediaType, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
+              if (typeof (responseObj.content as Record<string, unknown>)[mediaType] !== 'object') {
+                ;(responseObj.content as Record<string, unknown>)[mediaType] = {}
+              }
+              ;((responseObj.content as Record<string, unknown>)[mediaType] as Record<string, unknown>).example =
+                exampleValue
+            }
+
+            delete responseObj.examples
+          }
+
+          // Transform headers if present
+          if (responseObj.headers && typeof responseObj.headers === 'object') {
+            responseObj.headers = Object.entries(responseObj.headers as Record<string, unknown>).reduce(
+              (acc, [headerName, header]) => {
+                if (header && typeof header === 'object') {
+                  return {
+                    [headerName]: transformResponseHeader(header as OpenAPIV2.HeaderObject),
+                    ...acc,
+                  }
+                }
+                return acc
+              },
+              {} as Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>,
+            )
+          }
+
+          migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
+        }
+      }
+    }
+
+    if (Object.keys(migratedResponses).length > 0) {
+      ;(document.components as UnknownObject).responses = migratedResponses
+    }
+
+    delete document.responses
+  }
+
   // Paths
   if (typeof document.paths === 'object') {
     for (const path in document.paths) {
@@ -312,6 +397,24 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     }
 
                     delete responseItem.schema
+                  }
+
+                  // Transform response examples from Swagger 2.0 to OpenAPI 3.0 format
+                  // In Swagger 2.0, examples are at response level: examples: { 'application/json': {...} }
+                  // In OpenAPI 3.0, examples move inside content: content: { 'application/json': { example: {...} } }
+                  if (responseItem.examples && typeof responseItem.examples === 'object') {
+                    if (typeof responseItem.content !== 'object') {
+                      responseItem.content = {}
+                    }
+
+                    for (const [mediaType, exampleValue] of Object.entries(responseItem.examples)) {
+                      if (typeof responseItem.content[mediaType] !== 'object') {
+                        responseItem.content[mediaType] = {}
+                      }
+                      responseItem.content[mediaType].example = exampleValue
+                    }
+
+                    delete responseItem.examples
                   }
                 }
               }

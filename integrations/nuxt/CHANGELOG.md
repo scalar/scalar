@@ -1,5 +1,54 @@
 # @scalar/nuxt
 
+## 0.5.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+## 0.5.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+- **@scalar/api-reference@1.43.11**
+
+- **@scalar/workspace-store@0.25.2**
+
+## 0.5.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/api-client@2.19.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/api-reference@1.43.10**
+  - [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 0.5.48
 
 ### Patch Changes

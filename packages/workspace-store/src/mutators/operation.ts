@@ -67,25 +67,24 @@ const syncParametersForPathChange = (
   const oldPositions = getParameterPositions(oldPath, oldPathParams)
   const newPositions = getParameterPositions(newPath, newPathParams)
 
-  // Separate path and non-path parameters, keeping original references
-  const pathParameters: ReferenceType<ParameterObject>[] = []
+  // Separate path and non-path parameters, resolving each parameter only once
+  const pathParameters: ParameterObject[] = []
   const nonPathParameters: ReferenceType<ParameterObject>[] = []
 
   for (const param of existingParameters) {
     const resolved = getResolvedRef(param)
     if (resolved?.in === 'path') {
-      pathParameters.push(param)
+      pathParameters.push(resolved)
     } else {
       nonPathParameters.push(param)
     }
   }
 
   // Create a map of existing path parameters by name for quick lookup
-  const existingPathParamsByName = new Map<string, ReferenceType<ParameterObject>>()
+  const existingPathParamsByName = new Map<string, ParameterObject>()
   for (const param of pathParameters) {
-    const resolved = getResolvedRef(param)
-    if (resolved?.name) {
-      existingPathParamsByName.set(resolved.name, param)
+    if (param.name) {
+      existingPathParamsByName.set(param.name, param)
     }
   }
 
@@ -106,16 +105,13 @@ const syncParametersForPathChange = (
       (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
     )
 
+    // Rename: transfer the old parameter's config to the new name
     if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
-      // Rename: transfer the old parameter's config to the new name
       const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
-      const resolved = getResolvedRef(oldParam)
-      if (resolved) {
-        resolved.name = newParamName
-        syncedPathParameters.push(oldParam)
-        usedOldParams.add(oldParamAtPosition)
-        continue
-      }
+      oldParam.name = newParamName
+      syncedPathParameters.push(oldParam)
+      usedOldParams.add(oldParamAtPosition)
+      continue
     }
 
     // Case 3: New parameter - create with empty examples
@@ -126,7 +122,7 @@ const syncParametersForPathChange = (
   }
 
   // Return all parameters: synced path parameters + preserved non-path parameters
-  return [...syncedPathParameters, ...nonPathParameters]
+  return unpackProxyObject([...syncedPathParameters, ...nonPathParameters], { depth: 1 })
 }
 
 /**
@@ -354,9 +350,11 @@ export const updateOperationPathMethod = (
     }
   }
 
-  // Get the document configuration to generate IDs consistently
-  const documentConfig = store.getDocumentConfiguration(documentNavigation.name)
-  const { generateId } = getNavigationOptions(documentNavigation.name, documentConfig)
+  /**
+   * We don't pass navigation options as we don't have config on the client,
+   * and we don't change path or method on the references
+   */
+  const { generateId } = getNavigationOptions(documentNavigation.name)
 
   /** Grabs all of the current operation entries for the given path and method */
   const operationEntriesMap = getOperationEntries(documentNavigation)
@@ -490,55 +488,6 @@ export const deleteOperationExample = (
  * ------------------------------------------------------------------------------------------------ */
 
 /**
- * Adds a parameter to the operation with an example value tracked by `exampleKey`.
- * For `path` parameters `required` is set to true automatically.
- * Safely no-ops if the document or operation does not exist.
- *
- * Example:
- * ```ts
- * addOperationParameter({
- *   document,
- *   type: 'query',
- *   meta: { method: 'get', path: '/search', exampleKey: 'default' },
- *   payload: { key: 'q', value: 'john', isDisabled: false },
- * })
- * ```
- */
-export const addOperationParameter = (
-  document: WorkspaceDocument | null,
-  { meta, payload, type }: OperationEvents['operation:add:parameter'],
-) => {
-  if (!document) {
-    return
-  }
-
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
-  if (!operation) {
-    return
-  }
-
-  // Initialize parameters array if it doesn't exist
-  if (!operation.parameters) {
-    operation.parameters = []
-  }
-
-  // Add the new parameter
-  operation.parameters.push({
-    name: payload.name,
-    in: type,
-    required: type === 'path' ? true : false,
-    examples: {
-      [meta.exampleKey]: {
-        value: payload.value,
-        'x-disabled': Boolean(payload.isDisabled),
-      },
-    },
-  })
-}
-
-/**
  * Updates an existing parameter of a given `type` by its index within that
  * type subset (e.g. the N-th query parameter). Supports updating name, value,
  * and enabled state for the targeted example.
@@ -555,17 +504,15 @@ export const addOperationParameter = (
  * })
  * ```
  */
-export const updateOperationParameter = (
+export const upsertOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, type, payload, index }: OperationEvents['operation:update:parameter'],
+  { meta, type, payload, index }: OperationEvents['operation:upsert:parameter'],
 ) => {
   if (!document) {
     return
   }
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
   if (!operation) {
     return
   }
@@ -574,7 +521,21 @@ export const updateOperationParameter = (
   // The passed index corresponds to this filtered list
   const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
   const parameter = resolvedParameters[index]
+
+  // If it doesn't exist we probably need to add a new parameter (we can do length check as well if we want)
   if (!parameter) {
+    operation.parameters ||= []
+    operation.parameters.push({
+      name: payload.name,
+      in: type,
+      required: type === 'path' ? true : false,
+      examples: {
+        [meta.exampleKey]: {
+          value: payload.value,
+          'x-disabled': payload.isDisabled ?? false,
+        },
+      },
+    })
     return
   }
 
@@ -958,12 +919,10 @@ export const operationMutatorsFactory = ({
     deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
     deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
       deleteOperationExample(store, payload),
-    addOperationParameter: (payload: OperationEvents['operation:add:parameter']) =>
-      addOperationParameter(document, payload),
     updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>
       updateOperationExtraParameters(document, payload),
-    updateOperationParameter: (payload: OperationEvents['operation:update:parameter']) =>
-      updateOperationParameter(document, payload),
+    upsertOperationParameter: (payload: OperationEvents['operation:upsert:parameter']) =>
+      upsertOperationParameter(document, payload),
     deleteOperationParameter: (payload: OperationEvents['operation:delete:parameter']) =>
       deleteOperationParameter(document, payload),
     deleteAllOperationParameters: (payload: OperationEvents['operation:delete-all:parameters']) =>

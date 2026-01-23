@@ -1035,7 +1035,7 @@ describe('getExampleFromSchema', () => {
           additionalProperties: {},
         }),
       ).toMatchObject({
-        'propertyName*': 'anything',
+        'additionalProperty': 'anything',
       })
 
       expect(
@@ -1046,7 +1046,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': 'anything',
+        'additionalProperty': 'anything',
       })
     })
 
@@ -1061,7 +1061,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': 1,
+        'additionalProperty': 1,
       })
 
       expect(
@@ -1074,7 +1074,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': true,
+        'additionalProperty': true,
       })
 
       expect(
@@ -1088,7 +1088,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': false,
+        'additionalProperty': false,
       })
 
       expect(
@@ -1101,7 +1101,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1119,7 +1119,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': {
+        'additionalProperty': {
           foo: '',
         },
       })
@@ -1137,7 +1137,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'customField*': '',
+        'customField': '',
       })
 
       expect(
@@ -1151,7 +1151,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'sensorId*': 1,
+        'sensorId': 1,
       })
 
       expect(
@@ -1165,7 +1165,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'isActive*': true,
+        'isActive': true,
       })
     })
 
@@ -1191,7 +1191,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'metadata*': {
+        'metadata': {
           key: 'version',
           value: '1.0.0',
         },
@@ -1209,7 +1209,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'dynamicField*': null,
+        'dynamicField': null,
       })
     })
 
@@ -1224,7 +1224,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'flexibleProperty*': null,
+        'flexibleProperty': null,
       })
     })
 
@@ -1240,11 +1240,11 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'trimmedField*': '',
+        'trimmedField': '',
       })
     })
 
-    it('falls back to propertyName* when x-additionalPropertiesName is empty string', () => {
+    it('falls back to additionalProperty when x-additionalPropertiesName is empty string', () => {
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -1256,11 +1256,11 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
-    it('falls back to propertyName* when x-additionalPropertiesName is only whitespace', () => {
+    it('falls back to additionalProperty when x-additionalPropertiesName is only whitespace', () => {
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -1272,7 +1272,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
@@ -1304,7 +1304,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1318,7 +1318,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
 
       expect(
@@ -1332,7 +1332,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        'additionalProperty': '',
       })
     })
 
@@ -1348,7 +1348,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'field-name*': '',
+        'field-name': '',
       })
 
       expect(
@@ -1362,7 +1362,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'field_name*': '',
+        'field_name': '',
       })
 
       expect(
@@ -1376,7 +1376,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'fieldName*': '',
+        'fieldName': '',
       })
     })
 
@@ -1398,7 +1398,7 @@ describe('getExampleFromSchema', () => {
         ),
       ).toMatchObject({
         config: {
-          'setting*': '',
+          'setting': '',
         },
       })
     })
@@ -1423,11 +1423,11 @@ describe('getExampleFromSchema', () => {
       })
 
       expect(getExampleFromSchema(schema1)).toMatchObject({
-        'tag*': '',
+        'tag': '',
       })
 
       expect(getExampleFromSchema(schema2)).toMatchObject({
-        'score*': 1,
+        'score': 1,
       })
     })
   })
@@ -1512,7 +1512,7 @@ describe('getExampleFromSchema', () => {
   })
 
   describe('circular references', () => {
-    it('deals with circular references', () => {
+    it('skips circular references', () => {
       const schema = {
         type: 'object',
         properties: {
@@ -1523,12 +1523,11 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties!.foobar = schema
 
-      expect(getExampleFromSchema(schema)).toStrictEqual({
-        'foobar': '[Circular Reference]',
-      })
+      // Circular references should be skipped entirely
+      expect(getExampleFromSchema(schema)).toStrictEqual({})
     })
 
-    it('deals with circular references that expand horizontally', () => {
+    it('skips circular references that expand horizontally', () => {
       const schema = {
         type: 'object',
         properties: {
@@ -1589,9 +1588,9 @@ describe('getExampleFromSchema', () => {
       schema.properties!.y = schema
       schema.properties!.z = schema
 
+      // Circular references should be skipped entirely
       const example = getExampleFromSchema(schema)
-      expect(example).toBeInstanceOf(Object)
-      expect(Object.keys(example).length).toBe(26)
+      expect(example).toStrictEqual({})
     })
   })
 

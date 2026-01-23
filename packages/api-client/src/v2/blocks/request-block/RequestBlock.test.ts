@@ -182,11 +182,10 @@ describe('RequestBlock', () => {
     expect(bodyGet.isVisible()).toBe(true)
   })
 
-  it('re-emits parameter add, update, and delete events with mapped types', () => {
+  it('re-emits parameter upsert, and delete events with mapped types', () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
-    eventBus.on('operation:add:parameter', fn)
-    eventBus.on('operation:update:parameter', fn)
+    eventBus.on('operation:upsert:parameter', fn)
     eventBus.on('operation:delete:parameter', fn)
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
@@ -215,11 +214,15 @@ describe('RequestBlock', () => {
       if (expectedType !== 'path') {
         // Add events are debounced, so we need to use fake timers
         vi.useFakeTimers()
-        p.vm.$emit('add', { name: 'k', value: 'v' })
+        // For headers, index 0 is a default header (Accept), so use index 1 to add a new parameter
+        // For cookies and query, index 0 is fine as there are no default parameters
+        const addIndex = expectedType === 'header' ? 1 : 0
+        p.vm.$emit('upsert', addIndex, { name: 'k', value: 'v', isDisabled: false })
         vi.advanceTimersByTime(400)
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith({
           type: expectedType,
+          index: 0,
           payload: { name: 'k', value: 'v', isDisabled: false },
           meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
         })
@@ -229,25 +232,31 @@ describe('RequestBlock', () => {
 
       // Update events are debounced, so we need to use fake timers
       vi.useFakeTimers()
-      p.vm.$emit('update', { index: 1, payload: { name: 'x', value: 'y', isDisabled: false } })
+      // For headers, index 1 is a default header (Accept), so use index 2 to update a user parameter
+      // For cookies and query, index 1 is fine
+      const updateIndex = expectedType === 'header' ? 2 : 1
+      p.vm.$emit('upsert', updateIndex, { name: 'x', value: 'y', isDisabled: false })
       vi.advanceTimersByTime(400)
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
-        // We have default header parameters, so when updating the second parameter, the index will be 0
-        index: expectedType === 'header' ? 0 : 1,
+        // We have default header parameters, so when updating beyond them, the index is adjusted
+        index: expectedType === 'header' ? 1 : 1,
         payload: { name: 'x', value: 'y', isDisabled: false },
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()
       vi.useRealTimers()
 
-      p.vm.$emit('delete', { index: 2 })
+      // For headers, index 3 is beyond the default header (Accept), so it will be adjusted to index 2
+      // For cookies and query, index 2 is fine
+      const deleteIndex = expectedType === 'header' ? 3 : 2
+      p.vm.$emit('delete', { index: deleteIndex })
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
-        // We have default header parameters, so when updating the second parameter, the index will be 0
-        index: expectedType === 'header' ? 1 : 2,
+        // We have default header parameters, so when deleting beyond them, the index is adjusted
+        index: expectedType === 'header' ? 2 : 2,
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()

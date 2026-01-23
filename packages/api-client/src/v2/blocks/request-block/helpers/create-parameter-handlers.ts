@@ -22,22 +22,6 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { name?: string; value?: string; index?: number }) =>
-      eventBus.emit(
-        'operation:add:parameter',
-        {
-          type,
-          payload: {
-            name: payload.name ?? '',
-            value: payload.value ?? '',
-            isDisabled: false,
-          },
-          meta,
-        },
-        {
-          debounceKey: `add:parameter-${type}-${payload.index}`,
-        },
-      ),
     delete: (payload: { index: number }) =>
       eventBus.emit('operation:delete:parameter', {
         type,
@@ -49,32 +33,31 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: { name: string; value: string; isDisabled: boolean } }) => {
-      const row = context[payload.index]
+    upsert: (index: number, payload: { name: string; value: string; isDisabled: boolean }) => {
+      const row = context[index]
 
-      if (payload.index < defaultParameters + globalParameters) {
-        const extraParameterType = payload.index < defaultParameters ? 'default' : 'global'
+      if (index < defaultParameters + globalParameters) {
+        const extraParameterType = index < defaultParameters ? 'default' : 'global'
 
         return eventBus.emit('operation:update:extra-parameters', {
           type: extraParameterType,
           in: type,
           meta: { ...meta, name: row?.name?.toLowerCase?.() ?? 'NON_VALID' },
-          payload: { isDisabled: payload.payload.isDisabled ?? false },
+          payload: { isDisabled: payload.isDisabled ?? false },
         })
       }
 
-      if (payload.index >= offset) {
-        const fields = Object.keys(payload.payload).join('-')
+      if (index >= offset) {
         return eventBus.emit(
-          'operation:update:parameter',
+          'operation:upsert:parameter',
           {
             type,
-            index: payload.index - offset,
-            payload: payload.payload,
+            index: index - offset,
+            payload: payload,
             meta,
           },
           {
-            debounceKey: `update:parameter-${type}-${payload.index - offset}-${fields}`,
+            debounceKey: `update:parameter-${type}-${index - offset}`,
           },
         )
       }

@@ -35,19 +35,8 @@ watch(
   { immediate: true },
 )
 
-/** Adds a new row safely by defaulting the rest of the values, then emits the update */
-const handleAddRow = (
-  payload: Partial<{ name: string; value: string | File; isDisabled: boolean }>,
-) => {
-  localFormBodyRows.value = [
-    ...localFormBodyRows.value,
-    { name: '', value: '', isDisabled: false, ...payload },
-  ]
-  emit('update:formValue', localFormBodyRows.value)
-}
-
 /** Update a row in the table, combines with the previous data so we emit a whole row */
-const handleUpdateRow = (
+const handleUpsertRow = (
   index: number,
   payload: Partial<{
     name: string
@@ -55,6 +44,16 @@ const handleUpdateRow = (
     isDisabled: boolean
   }>,
 ) => {
+  // Add new row
+  if (index >= localFormBodyRows.value.length) {
+    localFormBodyRows.value = [
+      ...localFormBodyRows.value,
+      { name: '', value: '', ...payload, isDisabled: false },
+    ]
+    emit('update:formValue', localFormBodyRows.value)
+    return
+  }
+
   localFormBodyRows.value = localFormBodyRows.value.map((row, i) =>
     i === index ? { ...row, ...payload } : row,
   )
@@ -76,15 +75,11 @@ const handleFileUpload = (index: number) => {
       const file = files?.[0]
 
       if (file) {
-        if (index >= localFormBodyRows.value.length) {
-          handleAddRow({ name: file.name, value: file })
-        } else {
-          const currentRow = localFormBodyRows.value[index]
-          handleUpdateRow(index, {
-            name: currentRow?.name || file.name,
-            value: file,
-          })
-        }
+        const currentRow = localFormBodyRows.value[index]
+        handleUpsertRow(index, {
+          name: currentRow?.name || file.name,
+          value: file,
+        })
       }
     },
     multiple: false,
@@ -101,11 +96,10 @@ const handleFileUpload = (index: number) => {
       :data="localFormBodyRows"
       :environment="environment"
       showUploadButton
-      @addRow="handleAddRow"
-      @deleteRow="(index) => handleDeleteRow(index)"
-      @removeFile="(index) => handleUpdateRow(index, { value: undefined })"
-      @updateRow="(index, payload) => handleUpdateRow(index, payload)"
-      @uploadFile="handleFileUpload" />
+      @deleteRow="handleDeleteRow"
+      @removeFile="(index) => handleUpsertRow(index, { value: undefined })"
+      @uploadFile="handleFileUpload"
+      @upsertRow="handleUpsertRow" />
   </template>
 
   <!-- Form URL Encoded -->
@@ -113,8 +107,7 @@ const handleFileUpload = (index: number) => {
     <RequestTable
       :data="localFormBodyRows"
       :environment="environment"
-      @addRow="handleAddRow"
       @deleteRow="handleDeleteRow"
-      @updateRow="handleUpdateRow" />
+      @upsertRow="handleUpsertRow" />
   </template>
 </template>

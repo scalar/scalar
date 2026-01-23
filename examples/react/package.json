@@ -37,7 +37,7 @@
     "@typescript-eslint/parser": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
+    "@vitejs/plugin-vue-jsx": "^5.1.3",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.3",

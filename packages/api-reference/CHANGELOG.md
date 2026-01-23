@@ -1,5 +1,75 @@
 # @scalar/api-reference
 
+## 1.43.12
+
+### Patch Changes
+
+- [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+- [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+- **@scalar/oas-utils@0.6.24**
+
+- **@scalar/sidebar@0.7.17**
+
+- **@scalar/components@0.16.27**
+
+## 1.43.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/sidebar@0.7.16**
+
+- **@scalar/oas-utils@0.6.23**
+
+## 1.43.10
+
+### Patch Changes
+
+- [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+- [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/api-client@2.19.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/sidebar@0.7.15**
+
+- **@scalar/components@0.16.25**
+
 ## 1.43.9
 
 ### Patch Changes

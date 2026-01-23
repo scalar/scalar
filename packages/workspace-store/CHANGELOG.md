@@ -1,5 +1,30 @@
 # @scalar/workspace-store
 
+## 0.25.3
+
+### Patch Changes
+
+- [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+- [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+## 0.25.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/openapi-upgrader@0.1.8**
+  - [#7842](https://github.com/scalar/scalar/pull/7842): feat: migrate swagger 2.0 responses
+
+## 0.25.1
+
+### Patch Changes
+
+- [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
 ## 0.25.0
 
 ### Minor Changes

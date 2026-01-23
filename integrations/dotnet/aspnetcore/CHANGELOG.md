@@ -1,5 +1,35 @@
 # @scalar/aspnetcore
 
+## 2.12.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+## 2.12.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.11**
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.10**
+  - [#7820](https://github.com/scalar/scalar/pull/7820): fix: correctly restore the auth from persistance
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 2.12.12
 
 ### Patch Changes

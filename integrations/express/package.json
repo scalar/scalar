@@ -64,10 +64,10 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/express": "catalog:*",
-    "@types/supertest": "^2.0.12",
+    "@types/supertest": "catalog:*",
     "@types/swagger-jsdoc": "^6.0.3",
     "express": "catalog:*",
-    "supertest": "^6.3.3",
+    "supertest": "catalog:*",
     "swagger-jsdoc": "^6.2.8",
     "vite": "catalog:*",
     "vitest": "catalog:*"

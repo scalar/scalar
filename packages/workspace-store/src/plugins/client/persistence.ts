@@ -37,13 +37,6 @@ export const persistencePlugin = async ({
           return execute(`meta-${workspaceId}`, () => persistence.meta.setItem(workspaceId, event.value))
         }
 
-        // Debounce per document config and workspace
-        if (event.type === 'documentConfigs') {
-          return execute(`documentConfigs-${workspaceId}-${event.documentName}`, () =>
-            persistence.documentConfigs.setItem(workspaceId, event.documentName, event.value),
-          )
-        }
-
         // Debounce per document content and workspace
         if (event.type === 'documents') {
           return execute(`documents-${workspaceId}-${event.documentName}`, () =>

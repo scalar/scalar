@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.19.0",
+  "version": "2.19.3",
   "engines": {
     "node": ">=20"
   },
@@ -356,8 +356,8 @@
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "pretty-bytes": "^6.1.1",
-    "pretty-ms": "^8.0.0",
+    "pretty-bytes": "catalog:*",
+    "pretty-ms": "^9.3.0",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
     "vue": "catalog:*",

@@ -1,5 +1,35 @@
 # @scalar/mock-server
 
+## 0.8.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.24**
+
+## 0.8.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.8**
+  - [#7842](https://github.com/scalar/scalar/pull/7842): feat: migrate swagger 2.0 responses
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/oas-utils@0.6.23**
+
+## 0.8.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
 ## 0.8.16
 
 ### Patch Changes

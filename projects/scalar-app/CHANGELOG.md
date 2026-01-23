@@ -1,5 +1,42 @@
 # scalar-app
 
+## 0.1.268
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+- **@scalar/components@0.16.27**
+
+## 0.1.267
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+## 0.1.266
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/components@0.16.25**
+
 ## 0.1.265
 
 ### Patch Changes

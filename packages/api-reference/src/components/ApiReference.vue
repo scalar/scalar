@@ -25,10 +25,7 @@ import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
-import {
-  createWorkspaceStore,
-  type UrlDoc,
-} from '@scalar/workspace-store/client'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
@@ -68,7 +65,6 @@ import {
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
-import { mapConfiguration } from '@/helpers/map-configuration'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
@@ -478,22 +474,18 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const proxy: UrlDoc['fetch'] = (input, init) =>
-      fetch(redirectToProxy(config.proxyUrl, input.toString()), init)
-
     await workspaceStore.addDocument(
       normalized.source.url
         ? {
             name: slug,
             url: normalized.source.url,
-            config: mapConfiguration(config),
-            fetch: config.fetch ?? proxy,
+            fetch: config.fetch,
           }
         : {
             name: slug,
             document: normalized.source.content ?? {},
-            config: mapConfiguration(config),
           },
+      config,
     )
   }
 
@@ -545,18 +537,14 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        const proxy: UrlDoc['fetch'] = (input, init) =>
-          fetch(
-            redirectToProxy(updated.config.proxyUrl, input.toString()),
-            init,
-          )
-
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          url: updated.source.url,
-          config: mapConfiguration(updated.config),
-          fetch: updated.config.fetch ?? proxy,
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            url: updated.source.url,
+            fetch: updated.config.fetch,
+          },
+          updated.config,
+        )
 
         return
       }
@@ -578,11 +566,13 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          document: updated.source.content,
-          config: mapConfiguration(updated.config),
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            document: updated.source.content,
+          },
+          updated.config,
+        )
       }
     }
 
@@ -918,9 +908,6 @@ const colorMode = computed(() => {
           :headingSlugGenerator="
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
-          "
-          :httpClients="
-            workspaceStore.config['x-scalar-reference-config']?.httpClients
           "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"

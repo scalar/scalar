@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
@@ -31,26 +34,34 @@ const {
 
 const emit = defineEmits<{
   (
-    e: 'add',
-    payload: Partial<{
-      name: string
-      value: string | File
-      index: number
-      isDisabled: boolean
-    }>,
-  ): void
-  (
-    e: 'update',
-    payload: {
-      index: number
-      payload: { name: string; value: string | File; isDisabled: boolean }
-    },
+    e: 'upsert',
+    index: number,
+    payload: ApiReferenceEvents['operation:upsert:parameter']['payload'],
   ): void
   (e: 'delete', payload: { index: number }): void
   (e: 'deleteAll'): void
 }>()
 
 const showTooltip = computed(() => rows.length > 1)
+
+/** Needed for type guard */
+const handleUpserRow = (
+  index: number,
+  payload: {
+    name: string
+    value: string | File | undefined
+    isDisabled: boolean
+  },
+) => {
+  const { value, ...rest } = payload
+
+  // Type guard here as we cannot add files to params
+  if (value instanceof File) {
+    return
+  }
+
+  emit('upsert', index, { ...rest, value: value ?? '' })
+}
 </script>
 <template>
   <CollapsibleSection
@@ -85,9 +96,8 @@ const showTooltip = computed(() => rows.length > 1)
       :invalidParams="invalidParams"
       :label="label"
       :showAddRowPlaceholder="showAddRowPlaceholder"
-      @addRow="(payload) => emit('add', payload)"
       @deleteRow="(index) => emit('delete', { index })"
       @navigate="(route) => eventBus.emit('ui:route:page', { name: route })"
-      @updateRow="(index, payload) => emit('update', { index, payload })" />
+      @upsertRow="handleUpserRow" />
   </CollapsibleSection>
 </template>
