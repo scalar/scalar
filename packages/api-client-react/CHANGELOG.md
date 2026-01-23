@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.75
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
 ## 1.3.74
 
 ### Patch Changes

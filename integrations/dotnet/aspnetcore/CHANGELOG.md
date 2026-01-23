@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.12.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
 ## 2.12.14
 
 ### Patch Changes

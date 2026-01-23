@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.7.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/components@0.16.27**
+
 ## 0.7.16
 
 ### Patch Changes

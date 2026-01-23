@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.268
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+- **@scalar/components@0.16.27**
+
 ## 0.1.267
 
 ### Patch Changes
