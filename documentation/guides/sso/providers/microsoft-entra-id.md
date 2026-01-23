@@ -4,7 +4,7 @@ Configure SAML-based SSO between Microsoft Entra ID and Scalar.
 
 ## Requirements
 
-* SSO/SAML requires a Scalar Enterprise subscription. Read more about [our pricing](../pricing.md).
+* SSO/SAML requires a Scalar Enterprise subscription. Read more about [our pricing](../../pricing.md).
 * You are the owner or admin of your Scalar team.
 
 ## 1. Create a New Enterprise Application
