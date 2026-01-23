@@ -22,22 +22,6 @@ const createParameter = (
     ...overrides,
   }) as ExtendedParameter
 
-/** Helper to create a parameter with content-based examples */
-const createContentParameter = (
-  overrides: Partial<ExtendedParameter> & Pick<ExtendedParameter, 'name' | 'in' | 'value'>,
-  contentType: string,
-  examples?: Record<string, ExampleObject>,
-): ExtendedParameter =>
-  ({
-    required: true, // Set required by default so parameters are not disabled
-    content: {
-      [contentType]: {
-        ...(examples && { examples }),
-      },
-    },
-    ...overrides,
-  }) as ExtendedParameter
-
 describe('buildRequestParameters', () => {
   describe('getExample (internal helper)', () => {
     /**
@@ -57,90 +41,6 @@ describe('buildRequestParameters', () => {
       ]
       const result = buildRequestParameters(params, {}, 'production')
       expect(result.headers['X-Api-Key']).toBe('prod-key')
-    })
-
-    it('retrieves example from content-based parameter using contentType and exampleKey', () => {
-      const params: ParameterObject[] = [
-        {
-          name: 'X-Payload',
-          in: 'header',
-          required: true,
-          content: {
-            'application/json': {
-              examples: {
-                default: { value: '{"type":"json"}' },
-              },
-            },
-            'text/xml': {
-              examples: {
-                default: { value: '<type>xml</type>' },
-              },
-            },
-          },
-        } as ParameterObject,
-      ]
-
-      const jsonParams: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/json' },
-          },
-        } as ParameterObject,
-        ...params,
-      ]
-
-      const xmlParams: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'text/xml' },
-          },
-        } as ParameterObject,
-        ...params,
-      ]
-
-      const jsonResult = buildRequestParameters(jsonParams, {}, 'default')
-      const xmlResult = buildRequestParameters(xmlParams, {}, 'default')
-
-      expect(jsonResult.headers['X-Payload']).toBe('{"type":"json"}')
-      expect(xmlResult.headers['X-Payload']).toBe('<type>xml</type>')
-    })
-
-    it('returns undefined when content type does not exist in content-based parameter', () => {
-      const params: ParameterObject[] = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/xml' },
-          },
-        } as ParameterObject,
-        {
-          name: 'X-Missing-Content-Type',
-          in: 'header',
-          content: {
-            'application/json': {
-              examples: {
-                default: { value: 'json-value' },
-              },
-            },
-          },
-        } as ParameterObject,
-      ]
-
-      // Request with a content type that does not exist in the parameter
-      const result = buildRequestParameters(params, {}, 'default')
-
-      // Should skip the parameter since no example is found
-      expect(result.headers).not.toHaveProperty('X-Missing-Content-Type')
     })
 
     it('returns undefined when exampleKey does not exist in examples', () => {
@@ -254,22 +154,6 @@ describe('buildRequestParameters', () => {
       const result = buildRequestParameters(params)
 
       expect(result.headers['X-Api-Key']).toBe('my-api-key')
-    })
-
-    it('builds header from content-based parameter', () => {
-      const params = [
-        createParameter(
-          { name: 'Content-Type', in: 'header', value: 'application/json' },
-          { default: { value: 'application/json' } },
-        ),
-        createContentParameter({ name: 'X-Custom-Header', in: 'header', value: 'custom-value' }, 'application/json', {
-          default: { value: 'custom-value' },
-        }),
-      ]
-
-      const result = buildRequestParameters(params, {}, 'default')
-
-      expect(result.headers['X-Custom-Header']).toBe('custom-value')
     })
 
     it('builds multiple headers', () => {
@@ -399,6 +283,363 @@ describe('buildRequestParameters', () => {
       expect(result.urlParams.get('search')).toBe('hello world')
       expect(result.urlParams.get('filter')).toBe('name=John&age=30')
     })
+
+    it('handles query parameter with object value', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'offset',
+          description: 'The number of items to skip before starting to collect the result set',
+          in: 'query',
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+              },
+              examples: {
+                default: {
+                  value: {
+                    test: 'what',
+                  },
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Object values should be serialized as JSON strings
+      expect(result.urlParams.get('offset')).toBe('{"test":"what"}')
+    })
+
+    it('handles query parameter with text/plain content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/plain' },
+          },
+        },
+        {
+          name: 'description',
+          description: 'Plain text description',
+          in: 'query',
+          required: false,
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: 'This is plain text content',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Plain text values should be passed as-is
+      expect(result.urlParams.get('description')).toBe('This is plain text content')
+    })
+
+    it('handles query parameter with text/xml content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/xml' },
+          },
+        },
+        {
+          name: 'xmlData',
+          description: 'XML formatted data',
+          in: 'query',
+          required: false,
+          content: {
+            'text/xml': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<root><item>value</item></root>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // XML values should be passed as-is
+      expect(result.urlParams.get('xmlData')).toBe('<root><item>value</item></root>')
+    })
+
+    it('handles query parameter with application/xml content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/xml' },
+          },
+        },
+        {
+          name: 'payload',
+          description: 'Application XML data',
+          in: 'query',
+          required: false,
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<?xml version="1.0"?><data><field>test</field></data>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Application XML values should be passed as-is
+      expect(result.urlParams.get('payload')).toBe('<?xml version="1.0"?><data><field>test</field></data>')
+    })
+
+    it('handles query parameter with application/x-www-form-urlencoded content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/x-www-form-urlencoded' },
+          },
+        },
+        {
+          name: 'formData',
+          description: 'URL encoded form data',
+          in: 'query',
+          required: false,
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: 'username=john_doe&email=john@example.com',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Form data should be passed as-is when already URL encoded
+      expect(result.urlParams.get('formData')).toBe('username=john_doe&email=john@example.com')
+    })
+
+    it('handles query parameter with text/html content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/html' },
+          },
+        },
+        {
+          name: 'htmlContent',
+          description: 'HTML formatted content',
+          in: 'query',
+          required: false,
+          content: {
+            'text/html': {
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                default: {
+                  value: '<div><p>Hello World</p></div>',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // HTML values should be passed as-is
+      expect(result.urlParams.get('htmlContent')).toBe('<div><p>Hello World</p></div>')
+    })
+
+    it('handles query parameter with application/octet-stream content type', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'application/octet-stream' },
+          },
+        },
+        {
+          name: 'binaryData',
+          description: 'Binary data as base64',
+          in: 'query',
+          required: false,
+          content: {
+            'application/octet-stream': {
+              schema: {
+                type: 'string',
+                format: 'binary',
+              },
+              examples: {
+                default: {
+                  value: 'SGVsbG8gV29ybGQ=',
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Binary data (base64 encoded) should be passed as-is
+      expect(result.urlParams.get('binaryData')).toBe('SGVsbG8gV29ybGQ=')
+    })
+
+    it('serializes query parameter using its own content type, not the Content-Type header', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'Content-Type',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          examples: {
+            default: { value: 'text/plain' },
+          },
+        },
+        {
+          name: 'filter',
+          description: 'JSON filter object',
+          in: 'query',
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+              },
+              examples: {
+                default: {
+                  value: { status: 'active', limit: 10 },
+                  'x-disabled': false,
+                },
+              },
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // The query parameter should be serialized as JSON even though Content-Type header is text/plain
+      // This is because the parameter's content type is application/json
+      expect(result.urlParams.get('filter')).toBe('{"status":"active","limit":10}')
+    })
+
+    it('handles query parameter with array value (defaults to explode: true)', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'tags',
+          description: 'Filter by tags',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          examples: {
+            default: {
+              value: ['javascript', 'typescript', 'vue'],
+              'x-disabled': false,
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters: tags=javascript&tags=typescript&tags=vue
+      expect(result.urlParams.getAll('tags')).toEqual(['javascript', 'typescript', 'vue'])
+    })
+
+    it('handles query parameter with array value and explicit explode: false', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'tags',
+          description: 'Filter by tags',
+          in: 'query',
+          required: false,
+          explode: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          examples: {
+            default: {
+              value: ['javascript', 'typescript', 'vue'],
+              'x-disabled': false,
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // With explicit explode: false, array values should be comma-separated
+      expect(result.urlParams.get('tags')).toBe('javascript,typescript,vue')
+    })
   })
 
   describe('cookie parameters', () => {
@@ -510,7 +751,7 @@ describe('buildRequestParameters', () => {
         ] satisfies ParameterObject[]
 
         const result = buildRequestParameters(params)
-        expect(result.headers['X-Id']).toBe(5)
+        expect(result.headers['X-Id']).toBe('5')
       })
 
       it('handles simple style multiple values', () => {
@@ -700,48 +941,253 @@ describe('buildRequestParameters', () => {
         expect(result.urlParams.get('colors')).toBe('blue|black|brown')
       })
     })
+
+    describe('object serialization', () => {
+      describe('simple style with objects', () => {
+        it('handles simple style object with explode: false in header', () => {
+          const params = [
+            {
+              name: 'X-Metadata',
+              in: 'header',
+              required: true,
+              style: 'simple',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: false -> role,admin,firstName,Alex
+          expect(result.headers['X-Metadata']).toBe('role,admin,firstName,Alex')
+        })
+
+        it('handles simple style object with explode: true in header', () => {
+          const params = [
+            {
+              name: 'X-Metadata',
+              in: 'header',
+              required: true,
+              style: 'simple',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: true -> role=admin,firstName=Alex
+          expect(result.headers['X-Metadata']).toBe('role=admin,firstName=Alex')
+        })
+
+        it('handles simple style object with explode: false in path', () => {
+          const params = [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style: 'simple',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Simple style with explode: false -> role,admin,firstName,Alex (URL encoded)
+          expect(result.pathVariables.id).toBe('role%2Cadmin%2CfirstName%2CAlex')
+        })
+      })
+
+      describe('form style with objects', () => {
+        it('handles form style object with explode: true in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: true -> role=admin&firstName=Alex
+          // URLSearchParams should have separate entries
+          expect(result.urlParams.get('role')).toBe('admin')
+          expect(result.urlParams.get('firstName')).toBe('Alex')
+        })
+
+        it('handles form style object with explode: false in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: false -> filter=role,admin,firstName,Alex
+          expect(result.urlParams.get('filter')).toBe('role,admin,firstName,Alex')
+        })
+
+        it('handles form style object with explode: true in cookie', () => {
+          const params = [
+            {
+              name: 'session',
+              in: 'cookie',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Form style with explode: true creates separate cookie entries
+          expect(result.cookies).toHaveLength(2)
+          expect(result.cookies[0]).toMatchObject({ name: 'role', value: 'admin' })
+          expect(result.cookies[1]).toMatchObject({ name: 'firstName', value: 'Alex' })
+        })
+      })
+
+      describe('deepObject style', () => {
+        it('handles deepObject style in query', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'deepObject',
+              explode: true,
+              examples: { default: { value: { role: 'admin', firstName: 'Alex' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // deepObject style -> filter[role]=admin&filter[firstName]=Alex
+          expect(result.urlParams.get('filter[role]')).toBe('admin')
+          expect(result.urlParams.get('filter[firstName]')).toBe('Alex')
+        })
+
+        it('handles deepObject style with nested objects', () => {
+          const params = [
+            {
+              name: 'user',
+              in: 'query',
+              required: true,
+              style: 'deepObject',
+              explode: true,
+              examples: {
+                default: {
+                  value: {
+                    name: { first: 'Alex', last: 'Smith' },
+                    role: 'admin',
+                  },
+                },
+              },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // deepObject style with nested objects -> user[name][first]=Alex&user[name][last]=Smith&user[role]=admin
+          expect(result.urlParams.get('user[name][first]')).toBe('Alex')
+          expect(result.urlParams.get('user[name][last]')).toBe('Smith')
+          expect(result.urlParams.get('user[role]')).toBe('admin')
+        })
+      })
+
+      describe('edge cases with objects', () => {
+        it('handles empty object', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: {} } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Empty object should result in empty parameter value
+          expect(result.urlParams.get('filter')).toBe('')
+        })
+
+        it('handles object with special characters in values', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: false,
+              examples: { default: { value: { name: 'John Doe', email: 'john@example.com' } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Special characters should be preserved in the serialization
+          expect(result.urlParams.get('filter')).toBe('name,John Doe,email,john@example.com')
+        })
+
+        it('handles object with numeric and boolean values', () => {
+          const params = [
+            {
+              name: 'config',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { limit: 10, active: true, offset: 0 } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // Numeric and boolean values should be converted to strings
+          expect(result.urlParams.get('limit')).toBe('10')
+          expect(result.urlParams.get('active')).toBe('true')
+          expect(result.urlParams.get('offset')).toBe('0')
+        })
+
+        it('handles object with null and undefined values', () => {
+          const params = [
+            {
+              name: 'filter',
+              in: 'query',
+              required: true,
+              style: 'form',
+              explode: true,
+              examples: { default: { value: { name: 'John', age: null, city: undefined } } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+
+          // null and undefined should be handled gracefully
+          expect(result.urlParams.get('name')).toBe('John')
+          expect(result.urlParams.get('age')).toBe('null')
+          // undefined properties may or may not be included depending on implementation
+        })
+      })
+    })
   })
 
   describe('content-based parameters', () => {
-    it('extracts example from content with matching content type', () => {
-      const params = [
-        {
-          name: 'Content-Type',
-          in: 'header',
-          required: true,
-          schema: { type: 'string' },
-          examples: {
-            default: { value: 'application/json' },
-          },
-        },
-        {
-          name: 'X-Payload',
-          in: 'header',
-          required: true,
-          content: { 'application/json': { examples: { default: { value: 'stuff' } } } },
-        },
-      ] satisfies ParameterObject[]
-      const result = buildRequestParameters(params, {}, 'default')
-
-      expect(result.headers['X-Payload']).toBe('stuff')
-    })
-
-    it('returns empty when content type does not match', () => {
-      const params = [
-        createParameter(
-          { name: 'Content-Type', in: 'header', value: 'text/plain' },
-          { default: { value: 'text/plain' } },
-        ),
-        createContentParameter({ name: 'X-Payload', in: 'header', value: '{"key":"value"}' }, 'application/json', {
-          default: { value: { key: 'value' } },
-        }),
-      ]
-      const result = buildRequestParameters(params, {}, 'default')
-
-      // No matching content type, so no example found, parameter skipped
-      expect(result.headers).not.toHaveProperty('X-Payload')
-    })
-
     it('filters out Content-Type header when value is multipart/form-data', () => {
       const params = [
         createParameter(
@@ -785,6 +1231,90 @@ describe('buildRequestParameters', () => {
     })
   })
 
+  describe('content-based parameters', () => {
+    /**
+     * Tests for parameters that use the `content` field instead of `schema`.
+     * According to OpenAPI 3.1, parameters can use either `schema` or `content`.
+     * Content parameters only exist in query parameters.
+     * When `content` is used, serialization follows the content type (e.g., JSON stringification
+     * for application/json), not style-based serialization.
+     */
+
+    describe('query parameters with content', () => {
+      it('serializes query parameter with application/json content as JSON', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'filter',
+            in: 'query',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: {
+                    value: { status: 'active', limit: 10 },
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be JSON stringified
+        expect(result.urlParams.get('filter')).toBe('{"status":"active","limit":10}')
+      })
+
+      it('serializes query parameter with application/json content for array', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            content: {
+              'application/json': {
+                examples: {
+                  default: {
+                    value: [1, 2, 3],
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be JSON stringified
+        expect(result.urlParams.get('ids')).toBe('[1,2,3]')
+      })
+
+      it('serializes query parameter with text/plain content as string', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'data',
+            in: 'query',
+            required: true,
+            content: {
+              'text/plain': {
+                examples: {
+                  default: {
+                    value: { key: 'value' },
+                  },
+                },
+              },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        // Should be converted to string
+        expect(result.urlParams.get('data')).toBe('{"key":"value"}')
+      })
+    })
+  })
+
   describe('edge cases', () => {
     it('handles parameter with undefined value', () => {
       const params = [
@@ -799,7 +1329,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers['X-Maybe']).toBeUndefined()
     })
 
-    it('handles parameter with null value', () => {
+    it('removes parameter with null value', () => {
       const params = [
         createParameter(
           { name: 'X-Null', in: 'header', value: null as unknown as string },
@@ -809,19 +1339,19 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      expect(result.headers['X-Null']).toBeNull()
+      expect(result.headers['X-Null']).toBeUndefined()
     })
 
-    it('handles parameter with numeric value as is', () => {
+    it('headers cast numbers to strings', () => {
       const params = [createParameter({ name: 'X-Count', in: 'header', value: '42' }, { default: { value: 42 } })]
       const result = buildRequestParameters(params)
-      expect(result.headers['X-Count']).toBe(42)
+      expect(result.headers['X-Count']).toBe('42')
     })
 
-    it('handles parameter with boolean value as is', () => {
+    it('headers cast booleans to strings', () => {
       const params = [createParameter({ name: 'X-Flag', in: 'header', value: 'true' }, { default: { value: true } })]
       const result = buildRequestParameters(params)
-      expect(result.headers['X-Flag']).toBe(true)
+      expect(result.headers['X-Flag']).toBe('true')
     })
 
     it('handles parameter names with special characters', () => {

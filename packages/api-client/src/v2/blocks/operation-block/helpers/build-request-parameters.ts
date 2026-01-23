@@ -1,3 +1,4 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -9,8 +10,20 @@ import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/sch
 
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
-import { getDelimiter } from './get-delimiter'
 import { getExample } from './get-example'
+import {
+  serializeContentValue,
+  serializeDeepObjectStyle,
+  serializeFormStyle,
+  serializeFormStyleForCookies,
+  serializePipeDelimitedStyle,
+  serializeSimpleStyle,
+  serializeSpaceDelimitedStyle,
+} from './serialize-parameter'
+
+/** Helper to get explode value with default */
+const getExplode = (param: ParameterObject, defaultValue: boolean): boolean =>
+  'explode' in param && param.explode !== undefined ? param.explode : defaultValue
 
 /**
  * Converts the parameters into a set of headers, cookies and url params while
@@ -21,7 +34,6 @@ import { getExample } from './get-example'
  * @param parameters - Unfiltered parameters
  * @param env - Environment variables flattened into a key-value object
  * @param exampleKey - The key of the current example
- * @param contentType - Content type for content based parameters
  * @returns A set of headers, cookies and url params
  */
 export const buildRequestParameters = (
@@ -37,104 +49,183 @@ export const buildRequestParameters = (
   pathVariables: Record<string, string>
   urlParams: URLSearchParams
 } => {
-  const deReferencedParameters = [] as ParameterObject[]
-  let contentType = 'application/json'
+  const result = {
+    cookies: [] as XScalarCookie[],
+    headers: {} as Record<string, string>,
+    pathVariables: {} as Record<string, string>,
+    urlParams: new URLSearchParams(),
+  }
 
-  // We gotta grab the content type first so we de-reference while were at it
-  for (const param of parameters) {
-    const deReferencedParam = getResolvedRef(param)
-    deReferencedParameters.push(deReferencedParam)
+  // Early return for empty parameters
+  if (parameters.length === 0) {
+    return result
+  }
 
-    // Grab the content type from the headers
-    if (
-      deReferencedParam.in === 'header' &&
-      deReferencedParam.name.toLowerCase() === 'content-type' &&
-      'examples' in deReferencedParam
-    ) {
-      contentType = getResolvedRef(deReferencedParam?.examples?.[exampleKey])?.value ?? contentType
+  // Second pass: process all parameters
+  for (const referencedParam of parameters) {
+    const param = getResolvedRef(referencedParam)
+    const example = getExample(param, exampleKey, undefined)
+
+    // Skip disabled examples
+    if (!example || isParamDisabled(param, example)) {
+      continue
+    }
+
+    /** Replace environment variables in the key and value */
+    const replacedValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
+    const paramName = replaceEnvVariables(param.name, env)
+
+    // Handle by parameter location
+    switch (param.in) {
+      case 'header': {
+        // Filter out Content-Type header when it is multipart/form-data
+        // The browser will automatically set this header with the proper boundary
+        const lowerParamName = paramName.toLowerCase()
+        if (lowerParamName === 'content-type' && replacedValue === 'multipart/form-data') {
+          break
+        }
+
+        /** Headers only support simple style according to OpenAPI 3.1.1 */
+        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
+
+        // Remove undefined/null headers
+        if (!isDefined(serialized)) {
+          break
+        }
+
+        /** Headers can only be strings so we can cast numbers etc */
+        const serializedString = String(serialized)
+
+        // If the header already exists, append with comma
+        if (result.headers[paramName]) {
+          result.headers[paramName] = `${result.headers[paramName]},${serializedString}`
+        } else {
+          result.headers[paramName] = serializedString
+        }
+        break
+      }
+
+      case 'path': {
+        // Path parameters use simple style by default
+        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
+        result.pathVariables[paramName] = encodeURIComponent(String(serialized))
+        break
+      }
+
+      case 'query': {
+        processQueryParameter(param, paramName, replacedValue, result.urlParams)
+        break
+      }
+
+      case 'cookie': {
+        processCookieParameter(paramName, replacedValue, getExplode(param, true), result.cookies)
+        break
+      }
     }
   }
 
-  // Loop over all parameters and build up our request segments
-  return deReferencedParameters.reduce(
-    (acc, param) => {
-      const example = getExample(param, exampleKey, contentType)
+  return result
+}
 
-      // Skip disabled examples
-      if (!example || isParamDisabled(param, example)) {
-        return acc
-      }
+/**
+ * Helper function to process query parameters.
+ * Extracted to reduce complexity in main function.
+ */
+const processQueryParameter = (
+  param: ParameterObject,
+  paramName: string,
+  replacedValue: unknown,
+  urlParams: URLSearchParams,
+): void => {
+  /** If the parameter should be exploded, defaults to true for form style */
+  const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
 
-      /** Replace environment variables in the key and value */
-      const replacedValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
-      const paramName = replaceEnvVariables(param.name, env)
+  /** Style of the parameter, defaults to form */
+  const style = 'style' in param && param.style ? param.style : 'form'
 
-      // Handle headers
-      if (param.in === 'header') {
-        // Filter out Content-Type header when it is multipart/form-data
-        // The browser will automatically set this header with the proper boundary
-        if (paramName.toLowerCase() === 'content-type' && replacedValue === 'multipart/form-data') {
-          return acc
-        }
+  // Content type parameters should be serialized according to the parameter's own content type
+  if ('content' in param && param.content) {
+    // We grab the first for now but eventually we should support selecting the content type per parameter
+    const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
+    const serializedValue = serializeContentValue(replacedValue, paramContentType)
+    urlParams.set(paramName, serializedValue)
+    return
+  }
 
-        // headers only support simple style which means we separate the value by commas for multiple values
-        if (acc.headers[paramName]) {
-          acc.headers[paramName] += `,${replacedValue}`
-        } else {
-          acc.headers[paramName] = replacedValue
-        }
-      }
+  // Handle deepObject style
+  if (style === 'deepObject' && explodeParam) {
+    const entries = serializeDeepObjectStyle(paramName, replacedValue)
+    for (const entry of entries) {
+      urlParams.append(entry.key, entry.value)
+    }
+    return
+  }
 
-      // Handle path parameters
-      if (param.in === 'path') {
-        acc.pathVariables[paramName] = encodeURIComponent(replacedValue)
-      }
+  // Handle spaceDelimited style
+  if (style === 'spaceDelimited') {
+    const serialized = serializeSpaceDelimitedStyle(replacedValue)
+    const existingValue = urlParams.get(paramName)
+    urlParams.set(paramName, existingValue ? `${existingValue} ${serialized}` : serialized)
+    return
+  }
 
-      // Handle query parameters (currently array only)
-      if (param.in === 'query') {
-        /** If the parameter should be exploded, defaults to true*/
-        const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
+  // Handle pipeDelimited style
+  if (style === 'pipeDelimited') {
+    const serialized = serializePipeDelimitedStyle(replacedValue)
+    const existingValue = urlParams.get(paramName)
+    urlParams.set(paramName, existingValue ? `${existingValue}|${serialized}` : serialized)
+    return
+  }
 
-        /** Style of the parameter, defaults to form */
-        const style = 'style' in param && param.style ? param.style : 'form'
+  // Handle form style (default)
+  const serialized = serializeFormStyle(replacedValue, explodeParam)
 
-        // explode=true only supported on form style
-        if (explode) {
-          acc.urlParams.append(paramName, replacedValue)
-        }
+  // If serialized is an array of key-value pairs (exploded object or array)
+  if (Array.isArray(serialized)) {
+    for (const entry of serialized) {
+      // If key is empty, use paramName (for arrays)
+      const key = entry.key || paramName
+      urlParams.append(key, String(entry.value))
+    }
+  } else {
+    // Otherwise, convert to string for URLSearchParams
+    urlParams.append(paramName, String(serialized))
+  }
+}
 
-        // handle the rest of the array styles
-        else {
-          const existingValue = acc.urlParams.get(paramName)
+/**
+ * Helper function to process cookie parameters.
+ * Extracted to reduce complexity in main function.
+ */
+const processCookieParameter = (
+  paramName: string,
+  replacedValue: unknown,
+  explode: boolean,
+  cookies: XScalarCookie[],
+): void => {
+  // Cookies only support form style according to OpenAPI 3.1.1
+  const serialized = serializeFormStyleForCookies(replacedValue, explode)
 
-          // If the parameter already has a value, append the new value with the delimiter
-          if (existingValue) {
-            const delimiter = getDelimiter(style)
-            acc.urlParams.set(paramName, `${existingValue}${delimiter}${replacedValue}`)
-          } else {
-            acc.urlParams.set(paramName, replacedValue)
-          }
-        }
-      }
-
-      // Handle cookies
-      if (param.in === 'cookie') {
-        acc.cookies.push(
-          coerceValue(xScalarCookieSchema, {
-            name: paramName,
-            value: replacedValue,
-            path: '/',
-          }),
-        )
-      }
-
-      return acc
-    },
-    {
-      cookies: [] as XScalarCookie[],
-      headers: {} as Record<string, string>,
-      pathVariables: {} as Record<string, string>,
-      urlParams: new URLSearchParams(),
-    },
-  )
+  // If serialized is an array of key-value pairs (exploded object or array)
+  if (Array.isArray(serialized)) {
+    for (const entry of serialized) {
+      const key = entry.key || paramName
+      cookies.push(
+        coerceValue(xScalarCookieSchema, {
+          name: key,
+          value: String(entry.value),
+          path: '/',
+        }),
+      )
+    }
+  } else {
+    // Otherwise, convert to string for cookie value
+    cookies.push(
+      coerceValue(xScalarCookieSchema, {
+        name: paramName,
+        value: String(serialized),
+        path: '/',
+      }),
+    )
+  }
 }
