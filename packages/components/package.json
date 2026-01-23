@@ -60,7 +60,7 @@
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.2",
     "nanoid": "catalog:*",
-    "pretty-bytes": "^6.1.1",
+    "pretty-bytes": "catalog:*",
     "radix-vue": "^1.9.3",
     "vue": "catalog:*",
     "vue-component-type-helpers": "^3.0.4"
