@@ -11,9 +11,7 @@ describe('applySelectiveUpdates', () => {
         d: 3,
       },
     }
-    const excludedDiffs = applySelectiveUpdates(
-      input,
-      {
+    const excludedDiffs = applySelectiveUpdates(input, {
       a: 0,
       b: {
         c: 2,
@@ -41,24 +39,21 @@ describe('applySelectiveUpdates', () => {
       },
     }
 
-    const excludedDiffs = applySelectiveUpdates(
-      input,
-      {
-        a: 0,
-        b: {
-          c: 2,
-          d: 5,
-        },
-        'x-ext': {
-          'b42js': {
-            description: 'External document',
-          },
-        },
-        'x-ext-urls': {
-          'b42js': 'https://example.com/external-doc',
+    const excludedDiffs = applySelectiveUpdates(input, {
+      a: 0,
+      b: {
+        c: 2,
+        d: 5,
+      },
+      'x-ext': {
+        'b42js': {
+          description: 'External document',
         },
       },
-    )
+      'x-ext-urls': {
+        'b42js': 'https://example.com/external-doc',
+      },
+    })
 
     expect(input).toEqual({
       a: 0,
@@ -96,20 +91,17 @@ describe('applySelectiveUpdates', () => {
       },
     }
 
-    const excludedDiffs = applySelectiveUpdates(
-      input,
-      {
-        a: 0,
-        b: {
-          c: 2,
-        },
-        'x-scalar-navigation': [
-          {
-            someProp: 'someValue',
-          },
-        ],
+    const excludedDiffs = applySelectiveUpdates(input, {
+      a: 0,
+      b: {
+        c: 2,
       },
-    )
+      'x-scalar-navigation': [
+        {
+          someProp: 'someValue',
+        },
+      ],
+    })
 
     expect(input).toEqual({
       a: 0,
