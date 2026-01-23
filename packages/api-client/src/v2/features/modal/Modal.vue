@@ -21,7 +21,14 @@ export type ModalProps = {
   /** Subset of the configuration options for the modal */
   options: MaybeRefOrGetter<
     Partial<
-      Pick<ApiReferenceConfigurationRaw, 'authentication' | 'hideClientButton'>
+      Pick<
+        ApiReferenceConfigurationRaw,
+        | 'authentication'
+        | 'baseServerURL'
+        | 'hideClientButton'
+        | 'hiddenClients'
+        | 'servers'
+      >
     >
   >
 }
@@ -72,13 +79,13 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
 const {
-  modalState,
-  workspaceStore,
-  sidebarState,
-  eventBus,
   document,
-  plugins,
+  eventBus,
+  modalState,
   options,
+  plugins,
+  sidebarState,
+  workspaceStore,
 } = defineProps<ModalProps>()
 
 /** Expose workspace store to window for debugging purposes. */
@@ -229,9 +236,9 @@ defineExpose({
               :environment
               :eventBus
               :exampleName="exampleName?.value"
-              :hideClientButton="toValue(options)?.hideClientButton ?? false"
               layout="modal"
               :method="method?.value"
+              :options
               :path="path?.value"
               :plugins
               :securitySchemes

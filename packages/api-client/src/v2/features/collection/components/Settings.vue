@@ -57,9 +57,6 @@ const handleDeleteDocument = () => {
     :activeProxyUrl="workspaceStore.workspace['x-scalar-active-proxy']"
     :activeThemeId="workspaceStore.workspace['x-scalar-theme'] ?? 'default'"
     :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
-    :customProxyUrl="
-      workspaceStore.config['x-scalar-reference-config'].settings.proxyUrl
-    "
     @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
     @update:themeId="handleUpdateThemeId" />

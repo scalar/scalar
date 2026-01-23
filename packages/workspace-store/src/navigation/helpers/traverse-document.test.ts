@@ -1,21 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
+import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import type { TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
-import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDocument } from './traverse-document'
 
 describe('traverseDocument', () => {
-  const mockOptions: DocumentConfiguration = {
-    'x-scalar-reference-config': {
-      features: {
-        showModels: true,
-      },
-      operationsSorter: 'alpha',
-      tagSort: 'alpha',
-    },
+  const mockOptions: NavigationOptions = {
+    hideModels: false,
+    operationsSorter: 'alpha',
+    tagsSorter: 'alpha',
   }
 
   it('should handle empty document', () => {
@@ -215,13 +211,9 @@ describe('traverseDocument', () => {
       'x-scalar-original-document-hash': '',
     }
 
-    const optionsWithHiddenModels = {
-      'x-scalar-reference-config': {
-        ...mockOptions['x-scalar-reference-config'],
-        features: {
-          showModels: false,
-        },
-      },
+    const optionsWithHiddenModels: NavigationOptions = {
+      ...mockOptions,
+      hideModels: true,
     }
 
     const result = traverseDocument('doc-1', doc, optionsWithHiddenModels)

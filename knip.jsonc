@@ -26,6 +26,11 @@
     "documentation/assets/fathom.js"
   ],
 
+  "ignore": [
+    // We will use this in the future, just removed it from the workspace store for now
+    "packages/workspace-store/src/schemas/reference-config/index.ts"
+  ],
+
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
