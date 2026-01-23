@@ -236,13 +236,13 @@ export function initializeAppEventHandlers({
   )
   eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
   eventBus.on('ui:route:example', async ({ exampleName, callback }) => {
-    await router.value?.replace({
+    const result = await router.value?.replace({
       name: 'example',
       params: {
         exampleName,
       },
     })
-    callback('success')
+    callback(result ? 'error' : 'success')
   })
 
   //------------------------------------------------------------------------------------

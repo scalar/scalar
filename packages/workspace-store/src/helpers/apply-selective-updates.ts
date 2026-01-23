@@ -13,7 +13,7 @@ const isSecretKey = (key: string) => key.startsWith('x-scalar-secret-')
  * These are metadata fields that should be omitted when syncing updates to the original document.
  * Changes to these fields are not persisted.
  */
-const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$status'])
+const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$status', 'x-scalar-is-dirty'])
 
 /**
  * Determines whether a diff should be included when applying updates.

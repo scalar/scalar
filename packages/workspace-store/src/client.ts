@@ -697,9 +697,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    // Mark the document as not dirty since we are saving it
-    workspaceDocument['x-scalar-is-dirty'] = false
-
     // Obtain the raw state of the current document to ensure accurate diffing
     const activeDocumentRaw = unpackProxyObject(workspaceDocument)
 
@@ -708,9 +705,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       console.warn('Failed to save document, intermediate document and/or active document is missing')
       return
     }
-
-    // Mark the document as not dirty since we are saving it
-    activeDocumentRaw['x-scalar-is-dirty'] = false
 
     // Traverse the document and convert refs back to the original shape
     const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
@@ -721,6 +715,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Apply changes from the current document to the intermediate document in place
     const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
+
+    // Mark the document as not dirty since we are saving it
+    workspaceDocument['x-scalar-is-dirty'] = false
+
     return excludedDiffs
   }
 

@@ -1547,6 +1547,27 @@ describe('create-workspace-store', () => {
     expect(store.workspace.activeDocument?.['x-scalar-order']).toEqual(['default/GET/ping'])
   })
 
+  it('does mark the document as dirty when we do a change and clear the dirty flag when we save', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+      },
+    })
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBeUndefined()
+
+    assert(store.workspace.activeDocument)
+    store.workspace.activeDocument.info.title = 'My API'
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(true)
+
+    await store.saveDocument('default')
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()
@@ -1653,7 +1674,7 @@ describe('create-workspace-store', () => {
 
       // Should return the updated document without any extensions
       expect(store.exportDocument('api-3', 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["api-3/GET/users","api-3/models"],"x-scalar-is-dirty":false}',
+        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["api-3/GET/users","api-3/models"]}',
       )
     })
 
@@ -1691,7 +1712,7 @@ describe('create-workspace-store', () => {
 
       // Should return the updated document without any extensions
       expect(store.exportDocument('default', 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"6d9bcd00d4525750","x-scalar-order":["default/GET/users","default/GET/external","default/models"],"x-scalar-is-dirty":false}',
+        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"6d9bcd00d4525750","x-scalar-order":["default/GET/users","default/GET/external","default/models"]}',
       )
     })
 
@@ -2053,7 +2074,7 @@ describe('create-workspace-store', () => {
 
       await store.saveDocument('default')
       expect(store.exportDocument('default', 'json', true)).toBe(
-        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"aafc5f6a5f638791","x-scalar-order":[],"x-scalar-is-dirty":false}',
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"aafc5f6a5f638791","x-scalar-order":[]}',
       )
     })
 
@@ -2742,7 +2763,7 @@ describe('create-workspace-store', () => {
 
       // Expect the original
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["default/GET/users","default/models"],"x-scalar-is-dirty":false}',
+        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["default/GET/users","default/models"]}',
       )
 
       // Apply the resolved changes (we choose the incoming changes in this case)
@@ -2750,7 +2771,7 @@ describe('create-workspace-store', () => {
 
       // Check if the new intermediate document is correct
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["default/GET/users","default/models"],"x-scalar-is-dirty":false}',
+        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-scalar-original-document-hash":"de08f342f83a5fc3","x-scalar-order":["default/GET/users","default/models"]}',
       )
 
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
