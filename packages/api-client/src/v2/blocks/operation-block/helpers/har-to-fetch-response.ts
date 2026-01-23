@@ -36,7 +36,7 @@ type ProcessedBody = {
  * The conversion handles:
  * - Status code and status text restoration
  * - Headers reconstruction from HAR headers array
- * - Body decoding (supports both plain text and base64-encoded content)
+ * - Body decoding
  * - Content-Type and other header restoration
  * - URL property setting (if provided)
  * - Cookie header detection

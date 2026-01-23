@@ -16,7 +16,7 @@ type HarToFetchRequestProps = {
  * - Headers reconstruction from HAR headers array
  * - Cookies conversion to Cookie header
  * - Form data (params) conversion to FormData or URLSearchParams
- * - Body decoding from base64 (if encoded) or plain text back to original content
+ * - Body decoding
  * - Content-Type and other header restoration
  * - Query parameters (already embedded in the URL)
  *
