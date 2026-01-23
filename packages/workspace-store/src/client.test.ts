@@ -1547,6 +1547,27 @@ describe('create-workspace-store', () => {
     expect(store.workspace.activeDocument?.['x-scalar-order']).toEqual(['default/GET/ping'])
   })
 
+  it('does mark the document as dirty when we do a change and clear the dirty flag when we save', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+      },
+    })
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBeUndefined()
+
+    assert(store.workspace.activeDocument)
+    store.workspace.activeDocument.info.title = 'My API'
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(true)
+
+    await store.saveDocument('default')
+
+    expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()

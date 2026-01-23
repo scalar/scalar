@@ -258,6 +258,9 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('operation:reload:history', (payload) =>
+    withHook('operation:reload:history', mutators.value.active().operation.reloadOperationHistory, hooks)(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Tag Related Event Handlers
@@ -295,5 +298,12 @@ export function initializeWorkspaceEventHandlers({
   )
   eventBus.on('tabs:update:tabs', (payload) =>
     withHook('tabs:update:tabs', mutators.value.workspace().tabs.updateTabs, hooks)(payload),
+  )
+
+  //------------------------------------------------------------------------------------
+  // Hooks Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('hooks:on:request:complete', (payload) =>
+    withHook('hooks:on:request:complete', mutators.value.active().operation.addResponseToHistory, hooks)(payload),
   )
 }

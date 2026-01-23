@@ -245,4 +245,15 @@ export type OperationEvents = {
     /** Identifies the target operation and example variant for the updated request body value */
     meta: OperationExampleMeta
   }
+  /**
+   * Reload the history for the operation
+   */
+  'operation:reload:history': {
+    /** Identifies the target operation for the history reload */
+    meta: OperationMeta
+    /** The index of the history item to reload */
+    index: number
+    /** The callback to call when the history is reloaded */
+    callback: (status: 'success' | 'error') => void
+  }
 }

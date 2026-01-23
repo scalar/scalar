@@ -509,18 +509,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }
 
               const documentName = path[1] as string
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
+
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+                // The document has been modified since it was last saved
+                document['x-scalar-is-dirty'] = true
+              }
 
               fireWorkspaceChange(event)
               return
@@ -529,25 +534,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             /** Active document changes */
             if (type === 'activeDocument') {
               const documentName = getActiveDocumentName()
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               // Active document changed
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
+
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+                // The document has been modified since it was last saved
+                document['x-scalar-is-dirty'] = true
+              }
 
               fireWorkspaceChange(event)
               return
             }
 
-            /** Document meta changes */
+            /** Workspace meta changes */
             const { activeDocument: _a, documents: _d, ...meta } = workspace
             const event = {
               type: 'meta',
@@ -688,15 +698,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Obtain the raw state of the current document to ensure accurate diffing
-    const updatedDocument = getRaw(workspaceDocument)
+    const activeDocumentRaw = unpackProxyObject(workspaceDocument)
 
     // If either the intermediate or updated document is missing, do nothing
-    if (!intermediateDocument || !updatedDocument) {
+    if (!intermediateDocument || !activeDocumentRaw) {
+      console.warn('Failed to save document, intermediate document and/or active document is missing')
       return
     }
 
     // Traverse the document and convert refs back to the original shape
-    const updatedWithOriginalRefs = await bundle(deepClone(updatedDocument), {
+    const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
       plugins: [restoreOriginalRefs()],
       treeShake: false,
       urlMap: true,
@@ -704,6 +715,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Apply changes from the current document to the intermediate document in place
     const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
+
+    // Mark the document as not dirty since we are saving it
+    workspaceDocument['x-scalar-is-dirty'] = false
+
     return excludedDiffs
   }
 

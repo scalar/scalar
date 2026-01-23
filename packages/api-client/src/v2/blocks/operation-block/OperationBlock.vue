@@ -44,6 +44,8 @@ import { ERRORS } from '@/libs/errors'
 import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
+import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
+import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
@@ -103,10 +105,6 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
-  /** List of request history */
-  history: History[]
-  /** Total number of performed requests */
-  totalPerformedRequests: number
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -194,8 +192,14 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = result.controller
 
-  // Start the animation
-  eventBus.emit('hooks:on:request:sent')
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
@@ -205,8 +209,22 @@ const handleExecute = async () => {
     request: result.request,
   })
 
-  // Stop the animation
-  eventBus.emit('hooks:on:request:complete')
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:complete', {
+    payload: sendResult
+      ? {
+          response: sendResult.originalResponse,
+          request: sendResult.request.clone(),
+          duration: sendResult.response.duration,
+          timestamp: sendResult.timestamp,
+        }
+      : undefined,
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   // Toast the execute error
   if (sendError) {
@@ -228,6 +246,63 @@ onBeforeUnmount(() => {
   eventBus.off('operation:cancel:request', cancelRequest)
 })
 
+const operationHistory = computed<History[]>(() =>
+  (operation['x-scalar-history'] ?? [])
+    .map((entry) => ({
+      method: entry.request.method as HttpMethodType,
+      path: entry.request.url,
+      duration: entry.time,
+      status: entry.response.status,
+    }))
+    .reverse(),
+)
+
+const handleSelectHistoryItem = ({ index }: { index: number }) => {
+  const transformedIndex =
+    (operation['x-scalar-history']?.length ?? 0) - index - 1
+  const historyItem = operation['x-scalar-history']?.[transformedIndex]
+  if (!historyItem) {
+    return
+  }
+
+  const navigate = () =>
+    eventBus.emit('ui:route:example', {
+      exampleName: 'draft',
+      callback: async (status) => {
+        if (status === 'error') {
+          return
+        }
+
+        // Reconstruct the response
+        const fetchResponse = harToFetchResponse({
+          harResponse: historyItem.response,
+          url: historyItem.request.url,
+          method,
+          path,
+          duration: historyItem.time,
+        })
+
+        // Reconstruct the request
+        const fetchRequest = harToFetchRequest({
+          harRequest: historyItem.request,
+        })
+
+        // Update the response and request
+        response.value = fetchResponse
+        request.value = fetchRequest
+      },
+    })
+
+  eventBus.emit('operation:reload:history', {
+    meta: {
+      path,
+      method,
+    },
+    index: transformedIndex,
+    callback: navigate,
+  })
+}
+
 /**
  * When the path, method, or example key changes, clear the response and request
  * TODO: maybe in the future this will be hooked into the history api but for now we'll just clear the response and request
@@ -247,7 +322,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         :environment
         :eventBus
         :hideClientButton
-        :history
+        :history="operationHistory"
         :integration
         :layout
         :method
@@ -256,6 +331,7 @@ watch([() => path, () => method, () => exampleKey], () => {
         :servers
         :source
         @execute="handleExecute"
+        @select:history:item="handleSelectHistoryItem"
         @update:servers="emit('update:servers')" />
     </div>
 
@@ -291,7 +367,7 @@ watch([() => path, () => method, () => exampleKey], () => {
           :plugins
           :request
           :response
-          :totalPerformedRequests
+          :totalPerformedRequests="operationHistory.length"
           @sendRequest="handleExecute" />
       </ViewLayoutContent>
     </ViewLayout>

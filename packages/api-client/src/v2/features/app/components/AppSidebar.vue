@@ -302,6 +302,19 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
           @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
       </template>
 
+      <!-- Dirty document icon slot -->
+      <template #icon="{ item }">
+        <template
+          v-if="
+            item.type === 'document' &&
+            store.workspace.documents[item.name]?.['x-scalar-is-dirty'] === true
+          ">
+          <div class="flex items-center">
+            <div class="h-2 w-2 rounded-full bg-white"></div>
+          </div>
+        </template>
+      </template>
+
       <!-- Empty folder slot -->
       <template #empty="{ item }">
         <ScalarSidebarItem

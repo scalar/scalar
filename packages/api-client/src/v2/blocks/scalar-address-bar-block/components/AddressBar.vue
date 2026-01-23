@@ -63,7 +63,10 @@ const {
 const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
+  /** Update the server list */
   (e: 'update:servers'): void
+  /** Select a request history item by index */
+  (e: 'select:history:item', payload: { index: number }): void
 }>()
 
 const id = useId()
@@ -268,7 +271,10 @@ defineExpose({
 
       <AddressBarHistory
         :history="history"
-        :target="id" />
+        :target="id"
+        @select:history:item="
+          (payload) => emit('select:history:item', payload)
+        " />
       <!-- Error message -->
       <div
         v-if="hasConflict"

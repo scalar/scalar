@@ -69,6 +69,7 @@ export const sendRequest = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
+    originalResponse: Response
   }>
 > => {
   try {
@@ -77,7 +78,7 @@ export const sendRequest = async ({
 
     // Execute the request and measure duration
     const startTime = Date.now()
-    const response = await fetch(modifiedRequest)
+    const response = await fetch(modifiedRequest.clone())
     const endTime = Date.now()
     const duration = endTime - startTime
 
@@ -160,6 +161,7 @@ const buildStreamingResponse = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
+    originalResponse: Response
   }>
 > => {
   const normalizedResponse = new Response(null, {
@@ -185,6 +187,7 @@ const buildStreamingResponse = async ({
         method,
         path: fullPath,
       },
+      originalResponse: normalizedResponse.clone(),
     },
   ]
 }
@@ -224,6 +227,7 @@ const buildStandardResponse = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
+    originalResponse: Response
   }>
 > => {
   /**
@@ -264,6 +268,7 @@ const buildStandardResponse = async ({
         status: response.status,
         path: fullPath,
       },
+      originalResponse: response.clone(),
     },
   ]
 }

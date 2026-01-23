@@ -1151,6 +1151,150 @@ describe('buildRequest', () => {
       expect(error).toBe(null)
       expect(result?.request.method).toBe('POST')
     })
+
+    it('deletes Content-Type header for FormData body', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'post',
+        operation: {
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    file: { type: 'string', format: 'binary' },
+                  },
+                },
+                examples: {
+                  default: {
+                    value: [
+                      { name: 'name', value: 'John Doe' },
+                      { name: 'email', value: 'john@example.com' },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/upload',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.body).toBeDefined()
+      // Content-Type header is deleted so the browser can set it automatically with the correct boundary
+      expect(result?.request.headers.get('Content-Type')).toContain('multipart/form-data')
+    })
+
+    it('deletes Content-Type header for URLSearchParams body', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'post',
+        operation: {
+          requestBody: {
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    email: { type: 'string' },
+                  },
+                },
+                examples: {
+                  default: {
+                    value: [
+                      { name: 'name', value: 'John Doe' },
+                      { name: 'email', value: 'john@example.com' },
+                    ],
+                  },
+                },
+              },
+            },
+            'x-scalar-selected-content-type': {
+              default: 'application/x-www-form-urlencoded',
+            },
+          },
+        },
+        path: '/form',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      // Content-Type header is deleted so the browser can set it automatically
+      expect(result?.request.headers.get('Content-Type')).toContain('application/x-www-form-urlencoded')
+    })
+
+    it('preserves Content-Type header for JSON body', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'post',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.headers.get('Content-Type')).toBe('application/json')
+    })
+
+    it('preserves Content-Type header for text body', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'post',
+        operation: {
+          requestBody: {
+            content: {
+              'text/plain': {
+                schema: { type: 'string' },
+                examples: {
+                  default: {
+                    value: 'Hello World',
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/text',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.headers.get('Content-Type')).toBe('text/plain')
+    })
   })
 
   describe('proxy handling', () => {

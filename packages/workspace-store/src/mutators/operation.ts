@@ -4,9 +4,13 @@ import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { WorkspaceStore } from '@/client'
+import type { HooksEvents } from '@/events/definitions/hooks'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { fetchRequestToHar } from '@/mutators/fetch-request-to-har'
+import { fetchResponseToHar } from '@/mutators/fetch-response-to-har'
+import { harToOperation } from '@/mutators/har-to-operation'
 import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
@@ -389,6 +393,9 @@ export const updateOperationPathMethod = (
       delete document.paths[meta.path]
     }
   }
+
+  // We need to reset the history for the operation when the path or method changes
+  delete operation['x-scalar-history']
 
   callback('success')
 }
@@ -815,6 +822,88 @@ export const updateOperationRequestBodyFormValue = (
   example.value = unpackProxyObject(payload, { depth: 3 })
 }
 
+const HISTORY_LIMIT = 5
+
+export const addResponseToHistory = async (
+  document: WorkspaceDocument | null,
+  { payload, meta }: HooksEvents['hooks:on:request:complete'],
+) => {
+  if (!document || !payload) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return
+  }
+
+  const operationParameters = operation.parameters ?? []
+
+  // Get all the variables from the operation parameters
+  const variables = operationParameters.reduce<Record<string, string>>((acc, param) => {
+    const resolvedParam = getResolvedRef(param)
+    if (isContentTypeParameterObject(resolvedParam)) {
+      return acc
+    }
+    if (resolvedParam.in === 'path') {
+      acc[resolvedParam.name] = getResolvedRef(resolvedParam.examples?.[meta.exampleKey])?.value ?? ''
+    }
+    return acc
+  }, {})
+
+  const requestHar = await fetchRequestToHar({ request: payload.request })
+  const responseHar = await fetchResponseToHar({ response: payload.response })
+
+  operation['x-scalar-history'] ||= []
+  // If the history is full, remove the oldest entry
+  if (operation['x-scalar-history'].length >= HISTORY_LIMIT) {
+    operation['x-scalar-history'].shift()
+  }
+  // Add the new entry to the history
+  operation['x-scalar-history'].push({
+    response: responseHar,
+    request: requestHar,
+    meta: {
+      example: meta.exampleKey,
+    },
+    time: payload.duration,
+    timestamp: payload.timestamp,
+    requestMetadata: {
+      variables,
+    },
+  })
+}
+
+export const reloadOperationHistory = (
+  document: WorkspaceDocument | null,
+  { meta, index, callback }: OperationEvents['operation:reload:history'],
+) => {
+  if (!document) {
+    console.error('Document not found', meta.path, meta.method)
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    console.error('Operation not found', meta.path, meta.method)
+    return
+  }
+
+  const historyItem = operation['x-scalar-history']?.[index]
+  if (!historyItem) {
+    console.error('History item not found', index)
+    return
+  }
+
+  harToOperation({
+    harRequest: historyItem.request,
+    exampleKey: 'draft',
+    baseOperation: operation,
+    pathVariables: historyItem.requestMetadata.variables,
+  })
+  callback('success')
+}
+
 export const operationMutatorsFactory = ({
   document,
   store,
@@ -845,5 +934,9 @@ export const operationMutatorsFactory = ({
       updateOperationRequestBodyExample(document, payload),
     updateOperationRequestBodyFormValue: (payload: OperationEvents['operation:update:requestBody:formValue']) =>
       updateOperationRequestBodyFormValue(document, payload),
+    addResponseToHistory: (payload: HooksEvents['hooks:on:request:complete']) =>
+      addResponseToHistory(document, payload),
+    reloadOperationHistory: (payload: OperationEvents['operation:reload:history']) =>
+      reloadOperationHistory(document, payload),
   }
 }
