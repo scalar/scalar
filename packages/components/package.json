@@ -80,7 +80,7 @@
     "@vueless/storybook-dark-mode": "^10.0.4",
     "jsdom": "catalog:*",
     "storybook": "10.1.10",
-    "svglint": "^2.7.1",
+    "svglint": "^4.1.2",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
