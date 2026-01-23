@@ -1,5 +1,15 @@
 # @scalar/java-integration
 
+## 0.5.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
 ## 0.5.23
 
 ### Patch Changes

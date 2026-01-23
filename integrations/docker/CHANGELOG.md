@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
 ## 0.4.32
 
 ### Patch Changes

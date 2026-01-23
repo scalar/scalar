@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.6.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
 ## 0.6.23
 
 ### Patch Changes
