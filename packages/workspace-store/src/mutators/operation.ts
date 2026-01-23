@@ -63,25 +63,24 @@ const syncParametersForPathChange = (
   const oldPositions = getParameterPositions(oldPath, oldPathParams)
   const newPositions = getParameterPositions(newPath, newPathParams)
 
-  // Separate path and non-path parameters, keeping original references
-  const pathParameters: ReferenceType<ParameterObject>[] = []
+  // Separate path and non-path parameters, resolving each parameter only once
+  const pathParameters: ParameterObject[] = []
   const nonPathParameters: ReferenceType<ParameterObject>[] = []
 
   for (const param of existingParameters) {
     const resolved = getResolvedRef(param)
     if (resolved?.in === 'path') {
-      pathParameters.push(param)
+      pathParameters.push(resolved)
     } else {
       nonPathParameters.push(param)
     }
   }
 
   // Create a map of existing path parameters by name for quick lookup
-  const existingPathParamsByName = new Map<string, ReferenceType<ParameterObject>>()
+  const existingPathParamsByName = new Map<string, ParameterObject>()
   for (const param of pathParameters) {
-    const resolved = getResolvedRef(param)
-    if (resolved?.name) {
-      existingPathParamsByName.set(resolved.name, param)
+    if (param.name) {
+      existingPathParamsByName.set(param.name, param)
     }
   }
 
@@ -102,16 +101,13 @@ const syncParametersForPathChange = (
       (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
     )
 
+    // Rename: transfer the old parameter's config to the new name
     if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
-      // Rename: transfer the old parameter's config to the new name
       const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
-      const resolved = getResolvedRef(oldParam)
-      if (resolved) {
-        resolved.name = newParamName
-        syncedPathParameters.push(oldParam)
-        usedOldParams.add(oldParamAtPosition)
-        continue
-      }
+      oldParam.name = newParamName
+      syncedPathParameters.push(oldParam)
+      usedOldParams.add(oldParamAtPosition)
+      continue
     }
 
     // Case 3: New parameter - create with empty examples
@@ -122,7 +118,7 @@ const syncParametersForPathChange = (
   }
 
   // Return all parameters: synced path parameters + preserved non-path parameters
-  return [...syncedPathParameters, ...nonPathParameters]
+  return unpackProxyObject([...syncedPathParameters, ...nonPathParameters], { depth: 1 })
 }
 
 /**
