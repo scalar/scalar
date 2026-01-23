@@ -116,6 +116,9 @@ export function initializeAppEventHandlers({
       'operation:update:extra-parameters': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
       },
+      'operation:reload:history': {
+        onAfterExecute: (payload) => onAfterExampleCreation({ ...payload.meta, exampleKey: 'draft' }),
+      },
 
       'operation:delete:operation': {
         onAfterExecute: async (payload) => {

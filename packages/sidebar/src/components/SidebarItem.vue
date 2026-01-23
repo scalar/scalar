@@ -193,8 +193,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     <span
       v-if="isDeprecated(item)"
-      class="line-through"
-      >``
+      class="line-through">
       <SidebarItemLabel
         :item
         :operationTitleSource="options?.operationTitleSource" />
@@ -280,6 +279,14 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
     @click="() => emit('selectItem', item.id)">
+    <template
+      v-if="slots.icon"
+      #icon>
+      <slot
+        :item="item"
+        name="icon"
+        :open="true" />
+    </template>
     <span
       v-if="isDeprecated(item)"
       class="line-through">
