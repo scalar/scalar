@@ -13,7 +13,7 @@ All navigation is configured within the `navigation.routes` object in your `scal
   "scalar": "2.0.0",
   "navigation": {
     "routes": {
-      "/api": {
+      "/": {
         "title": "Introduction",
         "type": "page",
         "filepath": "docs/introduction.md"
