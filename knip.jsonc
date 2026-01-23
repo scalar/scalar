@@ -8,7 +8,6 @@
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
-    "integrations/django-ninja/**",
     "integrations/hono/**",
     "integrations/nestjs/**",
     "integrations/nextjs/**",
@@ -297,6 +296,9 @@
         "./src/schemas/v3.1/strict/type-guards.ts",
         "./src/server.ts"
       ]
+    },
+    "integrations/django-ninja": {
+      "ignoreBinaries": ["python"]
     },
     "integrations/docker": {
       "ignoreDependencies": [
