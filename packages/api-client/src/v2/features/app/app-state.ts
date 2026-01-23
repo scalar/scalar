@@ -549,6 +549,9 @@ const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
   if (!entry || entry.type !== 'example') {
     // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
     rebuildSidebar(documentName)
+    if (currentRoute.value) {
+      syncSidebar(currentRoute.value)
+    }
   }
   return
 }
