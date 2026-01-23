@@ -95,7 +95,7 @@ export const harToOperation = ({
   // Process headers from the HAR request
   if (harRequest.headers && harRequest.headers.length > 0) {
     for (const header of harRequest.headers) {
-      const param = findOrCreateParameter(baseOperation.parameters, header.name.toLowerCase(), 'header')
+      const param = findOrCreateParameter(baseOperation.parameters, header.name, 'header')
 
       if (!param || isContentTypeParameterObject(param)) {
         continue
@@ -213,7 +213,20 @@ const findOrCreateParameter = (
   // Try to find existing parameter using getResolvedRef to handle references
   for (const param of parameters) {
     const resolved = getResolvedRef(param)
-    if (resolved && resolved.name === name && resolved.in === inValue && !isContentTypeParameterObject(resolved)) {
+    if (isContentTypeParameterObject(resolved)) {
+      continue
+    }
+
+    // Check if parameter location matches
+    if (resolved.in !== inValue) {
+      continue
+    }
+
+    // For headers, use case-insensitive comparison; otherwise use exact match
+    const namesMatch =
+      inValue === 'header' ? resolved.name.toLowerCase() === name.toLowerCase() : resolved.name === name
+
+    if (namesMatch) {
       return resolved
     }
   }

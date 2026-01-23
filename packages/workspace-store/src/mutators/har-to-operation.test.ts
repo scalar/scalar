@@ -95,7 +95,7 @@ describe('harToOperation', () => {
 
     const authParam = result.parameters?.find((p) => {
       const resolved = getResolvedRef(p)
-      return resolved?.name === 'authorization'
+      return resolved?.name === 'Authorization'
     })
 
     const resolvedAuthParam = getResolvedRef(authParam)
@@ -103,41 +103,6 @@ describe('harToOperation', () => {
     expect(resolvedAuthParam.in).toBe('header')
     expect(getResolvedRef(resolvedAuthParam.examples?.example1)?.value).toBe('Bearer token123')
     expect(getResolvedRef(resolvedAuthParam.examples?.example1)?.['x-disabled']).toBe(false)
-  })
-
-  it('converts headers to lowercase in operation', () => {
-    const harRequest: HarRequest = {
-      method: 'GET',
-      url: 'https://api.example.com/users',
-      httpVersion: 'HTTP/1.1',
-      headers: [
-        { name: 'Content-Type', value: 'application/json' },
-        { name: 'Accept', value: 'application/json' },
-      ],
-      queryString: [],
-      cookies: [],
-      headersSize: -1,
-      bodySize: -1,
-    }
-
-    const result = harToOperation({
-      harRequest,
-      exampleKey: 'default',
-    })
-
-    // Headers should be lowercase
-    const contentTypeParam = result.parameters?.find((p) => {
-      const resolved = getResolvedRef(p)
-      return resolved?.name === 'content-type'
-    })
-
-    const acceptParam = result.parameters?.find((p) => {
-      const resolved = getResolvedRef(p)
-      return resolved?.name === 'accept'
-    })
-
-    expect(contentTypeParam).toBeDefined()
-    expect(acceptParam).toBeDefined()
   })
 
   it('converts cookies from HAR to operation examples', () => {
