@@ -206,7 +206,7 @@ const handleExecute = async () => {
     isUsingProxy: result.isUsingProxy,
     operation,
     plugins,
-    request: result.request.clone(),
+    request: result.request,
   })
 
   // Execute the hooks
@@ -214,7 +214,7 @@ const handleExecute = async () => {
     payload: sendResult
       ? {
           response: sendResult.oringialResponse,
-          request: result.request.clone(),
+          request: sendResult.request.clone(),
           duration: sendResult.response.duration,
         }
       : undefined,

@@ -67,9 +67,9 @@ export const sendRequest = async ({
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    oringialResponse: Response
     request: Request
     timestamp: number
+    oringialResponse: Response
   }>
 > => {
   try {
@@ -82,85 +82,63 @@ export const sendRequest = async ({
     const endTime = Date.now()
     const duration = endTime - startTime
 
-    const result = await buildResponseInstance({
+    // Extract response metadata early for reuse
+    const contentType = response.headers.get('content-type')
+    const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
+    const responseUrl = new URL(response.url)
+    const fullPath = responseUrl.pathname + responseUrl.search
+    const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
+    const method = modifiedRequest.method as HttpMethod
+    const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
+
+    /**
+     * Handle server-sent event streams separately.
+     * These responses need a reader instead of buffered data.
+     * We check this early to avoid unnecessary body reading.
+     */
+    if (contentType?.startsWith('text/event-stream') && response.body) {
+      return buildStreamingResponse({
+        response,
+        modifiedRequest,
+        operation,
+        plugins,
+        endTime,
+        duration,
+        responseHeaders,
+        statusText,
+        method,
+        fullPath,
+      })
+    }
+
+    return buildStandardResponse({
       response,
-      method: modifiedRequest.method as HttpMethod,
-      endTime,
-      duration,
-      isUsingProxy,
       modifiedRequest,
-    })
-
-    await executeHook({ response: response.clone(), request: modifiedRequest, operation }, 'responseReceived', plugins)
-    return result
-  } catch (error) {
-    return [normalizeError(error, ERRORS.REQUEST_FAILED), null]
-  }
-}
-
-export const buildResponseInstance = async ({
-  response,
-  modifiedRequest,
-  method,
-  endTime,
-  duration,
-  isUsingProxy,
-}: {
-  modifiedRequest: Request
-  response: Response
-  method: HttpMethod
-  endTime: number
-  duration: number
-  isUsingProxy: boolean
-}) => {
-  // Extract response metadata early for reuse
-  const contentType = response.headers.get('content-type')
-  const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-  const responseUrl = new URL(response.url)
-  const fullPath = responseUrl.pathname + responseUrl.search
-  const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-  const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
-
-  /**
-   * Handle server-sent event streams separately.
-   * These responses need a reader instead of buffered data.
-   * We check this early to avoid unnecessary body reading.
-   */
-  if (contentType?.startsWith('text/event-stream') && response.body) {
-    return buildStreamingResponse({
-      response,
+      operation,
+      plugins,
       endTime,
       duration,
       responseHeaders,
       statusText,
       method,
       fullPath,
-      modifiedRequest,
+      contentType,
+      shouldSkipBody,
     })
+  } catch (error) {
+    return [normalizeError(error, ERRORS.REQUEST_FAILED), null]
   }
-
-  return await buildStandardResponse({
-    response,
-    endTime,
-    duration,
-    responseHeaders,
-    statusText,
-    method,
-    fullPath,
-    contentType,
-    shouldSkipBody,
-    modifiedRequest,
-  })
 }
 
 /**
  * Build a streaming response for server-sent events.
  * Streaming responses use a reader instead of buffering the entire body.
  */
-const buildStreamingResponse = ({
+const buildStreamingResponse = async ({
   response,
   modifiedRequest,
-
+  operation,
+  plugins,
   endTime,
   duration,
   responseHeaders,
@@ -170,24 +148,29 @@ const buildStreamingResponse = ({
 }: {
   response: Response
   modifiedRequest: Request
+  operation: OperationObject
+  plugins: ClientPlugin[]
   endTime: number
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
   method: HttpMethod
   fullPath: string
-}): ErrorResponse<{
-  response: ResponseInstance
-  oringialResponse: Response
-  request: Request
-  timestamp: number
-}> => {
+}): Promise<
+  ErrorResponse<{
+    response: ResponseInstance
+    request: Request
+    timestamp: number
+    oringialResponse: Response
+  }>
+> => {
   const normalizedResponse = new Response(null, {
     status: response.status,
     statusText,
     headers: response.headers,
   })
 
+  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
@@ -204,7 +187,7 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      oringialResponse: response.clone(),
+      oringialResponse: normalizedResponse.clone(),
     },
   ]
 }
@@ -216,6 +199,8 @@ const buildStreamingResponse = ({
 const buildStandardResponse = async ({
   response,
   modifiedRequest,
+  operation,
+  plugins,
   endTime,
   duration,
   responseHeaders,
@@ -227,6 +212,8 @@ const buildStandardResponse = async ({
 }: {
   response: Response
   modifiedRequest: Request
+  operation: OperationObject
+  plugins: ClientPlugin[]
   endTime: number
   duration: number
   responseHeaders: Record<string, string>
@@ -238,9 +225,9 @@ const buildStandardResponse = async ({
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    oringialResponse: Response
     request: Request
     timestamp: number
+    oringialResponse: Response
   }>
 > => {
   /**
@@ -262,6 +249,7 @@ const buildStandardResponse = async ({
     headers: response.headers,
   })
 
+  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
