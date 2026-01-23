@@ -229,7 +229,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
-        oringialResponse: mockOriginalResponse,
+        originalResponse: mockOriginalResponse,
       },
     ])
 
@@ -304,7 +304,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -339,7 +339,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -373,7 +373,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -427,7 +427,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -499,7 +499,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -559,7 +559,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -623,7 +623,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -687,7 +687,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
-        oringialResponse: createMockOriginalResponse(),
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 

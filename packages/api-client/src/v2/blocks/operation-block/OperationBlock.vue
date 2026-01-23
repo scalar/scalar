@@ -213,7 +213,7 @@ const handleExecute = async () => {
   eventBus.emit('hooks:on:request:complete', {
     payload: sendResult
       ? {
-          response: sendResult.oringialResponse,
+          response: sendResult.originalResponse,
           request: sendResult.request.clone(),
           duration: sendResult.response.duration,
         }

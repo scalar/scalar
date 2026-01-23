@@ -69,7 +69,7 @@ export const sendRequest = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
-    oringialResponse: Response
+    originalResponse: Response
   }>
 > => {
   try {
@@ -161,7 +161,7 @@ const buildStreamingResponse = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
-    oringialResponse: Response
+    originalResponse: Response
   }>
 > => {
   const normalizedResponse = new Response(null, {
@@ -187,7 +187,7 @@ const buildStreamingResponse = async ({
         method,
         path: fullPath,
       },
-      oringialResponse: normalizedResponse.clone(),
+      originalResponse: normalizedResponse.clone(),
     },
   ]
 }
@@ -227,7 +227,7 @@ const buildStandardResponse = async ({
     response: ResponseInstance
     request: Request
     timestamp: number
-    oringialResponse: Response
+    originalResponse: Response
   }>
 > => {
   /**
@@ -268,7 +268,7 @@ const buildStandardResponse = async ({
         status: response.status,
         path: fullPath,
       },
-      oringialResponse: response.clone(),
+      originalResponse: response.clone(),
     },
   ]
 }
