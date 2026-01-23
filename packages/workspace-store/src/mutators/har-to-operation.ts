@@ -5,7 +5,7 @@ import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/
 
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
-export type HarToOperationProps = {
+type HarToOperationProps = {
   /** HAR request to convert */
   harRequest: HarRequest
   /** Name of the example to populate (e.g., 'default', 'example1') */
