@@ -11,9 +11,7 @@
     "integrations/hono/**",
     "integrations/nestjs/**",
     "integrations/nextjs/**",
-    "integrations/nuxt/**",
-    "integrations/rust/**",
-    "integrations/sveltekit/**"
+    "integrations/nuxt/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
