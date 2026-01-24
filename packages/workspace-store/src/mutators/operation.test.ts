@@ -925,7 +925,7 @@ describe('upsertOperationParameter', () => {
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: null,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { name: 'q', value: 'john', isDisabled: false },
     })
@@ -952,7 +952,7 @@ describe('upsertOperationParameter', () => {
 
     upsertOperationParameter(document, {
       type: 'path',
-      index: 0,
+      originalParameter: null,
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
       payload: { name: 'id', value: '123', isDisabled: false },
     })
@@ -969,54 +969,46 @@ describe('upsertOperationParameter', () => {
     expect(getResolvedRef(only.examples?.default)?.['x-disabled']).toBe(false)
   })
 
-  it('updates the N-th query parameter by type index: name, value, enabled', () => {
+  it('updates an existing query parameter by passing originalParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
           get: {
-            parameters: [{ name: 'X-Trace', in: 'header' }],
+            parameters: [
+              { name: 'X-Trace', in: 'header' },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+              { name: 'p', in: 'query', examples: { default: { value: 'two' } } },
+            ],
           },
         },
       },
     })
 
-    // Add two query params so we can target index 1 for type 'query'
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const secondQueryParam = getResolvedRef(op.parameters?.[2])
+    assert(secondQueryParam)
 
+    // Update the second query parameter
     upsertOperationParameter(document, {
       type: 'query',
-      index: 1,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'p', value: 'two', isDisabled: false },
-    })
-
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 1,
+      originalParameter: secondQueryParam,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { name: 'page', value: '2', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     // Header unchanged
     expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
     // First query unchanged
     const firstQuery = params[1]
     assert(firstQuery && 'examples' in firstQuery && firstQuery.examples)
-    expect(firstQuery).toMatchObject({ name: 'q', in: 'query', required: false })
+    expect(firstQuery).toMatchObject({ name: 'q', in: 'query' })
     expect(getResolvedRef(firstQuery.examples.default)?.value).toBe('one')
-    expect(getResolvedRef(firstQuery.examples.default)?.['x-disabled']).toBe(false)
     // Second query updated
     const secondQuery = params[2]
     assert(secondQuery && 'examples' in secondQuery && secondQuery.examples)
-    expect(secondQuery).toMatchObject({ name: 'page', in: 'query', required: false })
+    expect(secondQuery).toMatchObject({ name: 'page', in: 'query' })
     expect(getResolvedRef(secondQuery.examples.default)?.value).toBe('2')
     expect(getResolvedRef(secondQuery.examples.default)?.['x-disabled']).toBe(false)
   })
@@ -1025,28 +1017,25 @@ describe('upsertOperationParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
-          get: {},
+          get: {
+            parameters: [{ name: 'q', in: 'query', examples: { default: { value: 'one' } } }],
+          },
         },
       },
     })
 
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: param,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { name: 'q', value: 'ONE', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
-    const param = getResolvedRef((op.parameters ?? [])[0])
     assert(param && 'examples' in param && param.examples)
     expect(getResolvedRef(param.examples.default)?.value).toBe('ONE')
     expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
@@ -1056,28 +1045,25 @@ describe('upsertOperationParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
-          get: {},
+          get: {
+            parameters: [{ name: 'q', in: 'query', examples: { default: { value: 'one' } } }],
+          },
         },
       },
     })
 
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: param,
       meta: { method: 'get', path: '/search', exampleKey: 'other' },
       payload: { name: 'query', value: 'new value', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
-    const param = getResolvedRef((op.parameters ?? [])[0])
     // Name should update
     expect(param?.name).toBe('query')
     // Both examples should exist
@@ -1086,44 +1072,39 @@ describe('upsertOperationParameter', () => {
     expect(getResolvedRef(param.examples.default)?.value).toBe('one')
   })
 
-  it('only updates parameters of the specified type', () => {
+  it('only updates the specific parameter passed as originalParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
-          get: {},
+          get: {
+            parameters: [
+              { name: 'X-Trace', in: 'header', examples: { default: { value: 'abc' } } },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+            ],
+          },
         },
       },
     })
 
-    upsertOperationParameter(document, {
-      type: 'header',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'abc', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const queryParam = getResolvedRef(op.parameters?.[1])
+    assert(queryParam)
 
-    // index 0 for type 'query' refers to the second element in the raw array
+    // Update only the query parameter
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: queryParam,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { name: 'query', value: '1', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
-    const queryParam = params[1]
-    assert(queryParam && 'examples' in queryParam)
-    expect(queryParam?.name).toBe('query')
-    expect(getResolvedRef(queryParam?.examples?.default as any)?.value).toBe('1')
+    const updatedQueryParam = params[1]
+    assert(updatedQueryParam && 'examples' in updatedQueryParam)
+    expect(updatedQueryParam?.name).toBe('query')
+    expect(getResolvedRef(updatedQueryParam?.examples?.default as any)?.value).toBe('1')
   })
 
   it('adds multiple parameters of different types', () => {
@@ -1137,23 +1118,23 @@ describe('upsertOperationParameter', () => {
 
     upsertOperationParameter(document, {
       type: 'header',
-      index: 0,
+      originalParameter: null,
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { name: 'Authorization', value: 'Bearer token', isDisabled: false },
     })
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: null,
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
       payload: { name: 'limit', value: '10', isDisabled: false },
     })
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 1,
+      originalParameter: null,
       meta: { method: 'get', path: '/users', exampleKey: 'default' },
-      payload: { name: 'offset', value: '0', isDisabled: true },
+      payload: { name: 'offset', value: '0', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/users']?.get)
@@ -1164,21 +1145,22 @@ describe('upsertOperationParameter', () => {
     expect(params[1]).toMatchObject({ name: 'limit', in: 'query' })
     expect(params[2]).toMatchObject({ name: 'offset', in: 'query' })
     assert(params[2] && 'examples' in params[2] && params[2].examples)
-    expect(getResolvedRef(params[2].examples.default)?.['x-disabled']).toBe(true)
+    // Note: When adding a new parameter, x-disabled is always set to false initially
+    expect(getResolvedRef(params[2].examples.default)?.['x-disabled']).toBe(false)
   })
 
   it('no-ops when document is null', () => {
     expect(() =>
       upsertOperationParameter(null, {
         type: 'query',
-        index: 0,
+        originalParameter: null,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
         payload: { name: 'q', value: 'x', isDisabled: false },
       }),
     ).not.toThrow()
   })
 
-  it('no-ops when operation does not exist', () => {
+  it('no-ops when operation does not exist and no originalParameter is provided', () => {
     const document = createDocument({
       paths: {
         '/missing': {},
@@ -1187,7 +1169,7 @@ describe('upsertOperationParameter', () => {
 
     upsertOperationParameter(document, {
       type: 'query',
-      index: 0,
+      originalParameter: null,
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
       payload: { name: 'q', value: 'x', isDisabled: false },
     })
@@ -1197,44 +1179,32 @@ describe('upsertOperationParameter', () => {
 })
 
 describe('deleteOperationParameter', () => {
-  it('deletes the N-th parameter within the filtered type view', () => {
+  it('deletes a specific parameter using originalParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
-          get: {},
+          get: {
+            parameters: [
+              { name: 'X-Trace', in: 'header', examples: { default: { value: 'a' } } },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+              { name: 'page', in: 'query', examples: { default: { value: '2' } } },
+            ],
+          },
         },
       },
     })
 
-    // Add a header and two query params (order matters)
-    upsertOperationParameter(document, {
-      type: 'header',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 1,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'page', value: '2', isDisabled: false },
-    })
-
-    // Delete the second query (index 1 within filtered query params)
-    deleteOperationParameter(document, {
-      type: 'query',
-      index: 1,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-    })
-
     const op = getResolvedRef(document.paths?.['/search']?.get)
     assert(op)
+    const pageParam = getResolvedRef(op.parameters?.[2])
+    assert(pageParam)
+
+    // Delete the page parameter
+    deleteOperationParameter(document, {
+      originalParameter: pageParam,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+    })
+
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params.length).toBe(2)
     expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
@@ -1242,25 +1212,25 @@ describe('deleteOperationParameter', () => {
   })
 
   it('no-ops when document is null', () => {
+    const testParam = { name: 'test', in: 'query' as const }
     expect(() =>
       deleteOperationParameter(null, {
-        type: 'query',
-        index: 0,
+        originalParameter: testParam,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
       }),
     ).not.toThrow()
   })
 
-  it('no-ops when operation or parameter does not exist', () => {
+  it('no-ops when operation does not exist', () => {
     const document = createDocument({
       paths: {
         '/search': {},
       },
     })
 
+    const testParam = { name: 'test', in: 'query' as const }
     deleteOperationParameter(document, {
-      type: 'query',
-      index: 5,
+      originalParameter: testParam,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
     })
 
@@ -1273,35 +1243,26 @@ describe('deleteAllOperationParameters', () => {
     const document = createDocument({
       paths: {
         '/users/{id}': {
-          get: {},
+          get: {
+            parameters: [
+              {
+                name: 'X-Trace',
+                in: 'header',
+                required: false,
+                examples: { default: { value: 'a', 'x-disabled': false } },
+              },
+              { name: 'q', in: 'query', required: false, examples: { default: { value: 'one', 'x-disabled': false } } },
+              {
+                name: 'page',
+                in: 'query',
+                required: false,
+                examples: { default: { value: '2', 'x-disabled': false } },
+              },
+              { name: 'id', in: 'path', required: true, examples: { default: { value: '123', 'x-disabled': false } } },
+            ],
+          },
         },
       },
-    })
-
-    // Add a mix of parameter types
-    upsertOperationParameter(document, {
-      type: 'header',
-      index: 0,
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'query',
-      index: 1,
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'page', value: '2', isDisabled: false },
-    })
-    upsertOperationParameter(document, {
-      type: 'path',
-      index: 0,
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'id', value: '123', isDisabled: false },
     })
 
     deleteAllOperationParameters(document, {

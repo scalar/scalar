@@ -501,7 +501,6 @@ export const upsertOperationParameter = (
   document: WorkspaceDocument | null,
   { meta, type, payload, originalParameter }: OperationEvents['operation:upsert:parameter'],
 ) => {
-  console.log('originalParameter', originalParameter)
   // We are editing an existing parameter
   if (originalParameter) {
     originalParameter.name = payload.name
