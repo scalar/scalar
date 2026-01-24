@@ -41,7 +41,6 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
-import { createStoreEvents } from '@/store/events'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
@@ -370,13 +369,11 @@ onBeforeUnmount(() => {
         <ResponseBlock
           :appVersion
           :eventBus
-          :events="createStoreEvents()"
           :layout
           :plugins
           :request
           :response
-          :totalPerformedRequests="operationHistory.length"
-          @sendRequest="handleExecute" />
+          :totalPerformedRequests="operationHistory.length" />
       </ViewLayoutContent>
     </ViewLayout>
   </div>

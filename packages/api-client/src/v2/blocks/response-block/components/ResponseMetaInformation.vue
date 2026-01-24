@@ -1,34 +1,46 @@
 <script lang="ts" setup>
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import prettyMilliseconds from 'pretty-ms'
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import HelpfulLink from '@/components/HelpfulLink.vue'
-import type { createStoreEvents } from '@/store/events'
 import { getContentLength } from '@/v2/blocks/response-block/helpers/get-content-length'
 
-const { events, response } = defineProps<{
+const { response, eventBus } = defineProps<{
+  /** Response */
   response: ResponseInstance
-  events: ReturnType<typeof createStoreEvents>
+  /** Workspace event bus */
+  eventBus: WorkspaceEventBus
 }>()
 
 const interval = ref<ReturnType<typeof setInterval>>()
 const stopwatch = ref(0)
 
-events.requestStatus.on((status) => {
-  if (status === 'start') {
-    interval.value = setInterval(() => (stopwatch.value += 1000), 1000)
-  } else {
-    clearInterval(interval.value)
-    interval.value = undefined
-    stopwatch.value = 0
-  }
+const stopStopwatch = () => {
+  clearInterval(interval.value)
+  interval.value = undefined
+  stopwatch.value = 0
+}
+
+const startStopwatch = () => {
+  interval.value = setInterval(() => (stopwatch.value += 1000), 1000)
+}
+
+onMounted(() => {
+  eventBus.on('hooks:on:request:sent', startStopwatch)
+  eventBus.on('hooks:on:request:complete', stopStopwatch)
+})
+
+onBeforeUnmount(() => {
+  eventBus.off('hooks:on:request:sent', startStopwatch)
+  eventBus.off('hooks:on:request:complete', stopStopwatch)
 })
 
 /** Status text for the response */
 const statusCodeInformation = computed((): HttpStatusCode | undefined => {
-  const responseStatusCode = response.status
+  const responseStatusCode = response?.status
 
   if (!responseStatusCode) {
     return undefined

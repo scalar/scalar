@@ -4,27 +4,35 @@ import {
   ScalarLoading,
   useLoadingState,
 } from '@scalar/components'
-import { ref } from 'vue'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events';
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-import type { createStoreEvents } from '@/store/events'
-
-const { events } = defineProps<{
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
+const { eventBus } = defineProps<{
+  /** Workspace event bus */
+  eventBus: WorkspaceEventBus
 }>()
 
 const loader = useLoadingState()
-
 const timeout = ref<ReturnType<typeof setTimeout>>()
 
-events.requestStatus.on(async (status) => {
-  if (status === 'start') {
-    timeout.value = setTimeout(() => loader.start(), 1000)
-  } else {
-    clearTimeout(timeout.value)
-    timeout.value = undefined
-    await loader.clear()
-  }
+const startLoading = () => {
+  timeout.value = setTimeout(() => loader.start(), 1000)
+}
+
+const stopLoading = () => {
+  clearTimeout(timeout.value)
+  timeout.value = undefined
+  void loader.clear()
+}
+
+onMounted(() => {
+  eventBus.on('hooks:on:request:sent', startLoading)
+  eventBus.on('hooks:on:request:complete', stopLoading)
+})
+
+onBeforeUnmount(() => {
+  eventBus.off('hooks:on:request:sent', startLoading)
+  eventBus.off('hooks:on:request:complete', stopLoading)
 })
 </script>
 <template>
@@ -38,7 +46,7 @@ events.requestStatus.on(async (status) => {
         size="3xl" />
       <ScalarButton
         variant="ghost"
-        @click="events.cancelRequest.emit()">
+        @click="eventBus.emit('operation:cancel:request')">
         Cancel
       </ScalarButton>
     </div>
