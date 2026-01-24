@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.77
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+  - [#7889](https://github.com/scalar/scalar/pull/7889): fix: only attach the body to methods that allow
+
 ## 1.3.76
 
 ### Patch Changes

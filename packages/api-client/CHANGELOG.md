@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.20.1
+
+### Patch Changes
+
+- [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+- [#7889](https://github.com/scalar/scalar/pull/7889): fix: only attach the body to methods that allow
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+- **@scalar/oas-utils@0.6.26**
+
+- **@scalar/sidebar@0.7.19**
+
+- **@scalar/components@0.16.29**
+
+- **@scalar/use-codemirror@0.13.23**
+
 ## 2.20.0
 
 ### Minor Changes
