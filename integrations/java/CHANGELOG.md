@@ -1,5 +1,13 @@
 # @scalar/java-integration
 
+## 0.5.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.13**
+
 ## 0.5.24
 
 ### Patch Changes

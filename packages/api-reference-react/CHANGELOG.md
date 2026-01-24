@@ -1,5 +1,16 @@
 # @scalar/api-reference-react
 
+## 0.8.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/api-reference@1.43.13**
+
 ## 0.8.31
 
 ### Patch Changes

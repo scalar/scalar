@@ -1,5 +1,22 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/oas-utils@0.6.25**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/components@0.16.28**
+
 ## 0.3.27
 
 ### Patch Changes

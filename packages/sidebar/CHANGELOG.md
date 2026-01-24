@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.18
+
+### Patch Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): feat: support custom icon per entry
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.0**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+- **@scalar/components@0.16.28**
+
 ## 0.7.17
 
 ### Patch Changes

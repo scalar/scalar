@@ -11,7 +11,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/mock-server/docker"
   },
-  "version": "0.1.15",
+  "version": "0.1.16",
   "engines": {
     "node": ">=20"
   },
