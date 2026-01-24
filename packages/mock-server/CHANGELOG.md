@@ -1,5 +1,23 @@
 # @scalar/mock-server
 
+## 0.8.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.8.21
 
 ### Patch Changes

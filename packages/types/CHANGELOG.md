@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.5.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
 ## 0.5.9
 
 ### Patch Changes

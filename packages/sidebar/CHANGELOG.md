@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
 ## 0.7.19
 
 ### Patch Changes

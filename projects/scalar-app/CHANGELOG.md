@@ -1,5 +1,18 @@
 # scalar-app
 
+## 0.1.271
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+- **@scalar/import@0.4.46**
+
 ## 0.1.270
 
 ### Patch Changes

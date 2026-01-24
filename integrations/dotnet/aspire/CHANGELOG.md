@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.15**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 0.8.26
 
 ### Patch Changes

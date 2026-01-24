@@ -1,5 +1,35 @@
 # @scalar/api-reference
 
+## 1.43.15
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+- **@scalar/sidebar@0.7.20**
+
+- **@scalar/types@0.5.10**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/snippetz@0.6.8**
+
 ## 1.43.14
 
 ### Patch Changes
