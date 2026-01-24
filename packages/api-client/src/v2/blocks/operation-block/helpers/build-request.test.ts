@@ -1091,6 +1091,223 @@ describe('buildRequest', () => {
   })
 
   describe('request body', () => {
+    it('does not include body for GET requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'get',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('GET')
+      expect(result?.request.body).toBe(null)
+    })
+
+    it('does not include body for HEAD requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'head',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('HEAD')
+      expect(result?.request.body).toBe(null)
+    })
+
+    it('does not include body for OPTIONS requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'options',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('OPTIONS')
+      expect(result?.request.body).toBe(null)
+    })
+
+    it('includes body for POST requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'post',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('POST')
+      expect(result?.request.body).toBeTruthy()
+    })
+
+    it('includes body for PUT requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'put',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users/123',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('PUT')
+      expect(result?.request.body).toBeTruthy()
+    })
+
+    it('includes body for PATCH requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'patch',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { name: 'John Doe' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users/123',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('PATCH')
+      expect(result?.request.body).toBeTruthy()
+    })
+
+    it('includes body for DELETE requests', () => {
+      const [error, result] = buildRequest({
+        environment: mockEnvironment,
+        exampleKey: 'default',
+        globalCookies: [],
+        method: 'delete',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: {
+                  default: {
+                    value: { reason: 'Inactive user' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        path: '/users/123',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: mockServer,
+      })
+
+      expect(error).toBe(null)
+      expect(result?.request.method).toBe('DELETE')
+      expect(result?.request.body).toBeTruthy()
+    })
+
     it('sends JSON body', () => {
       const [error, result] = buildRequest({
         environment: mockEnvironment,
