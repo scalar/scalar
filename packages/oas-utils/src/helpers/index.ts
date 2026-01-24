@@ -92,12 +92,6 @@ export {
   /** @deprecated Please use mergeUrls from \@scalar/helpers/url/merge-urls instead */
   mergeUrls,
 } from '@scalar/helpers/url/merge-urls'
-export {
-  /** @deprecated Please use redirectToProxy from \@scalar/helpers/url/redirect-to-proxy instead */
-  redirectToProxy,
-  /** @deprecated Please use shouldUseProxy from \@scalar/helpers/url/redirect-to-proxy instead */
-  shouldUseProxy,
-} from '@scalar/helpers/url/redirect-to-proxy'
 
 export { fetchDocument } from './fetch-document'
 export { type FetchWithProxyFallbackOptions, fetchWithProxyFallback } from './fetch-with-proxy-fallback'

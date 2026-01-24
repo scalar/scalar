@@ -1,6 +1,6 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'

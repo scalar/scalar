@@ -1,6 +1,6 @@
+import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 import { replaceTemplateVariables } from '@/libs/string-template'
 

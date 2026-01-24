@@ -1,5 +1,6 @@
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { resolve } from '@scalar/import'
-import { fetchWithProxyFallback, redirectToProxy } from '@scalar/oas-utils/helpers'
+import { fetchWithProxyFallback } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
 import { isUrl } from '@/libs'
