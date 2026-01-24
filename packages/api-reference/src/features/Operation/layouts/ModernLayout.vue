@@ -10,7 +10,6 @@ import {
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
-  ParameterObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -140,10 +139,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
               :breadcrumb="[id]"
               :eventBus
               :options
-              :parameters="
-                // These have been resolved in the Operation.vue component
-                operation.parameters as ParameterObject[]
-              "
+              :parameters="operation.parameters"
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
               :breadcrumb="[id]"

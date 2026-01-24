@@ -3,7 +3,10 @@ import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  ParameterObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -39,6 +42,8 @@ export type TableRow = {
   isReadonly?: boolean
   /** Whether the parameter is overridden later on */
   isOverridden?: boolean
+  /** Track the original parameter so we can update it */
+  originalParameter?: ParameterObject
 }
 
 const {
@@ -131,9 +136,9 @@ const handleUpdateRow = (
   if (payload.value !== undefined) {
     value.value = payload.value
   }
-  if (payload.isDisabled !== undefined) {
-    isDisabled.value = payload.isDisabled
-  }
+
+  // Is disabled should always be false unless you explicitly set it to true
+  isDisabled.value = payload.isDisabled ?? false
 
   // Emit all of the local state
   emit('upsertRow', {

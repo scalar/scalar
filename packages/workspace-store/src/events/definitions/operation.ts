@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Describes the minimal identity for an operation in the workspace document.
@@ -137,9 +137,12 @@ export type OperationEvents = {
      */
     type: 'path' | 'query' | 'header' | 'cookie'
     /**
-     * The zero-based index of the parameter of the given type being updated within the operation.
+     * We pass the parameter back instead of the index due to all of these transforms
+     * we do along the way (merging with global parameters, etc). This is much safer for editing/adding
+     *
+     * If its null then we are adding a new parameter
      */
-    index: number
+    originalParameter: ParameterObject | null
     /**
      * Partial payload with new properties for the parameter (optional).
      * - name: The new name of the parameter (if being renamed).
@@ -184,11 +187,11 @@ export type OperationEvents = {
    * Fires when the user removes a parameter (by type and index) from an operation.
    */
   'operation:delete:parameter': {
-    /** The type of the parameter to delete. Can be 'path', 'query', 'header', or 'cookie'. */
-    type: 'path' | 'query' | 'header' | 'cookie'
-    /** The zero-based index of the parameter of the given type to be deleted within the operation. */
-    index: number
-    /** Identifies the target operation and example variant for the deleted parameter. */
+    /**
+     * We pass the parameter back instead of the index due to all of these transforms
+     * we do along the way (merging with global parameters, etc). This is much safer for deleting
+     */
+    originalParameter: ParameterObject
     meta: OperationExampleMeta
   }
 

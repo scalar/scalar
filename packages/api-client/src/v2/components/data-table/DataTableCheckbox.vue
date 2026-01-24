@@ -19,7 +19,7 @@ defineEmits<{
 }>()
 
 const variants = cva({
-  base: 'w-8 h-8 flex items-center justify-center text-border peer-checked:text-c-1 pointer-events-none absolute',
+  base: 'w-8 h-8 flex items-center justify-center text-b-2 peer-checked:text-c-1 pointer-events-none absolute',
   variants: {
     align: {
       left: 'left-0',
@@ -41,7 +41,7 @@ const variants = cva({
         class="absolute m-auto size-3/4 rounded border-[1px] opacity-0"
         :class="
           !disabled &&
-          'group-has-[:focus-visible]/cell:border-c-accent group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
+          'group-has-[:focus-visible]/cell:border-c-accent group-hover:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
         " />
       <ScalarIcon
         icon="Checkmark"

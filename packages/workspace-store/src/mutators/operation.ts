@@ -506,57 +506,52 @@ export const deleteOperationExample = (
  */
 export const upsertOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, type, payload, index }: OperationEvents['operation:upsert:parameter'],
+  { meta, type, payload, originalParameter }: OperationEvents['operation:upsert:parameter'],
 ) => {
-  if (!document) {
+  // We are editing an existing parameter
+  if (originalParameter) {
+    originalParameter.name = payload.name
+
+    if (isContentTypeParameterObject(originalParameter)) {
+      // TODO: handle content-type parameters
+      return
+    }
+
+    if (!originalParameter.examples) {
+      originalParameter.examples = {}
+    }
+
+    // Create the example if it doesn't exist
+    originalParameter.examples[meta.exampleKey] ||= {}
+    const example = getResolvedRef(originalParameter.examples[meta.exampleKey])!
+
+    // Update the example value and disabled state
+    example.value = payload.value
+    example['x-disabled'] = payload.isDisabled
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  // We are adding a new parameter
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  // Get all resolved parameters of the specified type
-  // The passed index corresponds to this filtered list
-  const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-  const parameter = resolvedParameters[index]
-
-  // If it doesn't exist we probably need to add a new parameter (we can do length check as well if we want)
-  if (!parameter) {
-    operation.parameters ||= []
-    operation.parameters.push({
-      name: payload.name,
-      in: type,
-      required: type === 'path' ? true : false,
-      examples: {
-        [meta.exampleKey]: {
-          value: payload.value,
-          'x-disabled': payload.isDisabled ?? false,
-        },
+  operation.parameters ||= []
+  operation.parameters.push({
+    name: payload.name,
+    in: type,
+    required: type === 'path' ? true : false,
+    examples: {
+      [meta.exampleKey]: {
+        value: payload.value,
+        // We always want a new parameter to be enabled by default
+        'x-disabled': false,
       },
-    })
-    return
-  }
-
-  parameter.name = payload.name
-
-  if (isContentTypeParameterObject(parameter)) {
-    // TODO: handle content-type parameters
-    return
-  }
-
-  if (!parameter.examples) {
-    parameter.examples = {}
-  }
-
-  // Create the example if it doesn't exist
-  parameter.examples[meta.exampleKey] ||= {}
-  const example = getResolvedRef(parameter.examples[meta.exampleKey])!
-
-  // Update the example value and disabled state
-  example.value = payload.value
-  example['x-disabled'] = payload.isDisabled
+    },
+  })
+  return
 }
 
 /**
@@ -626,49 +621,45 @@ export const updateOperationExtraParameters = (
 }
 
 /**
- * Removes a parameter from the operation by resolving its position within
- * the filtered list of parameters of the specified `type`.
- * Safely no-ops if the document, operation, or parameter does not exist.
+ * Removes a parameter from the operation OR path
  *
  * Example:
  * ```ts
  * deleteOperationParameter({
  *   document,
- *   type: 'header',
- *   index: 1,
+ *   originalParameter,
  *   meta: { method: 'get', path: '/users', exampleKey: 'default' },
  * })
  * ```
  */
 export const deleteOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, index, type }: OperationEvents['operation:delete:parameter'],
+  { meta, originalParameter }: OperationEvents['operation:delete:parameter'],
 ) => {
-  if (!document) {
-    return
-  }
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
-  if (!operation) {
-    return
-  }
-
-  // Translate the index from the filtered list to the actual parameters array
-  const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-  const parameter = resolvedParameters[index]
-  if (!parameter) {
-    return
-  }
-
-  const actualIndex = operation.parameters?.findIndex((it) => getResolvedRef(it) === parameter) as number
+  // Lets check if its on the operation first as its more likely
+  const operationIndex = operation?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
 
   // We cannot call splice on a proxy object, so we unwrap the array and filter it
-  operation.parameters = unpackProxyObject(
-    operation.parameters?.filter((_, i) => i !== actualIndex),
-    { depth: 1 },
-  )
+  if (operation && operationIndex >= 0) {
+    operation.parameters = unpackProxyObject(
+      operation.parameters?.filter((_, i) => i !== operationIndex),
+      { depth: 1 },
+    )
+    return
+  }
+
+  // If it wasn't on the operation it might be on the path
+  const path = getResolvedRef(document?.paths?.[meta.path])
+  const pathIndex = path?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
+
+  if (path && pathIndex >= 0) {
+    path.parameters = unpackProxyObject(
+      path.parameters?.filter((_, i) => i !== pathIndex),
+      { depth: 1 },
+    )
+  }
 }
 
 /**

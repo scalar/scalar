@@ -22,12 +22,22 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    delete: (payload: { index: number }) =>
-      eventBus.emit('operation:delete:parameter', {
-        type,
-        index: payload.index - offset,
-        meta,
-      }),
+    delete: (payload: { index: number }) => {
+      const originalParameter = context[payload.index]?.originalParameter
+      if (!originalParameter) {
+        return
+      }
+      eventBus.emit(
+        'operation:delete:parameter',
+        {
+          originalParameter,
+          meta,
+        },
+        {
+          skipUnpackProxy: true,
+        },
+      )
+    },
     deleteAll: () =>
       eventBus.emit('operation:delete-all:parameters', {
         type,
@@ -52,11 +62,12 @@ export const createParameterHandlers = (
           'operation:upsert:parameter',
           {
             type,
-            index: index - offset,
             payload: payload,
+            originalParameter: row?.originalParameter ?? null,
             meta,
           },
           {
+            skipUnpackProxy: true,
             debounceKey: `update:parameter-${type}-${index - offset}`,
           },
         )
