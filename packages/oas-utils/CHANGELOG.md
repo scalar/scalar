@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
 ## 0.6.25
 
 ### Patch Changes

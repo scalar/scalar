@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+- **@scalar/components@0.16.29**
+
 ## 0.7.18
 
 ### Patch Changes

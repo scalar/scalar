@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.26.1
+
+### Patch Changes
+
+- [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
 ## 0.26.0
 
 ### Minor Changes
