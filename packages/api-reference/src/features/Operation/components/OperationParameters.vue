@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
+  ReferenceType,
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -14,7 +16,7 @@ import RequestBody from './RequestBody.vue'
 
 const { parameters = [], requestBody } = defineProps<{
   breadcrumb?: string[]
-  parameters?: ParameterObject[]
+  parameters?: ReferenceType<ParameterObject>[]
   requestBody?: RequestBodyObject | undefined
   eventBus: WorkspaceEventBus | null
   options: Pick<
@@ -26,7 +28,8 @@ const { parameters = [], requestBody } = defineProps<{
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
   (parameters ?? []).reduce(
-    (acc, parameter) => {
+    (acc, p) => {
+      const parameter = getResolvedRef(p)
       // Filter out ignored parameters
       if (!shouldIgnoreEntity(parameter)) {
         acc[parameter.in].push(parameter)
