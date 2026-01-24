@@ -857,7 +857,11 @@ export const addResponseToHistory = async (
   operation['x-scalar-history'] ||= []
   // If the history is full, remove the oldest entry
   if (operation['x-scalar-history'].length >= HISTORY_LIMIT) {
-    operation['x-scalar-history'].shift()
+    // We need to unpack the history array to avoid proxy object issues
+    operation['x-scalar-history'] = unpackProxyObject(
+      operation['x-scalar-history'].filter((_, i) => i !== 0),
+      { depth: 1 },
+    )
   }
   // Add the new entry to the history
   operation['x-scalar-history'].push({
