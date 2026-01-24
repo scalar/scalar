@@ -12,7 +12,7 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {

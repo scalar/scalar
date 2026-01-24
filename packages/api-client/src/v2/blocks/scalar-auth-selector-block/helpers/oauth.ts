@@ -1,5 +1,5 @@
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
