@@ -1,3 +1,4 @@
+import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -85,7 +86,8 @@ export const buildRequest = ({
     const headers = new Headers({ ...defaultHeaders, ...params.headers, ...security.headers })
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
 
-    const body = buildRequestBody(requestBody, env, exampleKey)
+    // If the method can have a body, build the request body, otherwise set it to null
+    const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, env, exampleKey) : null
 
     if (body && (body instanceof FormData || body instanceof URLSearchParams)) {
       // Delete the Content-Type header so the browser will set it automatically based on the request body
