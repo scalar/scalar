@@ -1,26 +1,22 @@
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  OperationObject,
-  ParameterObject,
-  PathItemObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Combine pathItem and operation parameters into a single, dereferenced parameter array */
 export const combineParams = (
   pathParams: PathItemObject['parameters'] = [],
   operationParams: OperationObject['parameters'] = [],
-): ParameterObject[] => {
-  const allParams = [...pathParams, ...operationParams].map((param) => getResolvedRef(param)).filter(isDefined)
+): OperationObject['parameters'] => {
+  const operationKeys = operationParams.map((unresolvedParam) => {
+    const param = getResolvedRef(unresolvedParam)
+    return `${param.in}:${param.name}`
+  })
+  const operationSet = new Set<string>(operationKeys)
 
-  // Use a Map to ensure unique in+name combinations
-  // Operation parameters take precedence over path parameters
-  const uniqueParams = new Map<string, ParameterObject>()
+  /** We must ensure we do not include any path params which exist in the operation */
+  const filteredPathParams = pathParams.filter((unresolvedParam) => {
+    const param = getResolvedRef(unresolvedParam)
+    return !operationSet.has(`${param.in}:${param.name}`)
+  })
 
-  for (const param of allParams) {
-    const key = `${param.in}:${param.name}`
-    uniqueParams.set(key, param)
-  }
-
-  return Array.from(uniqueParams.values())
+  return [...filteredPathParams, ...operationParams]
 }

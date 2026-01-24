@@ -35,7 +35,6 @@ export const createParameterHandlers = (
         },
         {
           skipUnpackProxy: true,
-          debounceKey: `delete:parameter-${type}-${payload.index - offset}`,
         },
       )
     },
