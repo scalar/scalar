@@ -639,17 +639,18 @@ export const deleteOperationParameter = (
       operation.parameters?.filter((_, i) => i !== operationIndex),
       { depth: 1 },
     )
+    return
+  }
 
-    // If it wasn't on the operation it might be on the path
-    const path = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
-    const pathIndex = path?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
+  // If it wasn't on the operation it might be on the path
+  const path = getResolvedRef(document?.paths?.[meta.path])
+  const pathIndex = path?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
 
-    if (path && pathIndex >= 0) {
-      path.parameters = unpackProxyObject(
-        path.parameters?.filter((_, i) => i !== pathIndex),
-        { depth: 1 },
-      )
-    }
+  if (path && pathIndex >= 0) {
+    path.parameters = unpackProxyObject(
+      path.parameters?.filter((_, i) => i !== pathIndex),
+      { depth: 1 },
+    )
   }
 }
 

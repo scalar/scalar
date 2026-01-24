@@ -188,8 +188,8 @@ export type OperationEvents = {
    */
   'operation:delete:parameter': {
     /**
-     * We don't need the whole parameter object, we just need the name and the "in" as they should be unique,
-     * but we have it for update already so we can just pass it here
+     * We pass the parameter back instead of the index due to all of these transforms
+     * we do along the way (merging with global parameters, etc). This is much safer for deleting
      */
     originalParameter: ParameterObject
     meta: OperationExampleMeta
