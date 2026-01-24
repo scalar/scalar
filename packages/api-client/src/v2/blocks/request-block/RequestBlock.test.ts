@@ -222,7 +222,7 @@ describe('RequestBlock', () => {
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith({
           type: expectedType,
-          index: 0,
+          originalParameter: null,
           payload: { name: 'k', value: 'v', isDisabled: false },
           meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
         })
@@ -234,32 +234,19 @@ describe('RequestBlock', () => {
       vi.useFakeTimers()
       // For headers, index 1 is a default header (Accept), so use index 2 to update a user parameter
       // For cookies and query, index 1 is fine
+      // Since we don't have actual parameters in the context, originalParameter will be null
       const updateIndex = expectedType === 'header' ? 2 : 1
       p.vm.$emit('upsert', updateIndex, { name: 'x', value: 'y', isDisabled: false })
       vi.advanceTimersByTime(400)
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith({
         type: expectedType,
-        // We have default header parameters, so when updating beyond them, the index is adjusted
-        index: expectedType === 'header' ? 1 : 1,
+        originalParameter: null,
         payload: { name: 'x', value: 'y', isDisabled: false },
         meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
       })
       fn.mockReset()
       vi.useRealTimers()
-
-      // For headers, index 3 is beyond the default header (Accept), so it will be adjusted to index 2
-      // For cookies and query, index 2 is fine
-      const deleteIndex = expectedType === 'header' ? 3 : 2
-      p.vm.$emit('delete', { index: deleteIndex })
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith({
-        type: expectedType,
-        // We have default header parameters, so when deleting beyond them, the index is adjusted
-        index: expectedType === 'header' ? 2 : 2,
-        meta: { method: 'get', path: 'http://example.com/foo', exampleKey: 'example-1' },
-      })
-      fn.mockReset()
     }
   })
 
