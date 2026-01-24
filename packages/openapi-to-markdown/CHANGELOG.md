@@ -1,5 +1,25 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+- **@scalar/types@0.5.10**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.3.29
 
 ### Patch Changes

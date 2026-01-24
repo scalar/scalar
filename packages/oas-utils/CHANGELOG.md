@@ -1,5 +1,25 @@
 # @scalar/oas-utils
 
+## 0.6.27
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/object-utils@1.2.23**
+
+- **@scalar/types@0.5.10**
+
 ## 0.6.26
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/api-reference-react
 
+## 0.8.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.15**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/types@0.5.10**
+
 ## 0.8.33
 
 ### Patch Changes
