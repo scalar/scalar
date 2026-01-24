@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.5.9
+
+### Patch Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
 ## 0.5.8
 
 ### Patch Changes

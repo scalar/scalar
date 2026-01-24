@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.3.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
 ## 0.3.32
 
 ### Patch Changes

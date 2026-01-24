@@ -1,5 +1,16 @@
 # @scalar/nextjs-openapi
 
+## 0.2.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/nextjs-api-reference@0.9.13**
+
 ## 0.2.38
 
 ### Patch Changes

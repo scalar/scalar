@@ -1,5 +1,25 @@
 # @scalar/workspace-store
 
+## 0.26.0
+
+### Minor Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+
+### Patch Changes
+
+- [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.7**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.25.3
 
 ### Patch Changes
