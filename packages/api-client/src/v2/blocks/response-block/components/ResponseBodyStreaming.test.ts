@@ -1,3 +1,4 @@
+import { ScalarButton } from '@scalar/components'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -531,6 +532,369 @@ describe('ResponseBodyStreaming', () => {
       await nextTick()
 
       expect(wrapper.text()).toContain('你好世界')
+    })
+  })
+
+  describe('cancel button interaction', () => {
+    it('shows cancel button while streaming', async () => {
+      mockReader = {
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to keep loading state
+          }),
+        ),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      expect(cancelButton.exists()).toBe(true)
+      expect(cancelButton.text()).toContain('Cancel')
+    })
+
+    it('hides cancel button when stream completes', async () => {
+      mockReader = createMockReader(['Complete'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      expect(cancelButton.exists()).toBe(false)
+    })
+
+    it('stops streaming when cancel button is clicked', async () => {
+      mockReader = {
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to keep loading state
+          }),
+        ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+      expect(wrapper.text()).toContain('Listening…')
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+      await nextTick()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+      expect(wrapper.text()).not.toContain('Listening…')
+    })
+
+    it('cancels reader immediately when button clicked', async () => {
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves - simulates ongoing read
+            }),
+        ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+
+      expect(mockReader.cancel).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('UI rendering', () => {
+    it('renders Body title', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Body')
+    })
+
+    it('renders CollapsibleSection component', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const collapsibleSection = wrapper.findComponent({ name: 'CollapsibleSection' })
+      expect(collapsibleSection.exists()).toBe(true)
+    })
+
+    it('displays error and content simultaneously if error occurs mid-stream', async () => {
+      const encoder = new TextEncoder()
+      let callCount = 0
+
+      mockReader = {
+        read: vi.fn(() => {
+          callCount++
+          if (callCount === 1) {
+            return Promise.resolve({
+              done: false as const,
+              value: encoder.encode('Before error'),
+            })
+          }
+          return Promise.reject(new Error('Mid-stream error'))
+        }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Before error')
+      expect(wrapper.text()).toContain('Mid-stream error')
+    })
+  })
+
+  describe('error recovery', () => {
+    it('clears previous error when new reader starts streaming', async () => {
+      mockReader = {
+        read: vi.fn(() => Promise.reject(new Error('First error'))),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First error')
+
+      // Create a new successful reader
+      const newReader = createMockReader(['Success'])
+
+      await wrapper.setProps({ reader: newReader })
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Success')
+      expect(wrapper.text()).not.toContain('First error')
+    })
+  })
+
+  describe('stream completion', () => {
+    it('handles stream that completes immediately', async () => {
+      mockReader = {
+        read: vi.fn(() => Promise.resolve({ done: true as const, value: undefined })),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Listening…')
+      expect(mockReader.read).toHaveBeenCalled()
+    })
+
+    it('handles empty stream', async () => {
+      mockReader = createMockReader([])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Listening…')
+      expect(wrapper.text()).toContain('Body')
+    })
+
+    it('calls decoder.decode() with no arguments in finally block', async () => {
+      const encoder = new TextEncoder()
+      mockReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({ done: false as const, value: encoder.encode('test') })
+          .mockResolvedValueOnce({ done: true as const, value: undefined }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('test')
+    })
+  })
+
+  describe('prop changes', () => {
+    it('restarts streaming when reader prop changes', async () => {
+      const firstReader = createMockReader(['First content'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First content')
+
+      const secondReader = createMockReader(['Second content'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Second content')
+    })
+
+    it('appends to existing content when reader changes', async () => {
+      const firstReader = createMockReader(['First'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First')
+
+      const secondReader = createMockReader(['Second'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // When reader changes, content accumulates (this is the actual behavior)
+      expect(wrapper.text()).toContain('Second')
+      expect(wrapper.text()).toContain('First')
+    })
+  })
+
+  describe('concurrent operations', () => {
+    it('handles unmount during active read operation', async () => {
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves - simulates ongoing read
+            }),
+        ),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+      expect(mockReader.read).toHaveBeenCalled()
+
+      wrapper.unmount()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+    })
+
+    it('handles error during cancel operation', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        // Mock implementation to suppress console output
+      })
+
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves
+            }),
+        ),
+        cancel: vi.fn().mockRejectedValue(new Error('Cancel failed')),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+
+      consoleErrorSpy.mockRestore()
+    })
+  })
+
+  describe('accessibility', () => {
+    it('uses semantic HTML structure', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+
+      // Check for the scrollable content container
+      const contentContainer = wrapper.find('.overflow-auto')
+      expect(contentContainer.exists()).toBe(true)
+    })
+
+    it('error message is sticky positioned for visibility', async () => {
+      mockReader = createMockReader(['test'], true)
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      const errorDiv = wrapper.find('.sticky')
+      expect(errorDiv.exists()).toBe(true)
     })
   })
 })

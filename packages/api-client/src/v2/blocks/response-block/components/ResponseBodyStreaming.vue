@@ -38,7 +38,6 @@ watch(textContent, async () => {
  * Reads the stream and appends the content
  */
 async function readStream() {
-  console.log('readStream', loader.isLoading)
   try {
     while (loader.isLoading) {
       const { done, value } = await reader.read()
