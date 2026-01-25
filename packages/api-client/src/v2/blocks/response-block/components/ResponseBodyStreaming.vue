@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import { ScalarLoading, useLoadingState } from '@scalar/components'
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  ScalarButton,
+  ScalarLoading,
+  useLoadingState,
+} from '@scalar/components'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
 
@@ -25,15 +29,16 @@ const scrollToBottom = () => {
 }
 
 // Watch for changes in textContent and scroll to bottom
-watch(textContent, () => {
+watch(textContent, async () => {
   // Use nextTick to ensure the DOM has updated
-  nextTick(scrollToBottom)
+  await nextTick(scrollToBottom)
 })
 
 /**
  * Reads the stream and appends the content
  */
 async function readStream() {
+  console.log('readStream', loader.isLoading)
   try {
     while (loader.isLoading) {
       const { done, value } = await reader.read()
@@ -58,16 +63,21 @@ async function readStream() {
   }
 }
 
-onMounted(() => {
+const startStreaming = () => {
   loader.start()
-  readStream()
+  void readStream()
   errorRef.value = null
-})
+}
 
-onBeforeUnmount(() => {
+const stopStreaming = () => {
   reader.cancel()
   void loader.clear()
-})
+}
+
+// Start streaming when the reader changes
+watch(() => reader, startStreaming, { immediate: true })
+
+onBeforeUnmount(stopStreaming)
 </script>
 
 <template>
@@ -84,6 +94,16 @@ onBeforeUnmount(() => {
           <span class="text-c-2"> Listening… </span>
         </div>
       </div>
+    </template>
+    <template
+      v-if="loader.isLoading"
+      #actions>
+      <ScalarButton
+        size="sm"
+        variant="ghost"
+        @click="stopStreaming">
+        Cancel
+      </ScalarButton>
     </template>
 
     <div

@@ -191,6 +191,11 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = result.controller
 
+  // Stop any previous streaming response
+  if (response.value && 'reader' in response.value) {
+    response.value.reader.cancel()
+  }
+
   // Execute the hooks
   eventBus.emit('hooks:on:request:sent', {
     meta: {
