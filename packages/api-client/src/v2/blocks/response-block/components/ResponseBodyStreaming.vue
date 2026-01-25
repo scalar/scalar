@@ -65,6 +65,7 @@ async function readStream() {
 const startStreaming = () => {
   loader.start()
   void readStream()
+  textContent.value = ''
   errorRef.value = null
 }
 

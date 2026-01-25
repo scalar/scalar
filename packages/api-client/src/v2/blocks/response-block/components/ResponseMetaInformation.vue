@@ -36,6 +36,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off('hooks:on:request:sent', startStopwatch)
   eventBus.off('hooks:on:request:complete', stopStopwatch)
+  stopStopwatch()
 })
 
 /** Status text for the response */

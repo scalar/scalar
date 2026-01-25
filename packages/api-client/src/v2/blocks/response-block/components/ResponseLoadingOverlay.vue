@@ -33,6 +33,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off('hooks:on:request:sent', startLoading)
   eventBus.off('hooks:on:request:complete', stopLoading)
+  stopLoading()
 })
 </script>
 <template>
