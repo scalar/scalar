@@ -66,19 +66,13 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^2.6.4",
-    "@nuxt/eslint-config": "^1.12.1",
     "@nuxt/module-builder": "^1.0.1",
-    "@nuxt/schema": "^4.0.0",
-    "@nuxt/test-utils": "^3.23.0",
     "@types/node": "catalog:*",
     "cross-env": "^7.0.3",
     "nuxt": "^4.1.0",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

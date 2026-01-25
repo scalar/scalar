@@ -11,8 +11,6 @@
     "integrations/hono/**",
     "integrations/nestjs/**",
     "integrations/nextjs/**",
-    "integrations/nuxt/**",
-    "integrations/rust/**",
     "integrations/sveltekit/**"
   ],
   "ignoreFiles": [
@@ -325,6 +323,20 @@
         "@scalar/snippetz"
       ],
       "ignoreBinaries": ["mvn"]
+    },
+    "integrations/nuxt": {
+      "entry": [
+        "src/module.ts",
+        "src/runtime/components/ScalarApiReference.vue",
+        "src/runtime/pages/ScalarPage.vue",
+
+        "playground/nuxt.config.ts",
+        "playground/layouts/default.vue",
+        "playground/pages/index.vue"
+      ],
+      "ignoreDependencies": [
+        "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
     }
   }
 }
