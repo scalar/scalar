@@ -4,7 +4,7 @@ import {
   ScalarLoading,
   useLoadingState,
 } from '@scalar/components'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events';
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const { eventBus } = defineProps<{
