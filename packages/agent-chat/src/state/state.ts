@@ -31,7 +31,7 @@ import type {
   GetOpenAPISpecsSummaryToolOutput,
 } from '@/entities/tools/get-openapi-spec-summary'
 import { createDocumentSettings } from '@/helpers'
-import { useTermsAndConditions } from '@/hooks/useTermAndConditions'
+import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
 import type { ChatMode } from '@/types'

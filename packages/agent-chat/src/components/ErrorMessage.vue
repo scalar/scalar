@@ -2,7 +2,7 @@
 import { ScalarIconXCircle } from '@scalar/icons'
 
 import { AgentErrorCodes } from '@/helpers'
-import { type ChatError } from '@/hooks/useChatError'
+import { type ChatError } from '@/hooks/use-chat-error'
 
 const { error } = defineProps<{ error: ChatError }>()
 

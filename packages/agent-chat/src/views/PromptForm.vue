@@ -16,10 +16,10 @@ import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
 import { AgentErrorCodes } from '@/helpers'
+import { useChatApprovals } from '@/hooks/use-chat-approvals'
+import { useChatError } from '@/hooks/use-chat-error'
+import { useChatPendingClientToolParts } from '@/hooks/use-chat-pending-client-tool-parts'
 import { useUploadTmpDocument } from '@/hooks/use-upload-tmp-document'
-import { useChatApprovals } from '@/hooks/useChatApprovals'
-import { useChatError } from '@/hooks/useChatError'
-import { useChatPendingClientToolParts } from '@/hooks/useChatPendingClientToolParts'
 import { useState } from '@/state/state'
 
 const emit = defineEmits<{

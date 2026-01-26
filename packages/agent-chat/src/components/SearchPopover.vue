@@ -3,7 +3,7 @@ import { ScalarPopover, ScalarTextInput } from '@scalar/components'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed } from 'vue'
 
-import { useSearch } from '@/hooks/useSearch'
+import { useSearch } from '@/hooks/use-search'
 import { useState } from '@/state/state'
 
 const state = useState()
@@ -45,8 +45,8 @@ const searchOptions = computed(() =>
         </template>
       </ScalarTextInput>
 
-      <template v-if="searchOptions.length"
-        ><button
+      <template v-if="searchOptions.length">
+        <button
           v-for="option in searchOptions"
           :key="option.id"
           class="searchItem"

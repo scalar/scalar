@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 
-import { useChatScroll } from '@/hooks/useChatScroll'
+import { useChatScroll } from '@/hooks/use-chat-scroll'
 import { useState } from '@/state/state'
 import Layout from '@/views/Layout.vue'
 import Settings from '@/views/Settings/Settings.vue'

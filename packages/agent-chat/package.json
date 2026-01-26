@@ -29,6 +29,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./entities/*": {
+      "import": "./dist/entities/*",
+      "require": "./dist/entities/*",
+      "default": "./dist/entities/*"
+    },
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",
