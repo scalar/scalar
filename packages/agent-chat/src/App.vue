@@ -18,7 +18,7 @@ const {
 } = defineProps<{
   eventBus: WorkspaceEventBus
   workspaceStore: WorkspaceStore
-  registryDocuments: [RegistryDocument, ...RegistryDocument[]]
+  registryDocuments: RegistryDocument[]
   registryUrl: string
   baseUrl: string
   mode?: ChatMode

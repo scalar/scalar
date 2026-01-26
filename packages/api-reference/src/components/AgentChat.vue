@@ -5,7 +5,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { API_BASE_URL, REGISTRY_URL } from '@/consts/urls'
 
-defineProps<{
+const { workspaceStore } = defineProps<{
   workspaceStore: WorkspaceStore
   eventBus: WorkspaceEventBus
 }>()
@@ -17,7 +17,7 @@ defineProps<{
     :eventBus
     :getAccessToken="() => ''"
     mode="preview"
-    :registryDocuments="[{ namespace: 'test', slug: 'test' }]"
+    :registryDocuments="[]"
     :registryUrl="REGISTRY_URL"
     :workspaceStore />
 </template>
