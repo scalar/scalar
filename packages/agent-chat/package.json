@@ -1,0 +1,74 @@
+{
+  "name": "@scalar/agent-chat",
+  "description": "Agent chat components",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/agent-chat"
+  },
+  "version": "0.2.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-vite && cp package.json dist",
+    "build:watch": "vite build --watch",
+    "playground": "cd playground && vite",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@ai-sdk/vue": "catalog:*",
+    "@modelcontextprotocol/sdk": "catalog:*",
+    "@scalar/api-client": "workspace:*",
+    "@scalar/api-reference": "workspace:*",
+    "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/icons": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
+    "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "@vueuse/core": "catalog:*",
+    "ai": "catalog:*",
+    "neverpanic": "catalog:*",
+    "vue": "catalog:*",
+    "whatwg-mimetype": "catalog:*",
+    "zod": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@types/whatwg-mimetype": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*"
+  }
+}

@@ -357,7 +357,7 @@
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "whatwg-mimetype": "^4.0.0",
+    "whatwg-mimetype": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
@@ -366,7 +366,7 @@
     "@scalar/galaxy": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
-    "@types/whatwg-mimetype": "^3.0.2",
+    "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",

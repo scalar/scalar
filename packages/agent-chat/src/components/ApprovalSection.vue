@@ -1,0 +1,97 @@
+<script setup lang="ts">
+import { ScalarButton } from '@scalar/components'
+import { ScalarIconInfo } from '@scalar/icons'
+
+const emit = defineEmits<{
+  (e: 'approve'): void
+  (e: 'reject'): void
+}>()
+</script>
+
+<template>
+  <div class="approvalSection">
+    <strong class="approvalText flex items-center gap-1.5">
+      <ScalarIconInfo
+        class="text-blue size-4"
+        weight="bold" />
+      One or more requests require approval.
+    </strong>
+    <div class="approveContainer">
+      <ScalarButton
+        class="actionButton rejectButton"
+        @click="emit('reject')">
+        Reject</ScalarButton
+      >
+      <ScalarButton
+        class="actionButton approveButton"
+        @click="emit('approve')">
+        Approve</ScalarButton
+      >
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.approvalSection {
+  width: 100%;
+  margin-bottom: -16px;
+  padding: 8px 8px 24px 12px;
+
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    var(--scalar-background-1) 95%
+  );
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.approvalText {
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-font-size-3);
+}
+
+.approveContainer {
+  display: flex;
+  gap: 5px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  font-weight: var(--scalar-semibold);
+  border-radius: 50px;
+  padding: 6px 12px;
+}
+
+.rejectButton {
+  color: white;
+  background: var(--scalar-color-red);
+}
+.rejectButton:hover,
+.rejectButton:active {
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-red),
+    var(--scalar-background-1) 10%
+  );
+  color: white !important;
+}
+
+.approveButton {
+  color: white;
+  background: var(--scalar-color-blue);
+}
+.approveButton:hover,
+.approveButton:active {
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    var(--scalar-background-1) 10%
+  );
+  color: white !important;
+}
+</style>

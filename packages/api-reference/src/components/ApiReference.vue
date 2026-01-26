@@ -35,6 +35,7 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
+  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -45,6 +46,8 @@ import {
   useTemplateRef,
   watch,
 } from 'vue'
+
+import '@scalar/agent-chat/style.css'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
@@ -795,6 +798,8 @@ const colorMode = computed(() => {
 
   return mode
 })
+
+const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
 </script>
 
 <template>
@@ -836,7 +841,11 @@ const colorMode = computed(() => {
         v-show="showAgent"
         class="agent-scalar">
         <div
-          class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow"></div>
+          class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
+          <AgentChat
+            :eventBus
+            :workspaceStore />
+        </div>
       </div>
       <!-- Mobile Header and Sidebar when in modern layout -->
 
@@ -1070,6 +1079,9 @@ const colorMode = computed(() => {
     min-height: 100dvh;
     --refs-sidebar-width: 0;
   }
+}
+.t-doc__sidebar {
+  z-index: 10;
 }
 
 /* ----------------------------------------------------- */
