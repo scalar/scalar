@@ -15,7 +15,9 @@ export type CodeInputModelValue =
  * - Editor mode: CodeMirror with environment variable support
  *
  * Type `{{` to trigger environment variable autocomplete when an environment is provided.
- *d
+ * It takes in any data but always will emit a string value,
+ * this string should then be parsed in accordance to the schema or content type.
+ *
  * @example
  * ```vue
  * <!-- Basic input with environment variables -->
@@ -33,7 +35,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="T extends CodeInputModelValue">
+<script setup lang="ts">
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
   colorPicker as colorPickerExtension,
@@ -52,14 +54,8 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 import { backspaceCommand, pillPlugin } from './code-variable-widget'
 
-/**
- * CodeInput is a flexible input component that can render as:
- * - A disabled text display
- * - A select dropdown (for enums, booleans, or examples)
- * - A CodeMirror editor with environment variable support
- */
 type Props = {
-  modelValue: T
+  modelValue: CodeInputModelValue
   /** Environment for variable substitution. Pass undefined to disable environment variables */
   environment: XScalarEnvironment | undefined
   /** Type of the input value, affects rendering mode for booleans */
@@ -109,7 +105,7 @@ type Props = {
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
-  handleFieldChange?: (value: T) => void
+  handleFieldChange?: (value: string) => void
   /** Custom submit handler, prevents default emit */
   handleFieldSubmit?: (value: string) => void
   /** Put a linethrough on the input text */
@@ -147,7 +143,7 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: T]
+  'update:modelValue': [value: string]
   'submit': [value: string]
   'blur': [value: string]
   'curl': [value: string]
@@ -177,9 +173,9 @@ const isBooleanMode = computed((): boolean => {
 /**
  * Options for boolean select mode.
  */
-const booleanOptions = computed((): string[] => {
-  return nullable ? ['true', 'false', 'null'] : ['true', 'false']
-})
+const booleanOptions = computed((): string[] =>
+  nullable ? ['true', 'false', 'null'] : ['true', 'false'],
+)
 
 /**
  * Default type when dealing with type arrays.
@@ -200,16 +196,12 @@ const defaultType = computed((): string | undefined => {
  * Detects curl commands and manages update flow.
  */
 const handleChange = (value: string): void => {
-  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
+  if (!alwaysEmitChange && value === modelValue) {
     return
   }
 
   // Detect curl command import
-  if (
-    typeof value === 'string' &&
-    importCurl &&
-    value.trim().toLowerCase().startsWith('curl')
-  ) {
+  if (importCurl && value.trim().toLowerCase().startsWith('curl')) {
     emit('curl', value)
 
     // Revert to previous value
@@ -225,13 +217,11 @@ const handleChange = (value: string): void => {
     return
   }
 
-  const deserializedValue = deserializeValue(value)
-
   // Use custom handler or emit update
   if (handleFieldChange) {
-    handleFieldChange(deserializedValue)
+    handleFieldChange(value)
   } else {
-    emit('update:modelValue', deserializedValue)
+    emit('update:modelValue', value)
   }
 }
 
@@ -262,9 +252,8 @@ const handleBlur = (value: string): void => {
 /**
  * Handles model value updates from select components.
  */
-const handleSelectChange = (value: string): void => {
-  emit('update:modelValue', value as T)
-}
+const handleSelectChange = (value: string): void =>
+  emit('update:modelValue', value)
 
 // ---------------------------------------------------------------------------
 // CodeMirror setup
@@ -304,48 +293,12 @@ const codeMirrorExtensions = computed((): Extension[] => [
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
-/**
- * Converts the model value to a string for CodeMirror.
- * Arrays and objects are serialized to JSON format.
- */
-const serializeValue = (value: T): string => {
-  if (typeof value === 'object') {
-    return JSON.stringify(value)
+/** Converts the model value to a string for CodeMirror */
+const serializeValue = (value: CodeInputModelValue): string => {
+  if (typeof value === 'string') {
+    return value
   }
-  return String(value ?? '')
-}
-
-/**
- * Parses the CodeMirror string value back to the appropriate type.
- * Preserves the original type of modelValue:
- * - Arrays and objects: Parse JSON
- * - Numbers: Parse as number if valid
- * - Booleans: Parse as boolean if "true" or "false"
- * - Strings: Keep as string (even if they look like numbers/booleans)
- */
-const deserializeValue = (value: string): T => {
-  const trimmed = value.trim()
-
-  const isJsonLike = trimmed.startsWith('[') || trimmed.startsWith('{')
-  const originalType = typeof modelValue
-  const isOriginalArray = Array.isArray(modelValue)
-
-  // Handle comma-separated strings for arrays (from DataTableInputSelect)
-  if (isOriginalArray && !isJsonLike && trimmed.includes(',')) {
-    return trimmed.split(',').map((item) => item.trim()) as T
-  }
-
-  // We only parse JSON if the value looks like a JSON array or object, OR used to be a number or boolean
-  if (isJsonLike || originalType === 'number' || originalType === 'boolean') {
-    try {
-      return JSON.parse(value) as T
-    } catch {
-      // If JSON parsing fails, fall through to type-specific parsing
-    }
-  }
-
-  // For strings and all other cases, preserve as string
-  return value as T
+  return JSON.stringify(value)
 }
 
 const { codeMirror } = useCodeMirror({
@@ -478,7 +431,6 @@ defineExpose({
   modelValue,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
   serializeValue,
-  deserializeValue,
 })
 </script>
 
