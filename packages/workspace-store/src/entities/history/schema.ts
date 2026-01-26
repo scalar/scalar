@@ -157,7 +157,7 @@ type Response = {
   bodySize: number
 }
 
-const EntrySchema = Type.Object({
+const HistoryEntrySchema = Type.Object({
   /**
    * Total elapsed time of the request in milliseconds.
    *
@@ -188,7 +188,7 @@ const EntrySchema = Type.Object({
   }),
 })
 
-type Entry = {
+export type HistoryEntry = {
   /**
    * Total elapsed time of the request in milliseconds.
    *
@@ -215,10 +215,42 @@ type Entry = {
   }
 }
 
-export const XScalarHistorySchema = Type.Object({
-  'x-scalar-history': Type.Optional(Type.Array(EntrySchema)),
-})
+/**
+ * Schema for the path method history.
+ *
+ * {
+ *   "path": {
+ *     "method": [Entry]
+ *   }
+ * }
+ */
+export const PathMethodHistorySchema = Type.Record(
+  Type.String(),
+  Type.Record(Type.String(), Type.Array(HistoryEntrySchema)),
+)
 
-export type XScalarHistory = {
-  'x-scalar-history'?: Entry[]
-}
+/**
+ * Type for the path method history.
+ *
+ * {
+ *   "path": {
+ *     "method": [Entry]
+ *   }
+ * }
+ */
+export type PathMethodHistory = Record<string, Record<string, HistoryEntry[]>>
+
+export const HistoryDocumentSchema = Type.Record(Type.String(), PathMethodHistorySchema)
+
+/**
+ * Type for the document history.
+ *
+ * {
+ *   "documentName": {
+ *     "path": {
+ *       "method": [Entry]
+ *     }
+ *   }
+ * }
+ */
+export type DocumentHistory = Record<string, PathMethodHistory>

@@ -12,6 +12,7 @@ import type { PartialDeep } from 'type-fest'
 import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
+import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
@@ -152,6 +153,10 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /**
+   * The history store for the workspace
+   */
+  readonly history: HistoryStore
   /**
    * Returns the reactive workspace object with an additional activeDocument getter
    */
@@ -660,6 +665,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   )
 
   /**
+   * This store is used to track the history of requests and responses for documents and operations.
+   */
+  const history = createHistoryStore({
+    hooks: {
+      onHistoryChange: (documentName) => {
+        console.log('onHistoryChange', documentName)
+        fireWorkspaceChange({
+          type: 'history',
+          documentName,
+          value: history.export()[documentName] ?? {},
+        } satisfies WorkspaceStateChangeEvent)
+      },
+    },
+  })
+
+  /**
    * Returns the name of the currently active document in the workspace.
    * The active document is determined by the 'x-scalar-active-document' metadata field,
    * falling back to the first document in the workspace if no active document is specified.
@@ -922,6 +943,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get workspace() {
       return workspace
     },
+    get history() {
+      return history
+    },
     update(key, value) {
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
@@ -1004,6 +1028,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete intermediateDocuments[documentName]
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
+      history.clearDocumentHistory(documentName)
 
       // Get remaining documents before deletion to properly set the active document
       const remainingDocuments = Object.keys(workspace.documents)
@@ -1060,6 +1085,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments: unpackProxyObject(originalDocuments),
         intermediateDocuments: unpackProxyObject(intermediateDocuments),
         overrides: unpackProxyObject(overrides),
+        history: history.export(),
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
@@ -1079,6 +1105,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(intermediateDocuments, input.intermediateDocuments)
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
+      history.load(input.history)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification

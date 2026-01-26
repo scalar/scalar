@@ -25,6 +25,7 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -80,6 +81,7 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  history = [],
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
@@ -129,6 +131,8 @@ const {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** The history for the operation */
+  history?: HistoryEntry[]
 }>()
 
 const emit = defineEmits<{
@@ -247,7 +251,7 @@ onBeforeUnmount(() => {
 })
 
 const operationHistory = computed<History[]>(() =>
-  (operation['x-scalar-history'] ?? [])
+  history
     .map((entry) => ({
       method: entry.request.method as HttpMethodType,
       path: entry.request.url,
@@ -258,9 +262,8 @@ const operationHistory = computed<History[]>(() =>
 )
 
 const handleSelectHistoryItem = ({ index }: { index: number }) => {
-  const transformedIndex =
-    (operation['x-scalar-history']?.length ?? 0) - index - 1
-  const historyItem = operation['x-scalar-history']?.[transformedIndex]
+  const transformedIndex = (history.length ?? 0) - index - 1
+  const historyItem = history[transformedIndex]
   if (!historyItem) {
     return
   }
@@ -268,11 +271,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   const navigate = () =>
     eventBus.emit('ui:route:example', {
       exampleName: 'draft',
-      callback: async (status) => {
-        if (status === 'error') {
-          return
-        }
-
+      callback: async () => {
         // Reconstruct the response
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,

@@ -26,6 +26,7 @@ import { getServers } from '@/v2/helpers/get-servers'
 
 const {
   document,
+  documentSlug,
   layout,
   eventBus,
   path,
@@ -156,7 +157,7 @@ const APP_VERSION = PACKAGE_VERSION
       :exampleKey="exampleName"
       :globalCookies
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
-      :history="[]"
+      :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
       :layout
       :method

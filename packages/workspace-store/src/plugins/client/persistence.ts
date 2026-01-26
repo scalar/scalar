@@ -65,6 +65,13 @@ export const persistencePlugin = async ({
           )
         }
 
+        // Debounce per document history and workspace
+        if (event.type === 'history') {
+          return execute(`history-${workspaceId}-${event.documentName}`, () =>
+            persistence.history.setItem(workspaceId, event.documentName, event.value),
+          )
+        }
+
         // Delete document
         if (event.type === 'deleteDocument') {
           return execute(`deleteDocument-${workspaceId}-${event.documentName}`, () =>

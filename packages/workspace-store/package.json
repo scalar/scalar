@@ -38,6 +38,11 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./entities/history/*": {
+      "import": "./dist/entities/history/*.js",
+      "types": "./dist/entities/history/*.d.ts",
+      "default": "./dist/entities/history/*.js"
+    },
     "./events": {
       "import": "./dist/events/index.js",
       "types": "./dist/events/index.d.ts",
