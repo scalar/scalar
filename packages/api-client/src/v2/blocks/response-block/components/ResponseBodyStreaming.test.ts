@@ -808,6 +808,57 @@ describe('ResponseBodyStreaming', () => {
       expect(wrapper.text()).not.toContain('First')
       expect(wrapper.text()).toContain('Second')
     })
+
+    it('prevents race condition when old reader completes after new reader starts', async () => {
+      const encoder = new TextEncoder()
+
+      // Create a slow reader that will complete after being replaced
+      let firstReaderCallCount = 0
+      const firstReader = {
+        read: vi.fn(() => {
+          firstReaderCallCount++
+          if (firstReaderCallCount === 1) {
+            return Promise.resolve({
+              done: false as const,
+              value: encoder.encode('Old chunk 1'),
+            })
+          }
+          // Return done after a delay to simulate slow completion
+          return new Promise<ReadableStreamReadResult<Uint8Array>>((resolve) => {
+            setTimeout(() => resolve({ done: true as const, value: undefined }), 50)
+          })
+        }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Old chunk 1')
+
+      // Create a new reader with multiple chunks while the old reader is still "active"
+      const secondReader = createMockReader(['New chunk 1', 'New chunk 2', 'New chunk 3'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // Verify the old reader was cancelled
+      expect(firstReader.cancel).toHaveBeenCalled()
+
+      // Verify all chunks from the new reader are displayed
+      expect(wrapper.text()).toContain('New chunk 1')
+      expect(wrapper.text()).toContain('New chunk 2')
+      expect(wrapper.text()).toContain('New chunk 3')
+
+      // Verify old reader content is gone
+      expect(wrapper.text()).not.toContain('Old chunk 1')
+    })
   })
 
   describe('concurrent operations', () => {

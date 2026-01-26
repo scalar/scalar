@@ -19,6 +19,9 @@ const errorRef = ref<Error | null>(null)
 const decoder = new TextDecoder()
 const contentContainer = ref<HTMLElement | null>(null)
 
+/** Track the current reader to prevent race conditions when reader changes */
+const currentReader = ref<ReadableStreamDefaultReader<Uint8Array> | null>(null)
+
 /**
  * Scrolls the content container to the bottom
  */
@@ -37,10 +40,17 @@ watch(textContent, async () => {
 /**
  * Reads the stream and appends the content
  */
-async function readStream() {
+async function readStream(
+  streamReader: ReadableStreamDefaultReader<Uint8Array>,
+) {
   try {
-    while (loader.isLoading) {
-      const { done, value } = await reader.read()
+    while (loader.isLoading && currentReader.value === streamReader) {
+      const { done, value } = await streamReader.read()
+
+      // Stop if this reader is no longer the current one
+      if (currentReader.value !== streamReader) {
+        break
+      }
 
       if (done) {
         void loader.clear()
@@ -53,24 +63,42 @@ async function readStream() {
       }
     }
   } catch (error) {
-    console.error('Error reading stream:', error)
-    void loader.clear()
-    errorRef.value = error as Error
+    // Only handle the error if this is still the current reader
+    if (currentReader.value === streamReader) {
+      console.error('Error reading stream:', error)
+      void loader.clear()
+      errorRef.value = error as Error
+    }
   } finally {
-    // Make sure to decode any remaining bytes
-    textContent.value += decoder.decode()
+    // Only finalize decoding if this is still the current reader
+    if (currentReader.value === streamReader) {
+      // Make sure to decode any remaining bytes
+      textContent.value += decoder.decode()
+    }
   }
 }
 
 const startStreaming = () => {
+  // Cancel the old reader if it exists
+  if (currentReader.value) {
+    currentReader.value.cancel()
+  }
+
+  // Set the new reader as current
+  currentReader.value = reader
+
+  // Reset state and start new stream
   loader.start()
-  void readStream()
   textContent.value = ''
   errorRef.value = null
+  void readStream(reader)
 }
 
 const stopStreaming = () => {
-  reader.cancel()
+  if (currentReader.value) {
+    currentReader.value.cancel()
+    currentReader.value = null
+  }
   void loader.clear()
 }
 
