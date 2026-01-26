@@ -448,19 +448,3 @@ export function safeParseJson(value: string) {
     return
   }
 }
-
-export type AgentChatError<T extends string = string, D = unknown> = {
-  code: T
-  detail: D
-}
-
-export const AgentErrorCodes = {
-  LIMIT_REACHED: 'LIMIT_REACHED',
-} as const
-
-export function createError<const T extends string, D>(code: T, detail: D): AgentChatError<T, D> {
-  return {
-    code,
-    detail,
-  }
-}

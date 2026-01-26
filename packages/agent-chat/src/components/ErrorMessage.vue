@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIconXCircle } from '@scalar/icons'
 
-import { AgentErrorCodes } from '@/helpers'
+import { AgentErrorCodes } from '@/entities/error/constants'
 import { type ChatError } from '@/hooks/use-chat-error'
 
 const { error } = defineProps<{ error: ChatError }>()

@@ -1,8 +1,8 @@
 import { n } from 'neverpanic'
 import z from 'zod'
 
+import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
-import { createError } from '@/helpers'
 
 /** Minimal set of API requests needed for agent chat */
 export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessToken: () => string }) {

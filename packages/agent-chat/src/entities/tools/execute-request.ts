@@ -1,7 +1,7 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 
-import type { AgentChatError } from '@/helpers'
+import type { AgentChatError } from '@/entities/error/constants'
 
 export const EXECUTE_REQUEST_TOOL_NAME = 'execute-request' as const
 
