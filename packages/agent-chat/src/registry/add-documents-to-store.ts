@@ -1,4 +1,3 @@
-import { mapConfiguration } from '@scalar/api-reference/helpers'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
@@ -53,11 +52,13 @@ export async function loadDocument({
 
   const documentName = createDocumentName(namespace, slug)
 
-  await workspaceStore.addDocument({
-    name: documentName,
-    document,
-    config: mapConfiguration(config),
-  })
+  await workspaceStore.addDocument(
+    {
+      name: documentName,
+      document,
+    },
+    config,
+  )
 
   workspaceStore.update('x-scalar-active-document', documentName)
 

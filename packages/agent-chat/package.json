@@ -52,7 +52,6 @@
     "@ai-sdk/vue": "catalog:*",
     "@modelcontextprotocol/sdk": "catalog:*",
     "@scalar/api-client": "workspace:*",
-    "@scalar/api-reference": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",

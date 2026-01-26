@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
+import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconArrowRight } from '@scalar/icons'
 import type { ToolUIPart } from 'ai'
@@ -61,7 +61,11 @@ const selectedServer = computed(() => {
     return
   }
 
-  return getSelectedServer(document.value)
+  const servers = getServers(document.value.servers, {
+    documentUrl: document.value['x-scalar-original-source-url'],
+  })
+
+  return getSelectedServer(document.value, servers)
 })
 
 const securitySchemes = computed(

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
-import { ServerSelector } from '@scalar/api-reference/blocks'
+import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import { type WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
+import ServerSelector from '@/components/ServerSelector.vue'
 import { useState } from '@/state/state'
 import Auth from '@/views/Settings/Auth.vue'
 
@@ -19,7 +19,13 @@ const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document),
 )
 
-const selectedServer = computed(() => getSelectedServer(document))
+const selectedServer = computed(() => {
+  const servers = getServers(document.servers, {
+    documentUrl: document['x-scalar-original-source-url'],
+  })
+
+  return getSelectedServer(document, servers)
+})
 
 const securitySchemes = computed(
   () => document.components?.securitySchemes ?? {},

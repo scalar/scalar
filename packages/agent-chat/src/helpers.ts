@@ -1,6 +1,7 @@
 import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedSecurity, getSelectedServer } from '@scalar/api-client/v2/features/operation'
+import { getServers } from '@scalar/api-client/v2/helpers'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
@@ -230,12 +231,16 @@ export function getSecurityFromDocument(document: WorkspaceDocument) {
 
   const securitySchemes = document.components?.securitySchemes
 
-  if (!securitySchemes) return []
+  if (!securitySchemes) {
+    return []
+  }
 
   return schemeKeys.reduce<SecuritySchemeObject[]>((acc, cur) => {
     const security = securitySchemes[cur]
 
-    if (security) acc.push(getResolvedRef(security))
+    if (security) {
+      acc.push(getResolvedRef(security))
+    }
 
     return acc
   }, [])
@@ -244,13 +249,19 @@ export function getSecurityFromDocument(document: WorkspaceDocument) {
 /** Generate document settings from workspace store */
 export function createDocumentSettings(workspaceStore: WorkspaceStore) {
   return Object.fromEntries(
-    Object.entries(workspaceStore.workspace.documents).map(([key, document]) => [
-      key,
-      {
-        activeServer: getSelectedServer(document),
-        securitySchemes: getSecurityFromDocument(document),
-      },
-    ]),
+    Object.entries(workspaceStore.workspace.documents).map(([key, document]) => {
+      const servers = getServers(document.servers, {
+        documentUrl: document?.['x-scalar-original-source-url'],
+      })
+
+      return [
+        key,
+        {
+          activeServer: getSelectedServer(document, servers),
+          securitySchemes: getSecurityFromDocument(document),
+        },
+      ]
+    }),
   )
 }
 
@@ -394,7 +405,9 @@ export const restoreAuthSecretsFromStorage = ({
 
   const document = workspaceStore.workspace.documents[documentName]
 
-  if (!document) return
+  if (!document) {
+    return
+  }
 
   const authPersistence = authStorage()
 
@@ -422,7 +435,9 @@ export const restoreAuthSecretsFromStorage = ({
   for (const [key, storedScheme] of Object.entries(storedAuthSchemes)) {
     const currentScheme = getResolvedRef(securitySchemes[key])
 
-    if (isObject(currentScheme)) mergeSecrets(currentScheme, storedScheme)
+    if (isObject(currentScheme)) {
+      mergeSecrets(currentScheme, storedScheme)
+    }
   }
 }
 
