@@ -196,7 +196,7 @@ const defaultType = computed((): string | undefined => {
  * Detects curl commands and manages update flow.
  */
 const handleChange = (value: string): void => {
-  if (!alwaysEmitChange && value === modelValue) {
+  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
     return
   }
 

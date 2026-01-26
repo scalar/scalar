@@ -70,7 +70,7 @@ export const getExample = (
     if (typeof example !== 'undefined') {
       return {
         ...example,
-        value: deSerializeContentExample(example.value, contentType),
+        ...(example?.value && { value: deSerializeContentExample(example.value, contentType) }),
       }
     }
 
@@ -92,7 +92,7 @@ export const getExample = (
     if (typeof example !== 'undefined') {
       return {
         ...example,
-        value: deSerializeSchemaExample(example.value, param.schema),
+        ...(example?.value && { value: deSerializeSchemaExample(example.value, param.schema) }),
       }
     }
 
