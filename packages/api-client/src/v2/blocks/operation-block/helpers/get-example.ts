@@ -2,9 +2,9 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   ExampleObject,
   ParameterObject,
+  ParameterWithSchemaObject,
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { ParameterWithSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 
 import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 
