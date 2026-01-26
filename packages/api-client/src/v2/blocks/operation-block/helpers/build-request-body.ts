@@ -68,6 +68,11 @@ export const buildRequestBody = (
     return replaceEnvVariables(JSON.stringify(example.value), env)
   }
 
+  // Convert primitive JSON values (number, boolean) to strings for BodyInit compatibility
+  if (typeof example.value === 'number' || typeof example.value === 'boolean') {
+    return replaceEnvVariables(String(example.value), env)
+  }
+
   // Return binary or string values
   return typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
 }
