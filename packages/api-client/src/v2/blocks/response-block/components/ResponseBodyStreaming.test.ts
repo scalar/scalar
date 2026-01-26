@@ -789,7 +789,7 @@ describe('ResponseBodyStreaming', () => {
       expect(wrapper.text()).toContain('Second content')
     })
 
-    it('appends to existing content when reader changes', async () => {
+    it('rewrites content when reader changes', async () => {
       const firstReader = createMockReader(['First'])
       const wrapper = mount(ResponseBodyStreaming, {
         props: { reader: firstReader },
@@ -805,9 +805,8 @@ describe('ResponseBodyStreaming', () => {
       await flushPromises()
       await nextTick()
 
-      // When reader changes, content accumulates (this is the actual behavior)
+      expect(wrapper.text()).not.toContain('First')
       expect(wrapper.text()).toContain('Second')
-      expect(wrapper.text()).toContain('First')
     })
   })
 
