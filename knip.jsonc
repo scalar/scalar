@@ -11,6 +11,7 @@
     "integrations/hono/**",
     "integrations/nestjs/**",
     "integrations/nextjs/**",
+    "integrations/nuxt/**",
     "integrations/sveltekit/**"
   ],
   "ignoreFiles": [

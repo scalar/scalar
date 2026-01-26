@@ -1093,10 +1093,10 @@ importers:
       '@scalar/core':
         specifier: workspace:*
         version: link:../../packages/core
-    devDependencies:
       '@sveltejs/kit':
         specifier: ^2.25.0
         version: 2.25.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.25.10)(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)))(svelte@5.25.10)(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
+    devDependencies:
       '@sveltejs/package':
         specifier: ^2.0.0
         version: 2.3.10(svelte@5.25.10)(typescript@5.9.3)
