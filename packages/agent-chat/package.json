@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.2.8",
+  "version": "0.2.9",
   "engines": {
     "node": ">=20"
   },
@@ -50,7 +50,6 @@
   ],
   "dependencies": {
     "@ai-sdk/vue": "catalog:*",
-    "@modelcontextprotocol/sdk": "catalog:*",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -68,10 +67,12 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
+    "hono": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*"
   }
