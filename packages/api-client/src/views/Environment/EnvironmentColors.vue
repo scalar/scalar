@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -52,7 +52,7 @@ const handleClick = () => {
   })
 }
 
-watch(customColor, (newColor) => {
+watch(customColor, (newColor: string) => {
   if (newColor && !newColor.startsWith('#')) {
     customColor.value = `#${newColor}`
   }
@@ -81,11 +81,10 @@ const selectColor = (color: string) => {
         :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
         :style="{ backgroundColor: activeColor }"
         @click="handleSelectorClick">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="activeColor"
           class="text-c-btn"
           :class="props.selector && 'p-0.5'"
-          icon="Checkmark"
           size="xs" />
       </div>
       <div
@@ -99,11 +98,10 @@ const selectColor = (color: string) => {
           :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
           :style="{ backgroundColor: option.color }"
           @click="selectColor(option.color)">
-          <ScalarIcon
+          <ScalarIconCheck
             v-if="activeColor === option.color && !customColor"
             class="text-c-btn"
             :class="props.selector && 'p-0.5'"
-            icon="Checkmark"
             size="xs" />
         </div>
         <hr class="border-ghost h-5 w-0.5 border-l" />
@@ -112,7 +110,7 @@ const selectColor = (color: string) => {
           :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
           :style="backgroundStyle"
           @click="handleClick">
-          <ScalarIcon
+          <ScalarIconCheck
             v-if="
               !showCustomInput &&
               (activeColor === customColor ||
@@ -120,7 +118,6 @@ const selectColor = (color: string) => {
                   !colorOptions.some((option) => option.color === activeColor)))
             "
             class="text-c-btn"
-            icon="Checkmark"
             size="xs" />
         </label>
       </div>
@@ -148,9 +145,7 @@ const selectColor = (color: string) => {
         class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
         type="button"
         @click="handleClick">
-        <ScalarIcon
-          icon="Checkmark"
-          size="xs" />
+        <ScalarIconCheck size="xs" />
       </button>
     </div>
   </div>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconDownload } from '@scalar/icons'
 import { computed } from 'vue'
 
 import { getMediaTypeConfig } from '@/views/Request/consts'
@@ -22,9 +22,7 @@ const filenameExtension = computed(() => {
     :download="`${filenameExtension}`"
     :href="href"
     @click.stop>
-    <ScalarIcon
-      icon="Download"
-      size="xs" />
+    <ScalarIconDownload size="md" />
     <span>
       <span>Download</span>
       <span class="sr-only">Response Body</span>

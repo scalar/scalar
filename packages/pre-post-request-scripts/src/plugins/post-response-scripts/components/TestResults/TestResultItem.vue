@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ScalarIcon, type Icon } from '@scalar/components'
-import { computed } from 'vue'
+import {
+  ScalarIconCheck,
+  ScalarIconDotsThree,
+  ScalarIconX,
+} from '@scalar/icons'
+import { computed, type Component } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'
 
@@ -11,14 +15,17 @@ const { currentState, result } = defineProps<{
 
 const resultStatus = computed(() => {
   if (result.passed) {
-    return { icon: 'Checkmark', color: 'text-green p-0.25' }
+    return {
+      component: ScalarIconCheck as Component,
+      color: 'text-green p-0.25',
+    }
   }
 
   if (!result.passed && currentState !== 'pending') {
-    return { icon: 'Close', color: 'text-red' }
+    return { component: ScalarIconX as Component, color: 'text-red' }
   }
 
-  return { icon: 'Ellipses', color: 'text-c-1' }
+  return { component: ScalarIconDotsThree as Component, color: 'text-c-1' }
 })
 </script>
 
@@ -29,9 +36,9 @@ const resultStatus = computed(() => {
       :class="result.error && 'bg-b-danger'">
       <!-- Title -->
       <div class="flex items-center gap-3 p-2">
-        <ScalarIcon
+        <component
+          :is="resultStatus.component"
           :class="resultStatus.color"
-          :icon="resultStatus.icon as Icon"
           size="sm" />
 
         <span class="text-c-2 overflow-hidden text-ellipsis whitespace-nowrap">

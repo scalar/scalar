@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { cva, ScalarIcon, useBindCx, type Icon } from '@scalar/components'
-import { computed } from 'vue'
+import { cva, useBindCx } from '@scalar/components'
+import {
+  ScalarIconCheck,
+  ScalarIconDotsThree,
+  ScalarIconX,
+} from '@scalar/icons'
+import { computed, type Component } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'
 
@@ -17,14 +22,17 @@ const { cx } = useBindCx()
 
 const icon = computed(() => {
   if (state === 'passed') {
-    return { name: 'Checkmark', color: 'text-green p-0.25' }
+    return {
+      component: ScalarIconCheck as Component,
+      color: 'text-green p-0.25',
+    }
   }
 
   if (state === 'failed') {
-    return { name: 'Close', color: 'text-red' }
+    return { component: ScalarIconX as Component, color: 'text-red' }
   }
 
-  return { name: 'Ellipses', color: 'text-c-1' }
+  return { component: ScalarIconDotsThree as Component, color: 'text-c-1' }
 })
 
 const statusVariants = cva({
@@ -69,10 +77,10 @@ const getTestCountDisplay = computed(() => {
 
 <template>
   <div v-bind="cx(statusVariants({ status: state }))">
-    <ScalarIcon
+    <component
+      :is="icon.component"
       v-if="state"
       :class="icon.color"
-      :icon="icon.name as Icon"
       size="sm" />
     <span
       v-if="!inline"

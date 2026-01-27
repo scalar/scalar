@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, ScalarIcon } from '@scalar/components'
+import { cva } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 
 import DataTableCell from './DataTableCell.vue'
 
@@ -43,8 +44,7 @@ const variants = cva({
           !disabled &&
           'group-has-[:focus-visible]/cell:border-c-accent group-hover:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
         " />
-      <ScalarIcon
-        icon="Checkmark"
+      <ScalarIconCheck
         size="xs"
         thickness="2.5" />
     </div>

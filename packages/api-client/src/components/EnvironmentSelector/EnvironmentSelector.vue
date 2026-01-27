@@ -4,9 +4,9 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarListboxCheckbox,
 } from '@scalar/components'
+import { ScalarIconBracketsCurly } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -144,9 +144,7 @@ onMounted(() => {
         class="flex items-center gap-1.5"
         @click="redirectToEnvironments">
         <div class="flex h-4 w-4 items-center justify-center">
-          <ScalarIcon
-            icon="Brackets"
-            size="sm" />
+          <ScalarIconBracketsCurly size="sm" />
         </div>
         <span class="leading-none">Manage Environments</span>
       </ScalarDropdownItem>

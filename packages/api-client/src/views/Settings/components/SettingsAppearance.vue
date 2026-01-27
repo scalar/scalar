@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import { cva, cx, ScalarButton } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
 const { colorMode, setColorMode } = useColorMode()
@@ -24,9 +25,8 @@ const buttonStyles = cva({
         :class="{
           'bg-c-accent text-b-1 border-transparent': colorMode === 'system',
         }">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="colorMode === 'system'"
-          icon="Checkmark"
           size="xs"
           thickness="3.5" />
       </div>
@@ -40,9 +40,8 @@ const buttonStyles = cva({
         :class="{
           'bg-c-accent text-b-1 border-transparent': colorMode === 'light',
         }">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="colorMode === 'light'"
-          icon="Checkmark"
           size="xs"
           thickness="3.5" />
       </div>
@@ -56,9 +55,8 @@ const buttonStyles = cva({
         :class="{
           'bg-c-accent text-b-1 border-transparent': colorMode === 'dark',
         }">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="colorMode === 'dark'"
-          icon="Checkmark"
           size="xs"
           thickness="3.5" />
       </div>

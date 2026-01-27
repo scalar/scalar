@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import { computed } from 'vue'
@@ -63,8 +63,7 @@ const handleCopyTabUrl = (index: number): void => {
       class="text-c-3 hover:bg-b-3 app-no-drag-region rounded p-1.5"
       type="button"
       @click="handleAddTab">
-      <ScalarIcon
-        icon="Add"
+      <ScalarIconPlus
         size="sm"
         thickness="2.5" />
     </button>

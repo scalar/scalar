@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarSearchResultItem,
   ScalarSearchResultList,
   ScalarSidebarSearchInput,
 } from '@scalar/components'
+import {
+  ScalarIconCaretRight,
+  ScalarIconMagnifyingGlass,
+  ScalarIconScribbleLoop,
+} from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -304,9 +308,8 @@ function handleBlur(e: FocusEvent) {
           <span class="sr-only">
             {{ isSearchVisible ? 'Hide' : 'Show' }} search
           </span>
-          <ScalarIcon
-            class="text-c-3 hover:bg-b-2 max-h-8 max-w-8 rounded-lg p-1.75 text-sm"
-            icon="Search" />
+          <ScalarIconMagnifyingGlass
+            class="text-c-3 hover:bg-b-2 max-h-8 max-w-8 rounded-lg p-1.75 text-sm" />
         </button>
       </div>
       <div
@@ -316,14 +319,14 @@ function handleBlur(e: FocusEvent) {
         <ScalarSidebarSearchInput
           ref="searchInputRef"
           v-model="searchText"
-          autofocus
           :aria-controls="searchResultsId"
+          autofocus
           :label="srLabel"
+          @blur="handleBlur"
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
-          @keydown.up.stop="navigateSearchResults('up')"
-          @blur="handleBlur" />
+          @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
         class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pt-0 pb-3"
@@ -348,9 +351,9 @@ function handleBlur(e: FocusEvent) {
               :id="`#search-input-${entry.item.id}`"
               :key="entry.refIndex"
               :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
-              :selected="selectedSearchResult === index"
               class="px-2"
               :href="entry.item.link"
+              :selected="selectedSearchResult === index"
               @click.prevent="onSearchResultClick(entry)"
               @focus="selectedSearchResult = index">
               {{ entry.item.title }}
@@ -381,10 +384,9 @@ function handleBlur(e: FocusEvent) {
             @onDragEnd="handleDragEnd"
             @openMenu="(item) => Object.assign(menuItem, item)">
             <template #leftIcon>
-              <ScalarIcon
+              <ScalarIconScribbleLoop
                 v-if="collection.info?.title === 'Drafts'"
                 class="text-sidebar-c-2 group-hover:hidden"
-                icon="Scribble"
                 thickness="2.25" />
               <LibraryIcon
                 v-else
@@ -396,9 +398,8 @@ function handleBlur(e: FocusEvent) {
                 :class="{
                   'rotate-90': collapsedSidebarFolders[collection.uid],
                 }">
-                <ScalarIcon
+                <ScalarIconCaretRight
                   class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                  icon="ChevronRight"
                   size="md" />
               </div>
             </template>

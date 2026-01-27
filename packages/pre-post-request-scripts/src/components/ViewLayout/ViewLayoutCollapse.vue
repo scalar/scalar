@@ -3,7 +3,7 @@
 // I've copied it here, so we can move the scripts to a separate package.
 // But maybe we can move the component to a shared package?
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCaretRight } from '@scalar/icons'
 import { useId } from 'vue'
 
 const {
@@ -36,12 +36,11 @@ const id = useId()
             { '!pl-3': layout === 'reference' },
           ]"
           :disabled="layout === 'reference'">
-          <ScalarIcon
+          <ScalarIconCaretRight
             v-if="layout !== 'reference'"
             :class="[
               'text-c-3 group-hover:text-c-1 ui-open:rotate-90 ui-not-open:rotate-0 rounded-px outline-offset-2 group-focus-visible:outline',
             ]"
-            icon="ChevronRight"
             size="md" />
           <h2
             class="text-c-1 m-0 flex flex-1 items-center gap-1.5 leading-[20px]">

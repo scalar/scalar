@@ -25,10 +25,10 @@ export default {
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarListbox,
   type ScalarComboboxOption,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
@@ -188,9 +188,8 @@ const handleBack = (event: KeyboardEvent): void => {
                 selectedDocument ? selectedDocument.label : 'Select Collection'
               }}
             </span>
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="md" />
           </ScalarButton>
         </ScalarListbox>

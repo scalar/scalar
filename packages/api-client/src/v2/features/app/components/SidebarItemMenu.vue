@@ -3,8 +3,8 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
 } from '@scalar/components'
+import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
@@ -121,9 +121,7 @@ const handleAddExample = () => {
         v-if="canAddOperation()"
         @click="handleAddOperation()">
         <div class="flex items-center gap-2">
-          <ScalarIcon
-            icon="Add"
-            size="sm" />
+          <ScalarIconPlus size="sm" />
           Add Operation
         </div>
       </ScalarDropdownItem>
@@ -132,9 +130,7 @@ const handleAddExample = () => {
         v-if="canAddTag()"
         @click="handleAddTag()">
         <div class="flex items-center gap-2">
-          <ScalarIcon
-            icon="Add"
-            size="sm" />
+          <ScalarIconPlus size="sm" />
           Add Tag
         </div>
       </ScalarDropdownItem>
@@ -143,9 +139,7 @@ const handleAddExample = () => {
         v-if="canAddExample()"
         @click="handleAddExample()">
         <div class="flex items-center gap-2">
-          <ScalarIcon
-            icon="Add"
-            size="sm" />
+          <ScalarIconPlus size="sm" />
           Add Example
         </div>
       </ScalarDropdownItem>
@@ -157,9 +151,7 @@ const handleAddExample = () => {
         v-if="canDelete()"
         @click="emit('showDeleteModal')">
         <div class="text-red flex items-center gap-2">
-          <ScalarIcon
-            icon="Delete"
-            size="sm" />
+          <ScalarIconTrash size="sm" />
           Delete
         </div>
       </ScalarDropdownItem>

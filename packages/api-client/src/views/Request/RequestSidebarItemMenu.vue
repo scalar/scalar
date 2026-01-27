@@ -3,11 +3,17 @@ import {
   ScalarDropdownButton,
   ScalarDropdownMenu,
   ScalarFloating,
-  ScalarIcon,
   ScalarModal,
   useModal,
   type ScalarDropdown,
 } from '@scalar/components'
+import {
+  ScalarIconEye,
+  ScalarIconEyeSlash,
+  ScalarIconPencil,
+  ScalarIconPuzzlePiece,
+  ScalarIconTrash,
+} from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -153,9 +159,8 @@ const isDraftsMenuItem = computed(() => {
           v-if="menuItem.item?.entity.type === 'request'"
           class="flex items-center gap-2"
           @click="handleAddExample">
-          <ScalarIcon
+          <ScalarIconPuzzlePiece
             class="inline-flex"
-            icon="Example"
             size="md"
             thickness="1.5" />
           <span>Add Example</span>
@@ -167,9 +172,8 @@ const isDraftsMenuItem = computed(() => {
           ref="menuRef"
           class="flex items-center gap-2"
           @click="editModal.show()">
-          <ScalarIcon
+          <ScalarIconPencil
             class="inline-flex"
-            icon="Edit"
             size="md"
             thickness="1.5" />
           <span>
@@ -199,9 +203,9 @@ const isDraftsMenuItem = computed(() => {
           ref="menuRef"
           class="flex items-center gap-2"
           @click="toggleWatchMode">
-          <ScalarIcon
+          <component
+            :is="menuItem.item?.watchMode ? ScalarIconEyeSlash : ScalarIconEye"
             class="inline-flex"
-            :icon="menuItem.item?.watchMode ? 'Unwatch' : 'Watch'"
             size="md"
             thickness="1.5" />
           <span>
@@ -218,9 +222,8 @@ const isDraftsMenuItem = computed(() => {
           v-if="!isDraftsMenuItem"
           class="flex items-center gap-2"
           @click="deleteModal.show()">
-          <ScalarIcon
+          <ScalarIconTrash
             class="inline-flex"
-            icon="Delete"
             size="md"
             thickness="1.5" />
           <span>Delete</span>
@@ -231,9 +234,8 @@ const isDraftsMenuItem = computed(() => {
           v-if="isDraftsMenuItem"
           class="flex items-center gap-2"
           @click="clearDraftsModal.show()">
-          <ScalarIcon
+          <ScalarIconTrash
             class="inline-flex"
-            icon="Delete"
             size="md"
             thickness="1.5" />
           <span>Clear Drafts</span>

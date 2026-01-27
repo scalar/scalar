@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarModal,
   ScalarToggle,
   useModal,
 } from '@scalar/components'
+import { ScalarIconArrowSquareOut, ScalarIconProhibit } from '@scalar/icons'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
@@ -84,15 +84,13 @@ const handleDocumentDelete = () => {
                 :href="documentUrl"
                 target="_blank">
                 {{ documentUrl }}
-                <ScalarIcon
-                  class="ml-1 hidden w-2.5 group-hover:inline"
-                  icon="ExternalLink" />
+                <ScalarIconArrowSquareOut
+                  class="ml-1 hidden w-2.5 group-hover:inline" />
               </a>
             </template>
             <template v-else>
-              <ScalarIcon
+              <ScalarIconProhibit
                 class="text-c-2 mr-2 ml-3 w-4"
-                icon="NotAllowed"
                 size="sm" />
               <span class="text-c-2 pr-3">
                 No URL configured. Try importing an OpenAPI document from an

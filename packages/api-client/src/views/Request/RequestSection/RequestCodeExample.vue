@@ -3,9 +3,9 @@ import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarCombobox,
-  ScalarIcon,
   type ScalarComboboxOption,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type {
   Collection,
   Operation,
@@ -235,9 +235,7 @@ const customCodeContent = computed(() => {
               class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.25 py-0.75 font-normal"
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>
-              <ScalarIcon
-                icon="ChevronDown"
-                size="md" />
+              <ScalarIconCaretDown size="md" />
             </ScalarButton>
           </ScalarCombobox>
         </div>
@@ -258,12 +256,12 @@ const customCodeContent = computed(() => {
             <template v-else>
               <CodeSnippet
                 :client="selectedClient"
+                :environment="environment"
                 :example="example"
                 :operation="operation"
                 :securitySchemes="selectedSecuritySchemes"
                 :server="server"
-                :target="selectedTarget"
-                :environment="environment" />
+                :target="selectedTarget" />
             </template>
           </div>
         </DataTableRow>

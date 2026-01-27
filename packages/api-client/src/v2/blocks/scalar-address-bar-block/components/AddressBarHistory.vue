@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarFloating, ScalarFloatingBackdrop } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconClockClockwise } from '@scalar/icons'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -53,8 +50,7 @@ const emits = defineEmits<{
       <MenuButton
         v-if="history.length"
         class="address-bar-history-button text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
-        <ScalarIcon
-          icon="History"
+        <ScalarIconClockClockwise
           size="sm"
           thickness="2.25" />
         <span class="sr-only">Request History</span>

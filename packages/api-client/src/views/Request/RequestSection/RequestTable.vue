@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import { ScalarIconTrash } from '@scalar/icons'
+import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import {
+  ScalarIconGlobe,
+  ScalarIconTrash,
+  ScalarIconUpload,
+} from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -100,11 +104,9 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           <ScalarTooltip
             content="Global cookies are shared across the whole workspace."
             placement="top">
-            <ScalarIcon
-              tabindex="0"
-              class="text-c-1"
-              icon="Globe"
-              size="xs" />
+            <ScalarIconGlobe
+              class="text-c-2"
+              size="sm" />
           </ScalarTooltip>
         </RouterLink>
       </template>
@@ -122,9 +124,9 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
-          lineWrapping
           :envVariables="envVariables"
           :environment="environment"
+          lineWrapping
           :modelValue="item.key"
           placeholder="Key"
           :required="Boolean(item.required)"
@@ -149,11 +151,11 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
-          lineWrapping
           :enum="item.enum ?? []"
           :envVariables="envVariables"
           :environment="environment"
           :examples="item.examples ?? []"
+          lineWrapping
           :max="item.maximum"
           :min="item.minimum"
           :modelValue="item.value"
@@ -170,10 +172,10 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           <template #icon>
             <ScalarButton
               v-if="showDeleteButton(item) && !item.required"
+              class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
               :class="{
                 '-mr-0.5': hasItemProperties(item),
               }"
-              class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
               size="sm"
               variant="ghost"
               @click="emit('deleteRow', idx)">
@@ -208,9 +210,8 @@ const showDeleteButton = (item: RequestExampleParameter) => {
               variant="outlined"
               @click="handleFileUpload(idx)">
               <span>Upload File</span>
-              <ScalarIcon
+              <ScalarIconUpload
                 class="ml-1"
-                icon="Upload"
                 size="xs"
                 thickness="2.5" />
             </ScalarButton>

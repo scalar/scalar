@@ -3,9 +3,9 @@ import {
   ScalarButton,
   ScalarDropdownDivider,
   ScalarFloatingBackdrop,
-  ScalarIcon,
   ScalarPopover,
 } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import type {
   Collection,
   Request as Operation,
@@ -123,9 +123,7 @@ const wrapper = useTemplateRef('wrapper-ref')
       </template>
       <template v-else>
         <span class="sr-only">Add Server</span>
-        <ScalarIcon
-          icon="Add"
-          size="xs" />
+        <ScalarIconPlus size="xs" />
       </template>
     </ScalarButton>
     <template #popover="{ close }">
@@ -163,9 +161,7 @@ const wrapper = useTemplateRef('wrapper-ref')
             type="button"
             @click="handleAddServer">
             <div class="flex h-4 w-4 items-center justify-center">
-              <ScalarIcon
-                icon="Add"
-                size="sm" />
+              <ScalarIconPlus size="sm" />
             </div>
             <span>Add Server</span>
           </button>

@@ -5,8 +5,12 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
 } from '@scalar/components'
+import {
+  ScalarIconCaretDown,
+  ScalarIconCheck,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'
@@ -107,9 +111,8 @@ const updateSelectedOptions = (selectedOptions: any) => {
               ? selectedArrayOptions.map((option) => option.label).join(', ')
               : 'Select a value'
           }}</span>
-          <ScalarIcon
+          <ScalarIconCaretDown
             class="min-w-4"
-            icon="ChevronDown"
             size="md" />
         </ScalarButton>
       </ScalarComboboxMultiselect>
@@ -134,9 +137,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
           <span class="text-c-1 overflow-hidden text-ellipsis">{{
             initialValue ?? 'Select a value'
           }}</span>
-          <ScalarIcon
-            icon="ChevronDown"
-            size="md" />
+          <ScalarIconCaretDown size="md" />
         </ScalarButton>
         <template #items>
           <ScalarDropdownItem
@@ -152,9 +153,8 @@ const updateSelectedOptions = (selectedOptions: any) => {
                   ? 'bg-c-accent text-b-1'
                   : 'shadow-border text-transparent'
               ">
-              <ScalarIcon
+              <ScalarIconCheck
                 class="size-2.5"
-                icon="Checkmark"
                 thickness="3" />
             </div>
             <span class="overflow-hidden text-ellipsis">{{ option }}</span>
@@ -165,9 +165,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
               class="flex items-center gap-1.5"
               @click="addingCustomValue = true">
               <div class="flex h-4 w-4 items-center justify-center">
-                <ScalarIcon
-                  icon="Add"
-                  size="sm" />
+                <ScalarIconPlus size="sm" />
               </div>
               <span>Add value</span>
             </ScalarDropdownItem>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarToggle } from '@scalar/components'
+import { ScalarToggle } from '@scalar/components'
+import { ScalarIconEye } from '@scalar/icons'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -30,9 +31,7 @@ const modelValue = computed({
     <span
       class="text-c-1 flex items-center gap-1 text-xs font-medium"
       :class="{ 'text-c-3': !modelValue }">
-      <ScalarIcon
-        icon="Watch"
-        size="sm" />
+      <ScalarIconEye size="sm" />
       Watch Mode
     </span>
     <ScalarToggle

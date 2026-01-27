@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import { cva, cx, ScalarButton } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 import {
   themeLabels,
   type IntegrationThemeId,
@@ -123,9 +124,8 @@ const setProxy = (newProxy: string | undefined) =>
                   'bg-c-accent text-b-1 border-transparent':
                     activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
                 }">
-                <ScalarIcon
+                <ScalarIconCheck
                   v-if="activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL"
-                  icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
               </div>
@@ -149,9 +149,8 @@ const setProxy = (newProxy: string | undefined) =>
                   'bg-c-accent text-b-1 border-transparent':
                     activeWorkspace?.proxyUrl === proxyUrl,
                 }">
-                <ScalarIcon
+                <ScalarIconCheck
                   v-if="activeWorkspace?.proxyUrl === proxyUrl"
-                  icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
               </div>
@@ -168,9 +167,8 @@ const setProxy = (newProxy: string | undefined) =>
                   !activeWorkspace?.proxyUrl &&
                   'bg-c-accent text-b-1 border-transparent'
                 ">
-                <ScalarIcon
+                <ScalarIconCheck
                   v-if="!activeWorkspace?.proxyUrl"
-                  icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
               </div>
@@ -206,9 +204,8 @@ const setProxy = (newProxy: string | undefined) =>
                       'bg-c-accent text-b-1 border-transparent':
                         activeWorkspace?.themeId === themeId,
                     }">
-                    <ScalarIcon
+                    <ScalarIconCheck
                       v-if="activeWorkspace?.themeId === themeId"
-                      icon="Checkmark"
                       size="xs"
                       thickness="3.5" />
                   </div>
@@ -263,9 +260,8 @@ const setProxy = (newProxy: string | undefined) =>
                     'bg-c-accent text-b-1 border-transparent':
                       activeWorkspace?.themeId === themeId,
                   }">
-                  <ScalarIcon
+                  <ScalarIconCheck
                     v-if="activeWorkspace?.themeId === themeId"
-                    icon="Checkmark"
                     size="xs"
                     thickness="3.5" />
                 </div>

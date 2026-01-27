@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
+import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
@@ -99,9 +100,13 @@ const deselectAllScopes = () => {
               Select All
             </ScalarButton>
 
-            <ScalarIcon
+            <ScalarIconCaretDown
+              v-if="open"
               class="text-c-3 group-hover/scopes-accordion:text-c-2"
-              :icon="open ? 'ChevronDown' : 'ChevronRight'"
+              size="md" />
+            <ScalarIconCaretRight
+              v-else
+              class="text-c-3 group-hover/scopes-accordion:text-c-2"
               size="md" />
           </div>
         </DisclosureButton>

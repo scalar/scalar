@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarWrappingText,
-} from '@scalar/components'
+import { ScalarButton, ScalarWrappingText } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import {
+  ScalarIconCopy,
+  ScalarIconPlay,
+  ScalarIconWarningCircle,
+} from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
@@ -303,9 +303,8 @@ defineExpose({
         <span
           aria-hidden="true"
           class="inline-flex items-center gap-1">
-          <ScalarIcon
+          <ScalarIconPlay
             class="relative shrink-0 fill-current"
-            icon="Play"
             size="xs" />
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>
