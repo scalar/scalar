@@ -10,7 +10,7 @@ Add the required dependencies to your `Cargo.toml`:
 ```toml
 [dependencies]
 scalar_api_reference = { version = "0.1.0", features = ["warp"] }
-warp = "0.3"
+warp = { version = "0.4", features = ["server"] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["full"] }
 ```
