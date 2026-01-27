@@ -2,10 +2,23 @@
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconInfo } from '@scalar/icons'
 
-const emit = defineEmits<{
-  (e: 'approve'): void
-  (e: 'reject'): void
-}>()
+import { useState } from '@/state/state'
+
+const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
+
+function handleUpgrade() {
+  if (mode === 'full') {
+    window.location.replace(dashboardUrl)
+  }
+
+  if (mode === 'preview') {
+    window.location.replace(
+      uploadedTmpDocumentUrl.value
+        ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
+        : dashboardUrl,
+    )
+  }
+}
 </script>
 
 <template>
@@ -19,8 +32,8 @@ const emit = defineEmits<{
     <div class="paymentContainer">
       <ScalarButton
         class="actionButton approveButton"
-        @click="emit('approve')">
-        Upgrade</ScalarButton
+        @click="handleUpgrade"
+        >Upgrade</ScalarButton
       >
       <div class="paymentInfo">
         <h3>$24 <span>/ month</span></h3>

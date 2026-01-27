@@ -10,6 +10,7 @@ import { type ChatMode } from '@/types'
 const {
   eventBus,
   workspaceStore,
+  dashboardUrl,
   registryDocuments,
   registryUrl,
   baseUrl,
@@ -20,6 +21,7 @@ const {
   workspaceStore: WorkspaceStore
   registryDocuments: RegistryDocument[]
   registryUrl: string
+  dashboardUrl: string
   baseUrl: string
   mode?: ChatMode
   getAccessToken: () => string
@@ -35,6 +37,7 @@ provide(
     baseUrl,
     mode,
     getAccessToken,
+    dashboardUrl,
   }),
 )
 </script>

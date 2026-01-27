@@ -72,6 +72,7 @@ type State = {
   proxyUrl: Ref<string | undefined>
   config: ComputedRef<ApiReferenceConfigurationRaw>
   registryUrl: string
+  dashboardUrl: string
   baseUrl: string
   registryDocuments: Ref<ApiMetadata[]>
   mode: ChatMode
@@ -79,6 +80,7 @@ type State = {
   addDocument: (document: { namespace: string; slug: string }) => void
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken: () => string
+  uploadedTmpDocumentUrl: Ref<string | undefined>
 }
 
 function createChat({
@@ -118,6 +120,7 @@ export function createState({
   workspaceStore,
   initialRegistryDocuments,
   registryUrl,
+  dashboardUrl,
   baseUrl,
   mode,
   getAccessToken,
@@ -126,6 +129,7 @@ export function createState({
   workspaceStore: WorkspaceStore
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
+  dashboardUrl: string
   baseUrl: string
   mode: ChatMode
   getAccessToken: () => string
@@ -133,6 +137,7 @@ export function createState({
   const prompt = ref<State['prompt']['value']>('')
   const registryDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
+  const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
 
   const config = computed(() =>
@@ -200,6 +205,7 @@ export function createState({
     eventBus,
     config,
     registryUrl,
+    dashboardUrl,
     baseUrl,
     registryDocuments,
     proxyUrl,
@@ -208,6 +214,7 @@ export function createState({
     addDocument,
     removeDocument,
     getAccessToken,
+    uploadedTmpDocumentUrl,
   }
 }
 

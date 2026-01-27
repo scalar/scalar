@@ -15,6 +15,7 @@ const slug = params.get('slug') ?? 'galaxy'
 
 <template>
   <Chat
+    dashboardUrl="http://localhost:3560"
     baseUrl="http://localhost:9999"
     :eventBus
     :getAccessToken="() => 'missing-token'"

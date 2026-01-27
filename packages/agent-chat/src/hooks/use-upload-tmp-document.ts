@@ -45,7 +45,7 @@ export function useUploadTmpDocument() {
 
       const json = await response.json()
 
-      const { success, data } = z.object({ namespace: z.string(), slug: z.string() }).safeParse(json)
+      const { success, data } = z.object({ url: z.string(), namespace: z.string(), slug: z.string() }).safeParse(json)
       if (!success) {
         uploadState.value = {
           type: 'error',
@@ -73,6 +73,7 @@ export function useUploadTmpDocument() {
       }
 
       uploadState.value = { type: 'done' }
+      state.uploadedTmpDocumentUrl.value = data.url
 
       setTimeout(() => {
         uploadState.value = undefined
