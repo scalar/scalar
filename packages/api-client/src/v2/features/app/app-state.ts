@@ -428,7 +428,7 @@ const handleSelectItem = (id: string) => {
     return
   }
 
-  // If we are already in the operation, just toggle expansion
+  // If we are already in the nav item, just toggle expansion
   if (sidebarState.isSelected(id)) {
     sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
     return
