@@ -1,4 +1,3 @@
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { ref } from 'vue'
 import { z } from 'zod/mini'
 
@@ -25,14 +24,14 @@ export function useUploadTmpDocument() {
     return new URL(`https://proxy.scalar.com/?${params}`)
   }
 
-  async function uploadTempDocument(document: WorkspaceDocument) {
+  async function uploadTempDocument(document: string) {
     try {
       uploadState.value = { type: 'uploading' }
 
       const response = await fetch(createUrl('/core/share/upload/apis'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ document: JSON.stringify(document) }),
+        body: JSON.stringify({ document }),
       })
 
       if (!response.ok) {

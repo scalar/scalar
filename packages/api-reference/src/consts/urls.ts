@@ -13,5 +13,5 @@ export const API_BASE_URL = 'https://api.scalar.com'
 /** API endpoint for uploading temporary documents */
 export const UPLOAD_TEMP_API_URL = `${API_BASE_URL}/core/share/upload/apis` as const
 
-/** Editor preview URL for previewing a specific document */
-export const DASHBOARD_REGISTER_URL = 'https://dashboard.scalar.com/register' as const
+export const DASHBOARD_URL = 'https://dashboard.scalar.com' as const
+export const DASHBOARD_REGISTER_URL = `${DASHBOARD_URL}/register` as const

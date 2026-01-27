@@ -90,7 +90,7 @@ function acceptTerms() {
     state.workspaceStore.workspace.activeDocument
   ) {
     uploadTmpDoc.uploadTempDocument(
-      state.workspaceStore.workspace.activeDocument,
+      state.workspaceStore.exportActiveDocument('json')!,
     )
   }
 }
