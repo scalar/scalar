@@ -73,7 +73,7 @@
     "@storybook/addon-links": "10.1.11",
     "@storybook/vue3-vite": "10.1.11",
     "@tailwindcss/vite": "catalog:*",
-    "@types/jsdom": "^21.1.7",
+    "@types/jsdom": "catalog:*",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
