@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.1**
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
 ## 0.6.28
 
 ### Patch Changes

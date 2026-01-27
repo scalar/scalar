@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.1**
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/components@0.16.32**
+
 ## 0.7.21
 
 ### Patch Changes

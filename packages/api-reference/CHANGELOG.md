@@ -1,5 +1,24 @@
 # @scalar/api-reference
 
+## 1.43.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.1**
+  - [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/workspace-store@0.27.1**
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/oas-utils@0.6.29**
+
+- **@scalar/sidebar@0.7.22**
+
+- **@scalar/components@0.16.32**
+
 ## 1.43.16
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.80
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.1**
+  - [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
 ## 1.3.79
 
 ### Patch Changes

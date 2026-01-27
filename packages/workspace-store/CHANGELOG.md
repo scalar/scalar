@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.27.1
+
+### Patch Changes
+
+- [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
 ## 0.27.0
 
 ### Minor Changes

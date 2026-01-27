@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.273
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.1**
+  - [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/components@0.16.32**
+
 ## 0.1.272
 
 ### Patch Changes
