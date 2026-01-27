@@ -1,19 +1,19 @@
 import { resolve } from 'node:path'
 
 import vue from '@vitejs/plugin-vue'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       outDir: 'dist/main',
+      externalizeDeps: true,
     },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       outDir: 'dist/preload',
+      externalizeDeps: true,
     },
   },
   renderer: {
