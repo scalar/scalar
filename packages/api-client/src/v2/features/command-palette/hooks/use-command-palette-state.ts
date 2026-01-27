@@ -27,7 +27,7 @@ import CommandPaletteTag from '../components/CommandPaletteTag.vue'
  *
  * For base app commands they are defined by their action payload
  */
-export type UiCommandIds = keyof CommandPalettePayload
+type UiCommandIds = keyof CommandPalettePayload
 
 /** Map the the prop definitons to the prop value */
 type CommandPaletteActionProps<K extends UiCommandIds> = CommandPalettePayload[K]
@@ -39,7 +39,7 @@ type CommandPaletteActionProps<K extends UiCommandIds> = CommandPalettePayload[K
  * - open(commandId) - Opens a command that does not require props
  * - open(commandId, props) - Opens a command with required props
  */
-export type OpenCommand = {
+type OpenCommand = {
   (): void
   <T extends UiCommandIds>(commandId: T, props: CommandPaletteActionProps<T>): void
 }
@@ -54,12 +54,16 @@ export type CommandPaletteRoute = {
 }
 
 /** Command entry for the palette list */
-export type CommandPaletteAction = {
+type BaseCommandPaletteAction = {
   id: keyof CommandPalettePayload
-  name: String
+  name: string
   icon?: ScalarIconComponent
   component: Component
   hidden?: boolean
+}
+
+export type CommandPaletteAction = Omit<BaseCommandPaletteAction, 'id'> & {
+  id: string
 }
 
 export type CommandPaletteEntry = CommandPaletteAction | CommandPaletteRoute
@@ -301,4 +305,4 @@ export const baseClientActions = [
     hidden: true,
     component: CommandPaletteImportCurl,
   },
-] as const satisfies CommandPaletteAction[]
+] as const satisfies BaseCommandPaletteAction[]

@@ -2,7 +2,9 @@ export { type AppState, useAppState } from '@/v2/features/app/app-state'
 export type { ClientPlugin } from '@/v2/helpers/plugins'
 export type { ClientLayout } from '@/v2/types/layout'
 
-export type {
+export {
+  type CommandPaletteAction,
+  type CommandPaletteRoute,
   baseClientActions,
   baseRoutes,
   useCommandPaletteState,

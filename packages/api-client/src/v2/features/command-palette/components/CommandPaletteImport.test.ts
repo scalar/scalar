@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -33,10 +34,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders with required props', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -45,10 +48,12 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with empty input', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -58,10 +63,12 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with watch mode enabled', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -71,10 +78,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders input placeholder text', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -84,10 +93,12 @@ describe('CommandPaletteImport', () => {
 
   it('disables form when input is empty', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -97,10 +108,12 @@ describe('CommandPaletteImport', () => {
 
   it('disables form when input is only whitespace', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -114,10 +127,12 @@ describe('CommandPaletteImport', () => {
 
   it('enables form when input has content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -131,10 +146,12 @@ describe('CommandPaletteImport', () => {
 
   it('updates input when text is entered', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -147,10 +164,14 @@ describe('CommandPaletteImport', () => {
 
   it('emits open-command event when cURL is detected', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -158,19 +179,24 @@ describe('CommandPaletteImport', () => {
     await input.vm.$emit('update:modelValue', 'curl https://api.example.com')
     await nextTick()
 
-    expect(wrapper.emitted('open-command')).toBeTruthy()
-    expect(wrapper.emitted('open-command')?.[0]).toEqual([
-      'import-curl-command',
-      { curl: 'curl https://api.example.com' },
-    ])
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
+      action: 'import-curl-command',
+      payload: {
+        inputValue: 'curl https://api.example.com',
+      },
+    })
   })
 
   it('detects cURL with uppercase', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -178,15 +204,19 @@ describe('CommandPaletteImport', () => {
     await input.vm.$emit('update:modelValue', 'CURL https://api.example.com')
     await nextTick()
 
-    expect(wrapper.emitted('open-command')).toBeTruthy()
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', expect.any(Object))
   })
 
   it('detects cURL with leading whitespace', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -194,15 +224,17 @@ describe('CommandPaletteImport', () => {
     await input.vm.$emit('update:modelValue', '  curl https://api.example.com')
     await nextTick()
 
-    expect(wrapper.emitted('open-command')).toBeTruthy()
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', expect.any(Object))
   })
 
   it('emits back event when delete is triggered on input', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -217,10 +249,12 @@ describe('CommandPaletteImport', () => {
 
   it('disables watch mode toggle for non-URL input', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -234,10 +268,12 @@ describe('CommandPaletteImport', () => {
 
   it('enables watch mode toggle for URL input', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -251,14 +287,16 @@ describe('CommandPaletteImport', () => {
 
   it('automatically disables watch mode when switching from URL to content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
-    // Start with URL
+    /** Start with URL */
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
     await nextTick()
@@ -266,7 +304,7 @@ describe('CommandPaletteImport', () => {
     let watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
     expect(watchToggle.props('modelValue')).toBe(true)
 
-    // Switch to content
+    /** Switch to content */
     await input.vm.$emit('update:modelValue', '{"openapi": "3.1.0"}')
     await nextTick()
 
@@ -276,10 +314,12 @@ describe('CommandPaletteImport', () => {
 
   it('shows preview mode for pasted OpenAPI content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -299,10 +339,12 @@ describe('CommandPaletteImport', () => {
 
   it('shows clear button in preview mode', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -320,10 +362,12 @@ describe('CommandPaletteImport', () => {
 
   it('clears content when clear button is clicked', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -340,16 +384,18 @@ describe('CommandPaletteImport', () => {
     await clearButton?.trigger('click')
     await nextTick()
 
-    // After clearing, should go back to input mode
+    /** After clearing, should go back to input mode */
     expect(wrapper.findComponent({ name: 'CommandActionInput' }).exists()).toBe(true)
   })
 
   it('does not show preview mode for URL input', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -363,10 +409,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders file upload button', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -375,10 +423,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders watch mode toggle', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -388,10 +438,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders tooltip for watch mode', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -401,14 +453,16 @@ describe('CommandPaletteImport', () => {
 
   it('shows different tooltip content for URL vs non-URL input', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
-    // For non-URL input
+    /** For non-URL input */
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
     await input.vm.$emit('update:modelValue', '{"openapi": "3.1.0"}')
     await nextTick()
@@ -416,7 +470,7 @@ describe('CommandPaletteImport', () => {
     let tooltip = wrapper.findComponent({ name: 'ScalarTooltip' })
     expect(tooltip.props('content')).toContain('only available for URL imports')
 
-    // For URL input - should show different tooltip
+    /** For URL input - should show different tooltip */
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
     await nextTick()
 
@@ -426,10 +480,12 @@ describe('CommandPaletteImport', () => {
 
   it('has submit slot for URL import', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -445,10 +501,12 @@ describe('CommandPaletteImport', () => {
 
   it('has submit slot for pasted content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -469,10 +527,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders Upload icon', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -483,10 +543,12 @@ describe('CommandPaletteImport', () => {
 
   it('passes loading state to form', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -496,10 +558,12 @@ describe('CommandPaletteImport', () => {
 
   it('renders submit button with "Import" text', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -514,27 +578,29 @@ describe('CommandPaletteImport', () => {
 
   it('handles watch mode toggle changes', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
-    // Set URL input
+    /** Set URL input */
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
     await nextTick()
 
     const watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
 
-    // Toggle watch mode off
+    /** Toggle watch mode off */
     await watchToggle.vm.$emit('update:modelValue', false)
     await nextTick()
 
     expect(watchToggle.props('modelValue')).toBe(false)
 
-    // Toggle watch mode on
+    /** Toggle watch mode on */
     await watchToggle.vm.$emit('update:modelValue', true)
     await nextTick()
 
@@ -543,23 +609,27 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with correct file dialog accept types', () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
-    // The mock is set up, just verify the component exists
+    /** The mock is set up, just verify the component exists */
     expect(true).toBe(true)
   })
 
   it('does not show input when in preview mode', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -572,17 +642,19 @@ describe('CommandPaletteImport', () => {
     await input.vm.$emit('update:modelValue', openApiContent)
     await nextTick()
 
-    // Input should not be visible in preview mode
+    /** Input should not be visible in preview mode */
     const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
     expect(inputs.length).toBe(0)
   })
 
   it('shows input for URL even though it is valid content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -590,29 +662,31 @@ describe('CommandPaletteImport', () => {
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
     await nextTick()
 
-    // Input should still be visible for URLs
+    /** Input should still be visible for URLs */
     expect(wrapper.findComponent({ name: 'CommandActionInput' }).exists()).toBe(true)
   })
 
   it('handles empty input after having content', async () => {
     const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
 
-    // Add content
+    /** Add content */
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
     await nextTick()
 
     let form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(false)
 
-    // Clear content
+    /** Clear content */
     await input.vm.$emit('update:modelValue', '')
     await nextTick()
 

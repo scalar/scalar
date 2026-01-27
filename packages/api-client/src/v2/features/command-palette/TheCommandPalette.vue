@@ -27,14 +27,16 @@ export default {}
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIconCaretLeft, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  CommandPalettePayload,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type {
   CommandPaletteEntry,
   CommandPaletteState,
-  OpenCommand,
 } from './hooks/use-command-palette-state'
 
 const { paletteState, workspaceStore, eventBus } = defineProps<{
@@ -137,7 +139,7 @@ const handleCommandClick = (command: CommandPaletteEntry): void => {
   }
 
   // We are sure that the ids are of type FolderCommandIds because of the type assertion
-  paletteState.open(command.id, {})
+  paletteState.open(command.id as keyof CommandPalettePayload, {})
 }
 
 /**
@@ -153,15 +155,6 @@ const handleBackEvent = (): void => {
 const handleCloseEvent = (): void => {
   paletteState.close()
 }
-
-/**
- * Handle opening a command with props from another command component.
- * Used for command-to-command transitions (e.g., cURL detection).
- */
-const handleOpenCommand = (...args: Parameters<OpenCommand>) => {
-  paletteState.open(...args)
-}
-
 /**
  * Close the command palette and reset state.
  * Resets search results and closes the dialog.
@@ -281,8 +274,7 @@ eventBus.on('ui:open:command-palette', (payload) => {
           v-if="paletteState.activeCommand.value"
           v-bind="paletteProps"
           @back="handleBackEvent"
-          @close="handleCloseEvent"
-          @openCommand="handleOpenCommand" />
+          @close="handleCloseEvent" />
       </div>
     </DialogPanel>
   </Dialog>
