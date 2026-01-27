@@ -2808,6 +2808,16 @@ describe('prefixInternalRefRecursive', () => {
       ['d', 'e', 'f'],
       { a: { $ref: '#/d/e/f/a/b' }, b: { $ref: 'http://example.com#/external' } },
     ],
+    [
+      { oneOf: [{ $ref: '#/a/b' }, { $ref: '#/c/d' }] },
+      ['prefix'],
+      { oneOf: [{ $ref: '#/prefix/a/b' }, { $ref: '#/prefix/c/d' }] },
+    ],
+    [
+      { allOf: [{ $ref: '#/x' }, { nested: { $ref: '#/y' } }] },
+      ['p', 'q'],
+      { allOf: [{ $ref: '#/p/q/x' }, { nested: { $ref: '#/p/q/y' } }] },
+    ],
   ])('recursively prefixes any internal ref with the correct values', (a, b, c) => {
     prefixInternalRefRecursive(a, b)
     expect(a).toEqual(c)
