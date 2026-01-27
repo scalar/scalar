@@ -32,7 +32,6 @@ import type {
   CommandPalettePayload,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { ArgumentsType } from '@vueuse/core'
 import {
   computed,
   nextTick,
