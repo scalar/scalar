@@ -1,5 +1,77 @@
 # @scalar/mock-server
 
+## 0.8.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/openapi-parser@0.24.5**
+
+## 0.8.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+## 0.8.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.26**
+
+## 0.8.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.25**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+## 0.8.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.24**
+
+## 0.8.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.8**
+  - [#7842](https://github.com/scalar/scalar/pull/7842): feat: migrate swagger 2.0 responses
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/oas-utils@0.6.23**
+
 ## 0.8.17
 
 ### Patch Changes

@@ -1,5 +1,78 @@
 # @scalar/oas-utils
 
+## 0.6.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+## 0.6.27
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/object-utils@1.2.23**
+
+- **@scalar/types@0.5.10**
+
+## 0.6.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+## 0.6.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.0**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+## 0.6.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+## 0.6.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.2**
+
 ## 0.6.22
 
 ### Patch Changes

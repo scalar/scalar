@@ -1,5 +1,79 @@
 # @scalar/sidebar
 
+## 0.7.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/components@0.16.31**
+
+## 0.7.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+## 0.7.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+- **@scalar/components@0.16.29**
+
+## 0.7.18
+
+### Patch Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): feat: support custom icon per entry
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.0**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+- **@scalar/components@0.16.28**
+
+## 0.7.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/components@0.16.27**
+
+## 0.7.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
 ## 0.7.15
 
 ### Patch Changes

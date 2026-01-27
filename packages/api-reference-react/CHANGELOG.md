@@ -1,5 +1,62 @@
 # @scalar/api-reference-react
 
+## 0.8.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
+## 0.8.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.15**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/types@0.5.10**
+
+## 0.8.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.14**
+
+## 0.8.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/api-reference@1.43.13**
+
+## 0.8.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+## 0.8.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.11**
+
 ## 0.8.29
 
 ### Patch Changes

@@ -219,4 +219,16 @@ export type UIEvents = {
     /** The name of the route to route to */
     name: string
   }
+  /**
+   * Route to an example page
+   * We cannot have any routing in any components used by the modal so we use this event to route to an example page
+   *
+   * This will only route to the example for the current operation.
+   */
+  'ui:route:example': {
+    /** The example name to route to */
+    exampleName: string
+    /** The callback to call when navigation is complete */
+    callback: (status: 'success' | 'error') => void
+  }
 }

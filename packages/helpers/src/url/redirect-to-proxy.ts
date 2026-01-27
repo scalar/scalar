@@ -1,5 +1,5 @@
-import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
+import { isLocalUrl } from './is-local-url'
+import { isRelativePath } from './is-relative-path'
 
 /**
  * Redirects the request to a proxy server with a given URL. But not for:
@@ -8,7 +8,7 @@ import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
  * - URLs that seem to point to a local IP (except the proxy is on the same domain)
  * - URLs that don't look like a domain
  **/
-export function redirectToProxy(proxyUrl?: string, url?: string): string {
+export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
   try {
     if (!shouldUseProxy(proxyUrl, url)) {
       return url ?? ''
@@ -47,7 +47,7 @@ export function redirectToProxy(proxyUrl?: string, url?: string): string {
 /**
  * Returns false for requests to localhost, relative URLs, if no proxy is defined …
  **/
-export function shouldUseProxy(proxyUrl?: string, url?: string): url is string {
+export const shouldUseProxy = (proxyUrl?: string, url?: string): url is string => {
   try {
     // ❌ We don't have a proxy URL or the URL
     if (!proxyUrl || !url) {

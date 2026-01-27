@@ -1,1 +1,1 @@
-export * from './src'
+export { ApiReference } from './src'

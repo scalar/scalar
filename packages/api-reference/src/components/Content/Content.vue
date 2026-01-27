@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
+import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
-import type { AvailableClients } from '@scalar/types/snippetz'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -27,36 +28,39 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, httpClients, items, environment, eventBus, options } =
-  defineProps<{
-    infoSectionId: string
-    /** The subset of the configuration object required for the content component */
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      | 'authentication'
-      | 'documentDownloadType'
-      | 'expandAllResponses'
-      | 'hideTestRequestButton'
-      | 'layout'
-      | 'orderRequiredPropertiesFirst'
-      | 'orderSchemaPropertiesBy'
-      | 'persistAuth'
-      | 'proxyUrl'
-      | 'showOperationId'
-    >
-    document: WorkspaceDocument | undefined
-    httpClients: AvailableClients
-    xScalarDefaultClient: Workspace['x-scalar-default-client']
-    items: TraversedEntryType[]
-    expandedItems: Record<string, boolean>
-    eventBus: WorkspaceEventBus
-    environment: XScalarEnvironment
-    /** Heading id generator for Markdown headings */
-    headingSlugGenerator: (heading: Heading) => string
-  }>()
+const { document, items, environment, eventBus, options } = defineProps<{
+  infoSectionId: string
+  /** The subset of the configuration object required for the content component */
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'authentication'
+    | 'baseServerURL'
+    | 'documentDownloadType'
+    | 'expandAllResponses'
+    | 'hiddenClients'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'persistAuth'
+    | 'proxyUrl'
+    | 'servers'
+    | 'showOperationId'
+  >
+  document: WorkspaceDocument | undefined
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  items: TraversedEntryType[]
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
+  /** Heading id generator for Markdown headings */
+  headingSlugGenerator: (heading: Heading) => string
+}>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() => generateClientOptions(httpClients))
+const clientOptions = computed(() =>
+  generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
@@ -64,8 +68,18 @@ const documentExtensions = computed(() => getXKeysFromObject(document))
 /** Computed property to get all OpenAPI extension fields from the document's info object */
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
+/** Compute the servers for the document */
+const servers = computed(() =>
+  getServers(options?.servers ?? document?.servers, {
+    baseServerUrl: options?.baseServerURL,
+    documentUrl: document?.['x-scalar-original-source-url'],
+  }),
+)
+
 /** Compute the selected server for the document only (for now) */
-const selectedServer = computed(() => getSelectedServer(document ?? null))
+const selectedServer = computed(() =>
+  getSelectedServer(document ?? null, servers.value),
+)
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
@@ -98,12 +112,12 @@ const securitySchemes = computed(() =>
           <!-- Server Selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="document?.servers?.length"
+              v-if="servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
                 :eventBus
                 :selectedServer
-                :servers="document?.servers ?? []" />
+                :servers />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
 

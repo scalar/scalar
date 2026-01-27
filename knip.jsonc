@@ -8,13 +8,8 @@
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
-    "integrations/django-ninja/**",
     "integrations/hono/**",
-    "integrations/nestjs/**",
-    "integrations/nextjs/**",
-    "integrations/nuxt/**",
-    "integrations/rust/**",
-    "integrations/sveltekit/**"
+    "integrations/nestjs/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -25,6 +20,11 @@
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js"
+  ],
+
+  "ignore": [
+    // We will use this in the future, just removed it from the workspace store for now
+    "packages/workspace-store/src/schemas/reference-config/index.ts"
   ],
 
   "ignoreDependencies": [
@@ -298,6 +298,9 @@
         "./src/server.ts"
       ]
     },
+    "integrations/django-ninja": {
+      "ignoreBinaries": ["python"]
+    },
     "integrations/docker": {
       "ignoreDependencies": [
         "@scalar/api-reference" // uses standalone.js during docker build
@@ -318,6 +321,28 @@
         "@scalar/snippetz"
       ],
       "ignoreBinaries": ["mvn"]
+    },
+    "integrations/next": {},
+    "integrations/nuxt": {
+      "entry": [
+        "src/module.ts",
+        "src/runtime/components/ScalarApiReference.vue",
+        "src/runtime/pages/ScalarPage.vue",
+
+        "playground/nuxt.config.ts",
+        "playground/layouts/default.vue",
+        "playground/pages/index.vue"
+      ],
+      "ignoreDependencies": [
+        "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
+    },
+    "integrations/sveltekit": {
+      "ignoreDependencies": [
+        // Automatically added to devDependencies by `pnpm script packages format`
+        // because it's a peer dependency but not used directly.
+        "@sveltejs/kit"
+      ]
     }
   }
 }

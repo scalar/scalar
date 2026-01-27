@@ -1,9 +1,8 @@
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { getNavigationOptions } from '@/navigation/get-navigation-options'
+import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
@@ -20,8 +19,8 @@ import { traverseWebhooks } from './traverse-webhooks'
  * - Tag-based organization of operations and webhooks
  * - Optional schema/model documentation
  */
-export const traverseDocument = (documentName: string, document: OpenApiDocument, config?: DocumentConfiguration) => {
-  const { hideModels, tagsSorter, operationsSorter, generateId } = getNavigationOptions(documentName, config)
+export const traverseDocument = (documentName: string, document: OpenApiDocument, options?: NavigationOptions) => {
+  const { hideModels, tagsSorter, operationsSorter, generateId } = getNavigationOptions(documentName, options)
 
   const documentId = generateId({
     type: 'document',

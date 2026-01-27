@@ -109,6 +109,13 @@ const createMockAuthMeta = (): AuthMeta => ({
   method: 'get',
 })
 
+const createMockOriginalResponse = (): Response =>
+  new Response(null, {
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+  })
+
 /**
  * Creates default props for mounting the OperationBlock component.
  * These props represent the minimum required to render the component.
@@ -210,12 +217,19 @@ describe('OperationBlock', () => {
       bytes: vi.fn(),
     }
 
+    const mockOriginalResponse = new Response(mockResponse.body, {
+      status: mockResponse.status,
+      statusText: mockResponse.statusText,
+      headers: mockResponse.headers,
+    })
+
     vi.mocked(sendRequest).mockResolvedValue([
       null,
       {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
+        originalResponse: mockOriginalResponse,
       },
     ])
 
@@ -290,6 +304,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -324,6 +339,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -357,6 +373,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -410,6 +427,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -481,6 +499,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -540,6 +559,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -603,6 +623,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 
@@ -666,6 +687,7 @@ describe('OperationBlock', () => {
         timestamp: Date.now(),
         request: mockRequest,
         response: mockResponse,
+        originalResponse: createMockOriginalResponse(),
       },
     ])
 

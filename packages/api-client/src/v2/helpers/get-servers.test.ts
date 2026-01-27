@@ -1,8 +1,7 @@
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
-
-import { getServersFromDocument } from './server'
+import { getServers } from './get-servers'
 
 describe('servers', () => {
   beforeEach(() => {
@@ -14,16 +13,16 @@ describe('servers', () => {
     })
   })
 
-  describe('getServersFromDocument', () => {
+  describe('getServers', () => {
     it('returns empty array when no servers provided and no fallback available', () => {
       vi.stubGlobal('window', undefined)
 
-      const result = getServersFromDocument(undefined)
+      const result = getServers(undefined)
       expect(result).toEqual([])
     })
 
     it('creates fallback server from window.location.origin when no servers provided', () => {
-      const result = getServersFromDocument(undefined)
+      const result = getServers(undefined)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toMatchObject({
@@ -32,7 +31,7 @@ describe('servers', () => {
     })
 
     it('creates fallback server from document URL when provided', () => {
-      const result = getServersFromDocument(undefined, {
+      const result = getServers(undefined, {
         documentUrl: 'https://api.example.com/docs/openapi.json',
       })
 
@@ -43,7 +42,7 @@ describe('servers', () => {
     })
 
     it('prioritizes document URL over window.location.origin for fallback', () => {
-      const result = getServersFromDocument(undefined, {
+      const result = getServers(undefined, {
         documentUrl: 'https://api.example.com/docs/openapi.json',
       })
 
@@ -52,7 +51,7 @@ describe('servers', () => {
     })
 
     it('handles empty servers array', () => {
-      const result = getServersFromDocument([])
+      const result = getServers([])
 
       expect(result).toHaveLength(1)
       expect(result[0]).toMatchObject({
@@ -61,7 +60,7 @@ describe('servers', () => {
     })
 
     it('handles invalid servers array (non-array)', () => {
-      const result = getServersFromDocument('invalid' as any)
+      const result = getServers('invalid' as any)
 
       expect(result).toHaveLength(0)
     })
@@ -78,7 +77,7 @@ describe('servers', () => {
         },
       ]
 
-      const result = getServersFromDocument(servers)
+      const result = getServers(servers)
 
       expect(result).toHaveLength(2)
       expect(result[0]).toMatchObject({
@@ -94,7 +93,7 @@ describe('servers', () => {
     it('resolves relative URLs using baseServerURL', () => {
       const servers: ServerObject[] = [{ url: '/api/v1' }, { url: '/api/v2' }]
 
-      const result = getServersFromDocument(servers, {
+      const result = getServers(servers, {
         baseServerUrl: 'https://api.example.com',
       })
 
@@ -106,7 +105,7 @@ describe('servers', () => {
     it('resolves relative URLs using document URL when baseServerURL not provided', () => {
       const servers: ServerObject[] = [{ url: '/api/v1' }]
 
-      const result = getServersFromDocument(servers, {
+      const result = getServers(servers, {
         documentUrl: 'https://docs.example.com/openapi.json',
       })
 
@@ -117,7 +116,7 @@ describe('servers', () => {
     it('resolves relative URLs using window.location.origin when no other base URL available', () => {
       const servers: ServerObject[] = [{ url: '/api/v1' }]
 
-      const result = getServersFromDocument(servers)
+      const result = getServers(servers)
 
       expect(result).toHaveLength(1)
       expect(result[0]?.url).toBe('https://example.com/api/v1')
@@ -126,7 +125,7 @@ describe('servers', () => {
     it('leaves absolute URLs unchanged', () => {
       const servers: ServerObject[] = [{ url: 'https://api.example.com/v1' }, { url: 'http://localhost:3000' }]
 
-      const result = getServersFromDocument(servers)
+      const result = getServers(servers)
 
       expect(result).toHaveLength(2)
       expect(result[0]?.url).toBe('https://api.example.com/v1')
@@ -146,7 +145,7 @@ describe('servers', () => {
         },
       ]
 
-      const result = getServersFromDocument(servers)
+      const result = getServers(servers)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toMatchObject({
@@ -161,7 +160,7 @@ describe('servers', () => {
     })
 
     it('handles document URL with port', () => {
-      const result = getServersFromDocument(undefined, {
+      const result = getServers(undefined, {
         documentUrl: 'https://api.example.com:8080/docs/openapi.json',
       })
 
@@ -170,7 +169,7 @@ describe('servers', () => {
     })
 
     it('handles invalid document URL gracefully', () => {
-      const result = getServersFromDocument(undefined, {
+      const result = getServers(undefined, {
         documentUrl: 'invalid-url',
       })
 
@@ -179,7 +178,7 @@ describe('servers', () => {
     })
 
     it('handles document URL with path but no protocol', () => {
-      const result = getServersFromDocument(undefined, {
+      const result = getServers(undefined, {
         documentUrl: '//api.example.com/docs/openapi.json',
       })
 
@@ -190,7 +189,7 @@ describe('servers', () => {
     it('combines multiple base URL resolution strategies', () => {
       const servers: ServerObject[] = [{ url: '/api/v1' }, { url: '/api/v2' }]
 
-      const result = getServersFromDocument(servers, {
+      const result = getServers(servers, {
         baseServerUrl: 'https://base.example.com',
         documentUrl: 'https://docs.example.com/openapi.json',
       })
@@ -208,7 +207,7 @@ describe('servers', () => {
         { url: '/v1/comments' },
       ]
 
-      const result = getServersFromDocument(servers, {
+      const result = getServers(servers, {
         baseServerUrl: 'https://api.example.com',
       })
 
@@ -226,7 +225,7 @@ describe('servers', () => {
         },
       ]
 
-      const result = getServersFromDocument(servers)
+      const result = getServers(servers)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toMatchObject({
@@ -237,7 +236,7 @@ describe('servers', () => {
 
     it('handles edge case with null servers', () => {
       // @ts-expect-error testing null value
-      const result = getServersFromDocument(null)
+      const result = getServers(null)
 
       expect(result).toHaveLength(1)
       expect(result[0]?.url).toBe('https://example.com')

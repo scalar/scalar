@@ -1,5 +1,86 @@
 # @scalar/workspace-store
 
+## 0.27.0
+
+### Minor Changes
+
+- [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+### Patch Changes
+
+- [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+## 0.26.2
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/object-utils@1.2.23**
+
+- **@scalar/types@0.5.10**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.8**
+
+## 0.26.1
+
+### Patch Changes
+
+- [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+## 0.26.0
+
+### Minor Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+
+### Patch Changes
+
+- [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.7**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+## 0.25.3
+
+### Patch Changes
+
+- [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+- [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+## 0.25.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/openapi-upgrader@0.1.8**
+  - [#7842](https://github.com/scalar/scalar/pull/7842): feat: migrate swagger 2.0 responses
+
 ## 0.25.1
 
 ### Patch Changes

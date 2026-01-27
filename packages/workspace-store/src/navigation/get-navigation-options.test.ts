@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
-
-import { getNavigationOptions } from './get-navigation-options'
+import { type NavigationOptions, getNavigationOptions } from './get-navigation-options'
 
 describe('get-navigation-options', () => {
   it('returns correct options structure with default values', () => {
@@ -21,20 +19,16 @@ describe('get-navigation-options', () => {
   })
 
   it('sets hideModels to false when showModels is true', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        features: { showModels: true },
-      },
+    const config: NavigationOptions = {
+      hideModels: false,
     }
     const options = getNavigationOptions('My API', config)
     expect(options.hideModels).toBe(false)
   })
 
   it('sets hideModels to true when showModels is false', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        features: { showModels: false },
-      },
+    const config: NavigationOptions = {
+      hideModels: true,
     }
     const options = getNavigationOptions('My API', config)
     expect(options.hideModels).toBe(true)
@@ -42,20 +36,16 @@ describe('get-navigation-options', () => {
 
   it('uses operationsSorter from config', () => {
     const customSorter = vi.fn()
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        operationsSorter: customSorter,
-      },
+    const config: NavigationOptions = {
+      operationsSorter: customSorter,
     }
     const options = getNavigationOptions('My API', config)
     expect(options.operationsSorter).toBe(customSorter)
   })
 
   it('uses tagsSorter from config', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        tagSort: 'alpha',
-      },
+    const config: NavigationOptions = {
+      tagsSorter: 'alpha',
     }
     const options = getNavigationOptions('My API', config)
     expect(options.tagsSorter).toBe('alpha')
@@ -98,10 +88,8 @@ describe('get-navigation-options', () => {
   })
 
   it('uses custom generateHeadingSlug when provided', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        generateHeadingSlug: ({ slug }) => `custom-heading-${slug}`,
-      },
+    const config: NavigationOptions = {
+      generateHeadingSlug: ({ slug }) => `custom-heading-${slug}`,
     }
     const options = getNavigationOptions('API', config)
     const id = options.generateId({
@@ -126,10 +114,8 @@ describe('get-navigation-options', () => {
   })
 
   it('uses custom generateTagSlug when provided', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        generateTagSlug: (tag) => `custom-${tag.name?.toLowerCase()}`,
-      },
+    const config: NavigationOptions = {
+      generateTagSlug: (tag) => `custom-${tag.name?.toLowerCase()}`,
     }
     const options = getNavigationOptions('API', config)
     const id = options.generateId({
@@ -169,10 +155,8 @@ describe('get-navigation-options', () => {
   })
 
   it('uses custom generateOperationSlug when provided', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        generateOperationSlug: ({ method, path }) => `${method.toUpperCase()}-${path.replace(/\//g, '-')}`,
-      },
+    const config: NavigationOptions = {
+      generateOperationSlug: ({ method, path }) => `${method.toUpperCase()}-${path.replace(/\//g, '-')}`,
     }
     const options = getNavigationOptions('API', config)
     const id = options.generateId({
@@ -212,10 +196,8 @@ describe('get-navigation-options', () => {
   })
 
   it('uses custom generateWebhookSlug when provided', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        generateWebhookSlug: ({ name, method }) => `${method}-${name}`,
-      },
+    const config: NavigationOptions = {
+      generateWebhookSlug: ({ name, method }) => `${method}-${name}`,
     }
     const options = getNavigationOptions('API', config)
     const id = options.generateId({
@@ -261,10 +243,8 @@ describe('get-navigation-options', () => {
   })
 
   it('uses custom generateModelSlug when provided', () => {
-    const config: DocumentConfiguration = {
-      'x-scalar-reference-config': {
-        generateModelSlug: ({ name }) => `schema-${name?.toLowerCase()}`,
-      },
+    const config: NavigationOptions = {
+      generateModelSlug: ({ name }) => `schema-${name?.toLowerCase()}`,
     }
     const options = getNavigationOptions('API', config)
     const id = options.generateId({

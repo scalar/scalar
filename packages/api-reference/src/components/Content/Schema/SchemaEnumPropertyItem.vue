@@ -48,7 +48,6 @@ defineProps<{
 }
 
 .property-enum-value-label {
-  display: flex;
   font-family: var(--scalar-font-code);
   color: var(--scalar-color-1);
   position: relative;

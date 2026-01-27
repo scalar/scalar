@@ -4,6 +4,7 @@ export type {
   ClientId,
   FormDataParam,
   HarRequest,
+  HarResponse,
   Plugin,
   PluginConfiguration,
   PostDataCommon,

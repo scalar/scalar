@@ -73,7 +73,7 @@ const ParameterObjectWithSchemaSchema = compose(
   }),
 )
 
-type ParameterWithSchemaObject = ParameterObjectBase & {
+export type ParameterWithSchemaObject = ParameterObjectBase & {
   /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
   style?: string
   /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */

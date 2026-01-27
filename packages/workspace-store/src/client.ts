@@ -8,7 +8,7 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import type { PartialDeep, RequiredDeep } from 'type-fest'
+import type { PartialDeep } from 'type-fest'
 import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
@@ -16,11 +16,13 @@ import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
+import { getFetch } from '@/helpers/get-fetch'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
+import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
   externalValueResolver,
   loadingStatus,
@@ -28,10 +30,8 @@ import {
   refsEverywhere,
   restoreOriginalRefs,
 } from '@/plugins/bundler'
-import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
@@ -39,7 +39,6 @@ import {
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
-import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
 type ExtraDocumentConfigurations = Record<
@@ -48,10 +47,6 @@ type ExtraDocumentConfigurations = Record<
     fetch: WorkspaceDocumentMetaInput['fetch']
   }
 >
-
-const defaultConfig: RequiredDeep<Config> = {
-  'x-scalar-reference-config': defaultReferenceConfig,
-}
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -62,8 +57,6 @@ type WorkspaceDocumentMetaInput = {
   meta?: WorkspaceDocumentMeta
   /** Required unique identifier for the document */
   name: string
-  /** Optional configuration options */
-  config?: DocumentConfiguration
   /** Overrides for the document */
   overrides?: PartialDeep<OpenApiDocument>
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
@@ -146,12 +139,12 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
 type WorkspaceProps = {
   /** Optional metadata for the workspace including theme, active document, etc */
   meta?: WorkspaceMeta
-  /** Workspace configuration */
-  config?: PartialDeep<Config>
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
   /** A list of all registered plugins for the current workspace */
   plugins?: WorkspacePlugin[]
+  /** A file loader plugin for resolving local file references (for non browser environments) */
+  fileLoader?: LoaderPlugin
 }
 
 /**
@@ -241,7 +234,7 @@ export type WorkspaceStore = {
    *   }
    * })
    */
-  addDocument(input: WorkspaceDocumentInput): Promise<boolean>
+  addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions): Promise<boolean>
   /**
    * Deletes a document from the workspace and all associated data.
    *
@@ -271,30 +264,6 @@ export type WorkspaceStore = {
    * ['api', 'petstore'].forEach(name => store.deleteDocument(name))
    */
   deleteDocument(documentName: string): void
-  /**
-   * Returns the merged configuration for the active document.
-   *
-   * This getter merges configurations in the following order of precedence:
-   * 1. Document-specific configuration (highest priority)
-   * 2. Workspace-level configuration
-   * 3. Default configuration (lowest priority)
-   *
-   * The active document is determined by the workspace's activeDocument extension,
-   * falling back to the first document if none is specified.
-   */
-  readonly config: typeof defaultConfig
-  /**
-   * Returns the merged configuration for a specific document.
-   *
-   * This method merges configurations in the following order of precedence:
-   * 1. Document-specific configuration (highest priority)
-   * 2. Workspace-level configuration
-   * 3. Default configuration (lowest priority)
-   *
-   * @param documentName - The name of the document to get the configuration for
-   * @returns The merged configuration for the specified document
-   */
-  getDocumentConfiguration(documentName: string): typeof defaultConfig
   /**
    * Exports the specified document in the requested format.
    *
@@ -474,7 +443,7 @@ export type WorkspaceStore = {
  * @param workspaceProps - Configuration object for the workspace
  * @param workspaceProps.meta - Optional metadata for the workspace
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
- *  Documents that require asynchronous loading must be added using `addDocument` after the store is created
+ *  Documents that require asynchronous loading must be added using `1` after the store is created
  *  this allows atomic awaiting and does not block page load for the store initialization
  * @returns An object containing methods and getters for managing the workspace
  */
@@ -542,18 +511,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }
 
               const documentName = path[1] as string
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
+
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+                // The document has been modified since it was last saved
+                document['x-scalar-is-dirty'] = true
+              }
 
               fireWorkspaceChange(event)
               return
@@ -562,25 +536,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             /** Active document changes */
             if (type === 'activeDocument') {
               const documentName = getActiveDocumentName()
+              const document = workspace.documents[documentName] ?? {
+                openapi: '3.1.0',
+                info: { title: '', version: '' },
+                'x-scalar-original-document-hash': '',
+              }
               // Active document changed
               const event = {
                 type: 'documents',
                 documentName,
-                value: unpackProxyObject(
-                  workspace.documents[documentName] ?? {
-                    openapi: '3.1.0',
-                    info: { title: '', version: '' },
-                    'x-scalar-original-document-hash': '',
-                  },
-                ),
-                path: path.splice(2),
+                value: unpackProxyObject(document),
+                path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
+
+              // Don't mark as dirty when the document is first created
+              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+                // The document has been modified since it was last saved
+                document['x-scalar-is-dirty'] = true
+              }
 
               fireWorkspaceChange(event)
               return
             }
 
-            /** Document meta changes */
+            /** Workspace meta changes */
             const { activeDocument: _a, documents: _d, ...meta } = workspace
             const event = {
               type: 'meta',
@@ -601,7 +580,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
    * allowing for change tracking.
    */
-  const { originalDocuments, intermediateDocuments, overrides, documentConfigs } = createDetectChangesProxy(
+  const { originalDocuments, intermediateDocuments, overrides } = createDetectChangesProxy(
     {
       /**
        * Holds the original, unmodified documents as they were initially loaded into the workspace.
@@ -624,13 +603,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
        *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
        */
       intermediateDocuments: {} as Record<string, UnknownObject>,
-      /**
-       * A map of document configurations keyed by document name.
-       * This stores the configuration options for each document in the workspace,
-       * allowing for document-specific settings like navigation options, appearance,
-       * and other reference configuration.
-       */
-      documentConfigs: {} as Record<string, Config>,
       /**
        * Stores per-document overrides for OpenAPI documents.
        * This object is used to override specific fields of a document
@@ -672,15 +644,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               documentName: documentName,
               value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
               path: path.splice(2),
-            } satisfies WorkspaceStateChangeEvent
-            fireWorkspaceChange(event)
-          }
-
-          if (type === 'documentConfigs') {
-            const event = {
-              type,
-              documentName: documentName,
-              value: unpackProxyObject(documentConfigs[documentName] ?? {}),
             } satisfies WorkspaceStateChangeEvent
             fireWorkspaceChange(event)
           }
@@ -737,15 +700,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Obtain the raw state of the current document to ensure accurate diffing
-    const updatedDocument = getRaw(workspaceDocument)
+    const activeDocumentRaw = unpackProxyObject(workspaceDocument)
 
     // If either the intermediate or updated document is missing, do nothing
-    if (!intermediateDocument || !updatedDocument) {
+    if (!intermediateDocument || !activeDocumentRaw) {
+      console.warn('Failed to save document, intermediate document and/or active document is missing')
       return
     }
 
     // Traverse the document and convert refs back to the original shape
-    const updatedWithOriginalRefs = await bundle(deepClone(updatedDocument), {
+    const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
       plugins: [restoreOriginalRefs()],
       treeShake: false,
       urlMap: true,
@@ -753,26 +717,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Apply changes from the current document to the intermediate document in place
     const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
+
+    // Mark the document as not dirty since we are saving it
+    workspaceDocument['x-scalar-is-dirty'] = false
+
     return excludedDiffs
-  }
-
-  const processDocument = (input: OpenApiDocument, options: Config & { documentSource?: string }): OpenApiDocument => {
-    // Get the servers from the document or the config and perform some mutations on them
-    const servers = getServersFromDocument(options['x-scalar-reference-config']?.settings?.servers ?? input.servers, {
-      baseServerUrl: options['x-scalar-reference-config']?.settings?.baseServerUrl,
-      documentUrl: options.documentSource,
-    })
-
-    if (servers.length) {
-      input.servers = servers.map((it) => ({ url: it.url, description: it.description, variables: it.variables }))
-    }
-
-    return input
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
+    navigationOptions?: NavigationOptions,
   ) {
     const { name, meta } = input
     const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
@@ -790,8 +745,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // The intermediate document is used to store the latest saved state of the document
         // This allows us to track changes and revert to the last saved state if needed
         intermediateDocuments[name] = deepClone(clonedRawInputDocument)
-        // Add the document config to the documentConfigs map
-        documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
         overrides[name] = input.overrides ?? {}
         // Store extra document configurations that can not be persisted
@@ -812,23 +765,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       { showInternal: true },
     )
 
+    // If the document navigation is not already present, bundle the entire document to resolve all references.
+    // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+    // We need to bundle document first before we validate, so we can also validate the external references
     if (strictDocument[extensions.document.navigation] === undefined) {
-      // If the document navigation is not already present, bundle the entire document to resolve all references.
-      // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
-      // We need to bundle document first before we validate, so we can also validate the external references
+      const loaders = [
+        fetchUrls({
+          fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        }),
+      ]
+
+      // If a file loader plugin is provided, use it to resolve local file references
+      // This is useful for non browser environments
+      if (workspaceProps?.fileLoader) {
+        loaders.push(workspaceProps.fileLoader)
+      }
+
       await measureAsync(
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
             treeShake: false,
-            plugins: [
-              fetchUrls({
-                fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
-              }),
-              externalValueResolver(),
-              refsEverywhere(),
-              normalizeAuthSchemes(),
-            ],
+            plugins: [...loaders, externalValueResolver(), refsEverywhere(), normalizeAuthSchemes()],
             urlMap: true,
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),
@@ -859,15 +817,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(name, strictDocument as OpenApiDocument, input.config)
-
+      const navigation = createNavigation(name, strictDocument as OpenApiDocument, navigationOptions)
       strictDocument[extensions.document.navigation] = navigation
-
-      // Do some document processing
-      processDocument(getRaw(strictDocument as OpenApiDocument), {
-        ...(documentConfigs[name] ?? {}),
-        documentSource: input.documentSource,
-      })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
@@ -880,13 +831,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
   // If loading fails, a placeholder error document is added instead.
-  async function addDocument(input: WorkspaceDocumentInput) {
+  async function addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
 
-    const resolve = await measureAsync(
-      'loadDocument',
-      async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
-    )
+    /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
+    const fetch = getFetch({
+      fetch: input.fetch ?? workspaceProps?.fetch,
+      proxyUrl: workspace['x-scalar-active-proxy'],
+    })
+
+    const resolve = await measureAsync('loadDocument', async () => await loadDocument({ ...input, fetch }))
 
     // Log the time taken to add a document
     return await measureAsync('addDocument', async () => {
@@ -922,12 +876,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return false
       }
 
-      await addInMemoryDocument({
-        ...input,
-        document: resolve.data,
-        documentSource: getDocumentSource(input),
-        documentHash: generateHash(resolve.raw),
-      })
+      await addInMemoryDocument(
+        {
+          ...input,
+          document: resolve.data,
+          documentSource: getDocumentSource(input),
+          documentHash: generateHash(resolve.raw),
+        },
+        navigationOptions,
+      )
 
       return true
     })
@@ -956,22 +913,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Generate the navigation structure for the sidebar.
-    const navigation = createNavigation(documentName, document, getDocumentConfiguration(documentName))
+    const navigation = createNavigation(documentName, document)
 
     // Set the computed navigation structure on the document metadata.
     document[extensions.document.navigation] = navigation
 
     return true
-  }
-
-  // Returns the effective document configuration for a given document name,
-  // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
-  const getDocumentConfiguration = (name: string) => {
-    return mergeObjects<typeof defaultConfig>(
-      mergeObjects(deepClone(defaultConfig), workspaceProps?.config ?? {}, true),
-      documentConfigs[name] ?? {},
-      true,
-    )
   }
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
@@ -1062,7 +1009,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Clean up all associated data structures
       delete originalDocuments[documentName]
       delete intermediateDocuments[documentName]
-      delete documentConfigs[documentName]
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
 
@@ -1081,10 +1027,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentName,
       })
     },
-    get config() {
-      return getDocumentConfiguration(getActiveDocumentName())
-    },
-    getDocumentConfiguration,
     exportDocument,
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
@@ -1122,7 +1064,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           ),
         },
         meta: unpackProxyObject(meta) ?? {},
-        documentConfigs: unpackProxyObject(documentConfigs),
         originalDocuments: unpackProxyObject(originalDocuments),
         intermediateDocuments: unpackProxyObject(intermediateDocuments),
         overrides: unpackProxyObject(overrides),
@@ -1143,7 +1084,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       safeAssign(originalDocuments, input.originalDocuments)
       safeAssign(intermediateDocuments, input.intermediateDocuments)
-      safeAssign(documentConfigs, input.documentConfigs as Record<string, Config>)
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
     },
@@ -1208,7 +1148,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const newDocumentOrigin = resolve.data
 
       // ---- Override the configurations and metadata
-      documentConfigs[name] = input.config ?? {}
       overrides[name] = input.overrides ?? {}
       extraDocumentConfigurations[name] = { fetch: input.fetch }
 

@@ -109,6 +109,9 @@ export function initializeAppEventHandlers({
       'operation:update:extra-parameters': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
       },
+      'operation:reload:history': {
+        onAfterExecute: (payload) => onAfterExampleCreation({ ...payload.meta, exampleKey: 'draft' }),
+      },
 
       'operation:delete:operation': {
         onAfterExecute: async (payload) => {
@@ -219,6 +222,16 @@ export function initializeAppEventHandlers({
   eventBus.on('ui:toggle:sidebar', onToggleSidebar)
   eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
   // Command palette handler is colocated with the command palette component
+
+  eventBus.on('ui:route:example', async ({ exampleName, callback }) => {
+    const result = await router.value?.replace({
+      name: 'example',
+      params: {
+        exampleName,
+      },
+    })
+    callback(result ? 'error' : 'success')
+  })
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers

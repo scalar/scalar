@@ -1,4 +1,4 @@
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 
 import { PROXY_URL, UPLOAD_TEMP_API_URL } from '@/consts/urls'
 

@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import { ScalarLoading, useLoadingState } from '@scalar/components'
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  ScalarButton,
+  ScalarLoading,
+  useLoadingState,
+} from '@scalar/components'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
 
@@ -12,8 +16,13 @@ const loader = useLoadingState()
 
 const textContent = ref('')
 const errorRef = ref<Error | null>(null)
-const decoder = new TextDecoder()
 const contentContainer = ref<HTMLElement | null>(null)
+
+/** Track the current reader to prevent race conditions when reader changes */
+const currentReader = ref<ReadableStreamDefaultReader<Uint8Array> | null>(null)
+
+/** Current decoder instance - reset for each new stream to prevent buffer corruption */
+const decoder = ref<TextDecoder | null>(null)
 
 /**
  * Scrolls the content container to the bottom
@@ -25,18 +34,25 @@ const scrollToBottom = () => {
 }
 
 // Watch for changes in textContent and scroll to bottom
-watch(textContent, () => {
+watch(textContent, async () => {
   // Use nextTick to ensure the DOM has updated
-  nextTick(scrollToBottom)
+  await nextTick(scrollToBottom)
 })
 
 /**
  * Reads the stream and appends the content
  */
-async function readStream() {
+async function readStream(
+  streamReader: ReadableStreamDefaultReader<Uint8Array>,
+) {
   try {
-    while (loader.isLoading) {
-      const { done, value } = await reader.read()
+    while (loader.isLoading && currentReader.value === streamReader) {
+      const { done, value } = await streamReader.read()
+
+      // Stop if this reader is no longer the current one
+      if (currentReader.value !== streamReader) {
+        break
+      }
 
       if (done) {
         void loader.clear()
@@ -44,30 +60,56 @@ async function readStream() {
       }
 
       // Decode the Uint8Array to string and append to content
-      if (value) {
-        textContent.value += decoder.decode(value, { stream: true })
+      if (value && decoder.value) {
+        textContent.value += decoder.value.decode(value, { stream: true })
       }
     }
   } catch (error) {
-    console.error('Error reading stream:', error)
-    void loader.clear()
-    errorRef.value = error as Error
+    // Only handle the error if this is still the current reader
+    if (currentReader.value === streamReader) {
+      console.error('Error reading stream:', error)
+      void loader.clear()
+      errorRef.value = error as Error
+    }
   } finally {
-    // Make sure to decode any remaining bytes
-    textContent.value += decoder.decode()
+    // Only finalize decoding if this is still the current reader
+    if (currentReader.value === streamReader && decoder.value) {
+      // Make sure to decode any remaining bytes
+      textContent.value += decoder.value.decode()
+    }
   }
 }
 
-onMounted(() => {
-  loader.start()
-  readStream()
-  errorRef.value = null
-})
+const startStreaming = () => {
+  // Cancel the old reader if it exists
+  if (currentReader.value) {
+    currentReader.value.cancel()
+  }
 
-onBeforeUnmount(() => {
-  reader.cancel()
+  // Set the new reader as current
+  currentReader.value = reader
+
+  // Reset state and start new stream
+  // Create a new decoder instance to prevent buffer corruption from previous streams
+  decoder.value = new TextDecoder()
+  loader.start()
+  textContent.value = ''
+  errorRef.value = null
+  void readStream(reader)
+}
+
+const stopStreaming = () => {
+  if (currentReader.value) {
+    currentReader.value.cancel()
+    currentReader.value = null
+  }
   void loader.clear()
-})
+}
+
+// Start streaming when the reader changes
+watch(() => reader, startStreaming, { immediate: true })
+
+onBeforeUnmount(stopStreaming)
 </script>
 
 <template>
@@ -84,6 +126,16 @@ onBeforeUnmount(() => {
           <span class="text-c-2"> Listening… </span>
         </div>
       </div>
+    </template>
+    <template
+      v-if="loader.isLoading"
+      #actions>
+      <ScalarButton
+        size="sm"
+        variant="ghost"
+        @click="stopStreaming">
+        Cancel
+      </ScalarButton>
     </template>
 
     <div

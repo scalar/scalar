@@ -1,5 +1,63 @@
 # @scalar/aspnetcore
 
+## 2.12.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
+## 2.12.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.15**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.14**
+
+## 2.12.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.13**
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.12**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+## 2.12.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.11**
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 2.12.13
 
 ### Patch Changes

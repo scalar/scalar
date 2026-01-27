@@ -29,6 +29,7 @@ export const useLoadingAnimation = (): {
   startLoading: () => void
   stopLoading: () => void
   percentage: Ref<number>
+  isLoading: Ref<boolean>
 } => {
   /** The current loading percentage from 100 (not started) to 0 (complete) */
   const percentage = ref(MAX_PERCENTAGE)
@@ -99,5 +100,6 @@ export const useLoadingAnimation = (): {
     startLoading,
     stopLoading,
     percentage,
+    isLoading: isRequesting,
   }
 }

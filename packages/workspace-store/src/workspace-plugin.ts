@@ -29,11 +29,6 @@ export type WorkspaceStateChangeEvent =
       path: string[]
     }
   | {
-      type: 'documentConfigs'
-      documentName: string
-      value: InMemoryWorkspace['documentConfigs'][string]
-    }
-  | {
       type: 'overrides'
       documentName: string
       value: InMemoryWorkspace['overrides'][string]

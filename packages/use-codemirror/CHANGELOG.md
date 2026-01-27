@@ -1,5 +1,54 @@
 # @scalar/use-codemirror
 
+## 0.13.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.31**
+
+## 0.13.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.30**
+
+## 0.13.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.29**
+
+## 0.13.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.28**
+
+## 0.13.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.27**
+
+## 0.13.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
 ## 0.13.19
 
 ### Patch Changes

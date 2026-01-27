@@ -80,7 +80,7 @@ jobs:
 
       - name: Check whether integration files were modified
         id: changed-integration-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             dotnet_integration:
@@ -98,7 +98,7 @@ jobs:
 
       - name: Check whether packages files were modified
         id: changed-packages-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             icons_changed:
@@ -109,7 +109,7 @@ jobs:
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             aspnetcore_package:
@@ -620,7 +620,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there's a new version of the app
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client_app:
@@ -645,7 +645,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Check which files were touched
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client:
@@ -683,7 +683,7 @@ jobs:
       - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new @scalar/api-client version
         id: client-version
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client:
@@ -718,7 +718,7 @@ jobs:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             galaxy:
@@ -964,7 +964,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
+        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
         with:
           platforms: linux/amd64
 
@@ -1015,7 +1015,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
+        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
         with:
           platforms: |
             linux/amd64
@@ -1075,7 +1075,7 @@ jobs:
           path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
+        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
         with:
           platforms: |
             linux/amd64
@@ -1140,7 +1140,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@0fe8fca619206d7acb4c988b966ccc0a0d413a86 # v1
+        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
         with:
           sdk-version: 10.x.x
           aspnetcore-version: |
@@ -1201,7 +1201,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@0fe8fca619206d7acb4c988b966ccc0a0d413a86 # v1
+        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
         with:
           sdk-version: 10.x.x
 
@@ -1260,7 +1260,7 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@53647ab5afe8827af5623b35bd4302eabd41619f # v1
+        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
         with:
           platforms: |
             linux/amd64
@@ -1301,7 +1301,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@0fe8fca619206d7acb4c988b966ccc0a0d413a86 # v1
+        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
         with:
           sdk-version: 10.x.x
 
@@ -1328,7 +1328,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.11'
 
@@ -1360,7 +1360,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.11'
 
@@ -1390,7 +1390,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.11'
 
@@ -1422,7 +1422,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.11'
 
@@ -1567,7 +1567,7 @@ jobs:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -1595,7 +1595,7 @@ jobs:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
           java-version: '17'

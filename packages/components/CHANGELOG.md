@@ -1,5 +1,59 @@
 # @scalar/components
 
+## 0.16.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.28**
+
+## 0.16.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+## 0.16.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.26**
+
+## 0.16.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.25**
+
+## 0.16.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.24**
+
+## 0.16.26
+
+### Patch Changes
+
+- [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.23**
+
 ## 0.16.25
 
 ### Patch Changes

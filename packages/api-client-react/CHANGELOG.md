@@ -1,5 +1,70 @@
 # @scalar/api-client-react
 
+## 1.3.79
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+## 1.3.78
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/types@0.5.10**
+
+## 1.3.77
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+  - [#7889](https://github.com/scalar/scalar/pull/7889): fix: only attach the body to methods that allow
+
+## 1.3.76
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.0**
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: cancel request when navigating away from operation page
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: save, revert and history support
+  - [#7884](https://github.com/scalar/scalar/pull/7884): fix: sync state when rebuilding sidebar
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+## 1.3.75
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+## 1.3.74
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
 ## 1.3.73
 
 ### Patch Changes

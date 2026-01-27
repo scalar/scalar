@@ -1,5 +1,35 @@
 # @scalar/nextjs-openapi
 
+## 0.2.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.15**
+  - [#7908](https://github.com/scalar/scalar/pull/7908): fix: use named instead of star exports
+
+## 0.2.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.14**
+
+- **@scalar/types@0.5.10**
+
+## 0.2.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/nextjs-api-reference@0.9.13**
+
 ## 0.2.38
 
 ### Patch Changes

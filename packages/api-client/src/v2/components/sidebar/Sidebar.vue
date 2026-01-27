@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconButton, type ScalarListboxOption } from '@scalar/components'
-import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import { ScalarIconFileDashed, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
   ScalarSidebar,
   type DraggingItem,
@@ -63,6 +63,8 @@ const slots = defineSlots<{
   empty?(props: { item: TraversedEntry }): unknown
   /** Slot for customizing the actions section of the sidebar menu. */
   sidebarMenuActions?(): unknown
+  /** Slot to add additional content to the icon */
+  icon?(props: { item: TraversedEntry; open: boolean }): unknown
 }>()
 
 /** Controls the visibility of the search input */
@@ -73,6 +75,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
   required: true,
   default: 288,
 })
+
+const isDraft = (item: TraversedEntry) => {
+  return item.type === 'example' && item.title === 'draft'
+}
 </script>
 <template>
   <Resize
@@ -130,6 +136,15 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <slot
             v-bind="decoratorProps"
             name="decorator" />
+        </template>
+
+        <template #icon="iconProps">
+          <template v-if="slots.icon || isDraft(iconProps.item)">
+            <ScalarIconFileDashed v-if="isDraft(iconProps.item)" />
+            <slot
+              v-bind="iconProps"
+              name="icon" />
+          </template>
         </template>
 
         <!-- Empty folder slot -->

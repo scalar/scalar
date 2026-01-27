@@ -1,5 +1,155 @@
 # @scalar/api-reference
 
+## 1.43.16
+
+### Patch Changes
+
+- [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/sidebar@0.7.21**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/components@0.16.31**
+
+## 1.43.15
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+- **@scalar/sidebar@0.7.20**
+
+- **@scalar/types@0.5.10**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/snippetz@0.6.8**
+
+## 1.43.14
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+- **@scalar/api-client@2.20.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+  - [#7889](https://github.com/scalar/scalar/pull/7889): fix: only attach the body to methods that allow
+
+- **@scalar/oas-utils@0.6.26**
+
+- **@scalar/sidebar@0.7.19**
+
+- **@scalar/components@0.16.29**
+
+## 1.43.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.20.0**
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: cancel request when navigating away from operation page
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: save, revert and history support
+  - [#7884](https://github.com/scalar/scalar/pull/7884): fix: sync state when rebuilding sidebar
+
+- **@scalar/sidebar@0.7.18**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: support custom icon per entry
+
+- **@scalar/workspace-store@0.26.0**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+- **@scalar/snippetz@0.6.7**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/oas-utils@0.6.25**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/components@0.16.28**
+
+## 1.43.12
+
+### Patch Changes
+
+- [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+- [#7819](https://github.com/scalar/scalar/pull/7819): feat: hide responses without content
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/api-client@2.19.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+- **@scalar/oas-utils@0.6.24**
+
+- **@scalar/sidebar@0.7.17**
+
+- **@scalar/components@0.16.27**
+
+## 1.43.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.19.2**
+  - [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+  - [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/sidebar@0.7.16**
+
+- **@scalar/oas-utils@0.6.23**
+
 ## 1.43.10
 
 ### Patch Changes

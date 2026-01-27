@@ -4,9 +4,13 @@ import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { WorkspaceStore } from '@/client'
+import type { HooksEvents } from '@/events/definitions/hooks'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { fetchRequestToHar } from '@/mutators/fetch-request-to-har'
+import { fetchResponseToHar } from '@/mutators/fetch-response-to-har'
+import { harToOperation } from '@/mutators/har-to-operation'
 import { getOpenapiObject, getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { canHaveOrder } from '@/navigation/helpers/get-openapi-object'
@@ -63,25 +67,24 @@ const syncParametersForPathChange = (
   const oldPositions = getParameterPositions(oldPath, oldPathParams)
   const newPositions = getParameterPositions(newPath, newPathParams)
 
-  // Separate path and non-path parameters, keeping original references
-  const pathParameters: ReferenceType<ParameterObject>[] = []
+  // Separate path and non-path parameters, resolving each parameter only once
+  const pathParameters: ParameterObject[] = []
   const nonPathParameters: ReferenceType<ParameterObject>[] = []
 
   for (const param of existingParameters) {
     const resolved = getResolvedRef(param)
     if (resolved?.in === 'path') {
-      pathParameters.push(param)
+      pathParameters.push(resolved)
     } else {
       nonPathParameters.push(param)
     }
   }
 
   // Create a map of existing path parameters by name for quick lookup
-  const existingPathParamsByName = new Map<string, ReferenceType<ParameterObject>>()
+  const existingPathParamsByName = new Map<string, ParameterObject>()
   for (const param of pathParameters) {
-    const resolved = getResolvedRef(param)
-    if (resolved?.name) {
-      existingPathParamsByName.set(resolved.name, param)
+    if (param.name) {
+      existingPathParamsByName.set(param.name, param)
     }
   }
 
@@ -102,16 +105,13 @@ const syncParametersForPathChange = (
       (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
     )
 
+    // Rename: transfer the old parameter's config to the new name
     if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
-      // Rename: transfer the old parameter's config to the new name
       const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
-      const resolved = getResolvedRef(oldParam)
-      if (resolved) {
-        resolved.name = newParamName
-        syncedPathParameters.push(oldParam)
-        usedOldParams.add(oldParamAtPosition)
-        continue
-      }
+      oldParam.name = newParamName
+      syncedPathParameters.push(oldParam)
+      usedOldParams.add(oldParamAtPosition)
+      continue
     }
 
     // Case 3: New parameter - create with empty examples
@@ -122,7 +122,7 @@ const syncParametersForPathChange = (
   }
 
   // Return all parameters: synced path parameters + preserved non-path parameters
-  return [...syncedPathParameters, ...nonPathParameters]
+  return unpackProxyObject([...syncedPathParameters, ...nonPathParameters], { depth: 1 })
 }
 
 /**
@@ -350,9 +350,11 @@ export const updateOperationPathMethod = (
     }
   }
 
-  // Get the document configuration to generate IDs consistently
-  const documentConfig = store.getDocumentConfiguration(documentNavigation.name)
-  const { generateId } = getNavigationOptions(documentNavigation.name, documentConfig)
+  /**
+   * We don't pass navigation options as we don't have config on the client,
+   * and we don't change path or method on the references
+   */
+  const { generateId } = getNavigationOptions(documentNavigation.name)
 
   /** Grabs all of the current operation entries for the given path and method */
   const operationEntriesMap = getOperationEntries(documentNavigation)
@@ -391,6 +393,9 @@ export const updateOperationPathMethod = (
       delete document.paths[meta.path]
     }
   }
+
+  // We need to reset the history for the operation when the path or method changes
+  delete operation['x-scalar-history']
 
   callback('success')
 }
@@ -501,57 +506,52 @@ export const deleteOperationExample = (
  */
 export const upsertOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, type, payload, index }: OperationEvents['operation:upsert:parameter'],
+  { meta, type, payload, originalParameter }: OperationEvents['operation:upsert:parameter'],
 ) => {
-  if (!document) {
+  // We are editing an existing parameter
+  if (originalParameter) {
+    originalParameter.name = payload.name
+
+    if (isContentTypeParameterObject(originalParameter)) {
+      // TODO: handle content-type parameters
+      return
+    }
+
+    if (!originalParameter.examples) {
+      originalParameter.examples = {}
+    }
+
+    // Create the example if it doesn't exist
+    originalParameter.examples[meta.exampleKey] ||= {}
+    const example = getResolvedRef(originalParameter.examples[meta.exampleKey])!
+
+    // Update the example value and disabled state
+    example.value = payload.value
+    example['x-disabled'] = payload.isDisabled
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  // We are adding a new parameter
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  // Get all resolved parameters of the specified type
-  // The passed index corresponds to this filtered list
-  const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-  const parameter = resolvedParameters[index]
-
-  // If it doesn't exist we probably need to add a new parameter (we can do length check as well if we want)
-  if (!parameter) {
-    operation.parameters ||= []
-    operation.parameters.push({
-      name: payload.name,
-      in: type,
-      required: type === 'path' ? true : false,
-      examples: {
-        [meta.exampleKey]: {
-          value: payload.value,
-          'x-disabled': payload.isDisabled ?? false,
-        },
+  operation.parameters ||= []
+  operation.parameters.push({
+    name: payload.name,
+    in: type,
+    required: type === 'path' ? true : false,
+    examples: {
+      [meta.exampleKey]: {
+        value: payload.value,
+        // We always want a new parameter to be enabled by default
+        'x-disabled': false,
       },
-    })
-    return
-  }
-
-  parameter.name = payload.name
-
-  if (isContentTypeParameterObject(parameter)) {
-    // TODO: handle content-type parameters
-    return
-  }
-
-  if (!parameter.examples) {
-    parameter.examples = {}
-  }
-
-  // Create the example if it doesn't exist
-  parameter.examples[meta.exampleKey] ||= {}
-  const example = getResolvedRef(parameter.examples[meta.exampleKey])!
-
-  // Update the example value and disabled state
-  example.value = payload.value
-  example['x-disabled'] = payload.isDisabled
+    },
+  })
+  return
 }
 
 /**
@@ -621,49 +621,45 @@ export const updateOperationExtraParameters = (
 }
 
 /**
- * Removes a parameter from the operation by resolving its position within
- * the filtered list of parameters of the specified `type`.
- * Safely no-ops if the document, operation, or parameter does not exist.
+ * Removes a parameter from the operation OR path
  *
  * Example:
  * ```ts
  * deleteOperationParameter({
  *   document,
- *   type: 'header',
- *   index: 1,
+ *   originalParameter,
  *   meta: { method: 'get', path: '/users', exampleKey: 'default' },
  * })
  * ```
  */
 export const deleteOperationParameter = (
   document: WorkspaceDocument | null,
-  { meta, index, type }: OperationEvents['operation:delete:parameter'],
+  { meta, originalParameter }: OperationEvents['operation:delete:parameter'],
 ) => {
-  if (!document) {
-    return
-  }
+  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
-
-  // Don't proceed if operation doesn't exist
-  if (!operation) {
-    return
-  }
-
-  // Translate the index from the filtered list to the actual parameters array
-  const resolvedParameters = operation.parameters?.map((it) => getResolvedRef(it)).filter((it) => it.in === type) ?? []
-  const parameter = resolvedParameters[index]
-  if (!parameter) {
-    return
-  }
-
-  const actualIndex = operation.parameters?.findIndex((it) => getResolvedRef(it) === parameter) as number
+  // Lets check if its on the operation first as its more likely
+  const operationIndex = operation?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
 
   // We cannot call splice on a proxy object, so we unwrap the array and filter it
-  operation.parameters = unpackProxyObject(
-    operation.parameters?.filter((_, i) => i !== actualIndex),
-    { depth: 1 },
-  )
+  if (operation && operationIndex >= 0) {
+    operation.parameters = unpackProxyObject(
+      operation.parameters?.filter((_, i) => i !== operationIndex),
+      { depth: 1 },
+    )
+    return
+  }
+
+  // If it wasn't on the operation it might be on the path
+  const path = getResolvedRef(document?.paths?.[meta.path])
+  const pathIndex = path?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
+
+  if (path && pathIndex >= 0) {
+    path.parameters = unpackProxyObject(
+      path.parameters?.filter((_, i) => i !== pathIndex),
+      { depth: 1 },
+    )
+  }
 }
 
 /**
@@ -817,6 +813,92 @@ export const updateOperationRequestBodyFormValue = (
   example.value = unpackProxyObject(payload, { depth: 3 })
 }
 
+const HISTORY_LIMIT = 5
+
+export const addResponseToHistory = async (
+  document: WorkspaceDocument | null,
+  { payload, meta }: HooksEvents['hooks:on:request:complete'],
+) => {
+  if (!document || !payload) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    return
+  }
+
+  const operationParameters = operation.parameters ?? []
+
+  // Get all the variables from the operation parameters
+  const variables = operationParameters.reduce<Record<string, string>>((acc, param) => {
+    const resolvedParam = getResolvedRef(param)
+    if (isContentTypeParameterObject(resolvedParam)) {
+      return acc
+    }
+    if (resolvedParam.in === 'path') {
+      acc[resolvedParam.name] = getResolvedRef(resolvedParam.examples?.[meta.exampleKey])?.value ?? ''
+    }
+    return acc
+  }, {})
+
+  const requestHar = await fetchRequestToHar({ request: payload.request })
+  const responseHar = await fetchResponseToHar({ response: payload.response })
+
+  operation['x-scalar-history'] ||= []
+  // If the history is full, remove the oldest entry
+  if (operation['x-scalar-history'].length >= HISTORY_LIMIT) {
+    // We need to unpack the history array to avoid proxy object issues
+    operation['x-scalar-history'] = unpackProxyObject(
+      operation['x-scalar-history'].filter((_, i) => i !== 0),
+      { depth: 1 },
+    )
+  }
+  // Add the new entry to the history
+  operation['x-scalar-history'].push({
+    response: responseHar,
+    request: requestHar,
+    meta: {
+      example: meta.exampleKey,
+    },
+    time: payload.duration,
+    timestamp: payload.timestamp,
+    requestMetadata: {
+      variables,
+    },
+  })
+}
+
+export const reloadOperationHistory = (
+  document: WorkspaceDocument | null,
+  { meta, index, callback }: OperationEvents['operation:reload:history'],
+) => {
+  if (!document) {
+    console.error('Document not found', meta.path, meta.method)
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  if (!operation) {
+    console.error('Operation not found', meta.path, meta.method)
+    return
+  }
+
+  const historyItem = operation['x-scalar-history']?.[index]
+  if (!historyItem) {
+    console.error('History item not found', index)
+    return
+  }
+
+  harToOperation({
+    harRequest: historyItem.request,
+    exampleKey: 'draft',
+    baseOperation: operation,
+    pathVariables: historyItem.requestMetadata.variables,
+  })
+  callback('success')
+}
+
 export const operationMutatorsFactory = ({
   document,
   store,
@@ -847,5 +929,9 @@ export const operationMutatorsFactory = ({
       updateOperationRequestBodyExample(document, payload),
     updateOperationRequestBodyFormValue: (payload: OperationEvents['operation:update:requestBody:formValue']) =>
       updateOperationRequestBodyFormValue(document, payload),
+    addResponseToHistory: (payload: HooksEvents['hooks:on:request:complete']) =>
+      addResponseToHistory(document, payload),
+    reloadOperationHistory: (payload: OperationEvents['operation:reload:history']) =>
+      reloadOperationHistory(document, payload),
   }
 }
