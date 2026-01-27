@@ -72,6 +72,13 @@ export const persistencePlugin = async ({
           )
         }
 
+        // Debounce per document auth and workspace
+        if (event.type === 'auth') {
+          return execute(`auth-${workspaceId}-${event.documentName}`, () =>
+            persistence.auth.setItem(workspaceId, event.documentName, event.value),
+          )
+        }
+
         // Delete document
         if (event.type === 'deleteDocument') {
           return execute(`deleteDocument-${workspaceId}-${event.documentName}`, () =>

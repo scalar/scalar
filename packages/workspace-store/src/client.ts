@@ -692,7 +692,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   /**
    * The auth store for the workspace
    */
-  const auth = createAuthStore()
+  const auth = createAuthStore({
+    hooks: {
+      onAuthChange: (documentName) => {
+        fireWorkspaceChange({
+          type: 'auth',
+          documentName,
+          value: auth.export()[documentName] ?? {
+            secrets: {},
+            selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} },
+          },
+        } satisfies WorkspaceStateChangeEvent)
+      },
+    },
+  })
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -1046,6 +1059,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
       history.clearDocumentHistory(documentName)
+      auth.clearDocumentAuth(documentName)
 
       // Get remaining documents before deletion to properly set the active document
       const remainingDocuments = Object.keys(workspace.documents)
@@ -1103,6 +1117,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         intermediateDocuments: unpackProxyObject(intermediateDocuments),
         overrides: unpackProxyObject(overrides),
         history: history.export(),
+        auth: auth.export(),
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
@@ -1123,6 +1138,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
       history.load(input.history)
+      auth.load(input.auth)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification

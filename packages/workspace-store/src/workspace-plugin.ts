@@ -46,6 +46,11 @@ export type WorkspaceStateChangeEvent =
       documentName: string
       value: InMemoryWorkspace['history'][string]
     }
+  | {
+      type: 'auth'
+      documentName: string
+      value: InMemoryWorkspace['auth'][string]
+    }
 
 /**
  * Plugin type for extending workspace-store behavior with hooks.

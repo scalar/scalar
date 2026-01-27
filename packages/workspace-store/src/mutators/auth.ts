@@ -1,8 +1,10 @@
+import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
@@ -153,6 +155,22 @@ export const updateSecurityScheme = (
   }
 
   return target
+}
+
+export const updateSecuritySchemeSecrets = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { payload, name }: AuthEvents['auth:update:security-scheme-secrets'],
+) => {
+  const documentName = document?.['x-scalar-navigation']?.name
+
+  if (!documentName) {
+    return
+  }
+
+  const auth = store?.auth.getAuthSecrets(documentName, name)
+  const result = mergeObjects(unpackProxyObject(auth, { depth: 1 }) ?? {}, payload) as typeof payload
+  store?.auth.setAuthSecrets(documentName, name, result as any)
 }
 
 /**
@@ -387,12 +405,20 @@ export const deleteSecurityScheme = (
   })
 }
 
-export const authMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
+export const authMutatorsFactory = ({
+  document,
+  store,
+}: {
+  document: WorkspaceDocument | null
+  store: WorkspaceStore | null
+}) => {
   return {
     updateSelectedSecuritySchemes: (payload: AuthEvents['auth:update:selected-security-schemes']) =>
       updateSelectedSecuritySchemes(document, payload),
     updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
       updateSecurityScheme(document, payload),
+    updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
+      updateSecuritySchemeSecrets(store, document, payload),
     updateSelectedAuthTab: (payload: AuthEvents['auth:update:active-index']) =>
       updateSelectedAuthTab(document, payload),
     updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>

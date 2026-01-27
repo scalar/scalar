@@ -428,7 +428,6 @@ const labelRequestNameId = useId()
         :securityRequirements
         :securitySchemes
         :selectedSecurity
-        :selectedSecuritySchemes
         :server
         title="Authentication" />
 
