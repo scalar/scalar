@@ -33,6 +33,7 @@ import {
 import { normalize } from '@scalar/openapi-parser'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -42,7 +43,6 @@ import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers
 import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
-import type { OpenCommandEvent } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import { isUrl } from '@/v2/helpers/is-url'
 import { slugify } from '@/v2/helpers/slugify'
 
@@ -53,19 +53,19 @@ import WatchModeToggle from './WatchModeToggle.vue'
 /** Result type for import operations */
 type ImportResult = { success: true; name: string } | { success: false }
 
-const { workspaceStore } = defineProps<{
+const { workspaceStore, eventBus } = defineProps<{
   /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
+  eventBus: WorkspaceEventBus
 }>()
 
-const emit = defineEmits<
-  {
-    /** Emitted when the import is complete or cancelled */
-    (event: 'close'): void
-    /** Emitted when user navigates back (e.g., backspace on empty input) */
-    (event: 'back', keyboardEvent: KeyboardEvent): void
-  } & OpenCommandEvent
->()
+const emit = defineEmits<{
+  /** Emitted when the import is complete or cancelled */
+  (event: 'close'): void
+  /** Emitted when user navigates back (e.g., backspace on empty input) */
+  (event: 'back', keyboardEvent: KeyboardEvent): void
+}>()
 
 /** Maximum number of attempts to generate a unique document name */
 const MAX_NAME_RETRIES = 100
@@ -279,7 +279,12 @@ const handleImport = async (): Promise<void> => {
 const handleInput = (value: string): void => {
   /** Redirect to cURL import command if input starts with 'curl' */
   if (value.trim().toLowerCase().startsWith('curl')) {
-    return emit('open-command', 'import-curl-command', { curl: value })
+    return eventBus.emit('ui:open:command-palette', {
+      action: 'import-curl-command',
+      payload: {
+        inputValue: value,
+      },
+    })
   }
 
   inputContent.value = value

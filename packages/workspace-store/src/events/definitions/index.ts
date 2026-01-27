@@ -30,4 +30,4 @@ export type ApiReferenceEvents = AuthEvents &
 export type { AuthMeta } from './auth'
 export type { CollectionType } from './common'
 export type { OperationExampleMeta, OperationMeta } from './operation'
-export type { CommandPaletteAction } from './ui'
+export type { CommandPaletteAction, CommandPalettePayload } from './ui'

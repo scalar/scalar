@@ -1,12 +1,10 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { CommandPaletteAction, OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type ShallowRef, computed } from 'vue'
 import type { Router } from 'vue-router'
 
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
-
-import type { OpenCommand } from '../command-palette/hooks/use-command-palette-state'
 
 export function initializeAppEventHandlers({
   eventBus,
@@ -16,7 +14,6 @@ export function initializeAppEventHandlers({
   navigateToCurrentTab,
   onSelectSidebarItem,
   onAfterExampleCreation,
-  onOpenCommandPalette,
   onCopyTabUrl,
   onToggleSidebar,
 }: {
@@ -27,7 +24,6 @@ export function initializeAppEventHandlers({
   navigateToCurrentTab: () => Promise<void>
   onSelectSidebarItem: (id: string) => void
   onAfterExampleCreation: (o: OperationExampleMeta) => void
-  onOpenCommandPalette: OpenCommand
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
 }) {
@@ -221,17 +217,8 @@ export function initializeAppEventHandlers({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', onToggleSidebar)
-  eventBus.on(
-    'ui:open:command-palette',
-    <P extends CommandPaletteAction['action']>(payload: CommandPaletteAction<P> | undefined) => {
-      if (payload) {
-        onOpenCommandPalette(payload.action, payload.payload)
-      } else {
-        onOpenCommandPalette()
-      }
-    },
-  )
   eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
+  // Command palette handler is colocated with the command palette component
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers

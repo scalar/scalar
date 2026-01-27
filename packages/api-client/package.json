@@ -240,11 +240,6 @@
       "types": "./dist/v2/features/app/components/index.d.ts",
       "default": "./dist/v2/features/app/components/index.js"
     },
-    "./v2/features/command-palette/components": {
-      "import": "./dist/v2/features/command-palette/components/index.js",
-      "types": "./dist/v2/features/command-palette/components/index.d.ts",
-      "default": "./dist/v2/features/command-palette/components/index.js"
-    },
     "./v2/features/environments": {
       "import": "./dist/v2/features/environments/index.js",
       "types": "./dist/v2/features/environments/index.d.ts",

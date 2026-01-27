@@ -153,6 +153,15 @@ const createRequestBodySchema = (data: ParsedData): SchemaObject => {
   }
 }
 
+/** Don't want to throw for invalid URLs */
+const safePathname = (url: string) => {
+  try {
+    return new URL(url).pathname
+  } catch {
+    return '/'
+  }
+}
+
 /**
  * Converts a cURL command string into an OpenAPI operation object.
  *
@@ -168,7 +177,7 @@ export const getOperationFromCurl = (curl: string, exampleKey = 'curl'): CurlOpe
 
   const { method = 'get', url, body = '', headers = {}, servers = [], queryParameters = [] } = parsedCurl
 
-  const path = new URL(url).pathname
+  const path = safePathname(url)
   const contentType = detectContentType(body, headers)
   const requestBodyData = body ? parseRequestBodyData(body) : {}
 
