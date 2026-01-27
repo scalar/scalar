@@ -1,6 +1,7 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
+  MediaTypeObject,
   ParameterObject,
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -15,7 +16,7 @@ import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/ge
  * Used both for send-request and generating code snippets.
  */
 export const getExample = (
-  param: ParameterObject | RequestBodyObject,
+  param: ParameterObject | RequestBodyObject | MediaTypeObject,
   exampleKey: string | undefined,
   contentType: string | undefined,
 ): ExampleObject | undefined => {
