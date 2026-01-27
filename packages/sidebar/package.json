@@ -52,7 +52,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
-    "@types/jsdom": "^21.1.3",
+    "@types/jsdom": "catalog:*",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
