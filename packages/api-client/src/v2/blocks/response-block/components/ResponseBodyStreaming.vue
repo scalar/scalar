@@ -16,11 +16,13 @@ const loader = useLoadingState()
 
 const textContent = ref('')
 const errorRef = ref<Error | null>(null)
-const decoder = new TextDecoder()
 const contentContainer = ref<HTMLElement | null>(null)
 
 /** Track the current reader to prevent race conditions when reader changes */
 const currentReader = ref<ReadableStreamDefaultReader<Uint8Array> | null>(null)
+
+/** Current decoder instance - reset for each new stream to prevent buffer corruption */
+const decoder = ref<TextDecoder | null>(null)
 
 /**
  * Scrolls the content container to the bottom
@@ -58,8 +60,8 @@ async function readStream(
       }
 
       // Decode the Uint8Array to string and append to content
-      if (value) {
-        textContent.value += decoder.decode(value, { stream: true })
+      if (value && decoder.value) {
+        textContent.value += decoder.value.decode(value, { stream: true })
       }
     }
   } catch (error) {
@@ -71,9 +73,9 @@ async function readStream(
     }
   } finally {
     // Only finalize decoding if this is still the current reader
-    if (currentReader.value === streamReader) {
+    if (currentReader.value === streamReader && decoder.value) {
       // Make sure to decode any remaining bytes
-      textContent.value += decoder.decode()
+      textContent.value += decoder.value.decode()
     }
   }
 }
@@ -88,6 +90,8 @@ const startStreaming = () => {
   currentReader.value = reader
 
   // Reset state and start new stream
+  // Create a new decoder instance to prevent buffer corruption from previous streams
+  decoder.value = new TextDecoder()
   loader.start()
   textContent.value = ''
   errorRef.value = null

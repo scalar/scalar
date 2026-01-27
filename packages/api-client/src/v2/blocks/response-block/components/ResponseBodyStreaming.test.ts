@@ -947,4 +947,120 @@ describe('ResponseBodyStreaming', () => {
       expect(errorDiv.exists()).toBe(true)
     })
   })
+
+  describe('decoder buffer handling', () => {
+    it('does not corrupt new stream with buffered bytes from cancelled stream', async () => {
+      const encoder = new TextEncoder()
+
+      // Create a multi-byte UTF-8 character (emoji uses 4 bytes)
+      const emoji = '🔥'
+      const emojiBytes = encoder.encode(emoji)
+
+      // Split the emoji bytes - send only first 3 bytes, leaving decoder with incomplete character
+      const incompleteBytes = emojiBytes.slice(0, 3)
+
+      let firstReaderCallCount = 0
+      const firstReader = {
+        read: vi.fn(() => {
+          firstReaderCallCount++
+          if (firstReaderCallCount === 1) {
+            // Send incomplete multi-byte sequence
+            return Promise.resolve({
+              done: false as const,
+              value: incompleteBytes,
+            })
+          }
+          // Keep the stream alive (never complete)
+          return new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+            // Never resolves
+          })
+        }),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      // At this point, the decoder has 3 bytes buffered (incomplete emoji)
+      // Now cancel and start a new stream
+      const secondReader = createMockReader(['Hello World'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // Verify the old reader was cancelled
+      expect(firstReader.cancel).toHaveBeenCalled()
+
+      // The new stream should start clean with "Hello World"
+      // If the decoder buffer was not flushed/reset, we would see corruption
+      const text = wrapper.text()
+      expect(text).toContain('Hello World')
+
+      // Verify there's no corruption from the incomplete emoji bytes
+      // The replacement character � (U+FFFD) would appear if decoder wasn't reset
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: we want to test for the replacement character
+      expect(text).not.toMatch(/[^\x00-\x7F\u0080-\uFFFF\u{10000}-\u{10FFFF}]/u)
+    })
+
+    it('properly resets decoder when switching between streams', async () => {
+      const encoder = new TextEncoder()
+
+      // First stream with partial UTF-8 sequence
+      const chineseChar = '你' // 3-byte UTF-8 character
+      const bytes = encoder.encode(chineseChar)
+      const partialBytes = bytes.slice(0, 2) // Send only 2 of 3 bytes
+
+      const firstReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({
+            done: false as const,
+            value: partialBytes,
+          })
+          .mockReturnValue(
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves
+            }),
+          ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      // Switch to second stream
+      const secondReader = createMockReader(['ABC'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // The output should be clean "ABC" without any corruption
+      const text = wrapper.text()
+      expect(text).toContain('ABC')
+      expect(text).not.toContain('�') // No replacement character from corruption
+
+      // Switch to third stream to ensure it continues working correctly
+      const thirdReader = createMockReader(['123'])
+      await wrapper.setProps({ reader: thirdReader })
+      await flushPromises()
+      await nextTick()
+
+      const finalText = wrapper.text()
+      expect(finalText).toContain('123')
+      expect(finalText).not.toContain('ABC') // Old content should be replaced
+      expect(finalText).not.toContain('�') // No replacement character from corruption
+    })
+  })
 })
