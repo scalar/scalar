@@ -1473,6 +1473,126 @@ describe('parameter styles', () => {
 
       expect(result.queryString).toEqual([{ name: 'email', value: '' }])
     })
+
+    it('handles query parameter with array value and explicit explode: false', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'tags',
+            description: 'Filter by tags',
+            in: 'query',
+            required: false,
+            explode: false,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            }),
+            examples: {
+              default: {
+                value: ['javascript', 'typescript', 'vue'],
+                'x-disabled': false,
+              },
+            },
+          },
+        ],
+      })
+
+      // With explicit explode: false, array values should be comma-separated
+      expect(result.queryString).toEqual([{ name: 'tags', value: 'javascript,typescript,vue' }])
+    })
+
+    it('handles query parameter with array value from named example', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'domains',
+            in: 'query',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              title: 'Domains',
+            }),
+            examples: {
+              list: {
+                summary: 'A list of domains',
+                value: ['example.com', 'example.org'],
+              },
+            },
+          },
+        ],
+        example: 'list',
+      })
+
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters
+      expect(result.queryString).toEqual([
+        { name: 'domains', value: 'example.com' },
+        { name: 'domains', value: 'example.org' },
+      ])
+    })
+
+    it('handles query parameter with stringified array value from named example', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'domains',
+            in: 'query',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              title: 'Domains',
+            }),
+            examples: {
+              list: {
+                summary: 'A list of domains',
+                value: JSON.stringify(['example.com', 'example.org']),
+              },
+            },
+          },
+        ],
+        example: 'list',
+      })
+
+      // Stringified array values are treated as literal strings, not parsed
+      expect(result.queryString).toEqual([
+        { name: 'domains', value: 'example.com' },
+        { name: 'domains', value: 'example.org' },
+      ])
+    })
+
+    it('handles query parameter with stringified object value from named example and no schema', () => {
+      const result = processParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'user',
+            in: 'query',
+            required: true,
+            examples: {
+              list: {
+                value: JSON.stringify({ name: 'John', age: 30 }),
+              },
+            },
+          },
+        ],
+        example: 'list',
+      })
+
+      // Form style query parameters default to explode: true
+      // Object values without schema should be serialized as JSON string
+      expect(result.queryString).toEqual([{ name: 'user', value: '{"name":"John","age":30}' }])
+    })
   })
 
   describe('content-based parameters', () => {

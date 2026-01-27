@@ -3,6 +3,7 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Request as HarRequest } from 'har-format'
 
+import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import {
   serializeContentValue,
@@ -79,7 +80,7 @@ const getParameterValue = (
 
   // If the example value is set, return it.
   if (exampleValue?.value !== undefined) {
-    return exampleValue.value
+    return deSerializeParameter(exampleValue.value, param)
   }
 
   // Fall back to schema example if available
