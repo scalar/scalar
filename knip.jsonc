@@ -9,10 +9,7 @@
     "integrations/express/**",
     "integrations/fastapi/**",
     "integrations/hono/**",
-    "integrations/nestjs/**",
-    "integrations/nextjs/**",
-    "integrations/nuxt/**",
-    "integrations/sveltekit/**"
+    "integrations/nestjs/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -325,6 +322,7 @@
       ],
       "ignoreBinaries": ["mvn"]
     },
+    "integrations/next": {},
     "integrations/nuxt": {
       "entry": [
         "src/module.ts",
@@ -337,6 +335,13 @@
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
+    },
+    "integrations/sveltekit": {
+      "ignoreDependencies": [
+        // Automatically added to devDependencies by `pnpm script packages format`
+        // because it's a peer dependency but not used directly.
+        "@sveltejs/kit"
       ]
     }
   }
