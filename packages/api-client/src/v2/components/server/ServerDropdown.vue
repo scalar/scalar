@@ -56,12 +56,12 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
-    placement="bottom-start"
+    placement="bottom"
     resize
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="z-context-plus hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap"
+      class="hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap"
       variant="ghost">
       <template v-if="server">
         <span class="sr-only">Server:</span>
@@ -74,7 +74,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     </ScalarButton>
     <template #popover="{ close }">
       <div
-        class="custom-scroll flex max-h-[inherit] flex-col gap-1 border-t p-1"
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
         @click="close">
         <!-- Request -->
         <ServerDropdownItem
@@ -106,7 +106,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     </template>
     <template #backdrop>
       <ScalarFloatingBackdrop
-        class="-top-(--scalar-address-bar-height) rounded-lg" />
+        class="fixed -top-0.5 rounded-none rounded-b-lg border-t-0 border-none" />
     </template>
   </ScalarPopover>
 </template>

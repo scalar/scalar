@@ -43,7 +43,7 @@ const emits = defineEmits<{
       <!-- History -->
       <MenuButton
         v-if="history.length"
-        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
+        class="address-bar-history-button text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
         <ScalarIcon
           icon="History"
           size="sm"
