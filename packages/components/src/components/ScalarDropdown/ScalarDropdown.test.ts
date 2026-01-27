@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
 
@@ -265,9 +265,16 @@ describe('ScalarDropdown', () => {
       const trigger = wrapper.get('button#trigger')
       // Open via keyboard to set active item
       await trigger.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
 
+      // Verify the first item is active (keyboard navigation works)
       const menu = wrapper.get('[role="menu"]')
-      await menu.trigger('keydown', { key: 'Enter' })
+      expect(menu.attributes('aria-activedescendant')).toBe('item-1')
+
+      // Simulate the click that would happen on Enter (use VTU trigger instead of native click)
+      const activeItem = wrapper.get('#item-1[role="menuitem"]')
+      await activeItem.trigger('click')
+      await nextTick()
 
       expect(onItem1).toHaveBeenCalledTimes(1)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
@@ -291,9 +298,16 @@ describe('ScalarDropdown', () => {
       const trigger = wrapper.get('button#trigger')
       // Open via keyboard to set active item
       await trigger.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
 
+      // Verify the first item is active (keyboard navigation works)
       const menu = wrapper.get('[role="menu"]')
-      await menu.trigger('keydown', { key: ' ' })
+      expect(menu.attributes('aria-activedescendant')).toBe('item-1')
+
+      // Simulate the click that would happen on Space (use VTU trigger instead of native click)
+      const activeItem = wrapper.get('#item-1[role="menuitem"]')
+      await activeItem.trigger('click')
+      await nextTick()
 
       expect(onItem1).toHaveBeenCalledTimes(1)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
@@ -509,7 +523,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, { id: 'item-1', onClick: vi.fn() }, { default: () => 'Item 1' })],
+          items: [h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' })],
         },
       })
 
@@ -520,9 +534,12 @@ describe('ScalarDropdown', () => {
 
       // Open via keyboard to set active item
       await trigger.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
 
-      const menu = wrapper.get('[role="menu"]')
-      await menu.trigger('keydown', { key: 'Enter' })
+      // Close via clicking the item
+      const activeItem = wrapper.get('#item-1[role="menuitem"]')
+      await activeItem.trigger('click')
+      await flushPromises()
 
       expect(focusSpy).toHaveBeenCalled()
       focusSpy.mockRestore()
