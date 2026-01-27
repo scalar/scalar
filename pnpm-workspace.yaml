@@ -110,6 +110,8 @@ minimumReleaseAgeExclude:
   - vite-node
   - vitest
   - vue
+  # Renovate security update: @sveltejs/kit@2.49.5
+  - "@sveltejs/kit@2.49.5"
 
 onlyBuiltDependencies:
   - '@nestjs/core'
