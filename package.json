@@ -7,6 +7,11 @@
     "pnpm": "^10.16.1"
   },
   "packageManager": "pnpm@10.16.1",
+  "pnpm": {
+    "overrides": {
+      "@types/node": "catalog:*"
+    }
+  },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@changesets/cli": "^2.29.8",
