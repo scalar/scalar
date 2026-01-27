@@ -271,7 +271,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 }
 ```
 
-Learn more about [redirects](../guides/docs/redirects.md).
+Learn more about [redirects](../guides/docs/configuration/redirects.md).
 
 ## Summary
 

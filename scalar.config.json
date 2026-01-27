@@ -113,7 +113,7 @@
         },
         {
           "from": "/scalar/scalar-docs/redirects",
-          "to": "/products/docs/redirects"
+          "to": "/products/docs/configuration/redirects"
         },
         {
           "from": "/scalar/scalar-docs/components/markdown-support",

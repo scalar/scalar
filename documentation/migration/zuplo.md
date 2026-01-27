@@ -288,7 +288,7 @@ If you had traffic going to your Zuplo developer portal, you might want to set u
 }
 ```
 
-**Learn more about [redirects](../guides/docs/redirects.md).**
+**Learn more about [redirects](../guides/docs/configuration/redirects.md).**
 
 ## Using Zuplo Gateway with Scalar Documentation
 
