@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import { ScalarMarkdownSummary } from '@scalar/components'
-import type { PathValue } from '@scalar/object-utils/nested'
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
-  ApiKeyObject,
   ComponentsObject,
-  HttpObject,
   SecurityRequirementObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
+import ApiKeyAuthentication from '@/v2/blocks/scalar-auth-selector-block/components/ApiKeyAuthentication.vue'
+import HttpAuthentication from '@/v2/blocks/scalar-auth-selector-block/components/HttpAuthentication.vue'
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
-
-import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 type SecurityItem = {
   scheme: SecuritySchemeObject | undefined
@@ -32,28 +33,33 @@ const {
   selectedSecuritySchemas,
   securitySchemes,
   server,
+  eventBus,
 } = defineProps<{
+  documentSlug: string
+  /** The current environment configuration */
   environment: XScalarEnvironment
   /** Controls the display of certain borders which are used when we are non-collapsible */
   isStatic: boolean
+  /** Proxy URL */
   proxyUrl: string
+  /** Selected security schemes */
   selectedSecuritySchemas: SecurityRequirementObject
+  /** OpenAPI security scheme definitions */
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
+  /** Current server configuration */
   server: ServerObject | null
+  /** Event bus for authentication updates */
+  eventBus: WorkspaceEventBus
+  /** Auth store */
+  authStore: AuthStore
 }>()
 
 const emits = defineEmits<{
-  (
-    e: 'update:securityScheme',
-    payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
-    name: string,
-  ): void
   (
     e: 'update:selectedScopes',
     payload: Omit<ApiReferenceEvents['auth:update:selected-scopes'], 'meta'>,
   ): void
 }>()
-
 /**
  * Resolves security schemes from the OpenAPI document and combines them with their selected scopes.
  * Each item includes the scheme definition, name, and associated scopes.
@@ -104,39 +110,6 @@ const generateLabel = (name: string, scheme: SecuritySchemeObject): string => {
  */
 const isFlowActive = (flowKey: string, index: number): boolean =>
   activeFlow.value === flowKey || (index === 0 && !activeFlow.value)
-
-/** Computes the container class for static display mode. */
-const getStaticBorderClass = (): string | false => isStatic && 'border-t'
-
-/** Handles updates to HTTP authentication schemes (Bearer and Basic) */
-const handleHttpUpdate = <T extends keyof Omit<HttpObject, 'type'>>(
-  field: T,
-  value: PathValue<Omit<HttpObject, 'type'>, T>,
-  name: string,
-): void =>
-  emits(
-    'update:securityScheme',
-    {
-      type: 'http',
-      [field]: value,
-    },
-    name,
-  )
-
-/** Handles updates to API Key authentication schemes */
-const handleApiKeyUpdate = <T extends keyof Omit<ApiKeyObject, 'type'>>(
-  field: T,
-  value: PathValue<Omit<ApiKeyObject, 'type'>, T>,
-  name: string,
-): void =>
-  emits(
-    'update:securityScheme',
-    {
-      type: 'apiKey',
-      [field]: value,
-    },
-    name,
-  )
 
 /** Handles scope selection updates for OAuth2 */
 const handleScopesUpdate = (
@@ -192,75 +165,26 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
 
     <!-- HTTP Authentication -->
     <template v-if="scheme?.type === 'http'">
-      <!-- Bearer Token -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
-        <RequestAuthDataTableInput
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="Token"
-          type="password"
-          @update:modelValue="
-            (v) => handleHttpUpdate('x-scalar-secret-token', v, name)
-          ">
-          Bearer Token
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-
-      <!-- HTTP Basic Authentication -->
-      <template v-else-if="scheme?.scheme === 'basic'">
-        <DataTableRow>
-          <RequestAuthDataTableInput
-            class="text-c-2"
-            :environment
-            :modelValue="scheme['x-scalar-secret-username']"
-            placeholder="janedoe"
-            required
-            @update:modelValue="
-              (v) => handleHttpUpdate('x-scalar-secret-username', v, name)
-            ">
-            Username
-          </RequestAuthDataTableInput>
-        </DataTableRow>
-        <DataTableRow>
-          <RequestAuthDataTableInput
-            :environment
-            :modelValue="scheme['x-scalar-secret-password']"
-            placeholder="********"
-            type="password"
-            @update:modelValue="
-              (v) => handleHttpUpdate('x-scalar-secret-password', v, name)
-            ">
-            Password
-          </RequestAuthDataTableInput>
-        </DataTableRow>
-      </template>
+      <HttpAuthentication
+        :authStore="authStore"
+        :documentSlug="documentSlug"
+        :environment="environment"
+        :eventBus="eventBus"
+        :isStatic="isStatic"
+        :name="name"
+        :scheme="scheme" />
     </template>
 
     <!-- API Key Authentication -->
     <template v-else-if="scheme?.type === 'apiKey'">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme.name"
-          placeholder="api-key"
-          @update:modelValue="(v) => handleApiKeyUpdate('name', v, name)">
-          Name
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :environment
-          :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-          type="password"
-          @update:modelValue="
-            (v) => handleApiKeyUpdate('x-scalar-secret-token', v, name)
-          ">
-          Value
-        </RequestAuthDataTableInput>
-      </DataTableRow>
+      <ApiKeyAuthentication
+        :authStore="authStore"
+        :documentSlug="documentSlug"
+        :environment="environment"
+        :eventBus="eventBus"
+        :isStatic="isStatic"
+        :name="name"
+        :scheme="scheme" />
     </template>
 
     <!-- OAuth 2.0 Authentication -->
@@ -287,15 +211,16 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
         :key="key">
         <OAuth2
           v-if="isFlowActive(key, ind)"
+          :authStore="authStore"
+          :documentSlug="documentSlug"
           :environment
+          :eventBus="eventBus"
           :flows="scheme.flows"
+          :name="name"
           :proxyUrl
           :selectedScopes="scopes"
           :server="server"
           :type="key"
-          @update:securityScheme="
-            (payload) => emits('update:securityScheme', payload, name)
-          "
           @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
       </template>
     </template>

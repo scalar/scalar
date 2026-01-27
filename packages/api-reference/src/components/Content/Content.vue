@@ -7,6 +7,7 @@ import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -55,6 +56,7 @@ const { document, items, environment, eventBus, options } = defineProps<{
   environment: XScalarEnvironment
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
+  authStore: AuthStore
 }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
@@ -127,6 +129,7 @@ const securitySchemes = computed(() =>
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
+                :authStore
                 :document
                 :environment
                 :eventBus

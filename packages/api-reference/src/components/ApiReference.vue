@@ -901,6 +901,7 @@ const colorMode = computed(() => {
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
         class="references-rendered">
         <Content
+          :authStore="workspaceStore.auth"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus

@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-const { document, eventBus, environment, securitySchemes } =
+const { document, eventBus, environment, securitySchemes, documentSlug } =
   defineProps<CollectionProps>()
 
 /** If enabled we use/set the selected security schemes on the document level */
@@ -45,11 +45,13 @@ const server = computed(
     <!-- Auth Selector -->
     <div :class="!useDocumentSecurity && 'cursor-not-allowed'">
       <AuthSelector
+        :authStore="workspaceStore.auth"
         class="scalar-collection-auth !border-none"
         :class="
           !useDocumentSecurity &&
           'pointer-events-none opacity-50 mix-blend-luminosity'
         "
+        :documentSlug
         :environment
         :eventBus="eventBus"
         isStatic

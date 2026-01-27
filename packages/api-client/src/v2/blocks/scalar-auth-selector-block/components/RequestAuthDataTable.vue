@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -25,6 +26,8 @@ const {
   server,
   eventBus,
   meta,
+  authStore,
+  documentSlug,
 } = defineProps<{
   /** The current environment configuration */
   environment: XScalarEnvironment
@@ -40,10 +43,14 @@ const {
   securitySchemes: ComponentsObject['securitySchemes']
   /** Current server configuration */
   server: ServerObject | null
-  /** Event bus for authentication updates */
-  eventBus: WorkspaceEventBus
   /** Metadata for authentication context */
   meta: AuthMeta
+  /** Auth store */
+  authStore: AuthStore
+  /** Document slug */
+  documentSlug: string
+  /** Event bus for authentication updates */
+  eventBus: WorkspaceEventBus
 }>()
 
 /** Currently selected authentication scheme based on the active tab index */
@@ -129,7 +136,10 @@ defineExpose({
       :columns="['']"
       presentational>
       <RequestAuthTab
+        :authStore
+        :documentSlug
         :environment
+        :eventBus
         :isStatic
         :proxyUrl
         :securitySchemes

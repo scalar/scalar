@@ -149,8 +149,10 @@ const APP_VERSION = PACKAGE_VERSION
     <OperationBlock
       :appVersion="APP_VERSION"
       :authMeta
+      :authStore="workspaceStore.auth"
       :documentSecurity="document?.security ?? []"
       :documentSelectedSecurity="document?.['x-scalar-selected-security']"
+      :documentSlug
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus

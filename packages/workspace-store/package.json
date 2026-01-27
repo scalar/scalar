@@ -38,6 +38,11 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./entities/auth/*": {
+      "import": "./dist/entities/auth/*.js",
+      "types": "./dist/entities/auth/*.d.ts",
+      "default": "./dist/entities/auth/*.js"
+    },
     "./entities/history/*": {
       "import": "./dist/entities/history/*.js",
       "types": "./dist/entities/history/*.d.ts",

@@ -12,6 +12,7 @@ import type { PartialDeep } from 'type-fest'
 import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
+import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
@@ -157,6 +158,10 @@ export type WorkspaceStore = {
    * The history store for the workspace
    */
   readonly history: HistoryStore
+  /**
+   * The auth store for the workspace
+   */
+  readonly auth: AuthStore
   /**
    * Returns the reactive workspace object with an additional activeDocument getter
    */
@@ -430,7 +435,11 @@ export type WorkspaceStore = {
    * }
    */
   rebaseDocument: (input: WorkspaceDocumentInput) => Promise<
-    | { ok: false; type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'; message: string }
+    | {
+        ok: false
+        type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'
+        message: string
+      }
     | {
         ok: true
         conflicts: ReturnType<typeof merge>['conflicts']
@@ -679,6 +688,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
     },
   })
+
+  /**
+   * The auth store for the workspace
+   */
+  const auth = createAuthStore()
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -945,6 +959,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     get history() {
       return history
+    },
+    get auth() {
+      return auth
     },
     update(key, value) {
       preventPollution(key)

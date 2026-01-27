@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 
-import { type DocumentHistory, HistoryDocumentSchema } from '@/entities/history/schema'
+import { type DocumentHistory, DocumentHistorySchema } from '@/entities/history/schema'
 import {
   type WorkspaceDocument,
   WorkspaceDocumentSchema,
@@ -16,7 +16,7 @@ export const InMemoryWorkspaceSchema = Type.Object({
   originalDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   intermediateDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   overrides: Type.Record(Type.String(), Type.Any()),
-  history: HistoryDocumentSchema,
+  history: DocumentHistorySchema,
 })
 
 export type InMemoryWorkspace = {

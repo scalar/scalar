@@ -25,6 +25,7 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
@@ -133,6 +134,10 @@ const {
   proxyUrl: string
   /** The history for the operation */
   history?: HistoryEntry[]
+  /** The auth store */
+  authStore: AuthStore
+  /** The document slug */
+  documentSlug: string
 }>()
 
 const emit = defineEmits<{
@@ -347,7 +352,9 @@ onBeforeUnmount(() => {
         <!-- Request Section -->
         <RequestBlock
           :authMeta
+          :authStore
           :clientOptions
+          :documentSlug
           :environment
           :eventBus
           :exampleKey

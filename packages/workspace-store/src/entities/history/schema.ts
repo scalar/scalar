@@ -240,7 +240,7 @@ export const PathMethodHistorySchema = Type.Record(
  */
 export type PathMethodHistory = Record<string, Record<string, HistoryEntry[]>>
 
-export const HistoryDocumentSchema = Type.Record(Type.String(), PathMethodHistorySchema)
+export const DocumentHistorySchema = Type.Record(Type.String(), PathMethodHistorySchema)
 
 /**
  * Type for the document history.

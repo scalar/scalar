@@ -4,6 +4,7 @@ import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -71,6 +72,8 @@ const {
   selectedSecuritySchemes,
   server,
   globalCookies,
+  documentSlug,
+  authStore,
 } = defineProps<{
   selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   authMeta: AuthMeta
@@ -90,6 +93,8 @@ const {
   selectedSecuritySchemes: SecuritySchemeObject[]
   server: ServerObject | null
   globalCookies: ExtendedScalarCookie[]
+  documentSlug: string
+  authStore: AuthStore
 }>()
 
 /** Operation metadata used across event emissions */
@@ -414,6 +419,8 @@ const labelRequestNameId = useId()
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :authStore
+        :documentSlug
         :environment
         :eventBus
         :meta="authMeta"

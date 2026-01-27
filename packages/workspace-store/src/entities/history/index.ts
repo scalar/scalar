@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-import { type DocumentHistory, HistoryDocumentSchema, type HistoryEntry } from '@/entities/history/schema'
+import { type DocumentHistory, DocumentHistorySchema, type HistoryEntry } from '@/entities/history/schema'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -164,7 +164,7 @@ export const createHistoryStore = ({
   }
 
   const load: HistoryStore['load'] = (data) => {
-    safeAssign(history, coerceValue(HistoryDocumentSchema, data))
+    safeAssign(history, coerceValue(DocumentHistorySchema, data))
   }
 
   const exportHistory: HistoryStore['export'] = () => {

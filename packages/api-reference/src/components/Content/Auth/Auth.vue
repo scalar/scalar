@@ -8,6 +8,7 @@ import {
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -16,7 +17,7 @@ import { computed, watch } from 'vue'
 
 import { getDefaultSecurity } from '@/components/Content/Auth/helpers/get-default-security'
 
-const { document, environment, eventBus, options, securitySchemes } =
+const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
     options: Pick<
       ApiReferenceConfigurationRaw,
@@ -27,6 +28,7 @@ const { document, environment, eventBus, options, securitySchemes } =
     securitySchemes: MergedSecuritySchemes
     selectedServer: ServerObject | null
     environment: XScalarEnvironment
+    authStore: AuthStore
   }>()
 
 /** Compute what the security requirements should be for the document */
@@ -72,6 +74,8 @@ watch(
 <template>
   <AuthSelector
     v-if="Object.keys(securitySchemes).length"
+    :authStore="authStore"
+    :documentSlug="document?.['x-scalar-navigation']?.name"
     :environment
     :eventBus
     isStatic

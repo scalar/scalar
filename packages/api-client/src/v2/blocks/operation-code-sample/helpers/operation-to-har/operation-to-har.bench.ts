@@ -26,28 +26,20 @@ const complexSecuritySchemes: readonly SecuritySchemeObject[] = [
   {
     type: 'http',
     scheme: 'bearer',
-    'x-scalar-secret-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.large.token.payload',
-    'x-scalar-secret-username': '',
-    'x-scalar-secret-password': '',
   },
   {
     type: 'apiKey',
     in: 'query',
     name: 'api_key',
-    'x-scalar-secret-token': 'QUERY_API_KEY_VALUE',
   },
   {
     type: 'apiKey',
     in: 'header',
     name: 'X-Client-Id',
-    'x-scalar-secret-token': 'CLIENT-1234567890',
   },
   {
     type: 'http',
     scheme: 'basic',
-    'x-scalar-secret-username': 'benchuser',
-    'x-scalar-secret-password': 'verylongpasswordvalue',
-    'x-scalar-secret-token': '',
   },
 ] as const
 
