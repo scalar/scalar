@@ -81,7 +81,7 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
 
   const search = async (query: string) =>
     request({
-      path: '/registry/search',
+      path: '/vector/registry/search',
       query: { query },
       responseSchema: z.object({
         results: registryApiMetadata.array(),
@@ -90,7 +90,7 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
 
   const getDocument = async (params: { namespace: string; slug: string }) =>
     request({
-      path: `/registry/document/${params.namespace}/${params.slug}`,
+      path: `/vector/registry/document/${params.namespace}/${params.slug}`,
       responseSchema: registryApiMetadata,
     })
 
