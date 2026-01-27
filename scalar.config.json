@@ -574,6 +574,11 @@
                         "type": "page",
                         "title": "Redirects"
                       },
+                      "mdx": {
+                        "title": "MDX",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/mdx.mdx"
+                      },
                       "migration": {
                         "title": "Migrate from 1.0",
                         "type": "page",
