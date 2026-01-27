@@ -50,7 +50,7 @@ catalogs:
     'pretty-bytes': ^7.1.0
     ansis: 4.1.0
     astro: 5.15.9
-    chokidar: 4.0.3
+    chokidar: 5.0.0
     commander: 13.1.0
     concurrently: 9.1.2
     esbuild: 0.25.6
