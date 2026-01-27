@@ -34,6 +34,7 @@ optional = true
 [dependencies.warp]
 version = "0.4.2"
 optional = true
+features = ["server"]
 
 [dependencies.tokio]
 version = "1.49.0"
