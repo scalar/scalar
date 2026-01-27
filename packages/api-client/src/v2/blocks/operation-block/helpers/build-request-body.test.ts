@@ -36,7 +36,7 @@ describe('buildRequestBody', () => {
     }
     const env = { username: 'john_doe', userId: '12345' }
     const result = buildRequestBody(requestBody, env, 'default')
-    expect(result).toBe('{"name":"john_doe","id":"12345"}')
+    expect(result).toBe('{"name": "john_doe", "id": "12345"}')
   })
 
   it('builds FormData for multipart/form-data content type', () => {
