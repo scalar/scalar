@@ -125,11 +125,6 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'video/x-msvideo': { extension: '.avi' },
 }
 
-/** Media Types (MIME Types) that can be displayed as raw text */
-export const textMediaTypes: string[] = Object.entries(mediaTypes)
-  .filter(([, config]) => config?.raw)
-  .map(([type]) => type)
-
 /** Get the config for a media type */
 export function getMediaTypeConfig(type: string): MediaConfig | undefined {
   const config = mediaTypes[type]
@@ -147,9 +142,4 @@ export function getMediaTypeConfig(type: string): MediaConfig | undefined {
   }
 
   return undefined
-}
-
-/** Check if a media type that can be displayed as raw text */
-export function isTextMediaType(type: string): boolean {
-  return !!getMediaTypeConfig(type)?.raw
 }

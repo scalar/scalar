@@ -108,6 +108,10 @@
     "packages/api-client-react": {
       "entry": ["playground/main.tsx"]
     },
+    "packages/agent-chat": {
+      "ignore": ["playground/**", "src/entities/**"],
+      "ignoreDependencies": ["@scalar/themes", "hono"]
+    },
     "packages/api-reference": {
       "entry": [
         // "src/index.ts", used by playground

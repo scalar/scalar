@@ -1,6 +1,6 @@
 import { onMounted, ref } from 'vue'
 
-export const TERMS_AND_CONDITIONS_LS_KEY = 'scalar/agent-terms-accepted'
+const TERMS_AND_CONDITIONS_LS_KEY = 'scalar/agent-terms-accepted'
 
 export function useTermsAndConditions() {
   const accepted = ref(false)
