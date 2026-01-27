@@ -67,7 +67,7 @@ describe('useCommandPaletteState', () => {
     vi.mocked(useModal).mockReturnValue(mockModalState)
 
     const state = useCommandPaletteState()
-    const props = { curl: 'curl https://api.example.com' }
+    const props = { inputValue: 'curl https://api.example.com' }
     state.open('import-curl-command', props)
 
     expect(mockModalState.show).toHaveBeenCalledOnce()
@@ -307,11 +307,11 @@ describe('useCommandPaletteState', () => {
 
     const state = useCommandPaletteState()
 
-    const firstProps = { curl: 'curl https://first.com' }
+    const firstProps = { inputValue: 'curl https://first.com' }
     state.open('import-curl-command', firstProps)
     expect(state.activeCommandProps.value).toEqual(firstProps)
 
-    const secondProps = { curl: 'curl https://second.com' }
+    const secondProps = { inputValue: 'curl https://second.com' }
     state.open('import-curl-command', secondProps)
     expect(state.activeCommandProps.value).toEqual(secondProps)
   })
