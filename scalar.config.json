@@ -564,6 +564,11 @@
                         "type": "page",
                         "filepath": "documentation/guides/docs/configuration/scalar.config.json.md"
                       },
+                      "site": {
+                        "title": "Site",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/site.md"
+                      },
                       "navigation": {
                         "title": "Navigation",
                         "type": "page",
