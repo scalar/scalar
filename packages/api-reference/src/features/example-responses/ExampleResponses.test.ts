@@ -431,4 +431,141 @@ describe('ExampleResponses', () => {
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Wildcard mimetype')
   })
+
+  it('handles deprecated example field when no examples array exists', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Success with deprecated example field',
+            content: {
+              'application/json': {
+                example: { message: 'Hello from deprecated example field' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+    const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+
+    expect(tabs.length).toBe(1)
+    expect(tabs[0]?.text()).toContain('200')
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('Hello from deprecated example field')
+    expect(examplePicker.exists()).toBe(false)
+  })
+
+  it('prefers examples over deprecated example field', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Response with both examples and example',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { message: 'From examples array' } },
+                },
+                example: { message: 'From deprecated example field' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('From examples array')
+    expect(wrapper.text()).not.toContain('From deprecated example field')
+  })
+
+  it('handles deprecated example field with complex objects', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Complex example object',
+            content: {
+              'application/json': {
+                example: {
+                  user: {
+                    id: 123,
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                  },
+                  metadata: {
+                    timestamp: '2024-01-01T00:00:00Z',
+                    version: '1.0',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('John Doe')
+    expect(wrapper.text()).toContain('john@example.com')
+    expect(wrapper.text()).toContain('2024-01-01T00:00:00Z')
+  })
+
+  it('handles deprecated example field with arrays', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Array example',
+            content: {
+              'application/json': {
+                example: [
+                  { id: 1, name: 'Item 1' },
+                  { id: 2, name: 'Item 2' },
+                  { id: 3, name: 'Item 3' },
+                ],
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('Item 1')
+    expect(wrapper.text()).toContain('Item 2')
+    expect(wrapper.text()).toContain('Item 3')
+  })
+
+  it('handles deprecated example field with primitive values', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Primitive example',
+            content: {
+              'text/plain': {
+                example: 'Simple string response',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('Simple string response')
+  })
 })

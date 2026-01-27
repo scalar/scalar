@@ -117,22 +117,32 @@ const selectedExampleKey = ref<string>(
 /**
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
+ * Prioritizes the examples object/array over the deprecated example field.
  */
 const getFirstResponseExample = (): ExampleObject | undefined => {
   const response = toValue(currentResponseContent)
-
   if (!response) {
     return undefined
   }
 
+  // This should never happen but must be here for a reason?
   if (Array.isArray(response.examples)) {
     return response.examples[0]
   }
 
+  // Grab the first example
   const firstExampleKey = Object.keys(response.examples ?? {})[0] ?? ''
   const firstExample = response.examples?.[firstExampleKey]
+  if (firstExample) {
+    return firstExample
+  }
 
-  return firstExample
+  // Singular example field
+  if (response.example !== undefined) {
+    return { value: response.example }
+  }
+
+  return undefined
 }
 
 const currentExample = computed(() =>
