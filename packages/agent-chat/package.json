@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.2.9",
+  "version": "0.3.2",
   "engines": {
     "node": ">=20"
   },
@@ -29,11 +29,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./entities/*": {
-      "import": "./dist/entities/*.js",
-      "types": "./dist/entities/*.d.ts",
-      "default": "./dist/entities/*.js"
-    },
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",
@@ -43,6 +38,11 @@
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
+    },
+    "./entities": {
+      "import": "./dist/entities/index.js",
+      "types": "./dist/entities/index.d.ts",
+      "default": "./dist/entities/index.js"
     }
   },
   "files": [
