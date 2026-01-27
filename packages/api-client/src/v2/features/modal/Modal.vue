@@ -129,7 +129,7 @@ const cleanUp = () => {
 
   // We also drop any changes to the document when we close the modal
   workspaceStore.revertDocumentChanges(
-    document.value?.['x-scalar-navigation']?.id ?? '',
+    document.value?.['x-scalar-navigation']?.name ?? '',
   )
 }
 
