@@ -28,10 +28,19 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIconCaretLeft, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
+  CommandPaletteAction,
   CommandPalettePayload,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import { computed, nextTick, ref, watch } from 'vue'
+import type { ArgumentsType } from '@vueuse/core'
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  ref,
+  watch,
+} from 'vue'
 import { useRouter } from 'vue-router'
 
 import type {
@@ -170,13 +179,16 @@ const paletteProps = computed(() => ({
   ...paletteState.activeCommandProps.value,
 }))
 
-eventBus.on('ui:open:command-palette', (payload) => {
+const onOpen = (payload: CommandPaletteAction | undefined) => {
   if (payload) {
     paletteState.open(payload.action, payload.payload)
   } else {
     paletteState.open()
   }
-})
+}
+
+onBeforeMount(() => eventBus.on('ui:open:command-palette', onOpen))
+onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
 </script>
 <template>
   <Dialog
@@ -250,7 +262,10 @@ eventBus.on('ui:open:command-palette', (payload) => {
 
         <!-- Empty state when no commands match search -->
         <div
-          v-if="!paletteState.filteredCommands.value.length"
+          v-if="
+            !paletteState.filteredCommands.value.flatMap((p) => p.commands)
+              .length
+          "
           class="text-c-3 p-2 pt-3 text-center text-sm">
           No commands found
         </div>
