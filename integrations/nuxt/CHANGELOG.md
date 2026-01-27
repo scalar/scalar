@@ -1,5 +1,22 @@
 # @scalar/nuxt
 
+## 0.5.55
+
+### Patch Changes
+
+- [#7898](https://github.com/scalar/scalar/pull/7898): fix: removed unused dependencies
+  - `@scalar/api-client`
+  - `@scalar/workspace-store`
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
 ## 0.5.54
 
 ### Patch Changes

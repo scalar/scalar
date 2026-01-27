@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.7.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/components@0.16.31**
+
 ## 0.7.20
 
 ### Patch Changes
