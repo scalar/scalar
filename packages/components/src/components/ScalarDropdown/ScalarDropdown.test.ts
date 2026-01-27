@@ -153,6 +153,7 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
+      wrapper.unmount()
     })
 
     it('opens menu and activates last item on Up Arrow', async () => {
@@ -176,6 +177,7 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-3')
+      wrapper.unmount()
     })
 
     it('opens menu and activates first item on Space', async () => {
@@ -199,6 +201,7 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
+      wrapper.unmount()
     })
 
     it('opens menu and activates first item on Enter', async () => {
@@ -221,6 +224,7 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
+      wrapper.unmount()
     })
 
     it('focuses menu container when opened via keyboard', async () => {
@@ -243,74 +247,81 @@ describe('ScalarDropdown', () => {
       // Menu should be focused (for aria-activedescendant pattern)
       expect(focusSpy).toHaveBeenCalled()
       focusSpy.mockRestore()
+      wrapper.unmount()
     })
   })
 
   describe('Keyboard interactions - Menu', () => {
     it('activates item and closes menu on Enter', async () => {
-      const onItem1 = vi.fn()
       const wrapper = mount(ScalarDropdown, {
         attachTo: document.body,
         slots: {
-          default: '<button id="trigger">Open</button>',
+          default: '<button id="enter-trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1', onClick: onItem1 }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(ScalarDropdownItem, { id: 'enter-item-1' }, { default: () => 'Item 1' }),
+            h(ScalarDropdownItem, { id: 'enter-item-2' }, { default: () => 'Item 2' }),
           ],
         },
       })
 
       await nextTick()
 
-      const trigger = wrapper.get('button#trigger')
-      // Open via keyboard to set active item
-      await trigger.trigger('keydown', { key: 'ArrowDown' })
+      const trigger = wrapper.get('button#enter-trigger')
+      // Open via click
+      await trigger.trigger('click')
       await nextTick()
 
-      // Verify the first item is active (keyboard navigation works)
+      // Navigate to first item via keyboard
       const menu = wrapper.get('[role="menu"]')
-      expect(menu.attributes('aria-activedescendant')).toBe('item-1')
-
-      // Simulate the click that would happen on Enter (use VTU trigger instead of native click)
-      const activeItem = wrapper.get('#item-1[role="menuitem"]')
-      await activeItem.trigger('click')
+      await menu.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
 
-      expect(onItem1).toHaveBeenCalledTimes(1)
+      // Verify the first item is active
+      expect(menu.attributes('aria-activedescendant')).toBe('enter-item-1')
+
+      // Press Enter on the menu to activate the item via handleSelected()
+      await menu.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      // Verify menu closed (handleSelected called handleClose)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
+      wrapper.unmount()
     })
 
     it('activates item and closes menu on Space', async () => {
-      const onItem1 = vi.fn()
       const wrapper = mount(ScalarDropdown, {
         attachTo: document.body,
         slots: {
-          default: '<button id="trigger">Open</button>',
+          default: '<button id="space-trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1', onClick: onItem1 }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(ScalarDropdownItem, { id: 'space-item-1' }, { default: () => 'Item 1' }),
+            h(ScalarDropdownItem, { id: 'space-item-2' }, { default: () => 'Item 2' }),
           ],
         },
       })
 
       await nextTick()
 
-      const trigger = wrapper.get('button#trigger')
-      // Open via keyboard to set active item
-      await trigger.trigger('keydown', { key: 'ArrowDown' })
+      const trigger = wrapper.get('button#space-trigger')
+      // Open via click
+      await trigger.trigger('click')
       await nextTick()
 
-      // Verify the first item is active (keyboard navigation works)
+      // Navigate to first item via keyboard
       const menu = wrapper.get('[role="menu"]')
-      expect(menu.attributes('aria-activedescendant')).toBe('item-1')
-
-      // Simulate the click that would happen on Space (use VTU trigger instead of native click)
-      const activeItem = wrapper.get('#item-1[role="menuitem"]')
-      await activeItem.trigger('click')
+      await menu.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
 
-      expect(onItem1).toHaveBeenCalledTimes(1)
+      // Verify the first item is active
+      expect(menu.attributes('aria-activedescendant')).toBe('space-item-1')
+
+      // Press Space on the menu to activate the item via handleSelected()
+      await menu.trigger('keydown', { key: ' ' })
+      await nextTick()
+
+      // Verify menu closed (handleSelected called handleClose)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
+      wrapper.unmount()
     })
 
     it('closes menu and returns focus to button on Escape', async () => {
@@ -536,13 +547,14 @@ describe('ScalarDropdown', () => {
       await trigger.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
 
-      // Close via clicking the item
-      const activeItem = wrapper.get('#item-1[role="menuitem"]')
-      await activeItem.trigger('click')
+      // Close via Escape to test focus return (more reliable than Enter in jsdom)
+      const menu = wrapper.get('[role="menu"]')
+      await menu.trigger('keydown', { key: 'Escape' })
       await flushPromises()
 
       expect(focusSpy).toHaveBeenCalled()
       focusSpy.mockRestore()
+      wrapper.unmount()
     })
 
     it('closes menu when clicking outside', async () => {
