@@ -4,6 +4,7 @@ export type {
   AuthMeta,
   CollectionType,
   CommandPaletteAction,
+  CommandPalettePayload,
   OperationExampleMeta,
   OperationMeta,
 } from './definitions'

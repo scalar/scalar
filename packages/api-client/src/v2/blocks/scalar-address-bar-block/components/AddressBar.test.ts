@@ -132,7 +132,7 @@ describe('AddressBar', () => {
     expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
       action: 'import-curl-command',
       payload: {
-        curl: 'curl https://example.com',
+        inputValue: 'curl https://example.com',
       },
     })
   })

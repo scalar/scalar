@@ -251,7 +251,7 @@ defineExpose({
               eventBus.emit('ui:open:command-palette', {
                 action: 'import-curl-command',
                 payload: {
-                  curl: payload,
+                  inputValue: payload,
                 },
               })
           "
