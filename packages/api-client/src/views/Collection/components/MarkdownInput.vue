@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarButton, ScalarMarkdown } from '@scalar/components'
+import { ScalarIconPencil } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { nextTick, ref, watch } from 'vue'
@@ -47,8 +48,7 @@ const handleBlur = () => {
         type="button"
         variant="outlined"
         @click="mode = 'edit'">
-        <ScalarIcon
-          icon="Pencil"
+        <ScalarIconPencil
           size="sm"
           thickness="1.5" />
         <span>Edit</span>
@@ -77,8 +77,7 @@ const handleBlur = () => {
               size="sm"
               variant="ghost"
               @click="mode = 'edit'">
-              <ScalarIcon
-                icon="Pencil"
+              <ScalarIconPencil
                 size="sm"
                 thickness="1.5" />
               <span>Write a description</span>

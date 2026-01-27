@@ -1,31 +1,33 @@
+import { ScalarIconArrowSquareOut, ScalarIconBracketsCurly, ScalarIconCookie, ScalarIconGear } from '@scalar/icons'
+
 export const ROUTES = [
   {
     displayName: 'Request',
     to: {
       name: 'request.root',
     },
-    icon: 'ExternalLink',
+    icon: ScalarIconArrowSquareOut,
   },
   {
     displayName: 'Cookies',
     to: {
       name: 'cookies.default',
     },
-    icon: 'Cookie',
+    icon: ScalarIconCookie,
   },
   {
     displayName: 'Environment',
     to: {
       name: 'environment.default',
     },
-    icon: 'Brackets',
+    icon: ScalarIconBracketsCurly,
   },
   {
     displayName: 'Settings',
     to: {
       name: 'settings.default',
     },
-    icon: 'Settings',
+    icon: ScalarIconGear,
   },
   // {
   //   displayName: 'Servers',

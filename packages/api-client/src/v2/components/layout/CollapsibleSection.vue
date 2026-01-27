@@ -11,7 +11,7 @@ export default {
 
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCaretRight } from '@scalar/icons'
 import { useId } from 'vue'
 
 import ValueEmitter from './ValueEmitter.vue'
@@ -60,10 +60,9 @@ const headingId = useId()
           class="hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-base font-medium outline-none md:px-1.5 xl:pr-0.5 xl:pl-2"
           :class="isStatic && '!pl-3'"
           :disabled="isStatic">
-          <ScalarIcon
+          <ScalarIconCaretRight
             v-if="!isStatic"
             class="text-c-3 group-hover:text-c-1 rounded-px ui-open:rotate-90 ui-not-open:rotate-0 outline-offset-2 group-focus-visible:outline"
-            icon="ChevronRight"
             size="md" />
 
           <!-- Heading with title -->

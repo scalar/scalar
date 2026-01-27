@@ -4,10 +4,14 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import {
+  ScalarIconCaretDown,
+  ScalarIconCheck,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -69,9 +73,7 @@ const handleCreateWorkspace = () => {
           <h2 class="line-clamp-1 w-[calc(100%-10px)] text-left text-xs">
             {{ activeWorkspace?.name }}
           </h2>
-          <ScalarIcon
-            icon="ChevronDown"
-            size="md" />
+          <ScalarIconCaretDown size="md" />
         </div>
       </ScalarButton>
 
@@ -89,9 +91,8 @@ const handleCreateWorkspace = () => {
                 ? 'bg-c-accent text-b-1'
                 : 'shadow-border text-transparent'
             ">
-            <ScalarIcon
+            <ScalarIconCheck
               class="size-2.5"
-              icon="Checkmark"
               thickness="3" />
           </div>
           <span class="overflow-hidden text-ellipsis">{{
@@ -105,9 +106,7 @@ const handleCreateWorkspace = () => {
           class="flex items-center gap-1.5"
           @click="modal.show()">
           <div class="flex h-4 w-4 items-center justify-center">
-            <ScalarIcon
-              icon="Add"
-              size="sm" />
+            <ScalarIconPlus size="sm" />
           </div>
           <span>New Workspace</span>
         </ScalarDropdownItem>

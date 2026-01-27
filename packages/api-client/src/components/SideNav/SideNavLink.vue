@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarIcon, type Icon } from '@scalar/components'
 import type { Component } from 'vue'
 
 import { useLayout } from '@/hooks'
@@ -7,7 +6,7 @@ import { useLayout } from '@/hooks'
 defineProps<{
   is?: Component | string
   active?: boolean
-  icon: Icon
+  icon?: Component
 }>()
 
 const { layout } = useLayout()
@@ -22,9 +21,9 @@ const { layout } = useLayout()
       'sm:max-w-max sm:min-w-max sm:rounded sm:py-1.5': layout === 'web',
     }">
     <slot name="icon">
-      <ScalarIcon
+      <component
+        :is="icon"
         :class="layout === 'web' ? 'sm:hidden' : ''"
-        :icon="icon"
         thickness="1.5" />
     </slot>
     <span

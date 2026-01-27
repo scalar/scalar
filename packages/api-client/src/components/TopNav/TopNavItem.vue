@@ -11,20 +11,22 @@ import {
   type Icon,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import { ScalarIconLink, ScalarIconPlus, ScalarIconX } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
+import type { Component } from 'vue'
 
 defineProps<{
   hotkey?: string
   active: boolean
   label: string
-  icon: Icon
+  icon: Component | Icon
   isCollection?: boolean
 }>()
 
 defineEmits<{
   (e: 'click'): void
-  (e: 'close'): void
   (e: 'newTab'): void
+  (e: 'close'): void
   (e: 'copyUrl'): void
   (e: 'closeOtherTabs'): void
 }>()
@@ -45,10 +47,15 @@ defineEmits<{
             <LibraryIcon
               v-if="isCollection"
               class="size-3.5 min-w-3.5 stroke-2"
-              :src="icon" />
+              :src="icon as string" />
             <ScalarIcon
+              v-else-if="typeof icon === 'string'"
+              :icon="icon as any"
+              size="xs"
+              thickness="2.5" />
+            <component
+              :is="icon"
               v-else
-              :icon="icon"
               size="xs"
               thickness="2.5" />
             <span class="custom-scroll nav-item-copy text-sm">{{ label }}</span>
@@ -57,9 +64,7 @@ defineEmits<{
             class="nav-item-close"
             type="button"
             @click="$emit('close')">
-            <ScalarIcon
-              icon="Close"
-              thickness="1.75" />
+            <ScalarIconX thickness="1.75" />
           </button>
         </div>
       </ScalarTooltip>
@@ -71,8 +76,7 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('newTab')">
-              <ScalarIcon
-                icon="AddTab"
+              <ScalarIconPlus
                 size="sm"
                 thickness="1.5" />
               New Tab
@@ -83,8 +87,7 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('copyUrl')">
-              <ScalarIcon
-                icon="Link"
+              <ScalarIconLink
                 size="sm"
                 thickness="1.5" />
               Copy URL
@@ -93,8 +96,7 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('close')">
-              <ScalarIcon
-                icon="CloseTab"
+              <ScalarIconX
                 size="sm"
                 thickness="1.5" />
               Close Tab
@@ -105,8 +107,7 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('closeOtherTabs')">
-              <ScalarIcon
-                icon="CloseTabs"
+              <ScalarIconX
                 size="sm"
                 thickness="1.5" />
               Close Other Tabs

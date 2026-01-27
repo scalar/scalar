@@ -2,10 +2,10 @@
 import {
   ScalarButton,
   ScalarCodeBlock,
-  ScalarIcon,
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
+import { ScalarIconUpload } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -235,9 +235,8 @@ const handleInput = (value: string) => {
           variant="outlined"
           @click="openSpecFileDialog">
           JSON, or YAML File
-          <ScalarIcon
+          <ScalarIconUpload
             class="text-c-3"
-            icon="Upload"
             size="md" />
         </ScalarButton>
 
