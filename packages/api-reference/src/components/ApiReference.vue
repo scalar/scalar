@@ -1140,7 +1140,7 @@ const colorMode = computed(() => {
 * when the new elements are available
 */
 @media (max-width: 1000px) {
-  .scalar-api-references-standalone-mobile {
+  .scalar-api-references-standalone-mobile:not(.references-classic) {
     --scalar-header-height: 50px;
   }
 }
