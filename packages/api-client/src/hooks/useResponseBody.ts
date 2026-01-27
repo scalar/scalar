@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { computed, isRef } from 'vue'
-import MimeType from 'whatwg-mimetype'
+import { MIMEType } from 'whatwg-mimetype'
 
 import { extractFilename } from '@/libs/extractAttachmentFilename'
 
@@ -20,7 +20,7 @@ export function useResponseBody(props: {
 
   const mimeType = computed(() => {
     const contentType = headersRef.value.find((header) => header.name.toLowerCase() === 'content-type')?.value ?? ''
-    return new MimeType(contentType)
+    return new MIMEType(contentType)
   })
 
   const attachmentFilename = computed(() => {
