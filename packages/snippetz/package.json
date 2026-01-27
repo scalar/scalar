@@ -242,7 +242,7 @@
   "dependencies": {
     "@scalar/types": "workspace:*",
     "js-base64": "catalog:*",
-    "stringify-object": "^5.0.0"
+    "stringify-object": "^6.0.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
