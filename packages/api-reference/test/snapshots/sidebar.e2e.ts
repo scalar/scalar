@@ -1,7 +1,9 @@
-import { expect, test } from '@playwright/test'
+import { devices, expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 import { type Slug, sources } from '../utils/sources'
+
+const mobileViewport = devices['iPhone 6'].viewport
 
 /** A shorter list of slugs to test */
 const slugs: Slug[] = ['scalar-galaxy', 'long-strings']
@@ -51,4 +53,20 @@ toTest.forEach((source) => {
     //   await expect(section).toHaveScreenshot(`${slug}-section-${index + 1}.png`)
     // }
   })
+})
+
+/**
+ * Takes snapshots of the mobile sidebar
+ */
+
+test('Mobile Sidebar', async ({ page }) => {
+  const example = await serveExample(sources[0])
+  await page.goto(example)
+  await page.setViewportSize(mobileViewport)
+
+  await expect(page).toHaveScreenshot('mobile-sidebar-closed.png')
+
+  await page.getByRole('button', { name: 'Open Menu' }).click()
+
+  await expect(page).toHaveScreenshot('mobile-sidebar-open.png')
 })
