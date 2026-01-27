@@ -55,7 +55,7 @@
     "@todesktop/cli": "^1.18.3",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "electron": "38.7.2",
+    "electron": "40.0.0",
     "electron-vite": "4.0.1",
     "vite": "catalog:*",
     "vue": "catalog:*"
