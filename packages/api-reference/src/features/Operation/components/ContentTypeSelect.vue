@@ -13,6 +13,8 @@ const { content } = defineProps<{
 /** The selected content type with two-way binding */
 const selectedContentType = defineModel<string>({ required: true })
 
+defineOptions({ inheritAttrs: false })
+
 const contentTypes = computed(() => Object.keys(content ?? {}))
 
 const selectedOption = computed({
@@ -50,11 +52,13 @@ const contentTypeSelect = cva({
     v-model="selectedOption"
     :options="options"
     placement="bottom-end"
+    teleport
     @click.stop>
     <ScalarButton
       class="h-fit"
       :class="contentTypeSelect({ dropdown: true })"
       variant="ghost"
+      v-bind="$attrs"
       @click.stop>
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
@@ -68,6 +72,7 @@ const contentTypeSelect = cva({
     v-else
     class="selected-content-type"
     :class="contentTypeSelect({ dropdown: false })"
+    v-bind="$attrs"
     tabindex="0">
     <span>{{ selectedContentType }}</span>
   </div>
