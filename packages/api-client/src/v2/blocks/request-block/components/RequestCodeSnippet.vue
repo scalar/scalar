@@ -35,6 +35,8 @@ const {
   selectedClient,
   globalCookies,
   integration,
+  authStore,
+  documentSlug,
 } = defineProps<OperationCodeSampleProps & { eventBus: WorkspaceEventBus }>()
 
 /** Grab any custom code samples from the operation */
@@ -65,7 +67,9 @@ watch(
 )
 
 /** Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(securitySchemes ?? []))
+const secretCredentials = computed(() =>
+  getSecrets(securitySchemes ?? [], authStore, documentSlug),
+)
 
 /** Handle client change */
 const handleClientChange = (option: ClientOption | undefined) => {
@@ -80,6 +84,8 @@ const handleClientChange = (option: ClientOption | undefined) => {
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() =>
   generateCodeSnippet({
+    authStore,
+    documentSlug,
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,

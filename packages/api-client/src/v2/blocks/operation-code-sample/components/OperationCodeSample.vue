@@ -62,7 +62,7 @@ export type OperationCodeSampleProps = {
   /**
    * The security schemes which are applicable to this operation
    */
-  securitySchemes: SecuritySchemeObject[]
+  securitySchemes: { scheme: SecuritySchemeObject; name: string }[]
   /**
    * HTTP method of the operation
    */
@@ -91,6 +91,14 @@ export type OperationCodeSampleProps = {
    * Workspace + document cookies
    */
   globalCookies?: XScalarCookie[]
+  /**
+   * Auth store
+   */
+  authStore: AuthStore
+  /**
+   * Document slug
+   */
+  documentSlug: string
 }
 
 /**
@@ -120,6 +128,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -160,6 +169,8 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
+  authStore,
+  documentSlug,
 } = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
@@ -217,6 +228,8 @@ const webhookHar = computed(() => {
       method,
       path,
       example: selectedExampleKey.value,
+      authStore,
+      documentSlug,
     })
   } catch (error) {
     console.error('[webhookHar]', error)
@@ -242,6 +255,8 @@ const generatedCode = computed<string>(() => {
     securitySchemes,
     example: selectedExampleKey.value,
     globalCookies,
+    authStore,
+    documentSlug,
   })
 })
 
@@ -269,7 +284,9 @@ const webhookLanguage = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(securitySchemes))
+const secretCredentials = computed(() =>
+  getSecrets(securitySchemes, authStore, documentSlug),
+)
 
 /** Grab the ref to freeze the ui as the clients change so there's no jump as the size of the dom changes */
 const elem = ref<ComponentPublicInstance | null>(null)

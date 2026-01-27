@@ -64,9 +64,6 @@ describe('oauth', () => {
         'x-usePkce': 'no',
         authorizationUrl,
         tokenUrl,
-        'x-scalar-secret-redirect-uri': redirectUri,
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-client-secret': clientSecret,
       },
     } satisfies OAuthFlowsObject
 

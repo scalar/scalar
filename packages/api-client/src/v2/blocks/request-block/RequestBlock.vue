@@ -90,7 +90,7 @@ const {
   securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedSecuritySchemes: { scheme: SecuritySchemeObject; name: string }[]
   server: ServerObject | null
   globalCookies: ExtendedScalarCookie[]
   documentSlug: string
@@ -507,7 +507,9 @@ const labelRequestNameId = useId()
       <!-- Code Snippet -->
       <RequestCodeSnippet
         v-show="selectedFilter === 'All'"
+        :authStore
         :clientOptions
+        :documentSlug
         :eventBus
         :globalCookies="globalCookies"
         integration="client"

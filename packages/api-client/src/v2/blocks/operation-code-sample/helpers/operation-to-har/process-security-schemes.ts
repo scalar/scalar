@@ -1,3 +1,5 @@
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { SecretsAuth } from '@scalar/workspace-store/entities/auth/schema'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 import { encode } from 'js-base64'
@@ -13,17 +15,44 @@ type ProcessedSecuritySchemesReturn = {
  *
  * TODO: we probably want to be able to disable YOUR_SECRET_TOKEN placeholder text + or allow it to be customzied
  */
-export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]): ProcessedSecuritySchemesReturn => {
+export const processSecuritySchemes = (
+  securitySchemes: { scheme: SecuritySchemeObject; name: string }[],
+  authStore: AuthStore,
+  documentSlug: string,
+): ProcessedSecuritySchemesReturn => {
   const result: ProcessedSecuritySchemesReturn = {
     headers: [],
     queryString: [],
     cookies: [],
   }
 
-  for (const scheme of securitySchemes) {
+  const getSecret = <Type extends SecretsAuth[string]['type']>(
+    name: string,
+    type: Type,
+  ): (SecretsAuth[string] & { type: Type }) | undefined => {
+    const secret = authStore.getAuthSecrets(documentSlug, name)
+    if (secret?.type !== type) {
+      return undefined
+    }
+
+    return secret as SecretsAuth[string] & { type: Type }
+  }
+
+  const getFlowSecretToken = (name: string) => {
+    const secret = getSecret(name, 'oauth2')
+    return [
+      secret?.authorizationCode?.['x-scalar-secret-token'] ??
+        secret?.implicit?.['x-scalar-secret-token'] ??
+        secret?.clientCredentials?.['x-scalar-secret-token'] ??
+        secret?.password?.['x-scalar-secret-token'],
+    ].filter((token) => token !== undefined)
+  }
+
+  for (const { scheme, name: schemeName } of securitySchemes) {
+    const secret = getSecret(schemeName, 'apiKey')
     // Handle apiKey type
     if (scheme.type === 'apiKey') {
-      const value = scheme['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN'
+      const value = secret?.['x-scalar-secret-token'] ?? 'YOUR_SECRET_TOKEN'
       if (!scheme.name) {
         continue
       }
@@ -46,9 +75,10 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
 
     // Handle http type
     if (scheme.type === 'http') {
+      const secret = getSecret(schemeName, 'http')
       if (scheme.scheme === 'basic') {
-        const username = scheme['x-scalar-secret-username'] || ''
-        const password = scheme['x-scalar-secret-password'] || ''
+        const username = secret?.['x-scalar-secret-username'] ?? ''
+        const password = secret?.['x-scalar-secret-password'] ?? ''
 
         const value = `${username}:${password}`
         const auth = value === ':' ? 'username:password' : encode(value)
@@ -58,7 +88,7 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
           value: `Basic ${auth}`,
         })
       } else if (scheme.scheme === 'bearer') {
-        const token = scheme['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN'
+        const token = secret?.['x-scalar-secret-token'] ?? 'YOUR_SECRET_TOKEN'
 
         result.headers.push({
           name: 'Authorization',
@@ -70,11 +100,8 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
 
     // Handle oauth2 type
     if (scheme.type === 'oauth2' && scheme.flows) {
-      const flows = Object.values(scheme.flows)
-
       // Find the first flow with a token
-      const flow = flows.find((f) => f['x-scalar-secret-token'])
-      const token = flow?.['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN'
+      const token = getFlowSecretToken(schemeName)[0] || 'YOUR_SECRET_TOKEN'
 
       result.headers.push({
         name: 'Authorization',

@@ -1,5 +1,6 @@
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth/schema'
 import type { OAuthFlowsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
@@ -51,6 +52,21 @@ const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'pl
   return fromUint8Array(new Uint8Array(digest), true)
 }
 
+const getSecret = (
+  key:
+    | keyof NonNullable<SecretsOAuthFlows['authorizationCode']>
+    | keyof NonNullable<SecretsOAuthFlows['clientCredentials']>
+    | keyof NonNullable<SecretsOAuthFlows['implicit']>
+    | keyof NonNullable<SecretsOAuthFlows['password']>,
+  secrets: SecretsOAuthFlows['authorizationCode' | 'implicit' | 'clientCredentials' | 'password'],
+): string | null => {
+  if (secrets && key in secrets) {
+    return secrets[key as keyof typeof secrets]
+  }
+
+  return null
+}
+
 /**
  * Authorize oauth2 flow
  *
@@ -64,6 +80,8 @@ export const authorizeOauth2 = async (
   activeServer: ServerObject | null,
   /** If we want to use the proxy */
   proxyUrl: string,
+  /** Secrets for the OAuth flow */
+  secrets: SecretsOAuthFlows['authorizationCode' | 'implicit' | 'clientCredentials' | 'password'],
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
 
@@ -80,6 +98,7 @@ export const authorizeOauth2 = async (
         flows,
         type,
         scopes,
+        secrets,
         {
           proxyUrl,
         },
@@ -125,16 +144,14 @@ export const authorizeOauth2 = async (
       }
     }
 
-    const typedFlow = flows[type]! // Safe to assert due to earlier check
-
     // Handle relative redirect uris
-    if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
+    if (getSecret('x-scalar-secret-redirect-uri', secrets)?.startsWith('/')) {
       const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
-      const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
+      const redirectUri = new URL(getSecret('x-scalar-secret-redirect-uri', secrets) ?? '', baseUrl).toString()
 
       url.searchParams.set('redirect_uri', redirectUri)
     } else {
-      url.searchParams.set('redirect_uri', typedFlow['x-scalar-secret-redirect-uri'])
+      url.searchParams.set('redirect_uri', getSecret('x-scalar-secret-redirect-uri', secrets) ?? '')
     }
 
     if (flow['x-scalar-security-query']) {
@@ -148,7 +165,7 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'])
+    url.searchParams.set('client_id', getSecret('x-scalar-secret-client-id', secrets) ?? '')
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
@@ -217,6 +234,7 @@ export const authorizeOauth2 = async (
                   flows,
                   type,
                   scopes,
+                  secrets,
                   {
                     code,
                     pkce,
@@ -251,6 +269,8 @@ const authorizeServers = async (
   flows: NonImplicitFlows,
   type: keyof NonImplicitFlows,
   scopes: string,
+  /** Secrets for the OAuth flow */
+  secrets: SecretsOAuthFlows['authorizationCode' | 'implicit' | 'clientCredentials' | 'password'],
   {
     code,
     pkce,
@@ -279,11 +299,11 @@ const authorizeServers = async (
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
 
   if (addCredentialsToBody) {
-    formData.set('client_id', flow['x-scalar-secret-client-id'])
-    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    formData.set('client_id', getSecret('x-scalar-secret-client-id', secrets) ?? '')
+    formData.set('client_secret', getSecret('x-scalar-secret-client-secret', secrets) ?? '')
   }
-  if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
-    formData.set('redirect_uri', flow['x-scalar-secret-redirect-uri'])
+  if (getSecret('x-scalar-secret-redirect-uri', secrets)) {
+    formData.set('redirect_uri', getSecret('x-scalar-secret-redirect-uri', secrets) ?? '')
   }
 
   // Authorization Code
@@ -298,10 +318,9 @@ const authorizeServers = async (
   }
   // Password
   else if (type === 'password') {
-    const typedFlow = flows[type]! // Safe to assert due to earlier check
     formData.set('grant_type', 'password')
-    formData.set('username', typedFlow['x-scalar-secret-username'])
-    formData.set('password', typedFlow['x-scalar-secret-password'])
+    formData.set('username', getSecret('x-scalar-secret-username', secrets) ?? '')
+    formData.set('password', getSecret('x-scalar-secret-password', secrets) ?? '')
   }
   // Client Credentials
   else {
@@ -324,7 +343,7 @@ const authorizeServers = async (
 
     // Add client id + secret to headers
     if (!addCredentialsToBody) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+      headers.Authorization = `Basic ${encode(`${getSecret('x-scalar-secret-client-id', secrets) ?? ''}:${getSecret('x-scalar-secret-client-secret', secrets) ?? ''}`)}`
     }
 
     // Check if we should use the proxy

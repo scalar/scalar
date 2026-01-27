@@ -25,6 +25,7 @@ import { computed, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
+import { getSecrets } from '@/v2/blocks/scalar-auth-selector-block/helpers/get-secrets'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -149,6 +150,9 @@ const handleAuthorize = async (): Promise<void> => {
     selectedScopes.value,
     server,
     proxyUrl,
+    getSecrets({ schemeName: name, type: 'oauth2', authStore, documentSlug })?.[
+      type
+    ],
   )
 
   await loader.clear()

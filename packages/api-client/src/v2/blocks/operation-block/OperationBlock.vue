@@ -83,6 +83,8 @@ const {
   selectedClient,
   server,
   history = [],
+  authStore,
+  documentSlug,
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
@@ -190,6 +192,8 @@ const handleExecute = async () => {
     selectedSecuritySchemes: selectedSecuritySchemes.value,
     server,
     proxyUrl,
+    authStore,
+    documentSlug,
   })
 
   // Toast the error
