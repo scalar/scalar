@@ -846,6 +846,7 @@ const colorMode = computed(() => {
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
+                class="-mb-1 p-3 pb-0"
                 v-if="documentOptionList.length > 1"
                 :modelValue="activeSlug"
                 :options="documentOptionList"
@@ -928,7 +929,7 @@ const colorMode = computed(() => {
             <div ref="documentStartRef" />
 
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
-              <div class="w-64 *:!p-0 empty:hidden">
+              <div class="w-64 empty:hidden">
                 <DocumentSelector
                   v-if="documentOptionList.length > 1"
                   :modelValue="activeSlug"
@@ -1008,7 +1009,6 @@ const colorMode = computed(() => {
 /* Configurable Layout Variables */
 @layer scalar-config {
   .scalar-api-reference {
-    --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
     /* The header height */
     --refs-header-height: calc(
       var(--scalar-custom-header-height, 0px) + var(--scalar-header-height, 0px)
@@ -1021,6 +1021,13 @@ const colorMode = computed(() => {
     --refs-viewport-height: calc(
       var(--full-height, 100dvh) - var(--refs-viewport-offset, 0px)
     );
+    /* The width of the sidebar */
+    --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
+    /* The height of the sidebar */
+    --refs-sidebar-height: calc(
+      var(--full-height, 100dvh) - var(--refs-header-height, 0px)
+    );
+    /* The maximum width of the content column */
     --refs-content-max-width: var(--scalar-content-max-width, 1540px);
   }
 
@@ -1100,6 +1107,11 @@ const colorMode = computed(() => {
 @media (max-width: 1000px) {
   /* Stack view on mobile */
   .references-layout {
+    /* Adjust the sidebar height to the viewport height minus the header height */
+    --refs-sidebar-height: calc(
+      var(--full-height, 100dvh) - var(--scalar-custom-header-height, 0px)
+    );
+
     grid-template-columns: 100%;
     grid-template-rows: var(--scalar-header-height, 0px) 0px auto auto;
 

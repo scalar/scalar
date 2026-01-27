@@ -24,7 +24,7 @@ const selected = computed(() =>
 <template>
   <div
     v-if="options.length > 1"
-    class="document-selector -mb-1 p-3 pb-0">
+    class="document-selector">
     <ScalarListbox
       :modelValue="selected"
       :options="formattedOptions"
