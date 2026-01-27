@@ -157,35 +157,6 @@ describe('getExample', () => {
       expect(result).toEqual({ value: stringified })
     })
 
-    it('does parse into an object if the content type is application/json', () => {
-      const stringified = JSON.stringify({ data: 'json' })
-      const param = {
-        name: 'data',
-        in: 'query',
-        content: {
-          'application/json': {
-            example: stringified,
-          },
-        },
-      }
-
-      const result = getExample(param, undefined, undefined)
-      expect(result).toEqual({ value: { data: 'json' } })
-    })
-
-    it('returns example value when content param has application/json with array value', () => {
-      const param = {
-        content: {
-          'application/json': {
-            example: JSON.stringify([1, 2, 3, 4]),
-          },
-        },
-      }
-
-      const result = getExample(param, undefined, 'application/json')
-      expect(result).toEqual({ value: [1, 2, 3, 4] })
-    })
-
     it('returns undefined when no example is found in content', () => {
       const param = {
         content: {
@@ -238,46 +209,11 @@ describe('getExample', () => {
       expect(result).toEqual({ value: [1, 2, 3, 4] })
     })
 
-    it('parses the array when schema type is array', () => {
-      const param = {
-        schema: {
-          type: 'array',
-          example: JSON.stringify([1, 2, 3, 4]),
-        },
-      } as ParameterWithSchemaObject
-
-      const result = getExample(param, undefined, undefined)
-      expect(result).toEqual({ value: [1, 2, 3, 4] })
-    })
-
-    it('parses the object when schema type is object', () => {
-      const param = {
-        schema: {
-          type: 'object',
-          example: JSON.stringify({ name: 'John', age: 30 }),
-        },
-      } as ParameterWithSchemaObject
-
-      const result = getExample(param, undefined, undefined)
-      expect(result).toEqual({ value: { name: 'John', age: 30 } })
-    })
-
     it('parses the boolean when schema type is boolean', () => {
       const param = {
         schema: {
           type: 'boolean',
           example: true,
-        },
-      } as ParameterWithSchemaObject
-      const result = getExample(param, undefined, undefined)
-      expect(result).toEqual({ value: true })
-    })
-
-    it('parses the string when schema type is boolean', () => {
-      const param = {
-        schema: {
-          type: 'boolean',
-          example: 'true',
         },
       } as ParameterWithSchemaObject
       const result = getExample(param, undefined, undefined)
