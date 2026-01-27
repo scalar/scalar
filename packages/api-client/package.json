@@ -362,7 +362,7 @@
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "whatwg-mimetype": "^4.0.0",
+    "whatwg-mimetype": "^5.0.0",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
