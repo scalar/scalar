@@ -70,7 +70,8 @@ const emit = defineEmits<{
 }>()
 
 const id = useId()
-const { percentage, startLoading, stopLoading } = useLoadingAnimation()
+const { percentage, startLoading, stopLoading, isLoading } =
+  useLoadingAnimation()
 
 /** Calculate the style for the address bar */
 const style = computed(() => ({
@@ -294,7 +295,7 @@ defineExpose({
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-        :disabled="percentage < 100"
+        :disabled="isLoading"
         @click="emit('execute')">
         <span
           aria-hidden="true"

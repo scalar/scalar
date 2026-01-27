@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { ScalarHotkey } from '@scalar/components'
-import { onBeforeUnmount, onMounted } from 'vue'
 
 import Computer from '@/assets/computer.ascii?raw'
 import EmptyState from '@/components/EmptyState.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { type ClientLayout } from '@/hooks'
-import type { HotKeyEvent } from '@/libs'
-import type { createStoreEvents } from '@/store/events'
 
-const { totalPerformedRequests, layout, appVersion, events } = defineProps<{
+const { totalPerformedRequests, layout, appVersion } = defineProps<{
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
   totalPerformedRequests: number
   /** Application version */
   appVersion: string
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
 }>()
 
 const emits = defineEmits<{
@@ -25,15 +20,6 @@ const emits = defineEmits<{
   (e: 'sendRequest'): void
   (e: 'openCommandPalette'): void
 }>()
-
-const handleHotKey = (event?: HotKeyEvent) => {
-  if (event?.createNew) {
-    emits('addRequest')
-  }
-}
-
-onMounted(() => events.hotKeys.on(handleHotKey))
-onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <div class="flex-center relative flex flex-1 flex-col gap-6 p-2 capitalize">
