@@ -1,5 +1,20 @@
 # @scalar/workspace-store
 
+## 0.27.0
+
+### Minor Changes
+
+- [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+### Patch Changes
+
+- [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
 ## 0.26.2
 
 ### Patch Changes

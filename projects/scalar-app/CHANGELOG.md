@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.272
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+- **@scalar/components@0.16.31**
+
 ## 0.1.271
 
 ### Patch Changes

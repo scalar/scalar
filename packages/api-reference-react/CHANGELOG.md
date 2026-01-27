@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.8.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
 ## 0.8.34
 
 ### Patch Changes

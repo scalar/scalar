@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.24.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
 ## 0.24.4
 
 ### Patch Changes
