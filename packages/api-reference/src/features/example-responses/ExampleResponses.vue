@@ -125,10 +125,12 @@ const currentExample = computed(() => {
     return currentResponseContent.value.examples?.[selectedExampleKey.value]
   }
 
-  // Otherwise, we use getExample which handles fallbacks
+  // Otherwise, we use getExample which handles fallbacks.
+  // We pass undefined as the exampleKey when there's only one example to ensure
+  // getExample uses its fallback logic instead of looking for a stale key.
   return getExample(
     currentResponseContent.value,
-    selectedExampleKey.value,
+    hasMultipleExamples.value ? selectedExampleKey.value : undefined,
     undefined,
   )
 })

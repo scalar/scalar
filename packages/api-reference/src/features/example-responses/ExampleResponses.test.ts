@@ -568,4 +568,145 @@ describe('ExampleResponses', () => {
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Simple string response')
   })
+
+  it('handles stale selectedExampleKey when switching to response with single example', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Multiple examples',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { message: 'Example 1' } },
+                  example2: { value: { message: 'Example 2' } },
+                },
+              },
+            },
+          },
+          '201': {
+            description: 'Single example',
+            content: {
+              'application/json': {
+                examples: {
+                  singleExample: { value: { message: 'Single Example' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Initially on 200 with multiple examples
+    const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(examplePicker.exists()).toBe(true)
+
+    // Select example2
+    await examplePicker.vm.$emit('update:modelValue', 'example2')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Example 2')
+
+    // Switch to 201 tab (single example)
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    await tabs[1]?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Should show the single example, not fall back to schema
+    expect(wrapper.text()).toContain('Single Example')
+    expect(wrapper.text()).not.toContain('Example 2')
+  })
+
+  it('handles stale selectedExampleKey when switching to response with deprecated example field', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Multiple examples',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { message: 'Example 1' } },
+                  example2: { value: { message: 'Example 2' } },
+                },
+              },
+            },
+          },
+          '201': {
+            description: 'Deprecated example field',
+            content: {
+              'application/json': {
+                example: { message: 'Deprecated Example' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Initially on 200 with multiple examples
+    const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(examplePicker.exists()).toBe(true)
+
+    // Select example2
+    await examplePicker.vm.$emit('update:modelValue', 'example2')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Example 2')
+
+    // Switch to 201 tab (deprecated example field)
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    await tabs[1]?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Should show the deprecated example, not fall back to schema
+    expect(wrapper.text()).toContain('Deprecated Example')
+    expect(wrapper.text()).not.toContain('Example 2')
+  })
+
+  it('handles stale selectedExampleKey when responses prop changes', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Multiple examples',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { message: 'Example 1' } },
+                  example2: { value: { message: 'Example 2' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Select example2
+    const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+    await examplePicker.vm.$emit('update:modelValue', 'example2')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Example 2')
+
+    // Update responses prop to have only one example (no tab change)
+    await wrapper.setProps({
+      responses: {
+        '200': {
+          description: 'Single example now',
+          content: {
+            'application/json': {
+              examples: {
+                newExample: { value: { message: 'New Single Example' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.vm.$nextTick()
+
+    // Should show the new example, not fail or show nothing
+    expect(wrapper.text()).toContain('New Single Example')
+    expect(wrapper.text()).not.toContain('Example 2')
+  })
 })
