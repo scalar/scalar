@@ -917,6 +917,7 @@ watch(showAgent, () => {
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
                 <button
+                  v-if="agentEnabled"
                   class="bg-sidebar-b-search text-sidebar-c-2 hover:text-sidebar-c-1 flex items-center gap-1.5 rounded border px-2 text-base whitespace-nowrap"
                   type="button"
                   @click="showAgent = !showAgent">
