@@ -79,7 +79,7 @@ type State = {
   registryDocuments: Ref<ApiMetadata[]>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
-  addDocument: (document: { namespace: string; slug: string }) => Promise<void>
+  addDocument: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken?: () => string
   getAgentKey?: () => string
@@ -177,7 +177,15 @@ export function createState({
 
   const settingsModal = useModal()
 
-  async function addDocument({ namespace, slug }: { namespace: string; slug: string }) {
+  async function addDocument({
+    namespace,
+    slug,
+    removable = true,
+  }: {
+    namespace: string
+    slug: string
+    removable?: boolean
+  }) {
     const matchingDoc = registryDocuments.value.find((doc) => doc.namespace === namespace && doc.slug === slug)
 
     if (matchingDoc) {
@@ -192,6 +200,7 @@ export function createState({
       registryDocuments,
       config: config.value,
       api,
+      removable,
     })
   }
 
@@ -203,7 +212,7 @@ export function createState({
     workspaceStore.deleteDocument(createDocumentName(namespace, slug))
   }
 
-  initialRegistryDocuments.forEach(addDocument)
+  initialRegistryDocuments.forEach(({ namespace, slug }) => addDocument({ namespace, slug, removable: false }))
 
   return {
     prompt,

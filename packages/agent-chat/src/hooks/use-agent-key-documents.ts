@@ -16,6 +16,8 @@ export function useAgentKeyDocuments() {
       return
     }
 
-    keyDocumentsResult.data.documents.forEach(addDocument)
+    keyDocumentsResult.data.documents.forEach(({ namespace, slug }) =>
+      addDocument({ namespace, slug, removable: false }),
+    )
   })
 }

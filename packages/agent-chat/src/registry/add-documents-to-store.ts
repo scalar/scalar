@@ -18,6 +18,7 @@ export async function loadDocument({
   registryUrl,
   config,
   api,
+  removable,
 }: {
   namespace: string
   slug: string
@@ -26,6 +27,7 @@ export async function loadDocument({
   registryUrl: string
   config: Partial<ApiReferenceConfiguration>
   api: Api
+  removable?: boolean
 }) {
   const getDocumentResult = await api.getDocument({
     namespace,
@@ -36,7 +38,7 @@ export async function loadDocument({
     return
   }
 
-  registryDocuments.value.push(getDocumentResult.data)
+  registryDocuments.value.push({ ...getDocumentResult.data, removable })
 
   const url = new URL(`/@${namespace}/apis/${slug}/latest`, registryUrl)
 

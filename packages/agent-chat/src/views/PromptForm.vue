@@ -170,6 +170,7 @@ const chatError = useChatError()
               :src="document.logoUrl" />
             {{ document.title }}
             <button
+              v-if="document.removable"
               class="apiPillRemove"
               type="button"
               @click="state.removeDocument(document)">
@@ -344,6 +345,7 @@ const chatError = useChatError()
   pointer-events: all;
   z-index: 1;
   gap: 4px;
+  user-select: none;
 }
 .apiPillLogo {
   width: 15px;

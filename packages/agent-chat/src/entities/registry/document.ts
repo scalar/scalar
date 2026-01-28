@@ -11,7 +11,7 @@ export const registryApiMetadata = z.object({
   slug: z.string(),
 })
 
-export type ApiMetadata = z.infer<typeof registryApiMetadata>
+export type ApiMetadata = z.infer<typeof registryApiMetadata> & { removable?: boolean }
 
 export type RegistryDocument = { namespace: string; slug: string }
 
