@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Agent Chat Playground</title>
+
+    <style>
+      html,
+      body,
+      #app {
+        height: 100%;
+        width: 100%;
+      }
+
+      #app {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: scroll;
+      }
+
+      :root {
+        overscroll-behavior: none;
+      }
+    </style>
+  </head>
+  <body class="scalar-app dark-mode bg-b-1 text-c-1">
+    <div id="app"></div>
+    <script
+      type="module"
+      src="/src/main.ts"></script>
+  </body>
+</html>

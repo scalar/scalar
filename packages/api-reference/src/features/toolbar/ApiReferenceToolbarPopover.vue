@@ -16,7 +16,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
           type="button">
           <slot name="label" />
           <ScalarIconCaretDown
-            class="transition-transform"
+            class="size-3"
             :class="{ 'rotate-180': open }" />
         </button>
       </slot>
