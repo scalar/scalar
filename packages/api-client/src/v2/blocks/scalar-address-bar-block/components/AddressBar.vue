@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarWrappingText } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIconButton,
+  ScalarWrappingText,
+} from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import {
@@ -265,14 +269,12 @@ defineExpose({
       </div>
 
       <!-- Copy url button -->
-      <ScalarButton
-        class="hover:bg-b-3 mx-1"
-        size="xs"
-        variant="ghost"
-        @click="copyUrl">
-        <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
-      </ScalarButton>
+      <ScalarIconButton
+        class="hover:bg-b-3 z-context-plus relative size-6.5 self-center p-1.25"
+        :icon="ScalarIconCopy"
+        size="sm"
+        label="Copy URL"
+        @click="copyUrl" />
 
       <AddressBarHistory
         :history="history"
@@ -304,8 +306,8 @@ defineExpose({
           aria-hidden="true"
           class="inline-flex items-center gap-1">
           <ScalarIconPlay
-            class="relative shrink-0 fill-current"
-            size="xs" />
+            class="relative size-3 shrink-0 fill-current"
+            weight="fill" />
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>
         <span class="sr-only">
