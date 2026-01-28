@@ -843,7 +843,7 @@ const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
         class="agent-scalar">
         <div
           class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
-          <AgentChat />
+          <AgentChat :agentConfig="configList[activeSlug]?.agent" />
         </div>
       </div>
       <!-- Mobile Header and Sidebar when in modern layout -->

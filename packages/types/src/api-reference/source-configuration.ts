@@ -93,6 +93,14 @@ export const sourceConfigurationSchema = z.object({
         .optional(),
     })
     .optional(),
+  /**
+   * Scalar Agent configuration options.
+   **/
+  agent: z
+    .object({
+      key: z.string(),
+    })
+    .optional(),
 })
 
 export type SourceConfiguration = z.infer<typeof sourceConfigurationSchema>
