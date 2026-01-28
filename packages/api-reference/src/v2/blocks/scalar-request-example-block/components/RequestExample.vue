@@ -173,16 +173,12 @@ const localSelectedClient = ref<ClientOption>(
   findClient(clients.value, selectedClient),
 )
 
-/** If the globally selected client changes we can update the local one */
-watch(
-  () => selectedClient,
-  (newClient) => {
-    const client = findClient(clients.value, newClient)
-    if (client) {
-      localSelectedClient.value = client
-    }
-  },
-)
+watch([() => selectedClient, clients], ([newClient]) => {
+  const client = findClient(clients.value, newClient)
+  if (client) {
+    localSelectedClient.value = client
+  }
+})
 
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
