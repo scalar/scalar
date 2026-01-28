@@ -232,13 +232,11 @@ export function safeParseJson(value: string) {
  */
 export function makeScalarProxyUrl(url: string) {
   try {
-    const baseUrl = new URL(url)
-
-    if (baseUrl.host === 'localhost') {
+    if (url.startsWith('/') || url.startsWith('http://localhost')) {
       return url
     }
 
-    const params = new URLSearchParams({ scalar_url: baseUrl.toString() })
+    const params = new URLSearchParams({ scalar_url: url })
 
     const proxyUrl = new URL(`https://proxy.scalar.com/?${params}`)
 
