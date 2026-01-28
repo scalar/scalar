@@ -2229,7 +2229,7 @@ importers:
   packages/pre-post-request-scripts:
     dependencies:
       '@codemirror/lang-javascript':
-        specifier: ^6.2.3
+        specifier: ^6.2.4
         version: 6.2.4
       '@headlessui/vue':
         specifier: catalog:*
