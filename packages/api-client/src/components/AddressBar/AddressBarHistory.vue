@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { ScalarFloating, ScalarFloatingBackdrop } from '@scalar/components'
-import { ScalarIconClockClockwise } from '@scalar/icons'
 import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
