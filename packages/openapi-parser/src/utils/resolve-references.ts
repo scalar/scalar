@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '@/configuration'
@@ -5,7 +6,6 @@ import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorO
 
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
-import { isObject } from './is-object'
 import { makeFilesystem } from './make-filesystem'
 
 // TODO: Add support for all pointer words

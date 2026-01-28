@@ -57,6 +57,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",

@@ -1,4 +1,4 @@
-import { isObject } from '@/helpers/general'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 const isDetectChangesProxy = Symbol('isDetectChangesProxy')
 const detectChangesProxyTarget = Symbol('detectChangesProxyTarget')
