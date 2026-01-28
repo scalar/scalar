@@ -51,6 +51,10 @@ defineSlots<{
   'sidebar-menu-actions': []
 }>()
 
+defineExpose({
+  openCreateWorkspace: () => createWorkspaceModalState.show(),
+})
+
 const app = getAppState()
 const paletteState = getCommandPaletteState()
 
