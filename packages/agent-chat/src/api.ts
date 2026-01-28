@@ -129,10 +129,19 @@ export function createApi({
       responseSchema: z.object({ documents: registryApiMetadata.array() }),
     })
 
+  const getCuratedDocuments = async () =>
+    request({
+      path: '/vector/registry/curated',
+      responseSchema: z.object({
+        results: registryApiMetadata.array(),
+      }),
+    })
+
   return {
     search,
     getDocument,
     getKeyDocuments,
+    getCuratedDocuments,
   }
 }
 

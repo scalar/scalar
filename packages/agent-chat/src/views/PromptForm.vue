@@ -242,46 +242,16 @@ const chatError = useChatError()
       <span>Add context from dozens of API's</span>
       <div class="ml-auto flex items-center gap-1">
         <button
+          v-for="doc of state.curatedDocuments.value"
+          :key="doc.id"
           class="addAPIContext"
-          type="button">
+          type="button"
+          @click="state.addDocument(doc)">
           <img
+            v-if="doc.logoUrl"
+            :alt="doc.title"
             class="size-4"
-            src="https://cdn.scalar.com/agent/stripe.png" />
-        </button>
-        <button
-          class="addAPIContext"
-          type="button">
-          <img
-            class="size-4"
-            src="https://cdn.scalar.com/agent/notion.png" />
-        </button>
-        <button
-          class="addAPIContext"
-          type="button">
-          <img
-            class="size-4"
-            src="https://cdn.scalar.com/agent/zoom-meetings.png" />
-        </button>
-        <button
-          class="addAPIContext"
-          type="button">
-          <img
-            class="size-4"
-            src="https://cdn.scalar.com/agent/fathom.png" />
-        </button>
-        <button
-          class="addAPIContext"
-          type="button">
-          <img
-            class="size-4"
-            src="https://cdn.scalar.com/agent/discord.png" />
-        </button>
-        <button
-          class="addAPIContext"
-          type="button">
-          <img
-            class="size-4"
-            src="https://cdn.scalar.com/agent/x.png" />
+            :src="doc.logoUrl" />
         </button>
       </div>
     </div>

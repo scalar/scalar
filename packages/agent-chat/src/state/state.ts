@@ -85,6 +85,7 @@ type State = {
   getAgentKey?: () => string
   api: Api
   uploadedTmpDocumentUrl: Ref<string | undefined>
+  curatedDocuments: Ref<ApiMetadata[]>
 }
 
 function createChat({
@@ -132,6 +133,7 @@ export function createState({
 }): State {
   const prompt = ref<State['prompt']['value']>('')
   const registryDocuments = ref<ApiMetadata[]>([])
+  const curatedDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
   const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
@@ -235,6 +237,7 @@ export function createState({
     getAgentKey,
     api,
     uploadedTmpDocumentUrl,
+    curatedDocuments,
   }
 }
 
