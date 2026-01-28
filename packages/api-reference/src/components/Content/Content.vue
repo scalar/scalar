@@ -30,36 +30,46 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, items, environment, eventBus, options, authStore } =
-  defineProps<{
-    infoSectionId: string
-    /** The subset of the configuration object required for the content component */
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      | 'authentication'
-      | 'baseServerURL'
-      | 'documentDownloadType'
-      | 'expandAllResponses'
-      | 'hiddenClients'
-      | 'hideTestRequestButton'
-      | 'layout'
-      | 'orderRequiredPropertiesFirst'
-      | 'orderSchemaPropertiesBy'
-      | 'persistAuth'
-      | 'proxyUrl'
-      | 'servers'
-      | 'showOperationId'
-    >
-    document: WorkspaceDocument | undefined
-    xScalarDefaultClient: Workspace['x-scalar-default-client']
-    items: TraversedEntryType[]
-    expandedItems: Record<string, boolean>
-    eventBus: WorkspaceEventBus
-    environment: XScalarEnvironment
-    /** Heading id generator for Markdown headings */
-    headingSlugGenerator: (heading: Heading) => string
-    authStore: AuthStore
-  }>()
+const {
+  document,
+  items,
+  environment,
+  eventBus,
+  options,
+  authStore,
+  documentSlug,
+} = defineProps<{
+  infoSectionId: string
+  /** The subset of the configuration object required for the content component */
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'authentication'
+    | 'baseServerURL'
+    | 'documentDownloadType'
+    | 'expandAllResponses'
+    | 'hiddenClients'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'persistAuth'
+    | 'proxyUrl'
+    | 'servers'
+    | 'showOperationId'
+  >
+  document: WorkspaceDocument | undefined
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  items: TraversedEntryType[]
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
+  /** Heading id generator for Markdown headings */
+  headingSlugGenerator: (heading: Heading) => string
+  /** The slug of the document */
+  documentSlug: string
+  /** The auth store */
+  authStore: AuthStore
+}>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -94,7 +104,7 @@ watch(
   () => toValue(options)?.authentication?.securitySchemes,
   (value) => {
     securitySchemes.value = mergeAuthConfig({
-      documentSlug: document?.['x-scalar-navigation']?.name ?? '',
+      documentSlug,
       authStore,
       documentSecuritySchemes: document?.components?.securitySchemes ?? {},
       configSecuritySchemes: value,
@@ -180,6 +190,7 @@ watch(
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       v-if="items.length && document"
+      :authStore
       :clientOptions
       :document
       :entries="items"

@@ -75,7 +75,7 @@ watch(
   <AuthSelector
     v-if="Object.keys(securitySchemes).length"
     :authStore="authStore"
-    :documentSlug="document?.['x-scalar-navigation']?.name"
+    :documentSlug="document?.['x-scalar-navigation']?.name ?? ''"
     :environment
     :eventBus
     isStatic

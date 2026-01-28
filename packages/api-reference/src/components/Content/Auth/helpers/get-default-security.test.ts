@@ -14,7 +14,6 @@ describe('getDefaultScopes', () => {
   it('returns empty array for non-oauth2 schemes', () => {
     const apiKeyScheme: SecuritySchemeObject = {
       type: 'apiKey',
-      'x-scalar-secret-token': 'test-token',
       name: 'X-API-Key',
       in: 'header',
     }
@@ -86,7 +85,6 @@ describe('getDefaultSecurity', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': 'test-token',
       },
     }
 
@@ -116,7 +114,6 @@ describe('getDefaultSecurity', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': 'test-token',
       }),
     }
 

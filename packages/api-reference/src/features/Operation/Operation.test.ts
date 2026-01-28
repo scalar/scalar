@@ -1,5 +1,6 @@
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -59,6 +60,7 @@ const mountOperationWithConfig = (
   })
 
   const props: ExtractComponentProps<typeof Operation> = {
+    authStore: createAuthStore({}),
     id: 'test-operation',
     method: (overrides.method || 'get') as any,
     securitySchemes: {},

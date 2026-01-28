@@ -7,6 +7,7 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -49,6 +50,8 @@ const {
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
+  authStore,
+  documentSlug,
 } = defineProps<
   Omit<
     OperationProps,
@@ -59,7 +62,11 @@ const {
     /** The selected server for the operation */
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
-    selectedSecuritySchemes: SecuritySchemeObject[]
+    selectedSecuritySchemes: { scheme: SecuritySchemeObject; name: string }[]
+    /** The auth store */
+    authStore: AuthStore
+    /** The document slug */
+    documentSlug: string
   }
 >()
 
@@ -170,7 +177,9 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <OperationCodeSample
+                :authStore
                 :clientOptions
+                :documentSlug
                 :eventBus
                 fallback
                 :isWebhook

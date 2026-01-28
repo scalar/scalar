@@ -419,7 +419,6 @@ describe('loadAuthSchemesFromStorage', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': 'my-secret-token',
       },
     })
     authStorage().setSelectedSchemes('my-doc', {
@@ -484,7 +483,6 @@ describe('loadAuthSchemesFromStorage', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': 'another-secret-token',
       },
     })
     authStorage().setSelectedSchemes('my-doc', {
@@ -502,7 +500,6 @@ describe('loadAuthSchemesFromStorage', () => {
     assert(documentApiKeySChema && documentApiKeySChema.type === 'apiKey')
 
     // The stored value should overwrite the document value
-    expect(documentApiKeySChema['x-scalar-secret-token']).toBe('another-secret-token')
   })
 
   it('does not set x-scalar-selected-security when all stored schemes are filtered out', async () => {
@@ -527,7 +524,6 @@ describe('loadAuthSchemesFromStorage', () => {
         type: 'apiKey',
         name: 'X-Old-Key',
         in: 'header',
-        'x-scalar-secret-token': '',
       },
     })
     authStorage().setSelectedSchemes('my-doc', {

@@ -3,6 +3,7 @@ import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-c
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -28,6 +29,7 @@ const {
   clientOptions,
   document,
   entries,
+  authStore,
 } = defineProps<{
   /** The level of depth */
   level?: number
@@ -57,6 +59,8 @@ const {
   expandedItems: Record<string, boolean>
   /** The event bus for the handling all events. */
   eventBus: WorkspaceEventBus
+  /** The auth store */
+  authStore: AuthStore
 }>()
 
 /**
@@ -105,6 +109,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :omit="level !== 0">
       <Operation
         :id="entry.id"
+        :authStore
         :clientOptions
         :document
         :eventBus
@@ -130,6 +135,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
+          :authStore
           :clientOptions
           :document
           :entries="entry.children"
@@ -147,6 +153,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <!-- Tag Group -->
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
+      :authStore
       :clientOptions
       :document
       :entries="entry.children || []"
@@ -167,6 +174,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout">
       <TraversedEntry
+        :authStore
         :clientOptions
         :document
         :entries="entry.children || []"

@@ -31,9 +31,14 @@ export type OperationProps = {
   clientOptions: ClientOptionGroup[]
   /** Whether the Classic layout operation is collapsed */
   isCollapsed: boolean
+  /** Whether the operation is a webhook */
   isWebhook: boolean
+  /** The currently selected client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** The event bus */
   eventBus: WorkspaceEventBus
+  /** The auth store */
+  authStore: AuthStore
 }
 </script>
 
@@ -44,6 +49,7 @@ import { combineParams } from '@scalar/api-client/v2/features/operation'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -70,6 +76,7 @@ const {
   document,
   method,
   clientOptions,
+  authStore,
 } = defineProps<OperationProps>()
 
 /**
@@ -114,7 +121,9 @@ const selectedSecuritySchemes = computed(() =>
     <ClassicLayout
       v-if="options.layout === 'classic'"
       :id
+      :authStore
       :clientOptions
+      :documentSlug="document?.['x-scalar-navigation']?.name ?? ''"
       :eventBus
       :isCollapsed
       :isWebhook
@@ -128,7 +137,9 @@ const selectedSecuritySchemes = computed(() =>
     <ModernLayout
       v-else
       :id
+      :authStore
       :clientOptions
+      :documentSlug="document?.['x-scalar-navigation']?.name ?? ''"
       :eventBus
       :isWebhook
       :method

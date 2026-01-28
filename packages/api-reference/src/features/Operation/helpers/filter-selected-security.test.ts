@@ -38,7 +38,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -60,7 +59,7 @@ describe('filterSelectedSecurity', () => {
 
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -72,7 +71,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -98,7 +96,7 @@ describe('filterSelectedSecurity', () => {
 
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -110,16 +108,12 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const bearerScheme: SecuritySchemeObject = {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
-      'x-scalar-secret-username': '',
-      'x-scalar-secret-password': '',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -149,7 +143,7 @@ describe('filterSelectedSecurity', () => {
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
     // Should return bearer because it is at selectedIndex
-    expect(result).toEqual([bearerScheme])
+    expect(result).toEqual([{ scheme: bearerScheme, name: 'bearer' }])
   })
 
   /**
@@ -162,7 +156,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const oauth2Scheme: SecuritySchemeObject = {
@@ -175,9 +168,6 @@ describe('filterSelectedSecurity', () => {
             'read:data': 'Read data',
             'write:data': 'Write data',
           },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-redirect-uri': '',
         },
       },
     }
@@ -210,8 +200,8 @@ describe('filterSelectedSecurity', () => {
 
     // Should match despite different key order and return both schemes
     expect(result).toHaveLength(2)
-    expect(result).toContainEqual(apiKeyScheme)
-    expect(result).toContainEqual(oauth2Scheme)
+    expect(result).toContainEqual({ scheme: apiKeyScheme, name: 'apiKey' })
+    expect(result).toContainEqual({ scheme: oauth2Scheme, name: 'oauth2' })
   })
 
   /**
@@ -223,7 +213,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -251,7 +240,7 @@ describe('filterSelectedSecurity', () => {
 
     const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -270,7 +259,6 @@ describe('filterSelectedSecurity', () => {
             type: 'apiKey',
             name: 'X-API-Key',
             in: 'header',
-            'x-scalar-secret-token': '',
           },
         },
       },
@@ -299,7 +287,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -321,6 +308,6 @@ describe('filterSelectedSecurity', () => {
 
     const result = filterSelectedSecurity(document, null, document.components?.securitySchemes ?? {})
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 })

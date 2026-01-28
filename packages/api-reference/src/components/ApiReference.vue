@@ -903,6 +903,7 @@ const colorMode = computed(() => {
         <Content
           :authStore="workspaceStore.auth"
           :document="workspaceStore.workspace.activeDocument"
+          :documentSlug="activeSlug"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"

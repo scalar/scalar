@@ -20,7 +20,7 @@ export const filterSelectedSecurity = (
   document: OpenApiDocument,
   operation: OperationObject | null,
   securitySchemes: MergedSecuritySchemes = {},
-): SecuritySchemeObject[] => {
+): { scheme: SecuritySchemeObject; name: string }[] => {
   const securityRequirements = operation?.security ?? document.security ?? []
 
   /** The selected security keys for the document */
