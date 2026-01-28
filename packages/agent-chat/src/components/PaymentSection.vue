@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
 import { ScalarIconInfo } from '@scalar/icons'
 
 import { useState } from '@/state/state'
