@@ -128,7 +128,7 @@ div + .userMessage {
 }
 
 .formContainer {
-  position: fixed;
+  position: sticky;
   bottom: 20px;
   width: 100%;
   max-width: 744px;
