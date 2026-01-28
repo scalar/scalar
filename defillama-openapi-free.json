@@ -1,9 +1,26 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "description": "\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription \n\n\n Coding with AI? Paste this link to LLM-specific docs for best results \n<a href='/llms.txt'>llms.txt</a>",
+    "description": "\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n\nSDK\n\nInstall:\n```bash\nnpm install @defillama/api\npip install defillama-sdk\n```\n\nQuick start (JavaScript):\n```ts\nimport { DefiLlama } from '@defillama/api'\n\nconst client = new DefiLlama()\nconst protocols = await client.tvl.getProtocols()\n```\n\nQuick start (Python):\n```py\nfrom defillama_sdk import DefiLlama\n\nclient = DefiLlama()\nprotocols = client.tvl.getProtocols()\n```\n\nCoding with AI? Paste this link to LLM-specific docs for best results\n<a href='/llms.txt'>llms.txt</a>",
     "version": "1.0.0-oas3",
-    "title": "DefiLlama API"
+    "title": "DefiLlama API",
+    "x-scalar-sdk-installation": [
+      {
+        "lang": "node",
+        "description": "Install the DefiLlama JavaScript SDK:",
+        "source": "npm install @defillama/api"
+      },
+      {
+        "lang": "js",
+        "description": "Install the DefiLlama JavaScript SDK:",
+        "source": "npm install @defillama/api"
+      },
+      {
+        "lang": "python",
+        "description": "Install the DefiLlama Python SDK:",
+        "source": "pip install defillama-sdk"
+      }
+    ]
   },
   "tags": [
     {
@@ -102,7 +119,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getProtocols()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getProtocols()"
+          }
+        ]
       }
     },
     "/protocol/{protocol}": {
@@ -216,7 +245,19 @@
           "404": {
             "description": "Protocol not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getProtocol('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getProtocol('<protocol>')"
+          }
+        ]
       }
     },
     "/v2/historicalChainTvl": {
@@ -249,7 +290,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getHistoricalChainTvl()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getHistoricalChainTvl()"
+          }
+        ]
       }
     },
     "/v2/historicalChainTvl/{chain}": {
@@ -297,7 +350,19 @@
           "404": {
             "description": "Chain not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getHistoricalChainTvl('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getHistoricalChainTvl()"
+          }
+        ]
       }
     },
     "/tvl/{protocol}": {
@@ -333,7 +398,19 @@
           "404": {
             "description": "Protocol not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getTvl('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getTvl('<protocol>')"
+          }
+        ]
       }
     },
     "/v2/chains": {
@@ -390,7 +467,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getChains()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getChains()"
+          }
+        ]
       }
     },
     "/prices/current/{coins}": {
@@ -467,7 +556,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getCurrentPrices(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getCurrentPrices(['<coins>'])"
+          }
+        ]
       }
     },
     "/prices/historical/{timestamp}/{coins}": {
@@ -554,7 +655,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getHistoricalPrices(1704067200, ['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getHistoricalPrices(1704067200, ['<coins>'])"
+          }
+        ]
       }
     },
     "/batchHistorical": {
@@ -639,7 +752,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getBatchHistoricalPrices({ '<coins>': [1704067200] })"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getBatchHistoricalPrices(['<coins>'], '<List[int]]>')"
+          }
+        ]
       }
     },
     "/chart/{coins}": {
@@ -768,7 +893,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getChart(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getChart(['<coins>'])"
+          }
+        ]
       }
     },
     "/percentage/{coins}": {
@@ -848,7 +985,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getPercentageChange(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getPercentageChange(['<coins>'])"
+          }
+        ]
       }
     },
     "/prices/first/{coins}": {
@@ -910,7 +1059,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getFirstPrices(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getFirstPrices(['<coins>'])"
+          }
+        ]
       }
     },
     "/block/{chain}/{timestamp}": {
@@ -971,7 +1132,19 @@
           "400": {
             "description": "Invalid chain or timestamp provided"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getBlockAtTimestamp('<chain>', 1704067200)"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getBlockAtTimestamp('<chain>', 1704067200)"
+          }
+        ]
       }
     },
     "/stablecoins": {
@@ -1073,7 +1246,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getStablecoins()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getStablecoins()"
+          }
+        ]
       }
     },
     "/stablecoincharts/all": {
@@ -1126,7 +1311,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getAllCharts()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getAllCharts()"
+          }
+        ]
       }
     },
     "/stablecoincharts/{chain}": {
@@ -1189,7 +1386,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getChartsByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getChartsByChain('<chain>')"
+          }
+        ]
       }
     },
     "/stablecoin/{asset}": {
@@ -1273,7 +1482,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getStablecoin('<asset>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getStablecoin('<asset>')"
+          }
+        ]
       }
     },
     "/stablecoinchains": {
@@ -1314,7 +1535,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getChains()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getChains()"
+          }
+        ]
       }
     },
     "/stablecoinprices": {
@@ -1357,7 +1590,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getPrices()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getPrices()"
+          }
+        ]
       }
     },
     "/pools": {
@@ -1525,7 +1770,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPools()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPools()"
+          }
+        ]
       }
     },
     "/chart/{pool}": {
@@ -1594,7 +1851,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPoolChart('<pool>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPoolChart('<pool>')"
+          }
+        ]
       }
     },
     "/overview/dexs": {
@@ -1704,7 +1973,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexOverview()"
+          }
+        ]
       }
     },
     "/overview/dexs/{chain}": {
@@ -1788,7 +2069,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/summary/dexs/{protocol}": {
@@ -1884,7 +2177,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/overview/options": {
@@ -1969,7 +2274,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsOverview()"
+          }
+        ]
       }
     },
     "/overview/options/{chain}": {
@@ -2028,7 +2345,19 @@
           "200": {
             "description": "successful operation"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/summary/options/{protocol}": {
@@ -2067,7 +2396,19 @@
           "200": {
             "description": "successful operation"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/overview/open-interest": {
@@ -2286,7 +2627,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getOverview()"
+          }
+        ]
       }
     },
     "/overview/fees/{chain}": {
@@ -2405,7 +2758,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/summary/fees/{protocol}": {
@@ -2715,7 +3080,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getSummary('<protocol>')"
+          }
+        ]
       }
     }
   }

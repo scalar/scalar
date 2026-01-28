@@ -3,7 +3,24 @@
   "info": {
     "title": "DefiLlama Pro - OpenAPI 3.0",
     "version": "1.0.0",
-    "description": "Docs for DefiLlama's Pro API \n\n\n Coding with AI? Paste this link to LLM-specific docs for best results \n<a href='/llms.txt'>llms.txt</a>"
+    "description": "Docs for DefiLlama's Pro API\n\nSDK\n\nInstall:\n```bash\nnpm install @defillama/api\npip install defillama-sdk\n```\n\nQuick start (JavaScript):\n```ts\nimport { DefiLlama } from '@defillama/api'\n\nconst proClient = new DefiLlama({ apiKey: 'your-api-key' })\nconst protocols = await proClient.tvl.getProtocols()\n```\n\nQuick start (Python):\n```py\nfrom defillama_sdk import DefiLlama\n\npro_client = DefiLlama({\"api_key\": \"your-api-key\"})\nprotocols = pro_client.tvl.getProtocols()\n```\n\nCoding with AI? Paste this link to LLM-specific docs for best results\n<a href='/llms.txt'>llms.txt</a>",
+    "x-scalar-sdk-installation": [
+      {
+        "lang": "node",
+        "description": "Install the DefiLlama JavaScript SDK:",
+        "source": "npm install @defillama/api"
+      },
+      {
+        "lang": "js",
+        "description": "Install the DefiLlama JavaScript SDK:",
+        "source": "npm install @defillama/api"
+      },
+      {
+        "lang": "python",
+        "description": "Install the DefiLlama Python SDK:",
+        "source": "pip install defillama-sdk"
+      }
+    ]
   },
   "servers": [
     {
@@ -109,7 +126,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.tvl.getTokenProtocols('<symbol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.tvl.getTokenProtocols('<symbol>')"
+          }
+        ]
       }
     },
     "/api/inflows/{protocol}/{timestamp}": {
@@ -251,7 +280,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.tvl.getInflows('<protocol>', 1704067200, 1704153600)"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.tvl.getInflows('<protocol>', 1704067200, 1704153600)"
+          }
+        ]
       }
     },
     "/api/chainAssets": {
@@ -369,7 +410,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.tvl.getChainAssets()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.tvl.getChainAssets()"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoindominance/{chain}": {
@@ -453,7 +506,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.stablecoins.getDominance('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.stablecoins.getDominance('<chain>')"
+          }
+        ]
       }
     },
     "/api/emissions": {
@@ -568,7 +633,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.emissions.getAll()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.emissions.getAll()"
+          }
+        ]
       }
     },
     "/api/emission/{protocol}": {
@@ -841,7 +918,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.emissions.getByProtocol('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.emissions.getByProtocol('<protocol>')"
+          }
+        ]
       }
     },
     "/api/categories": {
@@ -977,7 +1066,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getCategories()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getCategories()"
+          }
+        ]
       }
     },
     "/api/forks": {
@@ -1086,7 +1187,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getForks()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getForks()"
+          }
+        ]
       }
     },
     "/api/oracles": {
@@ -1188,7 +1301,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getOracles()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getOracles()"
+          }
+        ]
       }
     },
     "/api/hacks": {
@@ -1263,7 +1388,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getHacks()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getHacks()"
+          }
+        ]
       }
     },
     "/api/raises": {
@@ -1353,7 +1490,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getRaises()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getRaises()"
+          }
+        ]
       }
     },
     "/api/treasuries": {
@@ -1509,7 +1658,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getTreasuries()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getTreasuries()"
+          }
+        ]
       }
     },
     "/api/entities": {
@@ -1642,7 +1803,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.ecosystem.getEntities()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.ecosystem.getEntities()"
+          }
+        ]
       }
     },
     "/api/historicalLiquidity/{token}": {
@@ -1829,7 +2002,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPools()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPools()"
+          }
+        ]
       }
     },
     "/yields/poolsOld": {
@@ -2025,7 +2210,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPoolsOld()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPoolsOld()"
+          }
+        ]
       }
     },
     "/yields/chart/{pool}": {
@@ -2097,7 +2294,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPoolChart('<pool>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPoolChart('<pool>')"
+          }
+        ]
       }
     },
     "/yields/poolsBorrow": {
@@ -2293,7 +2502,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getBorrowPools()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getBorrowPools()"
+          }
+        ]
       }
     },
     "/yields/chartLendBorrow/{pool}": {
@@ -2370,7 +2591,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getLendBorrowChart('<pool>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getLendBorrowChart('<pool>')"
+          }
+        ]
       }
     },
     "/yields/perps": {
@@ -2459,7 +2692,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getPerps()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getPerps()"
+          }
+        ]
       }
     },
     "/yields/lsdRates": {
@@ -2527,7 +2772,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.yields.getLsdRates()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.yields.getLsdRates()"
+          }
+        ]
       }
     },
     "/etfs/snapshot": {
@@ -2610,7 +2867,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.etfs.getOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.etfs.getOverview()"
+          }
+        ]
       }
     },
     "/etfs/flows": {
@@ -2653,7 +2922,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.etfs.getHistory()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.etfs.getHistory()"
+          }
+        ]
       }
     },
     "/fdv/performance/{period}": {
@@ -2808,7 +3089,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.etfs.getFdvPerformance('30')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.etfs.getFdvPerformance('30')"
+          }
+        ]
       }
     },
     "/api/overview/derivatives": {
@@ -3201,7 +3494,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.volumes.getDerivativesOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.volumes.getDerivativesOverview()"
+          }
+        ]
       }
     },
     "/api/summary/derivatives/{protocol}": {
@@ -3524,7 +3829,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.volumes.getDerivativesSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.volumes.getDerivativesSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/bridges/bridges": {
@@ -3660,7 +3977,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.bridges.getAll()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.bridges.getAll()"
+          }
+        ]
       }
     },
     "/bridges/bridge/{id}": {
@@ -3930,7 +4259,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.bridges.getById(1)"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.bridges.getById('<bridge_id>')"
+          }
+        ]
       }
     },
     "/bridges/bridgevolume/{chain}": {
@@ -4017,7 +4358,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.bridges.getVolumeByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.bridges.getVolumeByChain('<chain>')"
+          }
+        ]
       }
     },
     "/bridges/bridgedaystats/{timestamp}/{chain}": {
@@ -4214,7 +4567,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.bridges.getDayStats(1704067200, '<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.bridges.getDayStats(1704067200, '<chain>')"
+          }
+        ]
       }
     },
     "/bridges/transactions/{id}": {
@@ -4696,7 +5061,19 @@
             }
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.bridges.getTransactions(1)"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.bridges.getTransactions('<bridge_id>')"
+          }
+        ]
       }
     },
     "/usage/APIKEY": {
@@ -4713,7 +5090,19 @@
             "description": "credits left"
           }
         },
-        "x-api-plan-only": true
+        "x-api-plan-only": true,
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.account.getUsage()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.account.getUsage()"
+          }
+        ]
       }
     },
     "/api/protocols": {
@@ -4781,7 +5170,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getProtocols()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getProtocols()"
+          }
+        ]
       }
     },
     "/api/protocol/{protocol}": {
@@ -4895,7 +5296,19 @@
           "404": {
             "description": "Protocol not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getProtocol('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getProtocol('<protocol>')"
+          }
+        ]
       }
     },
     "/api/v2/historicalChainTvl": {
@@ -4928,7 +5341,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getHistoricalChainTvl()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getHistoricalChainTvl()"
+          }
+        ]
       }
     },
     "/api/v2/historicalChainTvl/{chain}": {
@@ -4976,7 +5401,19 @@
           "404": {
             "description": "Chain not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getHistoricalChainTvl('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getHistoricalChainTvl()"
+          }
+        ]
       }
     },
     "/api/tvl/{protocol}": {
@@ -5012,7 +5449,19 @@
           "404": {
             "description": "Protocol not found"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getTvl('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getTvl('<protocol>')"
+          }
+        ]
       }
     },
     "/api/v2/chains": {
@@ -5069,7 +5518,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.tvl.getChains()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.tvl.getChains()"
+          }
+        ]
       }
     },
     "/coins/prices/current/{coins}": {
@@ -5141,7 +5602,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getCurrentPrices(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getCurrentPrices(['<coins>'])"
+          }
+        ]
       }
     },
     "/coins/prices/historical/{timestamp}/{coins}": {
@@ -5223,7 +5696,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getHistoricalPrices(1704067200, ['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getHistoricalPrices(1704067200, ['<coins>'])"
+          }
+        ]
       }
     },
     "/coins/batchHistorical": {
@@ -5303,7 +5788,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getBatchHistoricalPrices({ '<coins>': [1704067200] })"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getBatchHistoricalPrices(['<coins>'], '<List[int]]>')"
+          }
+        ]
       }
     },
     "/coins/chart/{coins}": {
@@ -5427,7 +5924,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getChart(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getChart(['<coins>'])"
+          }
+        ]
       }
     },
     "/coins/percentage/{coins}": {
@@ -5502,7 +6011,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getPercentageChange(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getPercentageChange(['<coins>'])"
+          }
+        ]
       }
     },
     "/coins/prices/first/{coins}": {
@@ -5559,7 +6080,19 @@
           "502": {
             "description": "Internal error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getFirstPrices(['<coins>'])"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getFirstPrices(['<coins>'])"
+          }
+        ]
       }
     },
     "/coins/block/{chain}/{timestamp}": {
@@ -5615,7 +6148,19 @@
           "400": {
             "description": "Invalid chain or timestamp provided"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.prices.getBlockAtTimestamp('<chain>', 1704067200)"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.prices.getBlockAtTimestamp('<chain>', 1704067200)"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoins": {
@@ -5712,7 +6257,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getStablecoins()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getStablecoins()"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoincharts/all": {
@@ -5760,7 +6317,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getAllCharts()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getAllCharts()"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoincharts/{chain}": {
@@ -5818,7 +6387,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getChartsByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getChartsByChain('<chain>')"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoin/{asset}": {
@@ -5897,7 +6478,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getStablecoin('<asset>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getStablecoin('<asset>')"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoinchains": {
@@ -5933,7 +6526,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getChains()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getChains()"
+          }
+        ]
       }
     },
     "/stablecoins/stablecoinprices": {
@@ -5971,7 +6576,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.stablecoins.getPrices()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.stablecoins.getPrices()"
+          }
+        ]
       }
     },
     "/api/overview/dexs": {
@@ -6076,7 +6693,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexOverview()"
+          }
+        ]
       }
     },
     "/api/overview/dexs/{chain}": {
@@ -6155,7 +6784,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/api/summary/dexs/{protocol}": {
@@ -6246,7 +6887,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getDexSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getDexSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/api/overview/options": {
@@ -6326,7 +6979,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsOverview()"
+          }
+        ]
       }
     },
     "/api/overview/options/{chain}": {
@@ -6745,7 +7410,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/api/summary/options/{protocol}": {
@@ -7060,7 +7737,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.volumes.getOptionsSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.volumes.getOptionsSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/api/overview/open-interest": {
@@ -7269,7 +7958,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getOverview()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getOverview()"
+          }
+        ]
       }
     },
     "/api/overview/fees/{chain}": {
@@ -7383,7 +8084,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getOverviewByChain('<chain>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getOverviewByChain('<chain>')"
+          }
+        ]
       }
     },
     "/api/summary/fees/{protocol}": {
@@ -7688,7 +8401,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await client.fees.getSummary('<protocol>')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = client.fees.getSummary('<protocol>')"
+          }
+        ]
       }
     },
     "/dat/institutions": {
@@ -7978,7 +8703,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.dat.getInstitutions()"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.dat.getInstitutions()"
+          }
+        ]
       }
     },
     "/dat/institutions/{symbol}": {
@@ -8328,7 +9065,19 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "javascript",
+            "label": "JavaScript SDK",
+            "source": "const result = await proClient.dat.getInstitution('MSTR')"
+          },
+          {
+            "lang": "python",
+            "label": "Python SDK",
+            "source": "result = pro_client.dat.getInstitution('<symbol>')"
+          }
+        ]
       }
     }
   }

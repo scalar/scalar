@@ -2,6 +2,33 @@ import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/scalar-request
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/snippetz'
 
 const DEFAULT_CLIENT = 'shell/curl'
+const TARGET_LANG_ALIASES: Record<string, string[]> = {
+  js: ['js', 'javascript'],
+  javascript: ['js', 'javascript'],
+  node: ['node'],
+  python: ['python'],
+  ruby: ['ruby'],
+  php: ['php'],
+  shell: ['shell', 'curl'],
+}
+
+const findCustomByTarget = (clientGroups: ClientOptionGroup[], targetKey: string) => {
+  const aliases = TARGET_LANG_ALIASES[targetKey] ?? [targetKey]
+  const normalizedAliases = aliases.map((alias) => alias.toLowerCase())
+  for (const group of clientGroups) {
+    const option = group.options.find((candidate) => {
+      if (!candidate.id.startsWith('custom/')) {
+        return false
+      }
+      const lang = `${candidate.lang ?? ''}`.toLowerCase()
+      return normalizedAliases.includes(lang)
+    })
+    if (option) {
+      return option
+    }
+  }
+  return undefined
+}
 
 /** Type guard to check if a string is a valid client id */
 export const isClient = (id: any): id is AvailableClients[number] => AVAILABLE_CLIENTS.includes(id)
@@ -48,6 +75,11 @@ export const findClient = (
 
   // Client ID is passed in
   if (clientId) {
+    const targetKey = clientId.split('/')[0]
+    const customOption = findCustomByTarget(clientGroups, targetKey)
+    if (customOption) {
+      return customOption
+    }
     for (const group of clientGroups) {
       const option = group.options.find((option) => option.id === clientId)
       if (option) {
