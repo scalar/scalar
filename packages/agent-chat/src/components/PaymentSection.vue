@@ -30,11 +30,12 @@ function handleUpgrade() {
       You've used up all your free messages, upgrade for $24/mo.
     </strong>
     <div class="paymentContainer">
-      <ScalarButton
+      <button
+        type="button"
         class="actionButton approveButton"
-        @click="handleUpgrade"
-        >Upgrade</ScalarButton
-      >
+        @click="handleUpgrade">
+        Upgrade
+      </button>
       <div class="paymentInfo">
         <h3>$24 <span>/ month</span></h3>
         <div class="paymentInfoSection">
@@ -114,6 +115,7 @@ function handleUpgrade() {
 
 .approveButton {
   color: white;
+  font-size: var(--scalar-font-size-3);
   background: var(--scalar-color-blue);
 }
 .approveButton:hover,

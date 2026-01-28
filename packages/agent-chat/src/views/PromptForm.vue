@@ -328,6 +328,7 @@ const chatError = useChatError()
 .inputActionsRight {
   display: flex;
   gap: 5px;
+  position: relative;
 }
 
 .apiPill {
@@ -424,7 +425,6 @@ const chatError = useChatError()
 
 .settingsButton {
   color: var(--scalar-color-3) !important;
-  color: white;
   border-radius: 50% !important;
   margin: 0 !important;
   z-index: 1;
@@ -437,20 +437,25 @@ const chatError = useChatError()
 }
 
 .sendButton {
-  background: var(--scalar-agent-blue) !important;
-  color: white;
+  background: var(--scalar-color-blue) !important;
   border-radius: 50% !important;
   margin: 0 !important;
   z-index: 1;
   border: var(--scalar-border-width) solid var(--scalar-color-blue);
 }
-.sendButton:not([aria-disabled='true']):hover {
+.sendButton:not([aria-disabled='true']) {
   color: white !important;
 }
-
+.sendButton:not([aria-disabled='true']):hover {
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    transparent 10%
+  ) !important;
+}
 .sendButton[aria-disabled='true'] {
   background: var(--scalar-background-2) !important;
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-3) !important;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
@@ -486,7 +491,7 @@ const chatError = useChatError()
   height: 100%;
   cursor: text;
 }
-.sendCheckboxContinue {
+.sendCheckboxContinue:has(input) {
   display: flex;
   align-items: center;
   border-radius: 14px;
@@ -498,7 +503,7 @@ const chatError = useChatError()
   user-select: none;
   height: 28px;
 }
-.dark-mode .sendCheckboxContinue {
+.dark-mode .sendCheckboxContinue:has(input) {
   background: var(--scalar-background-3);
   box-shadow: 0 0 0 1.5px var(--scalar-background-3);
 }

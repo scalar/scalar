@@ -17,16 +17,18 @@ const emit = defineEmits<{
       One or more requests require approval.
     </strong>
     <div class="approveContainer">
-      <ScalarButton
+      <button
+        type="button"
         class="actionButton rejectButton"
         @click="emit('reject')">
-        Reject</ScalarButton
-      >
-      <ScalarButton
+        Reject
+      </button>
+      <button
+        type="button"
         class="actionButton approveButton"
         @click="emit('approve')">
-        Approve</ScalarButton
-      >
+        Approve
+      </button>
     </div>
   </div>
 </template>
@@ -65,6 +67,7 @@ const emit = defineEmits<{
   font-weight: var(--scalar-semibold);
   border-radius: 50px;
   padding: 6px 12px;
+  font-size: var(--scalar-font-size-3);
 }
 
 .rejectButton {

@@ -28,8 +28,6 @@ function selectDocument(name: string) {
       <ScalarColorModeToggle class="colorToggle ml-auto" />
     </div>
     <div class="documentList">
-      <label> APIs </label>
-
       <template
         v-if="Object.entries(workspaceStore.workspace.documents).length">
         <div
@@ -46,10 +44,10 @@ function selectDocument(name: string) {
             }"
             type="button"
             @click="selectDocument(name)">
+            @{{ name }}
             <ScalarIconCaretDown
               v-if="workspaceStore.workspace.activeDocument === document" />
             <ScalarIconCaretRight v-else />
-            @{{ name }}
           </button>
           <div v-if="workspaceStore.workspace.activeDocument === document">
             <DocSettings
@@ -85,27 +83,31 @@ function selectDocument(name: string) {
 .documentList {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 10px;
   font-size: var(--scalar-font-size-3);
+  margin-bottom: 12px;
 }
 
 .document {
   display: flex;
   flex-direction: column;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-xl);
+  width: calc(100% + 24px);
+  left: -12px;
+  position: relative;
+  padding: 0 12px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.document:first-of-type:not(:last-of-type) {
+  border-bottom: none;
 }
 
 .documentName {
-  background: var(--scalar-background-2);
-  padding: 5px 10px;
-  border-radius: var(--scalar-radius);
-  color: var(--scalar-color-3);
+  gap: 4px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-2);
+  padding: 12px 0;
 }
 
 .documentNameActive {
@@ -114,10 +116,11 @@ function selectDocument(name: string) {
 
 .settingsHeading {
   font-size: 19px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   display: flex;
   gap: 5px;
   align-items: center;
+  font-weight: var(--scalar-semibold);
 }
 
 .proxyUrlContainer {
@@ -126,7 +129,9 @@ function selectDocument(name: string) {
   gap: 5px;
   flex-direction: column;
 }
-
+.proxyUrlContainer label {
+  font-weight: var(--scalar-semibold);
+}
 .noDocuments {
   color: var(--scalar-color-2);
   margin-bottom: 10px;

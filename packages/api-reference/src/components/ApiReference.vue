@@ -827,6 +827,7 @@ const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
       <!-- Agent Scalar -->
       <div
         v-show="showAgent"
+        :class="showAgent ? 'scalar-app-exit-animation' : ''"
         class="scalar-app-exit"
         @click="showAgent = false">
         <button
@@ -1228,16 +1229,23 @@ const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
 .scalar-app-exit {
   cursor: pointer;
   z-index: 2;
-  background: #00000038;
   width: 100vw;
   height: 100vh;
   transition: all 0.3s ease-in-out;
-  animation: 0.35s forwards scalardrawerexitfadein-6c81e410;
   position: fixed;
   top: 0;
   left: 0;
 }
-.dark-mode .scalar .scalar-app-exit {
+.scalar-app-exit-animation:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #00000038;
+  animation: 0.5s forwards scalardrawerexitfadein;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+.dark-mode .scalar .scalar-app-exit-animation:before {
   background: #00000073;
 }
 @keyframes scalaragentslidein {

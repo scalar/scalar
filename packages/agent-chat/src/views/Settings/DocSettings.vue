@@ -55,16 +55,15 @@ const securitySchemes = computed(
 
 <style scoped>
 .docSettings {
-  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
   font-size: var(--scalar-font-size-3);
   max-height: 600px;
-  overflow-y: scroll;
 }
 
 .documentName {
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--scalar-semibold);
 }
 </style>

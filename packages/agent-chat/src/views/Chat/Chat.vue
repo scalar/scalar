@@ -123,7 +123,7 @@ div + .userMessage {
   margin-top: -12px;
 }
 .spacer {
-  min-height: 180px;
+  min-height: 280px;
   width: 100%;
 }
 

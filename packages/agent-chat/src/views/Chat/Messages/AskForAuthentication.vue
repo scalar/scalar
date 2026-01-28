@@ -181,8 +181,8 @@ async function authorizeClicked() {
 }
 
 .authorizeButton {
-  background: var(--scalar-agent-blue) !important;
-  color: white;
+  background: var(--scalar-color-blue) !important;
+  color: white !important;
   margin: 0 !important;
   z-index: 1;
   display: flex;
