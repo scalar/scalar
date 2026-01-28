@@ -121,6 +121,7 @@ Configure your site's domain, appearance, and custom assets:
 | `logo`    | `object` | Logo URLs for dark and light modes                                                                                          |
 | `head`    | `object` | Custom scripts, styles, meta tags, and links                                                                                |
 | `routing` | `object` | URL redirects configuration                                                                                                 |
+| `subpath` | `string` | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
 
 ### navigation
 
@@ -186,3 +187,52 @@ Here is a more complete example showing common configuration options:
 ## File location
 
 By default, the `scalar.config.json` file should be placed in the root of your GitHub repository. If you need to place it in a different location, you can configure the path in the [Scalar Dashboard](https://dashboard.scalar.com/).
+
+## Deploying multiple projects on the same domain
+
+You can deploy multiple documentation projects on the same subdomain or custom domain by using the `subpath` property. Each project lives in its own repository with its own `scalar.config.json`, but they share the same domain.
+
+For example, you might want to have:
+
+- `docs.example.com/` — Your main documentation
+- `docs.example.com/guides/` — Tutorial guides
+- `docs.example.com/api/` — API reference
+
+To set this up, create a separate repository for each project and configure them with the same `subdomain` or `customDomain` but a different `subpath`:
+
+**Repository 1: Main documentation**
+
+```json
+// scalar.config.json
+{
+  "siteConfig": {
+    "customDomain": "docs.example.com"
+  }
+}
+```
+
+**Repository 2: Guides**
+
+```json
+// scalar.config.json
+{
+  "siteConfig": {
+    "customDomain": "docs.example.com",
+    "subpath": "/guides"
+  }
+}
+```
+
+**Repository 3: API reference**
+
+```json
+// scalar.config.json
+{
+  "siteConfig": {
+    "customDomain": "docs.example.com",
+    "subpath": "/api"
+  }
+}
+```
+
+Each repository is deployed independently, but all projects appear under the same domain with their respective subpaths.
