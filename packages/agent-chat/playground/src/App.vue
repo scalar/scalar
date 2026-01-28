@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-
 import { Chat } from '@/index'
-
-const workspaceStore = createWorkspaceStore()
-const eventBus = createWorkspaceEventBus()
 
 const params = new URLSearchParams(window.location.search)
 
@@ -15,13 +9,11 @@ const slug = params.get('slug') ?? 'galaxy'
 
 <template>
   <Chat
-    dashboardUrl="http://localhost:3560"
     baseUrl="http://localhost:9999"
-    :eventBus
+    dashboardUrl="http://localhost:3560"
     :getAccessToken="() => 'missing-token'"
     :registryDocuments="[{ namespace, slug }]"
-    registryUrl="http://127.0.0.1:3080"
-    :workspaceStore />
+    registryUrl="http://127.0.0.1:3080" />
 </template>
 
 <style scoped></style>

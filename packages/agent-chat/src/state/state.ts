@@ -1,8 +1,9 @@
 import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components'
 import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   DefaultChatTransport,
   type UIDataTypes,
@@ -116,8 +117,6 @@ function createChat({
 }
 
 export function createState({
-  eventBus,
-  workspaceStore,
   initialRegistryDocuments,
   registryUrl,
   dashboardUrl,
@@ -125,8 +124,6 @@ export function createState({
   mode,
   getAccessToken,
 }: {
-  eventBus: WorkspaceEventBus
-  workspaceStore: WorkspaceStore
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
   dashboardUrl: string
@@ -139,6 +136,9 @@ export function createState({
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
   const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
+
+  const eventBus = createWorkspaceEventBus()
+  const workspaceStore = createWorkspaceStore()
 
   const config = computed(() =>
     apiReferenceConfigurationSchema.parse({
